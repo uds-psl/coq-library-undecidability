@@ -51,7 +51,7 @@ Section KripkeCompleteness.
 
     Notation "rho '⊩⊥(' u , M ')' phi" :=  (@ksat_bot _ _ _ M _ F_P mon_F u rho phi) (at level 20).
 
-    Lemma K_ctx_correct {ff:falsity_flag} (A : list form) rho phi :
+    Lemma K_ctx_correct_exp {ff:falsity_flag} (A : list form) rho phi :
       (rho ⊩⊥(A, K_ctx ) phi-> A ⊢S phi[rho]) /\
       ((forall B psi, A <<= B -> B ;; phi[rho] ⊢s psi -> B ⊢S psi) -> rho ⊩⊥(A, K_ctx) phi).
     Proof.
@@ -81,13 +81,13 @@ Section KripkeCompleteness.
         apply AllL with (t := t). now rewrite help5.
     Qed.
 
-    Corollary K_ctx_sprv {ff:falsity_flag} A rho phi :
+    Corollary K_ctx_sprv_exp {ff:falsity_flag} A rho phi :
       rho ⊩⊥(A, K_ctx) phi -> A ⊢S phi[rho].
     Proof.
-      now destruct (K_ctx_correct A rho phi).
+      now destruct (K_ctx_correct_exp A rho phi).
     Qed.
 
-    Lemma K_ctx_subst {ff:falsity_flag} A phi rho :
+    Lemma K_ctx_subst_exp {ff:falsity_flag} A phi rho :
       rho ⊩⊥( A, K_ctx) phi <-> var ⊩⊥( A, K_ctx) phi[rho].
     Proof.
       unfold ksat_bot, falsity_to_pred.
@@ -101,80 +101,119 @@ Section KripkeCompleteness.
       now rewrite Vector.map_id.
     Qed.
 
-    Lemma K_ctx_constraint {ff:falsity_flag} A rho psi:
+    Lemma K_ctx_constraint_exp {ff:falsity_flag} A rho psi:
       rho ⊩⊥(A, K_ctx) (⊥ → psi).
     Proof.
       destruct ff eqn : Hff; try now intros.
-      intros v B HB. cbn in HB. apply K_ctx_correct.
+      intros v B HB. cbn in HB. apply K_ctx_correct_exp.
       intros B' psi' HB' Hprv. subst. eauto using seq_Weak.
     Qed.
 
-
-
-  Ltac clean_ksoundness :=
-    match goal with
-    | [ H : ?x = ?x -> _ |- _ ] => specialize (H eq_refl)
-    | [ H : (?A -> ?B), H2 : (?A -> ?B) -> _ |- _] => specialize (H2 H)
-    end.
-
-  Lemma ksoundness_f2p_model {ff1 ff2 : falsity_flag} A phi:
-    A ⊢I phi -> 
-    forall u rho, 
-    (forall psi', psi' el A -> rho ⊩⊥(u,K_ctx) psi') -> 
-    rho ⊩⊥(u,K_ctx) phi.
-  Proof.
-    intros Hprv. remember intu as s. induction Hprv; subst; cbn; intros u rho HA.
-    all: repeat (clean_ksoundness + discriminate). all: (eauto || cbn -[F_P]; eauto).
-    - intros v Hr Hpi. eapply IHHprv. intros ? []; subst; eauto using ksat_mon. eapply ksat_mon. 2: now apply HA. easy.
-    - eapply IHHprv1. 3: eapply IHHprv2. all: eauto. apply K_ctx.
-    - intros d. apply IHHprv. intros psi [psi' [<- Hp]] % in_map_iff. cbn.
-      unfold ksat_bot. rewrite falsity_to_pred_subst.
-      rewrite ksat_comp. apply HA, Hp.
-    - unfold ksat_bot. rewrite falsity_to_pred_subst.
-      rewrite ksat_comp. eapply ksat_ext. 2: eapply (IHHprv u rho HA (eval rho t)). 
-      unfold funcomp. now intros [].
-    - apply (@K_ctx_constraint _ u rho phi). 1:reflexivity.
-      cbn. apply (IHHprv u rho). apply HA.
-  Qed.
-
-    Fact K_ctx_sprv' {ff:falsity_flag}  A rho phi :
-      A ⊢S phi[rho] -> rho ⊩⊥(A, K_ctx) phi.
+    Corollary K_ctx_ksat_exp {ff:falsity_flag} A rho phi :
+      (forall B psi, A <<= B -> B ;; phi[rho] ⊢s psi -> B ⊢S psi) -> rho ⊩⊥(A, K_ctx) phi.
     Proof.
-      intros H % seq_ND. apply K_ctx_subst.
-      eapply ksoundness_f2p_model.
-      - apply H.
-      - cbn in H. intros psi HP. apply K_ctx_correct.
-        intros B theta H1 H2. eapply Contr; eauto.
-        rewrite subst_id. 1: now apply H1. easy.
+      now destruct (K_ctx_correct_exp A rho phi).
+    Qed.
+ 
+    #[local] Existing Instance falsity_off.
+
+    Lemma K_ctx_correct (A : list form) rho phi :
+      (rho ⊩(A, K_ctx ) phi-> A ⊢S phi[rho]) /\
+      ((forall B psi, A <<= B -> B ;; phi[rho] ⊢s psi -> B ⊢S psi) -> rho ⊩(A, K_ctx) phi).
+    Proof.
+      revert phi. remember falsity_off as ff eqn:Heqff. intros phi.
+      revert A rho; enough ((forall A rho, rho ⊩( A, K_ctx) phi -> A ⊢S phi[rho]) /\
+                          (forall A rho, (forall B psi, A <<= B -> B;; phi[rho] ⊢s psi -> B ⊢S psi)
+                                  -> rho ⊩( A, K_ctx) phi)) by intuition.
+      induction phi as [|t1 t2|ff [] phi IHphi psi IHpsi|ff [] phi IHphi]; cbn; split; intros A rho.
+      - tauto.
+      - congruence.
+      - erewrite Vector.map_ext. 1: eauto. apply universal_interp_eval.
+      - intros H. erewrite Vector.map_ext. 1: now apply H. apply universal_interp_eval.
+      - intros Hsat. apply IR, IHpsi. 1:easy. apply Hsat, IHphi. 1: intuition. 1:easy. eauto.
+      - intros H B HB Hphi % IHphi. 2:easy. apply IHpsi. 1:easy. intros C xi HC Hxi. apply H.
+        1: now transitivity B. eauto using seq_Weak.
+      - intros Hsat. apply AllR.
+        pose (phi' := subst_form ($0 .: (rho >> subst_term (S >> var))) phi).
+        destruct (find_bounded_L (phi' :: A)).
+        eapply seq_nameless_equiv_all' with (n := x) (phi := phi').
+        + intros xi Hxi. apply b. now right.
+        + eapply bounded_up. 1: apply b; now left. lia.
+        + unfold phi'. rewrite subst_comp. erewrite subst_ext.
+          * eapply IHphi. 1:easy. apply Hsat.
+          * intros [|n]; cbn. 1:reflexivity.
+            unfold funcomp. rewrite subst_term_comp. apply subst_term_id.
+            intros [|m]; easy.
+      - intros H t. apply IHphi. 1:easy. intros B psi HB Hpsi. apply H. assumption.
+        apply AllL with (t := t). now rewrite help5.
     Qed.
 
-    Corollary K_ctx_ksat {ff:falsity_flag} A rho phi :
-      (forall B psi, A <<= B -> B ;; phi[rho] ⊢s psi -> B ⊢S psi) -> rho ⊩⊥(A, K_ctx) phi.
+    Corollary K_ctx_sprv A rho phi :
+      rho ⊩(A, K_ctx) phi -> A ⊢S phi[rho].
+    Proof.
+      now destruct (K_ctx_correct A rho phi).
+    Qed.
+
+    Lemma K_ctx_subst A phi rho :
+      rho ⊩( A, K_ctx) phi <-> var ⊩( A, K_ctx) phi[rho].
+    Proof.
+      rewrite (ksat_comp A var rho).
+      apply ksat_ext. intros x. unfold funcomp. induction (rho x); cbn; try easy.
+      erewrite <- map_ext_forall. 2: apply Forall_in, IH. 
+      now rewrite Vector.map_id.
+    Qed.
+
+    Corollary K_ctx_ksat A rho phi :
+      (forall B psi, A <<= B -> B ;; phi[rho] ⊢s psi -> B ⊢S psi) -> rho ⊩(A, K_ctx) phi.
     Proof.
       now destruct (K_ctx_correct A rho phi).
     Qed.
   End Contexts.
-(*
+
   Section ExplodingCompleteness.
 
-    Lemma K_ctx_exploding :
-      kexploding (@K_ctx expl).
+    Lemma K_ctx_exploding {ff:falsity_flag}:
+      kexploding mon_F.
     Proof.
-      apply (@K_ctx_constraint expl).
+      unfold kexploding.
+      apply K_ctx_constraint_exp.
     Qed.
 
     Lemma K_exp_completeness A phi :
-      A ⊫KE phi -> A ⊢SE phi.
+      kvalid_exploding_ctx A phi -> A ⊢SE phi.
     Proof.
-      intros Hsat. erewrite <-idSubst_form. apply K_ctx_sprv with (rho := ids). 2: reflexivity.
-      apply Hsat. 1: apply K_ctx_exploding. intros psi Hpsi. apply K_ctx_ksat. intros B xi HB Hxi.
-      asimpl in Hxi. eauto.
+      intros Hsat. erewrite <-subst_id. 1: apply K_ctx_sprv_exp with (rho := var). 2: reflexivity.
+      apply Hsat. 1: apply K_ctx_exploding. intros psi Hpsi. apply K_ctx_ksat_exp. intros B xi HB Hxi.
+      rewrite subst_id in Hxi. 2:reflexivity. eauto.
     Qed.
 
-    Lemma K_exp_seq_ksoundness A phi :
-      A ⊢SE phi -> A ⊫KE phi.
+    Ltac clean_ksoundness :=
+      match goal with
+      | [ H : ?x = ?x -> _ |- _ ] => specialize (H eq_refl)
+      | [ H : (?A -> ?B), H2 : (?A -> ?B) -> _ |- _] => specialize (H2 H)
+      end.
+    Lemma K_exp_ksoundness {ff:falsity_flag} A phi :
+      A ⊢I phi -> kvalid_exploding_ctx A phi.
     Proof.
-      intros H % seq_ND. apply @ksoundness with (b := expl). 2: apply H. firstorder.
+      intros Hprv. cbn in Hprv. intros D M F_P mon_F u rho Hexpl. revert u rho.
+      remember intu as s in Hprv. induction Hprv; subst; cbn; intros u rho HA.
+      all: repeat (clean_ksoundness + discriminate). all: (eauto || cbn ; eauto).
+      - intros v Hr Hpi. eapply IHHprv. intros ? []; subst; eauto using ksat_mon. eapply ksat_mon. 2: now apply HA. easy.
+      - eapply IHHprv1. 3: eapply IHHprv2. all: eauto. apply M.
+      - intros d. apply IHHprv. intros psi [psi' [<- Hp]] % in_map_iff. cbn.
+        unfold ksat_bot. rewrite falsity_to_pred_subst.
+        rewrite ksat_comp. apply HA, Hp.
+      - unfold ksat_bot. rewrite falsity_to_pred_subst.
+        rewrite ksat_comp. eapply ksat_ext. 2: eapply (IHHprv u rho HA (eval rho t)). 
+        unfold funcomp. now intros [].
+      - apply (Hexpl u rho phi u (ltac:(apply M))).
+        specialize (IHHprv u rho HA). cbn in IHHprv. apply IHHprv.
+    Qed.
+
+    Lemma K_exp_seq_ksoundness {ff:falsity_flag} A phi :
+      A ⊢SE phi -> kvalid_exploding_ctx A phi.
+    Proof.
+      intros H%seq_ND. now apply K_exp_ksoundness.
     Qed.
 
     Fact SE_cut A phi psi :
@@ -182,37 +221,37 @@ Section KripkeCompleteness.
     Proof.
       intros H1 % seq_ND H2 % seq_ND; cbn in *.
       apply H2 in H1. apply K_exp_completeness.
-      apply @ksoundness with (b := expl); firstorder.
+      apply K_exp_ksoundness. firstorder.
     Qed.
     
-  End ExplodingCompleteness. *)
+  End ExplodingCompleteness.
 
   Section BottomlessCompleteness.
-    #[local] Existing Instance falsity_off | 0.
+    #[local] Existing Instance falsity_off.
+
     Lemma K_bottomless_completeness A phi :
-      True -> A ⊢ phi.
+      kvalid_ctx A phi -> A ⊢S phi.
     Proof.
-      intros Hsat. erewrite <-idSubst_form. apply K_ctx_sprv with (rho := ids). 2: reflexivity.
-      apply Hsat. 1: apply I. intros psi Hpsi. apply K_ctx_ksat. intros B xi HB Hxi.
-      asimpl in Hxi. eauto.
+      intros Hsat. erewrite <- subst_id. apply K_ctx_sprv with (rho := var). 2: reflexivity.
+      apply Hsat. intros psi Hpsi. apply K_ctx_ksat. intros B xi HB Hxi.
+      rewrite subst_id in Hxi. 2:easy. eauto.
     Qed.
   End BottomlessCompleteness.
 
 (* *** Standard Models *)
 
   Section StandardCompleteness.
-    Context {HdF : eq_dec Funcs} {HdP : eq_dec Preds}.
-    Context {HeF : enumT Funcs} {HeP : enumT Preds}.
+    #[local] Existing Instance falsity_on.
 
     Definition cons A := ~ A ⊢SE ⊥.
     Definition cons_ctx := { A | cons A }.
     Definition ctx_incl (A B : cons_ctx) := incl (proj1_sig A) (proj1_sig B).
 
-    Hint Unfold cons cons_ctx ctx_incl.
+    #[local] Hint Unfold cons cons_ctx ctx_incl : core.
 
     Notation "A <<=C B" := (ctx_incl A B) (at level 20).
-    Notation "A ⊢SC phi" := (proj1_sig A ⊢SE phi) (at level 20).
-    Notation "A ;; psi ⊢sC phi" := (proj1_sig A ;; psi ⊢sE phi) (at level 20).
+    Notation "A ⊢SC phi" := ((proj1_sig A) ⊢SE phi) (at level 20).
+    Notation "A ;; psi ⊢sC phi" := ((proj1_sig A) ;; psi ⊢sE phi) (at level 20).
 
     Ltac dest_con_ctx :=
       match goal with
@@ -220,16 +259,15 @@ Section KripkeCompleteness.
       | [ A : cons_ctx |- _] => let HA := fresh "H" A in destruct A as [A HA]
       end.
 
-    Ltac cctx := repeat (progress dest_con_ctx); comp.
+    Ltac cctx := repeat (progress dest_con_ctx; unfold ctx_incl); cbn.
 
-    Hint Extern 1 => cctx.
+    Hint Extern 1 => cctx : core.
 
     Program Instance K_std : kmodel term :=
       {|
         reachable := ctx_incl ;
-        k_interp := universal_interp ;
-        k_P := fun A P v => ~ ~ A ⊢SC (Pred P v) ;
-        k_Bot := fun _ => False
+        k_interp := model_bot ;
+        k_P := fun A P v => ~ ~ A ⊢SC (@atom _ _ _ _ P v) 
       |}.
     Next Obligation.
       abstract (cctx; firstorder).
@@ -239,12 +277,6 @@ Section KripkeCompleteness.
       abstract (eauto using seq_Weak).
     Qed.
 
-    Lemma K_std_standard :
-      kstandard K_std.
-    Proof.
-      intros []. cbn. trivial.
-    Qed.
-
     Lemma K_std_correct (A : cons_ctx) rho phi :
       (rho ⊩(A, K_std) phi -> ~ ~ A ⊢SC phi[rho]) /\
       ((forall B psi, A <<=C B -> B ;; phi[rho] ⊢sC psi -> ~ ~ B ⊢SC psi) -> rho ⊩(A, K_std) phi).
@@ -252,36 +284,42 @@ Section KripkeCompleteness.
       revert A rho; enough ((forall A rho, rho ⊩( A, K_std) phi -> ~ ~ A ⊢SC phi[rho])
                           /\ (forall A rho, (forall B psi, A <<=C B -> B;; phi[rho] ⊢sC psi -> ~ ~ B ⊢SC psi)
                                     -> rho ⊩( A, K_std) phi)) by firstorder.
-      induction phi as [| t1 t2 | phi [IHphi1 IHphi2] psi [IHpsi1 IHpsi2] | phi [IHphi1 IHphi2]].
-      all: cbn; asimpl; split; intros A rho.
+      induction phi as [| t1 t2 | [ ] phi [IHphi1 IHphi2] psi [IHpsi1 IHpsi2] | [ ] phi [IHphi1 IHphi2] ] using form_ind_falsity.
+      all: cbn; split; intros A rho.
       - tauto.
       - intros H. exfalso. apply (H A ⊥); auto.
-      - now rewrite (vec_ext (fun x => universal_interp_eval rho x)).
-      - rewrite (vec_ext (fun x => universal_interp_eval rho x)). intros H H'.
+      - now rewrite (Vector.map_ext _ _ _ _ (universal_interp_eval rho)).
+      - rewrite <- (Vector.map_ext _ _ _ _ (universal_interp_eval rho)). intros H H'.
         eapply H. 3: { intros H1. apply H', H1. } all: auto.
       - intros Hsat H.
         assert (HA : ~ ~ ((phi[rho] :: proj1_sig A) ⊢SE ⊥ \/ ~ (phi[rho] :: proj1_sig A) ⊢SE ⊥)) by tauto.
         apply HA. clear HA. intros [HA|HA].
         + apply H. apply IR. apply Absurd. assumption.
         + pose (A' := exist cons (phi[rho] :: proj1_sig A) HA). apply (IHpsi1 A' rho).
-          * apply Hsat; auto 3. apply IHphi2. intros B theta HB HT.
+          * apply Hsat. 1: now apply incl_tl. apply IHphi2. intros B theta HB HT.
             intros H'. apply H'. eauto.
           * intros H'. apply H. apply IR, H'.
       - intros H B HB Hphi % IHphi1. apply IHpsi2. intros C xi HC Hxi.
         intros HX. apply Hphi. intros Hphi'. apply (H C xi); trivial.
         + cctx. now transitivity B.
         + apply IL; trivial. eapply seq_Weak; eauto.
-      - pose (phi' := subst_form (var_term 0 .: (rho >> subst_term (S >> var_term))) phi).
-        intros Hsat. intros H. cctx. destruct (find_unused_L (phi' :: A)).
-        apply (IHphi1 (exist cons A HA) (var_term x.:rho)).
+      - pose (phi' := subst_form ($0 .: (rho >> subst_term (S >> var))) phi).
+        intros Hsat. intros H. cctx. destruct (find_bounded_L (phi' :: A)) as [x b].
+        apply (IHphi1 (exist cons A HA) ($x.:rho)).
         rewrite ksat_ext. 2: reflexivity. now apply Hsat.
-        intros H'. apply H, AllR.
-        eapply seq_nameless_equiv with (n := x) (phi0 := phi').
-        + intros xi Hxi. apply u. constructor. intuition.
-        + apply u. omega. intuition.
-        + unfold phi'. asimpl. apply H'.
+        intros H'. apply H, AllR. cbn.
+        eapply seq_nameless_equiv_all' with (n := x) (phi := phi').
+        + intros xi Hxi. apply b. now right.
+        + eapply bounded_up. 1: apply b; now left. lia.
+        + unfold phi'. cbn in H'. rewrite subst_comp. unfold scons, funcomp.
+          erewrite (@subst_ext _ _ _ _ phi _ (ltac:(idtac) .: ltac:(idtac))).
+          2: { intros [|n]; cbn; [reflexivity|]. rewrite subst_term_comp. unfold scons, funcomp. cbn.
+          erewrite subst_term_id; [|now easy]. easy. } apply H'.
       - intros H t. apply IHphi2. intros B psi HB Hpsi. apply H. assumption.
-        apply AllL with (t0 := t). now asimpl in *.
+        apply AllL with (t := t). rewrite subst_comp. unfold up, scons, funcomp; cbn.
+        erewrite (@subst_ext _ _ _ _ phi _ (ltac:(idtac) .: ltac:(idtac))).
+        2: { intros [|n]; cbn; [reflexivity|]. rewrite subst_term_comp. unfold scons, funcomp. cbn.
+          erewrite subst_term_id; [|now easy]. easy. } apply Hpsi.
     Qed.
 
     Corollary K_std_sprv A rho phi :
@@ -306,29 +344,29 @@ Section KripkeCompleteness.
     Qed.
 
     Lemma K_std_completeness A phi :
-      A ⊫KS phi -> ~ ~ A ⊢SE phi.
+      kvalid_ctx A phi -> ~ ~ A ⊢SE phi.
     Proof.
       intros Hsat H.
       assert (HA : ~ ~ (A ⊢SE ⊥ \/ ~ A ⊢SE ⊥)) by tauto.
       apply HA. clear HA. intros [HA|HA].
       - apply H. apply Absurd. assumption.
-      - specialize (Hsat _ K_std K_std_standard (exist cons A HA) ids).
+      - specialize (Hsat _ K_std (exist cons A HA) var).
         apply K_std_sprv in Hsat.
         + apply Hsat. intros Hsat'. apply H.
-          rewrite <- idSubst_form with ids phi; trivial.
+          erewrite <- subst_id; trivial. apply Hsat'.
         + intros psi Hpsi. apply K_std_ksat.
-          intros B xi HB Hxi. asimpl in Hxi. eauto.
+          intros B xi HB Hxi. rewrite subst_id in Hxi; eauto.
     Qed.
 
     Lemma K_std_seq_ksoundness A phi :
-      A ⊢SE phi -> A ⊫KS phi.
+      A ⊢SE phi -> kvalid_ctx A phi.
     Proof.
-      intros H % seq_ND. apply @ksoundness with (b := expl). 2: apply H. firstorder.
+      intros H % seq_ND. apply ksoundness, H.
     Qed.
   End StandardCompleteness.
 
   (* *** MP is required *)
-
+(*
   Section MPRequired.
     Variable C : stab_class.
     Hypothesis HC : map_closed C dnt.
@@ -348,5 +386,6 @@ Section KripkeCompleteness.
         intros psi Hpsi % HT'. apply (ksat_mon Hv Hpsi).
     Qed.
   End MPRequired.
+*)
   
 End KripkeCompleteness.

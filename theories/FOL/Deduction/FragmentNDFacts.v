@@ -6,6 +6,7 @@ From Undecidability.FOL Require Export Deduction.FragmentND.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 Require Import Lia.
+Require Import EqdepFacts.
 Import FragmentSyntax.
 
 
@@ -459,21 +460,50 @@ End RefutationComp.
 
 Section FlagsTransport.
   Context {Σ_funcs : funcs_signature} {Σ_preds : preds_signature}.
+  Context {p : peirce}.
 
-
-(*
-  Lemma transport_prv_to_falsity {p:peirce} {ff:falsity_flag} A phi : 
-    prv (ff := falsity_off) A phi -> prv (ff := falsity_on) (map transport_form_to_falsity A) (transport_form_to_falsity phi).
+  Lemma prv_transport_to_falsity A (phi : @form _ _ _ falsity_off) :
+    A ⊢ phi -> (map to_falsity A) ⊢ (to_falsity phi).
   Proof.
-  intros Hprv; induction Hprv; cbn.
-  - eapply II. apply IHHprv.
-  - eapply IE; eauto.
-  - eapply AllI; eauto.
-    rewrite map_map. rewrite map_map in *. erewrite map_ext. 1: apply IHHprv. intros a. cbn.
-    admit.
-  - eapply AllE.
-  - eapply Exp.
-  - eapply Ctx.
-  - eapply Pc. *)
+    remember falsity_off as ff eqn:Hff.
+    intros H; induction H.
+    - cbn. apply II. apply IHprv. easy.
+    - cbn. eapply IE. 1: now apply IHprv1. now apply IHprv2.
+    - cbn. apply AllI. rewrite map_map in *.
+      erewrite map_ext. 1: now apply IHprv.
+      intros a. rewrite <- ! subst_falsity_id.
+      rewrite subst_falsity_comm. now cbn.
+    - rewrite <- subst_falsity_id.
+      change (⊥) with (⊥[t..]). rewrite <- subst_falsity_comm.
+      apply AllE. rewrite subst_falsity_id. now apply IHprv.
+    - exfalso; congruence.
+    - apply Ctx. now apply in_map.
+    - apply Pc.
+  Qed.
+(*
+  Ltac resolve_existT :=
+    inversion 1; subst;
+    repeat match goal with
+             H : existT _ _ _ = existT _ _ _ |- _ => try apply Eqdep_dec.inj_pair2_eq_dec in H; [|try decide equality]
+           end.
 
+
+  Lemma prv_transport_from_falsity' 
+    {ff1 ff2 : falsity_flag}
+    A' (phi' : @form _ _ _ ff2)
+    A (phi : @form _ _ _ ff1) 
+    (Heqn : ff2 = falsity_on) : A' ⊢ phi' -> match ff2 
+      as ff return list (@form _ _ _ ff) -> @form _ _ _ ff -> Prop 
+      with falsity_off => fun A' phi' => False 
+         | falsity_on => fun A' phi' => A' = map to_falsity A -> phi' = to_falsity phi -> A ⊢ phi
+    end A' phi'.
+  Proof.
+    induction 1 in A,phi,Heqn|-*; try (destruct ff; try congruence); intros HeqA Heqphi.
+    - destruct phi as [|t1 t2|ff [] phi psi'|ff [] phi]; cbn in Heqphi; try congruence.
+      apply II. apply IHprv. 1:easy. cbn. f_equal. 2: easy.
+      all: injection Heqphi; intros He1 He2.
+      all: apply Eqdep_dec.inj_pair2_eq_dec in He1; [|decide equality].
+      all: apply Eqdep_dec.inj_pair2_eq_dec in He2; [|decide equality].
+      all: congruence.
+    - eapply IE. *)
 End FlagsTransport.

@@ -176,6 +176,108 @@ Section TM.
 
 End TM.
 
+Section FlagsTransport.
+
+  Context {Σ_funcs : funcs_signature}.
+  Context {Σ_preds : preds_signature}.
+  Context {ff1 : falsity_flag}.
+
+  Section Bottom.
+    Variable D : Type.
+    Variable I : interp D. 
+    Context (default : @form _ _ _ ff1).
+
+    Lemma sat_to_falsity_compat {ff2} rho (phi : @form _ _ _ ff2) : 
+      (sat rho default -> False)
+      -> sat rho phi <-> sat rho (phi[default /⊥]).
+    Proof.
+      induction phi as [|t1 t2|ff [] phi IHphi psi IHpsi|ff [] phi IHphi] in rho,default|-*; intros Hdefault; split.
+      - intros [].
+      - apply Hdefault.
+      - intros H; apply H.
+      - intros H; apply H.
+      - intros H H1. cbn in H. apply IHpsi. 1:easy. apply H. now eapply IHphi, H1.
+      - intros H H1. cbn in H. apply IHpsi with default. 1:easy. apply H. now apply IHphi.
+      - intros H d. apply IHphi. 2: apply H. intros Hd. apply Hdefault.
+        eapply sat_comp in Hd. eapply sat_ext in Hd. 1: apply Hd.
+        now intros [|x].
+      - intros H d. apply IHphi with (default [↑]). 2: apply H. intros Hd. apply Hdefault.
+        eapply sat_comp in Hd. eapply sat_ext in Hd. 1: apply Hd.
+        now intros [|x].
+    Qed.
+  End Bottom.
+  Section Atoms.
+
+    Context {Σ_preds2 : preds_signature}.
+    Context (s : forall (P : Σ_preds), Vector.t (@term Σ_funcs) (ar_preds P) -> (@form Σ_funcs Σ_preds2 _ _)).
+    Context (Hresp : atom_subst_respects_strong s).
+
+    Variable D : Type.
+    (* Crucially, we need an interpretation for the formulas s maps _to_ *)
+    Variable I : @interp Σ_funcs Σ_preds2 D. 
+
+    Definition rho_from_vec {A} n (v : Vector.t A n) d : env A := fun m => match Compare_dec.lt_dec m n with
+      left Hl => Vector.nth v (Fin.of_nat_lt Hl)
+    | right _ => d end.
+
+    Lemma rho_from_vec_map {A B} {n} (f : B -> A) (t : Vector.t B n) (d2 : A) (d:B):
+     f d = d2 ->
+     forall k, rho_from_vec (map f t) d2 k = f (rho_from_vec t d k).
+    Proof.
+      intros H k. unfold rho_from_vec. destruct (Compare_dec.lt_dec k n) as [Hl|Hr].
+      - erewrite nth_map. 2:reflexivity. easy.
+      - easy.
+    Qed.
+
+    Definition tabulate_vars n : Vector.t term n := Vectors.tabulate (fun p => $(proj1_sig (Fin.to_nat p))).
+
+    Lemma semantic_lifting_correct n t tt : 
+      map (subst_term (rho_from_vec t tt)) (tabulate_vars n) = t.
+    Proof.
+      apply Vectors.eq_nth_iff'. intros i.
+      erewrite nth_map. 2:reflexivity.
+      unfold tabulate_vars. rewrite Vectors.nth_tabulate. cbn.
+      unfold rho_from_vec. destruct (Fin.to_nat i) as [k Hk] eqn:Heq. cbn.
+      destruct Compare_dec.lt_dec; try lia. f_equal.
+      erewrite Fin.of_nat_ext.
+      rewrite <- Fin.to_nat_of_nat in Heq.
+      apply Fin.to_nat_inj. rewrite <- Heq. easy.
+    Qed.
+
+    Definition lift_s_semantically (d:D) (P : Σ_preds) (v : Vector.t D (ar_preds P)) : Prop
+      := sat (rho_from_vec v d) (s (tabulate_vars (ar_preds P))).
+
+    (* To construct an interpretation for the formulas we are mapping _from_ *)
+    Definition interp_s (d:D) : @interp Σ_funcs Σ_preds D := {|
+      i_func := @i_func _ _ D I;
+      i_atom := lift_s_semantically d
+    |}.
+
+    Lemma sat_atom_subst_compat rho phi n :
+      sat rho (phi [s/atom]) <-> @sat _ _ _ (interp_s (rho n)) _ rho phi.
+    Proof using Hresp.
+      unfold interp_s, lift_s_semantically. revert rho n.
+      induction phi as [|t1 t2|ff [] phi IHphi psi IHpsi|ff [] phi IHphi]; split.
+      - intros H; apply H.
+      - intros H; apply H.
+      - cbn; intros H.
+        eapply sat_ext with (((rho_from_vec t $n) >> eval rho)).
+        1: intros x; unfold funcomp. now apply rho_from_vec_map.
+        rewrite <- sat_comp. rewrite Hresp. now rewrite semantic_lifting_correct.
+      - cbn; intros H. 
+        eapply (@sat_ext _ _ _ _ _ (((rho_from_vec t $n) >> eval rho))) in H.
+        2: intros x; unfold funcomp; symmetry; now apply rho_from_vec_map.
+        rewrite <- sat_comp in H. rewrite Hresp in H. now rewrite semantic_lifting_correct in H.
+      - cbn; intros H1 Hphi. apply IHpsi. 1:easy. apply H1. apply IHphi with n. 1:easy. apply Hphi.
+      - cbn; intros H1 Hphi. apply IHpsi with n. 1:easy. apply H1, IHphi. 1:easy. apply Hphi.
+      - cbn; intros H1 d. apply (IHphi s Hresp (d.:rho) (S n)). apply H1.
+      - cbn; intros H1 d. apply (IHphi s Hresp (d.:rho) (S n)). apply H1.
+    Qed.
+
+  End Atoms.
+
+End FlagsTransport.
+
 Section Bottom.
 
   Context {Σ_funcs : funcs_signature}.

@@ -148,6 +148,7 @@ Section Bottom.
     (mon_F : forall u v, reachable u v -> F_P u -> F_P v)
     u (rho : env domain) (phi : form) : Prop 
     := @ksat _ Σ_preds_bot domain (kmodel_bot mon_F) falsity_off u rho (falsity_to_pred phi).
+  Arguments ksat_bot {_} _ _ _ _.
 
   Lemma sat_bot_False {ff:falsity_flag} u rho phi
     (e : forall u v, reachable u v -> False -> False)
@@ -164,5 +165,24 @@ Section Bottom.
 
 End Bottom.
 
+Arguments ksat_bot {_} {_} {_} {_} {_} _ _ _ _.
 
+Section BottomDef.
 
+  Context {Σ_funcs : funcs_signature}.
+  Context {Σ_preds : preds_signature}.
+
+  Context {ff : falsity_flag}.
+
+  Definition kexploding D (M : kmodel D) F_P mon_F := forall v rho phi, ksat_bot F_P mon_F v rho (⊥ → phi).
+  Arguments kexploding _ _ _ _ : clear implicits.
+  Definition kvalid_exploding_ctx A phi :=
+    forall D (M : kmodel D) F_P mon_F u rho, kexploding D M F_P mon_F -> (forall psi, psi el A -> ksat_bot F_P mon_F u rho psi) -> ksat_bot F_P mon_F u rho phi.
+
+  Definition kvalid_exploding phi :=
+    forall D (M : kmodel D) F_P mon_F u rho, kexploding D M F_P mon_F -> ksat_bot F_P mon_F u rho phi.
+
+  Definition ksatis_exploding phi :=
+    exists D (M : kmodel D) F_P mon_F u rho, kexploding D M F_P mon_F /\ ksat_bot F_P mon_F u rho phi.
+
+End BottomDef.
