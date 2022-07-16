@@ -210,11 +210,7 @@ Section FlagsTransport.
 
     Context {Σ_preds2 : preds_signature}.
     Context (s : forall (P : Σ_preds), Vector.t (@term Σ_funcs) (ar_preds P) -> (@form Σ_funcs Σ_preds2 _ _)).
-    Context (Hresp : atom_subst_respects_strong s).
-
-    Variable D : Type.
-    (* Crucially, we need an interpretation for the formulas s maps _to_ *)
-    Variable I : @interp Σ_funcs Σ_preds2 D. 
+    Context (Hresp : atom_subst_respects s).
 
     Definition rho_from_vec {A} n (v : Vector.t A n) d : env A := fun m => match Compare_dec.lt_dec m n with
       left Hl => Vector.nth v (Fin.of_nat_lt Hl)
@@ -244,34 +240,52 @@ Section FlagsTransport.
       apply Fin.to_nat_inj. rewrite <- Heq. easy.
     Qed.
 
-    Definition lift_s_semantically (d:D) (P : Σ_preds) (v : Vector.t D (ar_preds P)) : Prop
-      := sat (rho_from_vec v d) (s (tabulate_vars (ar_preds P))).
+    Section ConstructInterp.
+      Variable D : Type.
+      (* Crucially, we need an interpretation for the formulas s maps _to_ *)
+      Variable I : @interp Σ_funcs Σ_preds2 D. 
+      Definition lift_s_semantically (d:D) (P : Σ_preds) (v : Vector.t D (ar_preds P)) : Prop
+        := sat (rho_from_vec v d) (s (tabulate_vars (ar_preds P))).
 
-    (* To construct an interpretation for the formulas we are mapping _from_ *)
-    Definition interp_s (d:D) : @interp Σ_funcs Σ_preds D := {|
-      i_func := @i_func _ _ D I;
-      i_atom := lift_s_semantically d
-    |}.
+      (* To construct an interpretation for the formulas we are mapping _from_ *)
+      Definition interp_s (d:D) : @interp Σ_funcs Σ_preds D := {|
+        i_func := @i_func _ _ D I;
+        i_atom := lift_s_semantically d
+      |}.
 
-    Lemma sat_atom_subst_compat rho phi n :
-      sat rho (phi [s/atom]) <-> @sat _ _ _ (interp_s (rho n)) _ rho phi.
+      Lemma sat_atom_subst_compat rho phi n :
+        sat rho (phi [s/atom]) <-> @sat _ _ _ (interp_s (rho n)) _ rho phi.
+      Proof using Hresp.
+        unfold interp_s, lift_s_semantically. revert rho n.
+        induction phi as [|t1 t2|ff [] phi IHphi psi IHpsi|ff [] phi IHphi]; split.
+        - intros H; apply H.
+        - intros H; apply H.
+        - cbn; intros H.
+          eapply sat_ext with (((rho_from_vec t $n) >> eval rho)).
+          1: intros x; unfold funcomp. now apply rho_from_vec_map.
+          rewrite <- sat_comp. rewrite Hresp. now rewrite semantic_lifting_correct.
+        - cbn; intros H. 
+          eapply (@sat_ext _ _ _ _ _ (((rho_from_vec t $n) >> eval rho))) in H.
+          2: intros x; unfold funcomp; symmetry; now apply rho_from_vec_map.
+          rewrite <- sat_comp in H. rewrite Hresp in H. now rewrite semantic_lifting_correct in H.
+        - cbn; intros H1 Hphi. apply IHpsi. 1:easy. apply H1. apply IHphi with n. 1:easy. apply Hphi.
+        - cbn; intros H1 Hphi. apply IHpsi with n. 1:easy. apply H1, IHphi. 1:easy. apply Hphi.
+        - cbn; intros H1 d. apply (IHphi s Hresp (d.:rho) (S n)). apply H1.
+        - cbn; intros H1 d. apply (IHphi s Hresp (d.:rho) (S n)). apply H1.
+      Qed.
+
+    End ConstructInterp.
+
+    Lemma valid_atom_subst_compat phi :
+      valid phi -> valid phi [s/atom].
     Proof using Hresp.
-      unfold interp_s, lift_s_semantically. revert rho n.
-      induction phi as [|t1 t2|ff [] phi IHphi psi IHpsi|ff [] phi IHphi]; split.
-      - intros H; apply H.
-      - intros H; apply H.
-      - cbn; intros H.
-        eapply sat_ext with (((rho_from_vec t $n) >> eval rho)).
-        1: intros x; unfold funcomp. now apply rho_from_vec_map.
-        rewrite <- sat_comp. rewrite Hresp. now rewrite semantic_lifting_correct.
-      - cbn; intros H. 
-        eapply (@sat_ext _ _ _ _ _ (((rho_from_vec t $n) >> eval rho))) in H.
-        2: intros x; unfold funcomp; symmetry; now apply rho_from_vec_map.
-        rewrite <- sat_comp in H. rewrite Hresp in H. now rewrite semantic_lifting_correct in H.
-      - cbn; intros H1 Hphi. apply IHpsi. 1:easy. apply H1. apply IHphi with n. 1:easy. apply Hphi.
-      - cbn; intros H1 Hphi. apply IHpsi with n. 1:easy. apply H1, IHphi. 1:easy. apply Hphi.
-      - cbn; intros H1 d. apply (IHphi s Hresp (d.:rho) (S n)). apply H1.
-      - cbn; intros H1 d. apply (IHphi s Hresp (d.:rho) (S n)). apply H1.
+      intros H D I rho. unshelve apply <- sat_atom_subst_compat. 1:exact 0. apply H.
+    Qed.
+
+    Lemma satis_atom_subst_compat phi :
+      satis phi[s/atom] -> satis phi .
+    Proof using Hresp.
+      intros (D&I&rho&H). unshelve eapply sat_atom_subst_compat in H. 1:exact 0. do 3 eexists. apply H.
     Qed.
 
   End Atoms.

@@ -91,7 +91,7 @@ Section KripkeCompleteness.
       rho ⊩⊥( A, K_ctx) phi <-> var ⊩⊥( A, K_ctx) phi[rho].
     Proof.
       unfold ksat_bot, falsity_to_pred.
-      rewrite <- atom_subst_comp_strong. 2:easy.
+      rewrite <- atom_subst_comp. 2:easy.
       assert (forall {ff:falsity_flag} rho, (atom (Σ_preds := Σ_preds_bot) (inl tt) (Vector.nil _)) = (atom (Σ_preds := Σ_preds_bot) (inl tt) (Vector.nil _))[rho]) as Heq by easy.
       erewrite Heq.
       rewrite <- subst_falsity_comm. cbn.

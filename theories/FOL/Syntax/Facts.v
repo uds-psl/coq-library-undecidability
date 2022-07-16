@@ -890,6 +890,7 @@ Section FunctionSubstitution.
 
   Notation "t `[ s '/func' ]" := (func_subst_term s t) (at level 7, left associativity) : subst_scope.
 
+  (* Warning: this property is to weak to be useful and should be refined into something "more useful" *)
   Definition func_subst_respects {Σ_funcs2} (s : forall (f : Σ_funcs1), Vector.t (@term Σ_funcs2) (ar_syms f) -> @term Σ_funcs2)
     := forall f v sigma, (s f v)`[sigma>>var] = s f (map (subst_term (sigma >> var)) v).
 
@@ -971,11 +972,7 @@ Section PredicateSubstitution.
 
   Notation "phi [ s '/atom' ]" := (atom_subst s phi) (at level 7, left associativity) : subst_scope.
 
-  Definition atom_subst_respects {Σ_funcs2} {Σ_preds2} {ff:falsity_flag} 
-    (s : forall (P : Σ_preds1), Vector.t (@term Σ_funcs1) (ar_preds P) -> (@form Σ_funcs2 Σ_preds2 _ _))
-    := forall f v sigma, (s f v)[sigma>>var] = s f (map (subst_term (sigma >> var)) v).
-
-  Definition atom_subst_respects_strong {Σ_preds2} {ff:falsity_flag} 
+  Definition atom_subst_respects {Σ_preds2} {ff:falsity_flag} 
     (s : forall (P : Σ_preds1), Vector.t (@term Σ_funcs1) (ar_preds P) -> (@form Σ_funcs1 Σ_preds2 _ _))
     := forall f v sigma, (s f v)[sigma] = s f (map (subst_term (sigma)) v).
 
@@ -988,19 +985,8 @@ Section PredicateSubstitution.
     - cbn. now rewrite IHphi.
   Qed.
 
-  Lemma atom_subst_comp {ff:falsity_flag} s rho phi : atom_subst_respects s -> phi[s/atom][rho>>var] = phi[rho>>var][s/atom].
-  Proof.
-  intros Hresp.
-  induction phi in s,rho,Hresp|-*.
-  - easy.
-  - cbn. rewrite Hresp. easy.
-  - cbn. rewrite IHphi1. 1: now rewrite IHphi2. easy.
-  - cbn. f_equal. rewrite ! (subst_ext _ (up_var_comp _) ). rewrite IHphi. 1:easy.
-    easy.
-  Qed.
-
-  Lemma atom_subst_comp_strong {Σ_preds2} {ff:falsity_flag} s rho phi : 
-    @atom_subst_respects_strong Σ_preds2 _ s -> phi[s/atom][rho] = phi[rho][s/atom].
+  Lemma atom_subst_comp {Σ_preds2} {ff:falsity_flag} s rho phi : 
+    @atom_subst_respects Σ_preds2 _ s -> phi[s/atom][rho] = phi[rho][s/atom].
   Proof.
   intros Hresp.
   induction phi in s,rho,Hresp|-*.
@@ -1033,7 +1019,7 @@ Section BottomToPred.
   Proof.
     unfold falsity_to_pred.
     rewrite subst_falsity_comm.
-    cbn. now rewrite atom_subst_comp_strong.
+    cbn. now rewrite atom_subst_comp.
   Qed.
 
 End BottomToPred.
