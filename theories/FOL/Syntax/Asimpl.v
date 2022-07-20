@@ -1,91 +1,297 @@
 From Undecidability.FOL.Syntax Require Import Core Facts.
 
-Section Asimpl.
 
-#[local] Ltac print_goal := match goal with |- ?g => idtac g end.
-#[local] Ltac try_solve_reflexivity := try reflexivity.
-#[local] Ltac unfold_commons := repeat (unfold up, scons, funcomp).
-#[local] Ltac check_id n max := let rec go nn mm := 
-   match mm with 0 => try_solve_reflexivity; fail 
-      | S ?mmm => let nnn := fresh "n" in (destruct nn as [|nnn]; 
-        [try_solve_reflexivity;easy;fail
-        |try_solve_reflexivity;cbn; go nnn mmm]) end in go n max.
-#[local] Ltac try_id_subst phi sigma := try (erewrite (@subst_id _ _ _ _ phi sigma); [|let n := fresh "n" in check_id n 10]).
-#[local] Ltac try_id_tsubst t sigma := try (erewrite (@subst_term_id _ t sigma); [|let n := fresh "n" in check_id n 10]).
-#[local] Ltac do_subst_comp_goal := repeat match goal with | |- context ctx [?phi[?sigma][?tau]] => rewrite (@subst_comp _ _ _ _ phi sigma tau) end.
-#[local] Ltac do_subst_comp_in H := repeat match type of H with context ctx [?phi[?sigma][?tau]] => rewrite (@subst_comp _ _ _ _ phi sigma tau) in H end.
-#[local] Ltac do_tsubst_comp_goal := repeat match goal with | |- context ctx [?t`[?sigma]`[?tau]] => rewrite (@subst_term_comp _ t sigma tau) end.
-#[local] Ltac do_tsubst_comp_in H := repeat match type of H with  context ctx [?t`[?sigma]`[?tau]] => rewrite (@subst_term_comp _ t sigma tau) in H end.
-#[local] Ltac to_scons_form phi rho := erewrite (@subst_ext _ _ _ _ phi rho (ltac:(idtac) .: ltac:(idtac))).
-#[local] Ltac to_scons_term t rho := erewrite (@subst_term_ext _ t rho (ltac:(idtac) .: ltac:(idtac))).
-#[local] Ltac asimpl_term_goal_for tt rrho := 
-  let rec go t rho := try_id_tsubst t rho || (to_scons_term t rho;
-  [|let n := fresh "n" in intros [|n]; [cbn; try_solve_reflexivity; fail "could not find head!" | cbn; unfold_commons; do_tsubst_comp_goal;
-  match goal with |- ?t2`[?rho2] => go t2 rho2 | _ => try_solve_reflexivity; fail "Could not close continuation!" end] ])
-  in go tt rrho.
-#[local] Ltac asimpl_form_goal_for phi rho := 
-  try_id_subst phi rho || (to_scons_form phi rho;
-  [|let n := fresh "n" in intros [|n]; [cbn; try_solve_reflexivity; fail "could not find head!" | cbn; unfold_commons; do_subst_comp_goal;
-  match goal with |- ?t2`[?rho2] => print_goal; asimpl_term_goal_for t2 rho2 | _ => print_goal; try_solve_reflexivity; fail "Could not close continuation!" end] ]).
-#[local] Ltac asimpl_term_goal :=  try_solve_reflexivity; unfold_commons; do_tsubst_comp_goal; unfold_commons;
-                                   repeat match goal with | |- context ctx [?t`[?rho]] => progress (asimpl_term_goal_for t rho) end.
-#[local] Ltac asimpl_form_goal :=  try_solve_reflexivity; unfold_commons; do_subst_comp_goal; unfold_commons;
-                                   repeat match goal with | |- context ctx [?phi[?rho]] => progress (asimpl_form_goal_for phi rho) end.
+Require Import Coq.Classes.Init.
+Require Import Relation_Definitions.
+Require Export Coq.Classes.RelationClasses.
+Require Import Coq.Classes.Morphisms.
+Require Export Setoid.
+
+
+Section Asimpl.
+  Context {Σf : funcs_signature} {Σp : preds_signature}.
+  Context {ops : operators}.
+  Context {ff : falsity_flag}.
+
+  Definition feq {A} {B} (s t : A -> B) := forall x, s x = t x.
+  #[local] Notation "a ≡ b" := (feq a b) (at level 51).
+  #[local] Notation id := (fun x => x).
+  #[global]
+  Program Instance feq_reflexive {A} {B}  : Reflexive (@feq A B) | 1.
+  Next Obligation. now intros ?. Qed.
+  #[global]
+  Program Instance feq_symmetrive {A} {B}  : Symmetric (@feq A B) | 1.
+  Next Obligation. now intros ?. Qed.
+  #[global]
+  Program Instance feq_transitive {A} {B}  : Transitive (@feq A B) | 1.
+  Next Obligation. intros ?. now rewrite H, H0. Qed.
+
+  #[global]
+  Add Parametric Relation A B : (A -> B) (@feq A B)
+    reflexivity proved by (feq_reflexive (A:=A))
+    symmetry proved by (feq_symmetrive (A:=A))
+    transitivity proved by (feq_transitive (A:=A))
+    as eq_set_rel.
+
+  #[global]
+  Add Parametric Morphism X: (@scons X)
+    with signature (@eq X) ==> (@feq nat X) ==> (@feq nat X) as scons_feq.
+  Proof.
+    intros t x2 y2 H2. intros [|n]; try easy. cbn. now rewrite H2.
+  Qed.
+
+  #[global]
+  Add Parametric Morphism A B C: (@funcomp A B C)
+    with signature (@feq B C) ==> (@feq A B) ==> (@feq A C) as funcomp_feq.
+  Proof.
+    intros x1 y1 H1 x2 y2 H2. intros k. unfold funcomp. now rewrite H2, H1.
+  Qed.
+
+  #[global]
+  Add Parametric Morphism : (subst_term)
+    with signature (@feq nat term) ==> (@feq term term) as subst_term_feq.
+  Proof.
+    intros x1 y1 H1. intros x2. apply subst_term_ext, H1.
+  Qed.
+
+  #[global]
+  Add Parametric Morphism : (subst_term)
+    with signature (@feq nat term) ==> (@eq term) ==> (@eq term) as subst_term_feq_eq.
+  Proof.
+    intros x1 y1 H1. intros x2. apply subst_term_ext, H1.
+  Qed.
+
+  #[global]
+  Add Parametric Morphism : (subst_form)
+    with signature (@feq nat term) ==> (@eq form) ==> (@eq form) as subst_form_feq_eq.
+  Proof.
+    intros x1 y1 H1. intros x2. apply subst_ext, H1.
+  Qed.
+
+  (* Interaction on terms *)
+  Lemma asimpl_t_var x s : (var x)`[s] = s x.
+  Proof. reflexivity. Qed.
+  Lemma asimpl_t_func t v s : (func t v)`[s] = (func t (Vector.map (subst_term s) v)).
+  Proof. reflexivity. Qed.
+  Lemma asimpl_t_id t : t`[var] = t.
+  Proof. now apply subst_term_id. Qed.
+  Lemma asimpl_t_comp t s1 s2 : t`[s1]`[s2] = t`[s1 >> subst_term s2].
+  Proof. apply subst_term_comp. Qed.
+  Lemma asimpl_t_ext t s1 s2 : s1 ≡ s2 -> t`[s1] = t`[s2].
+  Proof. apply subst_term_ext. Qed.
+
+  (* Interaction on forms *)
+  Lemma asimpl_f_falsity s : falsity[s] = falsity.
+  Proof. easy. Qed.
+  Lemma asimpl_f_atom P v s : (atom P v)[s] = atom P (Vector.map (subst_term s) v).
+  Proof. easy. Qed.
+  Lemma asimpl_f_bin b f1 f2 s : (bin b f1 f2)[s] = bin b (f1[s]) (f2[s]).
+  Proof. easy. Qed.
+  Lemma asimpl_f_quant q f s : (quant q f)[s] = quant q (f[$0 .: (s >> subst_term (S >> var))]).
+  Proof. easy. Qed.
+  Lemma asimpl_f_id t : t[var] = t.
+  Proof. now apply subst_id. Qed.
+  Lemma asimpl_f_comp t s1 s2 : t[s1][s2] = t[s1 >> subst_term s2].
+  Proof. apply subst_comp. Qed.
+  Lemma asimpl_f_ext t s1 s2 : s1 ≡ s2 -> t[s1] = t[s2].
+  Proof. apply subst_ext. Qed.
+
+  (* Computational equivalences, needed during rewrite *)
+  Lemma asimpl_scons_zero X t (s : nat -> X) : (t .: s) 0 = t.
+  Proof. easy. Qed.
+  Lemma asimpl_scons_succ X t (s : nat -> X) n : (t .: s) (S n) = s n.
+  Proof. easy. Qed.
+  Lemma asimpl_up t : @up _ t ≡ ($0 .: t >> subst_term (S >> var)).
+  Proof. easy. Qed.
+  Lemma asimpl_id X (t:X) : id t = t.
+  Proof. easy. Qed.
+  Lemma asimpl_vector_nil A B (f:A -> B) : Vector.map f (Vector.nil A) = Vector.nil B.
+  Proof. easy. Qed.
+  Lemma asimpl_vector_cons A B (f:A -> B) t n v : Vector.map f (@Vector.cons A t n v) = @Vector.cons B (f t) n (Vector.map f v).
+  Proof. easy. Qed.
+
+  (* Sigma calculus laws
+     Rewritten such that they are always applicable from left to right,
+     and so that composition associativity does not affect them ("ca" lemmas) *)
+  Lemma asimpl_var_id_l s : var >> subst_term s ≡ s.
+  Proof. easy. Qed.
+  Lemma asimpl_var_id_l_ca X s (t:term -> X) : var >> (subst_term s >> t) ≡ s >> t.
+  Proof. easy. Qed.
+  Lemma asimpl_subst_merge (t r : nat -> term) : subst_term t >> subst_term r ≡ subst_term (t >> subst_term r).
+  Proof. intros n; unfold funcomp. now rewrite subst_term_comp. Qed.
+  Lemma asimpl_var_id_r (s : nat->term) : s >> subst_term var ≡ s.
+  Proof. intros n. apply asimpl_t_id. Qed.
+  Lemma asimpl_id_id_l X Y (f : X -> Y) : id >> f ≡ f.
+  Proof. intros x; easy. Qed.
+  Lemma asimpl_id_id_r X Y (f : X -> Y) : f >> id ≡ f.
+  Proof. intros x; easy. Qed.
+  Lemma asimpl_funcomp_assoc X Y Z W (f:X->Y) (g:Y->Z) (h:Z->W) : (f >> g) >> h ≡ f >> (g >> h).
+  Proof. intros x; easy. Qed.
+  Lemma asimpl_scons_comp Z t s (f : term -> Z) : (t .: s) >> f ≡ ((f t) .: (s >> f)).
+  Proof. intros [|n]; easy. Qed.
+  Lemma asimpl_up_scons X (t:X) s : S >> (t .: s) ≡ s.
+  Proof. now intros [|n]. Qed.
+  Lemma asimpl_scons_up : (0 .: S) ≡ id.
+  Proof. now intros [|n]. Qed.
+  Lemma asimpl_scons_up_f B (f : nat -> B) : (f 0 .: (S >> f)) ≡ f.
+  Proof. now intros [|n]. Qed.
+
+End Asimpl.
+#[global] Notation "a ≡ b" := (feq a b) (at level 51).
+#[global] Create HintDb asimpl_pre.
+#[global] Create HintDb asimpl_red.
+#[global] Hint Rewrite -> @asimpl_vector_nil : asimpl_pre.
+#[global] Hint Rewrite -> @asimpl_vector_cons : asimpl_pre.
+
+#[global] Hint Rewrite -> @asimpl_t_var : asimpl_pre.
+#[global] Hint Rewrite -> @asimpl_t_func : asimpl_pre.
+#[global] Hint Rewrite -> @asimpl_t_id : asimpl_pre.
+#[global] Hint Rewrite -> @asimpl_t_comp : asimpl_pre.
+
+#[global] Hint Rewrite -> @asimpl_f_falsity : asimpl_pre.
+#[global] Hint Rewrite -> @asimpl_f_atom : asimpl_pre.
+#[global] Hint Rewrite -> @asimpl_f_bin : asimpl_pre.
+#[global] Hint Rewrite -> @asimpl_f_quant : asimpl_pre.
+#[global] Hint Rewrite -> @asimpl_f_id : asimpl_pre.
+#[global] Hint Rewrite -> @asimpl_f_comp : asimpl_pre.
+
+
+#[global] Hint Rewrite -> @asimpl_var_id_r : asimpl_red.
+#[global] Hint Rewrite -> @asimpl_subst_merge : asimpl_red.
+#[global] Hint Rewrite -> @asimpl_scons_comp : asimpl_red.
+#[global] Hint Rewrite -> @asimpl_up_scons : asimpl_red.
+#[global] Hint Rewrite -> @asimpl_scons_up : asimpl_red.
+#[global] Hint Rewrite -> @asimpl_scons_up_f : asimpl_red.
+
+
+
+#[local] Ltac asimpl_pre := autorewrite with asimpl_pre.
+#[local] Ltac asimpl_pre_in H := autorewrite with asimpl_pre in H.
+
+#[local] Ltac print_goal := match goal with |- ?g => idtac (* "goal:" g*) end.
+#[local] Tactic Notation "debug_idtac" string(x) := idtac (*x*).
+
+#[local]
+Ltac asimpl_match t := (match goal with 
+    |- context[?phi[?sigma]] => progress (erewrite (@asimpl_f_ext _ _ _ _ phi sigma); [|t]; try asimpl_pre)
+  | |- context[?tt`[?sigma]] => progress (erewrite (@asimpl_t_ext _ tt sigma); [|t]; try asimpl_pre) end).
+
+#[local]
+Ltac asimpl_match_goal t H := (match goal with 
+    H : context[?phi[?sigma]] |- _ => progress (erewrite (@asimpl_f_ext _ _ _ _ phi sigma) in H; [|t]; try asimpl_pre_in H)
+  | H : context[?tt`[?sigma]] |- _ => progress (erewrite (@asimpl_t_ext _ tt sigma) in H; [|t]; try asimpl_pre_in H) end).
+
+#[local]
+Ltac asimpl_on_goal := (cbn; unfold up; first [
+  (match goal with
+| |- context[(?a >> ?b) >> ?c] => 
+    debug_idtac "asimpl_funcomp_assoc";
+    change ((a >> b) >> c) with (a >> (b >> c))
+| |- context[var >> subst_term ?s] =>
+    debug_idtac "asimpl_var_id_l";
+    change (var >> subst_term s) with s 
+| |- context[var >> (subst_term ?s >> ?t)] =>
+    debug_idtac "asimpl_var_id_l_ca";
+    change (var >> (subst_term s >> t)) with (s >> t)
+| |- context[id >> ?f] =>
+    debug_idtac "asimpl_id_id_l";
+    change (id >> f) with f 
+| |- context[?f >> id] =>
+    debug_idtac "asimpl_id_id_r";
+    change (f >> id) with f end)
+| debug_idtac "!asimpl_var_id_r"; rewrite !asimpl_var_id_r
+| debug_idtac "!asimpl_subst_merge"; rewrite !asimpl_subst_merge
+| debug_idtac "!asimpl_up_scons"; rewrite !asimpl_up_scons
+| debug_idtac "!asimpl_scons_up"; rewrite !asimpl_scons_up
+| debug_idtac "!asimpl_scons_up_f"; rewrite !asimpl_scons_up_f
+| debug_idtac "1asimpl_scons_comp"; rewrite asimpl_scons_comp]).
+
+#[local]
+Ltac asimpl_on_goal' := print_goal; (repeat asimpl_on_goal); reflexivity.
+
+#[local]
+Ltac asimpl_base := asimpl_pre; repeat progress asimpl_match (asimpl_on_goal').
+#[local]
+Ltac asimpl_hyp H := asimpl_pre_in H; repeat progress asimpl_match_goal (asimpl_on_goal') H.
+
+#[global]
+Tactic Notation "asimpl" := asimpl_base.
+#[global]
+Tactic Notation "asimpl" "in" hyp(H) := asimpl_hyp H.
 
 Section Test.
   Context {Σf : funcs_signature} {Σp : preds_signature}.
   Context {ff : falsity_flag}.
   Import FragmentSyntax.
 
-  Lemma up_shift_t phi t sigma :
-    phi`[up ↑]`[t.:sigma] = phi`[t.:S>>sigma].
+  #[local]
+  Lemma asimpl_test_1 phi t sigma :
+    phi[up sigma][t..] = phi[t.:sigma].
   Proof.
-    asimpl_term_goal. reflexivity.
+    now asimpl.
   Qed.
 
-  Lemma up_shift phi t sigma :
-    phi[up ↑][t.:sigma] = phi[t.:S>>sigma].
+  #[local]
+  Lemma asimpl_test_1_ctx phi t sigma :
+    phi[up sigma][t..] = phi[t.:sigma] -> (phi[t.:sigma] = phi[t.:sigma]).
   Proof.
-    asimpl_form_goal. reflexivity.
+    intros H. asimpl in H. apply H.
   Qed.
 
-  Lemma help phi :
+  #[local]
+  Lemma asimpl_test_2 phi :
     phi[up ↑][up (up ↑)][up $0..] = phi[$0 .: S >> ↑].
   Proof.
-    asimpl_form_goal. reflexivity.
+    now asimpl.
   Qed.
 
-  Lemma help2 phi :
+  #[local]
+  Lemma asimpl_test_3 phi t sigma :
+    phi`[up ↑]`[t.:sigma] = phi`[t.:S>>sigma].
+  Proof.
+    now asimpl.
+  Qed.
+
+  #[local]
+  Lemma asimpl_test_4 phi t sigma :
+    phi[up ↑][t.:sigma] = phi[t.:S>>sigma].
+  Proof.
+    now asimpl.
+  Qed.
+
+  #[local]
+  Lemma asimpl_test_5 phi :
     phi[$0.:↑] = phi.
   Proof.
-    asimpl_form_goal. easy.
+    now asimpl.
   Qed.
-  
-  Lemma help3 phi x :
+
+  #[local]
+  Lemma asimpl_test_6 phi x :
     phi[up ↑][up $x..] = phi.
   Proof.
-    asimpl_form_goal. easy.
+    now asimpl.
   Qed.
 
-  Lemma help4 phi :
+  #[local]
+  Lemma asimpl_test_7 phi :
     phi[up ↑][$0..] = phi.
   Proof.
-    asimpl_form_goal. easy.
+    now asimpl.
   Qed.
 
-  Lemma help5 phi x :
+  #[local]
+  Lemma asimpl_test_8 phi x :
     phi[up ↑][up $x..][up ↑][up $x..] = phi[up ↑][up $x..][up ↑][up $x..][up ↑][up $x..].
   Proof.
-    asimpl_form_goal. easy.
+    now asimpl.
   Qed.
 
-  Lemma help6 phi :
+  #[local]
+  Lemma asimpl_test_9 phi :
     phi[up ↑][up (up ↑)][up $0..][up ↑][up (up ↑)][up $0..] = phi[$0 .: S >> S >> ↑].
   Proof.
-    asimpl_form_goal. reflexivity.
+    now asimpl.
   Qed.
 
-  Lemma foo phi rho : (forall x, rho x = $(S x)) -> phi[$0 .: $0 .: rho] = phi[rho].
-  Proof.
-    intros H. asimpl_form_goal.
-  Qed.
+End Test.
