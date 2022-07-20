@@ -100,37 +100,37 @@ Arguments WeakClass {_} {_} {_} _ _.
 #[global]
 Instance prv_DeductionRules `{funcs_signature, preds_signature, falsity_flag, peirce} : DeductionRules (list form) prv cons (@List.map form form) (@In form) := 
 {| 
-  II := FullCore.II ;
-  IE := FullCore.IE ;
-  AllI := FullCore.AllI ;
-  AllE := FullCore.AllE ;
-  ExI := @FullCore.ExI _ _ _ _;
-  ExE := FullCore.ExE ;
-  Ctx := FullCore.Ctx ;
-  CI := FullCore.CI ;
-  CE1 := FullCore.CE1 ;
-  CE2 := FullCore.CE2 ;
-  DI1 := FullCore.DI1 ;
-  DI2 := FullCore.DI2 ;
-  DE := FullCore.DE ;
+  II := FullND.II ;
+  IE := FullND.IE ;
+  AllI := FullND.AllI ;
+  AllE := FullND.AllE ;
+  ExI := @FullND.ExI _ _ _ _;
+  ExE := FullND.ExE ;
+  Ctx := FullND.Ctx ;
+  CI := FullND.CI ;
+  CE1 := FullND.CE1 ;
+  CE2 := FullND.CE2 ;
+  DI1 := FullND.DI1 ;
+  DI2 := FullND.DI2 ;
+  DE := FullND.DE ;
 |}.
 
 #[global]
 Instance prv_ClassicalDeductionRules `{funcs_signature, preds_signature, falsity_flag} : ClassicalDeductionRules (list form) (@prv _ _ _ class) := 
 {| 
-  Pc := FullCore.Pc
+  Pc := FullND.Pc
 |}.
 
 #[global]
 Instance prv_FalsityDeductionRules `{funcs_signature, preds_signature, peirce} : FalsityDeductionRules (list form) (@prv _ _ falsity_on _) := 
 {| 
-  Exp := FullCore.Exp
+  Exp := FullND.Exp
 |}.
 
 #[global]
 Instance prv_WeakClass `{funcs_signature, preds_signature, falsity_flag, peirce} : WeakClass (list form) prv (@List.incl form) := 
 {| 
-  Weak := FullFacts.Weak
+  Weak := FullNDFacts.Weak
 |}.
 
 (* TODO: Why doesn't this exist? *)
@@ -948,8 +948,8 @@ Ltac fintro_pat' pat :=
           let x := varname_from_pat p1 in
           let H := fresh "H" in
           edestruct nameless_equiv_ex as [x H];
-          apply H; clear H; cbn; simpl_subst; apply -> imps;
-          apply (Weak C); [| now apply incl_tl] ]
+          apply <- H; clear H; cbn; simpl_subst; apply -> imps;
+          eapply (@Weak _ _ _ _ _ _ _ C); [| now apply incl_tl] ]
       ); 
       fintro_pat' p2
   | patAnd ?p1 ?p2 => (* Conjunction *)
@@ -1105,7 +1105,7 @@ Ltac replace_context T_old H_new :=
   let phi := get_form_hyp H_new in
   let psi := get_form_goal in
   let X := fresh in
-  (enough_compat (phi → psi) as X by eapply (IE _ _ _ X); apply H_new);
+  (enough_compat (phi → psi) as X by eapply (IE X); apply H_new);
   let C' := match type of T_old with
     | nat => constr:(replace C T_old phi) (* TODO: This no longer works for theories. We no longer use `replace_ltac C T_old phi` for inclusion performance *)
     (* | form => map_ltac C ltac:(fun f => match f with T_old => phi | ?psi => psi end) *)
@@ -1114,7 +1114,7 @@ Ltac replace_context T_old H_new :=
       | @Some _ ?n => constr:(replace C n phi) (* TODO: Doesn't work for theories (replace_ltac C n phi) *)
       end
   end in
-  fintro; apply (Weak C'); [ | apply replace_incl]; 
+  fintro; apply (Weak (A := C')); [ | apply replace_incl]; 
   let C' := eval cbn [replace ccons tcons cnil tnil] in C' in
   match goal with
   | [ |- @pm _ _ _ ?p _ _ ] => let C' := fix_context_names C C' in change (@pm _ _ _ p C' psi)
@@ -1141,14 +1141,14 @@ Ltac fspecialize_list H A :=
       tryif (
         let H' := fresh "H" in
         make_compatible ltac:(fun C => turn_into_hypothesis x H' C);
-        apply (fun H => IE _ _ _ H H') in H;
+        apply (fun H => IE H H') in H;
         clear H'
       ) then idtac
       else (
         (* For some reason we cannot directly [apply (AllE _ x)]
           if x contains ⊕, σ, etc. But evar seems to work. *)
         let x' := fresh "x" in 
-        eapply (AllE _ ?[x']) in H; 
+        eapply (AllE ?[x']) in H; 
         instantiate (x' := x)
       );
       fspecialize_list H A'
@@ -1246,12 +1246,12 @@ Ltac fapply_without_quant H :=
     | [ |- @prv _ _ _ ?p ?A _ ] =>
         enough (@prv _ _ _ p A s) as Hs; 
         [ assert (@prv _ _ _ p A t) as Ht; 
-          [ apply (IE _ _ _ H Hs) | fapply_without_quant Ht; clear Hs; clear Ht ] 
+          [ eapply (IE H Hs) | fapply_without_quant Ht; clear Hs; clear Ht ] 
         | ]
     | [ |- @tprv _ _ _ ?p ?A _ ] =>
         enough (@tprv _ _ _ p A s) as Hs; 
         [ assert (@tprv _ _ _ p A t) as Ht; 
-          [ apply (IE _ _ _ H Hs) | fapply_without_quant Ht; clear Hs; clear Ht ] 
+          [ apply (IE H Hs) | fapply_without_quant Ht; clear Hs; clear Ht ] 
         | ]
     end
   
@@ -1260,8 +1260,8 @@ Ltac fapply_without_quant H :=
    * Therefore simply try both options. *)
   | _ ↔ _ =>
     match goal with
-    | [ |- _ ⊢ _] => tryif apply (fapply_equiv_l _ _ _ _ H) then idtac else apply (fapply_equiv_r _ _ _ _ H)
-    | [ |- _ ⊩ _] => tryif apply (fapply_equiv_l_T _ _ _ _ H) then idtac else apply (fapply_equiv_r_T _ _ _ _ H)
+    | [ |- prv _ _] => tryif apply (fapply_equiv_l H) then idtac else apply (fapply_equiv_r H)
+    | [ |- tprv _ _] => tryif apply (fapply_equiv_l_T H) then idtac else apply (fapply_equiv_r_T H)
     end
   
   (* Quantifiers are instantiated with evars *)
@@ -1302,7 +1302,7 @@ Ltac feapply' T A := fun contxt =>
     instantiate_evars H;
     simpl_subst H;
     let C := get_context_goal in 
-    eapply (Weak _ C) in H; [| solve_list_incl];
+    eapply (Weak (B := C)) in H; [| solve_list_incl];
     fapply_without_quant H;
     (* [fapply_without_quant] creates the subgoals in the wrong order.
      * Reverse them to to get the right order: *)
@@ -1323,7 +1323,7 @@ Ltac fapply' T A contxt :=
     instantiate_evars H; 
     simpl_subst H;
     let C := get_context_goal in
-    eapply (Weak _ C) in H; [| solve_list_incl];
+    eapply (Weak (B := C)) in H; [| solve_list_incl];
     fapply_without_quant H;
     (* [fapply_without_quant] creates the subgoals in the wrong order.
      * Reverse them to to get the right order: *)
@@ -1398,7 +1398,7 @@ Ltac fapply_in_without_quant_in T_hyp H_imp H_hyp :=
       let Hs := fresh "Hs" in
       let Ht := fresh "Ht" in
       (enough_compat s as Hs); [
-        (assert_compat t as Ht by apply (IE _ _ _ H_imp Hs));
+        (assert_compat t as Ht by apply (IE H_imp Hs));
         (* replace_context T_imp Ht; *)
         fapply_in_without_quant_in T_hyp Ht H_hyp;
         clear Ht; clear Hs
@@ -1443,7 +1443,7 @@ Ltac feapply_in T_imp A T_hyp :=
     fspecialize_list H_imp A;
     instantiate_evars H_imp;
     simpl_subst H_imp;
-    eapply (Weak _ C) in H_imp; [| solve_list_incl];
+    eapply (Weak (B := C)) in H_imp; [| solve_list_incl];
     fapply_in_without_quant_in T_hyp H_imp H_hyp;
     (* [fapply_in_without_quant_in] creates the subgoals in the wrong order.
      * Reverse them to to get the right order: *)
@@ -1510,16 +1510,16 @@ Ltac fassert' phi := fun _ =>
   let H1 := fresh "H" in
   let H2 := fresh "H" in
   match goal with
-  | [ |- ?A ⊢ ?psi ] =>
+  | [ |- prv ?A ?psi ] =>
     assert (A ⊢ phi) as H1; [ | 
-      assert (A ⊢ (phi → psi)); [ clear H1 |
-        apply (fassert_help A phi psi H1 H2)
+      assert (A ⊢ (phi → psi)) as H2; [ clear H1 |
+        apply (fassert_help H1 H2)
       ]
     ]
   | [ |- ?A ⊩ ?psi ] =>
     assert (A ⊩ phi) as H1; [ | 
-      assert (A ⊩ (phi → psi)); [ clear H1 |
-        apply (fassert_help_T A phi psi H1 H2)
+      assert (A ⊩ (phi → psi)) as H2; [ clear H1 |
+        apply (fassert_help_T H1 H2)
       ]
     ]
   end.
@@ -1606,7 +1606,7 @@ Ltac frevert T :=
   end in
   let phi := nth C n in
   let C' := constr:(move_to_front C n) in (* TODO: Doesn't work for theories *)
-  apply (Weak C'); [| apply move_to_front_incl];
+  apply (Weak (A := C')); [| apply move_to_front_incl];
   cbn [move_to_front remove_n nth_error ccons tcons cnil tnil];
   match goal with
   | [ |- prv ?C' ?psi ] => apply -> imps
@@ -1747,8 +1747,8 @@ End Classical.
 Tactic Notation "fclassical" constr(phi) "as" constr(H1) constr(H2) := 
   make_compatible ltac:(fun _ => 
     match goal with
-    | [ |- _ ⊢ _ ] => apply (case_help _ phi)
-    | [ |- _ ⊩ _ ] => apply (case_help_T _ phi)
+    | [ |- prv _ _ ] => apply (case_help (phi := phi))
+    | [ |- tprv _ _ ] => apply (case_help_T (phi := phi))
     end
   ); let pat := eval cbn in ("[" ++ H1 ++ "|" ++ H2 ++ "]") in fintro_pat pat.
 Tactic Notation "fclassical" constr(phi) "as" constr(H) := fclassical phi as H H.
@@ -1863,11 +1863,11 @@ Proof.
     + fintros. rewrite subst_comp. apply (IHphi L _ _ (up s2 >> subst_term x..)). easy. 
       intros []; cbn. now apply refl. simpl_subst. simpl_subst. apply H1.
       rewrite <- subst_comp. now apply AllE.
-    + fdestruct H2. apply (ExI _ x). rewrite ! subst_comp.
+    + fdestruct H2. apply (ExI (t := x)). rewrite ! subst_comp.
       apply (IHphi L _ _ (up s1 >> subst_term x..)). now apply incl_tl. 2: ctx.
       intros []; cbn. apply refl; now apply incl_tl. simpl_subst. simpl_subst. apply sym. now apply incl_tl.
       eapply Weak. apply H1. now apply incl_tl.
-    + fdestruct H2. apply (ExI _ x). rewrite ! subst_comp.
+    + fdestruct H2. apply (ExI (t := x)). rewrite ! subst_comp.
       apply (IHphi L _ _ (up s2 >> subst_term x..)). now apply incl_tl. 2: ctx.
       intros []; cbn. apply refl; now apply incl_tl. simpl_subst. simpl_subst. 
       eapply Weak. apply H1. now apply incl_tl.
@@ -2131,10 +2131,10 @@ Ltac frewrite' T A back ::= fun contxt =>
      *  contains ⊕, σ, etc. But evar seems to work. *)
     let t'' := fresh "t" in 
     match goal with
-    | [ |- _ ⊢ _ ] => eapply (leibniz _ _ ?[t''])
-    | [ |- _ ⊩ _ ] => fail "Rewrite not supported under theories" (* eapply (leibniz_T _ _ ?[t'']) *)
+    | [ |- prv _ _ ] => eapply leibniz
+    | [ |- tprv _ _ ] => fail "Rewrite not supported under theories" (* eapply (leibniz_T _ _ ?[t'']) *)
     end;
-    [ instantiate (t'' := t'); 
+    [
       (* We now need to show tha the Axioms are included in the context.
        * We first try, if they are at the end of the list. *)
       try (repeat (try apply incl_refl; apply incl_tl));
@@ -2204,7 +2204,7 @@ Tactic Notation "frewrite" "<-" "(" constr(T) constr(x1) constr(x2) constr(x3) "
 
 
 Ltac fexists x := make_compatible ltac:(fun _ => 
-  apply (ExI _ x); 
+  apply (ExI (t := x)); 
   simpl_subst).
 
 

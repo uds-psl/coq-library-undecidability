@@ -898,9 +898,9 @@ FOL/Reification/DemoPAExtensional.v
 FOL/Proofmode/StringToIdent.v
 FOL/Proofmode/Hoas.v
 FOL/Proofmode/Theories.v
-#FOL/Proofmode/ProofMode.v
-#FOL/Proofmode/DemoPA.v
-#FOL/Proofmode/DemoZF.v
+FOL/Proofmode/ProofMode.v
+FOL/Proofmode/DemoPA.v
+FOL/Proofmode/DemoZF.v
 #FOL/Proofmode/DemoMinZF.v
 
 
