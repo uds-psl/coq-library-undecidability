@@ -14,3 +14,4 @@
 theories/.vscode
 *.#*
 *#*#
+*.crashcoqide

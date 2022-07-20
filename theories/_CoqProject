@@ -791,7 +791,7 @@ FOL/Syntax/Core.v
 FOL/Syntax/Facts.v
 FOL/Syntax/BinSig.v
 FOL/Syntax/Theories.v
-#FOL/Syntax/Asimpl.v
+FOL/Syntax/Asimpl.v
 
 FOL/Semantics/Tarski/FragmentCore.v
 FOL/Semantics/Tarski/FragmentFacts.v
