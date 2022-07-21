@@ -4,6 +4,7 @@ From Undecidability.FOL Require Import Syntax.Core Deduction.FullND Semantics.Ta
 
 From Undecidability.FOL.Proofmode Require Import Theories ProofMode.
 
+Require Undecidability.FOL.Proofmode.Hoas.
 Require Import String List.
 
 Import ListNotations.
@@ -154,14 +155,9 @@ Proof.
 Qed.
 
 
-
-
-
-
-
+Import Hoas.
 (** Euclidean Division Theorem with HOAS input language *)
 
-Require Import Undecidability.FOL.Proofmode.Hoas.
 Notation "'σ' x" := (bFunc Succ (Vector.cons bterm x 0 (Vector.nil bterm))) (at level 32) : hoas_scope.
 Notation "x '⊕' y" := (bFunc Plus (Vector.cons bterm x 1 (Vector.cons bterm y 0 (Vector.nil bterm))) ) (at level 39) : hoas_scope.
 Notation "x '⊗' y" := (bFunc Mult (Vector.cons bterm x 1 (Vector.cons bterm y 0 (Vector.nil bterm))) ) (at level 38) : hoas_scope. 
