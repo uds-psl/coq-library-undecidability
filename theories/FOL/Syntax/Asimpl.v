@@ -96,15 +96,7 @@ Section Asimpl.
   Lemma asimpl_f_ext t s1 s2 : s1 ≡ s2 -> t[s1] = t[s2].
   Proof. apply subst_ext. Qed.
 
-  (* Computational equivalences, needed during rewrite *)
-  Lemma asimpl_scons_zero X t (s : nat -> X) : (t .: s) 0 = t.
-  Proof. easy. Qed.
-  Lemma asimpl_scons_succ X t (s : nat -> X) n : (t .: s) (S n) = s n.
-  Proof. easy. Qed.
-  Lemma asimpl_up t : @up _ t ≡ ($0 .: t >> subst_term (S >> var)).
-  Proof. easy. Qed.
-  Lemma asimpl_id X (t:X) : id t = t.
-  Proof. easy. Qed.
+  (* Interaction on forms and terms both uses *)
   Lemma asimpl_vector_nil A B (f:A -> B) : Vector.map f (Vector.nil A) = Vector.nil B.
   Proof. easy. Qed.
   Lemma asimpl_vector_cons A B (f:A -> B) t n v : Vector.map f (@Vector.cons A t n v) = @Vector.cons B (f t) n (Vector.map f v).
@@ -112,7 +104,11 @@ Section Asimpl.
 
   (* Sigma calculus laws
      Rewritten such that they are always applicable from left to right,
-     and so that composition associativity does not affect them ("ca" lemmas) *)
+     and so that composition associativity does not affect them ("ca" lemmas)
+
+     Note that they are just given for completeness.
+     Since some of them are computational equivalences, we do not actually use them to
+     construct the asimpl tactic. *)
   Lemma asimpl_var_id_l s : var >> subst_term s ≡ s.
   Proof. easy. Qed.
   Lemma asimpl_var_id_l_ca X s (t:term -> X) : var >> (subst_term s >> t) ≡ s >> t.
@@ -135,11 +131,10 @@ Section Asimpl.
   Proof. now intros [|n]. Qed.
   Lemma asimpl_scons_up_f B (f : nat -> B) : (f 0 .: (S >> f)) ≡ f.
   Proof. now intros [|n]. Qed.
-
 End Asimpl.
-#[global] Notation "a ≡ b" := (feq a b) (at level 51).
+
+(* asimpl_pre pushed down substitutions and composes them *)
 #[global] Create HintDb asimpl_pre.
-#[global] Create HintDb asimpl_red.
 #[global] Hint Rewrite -> @asimpl_vector_nil : asimpl_pre.
 #[global] Hint Rewrite -> @asimpl_vector_cons : asimpl_pre.
 
@@ -155,34 +150,33 @@ End Asimpl.
 #[global] Hint Rewrite -> @asimpl_f_id : asimpl_pre.
 #[global] Hint Rewrite -> @asimpl_f_comp : asimpl_pre.
 
+(* Step 1: Simplify with asimpl_pre *)
+#[global] Ltac asimpl_pre := try autorewrite with asimpl_pre.
+#[global] Ltac asimpl_pre_in H := try autorewrite with asimpl_pre in H.
 
-#[global] Hint Rewrite -> @asimpl_var_id_r : asimpl_red.
-#[global] Hint Rewrite -> @asimpl_subst_merge : asimpl_red.
-#[global] Hint Rewrite -> @asimpl_scons_comp : asimpl_red.
-#[global] Hint Rewrite -> @asimpl_up_scons : asimpl_red.
-#[global] Hint Rewrite -> @asimpl_scons_up : asimpl_red.
-#[global] Hint Rewrite -> @asimpl_scons_up_f : asimpl_red.
+#[global] Ltac print_goal := match goal with |- ?g => idtac (* "goal:" g*) end.
+#[global] Tactic Notation "debug_idtac" string(x) := idtac (*x*).
 
-
-
-#[local] Ltac asimpl_pre := autorewrite with asimpl_pre.
-#[local] Ltac asimpl_pre_in H := autorewrite with asimpl_pre in H.
-
-#[local] Ltac print_goal := match goal with |- ?g => idtac (* "goal:" g*) end.
-#[local] Tactic Notation "debug_idtac" string(x) := idtac (*x*).
-
-#[local]
+(* Step 2: find a place where we use a substitution, and replace it with an evar.
+           Bonus asimpl_pre to replace foo[var] with foo (using subst_id) *)
+#[global]
 Ltac asimpl_match t := (match goal with 
-    |- context[?phi[?sigma]] => progress (erewrite (@asimpl_f_ext _ _ _ _ phi sigma); [|t]; try asimpl_pre)
-  | |- context[?tt`[?sigma]] => progress (erewrite (@asimpl_t_ext _ tt sigma); [|t]; try asimpl_pre) end).
+    |- context[?phi[?sigma]] => progress (print_goal; erewrite (@asimpl_f_ext _ _ _ _ phi sigma); [|t]; asimpl_pre)
+  | |- context[?tt`[?sigma]] => progress (print_goal; erewrite (@asimpl_t_ext _ tt sigma); [|t]; asimpl_pre) end).
 
-#[local]
+
+(* Use constr_eq_strict to ensure we are working within the correct goal.
+   Otherwise, we modify the goal order, and `progress` thinks we made progress.
+   This leads to an endless loop *)
+#[global]
 Ltac asimpl_match_goal t H := (match goal with 
-    H : context[?phi[?sigma]] |- _ => progress (erewrite (@asimpl_f_ext _ _ _ _ phi sigma) in H; [|t]; try asimpl_pre_in H)
-  | H : context[?tt`[?sigma]] |- _ => progress (erewrite (@asimpl_t_ext _ tt sigma) in H; [|t]; try asimpl_pre_in H) end).
+    H' : context[?phi[?sigma]] |- _ => progress (constr_eq_strict H' H; erewrite (@asimpl_f_ext _ _ _ _ phi sigma) in H; [|t]; try asimpl_pre_in H)
+  | H' : context[?tt`[?sigma]] |- _ => progress (constr_eq_strict H' H; erewrite (@asimpl_t_ext _ tt sigma) in H; [|t]; try asimpl_pre_in H) end).
 
-#[local]
-Ltac asimpl_on_goal := (cbn; unfold up; first [
+(* Step 3: Simplify the substitution, using the normalizing complete sigma calculus rewrite rules 
+           Carefully tune the order such that things are fast. *)
+#[global]
+Ltac asimpl_on_goal := (cbn; unfold up;
   (match goal with
 | |- context[(?a >> ?b) >> ?c] => 
     debug_idtac "asimpl_funcomp_assoc";
@@ -198,20 +192,34 @@ Ltac asimpl_on_goal := (cbn; unfold up; first [
     change (id >> f) with f 
 | |- context[?f >> id] =>
     debug_idtac "asimpl_id_id_r";
-    change (f >> id) with f end)
-| debug_idtac "!asimpl_var_id_r"; rewrite !asimpl_var_id_r
-| debug_idtac "!asimpl_subst_merge"; rewrite !asimpl_subst_merge
-| debug_idtac "!asimpl_up_scons"; rewrite !asimpl_up_scons
-| debug_idtac "!asimpl_scons_up"; rewrite !asimpl_scons_up
-| debug_idtac "!asimpl_scons_up_f"; rewrite !asimpl_scons_up_f
-| debug_idtac "1asimpl_scons_comp"; rewrite asimpl_scons_comp]).
+    change (f >> id) with f
+| |- context[?s >> subst_term var] =>
+    debug_idtac "!asimpl_var_id_r";
+    rewrite !(@asimpl_var_id_r _ s)
+| |- context[subst_term ?t >> subst_term ?r] =>
+    debug_idtac "!asimpl_subst_merge";
+    rewrite !(@asimpl_subst_merge _ t r)
+| |- context[S >> (?t .: ?s)] =>
+    debug_idtac "!asimpl_up_scons";
+    rewrite !(@asimpl_up_scons _ t s)
+| |- context[(0 .: S)] =>
+    debug_idtac "!asimpl_scons_up";
+    rewrite ! (@asimpl_scons_up)
+| |- context[(?tt .: (S >> ?f))] =>
+    debug_idtac "!asimpl_scons_up_f";
+    rewrite !(@asimpl_scons_up_f _ f)
+| |- context[(?t .: ?s) >> ?f] =>
+    debug_idtac "asimpl_scons_comp";
+    rewrite (@asimpl_scons_comp _ _ t s f) end)).
 
-#[local]
-Ltac asimpl_on_goal' := print_goal; (repeat asimpl_on_goal); reflexivity.
+(* Do step 3, and resolve the evar with it *)
+#[global]
+Ltac asimpl_on_goal' := cbn; unfold up; (repeat asimpl_on_goal); reflexivity.
 
-#[local]
+(* General asimpl: Repeat the matching until nothing changes anymore *)
+#[global]
 Ltac asimpl_base := asimpl_pre; repeat progress asimpl_match (asimpl_on_goal').
-#[local]
+#[global]
 Ltac asimpl_hyp H := asimpl_pre_in H; repeat progress asimpl_match_goal (asimpl_on_goal') H.
 
 #[global]
@@ -227,8 +235,8 @@ Section Test.
   #[local]
   Lemma asimpl_test_1 phi t sigma :
     phi[up sigma][t..] = phi[t.:sigma].
-  Proof.
-    now asimpl.
+  Proof. 
+    asimpl. reflexivity.
   Qed.
 
   #[local]
@@ -242,56 +250,56 @@ Section Test.
   Lemma asimpl_test_2 phi :
     phi[up ↑][up (up ↑)][up $0..] = phi[$0 .: S >> ↑].
   Proof.
-    now asimpl.
+    asimpl. reflexivity.
   Qed.
 
   #[local]
   Lemma asimpl_test_3 phi t sigma :
     phi`[up ↑]`[t.:sigma] = phi`[t.:S>>sigma].
   Proof.
-    now asimpl.
+    asimpl. reflexivity.
   Qed.
 
   #[local]
   Lemma asimpl_test_4 phi t sigma :
     phi[up ↑][t.:sigma] = phi[t.:S>>sigma].
   Proof.
-    now asimpl.
+    asimpl. reflexivity.
   Qed.
 
   #[local]
   Lemma asimpl_test_5 phi :
     phi[$0.:↑] = phi.
   Proof.
-    now asimpl.
+    asimpl. reflexivity.
   Qed.
 
   #[local]
   Lemma asimpl_test_6 phi x :
     phi[up ↑][up $x..] = phi.
   Proof.
-    now asimpl.
+    asimpl. reflexivity.
   Qed.
 
   #[local]
   Lemma asimpl_test_7 phi :
     phi[up ↑][$0..] = phi.
   Proof.
-    now asimpl.
+    asimpl. reflexivity.
   Qed.
 
   #[local]
   Lemma asimpl_test_8 phi x :
     phi[up ↑][up $x..][up ↑][up $x..] = phi[up ↑][up $x..][up ↑][up $x..][up ↑][up $x..].
   Proof.
-    now asimpl.
+    asimpl. reflexivity.
   Qed.
 
   #[local]
   Lemma asimpl_test_9 phi :
     phi[up ↑][up (up ↑)][up $0..][up ↑][up (up ↑)][up $0..] = phi[$0 .: S >> S >> ↑].
   Proof.
-    now asimpl.
+    asimpl. reflexivity.
   Qed.
 
 End Test.

@@ -1,4 +1,4 @@
-From Undecidability.FOL Require Import Syntax.Facts Deduction.FragmentNDFacts Syntax.Theories Semantics.Tarski.FragmentFacts Semantics.Tarski.FragmentSoundness.
+From Undecidability.FOL Require Import Syntax.Facts Syntax.Asimpl Deduction.FragmentNDFacts Syntax.Theories Semantics.Tarski.FragmentFacts Semantics.Tarski.FragmentSoundness.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 From Undecidability Require Import Shared.ListAutomation Shared.Dec.
 From Undecidability Require Import Shared.Libs.PSL.Vectors.Vectors Shared.Libs.PSL.Vectors.VectorForall.
@@ -77,14 +77,6 @@ Section Completeness.
 
   End Enumeration.
 
-  Lemma help5 {ff:falsity_flag} phi t sigma :
-    phi[up sigma][t..] = phi[t.:sigma].
-  Proof.
-    rewrite subst_comp. apply subst_ext. intros [|]; cbn; trivial. unfold funcomp.
-    rewrite subst_term_comp. apply subst_term_id. now intros [].
-  Qed.
-
-
   Section BotModel.
     #[local] Existing Instance falsity_on | 0.
     Variable T : theory.
@@ -123,12 +115,13 @@ Section Completeness.
     Proof.
       revert rho. induction phi using form_ind_falsity; intros rho. 1,2,3: cbn.
       - split; try tauto. intros H. apply Hcon.
-        apply Out_T_econsistent with output_bot. exists [⊥]. split; try apply Ctx. 2: now left. intros a [<-|[]]; easy.
+        apply Out_T_econsistent with output_bot. exists [⊥].
+        split; try apply Ctx. 2: now left. intros a [<-|[]]; easy.
       - erewrite (Vector.map_ext_in _ _ _ (eval rho)). 1:easy.
         easy.
       - destruct b0. rewrite <- IHphi1. rewrite <- IHphi2. apply Out_T_impl.
       - destruct q. cbn. setoid_rewrite <- IHphi. setoid_rewrite Out_T_all.
-        setoid_rewrite help5. easy.
+        split; intros H t; asimpl; specialize (H t); now asimpl in H.
     Qed.
 
     Lemma model_bot_classical :
@@ -155,7 +148,7 @@ Section Completeness.
       intros Hval Hcons. rewrite refutation_prv in Hcons. 
       assert (Hcl : closed_T (T ⋄ (¬ phi))) by (apply closed_T_extend; try econstructor; eauto).
       unshelve eapply (model_bot_correct (T_closed := Hcl) Hcons (¬ phi) var).
-      - apply Out_T_sub. cbn. right. now rewrite subst_id.
+      - apply Out_T_sub. cbn. right. now asimpl.
       - apply Hval. intros ? ?. apply valid_T_model_bot; intuition.
     Qed.
 
@@ -268,8 +261,7 @@ Section Completeness.
         easy.
       - destruct b0. rewrite <- IHphi1. rewrite <- IHphi2. apply Out_T_impl. 1-2:congruence.
       - destruct q. cbn. setoid_rewrite <- IHphi. setoid_rewrite Out_T_all. 2:congruence.
-        cbn.
-        setoid_rewrite help5. easy.
+        split; intros H t; asimpl; specialize (H t); now asimpl in H.
     Qed.
 
     Lemma model_fragment_classical :

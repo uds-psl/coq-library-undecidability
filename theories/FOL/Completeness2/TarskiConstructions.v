@@ -2,7 +2,7 @@
 
 (** ** Generalized Theory Extension **)
 
-From Undecidability.FOL Require Import Syntax.Facts Deduction.FragmentNDFacts Syntax.Theories.
+From Undecidability.FOL Require Import Syntax.Facts Syntax.Asimpl Deduction.FragmentNDFacts Syntax.Theories.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 From Undecidability Require Import Shared.ListAutomation Shared.Dec.
 From Undecidability Require Import Shared.Libs.PSL.Vectors.Vectors Shared.Libs.PSL.Vectors.VectorForall.
@@ -196,36 +196,6 @@ Section GenCons.
   Definition DPexp2 phi := exp_axiom (phi [($O) .: (S >> (S >> var))]).
   Definition DPexp3 phi := exp_axiom phi.
 
-  Lemma up_shift phi t sigma :
-    phi[up ↑][t.:sigma] = phi[t.:S>>sigma].
-  Proof.
-    rewrite subst_comp. apply subst_ext. intros [|]; reflexivity.
-  Qed.
-
-  Lemma help phi :
-    phi[up ↑][up (up ↑)][up $0..] = phi[$0 .: S >> ↑].
-  Proof.
-    rewrite !subst_comp. apply subst_ext. now intros [|].
-  Qed.
-
-  Lemma help2 phi :
-    phi[$0.:↑] = phi.
-  Proof.
-    apply subst_id. now intros [].
-  Qed.
-  
-  Lemma help3 phi x :
-    phi[up ↑][up $x..] = phi.
-  Proof.
-    rewrite !subst_comp. apply subst_id. now intros [|].
-  Qed.
-
-  Lemma help4 phi :
-    phi[up ↑][$0..] = phi.
-  Proof.
-    rewrite !subst_comp. apply subst_id. now intros [|].
-  Qed.
-
   Lemma GDP A phi :
     DPexp1 phi el A -> DPexp2 phi el A -> DPexp3 phi el A -> A ⊢G ∃' (phi → (∀ phi)[↑]).
   Proof.
@@ -233,18 +203,17 @@ Section GenCons.
     apply (@GXM _ (∃' (¬' phi))); [intuition| |].
     - eapply GExE; [intuition|apply Ctx;now left|]; cbn.
       erewrite !(subst_closed _ GBot_closed).
-      apply (@GExI _ ($0)). cbn. apply II. apply AllI. rewrite help. apply GExp.
+      apply (@GExI _ ($0)). cbn. apply II. apply AllI. asimpl. apply GExp.
       eapply incl_map. 2: exact H1. intros a Ha; eauto. cbn.
-      rewrite ! up_shift, ! help2.
-      rewrite (subst_closed _ GBot_closed).
+      asimpl. rewrite (subst_closed _ GBot_closed).
       eapply IE; apply Ctx. 2: now left. 1: right; now left.
     - apply (@GExI _ ($0)). cbn. apply II. apply AllI. cbn.
-      rewrite help3. rewrite ! (subst_closed _ GBot_closed).
+      asimpl. rewrite ! (subst_closed _ GBot_closed).
       eapply GDN. 1: now do 2 right.
       eapply II.
       eapply IE. 1: apply Ctx; right; right; now left.
       apply (@GExI _ ($0)). cbn. rewrite ! (subst_closed _ GBot_closed).
-      rewrite help4. apply Ctx. now left.
+      asimpl. apply Ctx. now left.
   Qed.
 
   (* **** Henkin *)
@@ -331,7 +300,7 @@ Section GenCons.
       use_theory (subst_form (($n)..) (henkin_axiom phi) :: A).
       - intros ? [<- |]; [| intuition]; subst. apply HT'. exists (S n). now right.
       - eapply IE; [|eapply Weak; [apply HA2|intros a Ha; eauto]]; apply II.
-        cbn. rewrite help3.
+        cbn. asimpl.
         eapply IE. 1: apply Ctx; eauto. apply Ctx; eauto.
     Qed.
 

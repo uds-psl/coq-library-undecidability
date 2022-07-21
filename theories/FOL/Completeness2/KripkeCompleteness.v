@@ -1,6 +1,6 @@
 (** ** Completeness **)
 
-From Undecidability.FOL Require Import Syntax.Facts Deduction.FragmentNDFacts Syntax.Theories Semantics.Kripke.FragmentCore Semantics.Kripke.FragmentSoundness 
+From Undecidability.FOL Require Import Syntax.Facts Syntax.Asimpl Deduction.FragmentNDFacts Syntax.Theories Semantics.Kripke.FragmentCore Semantics.Kripke.FragmentSoundness 
                                        Semantics.Kripke.FragmentToTarski Deduction.FragmentSequent Deduction.FragmentSequentFacts.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 From Undecidability Require Import Shared.ListAutomation Shared.Dec.
@@ -67,18 +67,14 @@ Section KripkeCompleteness.
       - intros H B HB Hphi % IHphi. apply IHpsi. intros C xi HC Hxi. apply H.
         1: now transitivity B. eauto using seq_Weak.
       - intros Hsat. apply AllR.
-        pose (phi' := subst_form ($0 .: (rho >> subst_term (S >> var))) phi).
+        pose (phi' := phi[up rho]).
         destruct (find_bounded_L (phi' :: A)).
         eapply seq_nameless_equiv_all' with (n := x) (phi := phi').
         + intros xi Hxi. apply b. now right.
         + eapply bounded_up. 1: apply b; now left. lia.
-        + unfold phi'. rewrite subst_comp. erewrite subst_ext.
-          * eapply IHphi. apply Hsat.
-          * intros [|n]; cbn. 1:reflexivity.
-            unfold funcomp. rewrite subst_term_comp. apply subst_term_id.
-            intros [|m]; easy.
+        + unfold phi'. asimpl. apply IHphi, Hsat.
       - intros H t. apply IHphi. intros B psi HB Hpsi. apply H. assumption.
-        apply AllL with (t := t). now rewrite help5.
+        apply AllL with (t := t). now asimpl.
     Qed.
 
     Corollary K_ctx_sprv_exp {ff:falsity_flag} A rho phi :
@@ -134,18 +130,14 @@ Section KripkeCompleteness.
       - intros H B HB Hphi % IHphi. 2:easy. apply IHpsi. 1:easy. intros C xi HC Hxi. apply H.
         1: now transitivity B. eauto using seq_Weak.
       - intros Hsat. apply AllR.
-        pose (phi' := subst_form ($0 .: (rho >> subst_term (S >> var))) phi).
+        pose (phi' := phi[up rho]).
         destruct (find_bounded_L (phi' :: A)).
         eapply seq_nameless_equiv_all' with (n := x) (phi := phi').
         + intros xi Hxi. apply b. now right.
         + eapply bounded_up. 1: apply b; now left. lia.
-        + unfold phi'. rewrite subst_comp. erewrite subst_ext.
-          * eapply IHphi. 1:easy. apply Hsat.
-          * intros [|n]; cbn. 1:reflexivity.
-            unfold funcomp. rewrite subst_term_comp. apply subst_term_id.
-            intros [|m]; easy.
+        + unfold phi'. asimpl. apply IHphi, Hsat. easy.
       - intros H t. apply IHphi. 1:easy. intros B psi HB Hpsi. apply H. assumption.
-        apply AllL with (t := t). now rewrite help5.
+        apply AllL with (t := t). now asimpl.
     Qed.
 
     Corollary K_ctx_sprv A rho phi :
@@ -311,15 +303,9 @@ Section KripkeCompleteness.
         eapply seq_nameless_equiv_all' with (n := x) (phi := phi').
         + intros xi Hxi. apply b. now right.
         + eapply bounded_up. 1: apply b; now left. lia.
-        + unfold phi'. cbn in H'. rewrite subst_comp. unfold scons, funcomp.
-          erewrite (@subst_ext _ _ _ _ phi _ (ltac:(idtac) .: ltac:(idtac))).
-          2: { intros [|n]; cbn; [reflexivity|]. rewrite subst_term_comp. unfold scons, funcomp. cbn.
-          erewrite subst_term_id; [|now easy]. easy. } apply H'.
+        + unfold phi'. cbn in H'. now asimpl.
       - intros H t. apply IHphi2. intros B psi HB Hpsi. apply H. assumption.
-        apply AllL with (t := t). rewrite subst_comp. unfold up, scons, funcomp; cbn.
-        erewrite (@subst_ext _ _ _ _ phi _ (ltac:(idtac) .: ltac:(idtac))).
-        2: { intros [|n]; cbn; [reflexivity|]. rewrite subst_term_comp. unfold scons, funcomp. cbn.
-          erewrite subst_term_id; [|now easy]. easy. } apply Hpsi.
+        apply AllL with (t := t). now asimpl.
     Qed.
 
     Corollary K_std_sprv A rho phi :
@@ -355,7 +341,7 @@ Section KripkeCompleteness.
         + apply Hsat. intros Hsat'. apply H.
           erewrite <- subst_id; trivial. apply Hsat'.
         + intros psi Hpsi. apply K_std_ksat.
-          intros B xi HB Hxi. rewrite subst_id in Hxi; eauto.
+          intros B xi HB Hxi. asimpl in Hxi. eauto.
     Qed.
 
     Lemma K_std_seq_ksoundness A phi :
