@@ -901,7 +901,7 @@ FOL/Proofmode/Theories.v
 FOL/Proofmode/ProofMode.v
 FOL/Proofmode/DemoPA.v
 FOL/Proofmode/DemoZF.v
-#FOL/Proofmode/DemoMinZF.v
+FOL/Proofmode/DemoMinZF.v
 
 
 FOL/FullSyntax.v

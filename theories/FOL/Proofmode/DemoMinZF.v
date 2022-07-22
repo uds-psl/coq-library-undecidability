@@ -1,8 +1,8 @@
 From Equations Require Import Equations.
 Require Equations.Type.DepElim.
 From Undecidability.Shared Require Import Dec.
-From Undecidability.FOL Require Import Util.Syntax Util.FullDeduction Util.FullTarski ZF.
-From Undecidability.FOL Require Import Reductions.PCPb_to_ZF minZF Reductions.PCPb_to_minZF.
+From Undecidability.FOL Require Import Syntax.Core Deduction.FullND Semantics.Tarski.FullCore Sets.minZF.
+From Undecidability.FOL Require Import Sets.Signatures Undecidability.Reductions.PCPb_to_ZF Undecidability.Reductions.PCPb_to_minZF.
 From Undecidability.FOL.Proofmode Require Import Theories ProofMode.
 Require Import String List.
 
