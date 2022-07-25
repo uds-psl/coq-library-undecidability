@@ -556,17 +556,17 @@ Section Arithmetic.
   Qed.
 
   Lemma lt_neq x y : 
-    x i⧀ y -> x = y -> False.
+    x i⧀ y -> x i= y -> False.
   Proof.
-    intros [k Hk] ->. revert Hk.
-    rewrite <-add_rec_r, <-(add_zero_r y) at 1.
+    intros [k Hk] e. revert Hk.
+    rewrite e, <-add_rec_r, <-(add_zero_r y) at 1.
     rewrite !(add_comm y).
     intros H%add_eq. revert H.
     apply zero_succ.
   Qed.
 
-
-  Notation "x 'i≤' y" := (exists d : D, y i= x i⊕ d)  (at level 80).
+  Definition ileq x y := exists d : D, y i= x i⊕ d.
+  Notation "x 'i≤' y" := (ileq x y)  (at level 80).
 
   Lemma lt_le_equiv1 x y : 
     x i⧀ iσ y <-> x i≤ y.
@@ -576,6 +576,13 @@ Section Arithmetic.
     - exists k. now apply iEq_succ.
   Qed.
 
+  Instance :
+    Proper (iEq ==> iEq ==> iff) ileq.
+  Proof.
+    intros x y E1 u v E2. rewrite <-!lt_le_equiv1.
+    now rewrite E1, E2.
+  Qed.
+
 
   Lemma lt_S d e : 
     d i⧀ (iσ e) <-> d i⧀ e \/ d i= e.
@@ -583,8 +590,7 @@ Section Arithmetic.
     pose (Φ := ∀ $0 ⧀ σ $1 ↔ $0 ⧀ $1 ∨ $0 == $1).
     assert (H: forall d ρ, (d .: ρ)⊨ Φ).
     apply induction.
-    repeat solve_bounds; cbn in H.
-    1,2 : apply vec_cons_inv in H; destruct H as [-> |]; solve_bounds.
+    - solve_bounds.
     - intros ρ x. Fold; destruct (zero_or_succ x) as [E | [x' E]]; cbn; split.
       + intros _. now right.
       + intros _. exists i0; Fold.
@@ -614,7 +620,7 @@ Section Arithmetic.
     now rewrite add_rec, add_asso.
   Qed.
 
-  Lemma le_le_trans {x z} y : 
+  Lemma le_le_trans {x z} y :
     x i≤ y -> y i≤ z -> x i≤ z.
   Proof.
     intros [k1 H1] [k2 H2]. exists (k1 i⊕ k2). rewrite H2, H1.
@@ -652,49 +658,50 @@ Section Arithmetic.
         forall x q, exists d r, x i= d i⊗ q i⊕ r /\ (i0 i⧀ q -> r i⧀ q).
       Proof.
         intros x q.
-        destruct (zero_or_succ q) as [-> | [q_ ->]].
+        destruct (zero_or_succ q) as [E | [q_ Eq_]].
         - exists i0, x. split.
           + rewrite mult_zero, add_zero. reflexivity.
-          + now intros ?%nolessthen_zero.
-        - pose (ϕ := ∀∃∃ $3 == $1 ⊗ (σ $2) ⊕ $0 ∧ (zero ⧀ (σ $2) ~> $0 ⧀ (σ $2) ) ).
+          + rewrite E. now intros ?%nolessthen_zero.
+        - pose (ϕ := ∀∃∃ $3 == $1 ⊗ (σ $2) ⊕ $0 ∧ (zero ⧀ (σ $2) → $0 ⧀ (σ $2) ) ).
           assert (forall n ρ, (n.:ρ) ⊨ ϕ).
           apply induction. unfold sless in *. cbn. cbn in *. repeat solve_bounds.
-          + intros ρ d. cbn. exists i0, i0. fold i0. split.
+          + intros ρ d. exists i0, i0; Fold. split.
             * now rewrite mult_zero, add_zero.
             * tauto.
-          + intros x' IH ρ q'. cbn.
+          + intros x' IH ρ q'. Fold.
             destruct (IH ρ q') as [d' [r' [H ]]]. cbn in *.
-            destruct (eq_dec r' q') as [<- | F].
-            * exists (iσ d'), i0. split.
+            destruct (eq_dec r' q') as [e1|e2].
+            * exists (iσ d'), i0; Fold. split; [|tauto].
               rewrite add_zero_r, H.
-              now rewrite <-add_rec_r, mult_rec, add_comm.
-              tauto.
-            * exists d', (iσ r'). split.
-              now rewrite H, <-add_rec_r.
-              intros _. rewrite lt_SS.
+              now rewrite e1, <-add_rec_r, mult_rec, add_comm.
+            * exists d', (iσ r'); Fold. split.
+              { now rewrite H, <-add_rec_r. }
+              intros _. apply lt_SS.
               assert (r' i≤ q') as G.
               { rewrite <-lt_le_equiv1.
-                apply H0. exists q'. now rewrite add_zero. }
-              destruct (trichotomy r' q') as [h |[h|h] ]; intuition.
-              exfalso. specialize (lt_le_trans _ h G).
-              intros. now apply (lt_neq q' q').
+                apply H0. exists q'. 
+                Fold. now rewrite add_zero. }
+              destruct (trichotomy r' q') as [h|[h|h]]; intuition.
+              exfalso. 
+              apply (@lt_neq q' q'); [|reflexivity]. eapply lt_le_trans; eauto.
           + destruct (H x (fun _ => i0) q_) as [d [r [H1 H2]]]. cbn in H1, H2.
-            exists d, r. split; auto.
+            exists d, r; Fold. split; rewrite Eq_; auto.
       Qed.
 
-      Lemma iFac_unique1 d q1 r1 q2 r2 : r1 i⧀ d ->
-            r1 i⊕ q1 i⊗ d = r2 i⊕ q2 i⊗ d -> q1 i⧀ q2 -> False.
+      Lemma iFac_unique1 d q1 r1 q2 r2 : 
+        r1 i⧀ d ->
+        r1 i⊕ q1 i⊗ d i= r2 i⊕ q2 i⊗ d -> 
+        q1 i⧀ q2 -> False.
       Proof.
         intros H1 E H. revert E. apply lt_neq.
         apply lt_le_trans with (d i⊕ q1 i⊗ d).
         - now apply add_lt_mono.
-        - rewrite <- !mult_rec.
+        - rewrite <-mult_rec.
           apply le_le_trans with (q2 i⊗ d).
           + apply mult_le_mono.
-            destruct H as [k ->].
+            destruct H as [k Hk].
             exists k. now rewrite add_rec.
-          + pattern (q2 i⊗ d) at 2.
-            rewrite <-(add_zero (q2 i⊗ d)).
+          + rewrite <-(add_zero (q2 i⊗ d)) at 1.
             apply add_le_mono.
             exists r2. now rewrite add_zero.
       Qed.
@@ -702,16 +709,20 @@ Section Arithmetic.
 
       (** Uniqueness for the Euclidean Lemma *)
       
-      Lemma iFac_unique q d1 r1 d2 r2 : r1 i⧀ q -> r2 i⧀ q ->
-            r1 i⊕ d1 i⊗ q = r2 i⊕ d2 i⊗ q -> d1 = d2 /\ r1 = r2.
+      Lemma iFac_unique q d1 r1 d2 r2 : 
+            r1 i⧀ q -> r2 i⧀ q ->
+            r1 i⊕ d1 i⊗ q i= r2 i⊕ d2 i⊗ q -> 
+            d1 i= d2 /\ r1 i= r2.
       Proof.
-        intros H1 H2 E.
-        assert (d1 = d2) as ->.
-        - destruct (trichotomy d1 d2) as [ H | [ | H ]]; auto.
-          + exfalso. eapply iFac_unique1. 2: apply E. all: tauto.
-          + exfalso. eapply iFac_unique1. symmetry in E.
-            3: apply H. apply H2. eauto.
-        - repeat split. now apply add_eq in E.
+        intros H1 H2 E1.
+        assert (d1 i= d2) as E2.
+        - destruct (trichotomy d1 d2) as [|[|]]; auto; exfalso.
+          + eapply iFac_unique1. 
+            2: apply E1. all: tauto.
+          + eapply iFac_unique1.
+            2: symmetry; apply E1. all: auto.
+        - rewrite E2 in E1.
+          now apply add_eq in E1.
       Qed.
 
 
@@ -719,35 +730,39 @@ Section Arithmetic.
 
 
 
-    Lemma lessthen_num : forall n d, d i⧀ inu n -> exists k, k < n /\ d = inu k.
+    Lemma lessthen_num : 
+      forall n d, d i⧀ inu n -> exists k, k < n /\ d i= inu k.
     Proof.
       induction n ; intros d H.
       - now apply nolessthen_zero in H.
-      - destruct (zero_or_succ d) as [-> | [e ->]].
-        exists 0; split; auto; lia.
-        cbn in H; apply ->lt_SS in H.
+      - destruct (zero_or_succ d) as [E | [e E]].
+        1 : exists 0; split; auto; lia.
+        cbn in H. rewrite E, lt_SS in H.
         apply IHn in H.
-        destruct H as [k []].
-        exists (S k); split. lia. cbn; congruence.
+        destruct H as [k [? E']].
+        exists (S k); split; try lia. 
+        cbn; now rewrite <-E'.
     Qed.
 
 
-    Lemma iEuclid' : forall x y, 0 < y -> exists a b, b < y /\ x = a i⊗ inu y i⊕ inu b.
+    Lemma iEuclid' :
+      forall x y, 0 < y -> exists a b, b < y /\ x i= a i⊗ inu y i⊕ inu b.
       Proof.
         intros x y.
         destruct y as [|y]. lia.
         destruct (iEuclid x (inu (S y))) as (a & b & H).
         intros Hy.
         enough (Hlt : forall x y, x < y -> inu x i⧀ inu y).
-        apply Hlt, H, lessthen_num in Hy.
-        destruct Hy as [r [Hr ->]].
-        exists a, r. split.
-        apply Hr. apply H.
-        intros n m [k <-]%lt_nat_equiv.
-        exists (inu k); cbn. now rewrite inu_add_hom.
+        - apply Hlt, H, lessthen_num in Hy.
+          destruct Hy as [r [Hr E]].
+          exists a, r. split.
+          + apply Hr.
+          + rewrite <-E. apply H.
+        - intros n m Hnm.
+          exists (inu (m - S n)); cbn.
+          rewrite <-inu_add_hom.
+          replace (m) with (S n + (m - S n)) at 1 by lia.
+          reflexivity.
       Qed.
 
-  End PA_Model.
-
-
-End Models.
+End Arithmetic.
