@@ -348,21 +348,23 @@ Proof.
     destruct (pos_both n m p); auto.
 Qed.
 
+Section vec_map_def.
+
+Variable (X Y : Type).
+Variable (f : X -> Y).
+
+Fixpoint vec_map n (v : vec X n) :=
+  match v with 
+    | vec_nil => vec_nil
+    | x ## v  => f x ## vec_map v 
+  end.
+
+End vec_map_def.
+
+
 Section vec_map.
 
   Variable (X Y : Type).
-
-  Section vec_map_def.
-
-    Variable (f : X -> Y).
-
-    Fixpoint vec_map n (v : vec X n) :=
-      match v with 
-        | vec_nil => vec_nil
-        | x ## v  => f x ## vec_map v 
-      end.
-
-  End vec_map_def.
 
   Fixpoint vec_in_map n v : (forall x, @in_vec X x n v -> Y) -> vec Y n.
   Proof.
@@ -382,14 +384,14 @@ Section vec_map.
   Proof. revert f g; induction v; simpl; intros; f_equal; auto. Qed.
 
   Fact vec_map_ext f g n v : (forall x, in_vec x v -> f x = g x) 
-                          -> @vec_map f n v = vec_map g v.
+                          -> @vec_map X Y f n v = vec_map g v.
   Proof.
     intros H.
     do 2 rewrite <- vec_in_map_vec_map_eq.
     apply vec_in_map_ext, H.
   Qed.
 
-  Fact vec_list_vec_map (f : X -> Y) n v : vec_list (@vec_map f n v) = map f (vec_list v).
+  Fact vec_list_vec_map (f : X -> Y) n v : vec_list (@vec_map X Y f n v) = map f (vec_list v).
   Proof. induction v; simpl; f_equal; auto. Qed.
 
 End vec_map.
