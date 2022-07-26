@@ -1,3 +1,5 @@
+Set Default Goal Selector "!".
+
 From Undecidability.MinskyMachines Require Import MM_computable MM_sss mm_utils.
 From Undecidability.StackMachines Require Import BSM_computable.
 
@@ -176,7 +178,7 @@ Proof.
   destruct E. 
   destruct (splitat n v) eqn:E.
   eexists (vec_head t0, t).
-  erewrite <- append_splitat. now rewrite cast_eq_refl.
+  erewrite <- append_splitat. 1: now rewrite cast_eq_refl.
   rewrite E. f_equal. eapply (Vector.caseS' t0). cbn.
   intros h. eapply Vector.case0. reflexivity.
 Qed.
@@ -199,8 +201,8 @@ Lemma update_app_right {X} (x : X) l1 l2 i :
 Proof.
   induction l1 in i |- *; cbn.
   - now rewrite Nat.sub_0_r.
-  - intros Hi. destruct i. lia.
-    cbn. rewrite IHl1. reflexivity. lia.
+  - intros Hi. destruct i. 1: lia.
+    cbn. rewrite IHl1. 1: reflexivity. lia.
 Qed.
 
 Lemma update_app_left {X} (x : X) l1 l2 i : 
@@ -211,7 +213,7 @@ Proof.
   - lia. 
   - intros Hi. destruct i; cbn.
     + reflexivity.
-    + rewrite IHl1. reflexivity. lia.
+    + rewrite IHl1. 1: reflexivity. lia.
 Qed.
 
 Lemma vec_list_const {X x n} : vec_list (@const X x n) = List.repeat x n.
@@ -264,29 +266,29 @@ Section preprocess.
     intros Htgt Htmp1 Htmp2 Hnp. unfold prep.
     split. 2:{ cbn. lia. }
     eapply sss_compute_trans.
-    { eapply subcode_sss_compute with (P := (i,mm_transfert (reg p) (pos0) (pos_right (1 + k + n) Fin.F1) i)). auto.
+    { eapply subcode_sss_compute with (P := (i,mm_transfert (reg p) (pos0) (pos_right (1 + k + n) Fin.F1) i)). 1: auto.
       eapply sss_progress_compute. eapply mm_transfert_progress; auto. }
-    mm sss INC with (pos_left 3 (pos_left n (pos_right 1 p))). replace (3 + i) with (i + 3) by lia. auto.
+    mm sss INC with (pos_left 3 (pos_left n (pos_right 1 p))). 1: replace (3 + i) with (i + 3) by lia. 1: auto.
     rew vec. replace (1 + (3 + i)) with (4 + i) by lia.
     rewrite vec_change_swap.
-    rewrite vec_change_idem. 
-    pose (npm := 0).
-    match goal with [ |- context [vec_change ?v ?x 1]] => change (vec_change v x 1) with (vec_change v x (stack_enc (repeat true npm))) end.
-    assert (np = np + npm) by lia.
-    rewrite Hnp. revert Hnp. revert H. 2:auto.
+    1: rewrite vec_change_idem. 
+    1: pose (npm := 0).
+    1: match goal with [ |- context [vec_change ?v ?x 1]] => change (vec_change v x 1) with (vec_change v x (stack_enc (repeat true npm))) end.
+    1: assert (np = np + npm) by lia.
+    1: rewrite Hnp. 1: revert Hnp. 1: revert H. 2:auto.
     generalize np at 2 4. generalize npm. intros npr npl Heq Hnp.
     induction npl in npr, np, Heq, Hnp |- *.
     - eapply sss_compute_trans.
-      { eapply subcode_sss_compute with (P := (i+4, DEC Fin.F1 (14 + i) :: List.nil)). auto.
-        mm sss DEC zero with pos0 (14 + i). replace (4 + i) with (i + 4) by lia. eapply subcode_refl. rew vec. fold plus.
+      { eapply subcode_sss_compute with (P := (i+4, DEC Fin.F1 (14 + i) :: List.nil)). 1: auto.
+        mm sss DEC zero with pos0 (14 + i). 1: replace (4 + i) with (i + 4) by lia. 1: eapply subcode_refl. 1: rew vec. fold plus.
         mm sss stop. }
       mm sss stop. f_equal. cbn.
       rewrite vec_change_swap. 2:congruence.
       match goal with [ |- context [@vec_change ?X ?n ?vv ?x 0]] => replace (@vec_change X n vv x 0) with (vec_change vv x (v#>pos0)) end.
       2: now rewrite Htgt. rewrite vec_change_same. subst. reflexivity.
     - eapply sss_compute_trans.
-      { eapply subcode_sss_compute with (P := (i+4, DEC Fin.F1 (14 + i) :: List.nil)). auto.
-        mm sss DEC S with pos0 (14 + i) npl. replace (4 + i) with (i + 4) by lia. eapply subcode_refl. rew vec. fold plus.
+      { eapply subcode_sss_compute with (P := (i+4, DEC Fin.F1 (14 + i) :: List.nil)). 1: auto.
+        mm sss DEC S with pos0 (14 + i) npl. 1:  replace (4 + i) with (i + 4) by lia. 1: eapply subcode_refl. 1:  rew vec. fold plus.
         mm sss stop. }
       rew vec.
       eapply sss_compute_trans.
@@ -296,19 +298,19 @@ Section preprocess.
         - rewrite vec_change_neq; eauto.
         - rewrite vec_change_neq; eauto. }
       mm sss DEC zero with (pos_right (1 + k + n) Fin.F1) (4 + i).
-      replace (8 + (1 + (4 + i))) with (i + 13) by lia. auto.
-      rewrite vec_change_neq. 2:auto. rewrite vec_change_neq. 2:auto.
-      rewrite vec_change_neq. 2:auto. eauto.
+      1: replace (8 + (1 + (4 + i))) with (i + 13) by lia.  1: auto.
+      1: rewrite vec_change_neq. 2:auto. 1:  rewrite vec_change_neq. 2:auto.
+      1: rewrite vec_change_neq. 2:auto. 1:  eauto.
       rewrite vec_change_swap. 2:auto. rewrite vec_change_idem.
       change (true :: repeat true npr) with (repeat true (S npr)). eapply IHnpl.
-      lia. assumption.
+      1: lia. assumption.
   Qed.
 
   Fixpoint PREP' (k' : nat) (H : k' <= k) (i : nat) : list (mm_instr (pos (1 + k + n + 3))).
   Proof.
     destruct k'.
     - exact List.nil.
-    - refine (List.app (PREP' k' _ i) _). abstract lia.
+    - refine (List.app (PREP' k' _ i) _).  1: abstract lia.
       assert (Hn : k' < k) by abstract lia.
       refine (prep (Fin.of_nat_lt Hn) (14 * k' + i)).
   Defined. 
@@ -337,23 +339,23 @@ Section preprocess.
     split. 2:{ cbn. rewrite PREP'_length. right. lia. }
     revert i v1 k' Hle E v2.
     induction k'' as [ | k'' ]; intros i v1 k' Hle E v2.
-    - cbn. mm sss stop. f_equal. lia. revert v1. eapply Vector.case0. cbn. reflexivity.
+    - cbn. mm sss stop. f_equal. 1:  lia. revert v1. eapply Vector.case0. cbn. reflexivity.
     - cbn [PREP'].
       edestruct (vector_inv_back v1) as [(x, v1l) Hv1].
       assert (H1 : k'' <= k) by lia.
       assert (H2 : k'' + S k' = k) by lia.
       specialize (IHk'' i v1l (S k') (PREP'_subproof k'' Hle) H2 (x ## v2)).
-      eapply subcode_sss_compute_trans with (P := (i, PREP' k'' (PREP'_subproof k'' Hle) i)). auto.
-      match type of IHk'' with sss_compute _ _ (_, ?st) _ => evar (Vector.t nat (1 + k + n + 3)); enough (Eq : st = t) end; subst t.
-      rewrite Eq in IHk''. eapply IHk''.
+      eapply subcode_sss_compute_trans with (P := (i, PREP' k'' (PREP'_subproof k'' Hle) i)).  1: auto.
+      1: match type of IHk'' with sss_compute _ _ (_, ?st) _ => evar (Vector.t nat (1 + k + n + 3)); enough (Eq : st = t) end; subst t.
+      1: rewrite Eq in IHk''. 1:  eapply IHk''.
       { rewrite Hv1. repeat f_equal.
         eapply vec_list_inj. rewrite !vec_list_cast, <- !vec_app_spec, !vec_list_vec_app.
         rewrite vec_list_cast. rewrite vec_list_vec_app. cbn. now rewrite <- app_assoc.
       }
       replace (14 * k'' + i) with (i + k'' * 14) by lia.
       eapply subcode_sss_compute_trans with (P := (i + k'' * 14, prep (Fin.of_nat_lt (PREP'_subproof0 k'' Hle)) (i + k'' * 14))).
-      { eexists. eexists. split. reflexivity. rewrite PREP'_length. lia. }
-      eapply prep_spec.
+      { eexists. eexists. split.  1: reflexivity. rewrite PREP'_length. lia. }
+      1: eapply prep_spec.
       + reflexivity.
       + cbn. rewrite <- !vec_app_spec. rewrite vec_pos_app_right. reflexivity.
       + cbn. rewrite <- !vec_app_spec. rewrite vec_pos_app_right. reflexivity.
@@ -409,8 +411,8 @@ Section preprocess.
     unfold PREP.
     pose proof (@PREP_spec_strong i 0 w k 0 v vec_nil v (myeq k)).
     match goal with [ |- sss_output _ _ (_, ?st) _ ] => evar (Vector.t nat (1 + k + n + 3)); enough (st = t) as ->; subst t end.
-    match goal with [ |- sss_output _ _ _ (_, ?st) ] => evar (Vector.t nat (1 + k + n + 3)); enough (st = t) as ->; subst t end.
-    eapply H; try reflexivity. 3: reflexivity.
+    1: match goal with [ |- sss_output _ _ _ (_, ?st) ] => evar (Vector.t nat (1 + k + n + 3)); enough (st = t) as ->; subst t end.
+    1: apply H; try reflexivity. 3: reflexivity.
     2:{ repeat f_equal. clear. induction k; cbn. 
         - rewrite cast_eq_refl.
           pattern v. revert v. eapply Vector.case0. reflexivity.
@@ -427,7 +429,7 @@ Section preprocess.
   Proof.
     destruct n'.
     - exact List.nil.
-    - refine (List.app (PREPMORE' n' _) _). abstract lia.
+    - refine (List.app (PREPMORE' n' _) _).  1: abstract lia.
       assert (Hn : n' < n) by abstract lia.
       refine (INC (pos_left 3 (pos_right (1 + k) (Fin.of_nat_lt Hn))) :: List.nil).
   Defined. 
@@ -451,12 +453,12 @@ Section preprocess.
     split. 2:{ cbn. rewrite PREPMORE'_length. lia. }
     revert n' E Hle.
     induction n''; intros n' E Hle.
-    - cbn [PREPMORE']. mm sss stop. f_equal. lia. repeat f_equal. cbn. destruct E. now rewrite cast_eq_refl.
+    - cbn [PREPMORE']. mm sss stop. f_equal.  1: lia.  1: repeat f_equal. cbn. destruct E. now rewrite cast_eq_refl.
     - cbn [PREPMORE'].
-      eapply subcode_sss_compute_trans with (P := (i, PREPMORE' n'' (PREPMORE'_subproof n'' Hle))). auto.
+      eapply subcode_sss_compute_trans with (P := (i, PREPMORE' n'' (PREPMORE'_subproof n'' Hle))).  1: auto.
       { eapply IHn''. }
       mm sss INC with (pos_left 3 (pos_right (1 + k) (Fin.of_nat_lt (PREPMORE'_subproof0 n'' Hle)))).
-      { eexists. eexists. split. reflexivity. now rewrite PREPMORE'_length. }
+      { eexists. eexists. split.  1: reflexivity. now rewrite PREPMORE'_length. }
       mm sss stop. f_equal. 1: lia.
       rewrite <- !vec_app_spec.
       rewrite !vec_pos_app_left.
@@ -495,7 +497,7 @@ Section preprocess.
   Proof.
     pose proof (PREPMORE'_spec i x w n 0). cbn in H. cbn.
     match goal with [ |- sss_output _ _ _ (_, ?st) ] => evar (Vector.t nat (1 + k + n + 3)); enough (st = t) as ->; subst t end.
-    eapply H. repeat f_equal.
+    1: eapply H. repeat f_equal.
     eapply vec_list_inj. rewrite vec_list_cast, vec_list_const, <- vec_app_spec, vec_list_vec_app, vec_list_const.
     now simpl_list.
     Unshelve. lia.
@@ -544,13 +546,13 @@ Section preprocess.
     - cbn [repeat] in Htmp2. 
       eapply subcode_sss_compute_trans with (P := (i,mm_pop (tmp pos2) (tmp pos0) (tmp pos1) (i) (i+16) (i+16) (i+18))). 1: unfold POSTP; auto.
       { eapply sss_progress_compute. eapply mm_pop_One_progress; eauto. }
-      mm sss INC with pos0. unfold POSTP. auto. fold plus in *.
-      mm sss DEC zero with (tmp pos0) i. unfold POSTP. auto. 
+      mm sss INC with pos0.  1: unfold POSTP.  1: auto. fold plus in *.
+      mm sss DEC zero with (tmp pos0) i.  1: unfold POSTP.  1: auto. 
       {rew vec. rewrite vec_change_neq; eauto. }
       rew vec. specialize IHout with (out' := S out'). 
       replace (out + S out') with (S (out + out')) in IHout by lia.
       match goal with [ |- sss_compute _ _ _ (_, ?st) ] => evar (Vector.t nat (1 + k + n + 3)); enough (st = t) as ->; subst t end.
-      eapply IHout; rew vec.
+      1: eapply IHout; rew vec.
       + rewrite vec_change_neq; eauto.
       + rewrite vec_change_neq; eauto.
       + rew vec. symmetry. rewrite vec_change_swap. 2: eauto. rewrite vec_change_idem, vec_change_swap; eauto.
@@ -581,7 +583,7 @@ Section preprocess.
     eapply subcode_sss_compute_trans. 2: eapply PREP_spec. 1: unfold PREPALL; auto.
     eapply subcode_sss_compute_trans. 2: eapply PREPMORE_spec. 1: unfold PREPALL; auto.
     mm sss INC with pos0.
-    { unfold PREPALL. eexists. eexists nil. cbn. split. now rewrite app_assoc.
+    { unfold PREPALL. eexists. eexists nil. cbn. split.  1: now rewrite app_assoc.
       rewrite app_length, PREP_length; unfold PREPMORE; rewrite PREPMORE'_length. lia. }
     fold plus. mm sss stop.
     f_equal. lia.
@@ -655,9 +657,9 @@ Proof.
       split. 
       1: { eapply subcode_sss_compute_trans. 2: eapply PREPALL_spec. 1: auto.
       match goal with [H : sss_output _  _ ?st1 _ |- sss_compute _ _ ?st2 _ ] => enough (st1 = st2) end.
-      rewrite H0 in H.
-      eapply subcode_sss_compute_trans. 2: eapply H. auto.
-      2:{ f_equal. rewrite PREPALL_length. lia. clear.
+      1: rewrite H0 in H.
+      1: eapply subcode_sss_compute_trans. 2: eapply H.  1: auto.
+      2:{ f_equal.  1: rewrite PREPALL_length.  1: lia. clear.
           eapply vec_pos_ext. intros p.
           unfold vec_enc. rewrite vec_pos_set. destruct (cases p) as [ [[-> | ->] | ->] | [q ->]].
           - cbn. rewrite <- !vec_app_spec. now rewrite vec_pos_app_right.
@@ -673,8 +675,8 @@ Proof.
               now rewrite !vec_pos_const.
       }
       eapply subcode_sss_compute_trans with (P := (1 + length (PREPALL k i 1) + length Q, mm_transfert pos0 (pos_right (1 + k + i) pos2) (pos_right (1 + k + i) pos0) (1 + length (PREPALL k i 1) + length Q))).
-      { eexists (PREPALL k i 1 ++ Q). eexists (POSTP _ _ _). split. now rewrite <- app_assoc. rewrite !app_length, PREPALL_length. lia. }
-      eapply sss_progress_compute. eapply mm_transfert_progress.
+      { eexists (PREPALL k i 1 ++ Q). eexists (POSTP _ _ _). split. 1:  now rewrite <- app_assoc. rewrite !app_length, PREPALL_length. lia. }
+      1: eapply sss_progress_compute.  1: eapply mm_transfert_progress.
       1-5: clear.
       { cbn. congruence. }
       { cbn. congruence. } 
@@ -687,8 +689,8 @@ Proof.
         exfalso. eapply pos_right_left. now rewrite Hq. }
       { reflexivity. }
       eapply subcode_sss_compute_trans with (P := (4 + length (PREPALL k i 1) + length Q, POSTP k i (4 + length (PREPALL k i 1) + length Q))).
-      { eexists _. eexists List.nil. split. rewrite app_nil_r. now rewrite !app_assoc. rewrite !app_length, PREPALL_length. cbn. lia. }
-      eapply POSTP_spec.
+      { eexists _. eexists List.nil. split.  1: rewrite app_nil_r.  1: now rewrite !app_assoc. rewrite !app_length, PREPALL_length. cbn. lia. }
+      1: eapply POSTP_spec.
       { unfold vec_enc. rewrite vec_pos_set. destruct cases as [ [ | ] | [q Hq]]; rew vec. }
       { unfold vec_enc. rewrite !vec_pos_set.
         destruct cases as [ [ [| ] | ] | [q Hq]]; rew vec.
@@ -727,12 +729,12 @@ Proof.
     + intros v H2.
       eapply HP2. eapply HQ. eapply MM_cast_terminates with (E := E).
       eapply subcode_sss_terminates.
-      2:{ eapply subcode_sss_terminates_inv. eapply mm_sss_fun.
-          eapply H2. 
+      2:{ eapply subcode_sss_terminates_inv.  1: eapply mm_sss_fun.
+      1: eapply H2. 
           2:{rewrite <- Eq1. rewrite <- MM_cast_spec.
              rewrite PREPALL_length. cbn [plus].
              match goal with [ |- sss_output _ _ _ (_, ?st) ] => evar (t : Vector.t nat (1 + k + i + 3)); enough (Eq : st = t) end; subst t.
-             rewrite Eq. eapply PREPALL_spec. 
+             1: rewrite Eq.  1: eapply PREPALL_spec. 
 
              clear.
           eapply vec_pos_ext. intros p.

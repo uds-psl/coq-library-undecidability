@@ -1,3 +1,5 @@
+Set Default Goal Selector "!".
+
 From Undecidability.Shared.Libs.PSL Require Import Vectors.
 
 From Coq Require Import Vector List.
@@ -50,7 +52,7 @@ Proof.
 induction k in n |- *; rewrite ?many_vars_S; cbn.
 - rewrite subst_closed. 2:Lproc. reflexivity.
 - intros Hn. rewrite subst_closed. 2: Lproc. destruct (Nat.eqb_spec k n); try lia.
-  rewrite IHk. reflexivity. lia.
+  rewrite IHk.  1: reflexivity. lia.
 Qed.
 
 Lemma gen_list_spec {k} {X} {Hr : encodable X} (v' : Vector.t X k) :
@@ -135,7 +137,7 @@ Qed.
 
 Lemma forall_proc_help {X} {H : encodable X} {k} {v : Vector.t X k} : forall x, Vector.In x (Vector.map enc v) -> proc x.
 Proof.
-  clear. induction v; cbn; intros ? Hi. inversion Hi. inv Hi. Lproc. eapply IHv. eapply Eqdep_dec.inj_pair2_eq_dec in H3. subst. eauto. eapply nat_eq_dec.
+  clear. induction v; cbn; intros ? Hi.  1: inversion Hi. inv Hi.  1: Lproc. eapply IHv. eapply Eqdep_dec.inj_pair2_eq_dec in H3.  1: subst.  1: eauto. eapply nat_eq_dec.
 Qed.
 
 Lemma L_computable_to_L_bool_computable k (R : Vector.t nat k -> nat -> Prop) : 
@@ -150,7 +152,7 @@ Proof.
       rewrite !many_subst_app. rewrite gen_list_spec. rewrite !many_subst_many_app. repeat (rewrite many_subst_closed; [ | now Lproc]).
       rewrite Vector.map_map. unfold enc at 1. cbn. Lsimpl. eapply equiv_R.
       match goal with |- context [ VectorDef.map ?f ?v] => unshelve eassert (many_app s (VectorDef.map f v) == _) as -> end.
-      refine (many_app s (Vector.map (@enc nat _) (Vector.map (@List.length bool) v))).
+      1: refine (many_app s (Vector.map (@enc nat _) (Vector.map (@List.length bool) v))).
       * clear. induction v in s |- *.
         -- reflexivity.
         -- rewrite many_vars_S. cbn -[many_subst]. rewrite equiv_many_app_L. 2:{ cbn. rewrite Nat.eqb_refl. rewrite subst_closed. 2:Lproc. rewrite many_subst_closed. 2: Lproc.
@@ -184,7 +186,7 @@ Proof.
           exists m'. repeat split.  eapply Hs.
           rewrite !Vector.map_map in *. erewrite Vector.map_ext in *. 2:intros; now rewrite repeat_length. 2: reflexivity.
           now eapply eval_iff.
-        * erewrite equiv_eval_equiv in Heval. 2:{ clear Heval. rewrite Hc'. eapply beta_red. Lproc. rewrite subst_closed. 2:Lproc. reflexivity. } 
+        * erewrite equiv_eval_equiv in Heval. 2:{ clear Heval. rewrite Hc'. eapply beta_red.  1: Lproc. rewrite subst_closed. 2:Lproc. reflexivity. } 
           now eapply Omega_diverge in Heval.
     - intros o. rewrite eval_iff. rewrite HEQ. erewrite equiv_eval_equiv. 2:{ Lsimpl. reflexivity. }
       intros Heval. change (encNatL) with (@enc nat _) in *. change (encBoolsL) with (@enc (list bool) _) in *.
@@ -197,7 +199,7 @@ Proof.
         rewrite !Vector.map_map in *. erewrite Vector.map_ext in *. 2:intros; now rewrite repeat_length.
         exists (repeat true m'). destruct Heval as [Heval ?].
         eapply unique_normal_forms;[Lproc..|]. now rewrite Heval.
-      * erewrite equiv_eval_equiv in Heval. 2:{ clear Heval. rewrite Hc'. eapply beta_red. Lproc. rewrite subst_closed. 2:Lproc. reflexivity. } 
+      * erewrite equiv_eval_equiv in Heval. 2:{ clear Heval. rewrite Hc'. eapply beta_red.  1: Lproc. rewrite subst_closed. 2:Lproc. reflexivity. } 
         now eapply Omega_diverge in Heval.
       Unshelve. 
 Qed.
@@ -207,7 +209,7 @@ TM_bool_computable (fun v m => exists v' m', v = Vector.map (List.repeat true) v
 Proof.
     unfold TM_computable. 
     intros (n & Σ & s & b & Hsb & M & H).
-    exists n, Σ, s, b. split. exact Hsb. exists M.
+    exists n, Σ, s, b. split.  1: exact Hsb. exists M.
     intros v. split.
     - intros m. split.
       + intros HR. specialize (H (Vector.map (repeat true) v)) as [H1 H2]. specialize (H1 (repeat true m)) as [(q & t & H1) _].
@@ -222,7 +224,7 @@ Proof.
           ** revert Hv' HR. apply (caseS' v'). cbn. intros ? ? Hv' HR.
              inversion Hv'.
              eapply (f_equal (@length bool)) in H0. rewrite !repeat_length in H0. subst. eapply IHv.
-             2:eassumption. eapply Eqdep_dec.inj_pair2_eq_dec in H1. eassumption. eapply nat_eq_dec.
+             2:eassumption. eapply Eqdep_dec.inj_pair2_eq_dec in H1.  1: eassumption. eapply nat_eq_dec.
     - intros q t H1. erewrite Vector.map_ext in H1. 2: intros; eapply encBools_nat_TM.
       destruct (H (Vector.map (repeat true) v)) as [H3 [m H2]].
       * rewrite Vector.map_map. eapply H1.

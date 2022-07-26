@@ -1,3 +1,5 @@
+Set Default Goal Selector "!".
+
 Require Import Lia Nat Fin.
 
 Require Import Undecidability.H10.Utils.Diophantine.

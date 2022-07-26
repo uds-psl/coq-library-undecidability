@@ -14,6 +14,7 @@ From Undecidability.H10
 From Undecidability.MuRec.Util 
   Require Import recalg ra_dio_poly MuRec_computable ra_sem_eq ra_recomp.
 
+Set Default Goal Selector "!".
 Set Default Proof Using "Type".
 
 Lemma vec_pos_spec {X} {n} (v : Vector.t X n) (i : Fin.t n) :
@@ -50,7 +51,7 @@ Proof.
   intros HR (k' & P1 & P2 & H).
   eapply (MuRec_computable_functional_iff _ HR).
   unshelve eexists.
-  - eapply ra_comp. refine (ra_project (Fin.F1)).
+  - eapply ra_comp. 1:  refine (ra_project (Fin.F1)).
     2: exact (ra_dio_poly_find (dio_move P1) (dio_move P2) ## vec_nil).
     exact k'. 
   - split.
@@ -78,13 +79,13 @@ Proof.
       * intros. cbn [vec_head]. rewrite Hw. unfold vec_pos at 1. cbn [pos_S_inv]. now rewrite vec_pos_spec.
    +  intros v m Hvm. specialize (H (Vector.cons _ m _ v)).
       cbn -[dp_eval Vector.nth] in H. eapply H in Hvm as [ν Hν].
-      erewrite dp_eval_ext in Hν at 1. symmetry in Hν.
-      erewrite dp_eval_ext in Hν at 1. symmetry in Hν.
-      erewrite <- !dio_move_spec in Hν.
-      eapply ra_dio_poly_find_spec_strong2 in Hν as [e Hν].
-      eexists.
-      rewrite <- ra_bs_correct, ra_rel_fix_comp. unfold s_comp.
-      eexists. split.
+      erewrite dp_eval_ext in Hν at 1.  1: symmetry in Hν.
+      1: erewrite dp_eval_ext in Hν at 1.  1: symmetry in Hν.
+      1: erewrite <- !dio_move_spec in Hν.
+      1: eapply ra_dio_poly_find_spec_strong2 in Hν as [e Hν].
+      1: eexists.
+      1: rewrite <- ra_bs_correct, ra_rel_fix_comp.  1: unfold s_comp.
+      1: eexists.  1: split.
       * eapply ra_project_rel. reflexivity.
       * intros p. eapply (Fin.caseS' p). 2: eapply Fin.case0.
         rewrite vec_pos_map. 
