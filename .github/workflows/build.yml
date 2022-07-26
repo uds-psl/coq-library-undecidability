@@ -3,8 +3,8 @@ name: CI
 on: [push, pull_request]
 
 env:
-  OCAML_VERSION: 4.07.1+flambda
-  CACHE_KEY: opam-flambda-8.15-metacoqpre-${{github.base_ref}}-${{github.ref}} 
+  OCAML_VERSION: 4.11.0
+  CACHE_KEY: opam-8.15-metacoqrel-${{github.base_ref}}-${{github.ref}} 
 jobs:
   build-deps:
     runs-on: ubuntu-latest
@@ -16,10 +16,9 @@ jobs:
         path: "~/.opam"
         key: ${{env.CACHE_KEY}}
         restore-keys: |
-          opam-flambda-8.15-metacoqpre--refs/heads/${{github.base_ref}}
+          opam-8.15-metacoqrel--refs/heads/${{github.base_ref}}
 
     - name: Install OCaml
-      if: steps.cache.outputs.cache-hit != 'true'
       uses: avsm/setup-ocaml@v1
       with:
         ocaml-version: ${{env.OCAML_VERSION}}
@@ -34,13 +33,10 @@ jobs:
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
         opam repo add coq-released https://coq.inria.fr/opam/released
-        opam repo add coq-core-dev https://coq.inria.fr/opam/core-dev
         opam update
         opam upgrade
-        opam pin add -n -y -k git coq-metacoq-template.dev+8.15 "https://github.com/MetaCoq/metacoq.git#f170ec6"
         opam install . --deps-only --with-doc --with-test 
         opam list --installed
-  
 
   build-full:
     needs: build-deps
@@ -52,14 +48,16 @@ jobs:
       with:
         path: "~/.opam"
         key: ${{env.CACHE_KEY}}
+        
     - name: Check sucess of cache restoration
       if: steps.cache.outputs.cache-hit != 'true'
       run: exit
-    
+      
     - name: Install OCaml
       uses: avsm/setup-ocaml@v1
       with:
         ocaml-version: ${{env.OCAML_VERSION}}
+  
     - name: Checkout code
       uses: actions/checkout@v2
       with:
