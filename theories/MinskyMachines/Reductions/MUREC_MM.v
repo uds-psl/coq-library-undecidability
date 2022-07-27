@@ -13,9 +13,9 @@ From Undecidability.Shared.Libs.DLW
   Require Import pos vec sss.
 
 From Undecidability.MinskyMachines
-  Require Import MM.
+  Require Import MM MM_sss.
 
-From Undecidability.MuRec 
+From Undecidability.MuRec.Util 
   Require Import recalg ra_simul.
 
 Local Notation "'⟦' f '⟧'"  := (@ra_rel _ f) (at level 0).

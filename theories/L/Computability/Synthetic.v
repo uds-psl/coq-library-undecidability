@@ -258,3 +258,11 @@ Lemma L_recognisable_halt {X} `{encodable X} (p : X -> Prop) :
 Proof.
   intros. eapply L_recognisable'_recognisable in H0 as  (f & H_f). now exists (fun x0 => f (enc x0)). 
 Qed.
+
+Lemma L_recognisable_HaltL {X} {Hreg : encodable X} (p : X -> Prop) :
+  L_recognisable p -> p ⪯ HaltL.
+Proof.
+  intros. eapply L_recognisable'_recognisable in H as  (f & H_f). exists (fun x0 => f (enc x0)). 
+  intros x. rewrite H_f. unfold converges, HaltL. setoid_rewrite eval_iff. firstorder.
+  subst. eapply eproc_equiv in H. eauto.
+Qed.

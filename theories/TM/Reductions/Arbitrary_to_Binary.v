@@ -5,6 +5,7 @@ Require Export Undecidability.TM.Basic.Mono Undecidability.TM.Compound.Multi.
 (*From Undecidability.TM Require Import ProgrammingTools.*)
 From Undecidability Require Import ArithPrelim.
 Require Import Undecidability.Shared.FinTypeEquiv Undecidability.Shared.FinTypeForallExists.
+From Undecidability Require Import utils_list.
 
 Section fix_Sigma.
 
@@ -14,6 +15,24 @@ Section fix_Sigma.
     let i := proj1_sig (Fin.to_nat s) in
     repeat false i ++ repeat true (n - i).
 
+  Lemma encode_sym_inj s1 s2 : encode_sym s1 = encode_sym s2 -> s1 = s2.
+  Proof.
+    unfold encode_sym. intros H.
+    eapply Fin.to_nat_inj. revert H.
+    generalize (proj1_sig (Fin.to_nat s1)), (proj1_sig (Fin.to_nat s2)).
+    intros n1 n2 H.
+    assert (n1 < n2 \/ n1 = n2 \/ n1 > n2) as [ |  [ | ]] by lia.
+    - eapply Nat.le_exists_sub in H0 as (?  & -> & ?).
+      replace (x + S n1) with (n1 + S x) in H by lia. rewrite repeat_app in H. revert H. simpl_list. intros H.
+      eapply list_app_inj in H as [_ H]. 2: reflexivity.
+      cbn in H. destruct (n - n1); inv H.
+    - eauto.
+    - eapply Nat.le_exists_sub in H0 as (?  & -> & ?).
+      replace (x + S n2) with (n2 + S x) in H by lia. rewrite repeat_app in H. revert H. simpl_list. intros H.
+      eapply list_app_inj in H as [_ H]. 2: reflexivity.
+      cbn in H. destruct (n - n2); inv H.
+  Qed.
+  
   Lemma length_encode_sym (s : Fin.t n) :
     length (encode_sym s) = n.
   Proof.
@@ -756,6 +775,7 @@ Proof.
   eapply TM_eval_iff in H as [k H].
   now eapply HM in H.
 Qed.
+
 Lemma Sim_Terminates {Σ} (L : finType) (M : pTM Σ L 1) T :
   projT1 M ↓ T ->
   exists C1 C2,
@@ -771,10 +791,39 @@ Proof.
   destruct ymid1. destruct_tapes. repeat eexists; eassumption.
 Qed.
 
+Lemma binary_simulation Σ (M : TM Σ 1) :
+  {M' : TM (finType_CS bool) 1 |
+        (forall q t t', eval M (start M) t q t' -> exists q, eval M' (start M') ([| encode_tape' (Vector.nth t Fin0) |] ) q ([| encode_tape' (Vector.nth t' Fin0)  |] )) /\
+        (forall t, (exists q t', eval M' (start M') ([| encode_tape' (Vector.nth t Fin0) |] ) q t') -> (exists q t', eval M (start M) t q t')) }.
+Proof.
+  exists (projT1 (StateWhile (@Step Σ M) (start M))). split.
+  - intros q' t t' [n H] % TM_eval_iff.
+    edestruct @Sim_Terminates with (M := (existT _ M (fun _ : state M => tt))) (T := fun tin k => tin = t /\ k >= n).
+    * intros tin k [-> Hk]. cbn. exists (mk_mconfig q' t').  eapply @loop_monotone. exact H. eapply Hk.
+    * destruct H0 as [k H0]. cbn in H0. edestruct H0 as [[] H1].
+      -- exists (Vector.hd t), n. split. reflexivity. split. 2: now unfold ge. split. 2:lia.
+         destruct_tapes. reflexivity.
+      -- exists cstate. eapply TM_eval_iff. exists (x * n + k). unfold Relabel, initc in H1. cbn in H1.
+         destruct_tapes. etransitivity. exact H1.
+         cbn. repeat f_equal.
+         eapply (Sim_Realise (M := (existT _ M (fun _ : state M => tt))) (R := fun tin '(_,tout) => exists q', eval M (start M) tin q' tout)) in H1.
+         + destruct_tapes. rename h1 into t.
+           specialize (H1 t eq_refl) as [t'_sig [[q'_ [n' H1] % TM_eval_iff] H2]]. cbn in H1. 
+           cbn in H2. subst. inv H2. f_equal.
+           eapply loop_injective in H. 2: eassumption. now inv H.
+        + clear k H0 H1. intros tin k [q'_ tout] Hter. cbn in *. exists q'_. eapply TM_eval_iff. exists k. exact Hter.
+  - intros t (q' & t' & [n H] % TM_eval_iff). 
+    eapply (Sim_Realise (M := (existT _ M (fun _ : state M => tt))) (R := fun tin '(_,tout) => exists q', eval M (start M) tin q' tout)) in H.
+    * destruct_tapes. rename h0 into t.
+      specialize (H t eq_refl) as [t'_sig [[q'_ H1] H2]]. cbn in H1. 
+      cbn in H2. subst. exists q'_, [|t'_sig|]. eassumption. 
+    * intros tin k [q'_ tout] Hter. cbn in *. exists q'_. eapply TM_eval_iff. exists k. exact Hter.
+Qed.
+
 Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Synthetic.ReducibilityFacts Undecidability.TM.Util.TM_facts.
 
-Theorem reduction :
+Theorem reduction_tobin :
   HaltTM 1 ⪯ fun '(M,t) => @HaltsTM (finType_CS bool) 1 M t.
 Proof.
   unshelve eexists.

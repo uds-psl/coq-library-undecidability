@@ -15,7 +15,7 @@ From Undecidability.Shared.Libs.DLW
 From Undecidability.MinskyMachines 
   Require Import mm_defs.
 
-From Undecidability.MuRec 
+From Undecidability.MuRec.Util 
   Require Import recalg ra_mm.
 
 Set Implicit Arguments.

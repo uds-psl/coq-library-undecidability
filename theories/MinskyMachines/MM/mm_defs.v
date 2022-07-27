@@ -13,7 +13,7 @@ From Undecidability.Shared.Libs.DLW
   Require Import utils pos vec subcode sss.
 
 From Undecidability.MinskyMachines
-  Require Export MM.
+  Require Export MM MM_sss.
 
 Set Implicit Arguments.
 

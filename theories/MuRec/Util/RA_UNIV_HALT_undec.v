@@ -5,7 +5,7 @@
 
 Require Import Undecidability.Synthetic.Undecidability.
 
-Require Import Undecidability.MuRec.RA_UNIV_HALT.
+Require Import Undecidability.MuRec.Util.RA_UNIV_HALT.
 
 Require Undecidability.MuRec.Reductions.H10C_SAT_to_RA_UNIV_HALT.
 Require Import Undecidability.DiophantineConstraints.H10C_undec.

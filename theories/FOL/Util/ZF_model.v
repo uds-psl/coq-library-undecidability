@@ -234,7 +234,7 @@ Section IM.
     - setoid_rewrite sat_comp. eapply sat_ext; try apply H2. now intros [].
     - setoid_rewrite sat_comp in H2. eapply sat_ext; try apply H2. now intros [].
     - intros s t. admit.
-  Admitted.
+  Abort.
   *)
 
 End IM.

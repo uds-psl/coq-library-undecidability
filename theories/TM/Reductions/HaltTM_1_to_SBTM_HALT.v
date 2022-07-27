@@ -406,7 +406,7 @@ Require Undecidability.TM.Reductions.Arbitrary_to_Binary.
 Theorem reduction :
   TM.HaltTM 1 ⪯ SBTM_HALT.
 Proof.
-  apply: (reduces_transitive Arbitrary_to_Binary.reduction).
+  apply: (reduces_transitive Arbitrary_to_Binary.reduction_tobin).
   exists (fun '(M, t) =>
     existT _ (M' M) (encode_config M (TM_facts.mk_mconfig (TM.start M) t))).
   move=> [M t]. split.

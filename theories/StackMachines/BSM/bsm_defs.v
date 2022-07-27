@@ -13,7 +13,7 @@ From Undecidability.Shared.Libs.DLW
   Require Import utils list_bool pos vec subcode sss.
 
 From Undecidability.StackMachines 
-  Require Export BSM.
+  Require Export BSM Util.BSM_sss.
 
 Set Implicit Arguments.
 

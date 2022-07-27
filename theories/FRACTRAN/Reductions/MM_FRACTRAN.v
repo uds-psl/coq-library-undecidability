@@ -16,7 +16,7 @@ From Undecidability.MinskyMachines
   Require Import mm_defs.
 
 From Undecidability.FRACTRAN
-  Require Import FRACTRAN fractran_utils mm_fractran prime_seq.
+  Require Import FRACTRAN fractran_utils mm_fractran prime_seq FRACTRAN_sss.
 
 Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Synthetic.ReducibilityFacts.
@@ -34,9 +34,10 @@ Section MM_HALTING_FRACTRAN_ALT_HALTING.
     + exists n; exact v.
   Defined.
 
-  Theorem MM_FRACTRAN_ALT_HALTING : MM_HALTING ⪯ FRACTRAN_ALT_HALTING.
+  Theorem MM_FRACTRAN_ALT_HALTING : Halt_MM ⪯ FRACTRAN_ALT_HALTING.
   Proof.
-    exists f; intros (n & P & v); simpl.
+    exists f; intros (n & P & v).
+    setoid_rewrite Halt_MM_iff. simpl.
     destruct (mm_fractran_n P) as (l & H1 & H2); simpl; auto.
   Qed.
 
@@ -50,14 +51,15 @@ Section FRACTRAN_ALT_HALTING_HALTING.
     exact (l,(ps 1 * exp 1 v)).
   Defined.
 
-  Theorem FRACTRAN_ALT_HALTING_HALTING : FRACTRAN_ALT_HALTING ⪯ FRACTRAN_HALTING.
+  Theorem FRACTRAN_ALT_HALTING_HALTING : FRACTRAN_ALT_HALTING ⪯ Halt_FRACTRAN.
   Proof. 
-    exists f; intros (n & P & v); simpl; tauto.
+    exists f; intros (n & P & v).
+    rewrite Halt_FRACTRAN_iff. simpl. firstorder.
   Qed.
 
 End FRACTRAN_ALT_HALTING_HALTING.
 
-Corollary MM_FRACTRAN_HALTING : MM_HALTING ⪯ FRACTRAN_HALTING.
+Corollary MM_FRACTRAN_HALTING : Halt_MM ⪯ Halt_FRACTRAN.
 Proof.
   eapply reduces_transitive. apply MM_FRACTRAN_ALT_HALTING.
   exact FRACTRAN_ALT_HALTING_HALTING.
@@ -72,9 +74,10 @@ Section MM_HALTING_FRACTRAN_REG_HALTING.
     exists l, (ps 1 * exp 1 v); assumption.
   Defined. 
  
-  Theorem MM_FRACTRAN_REG_HALTING : MM_HALTING ⪯ FRACTRAN_REG_HALTING.
+  Theorem MM_FRACTRAN_REG_HALTING : Halt_MM ⪯ FRACTRAN_REG_HALTING.
   Proof.
-    exists f; intros (n & P & v); simpl.
+    exists f; intros (n & P & v).
+    setoid_rewrite Halt_MM_iff. simpl.
     destruct (mm_fractran_n P) as (l & H1 & H2); simpl; auto.
   Qed.
 
@@ -89,9 +92,9 @@ Section FRACTRAN_REG_FRACTRAN_HALTING.
     intros (l & v & _); exact (l,v).
   Defined.
 
-  Theorem FRACTRAN_REG_FRACTRAN_HALTING : FRACTRAN_REG_HALTING ⪯ FRACTRAN_HALTING.
+  Theorem FRACTRAN_REG_FRACTRAN_HALTING : FRACTRAN_REG_HALTING ⪯ Halt_FRACTRAN.
   Proof.
-    exists f; intros (n & P & v); simpl; tauto.
+    exists f; intros (n & P & v). rewrite Halt_FRACTRAN_iff. tauto.
   Qed.
 
 End FRACTRAN_REG_FRACTRAN_HALTING.

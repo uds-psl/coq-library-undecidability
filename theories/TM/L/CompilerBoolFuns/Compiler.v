@@ -154,9 +154,89 @@ Section mk_init_one.
     BoollistToEnc.M retr_list retr_pro @[|Fin2;Fin3;Fin4;Fin5|];;
     APP_right ⇑ retr_pro  @[|Fin1;Fin3|].
 
-    
+
+
+  Section encodeList_size_eq.
+    Variable X : Type.
+    Variable sigX : Type.
+    Context {cX : codable sigX X}.
+
+    Open Scope list_scope.
+
+    Lemma encodeList_size_app (l1 l2 : list X) :
+      size (l1 ++ l2) <= size l1 + size l2.
+    Proof.
+      rewrite !Encode_list_hasSize in *.
+      cbn. induction l1;cbn. eauto. cbn. cbn. autorewrite with list. lia.
+    Qed.
+
+    Lemma encodeList_size_app_eq (l1 l2 : list X) :
+      size (l1 ++ l2) = size l1 + size l2 - 1.
+    Proof.
+      rewrite !Encode_list_hasSize in *.
+      cbn. induction l1;cbn. lia. autorewrite with list. rewrite IHl1.
+      assert ((Encode_list_size cX l2) > 0) by (induction l2;cbn;lia). lia.
+    Qed.
+
+    Lemma encodeList_size_cons  x (l : list X) :
+      size (x::l) = 1 + size x + size l.
+    Proof.
+      rewrite !Encode_list_hasSize in *.
+      cbn. unfold size. autorewrite with list. lia.
+    Qed.
+
+    Lemma encodeList_size_nil:
+      size (@nil X) = 1.
+    Proof.
+      rewrite !Encode_list_hasSize in *.
+      reflexivity.
+    Qed.
+
+  End encodeList_size_eq.
+
+  Lemma size_Var (n : nat) :
+    size (varT n) = 2 + n.
+  Proof. unfold size. cbn. simpl_list. rewrite repeat_length. cbn. lia. Qed.
+
+  Lemma size_sizeT_le t:
+    size t <= 2* sizeT t.
+  Proof.
+    destruct t.
+    1:rewrite size_Var.
+    all:cbv - [plus mult]. all:nia.
+  Qed.
+
+  Lemma sizeT_ge_1 t:
+    1 <= sizeT t.
+  Proof.
+    destruct t;cbn. all:nia.
+  Qed.
+
+  Lemma size_le_sizeP P:
+    size P <= 3 * sizeP P.
+  Proof.
+    induction P as [ | t P].
+    {now cbv. }
+    setoid_rewrite encodeList_size_cons. rewrite IHP.
+    unfold sizeP;cbn. setoid_rewrite size_sizeT_le.
+    specialize (sizeT_ge_1 t). nia.
+  Qed.
+
+
+
+Lemma size_L_enc_bools : (fun (bs:list bool) => L_facts.size (Extract.enc bs)) <=c (fun bs => length bs + 1).
+Proof.
+  etransitivity.
+  -eapply upToC_le with (F:= (fun bs => _ ));intros bs.
+   rewrite Lists.size_list, sumn_le_bound.
+   2:{ intros ? (?&<-&?)%in_map_iff. rewrite LBool.size_bool. reflexivity. }
+   rewrite map_length. reflexivity.
+   -cbn. smpl_upToC_solve.
+Qed. 
+
+
   Lemma M_init_one_Spec :
-    { f : UpToC (fun '(s1,s2)=>1) & forall (bs:list bool) (ter : L.term),
+    { f : UpToC (fun '(bs,ter)=>length bs + L_facts.size ter + 1) & forall (bs:list bool) (ter : L.term),
     TripleT ≃≃([],[|Custom (eq (encBoolsTM s b bs));Contains _ (compile ter);Void;Void;Void;Void|])
     (f (bs,ter)) M_init_one (fun _ => ≃≃([],[|Custom (eq (encBoolsTM s b bs));Contains _ (compile (L.app ter (encBoolsL bs)));Void;Void;Void;Void|])) }.
   Proof using H_disj.
@@ -178,17 +258,18 @@ Section mk_init_one.
     }
     etransitivity.
     {
-       unfold f. eapply upToC_le. intros [bs ter].
+       unfold f. eapply upToC_le with (F:=fun '(bs,ter) => _). intros [bs ter].
        rewrite (correct__leUpToC (Rev_steps_nice _)).
        rewrite (correct__leUpToC (BoollistEnc.boollist_size)).
        do 3 rewrite (correct__leUpToC (correct__UpToC _)).
        rewrite rev_length.
-
-       (*
-       rewrite LMBoundsLoop.size_le_sizeP.
-        } 
-    unfold f. smpl_upToC. *)
-  Admitted.
+       rewrite !size_le_sizeP.
+       unfold sizeP;rewrite !sizeP_size.
+       rewrite (correct__leUpToC size_L_enc_bools).
+       reflexivity.
+    }
+       smpl_upToC_solve.
+  Qed.
 
 End  mk_init_one.
 

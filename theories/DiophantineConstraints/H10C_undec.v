@@ -75,5 +75,6 @@ Proof.
   eapply reduces_transitive; last apply FRACTRAN_REG_FRACTRAN_HALTING.
   eapply reduces_transitive; last apply MM_FRACTRAN_REG_HALTING.
   eapply reduces_transitive; last apply BSM_MM_HALTING.
+  red. unfold Definitions.reduction. setoid_rewrite BSM_sss.Halt_BSM_iff.
   exact SBTM_HALT_to_HaltBSM.reduction.
 Qed.

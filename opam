@@ -9,12 +9,15 @@ authors: ["Yannick Forster"
           "Andrej Dudenhefner"
           "Edith Heiter"
           "Marc Hermes"
+          "Johannes Hostert"
           "Dominik Kirst"
+          "Mark Koch"
           "Fabian Kunze"
           "Gert Smolka"
           "Simon Spies"
           "Dominik Wehr"
           "Maximilian Wuttke"]
+
 license: "CECILL-2.1"
 build: [
   [make "-j%{jobs}%"]

@@ -19,7 +19,7 @@ From Undecidability.MinskyMachines.MMA
 From Undecidability.Synthetic
   Require Import Definitions ReducibilityFacts.
 
-Theorem reduction n : BSMn_HALTING n ⪯ MMA_HALTING (1+n).
+Theorem reduction n : BSMn_HALTING n ⪯ @MMA_HALTING (1+n).
 Proof.
   apply reduces_dependent; exists.
   intros (i,(P,v)).

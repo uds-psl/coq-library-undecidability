@@ -8,6 +8,7 @@ From Undecidability.L.Complexity.LinDecode Require Import LTDbool LTDlist LTDnat
 
 From Undecidability.TM.L.CompilerBoolFuns Require Import Compiler_spec NaryApp.
 
+Notation encNatL := nat_enc.
 
 Import ListNotations.
 Import VectorNotations.

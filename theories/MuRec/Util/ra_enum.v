@@ -12,7 +12,7 @@ Require Import Arith.
 From Undecidability.Shared.Libs.DLW 
   Require Import utils_tac utils_nat utils_decidable pos vec.
 
-From Undecidability.MuRec
+From Undecidability.MuRec.Util
   Require Import recalg ra_utils.
 
 Set Implicit Arguments.

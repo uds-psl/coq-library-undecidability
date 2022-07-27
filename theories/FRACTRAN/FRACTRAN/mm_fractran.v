@@ -20,7 +20,7 @@ From Undecidability.Shared.Libs.DLW
                  pos vec subcode sss.
 
 From Undecidability.MinskyMachines.MM Require Import mm_defs mm_no_self.
-From Undecidability.FRACTRAN Require Import FRACTRAN fractran_utils prime_seq.
+From Undecidability.FRACTRAN Require Import FRACTRAN fractran_utils prime_seq FRACTRAN_sss.
 
 Set Implicit Arguments.
 
@@ -32,10 +32,12 @@ Local Notation "e [ v / x ]" := (vec_change e x v).
 Local Notation "I // s -1> t" := (mm_sss I s t).
 Local Notation "P /MM/ s → t" := (sss_step (@mm_sss _) P s t) (at level 70, no associativity). 
 Local Notation "P /MM/ s -[ k ]-> t" := (sss_steps (@mm_sss _) P k s t) (at level 70, no associativity).
+Local Notation "P /MM/ s ▹ t" := (sss_output (@mm_sss _) P s t) (at level 70, no associativity).
 Local Notation "P /MM/ s ↓" := (sss_terminates (@mm_sss _) P s) (at level 70, no associativity).
 
 Local Notation "l /F/ x → y" := (fractran_step l x y) (at level 70, no associativity).
 Local Notation "l /F/ x -[ k ]-> y" := (fractran_steps l k x y) (at level 70, no associativity).
+Local Notation "l /F/ x ▹ y" := (fractran_eval l x y) (at level 70, no associativity).
 
 Set Implicit Arguments.
 
@@ -109,6 +111,11 @@ Qed.
 Local Notation divides_mult_inv := prime_div_mult.
 
 Local Ltac inv H := inversion H; subst; clear H.
+
+Lemma ps_prime n : prime (ps n).
+Proof.
+  eapply nthprime_prime.
+Qed.
 
 Opaque ps qs.
 
@@ -347,6 +354,53 @@ Proof.
       subst P; apply in_sss_step; auto.
 Qed.
 
+Theorem mm_fractran_simulation_forward n P v j v' :
+     @mm_no_self_loops n (1, P) 
+  -> (1,P) /MM/ (1,v) ▹ (j, v') -> encode_mm_instr 1 P /F/ ps 1 * exp 0 v ▹ encode_state (j, v').
+Proof.
+  intros HP.
+  change (ps 1* exp 0 v) with (encode_state (1,v)).
+  intros ((k & H1) & H2); simpl fst in *.
+  rewrite eval_iff. split.
+  * exists k; apply steps_forward in H1; auto.
+  * intros x Hx.
+    destruct one_step_backward with (2 := Hx)
+      as (i2 & v2 & -> & ?); auto.
+    revert H; apply sss_out_step_stall; auto.
+Qed.
+Lemma encode_state_inj n st1 st2 :
+  @encode_state n st1 = @encode_state n st2 -> st1 = st2.
+Proof.
+  intros H. destruct st1 as (i1, v1), st2 as (i2, v2).
+  assert (i1 = i2); subst.
+  - eapply divides_encode_state. rewrite <- H. 
+    unfold encode_state. cbn. rewrite mult_comm. eapply divides_mult, divides_refl.
+  - f_equal. unfold encode_state in H. cbn in H.
+    replace (ps i2) with (ps i2 ^ 1) in H by (cbn; lia).
+    eapply power_factor_uniq in H as [_ H].
+    + eapply exp_inj. eauto.
+    + pose proof (ps_prime i2) as ? % prime_ge_2. lia.
+    + eapply ps_exp.
+    + eapply ps_exp.
+Qed.
+
+Theorem mm_fractran_simulation_strong n P v j v' :
+     @mm_no_self_loops n (1, P) 
+  -> (1,P) /MM/ (1,v) ▹ (j, v') <-> encode_mm_instr 1 P /F/ ps 1 * exp 0 v ▹ encode_state (j, v').
+Proof.
+  intros HP.
+  change (ps 1* exp 0 v) with (encode_state (1,v)).
+  split.
+  - now eapply mm_fractran_simulation_forward.
+  - intros [H1 H2] % eval_iff.
+    edestruct mm_fractran_simulation as [_ [[j' w] Hw]]; [ eauto | eexists; eauto | ].
+    pose proof (Hw' := Hw).
+    eapply mm_fractran_simulation_forward in Hw as [Hw1 Hw2] % eval_iff; [ | eauto].
+    eapply fractran_compute_fun in H1; eauto.
+    enough ((j', w) = (j, v')) as <- by eassumption.
+    eapply encode_state_inj in H1; eauto.
+Qed.
+
 Theorem mm_fractran_not_zero n (P : list (mm_instr (pos n))) : 
         { l |  Forall (fun c => fst c <> 0 /\ snd c <> 0) l
             /\ forall v, (1,P) /MM/ (1,v) ↓ <-> l /F/ ps 1 * exp 1 v ↓ }.
@@ -358,6 +412,33 @@ Proof.
      rewrite H2, mm_fractran_simulation; auto.
      simpl exp; rewrite Nat.add_0_r; tauto.
 Qed.
+
+Theorem mm_fractran_n_strong n (P : list (mm_instr (pos n))) : 
+        { l |  Forall (fun c => snd c <> 0) l
+            /\ (forall v w, (exists j, (1,P) /MM/ (1,v) ▹ (j,w)) -> (exists j, l /F/ ps 1 * exp 1 v ▹ encode_state (j,0 ## w)))
+            /\ (forall v, (l /F/ ps 1 * exp 1 v ↓) -> (1,P) /MM/ (1,v) ↓) }.
+Proof.
+  destruct mm_remove_self_loops_strong with (P := P) as (Q & H1 & H2 & H3 & H4).
+  exists (encode_mm_instr 1 Q); split. 
+  + eapply Forall_impl. 2: apply encode_mm_instr_regular. firstorder.
+  + split.
+    - intros v w [j H % mm_fractran_simulation_forward] % H3; eauto. cbn in H. rewrite Nat.add_0_r in H. eauto.
+    - intros v H. eapply H4. eapply mm_fractran_simulation; [ auto | ]. cbn. now rewrite Nat.add_0_r.
+Qed.
+(* 
+Theorem mm_fractran_n_strong' n (P : list (mm_instr (pos n))) : 
+        { l |  Forall (fun c => snd c <> 0) l
+            /\ forall v w, (exists j, (1,P) /MM/ (1,v) ▹ (j,w)) <-> (exists j, l /F/ ps 1 * exp 1 v ▹ encode_state (j,0 ## w)) }.
+Proof.
+  destruct mm_remove_self_loops_strong with (P := P) as (Q & H1 & _ & H2).
+  exists (encode_mm_instr 1 Q); split. 
+  + eapply Forall_impl. 2: apply encode_mm_instr_regular. firstorder.
+  + intros v w.
+    split.
+    - intros [j H % mm_fractran_simulation_strong'] % H2; eauto. cbn in H. rewrite Nat.add_0_r in H. eauto.
+    - intros [j H]. eapply H2. eexists. eapply mm_fractran_simulation_strong'. eauto.
+      cbn. rewrite Nat.add_0_r. eauto.
+Qed. *)
 
 Theorem mm_fractran_n n (P : list (mm_instr (pos n))) : 
         { l |  Forall (fun c => snd c <> 0) l

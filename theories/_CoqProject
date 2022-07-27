@@ -14,7 +14,12 @@ MinskyMachines/MM2.v
 MinskyMachines/MM2_undec.v
 
 FRACTRAN/FRACTRAN.v
+
+FRACTRAN/Util/FRACTRAN_computable.v
+FRACTRAN/Util/FRACTRAN_sss.v
+
 FRACTRAN/Reductions/HaltTM_1_to_FRACTRAN_HALTING.v
+FRACTRAN/Reductions/MM_computable_to_FRACTRAN_computable.v
 FRACTRAN/FRACTRAN_undec.v
 
 DiophantineConstraints/H10C.v
@@ -289,6 +294,9 @@ MinskyMachines/ndMM2.v
 MinskyMachines/MMA2_undec.v     
 MinskyMachines/ndMM2_undec.v    
 
+MinskyMachines/Util/MM_sss.v
+MinskyMachines/Util/MM_computable.v
+
 MinskyMachines/Reductions/BSM_MM.v
 MinskyMachines/Reductions/BSM_to_MMA_HALTING.v
 MinskyMachines/Reductions/PCPb_to_MM.v
@@ -304,13 +312,15 @@ MinskyMachines/Reductions/MMA2_to_ndMM2_ACCEPT.v
 MinskyMachines/Reductions/KrivineMclosed_HALT_to_MMA_HALTING.v
 MinskyMachines/Reductions/MMA3_to_MMA2_HALTING.v
 MinskyMachines/Reductions/SBTM_to_MMA2_HALTING.v
+MinskyMachines/Reductions/BSM_computable_to_MM_computable.v
 
 MinskyMachines/Deciders/MPM2_HALT_dec.v
 MinskyMachines/Deciders/MM_2_HALTING_dec.v
 
 MinskyMachines/MM/mm_defs.v         
 MinskyMachines/MM/mm_utils.v        
-MinskyMachines/MM/mm_comp.v         
+MinskyMachines/MM/mm_comp.v
+MinskyMachines/MM/mm_comp_strong.v
 MinskyMachines/MM/mm_no_self.v      
 
 MinskyMachines/MMA/mma_defs.v       
@@ -351,36 +361,38 @@ ILL/Ll/ill_cll_restr.v
 ILL/Ll/schellinx.v
 ILL/Ll/imsell.v
 
-MuRec/recalg.v
-MuRec/ra_utils.v
-MuRec/beta.v
-MuRec/recomp.v
-MuRec/prim_min.v
-MuRec/ra_recomp.v
-MuRec/ra_godel_beta.v
-MuRec/ra_enum.v
-MuRec/ra_univ.v
-MuRec/ra_univ_andrej.v
+MuRec/MuRec.v
+MuRec/MuRec_undec.v
 
-MuRec/ra_dio_poly.v
-MuRec/ra_mm_env.v
-MuRec/ra_mm.v
-MuRec/ra_simul.v
-MuRec/ra_bs.v
-MuRec/minimizer.v
-MuRec/recursor.v
-MuRec/ra_sem_eq.v
-MuRec/ra_ca.v
-
-MuRec/RA_UNIV_HALT.v
-MuRec/RA_UNIV_HALT_undec.v
+MuRec/Util/beta.v
+MuRec/Util/minimizer.v
+MuRec/Util/MuRec_computable.v
+MuRec/Util/prim_min.v
+MuRec/Util/ra_ca.v
+MuRec/Util/ra_dio_poly.v
+MuRec/Util/ra_enum.v
+MuRec/Util/ra_godel_beta.v
+MuRec/Util/ra_mm_env.v
+MuRec/Util/ra_mm.v
+MuRec/Util/ra_recomp.v
+MuRec/Util/ra_sem_eq.v
+MuRec/Util/ra_simul.v
+MuRec/Util/ra_univ_andrej.v
+MuRec/Util/RA_UNIV_HALT_undec.v
+MuRec/Util/RA_UNIV_HALT.v
+MuRec/Util/ra_univ.v
+MuRec/Util/ra_utils.v
+MuRec/Util/recalg.v
+MuRec/Util/recomp.v
+MuRec/Util/recursor.v
 
 MuRec/Reductions/H10_to_MUREC_HALTING.v
 MuRec/Reductions/H10C_SAT_to_RA_UNIV_HALT.v
+MuRec/Reductions/Diophantine_to_MuRec_computable.v
 
 FRACTRAN/Reductions/MM_FRACTRAN.v
 
-FRACTRAN/Utils/prime_seq.v
+FRACTRAN/Util/prime_seq.v
 FRACTRAN/FRACTRAN/fractran_utils.v
 FRACTRAN/FRACTRAN/mm_fractran.v
 
@@ -421,6 +433,7 @@ TM/Util/Relations.v
 TM/Util/ArithPrelim.v
 TM/Util/VectorPrelim.v
 TM/Util/SBTM_facts.v
+TM/Util/TM_computable.v
 
 TM/Util/TM_facts.v
 
@@ -489,6 +502,7 @@ TM/Single/EncodeTapes.v
 TM/Single/StepTM.v
 TM/Reductions/L_to_mTM.v
 TM/Reductions/HaltL_to_HaltTM_5.v
+TM/Reductions/L_computable_to_TM_computable.v
 
 TM/Reductions/Arbitrary_to_Binary.v
 
@@ -590,8 +604,9 @@ L/TM/TapeFuns.v
 L/Reductions/TM_to_L.v
 L/Reductions/H10_to_L.v
 L/Reductions/MuRec/MuRec_extract.v
-L/Reductions/MuRec.v
+L/Reductions/HaltMuRec_to_HaltL.v
 L/Reductions/HaltL_to_HaltLclosed.v
+L/Reductions/MuRec_computable_to_L_computable.v
 
 L/Complexity/UpToC.v
 L/Complexity/UpToCNary.v
@@ -776,6 +791,11 @@ StackMachines/BSM/bsm_pcp.v
 StackMachines/BSM/tiles_solvable.v
 StackMachines/BSM/bsm_pctm.v
 
+StackMachines/Util/BSM_computable.v
+StackMachines/Util/BSM_sss.v
+
+StackMachines/Reductions/TM_computable_to_BSM_computable.v
+
 StackMachines/Util/Facts.v
 StackMachines/Util/Nat_facts.v
 StackMachines/Util/List_facts.v
@@ -873,3 +893,14 @@ LambdaCalculus/Util/Krivine_facts.v
 LambdaCalculus/Reductions/HaltLclosed_to_wCBNclosed.v
 LambdaCalculus/Reductions/wCBNclosed_to_wCBN.v
 LambdaCalculus/Reductions/wCBNclosed_to_KrivineMclosed_HALT.v
+
+H10/Reductions/FRACTRAN_computable_to_Diophantine.v
+H10/Util/Diophantine.v
+L/Reductions/PCPb_to_HaltL.v
+
+TM/KOSBTM/HaltKOSBTM_to_HaltBSM.v
+TM/KOSBTM/HaltKOSBTM_to_HaltKOSBTMu.v
+TM/KOSBTM/HaltTM_1_to_HaltKOSBTM.v
+TM/KOSBTM/KOSBTM.v
+
+Synthetic/Models_Equivalent.v

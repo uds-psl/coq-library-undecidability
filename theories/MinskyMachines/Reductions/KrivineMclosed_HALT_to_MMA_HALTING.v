@@ -18,7 +18,7 @@
 *)
 
 From Undecidability Require Import
-  MinskyMachines.MM LambdaCalculus.Krivine LambdaCalculus.Util.Krivine_facts.
+  MinskyMachines.MM MinskyMachines.MMA LambdaCalculus.Krivine LambdaCalculus.Util.Krivine_facts.
 From Undecidability Require
   MinskyMachines.MMA.mma_defs.
 From Undecidability.Shared.Libs.DLW
@@ -720,7 +720,7 @@ Lemma inverse_simulation ts ctx t :
 Proof.
   move=> v. move Ex: (1, v) => x ++ H. subst v.
   move: x H ts ctx t Ex.
-  apply: sss_terminates_ind; [exact: mma_defs.mma_sss_fun| |].
+  apply: sss_terminates_ind; [ exact: mma_defs.mma_sss_fun | |].
   { move=> [? ?] /= ? > []. lia. }
   move=> [i' v'] IH ts ctx t [? ?].
   move => /(_ _ _ (subcode.subcode_refl (1, PROG 1)) _ _ _ _ erefl) in IH.

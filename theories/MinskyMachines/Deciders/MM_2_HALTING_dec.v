@@ -13,7 +13,7 @@
 Require Import PeanoNat Lia List.
 Import ListNotations.
 
-Require Import Undecidability.MinskyMachines.MM.
+From Undecidability.MinskyMachines Require Import MM MM_sss.
 Require Undecidability.MinskyMachines.Deciders.MPM2_HALT_dec.
 Module MPM2 := MPM2_HALT_dec.
 

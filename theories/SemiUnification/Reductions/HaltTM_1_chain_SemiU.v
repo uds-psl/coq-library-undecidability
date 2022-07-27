@@ -23,7 +23,7 @@ Require Undecidability.PCP.Reductions.HaltTM_1_to_iPCPb.
   Comprehensive chain of many-one reductions from Turing machine halting to semi-unification 
     HaltTM 1 : Turing machine halting
     iPCPb : indexed, binary Post correspondence problem
-    BSM_HALTING : binary stack machine halting
+    Halt_BSM : binary stack machine halting
     MM2_HALTING : Minsky machine (with 2 registers) halting
     CM1_HALT : one-counter machine halting
     SMNdl_UB : uniform boundedness of deterministic, length-preserving stack machines
@@ -34,8 +34,8 @@ Require Undecidability.PCP.Reductions.HaltTM_1_to_iPCPb.
 *)
 Theorem HaltTM_1_chain_SemiU : 
   HaltTM 1 ⪯ iPCPb /\
-  iPCPb ⪯ BSM_HALTING /\
-  BSM_HALTING ⪯ MM2_HALTING /\
+  iPCPb ⪯ Halt_BSM /\
+  Halt_BSM ⪯ MM2_HALTING /\
   MM2_HALTING ⪯ CM1_HALT /\
   CM1_HALT ⪯ SMNdl_UB /\
   SMNdl_UB ⪯ CSSM_UB /\
