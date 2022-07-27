@@ -2,7 +2,7 @@ Set Default Goal Selector "!".
 
 Require Import Lia Nat Fin.
 
-Require Import Undecidability.H10.Utils.Diophantine.
+Require Import Undecidability.H10.Util.Diophantine.
 From Undecidability.FRACTRAN Require Import FRACTRAN_computable prime_seq.
 From Undecidability.H10 Require Import fractran_dio DPRM dio_logic.
 From Undecidability.Shared.Libs.DLW Require Import vec.

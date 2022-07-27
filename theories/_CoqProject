@@ -15,8 +15,8 @@ MinskyMachines/MM2_undec.v
 
 FRACTRAN/FRACTRAN.v
 
-FRACTRAN/Utils/FRACTRAN_computable.v
-FRACTRAN/Utils/FRACTRAN_sss.v
+FRACTRAN/Util/FRACTRAN_computable.v
+FRACTRAN/Util/FRACTRAN_sss.v
 
 FRACTRAN/Reductions/HaltTM_1_to_FRACTRAN_HALTING.v
 FRACTRAN/Reductions/MM_computable_to_FRACTRAN_computable.v
@@ -392,7 +392,7 @@ MuRec/Reductions/Diophantine_to_MuRec_computable.v
 
 FRACTRAN/Reductions/MM_FRACTRAN.v
 
-FRACTRAN/Utils/prime_seq.v
+FRACTRAN/Util/prime_seq.v
 FRACTRAN/FRACTRAN/fractran_utils.v
 FRACTRAN/FRACTRAN/mm_fractran.v
 
@@ -895,7 +895,7 @@ LambdaCalculus/Reductions/wCBNclosed_to_wCBN.v
 LambdaCalculus/Reductions/wCBNclosed_to_KrivineMclosed_HALT.v
 
 H10/Reductions/FRACTRAN_computable_to_Diophantine.v
-H10/Utils/Diophantine.v
+H10/Util/Diophantine.v
 L/Reductions/PCPb_to_HaltL.v
 
 TM/KOSBTM/HaltKOSBTM_to_HaltBSM.v

@@ -3,7 +3,7 @@ Require Import List Arith.
 From Undecidability.Shared.Libs.DLW 
   Require Import gcd rel_iter pos vec.
 
-From Undecidability.FRACTRAN.Utils 
+From Undecidability.FRACTRAN.Util
   Require Import prime_seq.
 
 Require Import Undecidability.FRACTRAN.FRACTRAN.
