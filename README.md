@@ -50,6 +50,8 @@ Target problems are very expressive and thus work well as targets for reduction,
 - Halting problem for partial recursive functions (`MUREC_HALTING` in [`MuRec/recalg.v`](theories/MuRec/recalg.v))
 - Halting problem for the weak call-by-name lambda-calculus (`wCBN` in [`LambdaCalculus/wCBN.v`](theories/LambdaCalculus/wCBN.v))
 
+An equivalence proof that most of the mentioned models of computation compute the same `n`-ary functional relations over natural numbers is available in [`Models_Equivalent.v`](theories/Synthetic/Models_Equivalent.v).
+
 #### Problems from Logic
 
 - Provability in Minimal, Intuitionistic, and Classical First-Order Logic (`FOL*_prv_intu`, `FOL_prv_intu`, `FOL_prv_class` in [`FOL/FOL.v`](theories/FOL/FOL.v)), including a formulation for the minimal binary signature ([`FOL/binFOL.v`](theories/FOL/binFOL.v))
@@ -174,10 +176,13 @@ We recommend to use the newest branch if possible.
 
 A Coq Library of Undecidable Problems. Yannick Forster, Dominique Larchey-Wendling, Andrej Dudenhefner, Edith Heiter, Dominik Kirst, Fabian Kunze, Gert Smolka, Simon Spies, Dominik Wehr, Maximilian Wuttke. CoqPL '20. https://popl20.sigplan.org/details/CoqPL-2020-papers/5/A-Coq-Library-of-Undecidable-Problems
 
+Computability in Constructive Type Theory. Yannick Forster. PhD thesis. https://dx.doi.org/10.22028/D291-35758
+
 ### Papers and abstracts on problems and proofs included in the library
 
 - Constructive Many-One Reduction from the Halting Problem to Semi-Unification. Andrej Dudenhefner. CSL2022. Subdirectory `SemiUnification`. https://drops.dagstuhl.de/opus/volltexte/2022/15738/
 - Undecidability, Incompleteness, and Completeness of Second-Order Logic in Coq. Mark Koch and Dominik Kirst. CPP 2022. Subdirectory `SOL`. https://www.ps.uni-saarland.de/extras/cpp22-sol/
+- A Mechanised Proof of the Time Invariance Thesis for the Weak Call-By-Value λ-Calculus. Yannick Foster, Fabian Kunze, Gert Smolka, Maximilian Wuttke. Subdirectory `TM/L`. https://drops.dagstuhl.de/opus/volltexte/2021/13914/
 - Synthetic Undecidability of MSELL via FRACTRAN. Dominique Larchey-Wendling. FSCD 2021. File [`ILL/IMSELL.v`](theories/ILL/IMSELL.v). Also documents 
  the undecidability proof for 2-counters Minsky machines [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v) via FRACTRAN. https://github.com/uds-psl/coq-library-undecidability/releases/tag/FSCD-2021/ 
 - The Undecidability of System F Typability and Type Checking for Reductionists. Andrej Dudenhefner. LICS 2021. Subdirectory `SystemF`. https://ieeexplore.ieee.org/document/9470520
@@ -206,6 +211,7 @@ We have [guidelines for the directory structure of projects](https://github.com/
 - Andrej Dudenhefner
 - Edith Heiter
 - Marc Hermes
+- Johannes Hostert
 - Dominik Kirst 
 - Mark Koch
 - Fabian Kunze
