@@ -888,6 +888,20 @@ FOL/Undecidability/FSAT.v
 FOL/Incompleteness/Abstract.v
 FOL/Incompleteness/Axiomatisations.v
 FOL/Incompleteness/PA_incompleteness.v
+FOL/Incompleteness/utils.v
+FOL/Incompleteness/epf.v
+FOL/Incompleteness/recalg.v
+FOL/Incompleteness/epf_mu.v
+FOL/Incompleteness/formal_systems.v
+FOL/Incompleteness/abstract_incompleteness.v
+FOL/Incompleteness/fol.v
+FOL/Incompleteness/qdec.v
+FOL/Incompleteness/sigma1.v
+FOL/Incompleteness/bin_qdec.v
+FOL/Incompleteness/weak_strong.v
+FOL/Incompleteness/completeness.v
+FOL/Incompleteness/ctq.v
+FOL/Incompleteness/fol_incompleteness.v
 
 
 

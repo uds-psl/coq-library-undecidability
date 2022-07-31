@@ -68,6 +68,12 @@ Proof.
     + apply num_add_homomorphism.
 Qed.
 
+Goal forall (φ : form), Qeq ⊢I ((∃φ[↑]) → φ)%Ffull.
+Proof.
+  intros φ. fstart. Fail fintros "[z Hz]". fintros.
+  Fail fdestruct "H". Fail fdestruct "H" as "[x Hx]".
+  remember intu. fdestruct "H". ctx.
+Qed.
 
 
 

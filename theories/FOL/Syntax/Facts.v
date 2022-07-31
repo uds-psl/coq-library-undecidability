@@ -233,6 +233,13 @@ End Subst.
 
 (* ** Bounded formulas *)
 
+
+Global Ltac invert_bounds :=
+  inversion 1; subst;
+  repeat match goal with
+           H : existT _ _ _ = existT _ _ _ |- _ => apply Eqdep_dec.inj_pair2_eq_dec in H; try decide equality
+         end; subst.
+
 Section Bounded.
 
   Context {Σ_funcs : funcs_signature}.
@@ -407,11 +414,6 @@ Section Bounded.
     lia.
   Qed.
 
-  Ltac invert_bounds :=
-    inversion 1; subst;
-    repeat match goal with
-             H : existT _ _ _ = existT _ _ _ |- _ => apply Eqdep_dec.inj_pair2_eq_dec in H; try decide equality
-           end; subst.
 
   Lemma vec_cons_inv X n (v : Vector.t X n) x y :
     In y (Vector.cons X x n v) -> (y = x) \/ (In y v).
@@ -511,7 +513,7 @@ End Bounded.
 #[global] Arguments subst_bounded {_} {_} {_} {_} k phi sigma.
 
 Ltac solve_bounds :=
-  repeat constructor; try lia; try inversion X; intros;
+  repeat (lia + constructor); try inversion X; intros;
   match goal with
   | H : Vector.In ?x (@Vector.cons _ ?y _ ?v) |- _ => repeat apply vec_cons_inv in H as [->|H]; try inversion H
   | H : Vector.In ?x (@Vector.nil _) |- _ => try inversion H

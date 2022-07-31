@@ -2,6 +2,7 @@
 (** ** Signature *)
 
 Require Import Undecidability.FOL.Syntax.Core.
+From Undecidability.Synthetic Require Import EnumerabilityFacts.
 Import Vector.VectorNotations.
 Require Import List.
 
@@ -40,6 +41,24 @@ Instance PA_preds_signature : preds_signature :=
 {| preds := PA_preds ; ar_preds := PA_preds_ar |}.
 
 
+Lemma enumerable_PA_funcs : enumerable__T PA_funcs.
+Proof.
+  cbn. exists (fun k => match k with
+    | 0 => Some Zero
+    | 1 => Some Succ
+    | 2 => Some Plus
+    | _ => Some Mult
+    end).
+  intros [].
+  + now exists 0.
+  + now exists 1.
+  + now exists 2.
+  + now exists 3.
+Qed.
+Lemma enumerable_PA_preds : enumerable__T PA_preds.
+Proof.
+  exists (fun _ => Some Eq). intros []. now exists 0.
+Qed.
 
 
 Declare Scope PA_Notation.

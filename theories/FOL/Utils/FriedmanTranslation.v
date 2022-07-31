@@ -3,6 +3,7 @@
 Require Import List Lia.
 
 From Undecidability.FOL Require Import FullSyntax.
+From Undecidability.FOL.Arithmetics Require Import Robinson NatModel.
 Import Vector.VectorNotations.
 From Undecidability Require Import Synthetic.Undecidability.
 
@@ -239,5 +240,33 @@ Section Signature.
     - apply Peirce_Fr.
   Qed.
 
-  
+  Lemma bounded_Fr {ff : falsity_flag} N ϕ :
+    bounded N ϕ -> bounded N (Fr ϕ).
+  Proof.
+    induction 1; cbn; solve_bounds; auto.
+    - destruct binop; now solve_bounds.
+    - destruct quantop; now solve_bounds.
+  Qed.
+
 End Signature.
+
+
+Section Arithmetic.
+
+  Existing Instance PA_preds_signature.
+  Existing Instance PA_funcs_signature.
+
+  Lemma nat_sat_Fr_Q P :
+    (extend_interp interp_nat P) ⊫= Fr_ Qeq.
+  Proof.
+    intros ρ a Qa.
+    repeat (destruct Qa as [<-|Qa]).
+    all: cbn -[FAeq]; try refine (fun A => let F := A _ rho in _); intuition.
+    - apply H. intros ->. apply H0. intros ->. auto.
+    - now apply H.
+    - destruct d; eauto.
+    - destruct Qa.
+  Qed.
+
+End Arithmetic.
+
