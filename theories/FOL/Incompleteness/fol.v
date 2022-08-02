@@ -6,7 +6,7 @@ From Undecidability.Synthetic Require Import Definitions EnumerabilityFacts.
 From Undecidability.FOL Require Import FullSyntax.
 From Undecidability.FOL.Arithmetics Require Import PA NatModel TarskiFacts DeductionFacts.
 
-From Undecidability.FOL.Proofmode Require Import Theories ProofMode Hoas.
+From Undecidability.FOL.Proofmode Require Import Theories ProofMode.
 Require Import String List.
 Open Scope string_scope.
 
@@ -30,18 +30,6 @@ Section lemmas.
 
   Context `{pei : peirce}.
 
-  Lemma num_subst k ρ : (num k)`[ρ] = num k.
-  Proof.
-    induction k; cbn; congruence.
-  Qed.
-  Lemma num_bound n k : bounded_t k (num n).
-  Proof.
-    induction n; cbn; constructor.
-    - intros t []%Vectors.In_nil.
-    - intros t ->%vec_singleton.
-      assumption.
-  Qed.
-
   Lemma prv_intu_class T φ p : @prv _ _ _ intu T φ -> @prv _ _ _ p T φ.
   Proof using.
   Admitted.
@@ -62,26 +50,6 @@ Section lemmas.
     now rewrite sat_single_PA.
   Qed.
 
-  Lemma AllE_Ctx A χ ψ t :
-    In (∀ψ) A -> (ψ[t..] :: A) ⊢ χ -> A ⊢ χ.
-  Proof.
-    intros H1 H2. eapply IE.
-    - apply II, H2.
-    - apply AllE, Ctx, H1.
-  Qed.
-
-  Lemma bounded_t_0_subst t ρ :
-    bounded_t 0 t -> t`[ρ] = t.
-  Proof.
-    intros Hb. rewrite <-subst_term_var.
-    eapply bounded_subst_t; last eassumption.
-    lia.
-  Qed.
-
-  Lemma bounded_0_subst φ ρ : bounded 0 φ -> φ[ρ] = φ.
-  Proof.
-    intros H. setoid_rewrite <-subst_var at 3. eapply bounded_subst; first eassumption. lia.
-  Qed.
 
 End lemmas.
 
@@ -225,5 +193,6 @@ Section n.
         frewrite <-H''.
         fapply ax_mult_congr; assumption.
   Qed.
+
 
 End n.

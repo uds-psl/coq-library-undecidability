@@ -2,6 +2,7 @@
 (* ** Axioms of PA, excluding induction *)
 Require Export Undecidability.FOL.Syntax.Core.
 Require Export Undecidability.FOL.Arithmetics.Signature.
+Require Import Undecidability.FOL.Syntax.Facts.
 Import Vector.VectorNotations.
 Require Import List.
 Import FullSyntax.
@@ -41,3 +42,14 @@ Fixpoint μ n :=  match n with
                  end.
 Definition num := μ.
   
+Lemma num_subst k ρ : (num k)`[ρ] = num k.
+Proof.
+  induction k; cbn; congruence.
+Qed.
+
+Lemma num_bound n k : bounded_t k (num n).
+Proof.
+  induction n; cbn; constructor.
+  - intros t []%Vectors.In_nil.
+  - now intros t [-> | []%Vectors.In_nil]%vec_cons_inv.
+Qed.

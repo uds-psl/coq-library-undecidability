@@ -281,6 +281,21 @@ Section Bounded.
       unfold funcomp. rewrite HN; trivial. lia.
   Qed.
 
+  Lemma bounded_t_0_subst t ρ :
+    bounded_t 0 t -> t`[ρ] = t.
+  Proof.
+    intros Hb. rewrite <-subst_term_var.
+    eapply bounded_subst_t.
+    2: eassumption. lia.
+  Qed.
+
+  Lemma bounded_0_subst {ff : falsity_flag} φ ρ : bounded 0 φ -> φ[ρ] = φ.
+  Proof.
+    intros H. setoid_rewrite <-subst_var at 3. eapply bounded_subst.
+    - eassumption.
+    - lia.
+  Qed.
+
   Lemma bounded_up_t {n t k} :
     bounded_t n t -> k >= n -> bounded_t k t.
   Proof using Σ_preds ops.
