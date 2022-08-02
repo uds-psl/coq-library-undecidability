@@ -45,6 +45,11 @@ Section Tarski.
       - reflexivity.
       - f_equal. rewrite map_map. apply map_ext_in, IH.
     Qed.
+    Lemma eval_up ρ s t :
+      eval (s .: ρ) t`[↑] = eval ρ t.
+    Proof.
+      rewrite eval_comp. apply eval_ext. reflexivity.
+    Qed.
 
     Lemma sat_ext {ff : falsity_flag} rho xi phi :
       (forall x, rho x = xi x) -> rho ⊨ phi <-> xi ⊨ phi.

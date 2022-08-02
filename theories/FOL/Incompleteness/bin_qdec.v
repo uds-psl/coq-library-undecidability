@@ -1,6 +1,5 @@
-(* Order of imports: import proofmode after utils after robinson *)
 From Undecidability.FOL Require Import FullSyntax.
-From Undecidability.FOL.Arithmetics Require Import Signature FA Robinson NatModel.
+From Undecidability.FOL.Arithmetics Require Import Signature Robinson NatModel.
 
 From Undecidability.FOL.Incompleteness Require Import utils fol qdec.
 From Undecidability.FOL.Proofmode Require Import Theories ProofMode.

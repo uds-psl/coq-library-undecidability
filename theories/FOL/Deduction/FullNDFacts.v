@@ -109,6 +109,23 @@ Section ND_def.
     - eapply bounded_up; try apply H; auto.
   Qed.
 
+  Lemma AllI_named (A : list form) (phi : form) :
+    (forall t, A ⊢ phi[t..]) -> A ⊢ ∀phi.
+  Proof.
+    intros H. apply AllI. 
+    destruct (nameless_equiv_all A phi) as [t Ht].
+    apply Ht, H.
+  Qed.
+
+  Lemma ExE_named A χ ψ :
+    A ⊢ ∃ χ -> (forall t, (χ[t..]::A) ⊢ ψ) -> A ⊢ ψ.
+  Proof.
+    intros H1 H2. destruct (nameless_equiv_ex A χ ψ) as [t Ht].
+    eapply ExE.
+    - eassumption.
+    - apply Ht, H2.
+  Qed.
+
   Lemma imps T phi psi :
     T ⊢ phi → psi <-> (phi :: T) ⊢ psi.
   Proof.

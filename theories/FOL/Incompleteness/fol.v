@@ -62,34 +62,12 @@ Section lemmas.
     now rewrite sat_single_PA.
   Qed.
 
-
-  Lemma eval_up ρ s t :
-    eval (s .: ρ) t`[↑] = eval ρ t.
-  Proof.
-    rewrite eval_comp. apply eval_ext. reflexivity.
-  Qed.
-
   Lemma AllE_Ctx A χ ψ t :
     In (∀ψ) A -> (ψ[t..] :: A) ⊢ χ -> A ⊢ χ.
   Proof.
     intros H1 H2. eapply IE.
     - apply II, H2.
     - apply AllE, Ctx, H1.
-  Qed.
-  Lemma AllI_named (A : list form) (phi : form) :
-    (forall t, A ⊢ phi[t..]) -> A ⊢ ∀phi.
-  Proof.
-    intros H. apply AllI. 
-    destruct (nameless_equiv_all A phi) as [t Ht].
-    apply Ht, H.
-  Qed.
-  Lemma ExE_named A χ ψ :
-    A ⊢ ∃ χ -> (forall t, (χ[t..]::A) ⊢ ψ) -> A ⊢ ψ.
-  Proof.
-    intros H1 H2. destruct (nameless_equiv_ex A χ ψ) as [t Ht].
-    eapply ExE.
-    - eassumption.
-    - apply Ht, H2.
   Qed.
 
   Lemma bounded_t_0_subst t ρ :
