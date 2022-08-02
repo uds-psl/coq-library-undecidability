@@ -369,51 +369,31 @@ Section ctq.
     2: { apply Σ1_subst. constructor. apply ψ'_Qdec. }
     2: { eapply subst_bounded_max; last apply ψ'_bounded.
       intros [|[|[|[|n]]]]; solve_bounds; cbn; rewrite num_subst; apply num_bound. }
-    replace ψ'[_][_] with ψ'[num k .: num c .: num x .: (num y) ..] in Hk.
-    2: { rewrite subst_comp. apply subst_ext.
-      intros [|[|[|[|n]]]]; cbn; now rewrite ?num_subst. }
+    asimpl in Hk.
     rewrite ψ'_subst in Hk.
-    assert (Qeq ⊢ φ[num k .: num c .: num x .: (num y)..]) as Hk1.
-    { eapply CE1, Hk. }
-    assert (Qeq ⊢ (∀ (∀ $1 ⊕ $0 ⧀= (num y)`[↑]`[↑] ⊕ (num k)`[↑]`[↑] → φ[$0 .: (num c)`[↑]`[↑] .: (num x)`[↑]`[↑] .: $1..] → $1 == (num y)`[↑]`[↑]))) as Hk2.
-    { eapply CE2, Hk. }
-    clear Hk.
+    fstart.
     fintros "[k' [Hk21 Hk22]]".
     assert (bounded_t 0 (num y ⊕ num k)) as Hbyk.
     { solve_bounds; apply num_bound. }
     pose proof (@Qsdec_le pei (num y ⊕ num k) (y' ⊕ k') Hbyk) as Hyk.
-    eapply DE.
-    { eapply Weak; first apply Hyk. now do 2 right. }
-    - assert (Qeq ⊢ ax_sym) as Hsym by ctx.
-      unfold ax_sym in Hsym.
-      apply AllE with (t := num y) in Hsym. cbn in Hsym.
-      apply AllE with (t := y') in Hsym. cbn in Hsym.
-      rewrite subst_term_shift in Hsym.
-      eapply IE.
-      { eapply Weak; first apply Hsym. now do 3 right. }
-      eapply AllE_Ctx with (t := (num y)).
-      { right. left. reflexivity. }
-      cbn.
-      eapply AllE_Ctx with (t := (num k)).
-      { left. reflexivity. }
-      cbn. rewrite !pless_subst. cbn. rewrite !num_subst.
-      rewrite !up_term, !subst_term_shift.
-      eapply IE. 1: eapply IE.
-      1: { apply Ctx. left. reflexivity. }
+    fdestruct Hyk as "[H|H]".
+    - fspecialize ("Hk22" (num y) (num k)). rewrite !pless_subst.
+      cbn. rewrite !num_subst. asimpl.
+      fapply ax_sym. fapply "Hk22".
       + ctx.
-      + replace (φ[_][_][_][_][_]) with (φ[num k .: num c .: num x .: (num y) ..]).
-        * eapply Weak; first apply Hk1. now do 5 right.
-        * rewrite !subst_comp. eapply bounded_subst; first eassumption.
-          intros [|[|[|[|n]]]] H; cbn; rewrite ?num_subst; lia + reflexivity.
-    - apply AllE with (t := y') in Hk2. cbn in Hk2.
-      apply AllE with (t := k') in Hk2.  cbn in Hk2.
-      rewrite !pless_subst in Hk2. cbn in Hk2. rewrite !num_subst, subst_term_shift in Hk2.
-      eapply IE. 1: eapply IE. 
-      1: { eapply Weak; first apply Hk2. now do 3 right. }
+      + replace (φ[_]) with (φ[num k .: num c .: num x .: (num y) ..]).
+        { fdestruct Hk. ctx. }
+        eapply bounded_subst; first eassumption.
+        intros [|[|[|[|n]]]] Hn; easy + lia.
+    - fdestruct Hk as "[Hk11 Hk12]".
+      fspecialize ("Hk12" y' k'). rewrite !pless_subst.
+      cbn. asimpl. rewrite !num_subst.
+      fapply "Hk12".
       + ctx.
-      + apply Ctx. right. right. left. 
-        rewrite !subst_comp. eapply bounded_subst; first eassumption.
-        intros [|[|[|[|n]]]] Hn; cbn; rewrite ?num_subst; reflexivity + lia.
+      + replace (φ[_]) with (φ[k' .: num c .: num x .: y' ..]).
+        { fdestruct Hk. ctx. }
+        eapply bounded_subst; first eassumption.
+        intros [|[|[|[|n]]]] Hn; cbn; easy + lia.
   Qed.
 
   Lemma epf_n_uctq : uCTQ.
@@ -423,31 +403,30 @@ Section ctq.
     split; first apply ψ_Σ1.
     intros f. destruct (theta_universal f) as [c Hc]. exists c.
     intros x y. 
-    split; first (intros Hf; apply AllI_named; intros y'; cbn -[ψ]; apply CI).
-    - fintros. rewrite num_subst.
-      pose proof (@ψ_functional c x y y') as Heq.
-      eapply IE.
-      + eapply Weak.
-        * apply Heq, theta_ψ, Hc, Hf.
-        * now right.
-      + apply Ctx. left.
-        rewrite subst_comp. eapply bounded_subst; first apply ψ_bounded.
-        intros [|[|[|n]]]; cbn; lia + now rewrite ?num_subst.
-    - fintros.
-      eapply IE.
-      { eapply IE.
-        { eapply Weak.
-          { apply (Q_leibniz ψ[num c .: num x .: $0 ..] (num y) y'). }
-          now right. }
-        rewrite num_subst.
-        fapply ax_sym. ctx. }
-      eapply Weak.
-      + rewrite subst_comp. erewrite bounded_subst.
-        * apply theta_ψ, Hc, Hf.
-        * apply ψ_bounded.
-        * intros [|[|[|n]]]; solve_bounds; apply num_subst.
-      + now right.
-    - intros H. apply Hc, ψ_theta, H.
+    split.
+    2: { intros H. apply Hc, ψ_theta, H. }
+    intros Hf. 
+    fstart. 
+    Opaque ψ.
+    fintros y'. fsplit.
+    - fintros "H".
+      rewrite num_subst. feapply ψ_functional.
+      + apply theta_ψ, Hc, Hf.
+      + asimpl. rewrite !num_subst.
+        evar (ρ : nat -> term).
+        replace (ψ[_]) with (ψ[?ρ]).
+        { fapply "H". }
+        eapply bounded_subst; first apply ψ_bounded.
+        intros [|[|[|n]]] Hn; cbn; easy + lia.
+    - fintros "H".
+      feapply Q_leibniz.
+      { feapply ax_sym. fapply "H". }
+      asimpl. rewrite !num_subst.
+      replace (ψ[_]) with (ψ[num c .: num x .: (num y) ..]).
+      { fapply theta_ψ. apply Hc, Hf. }
+      eapply bounded_subst; first apply ψ_bounded.
+      intros [|[|[|n]]] Hn; cbn; easy + lia.
+    Transparent ψ.
   Qed.
 End ctq.
 
@@ -515,7 +494,6 @@ Section ctq.
     rewrite <-subst_comp.
     fstart. fsplit.
     - fintros "H".
-      (* rewrite subst_cons_comp3. *)
       specialize (Hρ2 x y). apply subst_Weak with (xi := (num z)..) in Hρ2.
       change (map _ _) with Qeq in Hρ2.
       specialize (Hρ1 (embed' (x, y)) z).
