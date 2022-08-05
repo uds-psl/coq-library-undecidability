@@ -53,7 +53,7 @@ Section Sigma1.
   Lemma exists_compression_2 φ n : Qdec φ -> bounded (S (S n)) φ -> exists ψ, Qdec ψ /\ bounded (S n) ψ /\ Qeq ⊢ (∃∃φ) ↔ (∃ψ).
   Proof.
     intros HQ Hb.
-    exists (∃ ($0 ⧀= $1) ∧ ∃ ($0 ⧀=comm $2) ∧ φ[up (up (S >> var))]).
+    exists (∃ ($0 ⧀= $1) ∧ ∃ ($0 ⧀=' $2) ∧ φ[up (up (S >> var))]).
     repeat split.
     { apply (@Qdec_bounded_exists $0), (@Qdec_bounded_exists_comm $1).
       apply Qdec_subst, HQ. }

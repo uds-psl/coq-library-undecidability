@@ -103,7 +103,7 @@ Section syntax.
 End syntax.
 (* Notations for le *)
 Notation "x '⧀=' y"  := (pless x y) (at level 42) : PA_Notation.
-Notation "x '⧀=comm' y"  := (pless_swap x y) (at level 42) : PA_Notation.
+Notation "x '⧀='' y"  := (pless_swap x y) (at level 42) : PA_Notation.
 Notation "x 'i⧀=' y"  := (mless x y) (at level 42) : PA_Notation.
 
 (* Make Qeq opaque to avoid simplifying under normal circumstances *)

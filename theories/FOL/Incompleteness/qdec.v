@@ -202,7 +202,7 @@ Section Qdec.
         frewrite <- (ax_add_rec x0 x1). frewrite <- "H0".
         fapply "H".
     Qed.
-    Lemma pless_swap_zero_eq x : Qeq ⊢ (x ⧀=comm zero) → x == zero.
+    Lemma pless_swap_zero_eq x : Qeq ⊢ (x ⧀=' zero) → x == zero.
     Proof.
       rewrite !pless_swap_eq. 
       fstart. fintros. fdestruct "H".
@@ -287,7 +287,7 @@ Section Qdec.
         fapply ax_sym. fapply add_rec_swap.
         frewrite <-"H1". fapply ax_sym. fapply "H".
     Qed. 
-    Lemma pless_swap_sigma_neq t x : Qeq ⊢ (x ⧀=comm σ(num t)) → ¬(x == σ(num t)) → x ⧀=comm num t.
+    Lemma pless_swap_sigma_neq t x : Qeq ⊢ (x ⧀=' σ(num t)) → ¬(x == σ(num t)) → x ⧀=' num t.
     Proof. 
       fstart. fintros. 
       rewrite !pless_swap_eq.
@@ -330,7 +330,7 @@ Section Qdec.
       fstart. fintros "[z Hz]". fexists (σ z).
       fapply ax_sym. fapply add_rec_swap2. fapply ax_sym. fapply "Hz".
     Qed.
-    Lemma pless_swap_succ t x : Qeq ⊢ (x ⧀=comm num t) → (x ⧀=comm σ (num t)).
+    Lemma pless_swap_succ t x : Qeq ⊢ (x ⧀=' num t) → (x ⧀=' σ (num t)).
     Proof. 
       rewrite !pless_swap_eq.
       fstart. fintros "[z Hz]". fexists (σ z).
@@ -353,7 +353,7 @@ Section Qdec.
       frewrite "H". fapply ax_sym. fapply add_zero_num.
     Qed.
     Lemma pless_swap_num_eq t x :
-      Qeq ⊢ x == num t → x ⧀=comm num t.
+      Qeq ⊢ x == num t → x ⧀=' num t.
     Proof.
       rewrite pless_swap_eq.
       fstart. fintros "H". fexists zero.
@@ -392,7 +392,7 @@ Section Qdec.
           fapply H. fapply "H".
     Qed.
     Lemma le_swap_fin_disj t x :
-      Qeq ⊢ x ⧀=comm num t ↔ fin_disj t (x`[↑] == $0).
+      Qeq ⊢ x ⧀=' num t ↔ fin_disj t (x`[↑] == $0).
     Proof.
       induction t; cbn; rewrite subst_term_shift; fstart; fsplit.
       - fapply pless_swap_zero_eq.
@@ -649,7 +649,7 @@ Section Qdec.
   Qed.
 
   Theorem Qdec_bounded_exists_comm t φ :
-    Qdec φ -> Qdec (∃ ($0 ⧀=comm t`[↑]) ∧ φ).
+    Qdec φ -> Qdec (∃ ($0 ⧀=' t`[↑]) ∧ φ).
   Proof.
     intros H pei ρ Hρ.
     destruct (@closed_term_is_num _ t`[ρ]) as [x Hx].
@@ -664,7 +664,7 @@ Section Qdec.
         fdestruct "H" as "[z [H1 H2]]".
         rewrite fin_disj_subst. cbn.
         fexists z. fsplit; last ctx.
-        fassert (z ⧀=comm num x).
+        fassert (z ⧀=' num x).
         { fapply le_swap_fin_disj. fapply "H1". }
         rewrite !pless_swap_eq. fdestruct "H". fexists x0.
         frewrite Hx. fapply "H".
