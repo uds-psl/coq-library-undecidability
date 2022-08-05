@@ -1,7 +1,7 @@
 (** * Peano Arithmetic *)
 (** ** Signature *)
 
-Require Import Undecidability.FOL.Syntax.Core.
+Require Import Undecidability.FOL.FullSyntax.
 From Undecidability.Synthetic Require Import EnumerabilityFacts.
 Import Vector.VectorNotations.
 Require Import List.
@@ -70,3 +70,30 @@ Notation "x '⊕' y" := (@func PA_funcs_signature Plus ([x ; y]) ) (at level 39)
 Notation "x '⊗' y" := (@func PA_funcs_signature Mult ([x ; y]) ) (at level 38) : PA_Notation.
 Notation "x '==' y" := (@atom PA_funcs_signature PA_preds_signature _ _ Eq ([x ; y])) (at level 40) : PA_Notation.
 
+Section comparisons.
+  Existing Instance PA_preds_signature.
+  Existing Instance PA_funcs_signature.
+
+  Definition PAlt x y := ∃ y`[↑] == (σ x`[↑] ⊕ $0).
+  Definition PAle x y := ∃ y`[↑] == (x`[↑] ⊕ $0).
+  Definition PAle' x y := ∃ y`[↑] == ($0 ⊕ x`[↑]).
+
+  Lemma PAlt_subst x y ρ : (PAlt x y)[ρ] = PAlt (x`[ρ]) (y`[ρ]).
+  Proof.
+    unfold PAlt. cbn. now asimpl.
+  Qed.
+  
+  Lemma PAle_subst x y ρ : (PAle x y)[ρ] = PAle (x`[ρ]) (y`[ρ]).
+  Proof.
+    unfold PAle. cbn. now asimpl.
+  Qed.
+
+  Lemma PAle'_subst x y ρ : (PAle' x y)[ρ] = PAle' (x`[ρ]) (y`[ρ]).
+  Proof.
+    unfold PAle'. cbn. now asimpl.
+  Qed.
+End comparisons.
+
+Notation "x '⧀' y"  := (PAlt x y) (at level 40) : PA_Notation.
+Notation "x '⧀=' y"  := (PAle x y) (at level 40) : PA_Notation.
+Notation "x '⧀='' y"  := (PAle' x y) (at level 40) : PA_Notation.

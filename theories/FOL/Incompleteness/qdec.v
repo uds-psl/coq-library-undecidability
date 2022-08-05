@@ -118,27 +118,26 @@ Section Qdec.
     { apply subst_t_closed, Hb. }
     destruct (@closed_term_is_num _ s`[ρ]) as [k2 Hk2].
     { apply subst_t_closed, Hb. }
-    rewrite pless_subst.
+    rewrite PAle_subst.
     enough (Qeq ⊢ num k1 ⧀= num k2 \/ Qeq ⊢ ¬(num k1 ⧀= num k2)) as [H|H].
-    { left. rewrite pless_eq in *. frewrite Hk1. frewrite Hk2. apply H. }
-    { right. rewrite pless_eq in *. frewrite Hk1. frewrite Hk2. apply H. }
+    { left. unfold PAle. frewrite Hk1. frewrite Hk2. apply H. }
+    { right. unfold PAle. frewrite Hk1. frewrite Hk2. apply H. }
     clear Hk1 Hk2.
     induction k1 as [|k1 IH] in k2 |-*.
-    - left. rewrite pless_eq. fexists (num k2).
+    - left. fexists (num k2).
       frewrite (ax_add_zero (num k2)). fapply ax_refl.
     - destruct k2 as [|k2].
-      + right. rewrite pless_eq.
+      + right.
         fstart. fintros "[z H]". fapply (ax_zero_succ (num k1 ⊕ z)).
         frewrite <-(ax_add_rec z (num k1)). fapply "H".
       + destruct (IH k2) as [IH'|IH'].
-        * left. rewrite pless_eq. fstart.
+        * left. fstart.
           fassert (num k1 ⧀= num k2) as "H"; first apply IH'.
-          rewrite pless_eq.
           fdestruct "H" as "[z Hz]".
           fexists z. frewrite (ax_add_rec z (num k1)).
           fapply ax_succ_congr. fapply "Hz".
         * right. fstart. fintros "H". fapply IH'.
-          rewrite !pless_eq. fdestruct "H" as "[z Hz]".
+          fdestruct "H" as "[z Hz]".
           fexists z. fapply ax_succ_inj.
           frewrite <-(ax_add_rec z (num k1)). fapply "Hz".
   Qed.
@@ -149,7 +148,7 @@ Section Qdec.
     Lemma Qsdec_le x y : bounded_t 0 x -> Qeq ⊢ ((x ⧀= y) ∨ (y ⧀= x)).
     Proof.
       intros Hx. destruct (closed_term_is_num Hx) as [k Hk].
-      rewrite !pless_eq. frewrite Hk. clear Hk.
+      unfold PAle. frewrite Hk. clear Hk.
       induction k as [|k IH] in y |-*; fstart.
       - fleft. fexists y. frewrite (ax_add_zero y). fapply ax_refl.
       - fassert (ax_cases); first ctx.
@@ -188,10 +187,9 @@ Section Qdec.
             fapply ax_succ_inj. fapply "H1".
     Qed.
 
-    Lemma pless_zero_eq x : Qeq ⊢ x ⧀= zero → x == zero.
+    Lemma PAle_zero_eq x : Qeq ⊢ x ⧀= zero → x == zero.
     Proof.
-      rewrite !pless_eq.
-      fstart. fintros. fdestruct "H".
+      fstart. fintros. unfold PAle. fdestruct "H".
       fassert ax_cases.
       { ctx. }
       unfold ax_cases.
@@ -202,10 +200,9 @@ Section Qdec.
         frewrite <- (ax_add_rec x0 x1). frewrite <- "H0".
         fapply "H".
     Qed.
-    Lemma pless_swap_zero_eq x : Qeq ⊢ (x ⧀=' zero) → x == zero.
+    Lemma PAle'_zero_eq x : Qeq ⊢ (x ⧀=' zero) → x == zero.
     Proof.
-      rewrite !pless_swap_eq. 
-      fstart. fintros. fdestruct "H".
+      fstart. fintros. unfold PAle'. fdestruct "H".
       fassert ax_cases as "C"; first ctx.
       fdestruct ("C" x0) as "[Hx'|[x' Hx']]".
       - frewrite <-(ax_add_zero x). frewrite <-"Hx'".
@@ -273,10 +270,9 @@ Section Qdec.
           frewrite <-"Hx'". ctx.
     Qed.
 
-    Lemma pless_sigma_neq t x : Qeq ⊢ (x ⧀= σ(num t)) → ¬(x == σ(num t)) → x ⧀= num t.
+    Lemma PAle_sigma_neq t x : Qeq ⊢ (x ⧀= σ(num t)) → ¬(x == σ(num t)) → x ⧀= num t.
     Proof. 
-      rewrite !pless_eq. 
-      fstart. fintros. fdestruct "H". custom_simpl.
+      fstart. fintros. unfold PAle. fdestruct "H". custom_simpl.
       fassert (ax_cases); first ctx.
       fdestruct ("H1" x0).
       - fexfalso. fapply "H0". 
@@ -287,10 +283,9 @@ Section Qdec.
         fapply ax_sym. fapply add_rec_swap.
         frewrite <-"H1". fapply ax_sym. fapply "H".
     Qed. 
-    Lemma pless_swap_sigma_neq t x : Qeq ⊢ (x ⧀=' σ(num t)) → ¬(x == σ(num t)) → x ⧀=' num t.
+    Lemma PAle'_sigma_neq t x : Qeq ⊢ (x ⧀=' σ(num t)) → ¬(x == σ(num t)) → x ⧀=' num t.
     Proof. 
-      fstart. fintros. 
-      rewrite !pless_swap_eq.
+      fstart. fintros. unfold PAle'.
       fdestruct "H" as "[z Hz]".
       fassert ax_cases as "C"; first ctx.
       fdestruct ("C" z) as "[Hz'|[z' Hz']]".
@@ -324,15 +319,13 @@ Section Qdec.
           fapply "H".
     Qed.
 
-    Lemma pless_succ t x : Qeq ⊢ (x ⧀= num t) → (x ⧀= σ (num t)).
+    Lemma PAle_succ t x : Qeq ⊢ (x ⧀= num t) → (x ⧀= σ (num t)).
     Proof. 
-      rewrite !pless_eq.
       fstart. fintros "[z Hz]". fexists (σ z).
       fapply ax_sym. fapply add_rec_swap2. fapply ax_sym. fapply "Hz".
     Qed.
-    Lemma pless_swap_succ t x : Qeq ⊢ (x ⧀=' num t) → (x ⧀=' σ (num t)).
+    Lemma PAle'_succ t x : Qeq ⊢ (x ⧀=' num t) → (x ⧀=' σ (num t)).
     Proof. 
-      rewrite !pless_swap_eq.
       fstart. fintros "[z Hz]". fexists (σ z).
       frewrite (ax_add_rec x z). fapply ax_succ_congr. ctx.
     Qed.
@@ -345,17 +338,15 @@ Section Qdec.
       - cbn. frewrite (ax_add_rec zero (num t)).
         fapply ax_succ_congr. apply IHt.
     Qed.
-    Lemma pless_num_eq t x :
+    Lemma PAle_num_eq t x :
       Qeq ⊢ x == num t → x ⧀= num t.
     Proof.
-      rewrite pless_eq. 
       fstart. fintros "H". fexists zero.
       frewrite "H". fapply ax_sym. fapply add_zero_num.
     Qed.
-    Lemma pless_swap_num_eq t x :
+    Lemma PAle'_num_eq t x :
       Qeq ⊢ x == num t → x ⧀=' num t.
     Proof.
-      rewrite pless_swap_eq.
       fstart. fintros "H". fexists zero.
       frewrite (ax_add_zero x). fapply ax_sym. fapply "H".
     Qed.
@@ -376,8 +367,8 @@ Section Qdec.
       Qeq ⊢ x ⧀= num t ↔ fin_disj t (x`[↑] == $0).
     Proof.
       induction t; cbn; rewrite subst_term_shift; fstart; fsplit.
-      - fapply pless_zero_eq.
-      - rewrite pless_eq. fintros "H".
+      - fapply PAle_zero_eq.
+      - fintros "H". unfold PAle. 
         frewrite "H". fexists zero.
         frewrite (ax_add_zero zero). fapply ax_refl.
       - fintros "H". fassert (x == σ num t ∨ (¬ x == σ num t)) as "H1".
@@ -385,28 +376,28 @@ Section Qdec.
         fdestruct "H1" as "[H1|H1]".
         + fright. ctx.
         + fleft. fapply IHt. 
-          fapply pless_sigma_neq; ctx.
+          fapply PAle_sigma_neq; ctx.
       - fintros "H". fdestruct "H" as "[H|H]".
-        + fapply pless_succ. fapply IHt. fapply "H".
-        + pose proof (pless_num_eq (S t) x). cbn in H.
+        + fapply PAle_succ. fapply IHt. fapply "H".
+        + pose proof (PAle_num_eq (S t) x). cbn in H.
           fapply H. fapply "H".
     Qed.
     Lemma le_swap_fin_disj t x :
       Qeq ⊢ x ⧀=' num t ↔ fin_disj t (x`[↑] == $0).
     Proof.
       induction t; cbn; rewrite subst_term_shift; fstart; fsplit.
-      - fapply pless_swap_zero_eq.
-      - rewrite pless_swap_eq.  fintros "H". frewrite "H".
+      - fapply PAle'_zero_eq.
+      - unfold PAle'.  fintros "H". frewrite "H".
         fexists zero. frewrite (ax_add_zero zero). fapply ax_refl.
       - fintros "H". fassert (x == σ num t ∨ (¬ x == σ num t)) as "H1".
         { pose proof (Q_eqdec (S t) x). cbn in H. fapply H. }
         fdestruct "H1" as "[H1|H1]".
         + fright. ctx.
         + fleft. fapply IHt. 
-          fapply pless_swap_sigma_neq; ctx.
+          fapply PAle'_sigma_neq; ctx.
       - fintros "H". fdestruct "H" as "[H|H]".
-        + fapply pless_swap_succ. fapply IHt. fapply "H".
-        + pose proof (pless_swap_num_eq (S t) x). cbn in H.
+        + fapply PAle'_succ. fapply IHt. fapply "H".
+        + pose proof (PAle'_num_eq (S t) x). cbn in H.
           fapply H. fapply "H".
     Qed.
 
@@ -588,27 +579,26 @@ Section Qdec.
     destruct (@closed_term_is_num _ t`[ρ]) as [x Hx].
     { apply subst_t_closed, Hρ. }
     enough (Qeq ⊢ (∀ (fin_disj x ($1 == $0))  → φ)[ρ] \/ Qeq ⊢ ¬ (∀ (fin_disj x ($1 == $0)) → φ)[ρ]) as H'.
-    { cbn. rewrite pless_subst. cbn.
+    { cbn. asimpl. rewrite <-!subst_term_comp.
       cbn in H'. rewrite fin_disj_subst in H'. 
       cbn in H'. unfold "↑" in H'.
       destruct H' as [H1|H1].
       - left. fstart. fintros. fapply H1. 
         rewrite fin_disj_subst. cbn.
-        fapply le_fin_disj. rewrite !pless_eq. 
+        fapply le_fin_disj. 
         fdestruct "H" as "[z H]". fexists z.
         fassert (t`[ρ] == num x); first fapply Hx.
-        frewrite <-"H0". fapply "H".
+        frewrite <-"H0". asimpl. fapply "H".
       - right.  fstart. fintros. fapply H1. fstop.
         fintros. fstart.
         fapply "H".
         rewrite fin_disj_subst. cbn.
-        rewrite pless_subst. cbn.
         fassert (x0 ⧀= num x).
         { fapply le_fin_disj. fapply "H0". }
-        rewrite !pless_eq. fdestruct "H1" as "[z Hz]".
+        fdestruct "H1" as "[z Hz]".
         fexists z. 
         fassert (t`[ρ] == num x); first fapply Hx.
-        frewrite "H1". fapply "Hz". }
+        asimpl. frewrite "H1". fapply "Hz". }
     eapply Qdec_iff.
     - apply frewrite_equiv_switch. apply forall_fin_disj_conj.
     - apply Qdec_fin_conj, H.
@@ -621,7 +611,7 @@ Section Qdec.
     destruct (@closed_term_is_num _ t`[ρ]) as [x Hx].
     { apply subst_t_closed, Hρ. }
     enough (Qeq ⊢ (∃ (fin_disj x ($1 == $0)) ∧ φ)[ρ] \/ Qeq ⊢ ¬ (∃ (fin_disj x ($1 == $0)) ∧ φ)[ρ]) as H'.
-    { cbn. rewrite pless_subst. cbn.
+    { cbn. 
       cbn in H'. rewrite fin_disj_subst in H'. 
       cbn in H'. unfold "↑" in H'.
       destruct H' as [H1|H1].
@@ -633,15 +623,15 @@ Section Qdec.
         fexists z. fsplit; last ctx.
         fassert (z ⧀= num x).
         { fapply le_fin_disj. fapply "H1". }
-        rewrite !pless_eq. fdestruct "H". fexists x0.
-        frewrite Hx. fapply "H".
+        unfold PAle. fdestruct "H". fexists x0.
+        asimpl. frewrite Hx. fapply "H".
       - right.  fstart. fintros. fapply H1.
         fdestruct "H" as "[z [H1 H2]]". fexists z. 
         fsplit; last ctx.
         rewrite fin_disj_subst. cbn. fapply le_fin_disj.
-        rewrite !pless_eq. cbn. fdestruct "H1" as "[z' Hz']". fexists z'.
+        cbn. fdestruct "H1" as "[z' Hz']". fexists z'.
         fassert (t`[ρ] == num x) by fapply Hx.
-        frewrite <-"H". fapply "Hz'". }
+        asimpl. frewrite <-"H". fapply "Hz'". }
     eapply Qdec_iff.
     - apply frewrite_equiv_switch. apply exists_fin_disj.
     - apply Qdec_fin_disj, H.
@@ -655,7 +645,7 @@ Section Qdec.
     destruct (@closed_term_is_num _ t`[ρ]) as [x Hx].
     { apply subst_t_closed, Hρ. }
     enough (Qeq ⊢ (∃ (fin_disj x ($1 == $0)) ∧ φ)[ρ] \/ Qeq ⊢ ¬ (∃ (fin_disj x ($1 == $0)) ∧ φ)[ρ]) as H'.
-    { cbn. rewrite pless_swap_subst. cbn.
+    { cbn. 
       cbn in H'. rewrite fin_disj_subst in H'. 
       cbn in H'. unfold "↑" in H'.
       destruct H' as [H1|H1].
@@ -666,15 +656,15 @@ Section Qdec.
         fexists z. fsplit; last ctx.
         fassert (z ⧀=' num x).
         { fapply le_swap_fin_disj. fapply "H1". }
-        rewrite !pless_swap_eq. fdestruct "H". fexists x0.
-        frewrite Hx. fapply "H".
+        unfold PAle'. fdestruct "H". fexists x0.
+        asimpl. frewrite Hx. fapply "H".
       - right.  fstart. fintros. fapply H1.
         fdestruct "H" as "[z [H1 H2]]". fexists z. 
         fsplit; last ctx.
         rewrite fin_disj_subst. cbn. fapply le_swap_fin_disj.
-        rewrite !pless_swap_eq. cbn. fdestruct "H1". fexists x0.
+        cbn. fdestruct "H1". fexists x0.
         fassert (t`[ρ] == num x) by fapply Hx.
-        frewrite <-"H0". fapply "H". }
+        asimpl. frewrite <-"H0". fapply "H". }
     eapply Qdec_iff.
     - apply frewrite_equiv_switch. apply exists_fin_disj.
     - apply Qdec_fin_disj, H.

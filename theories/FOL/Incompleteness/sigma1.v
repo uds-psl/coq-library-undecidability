@@ -57,7 +57,7 @@ Section Sigma1.
     repeat split.
     { apply (@Qdec_bounded_exists $0), (@Qdec_bounded_exists_comm $1).
       apply Qdec_subst, HQ. }
-    { rewrite pless_eq, pless_swap_eq. repeat solve_bounds.
+    { repeat solve_bounds.
       eapply subst_bounded_max; last eassumption.
       intros n' H'.
       destruct n' as [|[|n']]; cbn; unfold "↑"; cbn; constructor; lia. }

@@ -240,9 +240,8 @@ Section ctq.
 
   Lemma ψ'_bounded : bounded 4 ψ'.
   Proof.
-    repeat solve_bounds.
-    - auto.
-    - rewrite pless_eq. cbn. unfold "↑". repeat solve_bounds.
+    repeat (solve_bounds; cbn in *).
+    - assumption.
     - eapply subst_bounded_max; last eassumption.
       intros [|[|[|[|k]]]]; solve_bounds.
   Qed.
@@ -309,10 +308,10 @@ Section ctq.
     rewrite num_subst. fapply ax_refl.
   Qed.
 
-  Lemma sat_pless ρ s t :
+  Lemma sat_PAle ρ s t :
     interp_nat; ρ ⊨ (s ⧀= t) <-> (eval ρ s) <= (eval ρ t).
   Proof.
-    rewrite pless_eq. split.
+    split.
     - intros [k Hk]. cbn in Hk.
       rewrite !eval_up in Hk. lia.
     - intros H. cbn. exists (eval ρ t - eval ρ s).
@@ -377,19 +376,19 @@ Section ctq.
     { solve_bounds; apply num_bound. }
     pose proof (@Qsdec_le pei (num y ⊕ num k) (y' ⊕ k') Hbyk) as Hyk.
     fdestruct Hyk as "[H|H]".
-    - fspecialize ("Hk22" (num y) (num k)). rewrite !pless_subst.
+    - fspecialize ("Hk22" (num y) (num k)).
       cbn. rewrite !num_subst. asimpl.
       fapply ax_sym. fapply "Hk22".
-      + ctx.
+      + unfold PAle. cbn. rewrite !num_subst. ctx.
       + replace (φ[_]) with (φ[num k .: num c .: num x .: (num y) ..]).
         { fdestruct Hk. ctx. }
         eapply bounded_subst; first eassumption.
         intros [|[|[|[|n]]]] Hn; easy + lia.
     - fdestruct Hk as "[Hk11 Hk12]".
-      fspecialize ("Hk12" y' k'). rewrite !pless_subst.
+      fspecialize ("Hk12" y' k').
       cbn. asimpl. rewrite !num_subst.
       fapply "Hk12".
-      + ctx.
+      + unfold PAle. cbn. rewrite !num_subst. ctx.
       + replace (φ[_]) with (φ[k' .: num c .: num x .: y' ..]).
         { fdestruct Hk. ctx. }
         eapply bounded_subst; first eassumption.

@@ -65,47 +65,6 @@ Qed.
 
 
 
-
-(* Definitions of comparisons *)
-Section syntax.
-  Existing Instance PA_preds_signature.
-  Existing Instance PA_funcs_signature.
-
-  Definition pless x y := ∃ y`[↑] == (x`[↑] ⊕ $0).
-  Definition pless_swap x y := ∃ y`[↑] == ($0 ⊕ x`[↑]).
-
-  (* TODO move to completeness *)
-  Definition mless {M} {I : interp M} x y := exists k, y = x i⊕ k.
-
-  Lemma pless_eq x y : pless x y = ∃ y`[↑] == (x`[↑] ⊕ $0).
-  Proof. reflexivity. Qed.
-
-  Lemma pless_subst x y ρ : (pless x y)[ρ] = pless (x`[ρ]) (y`[ρ]).
-  Proof.
-    rewrite !pless_eq. cbn. do 3 f_equal.
-    - rewrite !subst_term_comp. reflexivity. 
-    - do 3 f_equal. rewrite !subst_term_comp. reflexivity. 
-  Qed.
-
-  Lemma pless_swap_eq x y : pless_swap x y = ∃ y`[↑] == ($0 ⊕ x`[↑]).
-  Proof. reflexivity. Qed.
-
-  Lemma pless_swap_subst x y ρ : (pless_swap x y)[ρ] = pless_swap (x`[ρ]) (y`[ρ]).
-  Proof.
-    rewrite !pless_swap_eq. cbn. do 3 f_equal.
-    - rewrite !subst_term_comp. reflexivity. 
-    - do 3 f_equal. rewrite !subst_term_comp. reflexivity. 
-  Qed.
-
-  (* The definitions are opaque to avoid automatic unfolding when simplifying substitutions *)
-  Global Opaque pless.
-  Global Opaque pless_swap.
-End syntax.
-(* Notations for le *)
-Notation "x '⧀=' y"  := (pless x y) (at level 42) : PA_Notation.
-Notation "x '⧀='' y"  := (pless_swap x y) (at level 42) : PA_Notation.
-Notation "x 'i⧀=' y"  := (mless x y) (at level 42) : PA_Notation.
-
 (* Make Qeq opaque to avoid simplifying under normal circumstances *)
 (* The definition does not actually become completely opaque and many goals are
  * still solvable *)
@@ -145,7 +104,7 @@ Section PM.
 End PM.
 
 
-(* Global Ltac custom_simpl ::= cbn; rewrite ?pless_subst; cbn; rewrite ?num_subst; cbn. *)
+(* Global Ltac custom_simpl ::= cbn; rewrite ?PAle_subst; cbn; rewrite ?num_subst; cbn. *)
 (* Global Notation "'σh' x" := (bFunc Succ (Vector.cons bterm x 0 (Vector.nil bterm))) (at level 32) : hoas_scope. *)
 (* Global Notation "x '⊕h' y" := (bFunc Plus (Vector.cons bterm x 1 (Vector.cons bterm y 0 (Vector.nil bterm))) ) (at level 39) : hoas_scope. *)
 (* Global Notation "x '⊗h' y" := (bFunc Mult (Vector.cons bterm x 1 (Vector.cons bterm y 0 (Vector.nil bterm))) ) (at level 38) : hoas_scope. *) 
