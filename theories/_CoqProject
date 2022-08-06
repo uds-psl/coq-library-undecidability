@@ -899,7 +899,6 @@ FOL/Incompleteness/qdec.v
 FOL/Incompleteness/sigma1.v
 FOL/Incompleteness/bin_qdec.v
 FOL/Incompleteness/weak_strong.v
-FOL/Incompleteness/completeness.v
 FOL/Incompleteness/ctq.v
 FOL/Incompleteness/fol_incompleteness.v
 
