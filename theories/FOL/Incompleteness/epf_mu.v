@@ -10,7 +10,7 @@ Require Import Undecidability.L.Reductions.MuRec.MuRec_extract.
 From Undecidability.H10 Require Import DPRM.
 Require Import Undecidability.Synthetic.EnumerabilityFacts.
 From Coq.Logic Require Import ConstructiveEpsilon.
-From Undecidability.FOL.Incompleteness Require Import utils epf recalg fol qdec sigma1.
+From Undecidability.FOL.Incompleteness Require Import utils epf recalg fol_utils qdec sigma1.
 
 Import ListNotations.
 

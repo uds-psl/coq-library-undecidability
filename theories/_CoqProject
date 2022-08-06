@@ -894,7 +894,7 @@ FOL/Incompleteness/recalg.v
 FOL/Incompleteness/epf_mu.v
 FOL/Incompleteness/formal_systems.v
 FOL/Incompleteness/abstract_incompleteness.v
-FOL/Incompleteness/fol.v
+FOL/Incompleteness/fol_utils.v
 FOL/Incompleteness/qdec.v
 FOL/Incompleteness/sigma1.v
 FOL/Incompleteness/bin_qdec.v

@@ -1,7 +1,7 @@
 From Undecidability.FOL Require Import FullSyntax.
 From Undecidability.FOL.Arithmetics Require Import Signature Robinson NatModel.
 
-From Undecidability.FOL.Incompleteness Require Import utils fol qdec.
+From Undecidability.FOL.Incompleteness Require Import utils fol_utils qdec.
 From Undecidability.FOL.Proofmode Require Import Theories ProofMode.
 
 Require Import Lia.
@@ -115,7 +115,7 @@ Section bin_qdec.
     intros Hφ. 
     eapply (@Qdec_iff' (∀ ($0 ⧀= t`[↑]) → ∀ ($0 ⧀= t`[↑]`[↑]) → ($1 ⊕ $0 ⧀= t`[↑]`[↑]) → φ)).
     - intros ρ Hb.
-      cbn. rewrite !PAle_subst. cbn. rewrite !up_term.
+      cbn. rewrite !up_term.
       unfold "↑".
       assert (bounded_t 0 t`[ρ]) as Ht.
       { destruct (find_bounded_t t) as [k Hk].
@@ -123,7 +123,7 @@ Section bin_qdec.
       pose proof (@bin_bounded_forall_iff intu t`[ρ] φ Ht).
       pose proof (subst_Weak ρ H) as H'. change (List.map _ _) with Qeq in H'.
       apply frewrite_equiv_switch. 
-      cbn in H'. rewrite !PAle_subst in H'.
+      cbn in H'.
       rewrite !(bounded_t_0_subst _ Ht). rewrite !(bounded_t_0_subst _ Ht) in H'.
       apply H'.
     - do 2 apply Qdec_bounded_forall.

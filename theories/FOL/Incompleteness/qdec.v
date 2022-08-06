@@ -2,7 +2,7 @@
 From Undecidability.FOL Require Import FullSyntax.
 From Undecidability.FOL.Arithmetics Require Import Signature FA Robinson.
 
-From Undecidability.FOL.Incompleteness Require Import utils fol.
+From Undecidability.FOL.Incompleteness Require Import utils fol_utils.
 From Undecidability.FOL.Proofmode Require Import Theories ProofMode.
 
 Require Import Lia.

@@ -4,7 +4,7 @@ From Undecidability.Synthetic Require Import Definitions EnumerabilityFacts.
 From Undecidability.FOL Require Import FullSyntax Axiomatisations.
 From Undecidability.FOL.Arithmetics Require Import Signature Robinson NatModel.
 
-From Undecidability.FOL.Incompleteness Require Import utils fol qdec bin_qdec sigma1 epf epf_mu formal_systems abstract_incompleteness ctq.
+From Undecidability.FOL.Incompleteness Require Import utils fol_utils qdec bin_qdec sigma1 epf epf_mu formal_systems abstract_incompleteness ctq.
 From Undecidability.FOL.Proofmode Require Import Theories ProofMode.
 
 Require Import Lia String List.

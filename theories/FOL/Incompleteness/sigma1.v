@@ -2,7 +2,7 @@
 From Undecidability.FOL Require Import FullSyntax Utils.FriedmanTranslation.
 From Undecidability.FOL.Arithmetics Require Import Signature FA Robinson NatModel.
 
-From Undecidability.FOL.Incompleteness Require Import fol qdec.
+From Undecidability.FOL.Incompleteness Require Import fol_utils qdec.
 From Undecidability.FOL.Proofmode Require Import Theories ProofMode.
 
 Require Import Lia.

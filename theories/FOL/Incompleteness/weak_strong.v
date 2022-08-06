@@ -4,7 +4,7 @@ From Undecidability.Shared Require Import Dec embed_nat.
 From Undecidability.FOL Require Import FullSyntax.
 From Undecidability.FOL.Arithmetics Require Import PA NatModel TarskiFacts DeductionFacts.
 From Undecidability.FOL.Proofmode Require Import Theories ProofMode.
-From Undecidability.FOL.Incompleteness Require Import fol qdec sigma1.
+From Undecidability.FOL.Incompleteness Require Import fol_utils qdec sigma1.
 
 
 Require Import String List.
