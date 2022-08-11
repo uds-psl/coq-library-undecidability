@@ -1,12 +1,12 @@
 # Coq Library for First-Order Logic
 
-This library is a (preliminary) merge of several Coq projects concerning first-order logic. It provides a unified framework for the first-order [syntax](Syntax), [semantics](Semantics), and [deduction systems](Deduction), tools like a [proof mode](Proofmode) and a [reification tactic](Reification), and results regarding [completeness](Completeness2), [undecidability](Undecidability), and [incompleteness](Incompleteness).
+This library is a (preliminary) merge of several Coq projects concerning first-order logic. It provides a unified framework for the first-order [syntax](Syntax), [semantics](Semantics), and [deduction systems](Deduction); tools like a [proof mode](Proofmode) and a [reification tactic](Reification); and results regarding [completeness](Completeness2), [undecidability](Undecidability), and [incompleteness](Incompleteness).
 
 Disclaimer: the library is currently still in development and (parts of it) will be extracted into a separate repository in the near future. So if you plan to use it or contribute to it, best get in touch with the maintainers [Dominik Kirst](mailto:kirst@cs.uni-saarland.de) and [Johannes Hostert](mailto:s8johost@stud.uni-saarland.de) first.
 
 ## Installation
 
-Follow the [manual installation instructions](https://github.com/dominik-kirst/coq-library-undecidability/tree/fol-library#manual-installation) of this fork of the Coq library of undecidability proofs. To build only the core files relevant for first-order logic, run `make FragmentSyntax.vo FullSyntax.vo.` from the `theories` folder.
+Follow the [manual installation instructions](https://github.com/dominik-kirst/coq-library-undecidability/tree/fol-library#manual-installation) of this fork of the Coq library of undecidability proofs. To build only the core files relevant for first-order logic, run `make FragmentSyntax.vo FullSyntax.vo` from the `theories` folder.
 
 ## Contributors
 
