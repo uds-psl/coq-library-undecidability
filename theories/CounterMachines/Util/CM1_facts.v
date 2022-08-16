@@ -8,6 +8,10 @@ Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 
+(* Config is discrete *)
+Lemma Config_eq_dec (x' y' : Config) : {x' = y'} + {x' <> y'}.
+Proof. do ? decide equality. Qed. 
+
 (* halting conditions *)
 Lemma haltingP {M : Cm1} {x: Config}: 
   halting M x <-> (length M <= state x \/ value x = 0).
@@ -33,6 +37,19 @@ Proof.
   move=> ? ?. have -> : m = n + (m-n) by lia.
   rewrite iter_plus. elim: (m-n); first done.
   move=> * /=. by congruence.
+Qed.
+
+(* remination respect reachability *)
+Lemma terminating_reaches_iff {M : Cm1} {k x y} :
+  (Nat.iter k (CM1.step M) x = y ->
+  ((exists m, CM1.halting M (Nat.iter m (CM1.step M) y))) <->
+  (exists n, CM1.halting M (Nat.iter n (CM1.step M) x))).
+Proof.
+  move=> Hxy. split.
+  - move=> [m Hm]. exists (k+m). by rewrite iter_plus Hxy.
+  - move=> [n] /(halting_monotone (m := k+n)) => /(_ ltac:(lia)).
+    rewrite iter_plus Hxy => ?.
+    by exists n.
 Qed.
 
 Lemma step_value_monotone (M : Cm1) (x: Config) :
