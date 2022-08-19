@@ -10,13 +10,6 @@ Lemma iter_plus {X: Type} {f: X -> X} {x: X} {n m: nat} :
   Nat.iter (n + m) f x = Nat.iter m f (Nat.iter n f x).
 Proof. by rewrite Nat.add_comm /Nat.iter nat_rect_plus. Qed.
 
-Lemma mod_frac_lt {n m: nat} : (S m) mod (n + 1) = 0 -> S m < (S m * (n + 2)) / (n + 1).
-Proof.
-    have ->: S m * (n + 2) = S m + S m * (n + 1) by lia.
-    have := Nat.div_mod_eq (S m) (n + 1).
-    rewrite Nat.div_add; lia.
-Qed.
-
 Lemma div_mod_pos {n m: nat} : S m / (1 + n) + S m mod (1 + n) <> 0.
 Proof.
   move=> ?. 

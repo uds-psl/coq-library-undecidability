@@ -15,12 +15,12 @@ The library is a collaborative effort, growing constantly and we invite everybod
 
 ## Problems in the Library
 
-The problems in the library can mostly be categorized into seed
-problems, advanced problems, and target problems.
+The problems in the library can mostly be categorized into seed problems, advanced problems, and target problems.
 
 Seed problems are simple to state and thus make for good starting points of undecidability proofs, often leading to easier reductions to other problems.
 
 Advanced problems do not work well as seeds, but they highlight the potential of our library as a framework for mechanically checking pen&paper proofs of potentially hard undecidability results.
+Some advanced problems are proven decidable to contrast negative results.
 
 Target problems are very expressive and thus work well as targets for reduction, with the aim of closing loops in the reduction graph to establish the inter-reducibility of problems.
 
@@ -83,6 +83,13 @@ An equivalence proof that most of the mentioned models of computation compute th
 - Semi-unification (`SemiU` in [`SemiUnification/SemiU.v`](theories/SemiUnification/SemiU.v))
 - System F Inhabitation (`SysF_INH` in [`SystemF/SysF.v`](theories/SystemF/SysF.v)), System F Typability (`SysF_TYP` in [`SystemF/SysF.v`](theories/SystemF/SysF.v)), System F Type Checking (`SysF_TC` in [`SystemF/SysF.v`](theories/SystemF/SysF.v))
 - Halting problem for Krivine machines (`KrivineM_HALT` in [`LambdaCalculus/Krivine.v`](theories/LambdaCalculus/Krivine.v))
+
+#### Decidable Problems
+
+- Two-counter Minsky Program Machine Halting (`MPM2_HALT` in [`MinskyMachines/Deciders/MPM2_HALT_dec.v`](theories/MinskyMachines/Deciders/MPM2_HALT_dec.v))
+- Reversible Two-counter Machine Halting (`MM2_REV_HALT` in [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v))
+- Two-counter Machine Uniform Mortality (`MM2_UMORTAL` in [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v))
+- Two-counter Machine Uniform Boundedness (`MM2_UBOUNDED` in [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v))
 
 ### Target Problems
 
@@ -176,14 +183,16 @@ Computability in Constructive Type Theory. Yannick Forster. PhD thesis. https://
 
 ### Papers and abstracts on problems and proofs included in the library
 
-- Constructive Many-One Reduction from the Halting Problem to Semi-Unification. Andrej Dudenhefner. CSL2022. Subdirectory `SemiUnification`. https://drops.dagstuhl.de/opus/volltexte/2022/15738/
+- Certified Decision Procedures for Two-Counter Machines. Andrej Dudenhefner. FSCD 2022. Subdirectory `MinskyMachines/Deciders`. https://drops.dagstuhl.de/opus/volltexte/2022/16297/
+- Constructive Many-One Reduction from the Halting Problem to Semi-Unification. Andrej Dudenhefner. CSL 2022. Subdirectory `SemiUnification`. https://drops.dagstuhl.de/opus/volltexte/2022/15738/
 - Undecidability, Incompleteness, and Completeness of Second-Order Logic in Coq. Mark Koch and Dominik Kirst. CPP 2022. Subdirectory `SOL`. https://www.ps.uni-saarland.de/extras/cpp22-sol/
-- A Mechanised Proof of the Time Invariance Thesis for the Weak Call-By-Value λ-Calculus. Yannick Foster, Fabian Kunze, Gert Smolka, Maximilian Wuttke. Subdirectory `TM/L`. https://drops.dagstuhl.de/opus/volltexte/2021/13914/
+- A Mechanised Proof of the Time Invariance Thesis for the Weak Call-By-Value λ-Calculus. Yannick Foster, Fabian Kunze, Gert Smolka, Maximilian Wuttke. ITP 2021. Subdirectory `TM/L`. https://drops.dagstuhl.de/opus/volltexte/2021/13914/
 - Synthetic Undecidability of MSELL via FRACTRAN. Dominique Larchey-Wendling. FSCD 2021. File [`ILL/IMSELL.v`](theories/ILL/IMSELL.v). Also documents 
  the undecidability proof for 2-counters Minsky machines [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v) via FRACTRAN. https://github.com/uds-psl/coq-library-undecidability/releases/tag/FSCD-2021/ 
 - The Undecidability of System F Typability and Type Checking for Reductionists. Andrej Dudenhefner. LICS 2021. Subdirectory `SystemF`. https://ieeexplore.ieee.org/document/9470520
 - Trakhtenbrot's Theorem in Coq - A Constructive Approach to Finite Model Theory. Dominik Kirst and Dominique Larchey-Wendling. IJCAR 2020. Subdirectory `TRAKTHENBROT`. https://www.ps.uni-saarland.de/extras/fol-trakh/
 - Undecidability of Semi-Unification on a Napkin. Andrej Dudenhefner. FSCD 2020. Subdirectory `SemiUnification`. https://www.ps.uni-saarland.de/Publications/documents/Dudenhefner_2020_Semi-unification.pdf
+- Mechanized Undecidability Results for Propositional Calculi. TYPES 2020. Subdirectory `HilbertCalculi`. https://types2020.di.unito.it/abstracts/BookOfAbstractsTYPES2020.pdf#page=94
 - Undecidability of Higher-Order Unification Formalised in Coq. Simon Spies and Yannick Forster. Technical report. Subdirectory `HOU`. https://www.ps.uni-saarland.de/Publications/details/SpiesForster:2019:UndecidabilityHOU.html
 - Verified Programming of Turing Machines in Coq. Yannick Forster, Fabian Kunze, Maximilian Wuttke. Technical report. Subdirectory `TM`. https://github.com/uds-psl/tm-verification-framework/
 - Hilbert's Tenth Problem in Coq. Dominique Larchey-Wendling and Yannick Forster. FSCD '19. Subdirectory `H10`. https://uds-psl.github.io/H10

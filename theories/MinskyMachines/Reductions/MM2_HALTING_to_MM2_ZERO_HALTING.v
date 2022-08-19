@@ -1,5 +1,5 @@
 (*
-  Autor(s):
+  Author(s):
     Andrej Dudenhefner (1)
   Affiliation(s):
     (1) TU Dortmund University, Dortmund, Germany
@@ -14,7 +14,7 @@
 Require Import List PeanoNat Lia Relations.Relation_Operators Relations.Operators_Properties.
 
 Require Import Undecidability.MinskyMachines.MM2.
-Require Import Undecidability.CounterMachines.Util.MM2_facts. 
+Require Import Undecidability.MinskyMachines.Util.MM2_facts.
 
 Require Undecidability.Shared.deterministic_simulation.
 Module sim := deterministic_simulation.
@@ -113,9 +113,9 @@ Section MM2_MM2.
   Lemma mm2_stuck_sim' x x' :
     sim.stuck (mm2_step M) x -> sync x x' -> sim.terminates (mm2_step M') x'.
   Proof.
-    rewrite /sync => /mm2_stuck_index Hx <-. exists (shift_state x).
+    rewrite /sync => /mm2_stop_index_iff Hx <-. exists (shift_state x).
     split; [apply: rt_refl|].
-    apply /mm2_stuck_index.
+    apply /mm2_stop_index_iff.
     rewrite length_M'.
     move: x Hx => [[|p] [a b]] /=; lia.
   Qed.
@@ -132,7 +132,7 @@ Section MM2_MM2.
   Proof.
     move=> [y'] [Hxy' Hy']. have Hinit := init_a0b0.
     have Hx'y' : mm2'_reaches (shift_state (1, (a0, b0))) y'.
-    { have [z [/mm2_stop_steps_refl Hyz Hinitz]] := mm2_steps_confluent Hxy' Hinit.
+    { have [z [/mm2_steps_stop_refl Hyz Hinitz]] := mm2_steps_confluent Hxy' Hinit.
       by rewrite -(Hyz Hy'). }
     have Hsim := sim.terminates_reflection _ _ _ _ _ (@mm2_step_det M') mm2_step_sim' (mm2_exists_step_dec M).
     apply: (Hsim _ _ erefl).

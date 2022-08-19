@@ -1,5 +1,5 @@
 (*
-  Autor(s):
+  Author(s):
     Andrej Dudenhefner (1)
   Affiliation(s):
     (1) Saarland University, Saarbrücken, Germany
@@ -18,7 +18,7 @@ Import ListNotations.
 
 Require Undecidability.StringRewriting.SSTS.
 Require Undecidability.MinskyMachines.MM2.
-Require Undecidability.CounterMachines.Util.MM2_facts.
+Require Undecidability.MinskyMachines.Util.MM2_facts.
 Require Undecidability.StringRewriting.Util.List_facts.
 
 Require Undecidability.Synthetic.Definitions.
@@ -291,7 +291,7 @@ Context (c'0 : mm2_state) (Hc0c'0 : mm2_reaches c0 c'0) (Hc'0 : mm2_stop mm c'0)
 Lemma Hbound : { bound : nat | forall y, mm2_reaches c0 y -> (fst (snd y) + snd (snd y)) < bound }.
 Proof using Hc0c'0 Hc'0.
   move: (c'0) (Hc0c'0) (Hc'0) => z.
-  move=> /mm2_sn /[apply]. elim.
+  move=> /mm2_terminates_Acc /[apply]. elim.
   move=> x _ IH.
   have [[y]|Hx] := mm2_sig_step_dec mm x.
   - move=> /[dup] /IH [bound Hbound] Hxy.
@@ -634,7 +634,7 @@ Proof.
     + move=> [?] [-> ->]. do 4 right. by eexists.
 Qed.
 
-(* specification of inner Cm2 step *)
+(* specification of inner mm2 step *)
 Inductive srs_step_spec (u v: list Symbol) (a b: Symbol) (n m: nat) : Prop :=
   | srs_step0 : a.1 = sl.1 -> b.1 = sm.1 -> u = [] -> n = 0 -> srs_step_spec u v a b n m
   | srs_step1 : a.1 = sl.1 -> b.1 = sb.1 -> u = [] -> n = 1 + (n - 1) -> srs_step_spec u v a b n m
@@ -694,10 +694,10 @@ Proof.
       constructor; [done | constructor; by rewrite /= ?H1s2  ?H2s2].
     + move=> ? _ _ [<-] _ *. right.
       move=> y Hxy. exfalso. move: y Hxy.
-      apply /mm2_stuck_index => /=. lia.
+      apply /mm2_stop_index_iff => /=. lia.
     + move=> -> _ _ /= [<-] _. right.
       move=> y Hxy. exfalso. move: y Hxy.
-      apply /mm2_stuck_index => /=. by left.
+      apply /mm2_stop_index_iff => /=. by left.
   - move=> [s1] [s2] [?] [? ?]. subst.
     move: H H1t H2t => /srs_specI [].
     + move=> H + + /ltac:(right). move=> /[dup] [/srs_step_specI] [].
@@ -935,11 +935,6 @@ End SR2ab_to_SSTS01.
 
 Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.ReducibilityFacts.
 Import MM2 SSTS.
-
-(*
-From Undecidability.StringRewriting.Reductions.CM2_HALT_to_SSTS01 
-  Require CM2_HALT_to_SR2ab SR2ab_to_SSTS01.
-*)
 
 (* Two Counter Machine Halting starting from (0, 0) 
    many-one reduces to Simple Semi-Thue System 01 Rewriting *)

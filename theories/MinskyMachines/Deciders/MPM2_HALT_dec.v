@@ -12,7 +12,9 @@
 
 (*
   Literature:
-    [1] Minsky, Marvin Lee. Computation. Englewood Cliffs: Prentice-Hall, 1967. (Chapter 11.1)
+  [1] Minsky, Marvin Lee. Computation. Englewood Cliffs: Prentice-Hall, 1967. (Chapter 11.1)
+  [2] Dudenhefner, Andrej. "Certified Decision Procedures for Two-Counter Machines."
+      FSCD 2022. https://drops.dagstuhl.de/opus/volltexte/2022/16297/
 *)
 
 Require Import List ssrfun.
@@ -89,10 +91,57 @@ Definition MPM2_HALT : Mpm2 * Config -> Prop :=
 
 Require Import List PeanoNat Lia Operators_Properties.
 Import ListNotations.
+
 Require Import ssreflect ssrbool ssrfun.
-Require Import Undecidability.CounterMachines.Util.Facts.
 
 Set Default Goal Selector "!".
+
+(* local facts *)
+Module Facts.
+
+(* induction/recursion principle wrt. a decreasing measure f *)
+(* example: elim /(measure_rect length) : l. *)
+Lemma measure_rect {X : Type} (f : X -> nat) (P : X -> Type) : 
+  (forall x, (forall y, f y < f x -> P y) -> P x) -> forall (x : X), P x.
+Proof.
+  exact: (well_founded_induction_type (Wf_nat.well_founded_lt_compat X f _ (fun _ _ => id)) P).
+Qed.
+
+Lemma list_sum_map_le {X: Type} f g (L: list X) :
+  (forall x, f x <= g x) ->
+  list_sum (map f L) <= list_sum (map g L).
+Proof.
+  move=> Hfg. elim: L; first done.
+  move=> x L IH /=. have := Hfg x. lia.
+Qed.
+
+Lemma list_sum_map_lt {X: Type} {f g} {L: list X} {x} :
+  (forall x, f x <= g x) ->
+  In x L -> f x < g x ->
+  list_sum (map f L) < list_sum (map g L).
+Proof.
+  move=> Hfg + H'fg. elim: L; first done.
+  move=> y L IH /= [->|].
+  - have := list_sum_map_le f g L Hfg. lia.
+  - move=> /IH. have := Hfg y. lia.
+Qed.
+
+Lemma iter_plus {X} (f : X -> X) (x : X) n m : Nat.iter (n + m) f x = Nat.iter m f (Nat.iter n f x).
+Proof.
+  elim: m; first by rewrite Nat.add_0_r.
+  move=> m /= <-. by have ->: n + S m = S n + m by lia.
+Qed.
+
+Lemma oiter_None {X : Type} (f : X -> option X) k : Nat.iter k (obind f) None = None.
+Proof. elim: k; [done | by move=> /= ? ->]. Qed.
+
+Lemma obind_oiter {X : Type} (f : X -> option X) k x : 
+  obind f (Nat.iter k (obind f) (Some x)) = Nat.iter k (obind f) (f x).
+Proof. elim: k; [done|by move=> k /= ->]. Qed.
+
+End Facts.
+
+Import Facts.
 
 Section Construction.
 Variable M : Mpm2.

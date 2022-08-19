@@ -1,5 +1,5 @@
 (*
-  Autor(s):
+  Author(s):
     Andrej Dudenhefner (1)
   Affiliation(s):
     (1) TU Dortmund University, Dortmund, Germany
@@ -16,28 +16,71 @@ Import ListNotations.
 
 Require Import Undecidability.MinskyMachines.MM2.
 Require Undecidability.CounterMachines.CM1.
-
 Require Undecidability.Shared.deterministic_simulation.
-
-From Undecidability.CounterMachines.Util Require Import
-  Facts Nat_facts MM2_facts CM1_facts.
+Require Import Undecidability.CounterMachines.Util.CM1_facts.
+Require Import Undecidability.MinskyMachines.Util.MM2_facts.
 
 Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 
+(* local facts *)
+Module Facts.
+
+Lemma nth_error_seq {i start len} :
+  i < len -> nth_error (seq start len) i = Some (start + i).
+Proof.
+  elim: len i start; first by lia.
+  move=> len IH [|i] start.
+  { move=> ?. congr Some. lia. }
+  move=> ?. rewrite /= IH; first by lia.
+  congr Some. lia.
+Qed.
+
+Lemma pow_3_mod_2 (n: nat) : 3 ^ n mod 2 = 1.
+Proof.
+  elim: n; first by (cbv; lia).
+  move=> n IH. rewrite Nat.pow_succ_r' Nat.mul_mod ?IH; first by lia.
+  by cbv; lia.
+Qed.
+
+Lemma pow_5_mod_2 (n: nat) : 5 ^ n mod 2 = 1.
+Proof.
+  elim: n; first by (cbv; lia).
+  move=> n IH. rewrite Nat.pow_succ_r' Nat.mul_mod ?IH; first by lia.
+  by cbv; lia.
+Qed.
+
+Lemma pow_2_mod_3 (n: nat) : 2 ^ n mod 3 = 1 \/ 2 ^ n mod 3 = 2.
+Proof.
+  elim: n; first by (cbv; lia).
+  move=> n IH. rewrite Nat.pow_succ_r' Nat.mul_mod; first by lia.
+  move: IH => [->|->]; cbv; by lia.
+Qed.
+
+Lemma pow_5_mod_3 (n: nat) : 5 ^ n mod 3 = 1 \/ 5 ^ n mod 3 = 2.
+Proof.
+  elim: n; first by (cbv; lia).
+  move=> n IH. rewrite Nat.pow_succ_r' Nat.mul_mod; first by lia.
+  move: IH => [->|->]; cbv; by lia.
+Qed.
+
+End Facts.
+
+Import Facts.
+
 Module Argument.
+Import MM2Notations.
+
 Section MM2_CM1.
   Variable (P: list mm2_instr). (* MM2 program *)
   Variables (a0 b0: nat). (* MM2 initial counters *)
-
-  Definition mm2_config : Set := (nat*(nat*nat)).
 
   (* instruction index map *)
   Definition fs (i: nat) : nat :=
     if i is S i then i*6 + a0 + b0 + b0 else (length P * 6) + a0 + b0 + b0.
 
-  (* encode instruction mmi at position i using index map fs for current cm2 state p *)
+  (* encode instruction mmi at position i using index map fs for current mm2 program index p *)
   Definition encode_instruction : mm2_instr * nat -> list CM1.Instruction :=
     fun '(mmi, i) => let p := fs i in
       match mmi with
@@ -191,7 +234,7 @@ Section MM2_CM1.
   Qed.
 
   (* encode mm2 config as cm1 config *)
-  Definition encodes_config (x: mm2_config) (y: CM1.Config) : Prop :=
+  Definition encodes_config (x: mm2_state) (y: CM1.Config) : Prop :=
     let: (i, (a, b)) := x in
     CM1.state y = fs i /\ 
     exists c, CM1.value y = κ a b c.
@@ -242,7 +285,7 @@ Section MM2_CM1.
   Qed.
 
   (* M simulates each step of P *)
-  Lemma P_to_M_step (x y: mm2_config) (x': CM1.Config) :
+  Lemma P_to_M_step (x y: mm2_state) (x': CM1.Config) :
     mm2_step P x y ->
     encodes_config x x' ->
     exists y' : CM1.Config,
@@ -396,7 +439,7 @@ Section MM2_CM1.
       exists x'. split; [by apply: rt_refl|].
       rewrite /deterministic_simulation.stuck.
       move=> y' [Hx'y' H'x'y'].
-      move: Hx => /mm2_stuck_index.
+      move: Hx => /mm2_stop_index_iff.
       subst y'.
       move: x' Hxx' H'x'y'.
       move=> [p [|c]] /=; [done|].
@@ -409,7 +452,7 @@ Section MM2_CM1.
       + move: HpM. have -> /= : i = S (i-1) by lia.
         lia.
     - by split; [|exists 0].
-Qed.
+  Qed.
 
   Lemma reflection : CM1.CM1_HALT (exist _ M M_capped) -> MM2_HALTING (P, a0, b0).
   Proof.
