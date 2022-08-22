@@ -299,10 +299,12 @@ MinskyMachines/Util/MM_computable.v
 
 MinskyMachines/Reductions/BSM_MM.v
 MinskyMachines/Reductions/BSM_to_MMA_HALTING.v
+MinskyMachines/Reductions/BSM_HALTING_to_MMA_zero_HALTING.v
 MinskyMachines/Reductions/PCPb_to_MM.v
 MinskyMachines/Reductions/HaltTM_1_to_MM.v
 MinskyMachines/Reductions/FRACTRAN_to_MMA2.v
 MinskyMachines/Reductions/MMA2_to_MM2.v
+MinskyMachines/Reductions/MMA_to_MMA_zero.v
 MinskyMachines/Reductions/MMA2_to_MMA2_zero.v
 MinskyMachines/Reductions/MM_to_MMA2.v
 MinskyMachines/Reductions/MUREC_MM.v

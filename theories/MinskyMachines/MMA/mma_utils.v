@@ -165,6 +165,29 @@ Section Minsky_Machine_alt_utils.
 
   End mma_null_all.
 
+  Hint Rewrite mma_null_all_length : length_db.
+
+  Section mma_zeroify.
+
+    Variable (x : pos n) (i : nat).
+
+    Definition mma_zeroify := mma_null_all i ++ JUMPₐ 0 x.
+
+    Fact mma_zeroify_length : length mma_zeroify = 2+n.
+    Proof. unfold mma_zeroify; rew length; lia. Qed.
+
+    Fact mma_zeroify_spec v : (i,mma_zeroify) // (i,v) -+> (0,vec_zero).
+    Proof.
+      unfold mma_zeroify.
+      apply sss_compute_progress_trans with (n+i,vec_zero).
+      + apply subcode_sss_compute with (P := (i,mma_null_all i)); auto.
+        apply mma_null_all_spec.
+      + apply subcode_sss_progress with (P := (n+i,JUMPₐ 0 x)); auto.
+        now apply mma_jump_progress.
+    Qed.
+
+  End mma_zeroify.
+
   Section mma_incs.
 
     (* Add a constant value k to register x *)
