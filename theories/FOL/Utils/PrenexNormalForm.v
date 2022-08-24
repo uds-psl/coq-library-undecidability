@@ -1,5 +1,5 @@
 (** * Prenex Normal Form *)
-From Undecidability.FOL.Syntax Require Import Core Facts.
+From Undecidability.FOL.Syntax Require Import Core Facts Asimpl.
 From Undecidability.FOL.Semantics.Tarski Require Import FullCore FullFacts.
 From Undecidability.FOL.Arithmetics Require Import Signature.
 Require Import Lia Vector List.
@@ -313,20 +313,22 @@ Section PrenexNormalForm.
   Qed.
 
   (*** convert PNF definiton ***)
-  
-  Fixpoint upN n sig := 
-    match n with
-    | 0 => sig
-    | S n => upN n (up sig)
-    end.
+  Notation upN := (iter up) (only parsing).
 
-  Definition shift k := fun n => $(k + n).
+  Notation shift k := (iter S k >> var).
   Definition shift_quant n k := upN n (shift k).
-  
+
+  Lemma iter_add_S a : iter S a = Nat.add a.
+  Proof.
+    induction a.
+    - easy.
+    - cbn. now rewrite IHa.
+  Qed.
+
   Lemma upNup sig n :
     upN n (up sig) = up (upN n sig).
   Proof.
-    now induction n in sig |-*; cbn.
+    now rewrite iter_switch.
   Qed.
 
   Lemma upN_explicit n sig j :
@@ -334,16 +336,14 @@ Section PrenexNormalForm.
   Proof.
     destruct Compare_dec.lt_dec as [lt | geq].
     - induction j in lt, n |-*.
-      + destruct n as [|n]; [lia|]. cbn. now rewrite upNup.
-      + destruct n as [|n]; [lia|]. cbn. rewrite upNup. cbn.
+      + destruct n as [|n]; [lia|]. now cbn.
+      + destruct n as [|n]; [lia|]. cbn.
         unfold funcomp. now rewrite IHj by lia.
     - induction n as [|n IH] in geq, j |-*.
-      + replace (j - 0) with j by lia. cbn. now rewrite subst_term_id.
-      + cbn. rewrite upNup.
-        destruct j.
+      + replace (j - 0) with j by lia. now asimpl.
+      + destruct j.
         * lia.
-        * cbn. unfold funcomp. rewrite IH by lia.
-          apply subst_term_comp.
+        * cbn. unfold funcomp. rewrite IH by lia. now asimpl.
   Qed.
 
   Lemma shift_quant_explicit n k j :
@@ -353,7 +353,7 @@ Section PrenexNormalForm.
     rewrite upN_explicit.
     destruct Compare_dec.lt_dec.
     - reflexivity.
-    - unfold shift. cbn. f_equal. lia.
+    - cbn. unfold shift. f_equal. repeat rewrite iter_add_S. lia.
   Qed.
 
   Goal forall x, upN 4 (shift 38) x = ($0 .: $1 .: $2 .: $3 .: (shift 42)) x.
@@ -452,40 +452,40 @@ Section PrenexNormalForm.
   Lemma shift_one_more {b: falsity_flag} φ n :
     φ[shift (S n)] = φ[↑][shift n].
   Proof.
-    rewrite subst_comp. apply subst_ext. cbn.
-    unfold shift. intros. f_equal. lia.
+    asimpl. apply subst_ext. intros m. unfold shift, funcomp.
+    now rewrite iter_switch.
   Qed.
 
-  Lemma shift_quant_0 {b: falsity_flag} φ n :
-    φ[shift_quant n 0] = φ.
+  Lemma shift_quant_0 n : feq (shift_quant n 0) var.
   Proof.
-    apply subst_id. intros x. unfold shift_quant.
+    unfold shift_quant. intros x.
     enough (forall sigma, (forall x, sigma x = $x) -> (forall x, upN n sigma x = $x)) by auto.
-    clear.
     induction n.
     - now intros.
-    - intros sig Hsig. cbn.
+    - intros sig Hsig. cbn. rewrite iter_switch.
       apply IHn. unfold up.
-      unfold scons. intros [|x]; [reflexivity|].
+      unfold scons. intros [|y]; [reflexivity|].
       unfold funcomp. now rewrite Hsig.
+  Qed.
+
+  Lemma shift_quant_add n a b x :
+    (shift_quant n a x)`[shift_quant n b] = shift_quant n (a+b) x.
+  Proof.
+  unfold shift_quant, shift. induction n in a,b,x|-*.
+  - cbn. f_equal. rewrite !iter_add_S. lia.
+  - destruct x as [|x].
+    + easy.
+    + cbn. unfold funcomp at 3. rewrite <- IHn.
+      rewrite !iter_add_S. unfold funcomp. rewrite !subst_term_comp.
+      easy.
   Qed.
 
   Lemma shift_quant_1 {b: falsity_flag} φ n m:
     φ[shift_quant n 1][shift_quant n m] =
     φ[shift_quant n (S m)].
   Proof.
-    unfold shift_quant.
-    rewrite subst_comp. apply subst_ext.
-    induction n in m |-*.
-    - cbn. intros. unfold shift. f_equal. lia.
-    - cbn [upN]. intros x.
-     specialize up_funcomp as upcomp.
-      unfold funcomp in upcomp.
-      unfold funcomp.
-      do 2 rewrite upNup.
-      rewrite upcomp. rewrite upNup.
-      destruct x as [|x]; [reflexivity|]. cbn.
-      unfold funcomp. now rewrite <- (IHn m).
+    asimpl. apply subst_ext.
+    intros p. unfold funcomp. apply shift_quant_add.
   Qed.
 
   Lemma quant_list_to_form_rename_free {b: falsity_flag} sigma qs φ:
@@ -494,7 +494,7 @@ Section PrenexNormalForm.
   Proof.
     induction qs as [|q qs IH] in sigma |-*.
     - now apply subst_ext.
-    - cbn [quant_list_to_form]. cbn. f_equal. apply IH.
+    - cbn [quant_list_to_form]. cbn. f_equal. rewrite iter_switch. apply IH.
   Qed.
 
   Lemma quant_list_to_form_rename_free_up {b: falsity_flag} qs φ:
@@ -521,13 +521,13 @@ Section PrenexNormalForm.
     revert ρ ψ1 ψ2. induction qs1 as [| q1 qs1 IH1]; [induction qs2 as [|q2 qs2 IH2]|]; intros ρ φ1 φ2.
       + destruct op. all: cbn; split. all: repeat rewrite sat_comp. all: now setoid_rewrite (@sat_ext _ _ _ _ _ ρ ((shift 0 >> eval ρ))).
       + destruct op; destruct q2; cbn [app quant_list_to_form length].
-        all: rewrite shift_quant_0.
+        all: setoid_rewrite shift_quant_0.
         all: eapply equivTrans; [|apply PNF_andAll + apply PNF_andExists + apply (PNF_orAll DN) + apply PNF_orExists + apply PNF_implAll + apply (PNF_implExists (DN_to_IndependenceOfGeneralPremises DN))].
         all: assert (forall ρ a b, (ρ ⊨ (a ↔ b)) <-> (ρ ⊨ a <-> ρ ⊨ b)) as eqEquiv by firstorder.
         all: setoid_rewrite eqEquiv in IH2.
         all: cbn in *; apply AllEquivAll + apply ExEquivEx.
         all: intros d; rewrite <- IH2; apply quant_list_to_form_equiv.
-        all: now rewrite shift_one_more, shift_quant_0.
+        all: now setoid_rewrite shift_one_more; setoid_rewrite shift_quant_0.
       + destruct op; destruct q1; cbn [app quant_list_to_form].
         all: eapply equivTrans; [|apply PNF_allAnd + apply PNF_existsAnd + apply (PNF_allOr DN) + apply PNF_existsOr + apply (PNF_allImpl DN) + apply PNF_existsImpl].
         all: assert (forall ρ a b, (ρ ⊨ (a ↔ b)) <-> (ρ ⊨ a <-> ρ ⊨ b)) as eqEquiv by firstorder.
