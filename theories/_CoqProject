@@ -842,6 +842,7 @@ FOL/Sets/Models/HF_model.v
 FOL/Sets/Models/ZF_conservativity.v
 
 FOL/Utils/FriedmanTranslation.v
+FOL/Utils/PrenexNormalForm.v
 
 FOL/Undecidability/Reductions/PCPb_to_FST.v
 FOL/Undecidability/Reductions/PCPb_to_FSTD.v
@@ -918,4 +919,6 @@ FOL/Completeness2/KripkeCompleteness.v
 FOL/Deduction/FragmentSequent.v
 FOL/Deduction/FragmentSequentFacts.v
 
-
+FOL/ArithmeticalHierarchy/ArithmeticalHierarchySyntactic.v
+FOL/ArithmeticalHierarchy/ArithmeticalHierarchySemantic.v
+FOL/ArithmeticalHierarchy/ArithmeticalHierarchyEquiv.v
