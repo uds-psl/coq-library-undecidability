@@ -32,6 +32,7 @@ Inductive fractran_eval : list (nat*nat) -> nat -> nat -> Prop :=
 | fractran_eval_step P n m m' : P /F/ n ≻ m -> P /F/ m ▹ m' -> P /F/ n ▹ m'
 where "l /F/ x ▹ y" := (fractran_eval l x y).
 
+(* FRACTRAN Halting Problem *)
 Definition Halt_FRACTRAN '(P, n) :=
   exists m, P /F/ n ▹ m.
 
@@ -48,3 +49,16 @@ Definition FRACTRAN_computable {k} (R : Vector.t nat k -> nat -> Prop) :=
   exists P : list (nat * nat), fractran_regular P /\
     forall v : Vector.t nat k,
       (forall m, R v m <-> exists j, fractran_eval P (ps 1 * enc 2 v) (j * (qs 1)^m) /\ ~ divides (qs 1) j).
+
+(* left-unique step relation *)
+Definition fractran_reversible (P : list (nat * nat)) :=
+  forall n1 n2 m, P /F/ n1 ≻ m -> P /F/ n2 ≻ m -> n1 = n2.
+
+(* Reversible FRACTRAN Halting Problem *)
+Definition Halt_REV_FRACTRAN : { P : list (nat * nat) | fractran_reversible P } * nat -> Prop :=
+  fun '(P, n) => exists m, (proj1_sig P) /F/ n ▹ m.
+
+Module FRACTRANNotations.
+Notation "l /F/ x ≻ y" := (fractran_step l x y).
+Notation "l /F/ x ▹ y" := (fractran_eval l x y).
+End FRACTRANNotations.
