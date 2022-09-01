@@ -1,5 +1,3 @@
-(* All credits go to Johannes Hostert *)
-
 Require Import Arith Lia List Bool Eqdep_dec EqdepFacts.
 From Undecidability.Shared.Libs.DLW 
   Require Import utils_tac utils_nat utils_list finite pos vec.

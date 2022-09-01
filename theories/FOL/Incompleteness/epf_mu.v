@@ -5,16 +5,17 @@ From Undecidability.H10 Require Import DPRM dio_single.
 From Equations Require Import Equations.
 Require Import String List.
 From Undecidability.L.Reductions Require Import MuRec.
-From Undecidability.MuRec Require Import recalg.
+From Undecidability.MuRec Require Import recalg enumerable.
 Require Import Undecidability.L.Reductions.MuRec.MuRec_extract.
 From Undecidability.H10 Require Import DPRM.
 Require Import Undecidability.Synthetic.EnumerabilityFacts.
 From Coq.Logic Require Import ConstructiveEpsilon.
-From Undecidability.FOL.Incompleteness Require Import utils epf recalg fol_utils qdec sigma1.
+From Undecidability.FOL.Incompleteness Require Import utils epf fol_utils qdec sigma1.
 
 Import ListNotations.
 
 
+Derive Signature for Vector.t.
 
 Definition mu_semi_decidable (P : nat -> Prop) := 
   exists f : recalg 1, forall x : nat,

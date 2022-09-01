@@ -258,7 +258,7 @@ Section value_disjoint.
           * reflexivity.
           * now rewrite num_subst.
           * lia.
-        + apply prv_intu_class, Hψ1.
+        + apply prv_intu_peirce, Hψ1.
       - intros x. rewrite φ2_syn. 
         apply iff_iff.
         apply (subst_Weak ((num x)..)) in Hψ2.
@@ -270,7 +270,7 @@ Section value_disjoint.
           * reflexivity.
           * now rewrite num_subst.
           * lia.
-        + apply prv_intu_class, Hψ2.
+        + apply prv_intu_peirce, Hψ2.
     Qed.
 
   End weak_strong.

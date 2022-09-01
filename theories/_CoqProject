@@ -294,6 +294,7 @@ MuRec/ra_godel_beta.v
 MuRec/ra_enum.v
 MuRec/ra_univ.v
 MuRec/ra_univ_andrej.v
+MuRec/enumerable.v
 
 MuRec/ra_dio_poly.v
 MuRec/ra_mm_env.v
@@ -890,7 +891,6 @@ FOL/Incompleteness/Axiomatisations.v
 FOL/Incompleteness/PA_incompleteness.v
 FOL/Incompleteness/utils.v
 FOL/Incompleteness/epf.v
-FOL/Incompleteness/recalg.v
 FOL/Incompleteness/epf_mu.v
 FOL/Incompleteness/formal_systems.v
 FOL/Incompleteness/abstract_incompleteness.v

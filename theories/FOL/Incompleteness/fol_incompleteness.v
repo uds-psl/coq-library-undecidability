@@ -145,6 +145,3 @@ Section fol.
   End Q_incomplete.
 
 End fol.
-
-
-Check Q_incomplete.

@@ -15,7 +15,6 @@ Open Scope string_scope.
 Section Sigma1.
   Existing Instance PA_preds_signature.
   Existing Instance PA_funcs_signature.
-
   Context {p : peirce}.
 
 
@@ -195,7 +194,7 @@ Section conservativity.
     1: do 2 constructor; auto.
     assert (Qeq ⊢C ∃ α) as H.
     { eapply IE with ϕ; auto.
-      apply prv_intu_class. 
+      apply prv_intu_peirce. 
       eapply CE1. apply Hα. }
     apply Fr_cl_to_min, soundness in H.
     refine (let H' := H nat (extend_interp interp_nat _) (fun _ => 0) _ in _).
@@ -209,7 +208,7 @@ Section conservativity.
       + apply H, nat_is_Q_model.
       + eauto.
       + intros []; [reflexivity|lia].
-    - apply prv_intu_class with (p:=class) in H.
+    - apply prv_intu_peirce with (p:=class) in H.
       apply Fr_cl_to_min, soundness in H.
       refine (let H' := H nat (extend_interp interp_nat _) (fun _ => 0) _ in _).
       cbn in H'. apply H'; clear H H'.

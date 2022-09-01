@@ -555,7 +555,7 @@ Section ctq.
       apply subst_Weak with (xi := num c .: num x .: (num y)..) in Hφ.
       change (map _ _) with Qeq in Hφ. cbn in Hφ.
       replace (φ[$0 .: _]) with (φ[up (num c .: num x .: (num y)..)]).
-      { apply prv_intu_class with (p := pei) in Hφ. split; intros H; fapply Hφ; apply H. }
+      { apply prv_intu_peirce in Hφ. split; intros H; fapply Hφ; apply H. }
       eapply bounded_subst; first eassumption.
       intros [|[|[|[|n]]]] H; cbn; lia + now rewrite ?num_subst. }
     eapply epf_n_uctq with (theta := theta_mu) (φ := φ3).

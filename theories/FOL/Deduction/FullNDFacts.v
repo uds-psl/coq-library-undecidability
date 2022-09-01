@@ -202,6 +202,11 @@ Section ND_def.
     - eapply Weak; eauto.
     - rewrite <- imps in H1. apply IHA in H1; auto. apply IE with a; trivial. now apply H2.
   Qed.
+
+  Lemma prv_intu_peirce T φ : T ⊢I φ -> T ⊢ φ.
+  Proof using.
+    remember intu. induction 1. all: now eauto.
+  Qed.
     
 End ND_def.
 

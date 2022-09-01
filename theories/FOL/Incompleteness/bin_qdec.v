@@ -68,7 +68,6 @@ Section bin_qdec.
           frewrite (ax_add_zero y). frewrite (ax_add_zero z).
           fapply ax_refl.
         + frewrite "Hx'". frewrite (ax_add_rec z x').
-          Check add_rec_swap2.
           pose proof (add_rec_swap2 t y (x' ⊕ z)). cbn in H.
           fapply ax_sym. fapply H. fapply ax_sym.
           fapply IH.

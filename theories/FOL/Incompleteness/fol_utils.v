@@ -28,12 +28,6 @@ Section lemmas.
   Existing Instance PA_funcs_signature.
   Existing Instance interp_nat.
 
-  Context `{pei : peirce}.
-
-  Lemma prv_intu_class T φ p : @prv _ _ _ intu T φ -> @prv _ _ _ p T φ.
-  Proof using.
-  Admitted.
-
   Lemma iμ_standard (k : nat) : iμ k = k.
   Proof.
     induction k; cbn; congruence.
@@ -104,14 +98,9 @@ Section PM.
 End PM.
 
 
-(* Global Ltac custom_simpl ::= cbn; rewrite ?PAle_subst; cbn; rewrite ?num_subst; cbn. *)
-(* Global Notation "'σh' x" := (bFunc Succ (Vector.cons bterm x 0 (Vector.nil bterm))) (at level 32) : hoas_scope. *)
-(* Global Notation "x '⊕h' y" := (bFunc Plus (Vector.cons bterm x 1 (Vector.cons bterm y 0 (Vector.nil bterm))) ) (at level 39) : hoas_scope. *)
-(* Global Notation "x '⊗h' y" := (bFunc Mult (Vector.cons bterm x 1 (Vector.cons bterm y 0 (Vector.nil bterm))) ) (at level 38) : hoas_scope. *) 
-(* Global Notation "x '==h' y" := (bAtom Eq (Vector.cons bterm x 1 (Vector.cons bterm y 0 (Vector.nil bterm))) ) (at level 40) : hoas_scope. *)
 
 
-(* Closed terms are numerabls *)
+(* Closed terms are numerals *)
 Section n.
   Existing Instance PA_preds_signature.
   Existing Instance PA_funcs_signature.
@@ -152,6 +141,5 @@ Section n.
         frewrite <-H''.
         fapply ax_mult_congr; assumption.
   Qed.
-
 
 End n.
