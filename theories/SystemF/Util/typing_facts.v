@@ -1,5 +1,5 @@
 (* 
-  Autor(s):
+  Author(s):
     Andrej Dudenhefner (1)
     Yannick Forster (1) 
   Affiliation(s):

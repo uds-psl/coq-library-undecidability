@@ -1,5 +1,5 @@
 (* 
-  Autor(s):
+  Author(s):
     Dominique Larchey-Wendling (1)
     Andrej Dudenhefner (2)
     Johannes Hostert (2)

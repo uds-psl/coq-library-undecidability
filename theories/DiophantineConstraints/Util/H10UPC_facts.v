@@ -1,5 +1,5 @@
 (* 
-  Autor(s):
+  Author(s):
     Andrej Dudenhefner (1) 
     Johannes Hostert (1) 
   Affiliation(s):
