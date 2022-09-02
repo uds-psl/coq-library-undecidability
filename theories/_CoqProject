@@ -14,13 +14,15 @@ MinskyMachines/MM2.v
 MinskyMachines/MM2_undec.v
 
 FRACTRAN/FRACTRAN.v
+FRACTRAN/FRACTRAN_undec.v
+FRACTRAN/FRACTRAN_dec.v
 
 FRACTRAN/Util/FRACTRAN_computable.v
 FRACTRAN/Util/FRACTRAN_sss.v
 
 FRACTRAN/Reductions/HaltTM_1_to_FRACTRAN_HALTING.v
 FRACTRAN/Reductions/MM_computable_to_FRACTRAN_computable.v
-FRACTRAN/FRACTRAN_undec.v
+FRACTRAN/Deciders/Halt_REV_FRACTRAN_dec.v
 
 DiophantineConstraints/H10C.v
 DiophantineConstraints/H10C_undec.v
