@@ -1,4 +1,3 @@
-(* TODO deduplicate imports *)
 From Undecidability.FOL.Incompleteness Require Import utils Axiomatisations.
 
 From Undecidability.Synthetic Require Import Definitions EnumerabilityFacts.

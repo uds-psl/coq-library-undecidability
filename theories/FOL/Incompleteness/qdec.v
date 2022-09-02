@@ -39,7 +39,7 @@ Section Qdec.
 
   Lemma Qdec_iff φ ψ : Qeq ⊢I φ ↔ ψ -> Qdec φ -> Qdec ψ.
   Proof.
-    intros H Hφ pei ρ Hρ. apply prv_intu_peirce with (p := pei) in H.
+    intros H Hφ pei ρ Hρ. apply prv_intu_peirce in H.
     pose proof (subst_Weak ρ H) as Hiff. cbn in Hiff. change (List.map _ _) with Qeq in Hiff.
     destruct (Hφ pei ρ Hρ) as [H1|H1].
     - left. fapply Hiff. fapply H1.
@@ -50,7 +50,7 @@ Section Qdec.
     Qdec φ -> Qdec ψ.
   Proof.
     intros H Hφ pei ρ Hρ. 
-    specialize (H _ Hρ). apply prv_intu_peirce with (p := pei) in H.
+    specialize (H _ Hρ). apply prv_intu_peirce in H.
     destruct (Hφ _ _ Hρ) as [H1|H1].
     - left. fapply H. fapply H1.
     - right. fintros. fapply H1. fapply H. ctx.

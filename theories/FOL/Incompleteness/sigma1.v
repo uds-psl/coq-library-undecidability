@@ -208,7 +208,7 @@ Section conservativity.
       + apply H, nat_is_Q_model.
       + eauto.
       + intros []; [reflexivity|lia].
-    - apply prv_intu_peirce with (p:=class) in H.
+    - eapply prv_intu_peirce in H.
       apply Fr_cl_to_min, soundness in H.
       refine (let H' := H nat (extend_interp interp_nat _) (fun _ => 0) _ in _).
       cbn in H'. apply H'; clear H H'.
