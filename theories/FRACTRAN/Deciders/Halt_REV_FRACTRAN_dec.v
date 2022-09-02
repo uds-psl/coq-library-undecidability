@@ -44,22 +44,18 @@ Definition count_pow (p n : nat) : nat :=
   let (l, _) := (@prime_decomp (S n) (Nat.neq_succ_0 n))
     in count_occ Nat.eq_dec l p.
 
-Lemma prime_divides_lt' c d (Hc : c <> 0) (Hd : d <> 0) :
+Lemma prime_divides_lt' {c d} (Hc : c <> 0) (Hd : d <> 0):
   ~ (divides d c) ->
   exists p,
-    (forall x y (Hx : x <> 0) (Hy : y <> 0),
-      x * c = y * d -> count_pow p (pred y) < count_pow p (pred x)).
+    (forall x y, (S x) * c = (S y) * d -> count_pow p y < count_pow p x).
 Proof.
   pose proof (@prime_decomp c Hc) as [lc [Hclc Hlc]].
   pose proof (@prime_decomp d Hd) as [ld [Hdld Hld]].
   subst. intros H. apply prime_divides_lt in H as [p [? Hp]]; [|assumption ..].
-  exists p. intros x y Hx Hy. unfold count_pow.
-  destruct (@prime_decomp (S (pred x)) _) as [lx [Hxlx Hlx]].
-  destruct (@prime_decomp (S (pred y)) _) as [ly [Hyly Hly]].
-  assert (S (pred x) = x) as H'x by lia.
-  assert (S (pred y) = y) as H'y by lia.
-  rewrite H'x in Hxlx. rewrite H'y in Hyly.
-  subst. rewrite <- !lprod_app.
+  exists p. intros x y. unfold count_pow.
+  destruct (@prime_decomp (S x) _) as [lx [Hxlx Hlx]].
+  destruct (@prime_decomp (S y) _) as [ly [Hyly Hly]].
+  rewrite Hxlx, Hyly, <- !lprod_app.
   intros E. apply prime_decomp_uniq in E; [|now rewrite Forall_app ..].
   assert (iffLR : forall P Q, (P <-> Q) -> P -> Q) by tauto.
   assert (H' := iffLR _ _ (Permutation_count_occ Nat.eq_dec _ _) E p).
@@ -95,18 +91,20 @@ Import Prime_factors.
 
 Module Argument.
 
+Lemma fractran_nstop_cons a b l s :
+  (forall t, ~ l /F/ t ↓) -> ~ (a,b) :: l /F/ s ↓.
+Proof.
+  intros H [u [[n Hsu] Hu]].
+  destruct (divides_dec (a*u) b) as [[t Ht]|?].
+  - apply (Hu t), in_fractran_0. lia.
+  - apply (H u). exists u.
+    split; [now exists 0|].
+    intros t Hut. now apply (Hu t), in_fractran_1.
+Qed.
+
 Lemma fractran_nstop_zero_num_1 d l s : ~ (0,d) :: l /F/ s ↓.
 Proof.
   destruct d as [|d]; simpl; intros [y [_ Hs]]; apply (Hs 0); now constructor.
-Qed.
-
-Lemma fractran_nstop_zero_num_2 a b d l x : ~ (S a, b) :: (0, d) :: l /F/ x ↓.
-Proof.
-  destruct (divides_dec (S a) b) as [[k Hd]|_]; intros [y [[_ _] Hs]].
-  - apply (Hs (k*y)). constructor. lia.
-  - destruct (divides_dec (S a*y) b) as [[k Hd]|Hd].
-    + apply (Hs k). constructor. lia.
-    + apply (Hs 0). now apply in_fractran_1; [|constructor].
 Qed.
 
 Lemma fractran_stop_zero_den_1 c s (Hc : c <> 0) : [(c, 0)] /F/ s ↓.
@@ -121,21 +119,20 @@ Proof.
     + intros z [?|[? Hz]]%fractran_step_cons_inv; [lia|inversion Hz].
 Qed.
 
-Lemma fractran_stop_ndiv_singleton x c d (Hx : x <> 0) (Hc : c <> 0) (Hd : d <> 0) :
-  ~ divides d c -> [(c,d)] /F/ x ↓.
+Lemma fractran_stop_ndiv_singleton x c d (Hc : c <> 0) (Hd : d <> 0) :
+  ~ divides d c -> [(c,d)] /F/ (S x) ↓.
 Proof.
-  intros Hndiv%prime_divides_lt'; [|exact Hc|exact Hd].
-  destruct Hndiv as [p H]. revert Hx.
-  induction x as [x IH] using (induction_ltof1 _ (fun x => (count_pow p (pred x)))); unfold ltof in IH.
-  intros Hx. destruct (fractran_step_dec [(c,d)] x) as [[y Hxy]|Hs].
+  intros [p H]%(prime_divides_lt' Hc Hd).
+  induction x as [x IH] using (induction_ltof1 _ (fun x => (count_pow p x))); unfold ltof in IH.
+  destruct (fractran_step_dec [(c,d)] (S x)) as [[y Hxy]|Hs].
   - revert Hxy. intros [|[? Hxy]]%fractran_step_cons_inv.
-    + assert (Hy : y <> 0) by lia.
-      specialize (H x y Hx Hy ltac: (lia)). specialize (IH y).
-      apply IH in H as [y' [[n Hyy'] Hs']]; [|exact Hy]. exists y'. split; [|exact Hs'].
-      exists (1+n), y. now split; [constructor|].
+    + destruct y as [|y]; [lia|].
+      specialize (H x y ltac:(lia)).
+      apply IH in H as [y' [[n Hyy'] Hs']].
+      exists y'. split; [|exact Hs'].
+      exists (1+n), (S y). now split; [constructor|].
     + inversion Hxy.
-  - exists x. split; [|exact Hs].
-    exists 0. easy.
+  - exists (S x). now split; [exists 0|].
 Qed.
 
 (* if the second fraction is not redundant, then the program is not reversible *)
@@ -204,6 +201,34 @@ Proof.
         exact Hs't'.
 Qed.
 
+Lemma fractran_reversible_shorten {a b c d P s t} :
+  fractran_reversible ((S a, b) :: (S c, d) :: P) ->
+  ((S a, b) :: P /F/ s ≻ t) <-> ((S a, b) :: (S c, d) :: P /F/ s ≻ t).
+Proof.
+  intros HP.
+  assert (Hba : b <> 0 \/ S a <> 0) by lia.
+  destruct (rel_prime_intro Hba) as [b' [a' [gab [H'b [H'a Hb'a']]]]].
+  rewrite H'b, H'a in *.
+  assert (Hdc : d <> 0 \/ S c <> 0) by lia.
+  destruct (rel_prime_intro Hdc) as [d' [c' [gcd [H'd [H'c Hd'c']]]]].
+  rewrite H'd, H'c in *.
+  assert (Hgab : gab <> 0) by lia.
+  assert (Hgcd : gcd <> 0) by lia.
+  split.
+  + intros [?|[Hb ?]]%fractran_step_cons_inv.
+    * now apply in_fractran_0.
+    * apply in_fractran_1; [easy|].
+      apply in_fractran_1; [|easy].
+      intros [m Hm]. apply Hb.
+      eapply (fractran_reversible_shadow Hgab Hgcd HP Hb'a' Hd'c').
+      eassumption.
+  + intros [?|[Hb H']]%fractran_step_cons_inv.
+    * now apply in_fractran_0.
+    * revert H'. intros [H'|[Hd ?]]%fractran_step_cons_inv.
+      ** exfalso. apply Hb. eapply (fractran_reversible_shadow Hgab Hgcd HP Hb'a' Hd'c' s t). lia.
+      ** now apply in_fractran_1.
+Qed.
+
 (* informative decision statement for empty FRACTRAN halting *)
 Lemma fractran_empty_decision (n: nat) : ([] /F/ n ↓).
 Proof.
@@ -237,37 +262,17 @@ Proof.
     intros _. left. now apply fractran_empty_decision.
   - (* singleton program *)
     intros _. now apply fractran_singleton_decision.
-  - destruct a as [|a]; simpl.
+  - (* at least two fractions, remove the second *)
+    destruct a as [|a]; simpl.
     { intros _. right. now intros H%fractran_nstop_zero_num_1. }
     destruct c as [|c]; simpl.
-    { intros _. right. now intros H%fractran_nstop_zero_num_2. }
+    { intros _. right. now apply fractran_nstop_cons, fractran_nstop_zero_num_1. }
     intros HP.
     enough (H'P : forall s t, ((S a, b) :: P) /F/ s ≻ t <-> ((S a, b) :: (S c, d) :: P) /F/ s ≻ t).
     { apply (fractran_step_iff_decide H'P).
       apply IH; simpl; [lia|].
       intros n1 n2 m Hn1%H'P Hn2%H'P. eapply HP; eassumption. }
-    clear IH. intros s t.
-    assert (Hba : b <> 0 \/ S a <> 0) by lia.
-    destruct (rel_prime_intro Hba) as [b' [a' [gab [H'b [H'a Hb'a']]]]].
-    rewrite H'b, H'a in *.
-    assert (Hdc : d <> 0 \/ S c <> 0) by lia.
-    destruct (rel_prime_intro Hdc) as [d' [c' [gcd [H'd [H'c Hd'c']]]]].
-    rewrite H'd, H'c in *.
-    assert (Hgab : gab <> 0) by lia.
-    assert (Hgcd : gcd <> 0) by lia.
-    split.
-    + intros [?|[Hb ?]]%fractran_step_cons_inv.
-      * now apply in_fractran_0.
-      * apply in_fractran_1; [easy|].
-        apply in_fractran_1; [|easy].
-        intros [m Hm]. apply Hb.
-        eapply (fractran_reversible_shadow Hgab Hgcd HP Hb'a' Hd'c').
-        eassumption.
-    + intros [?|[Hb H']]%fractran_step_cons_inv.
-      * now apply in_fractran_0.
-      * revert H'. intros [H'|[Hd ?]]%fractran_step_cons_inv.
-        ** exfalso. apply Hb. eapply (fractran_reversible_shadow Hgab Hgcd HP Hb'a' Hd'c' s t). lia.
-        ** now apply in_fractran_1.
+    intros s t. now apply fractran_reversible_shorten.
 Qed.
 
 End Argument.
