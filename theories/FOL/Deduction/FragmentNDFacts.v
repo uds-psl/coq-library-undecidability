@@ -91,6 +91,14 @@ Section ND_def.
     - eapply bounded_up; try apply H; auto.
   Qed.
 
+  Lemma AllI_named (A : list form) (phi : form) :
+    (forall t, A ⊢ phi[t..]) -> A ⊢ ∀phi.
+  Proof.
+    intros H. apply AllI. 
+    destruct (nameless_equiv_all A phi) as [t Ht].
+    apply Ht, H.
+  Qed.
+
   Lemma imps T phi psi :
     T ⊢ (phi → psi) <-> (phi :: T) ⊢ psi.
   Proof.
@@ -117,6 +125,11 @@ Section ND_def.
     induction A in phi |- *; intros H1 H2.
     - eapply Weak; eauto.
     - rewrite <- imps in H1. apply IHA in H1; auto. apply IE with a; trivial. now apply H2.
+  Qed.
+
+  Lemma prv_intu_peirce T φ : T ⊢I φ -> T ⊢ φ.
+  Proof using.
+    remember intu. induction 1. all: now eauto.
   Qed.
 
 End ND_def.
