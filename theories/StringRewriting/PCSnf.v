@@ -2,13 +2,13 @@ Require Import List.
 Require Import Undecidability.PCP.PCP.
 
 (* A string is a list of symbols. *)
-Definition string X := list X.
+Notation string X := (list X).
 
 Notation "x / y" := (x, y).
 
 (* A string rewriting system SRS is a list of rules x / y 
   such that x rewrites to y. *)
-Definition SRS X := list (string X * string X).
+Notation SRS X := (list (string X * string X)).
 
 (* If u / v is a rewriting rule, then u ++ x rewrites to x ++ u. *)
 Inductive der {X : Type} (R : SRS X) : string X -> string X -> Prop :=

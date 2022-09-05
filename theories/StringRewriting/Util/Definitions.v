@@ -64,15 +64,13 @@ Qed.
 
 (* * Definitions *)
 
-Local Definition symbol := nat.
-Local Definition string := (string nat).
-Local Definition card : Type := (string * string).
-Local Definition stack := list card.
-Local Definition SRS := SRS nat.
+#[local] Notation symbol := nat.
+#[local] Notation string := (string nat).
+#[local] Notation SRS := (SRS nat).
 Implicit Types a b : symbol.
 Implicit Types x y z : string.
-Implicit Types d e : card.
-Implicit Types A R P : stack.
+Implicit Types d e : (string * string).
+Implicit Types A R P : list (string * string).
 
 Coercion sing (n : nat) := [n].
 
@@ -163,7 +161,7 @@ Fixpoint sigma (a : symbol) A :=
 
 (* ** Alphabets *)
 
-Fixpoint sym (R : list card) :=
+Fixpoint sym (R : list (string * string)) :=
   match R with
     [] => []
   | x / y :: R => x ++ y ++ sym R
@@ -175,7 +173,7 @@ Proof.
   induction P as [ | [] ]; eauto; cbn; rewrite IHP. now simpl_list.
 Qed.
 
-Lemma sym_map X (f : X -> card) l Sigma :
+Lemma sym_map X (f : X -> (string * string)) l Sigma :
   (forall x : X, x el l -> sym [f x] <<= Sigma) -> sym (map f l) <<= Sigma.
 Proof.
   intros. induction l as [ | ]; cbn in *.

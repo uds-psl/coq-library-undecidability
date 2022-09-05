@@ -1,9 +1,7 @@
 Require Import List.
-(* why is this import here? *)
-Require Import Undecidability.PCP.PCP.
 
 (* A string is a list of symbols. *)
-Definition string X := list X.
+Notation string X := (list X).
 
 Module RuleNotation.
 Notation "x / y" := (x, y).
@@ -12,7 +10,7 @@ Import RuleNotation.
 
 (* A string rewriting system SRS is a list of rules x / y 
   such that x rewrites to y. *)
-Definition SRS X := list (string X * string X).
+Notation SRS X := (list (string X * string X)).
 
 (* If u / v is a rewriting rule, then x ++ u ++ y rewrites to x ++ v ++ y. *)
 Inductive rew {X : Type} (R : SRS X) : string X -> string X -> Prop :=
