@@ -110,7 +110,8 @@ Section n.
     intros H. 
     induction s using term_rect. 2: destruct F.
     - exfalso. inversion H. lia.
-    - exists 0. cbn. depelim v. fapply ax_refl.
+    - exists 0. cbn. cbn in v. enough (func Zero v = zero) as -> by fapply ax_refl.
+      f_equal. apply vec_0_nil.
     - destruct (vec_1_inv v) as [t ->]. destruct (X t) as [n Hn].
       + left.
       + revert H. invert_bounds. apply H1. left.
