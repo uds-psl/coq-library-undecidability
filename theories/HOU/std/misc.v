@@ -38,8 +38,7 @@ Qed.
 #[global]
 Instance plus_proper: Proper (le ++> le ++> le) plus.
 Proof.
-  intros a b ? c d ?; transitivity (a + d);
-  eauto using plus_le_compat_l, plus_le_compat_r.
+  intros a b ? c d ?; lia.
 Qed.
 
 #[global]

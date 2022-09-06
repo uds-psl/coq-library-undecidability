@@ -20,7 +20,7 @@ Proof.
   { move=> [|mmi' P'] /=; first by lia.
     move=> _. by eexists. }
   move=> i IH [|mmi' P'] /=; first by lia.
-  move /Lt.lt_S_n /IH => [? ?]. eexists. f_equal.
+  move /(iffRL (Nat.succ_lt_mono _ _)) /IH => [? ?]. eexists. f_equal.
   by eassumption.
 Qed.
 

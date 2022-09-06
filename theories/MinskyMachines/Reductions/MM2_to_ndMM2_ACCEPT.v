@@ -99,7 +99,7 @@ Section MM2_ndMM2.
     rewrite H1, mm2_linstr_enc_app.
     apply incl_appr; simpl.
     apply incl_appl.
-    rewrite <- H2, plus_comm.
+    rewrite <- H2, Nat.add_comm.
     apply incl_refl.
   Qed.
 
@@ -156,7 +156,7 @@ Section MM2_ndMM2.
       * constructor 1.
         exists mm2_inc_a; split.
         - exists l, r; simpl; split; auto; lia.
-        - rewrite !(plus_comm (length l)); constructor.
+        - rewrite !(Nat.add_comm (length l)); constructor.
       * eq goal IH1; do 2 f_equal; lia.
     + destruct H as [ H | H ]; try discriminate.
       apply mm2_linstr_enc_In in H
@@ -168,7 +168,7 @@ Section MM2_ndMM2.
       * constructor 1.
         exists mm2_inc_b; split.
         - exists l, r; simpl; split; auto; lia.
-        - rewrite !(plus_comm (length l)); constructor.
+        - rewrite !(Nat.add_comm (length l)); constructor.
       * eq goal IH1; do 2 f_equal; lia.
     + destruct H as [ H | H ]; try discriminate.
       apply mm2_linstr_enc_In in H
@@ -182,7 +182,7 @@ Section MM2_ndMM2.
       constructor 1.
       exists (mm2_dec_a v); split; auto.
       * exists l, r; simpl; split; auto; lia.
-      * rewrite !(plus_comm (length l)); constructor.
+      * rewrite !(Nat.add_comm (length l)); constructor.
     + destruct H as [ H | H ]; try discriminate.
       apply mm2_linstr_enc_In in H
         as (l & r & [ | | | ] & H3 & H2); simpl in H2.
@@ -195,7 +195,7 @@ Section MM2_ndMM2.
       constructor 1.
       exists (mm2_dec_b v); split; auto.
       * exists l, r; simpl; split; auto; lia.
-      * rewrite !(plus_comm (length l)); constructor.
+      * rewrite !(Nat.add_comm (length l)); constructor.
     + destruct H as [ H | H ]; try discriminate.
       apply mm2_linstr_enc_In in H
         as (l & r & [ | | | ] & H3 & H2); simpl in H2.
@@ -208,7 +208,7 @@ Section MM2_ndMM2.
       * constructor 1.
         exists (mm2_dec_a n); split.
         - exists l, r; simpl; split; auto; lia.
-        - rewrite !(plus_comm (length l)); constructor.
+        - rewrite !(Nat.add_comm (length l)); constructor.
       * eq goal IH1; do 2 f_equal; lia.
     + destruct H as [ H | H ]; try discriminate.
       apply mm2_linstr_enc_In in H
@@ -222,7 +222,7 @@ Section MM2_ndMM2.
       * constructor 1.
         exists (mm2_dec_b n); split.
         - exists l, r; simpl; split; auto; lia.
-        - rewrite !(plus_comm (length l)); constructor.
+        - rewrite !(Nat.add_comm (length l)); constructor.
       * eq goal IH1; do 2 f_equal; lia.
   Qed.
 

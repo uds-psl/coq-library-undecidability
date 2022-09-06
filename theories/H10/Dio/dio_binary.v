@@ -64,11 +64,11 @@ Section dio_fun_binomial.
         - exists (∑ (n-k) (fun i => binomial n (S k+i) * power i q)),
                  (∑ k (fun i => binomial n i * power i q)); split; auto.
           2: { apply sum_power_lt; auto; intros; apply binomial_lt_power. }
-          rewrite Nat.mul_add_distr_r, <- mult_assoc, <- power_S.
+          rewrite Nat.mul_add_distr_r, <- Nat.mul_assoc, <- power_S.
           rewrite <- sum_0n_distr_r with (1 := Nat_plus_monoid) (3 := Nat_mult_monoid); auto.
-          rewrite <- plus_assoc, (plus_comm _ (∑ _ _)).
+          rewrite <- Nat.add_assoc, (Nat.add_comm _ (∑ _ _)).
           rewrite <- msum_plus1 with (f := fun i => binomial n i * power i q); auto.
-          rewrite plus_comm.
+          rewrite Nat.add_comm.
           unfold c.
           rewrite Newton_nat_S.
           replace (S n) with (S k + (n-k)) by lia.
@@ -78,7 +78,7 @@ Section dio_fun_binomial.
           rewrite binomial_gt; auto.
           rewrite Nat.mul_0_l; split; auto.
           unfold c.
-          apply lt_le_trans with (power (S n) q).
+          apply Nat.lt_le_trans with (power (S n) q).
           ++ rewrite Newton_nat_S.
              apply sum_power_lt; auto.
              intros; apply binomial_lt_power.
@@ -94,11 +94,11 @@ Section dio_fun_binomial.
         - exists (∑ (n-k) (fun i => binomial n (S k+i) * power i q)),
                  (∑ k (fun i => binomial n i * power i q)); split.
           2: {  apply sum_power_lt; auto; intros; subst; apply binomial_lt_power. }
-          rewrite Nat.mul_add_distr_r, <- mult_assoc, <- power_S.
+          rewrite Nat.mul_add_distr_r, <- Nat.mul_assoc, <- power_S.
           rewrite <- sum_0n_distr_r with (1 := Nat_plus_monoid) (3 := Nat_mult_monoid); auto.
-          rewrite <- plus_assoc, (plus_comm _ (∑ _ _)).
+          rewrite <- Nat.add_assoc, (Nat.add_comm _ (∑ _ _)).
           rewrite <- msum_plus1 with (f := fun i => binomial n i * power i q); auto.
-          rewrite plus_comm.
+          rewrite Nat.add_comm.
           replace (S n) with (S k + (n-k)) by lia.
           rewrite msum_plus; auto; f_equal.
           apply msum_ext.
@@ -107,7 +107,7 @@ Section dio_fun_binomial.
         rewrite <- Newton_nat_S.
         split; try lia.
         exists 0, (power n (1+q)); split; auto.
-        apply lt_le_trans with (power (S n) q).
+        apply Nat.lt_le_trans with (power (S n) q).
         - rewrite Newton_nat_S.
           apply sum_power_lt; auto.
           subst; intros; apply binomial_lt_power.
@@ -138,7 +138,7 @@ Proof.
     * rewrite binomial_n0, rem_lt; lia.
     * rewrite lucas_lemma with (1 := prime_2) (2 := div_rem_spec1 m 2) (4 := div_rem_spec1 n 2);
         try (apply div_rem_spec2; lia).
-      rewrite mult_comm, <- rem_mult_rem, IH2, Nat.mul_1_r.
+      rewrite Nat.mul_comm, <- rem_mult_rem, IH2, Nat.mul_1_r.
       revert H1.
       generalize (rem_2_is_0_or_1 m) (rem_2_is_0_or_1 n).
       intros [ G1 | G1 ] [ G2 | G2 ]; rewrite G1, G2; intros; try lia.

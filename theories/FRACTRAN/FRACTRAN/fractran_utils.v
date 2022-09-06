@@ -37,8 +37,7 @@ Section fractran_utils.
   Fact mul_pos_inj_l q x y : q <> 0 -> q*x = q*y -> x = y.
   Proof.
     intros H1 H2.
-    destruct q; try lia.
-    apply le_antisym; apply mult_S_le_reg_l with q; lia.
+    destruct q; nia.
   Qed.
 
   Lemma fractran_step_inv P x y : 
@@ -118,8 +117,8 @@ Section fractran_utils.
       destruct Hxy as [ Hxy | (_ & Hxy) ].
       * rewrite Nat.mul_add_distr_r, <- Hxy.
         destruct q; simpl; try lia.
-      * apply le_trans with (1 := H2 _ _ Hxy).
-        apply mult_le_compat; lia.
+      * apply Nat.le_trans with (1 := H2 _ _ Hxy).
+        apply Nat.mul_le_mono; lia.
   Qed.
 
   Fact fractan_stop_nil_inv x : fractran_stop nil x <-> True.
@@ -175,7 +174,7 @@ Section fractran_utils.
       + intros x; exists 0; subst; constructor; lia.
       + intros x.
         destruct (divides_dec (p*x) q) as [ (y & Hy) | C ].
-        * exists y; constructor; rewrite Hy, mult_comm; auto.
+        * exists y; constructor; rewrite Hy, Nat.mul_comm; auto.
         * destruct (IHl x) as (y & Hy); exists y; constructor 2; auto.
     Qed.
 
@@ -194,7 +193,7 @@ Section fractran_utils.
       intros H2 H3.
       apply fractran_step_cons_inv in H3.
       destruct H3 as [ H3 | (H3 & _) ].
-      + rewrite Nat.mul_0_r in H3; apply mult_is_O in H3; lia.
+      + rewrite Nat.mul_0_r in H3; apply Nat.eq_mul_0 in H3; lia.
       + destruct H3; exists 0; ring.
     Qed.
 
@@ -220,7 +219,7 @@ Section fractran_utils.
       unfold fractran_regular.
       intros H1 H2; revert H2 H1.
       induction 1 as [ p q l x y H | p q l x y H1 H2 IH2 ]; rewrite Forall_cons_inv; simpl; intros (H3 & H4) ?; subst.
-      + rewrite Nat.mul_0_r in H; apply mult_is_O in H; lia.
+      + rewrite Nat.mul_0_r in H; apply Nat.eq_mul_0 in H; lia.
       + destruct H1; exists 0; ring.
     Qed.
 
@@ -228,7 +227,7 @@ Section fractran_utils.
     Proof.
       intros H1 x y H2; revert H2 H1.
       induction 1 as [ p q l x y H1 | p q l x y H1 H2 IH2 ]; intros H3; rewrite Forall_cons_inv in H3; simpl in H3; destruct H3 as (H3 & H4); auto.
-      intros; subst y; rewrite Nat.mul_0_r in H1; symmetry in H1; apply mult_is_O in H1; lia.
+      intros; subst y; rewrite Nat.mul_0_r in H1; symmetry in H1; apply Nat.eq_mul_0 in H1; lia.
     Qed.
 
     Fact fractran_rt_no_zero_den l n y : fractran_regular l -> fractran_steps l n 0 y -> y = 0.
@@ -273,9 +272,9 @@ Section fractran_utils.
       * simpl; destruct (eq_nat_dec q 0) as [ Hq | Hq ].
         - rewrite <- IH2; auto; subst; split; intros H.
           + apply fractran_step_cons_inv in H; destruct H as [ H | (H3 & H4) ]; auto.
-            simpl in H; symmetry in H; apply mult_is_O in H; lia.
+            simpl in H; symmetry in H; apply Nat.eq_mul_0 in H; lia.
           + constructor 2; auto; intros H'.
-            apply divides_0_inv, mult_is_O in H'; lia.
+            apply divides_0_inv, Nat.eq_mul_0 in H'; lia.
         - split; intros H.
           + apply fractran_step_cons_inv in H; destruct H as [ H | (H3 & H4) ]; auto.
             -- constructor 1; auto.

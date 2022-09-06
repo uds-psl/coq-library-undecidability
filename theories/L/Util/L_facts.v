@@ -649,24 +649,24 @@ Proof.
   split; eauto using pow_trans.  
 Qed.
 
-Lemma redLe_trans s t u i j :
+Lemma redle_trans s t u i j :
   s >(<=i) t -> t >(<=j) u -> s >(<=i+j) u.
 Proof.
   intros [i' [? R1]] [j' [? R2]].
   exists (i'+j'). split. lia. apply pow_add. hnf; eauto.
 Qed.
 
-Lemma redLe_trans_eq s t u i j k :
+Lemma redle_trans_eq s t u i j k :
   i+j=k ->  s >(<=i) t -> t >(<=j) u -> s >(<=k) u.
 Proof.
-  intros;subst;eauto using redLe_trans.  
+  intros;subst;eauto using redle_trans.  
 Qed.
 
-Lemma evalLe_trans s t u i j :
+Lemma evalle_trans s t u i j :
   s >(<=i) t -> t ⇓(<=j) u -> s ⇓(<=i+j) u.
 Proof.
   intros R1 [R2 lam].
-  split; eauto using redLe_trans.  
+  split; eauto using redle_trans.  
 Qed.
 
 #[global]
@@ -708,7 +708,7 @@ Proof.
   -destruct m'; eauto. destruct C. destruct H. inv lv. inv H.
 Qed.
 
-Lemma evalLe_trans_rev t v s k j:
+Lemma evalle_trans_rev t v s k j:
   evalLe j t v -> pow step k t s  -> j>=k /\ evalLe (j-k) s v.
 Proof.
   intros [(i&lti&R) lv] B.

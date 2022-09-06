@@ -45,7 +45,7 @@ Proof.
       split.
       * replace (ps j' * exp 2 v' * PeanoNat.Nat.pow (qs 1) m)
         with (ps j' * (PeanoNat.Nat.pow (qs 1) m) * exp 2 v') by lia. 
-        now rewrite exp_app, exp_const, Nat.mul_1_r, !mult_assoc in Hj'.
+        now rewrite exp_app, exp_const, Nat.mul_1_r, !Nat.mul_assoc in Hj'.
       * intros [Hp | Hp] % prime_div_mult. 3: eapply prime_qs.
         -- now eapply qs_ps_div in Hp.
         -- eapply qs_exp_div in Hp. 2: lia. eauto.

@@ -168,7 +168,7 @@ Section bt_model_n.
         * apply fin_t_vec with (P := fun t => t ∈ d).
           apply hfs_mem_fin_t.
       + exists r; msplit 2.
-        * unfold p; rewrite plus_comm, iter_plus with (b := 1).
+        * unfold p; rewrite Nat.add_comm, iter_plus with (b := 1).
           apply hfs_pow_spec; intros x; rewrite Hr.
           intros (v & H1 & <-).
           apply Hp5, H1.

@@ -184,7 +184,7 @@ Section mma_k_mma_2_compiler.
           ++ apply mma_div_branch_0_progress with (gc_enc gc (v'[a/x])); try easy.
              ** generalize (f_equal (fun v => v#>pos0) H2); rew vec.
              ** generalize (f_equal (fun v => v#>pos1) H2); rew vec; simpl; intros ->. 
-                rewrite mult_comm, gc_succ; f_equal; rew vec.
+                rewrite Nat.mul_comm, gc_succ; f_equal; rew vec.
                 unfold v'; rewrite <- Ha.
                 apply vec_pos_ext; intros p; rewrite !vec_pos_set.
                 destruct (pos_eq_dec p x) as [ -> | D ]; rew vec.

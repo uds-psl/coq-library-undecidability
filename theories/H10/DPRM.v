@@ -248,7 +248,7 @@ Section Various_definitions_of_recursive_enum_1.
       intros v; vec split v with x; vec nil v; simpl.
       rewrite Hl, HA, <- qs_1, <- ps_1.
       unfold vec2fun; simpl.
-      rewrite mult_1_r; tauto.
+      rewrite Nat.mul_1_r; tauto.
     + exists m, p, q; intros x.
       rewrite (H (x##ø)).
       apply exists_equiv; intros v.

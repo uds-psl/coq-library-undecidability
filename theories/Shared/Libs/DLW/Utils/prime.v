@@ -237,7 +237,7 @@ Section prime.
         rewrite H2 at 2.
         rewrite <- Nat.mul_1_r at 1.
         apply prime_ge_2 in H1.
-        apply mult_lt_compat_l; try lia.
+        apply Nat.mul_lt_mono_pos_l; lia.
       + apply HPp, H1.
     Qed.
 
@@ -298,7 +298,7 @@ Section prime.
   Fact lprod_ge_1 l : Forall prime l -> 1 <= lprod l.
   Proof.
     induction 1 as [ | x l H IH ]; simpl; auto.
-    change 1 with (1*1) at 1; apply mult_le_compat; auto.
+    change 1 with (1*1) at 1; apply Nat.mul_le_mono; auto.
     apply prime_ge_2 in H; lia.
   Qed.
 
@@ -318,10 +318,10 @@ Section prime.
       destruct (IHn k) as (l & H2 & H3); auto.
       - rewrite Hk.
         generalize (prime_ge_2 H1).
-        rewrite mult_comm.
+        rewrite Nat.mul_comm.
         destruct p as [ | [ | p ] ]; simpl; intros; lia.
       - exists (p::l); split; auto.
-        simpl; rewrite <- H2, mult_comm; auto.
+        simpl; rewrite <- H2, Nat.mul_comm; auto.
   Qed.
 
   Hint Resolve lprod_ge_1 prime_ge_2 : core.
@@ -347,12 +347,12 @@ Section prime.
     + induction 1 as [ | y m Hy Hm IHm ]; simpl; auto.
       intros C; exfalso.
       assert (2*1 <= y*lprod m) as D.
-      { apply mult_le_compat; auto. }
+      { apply Nat.mul_le_mono; auto. }
       simpl in D; lia.
     + simpl; intros m Hm H1.
       assert (In x m) as H2.
       { apply prime_in_decomp with (1 := Hx); auto.
-        exists (lprod l); rewrite mult_comm; auto. }
+        exists (lprod l); rewrite Nat.mul_comm; auto. }
       apply in_split in H2.
       destruct H2 as (m1 & m2 & H2); subst.
       apply Permutation_cons_app, IHl.
@@ -362,7 +362,7 @@ Section prime.
         apply Forall_app; auto.
       * rewrite lprod_app.
         rewrite lprod_app in H1; simpl in H1.
-        rewrite mult_assoc, (mult_comm _ x), <- mult_assoc in H1.
+        rewrite Nat.mul_assoc, (Nat.mul_comm _ x), <- Nat.mul_assoc in H1.
         apply Nat.mul_cancel_l in H1; auto.
         apply prime_ge_2 in Hx; lia.
   Qed.
@@ -384,13 +384,13 @@ Section base_decomp.
   Fact expand_app p l m : expand p (l++m) = expand p l + power (length l) p * expand p m.
   Proof.
     induction l as [ | x l IH ]; simpl; try lia.
-    rewrite power_S, IH, Nat.mul_add_distr_l, mult_assoc; lia.
+    rewrite power_S, IH, Nat.mul_add_distr_l, Nat.mul_assoc; lia.
   Qed.
 
   Fact expand_0 p l : Forall (eq 0) l -> expand p l = 0.
   Proof.
     induction 1 as [ | x l H1 H2 IH2 ]; simpl; subst; auto.
-    rewrite IH2, mult_comm; auto.
+    rewrite IH2, Nat.mul_comm; auto.
   Qed.
 
   Section base_p.
@@ -405,12 +405,12 @@ Section base_decomp.
       + destruct (@euclid n p) as (m & r & H1 & H2); try lia.
         destruct (IH m) as (l & H3).
         * destruct m; try lia.
-          rewrite H1, mult_comm.
-          apply lt_le_trans with (2*S m + r); try lia.
-          apply plus_le_compat; auto.
-          apply mult_le_compat; auto.
+          rewrite H1, Nat.mul_comm.
+          apply Nat.lt_le_trans with (2*S m + r); try lia.
+          apply Nat.add_le_mono; auto.
+          apply Nat.mul_le_mono; auto.
         * exists (r::l); simpl.
-          rewrite mult_comm, plus_comm, <- H3, H1; auto.
+          rewrite Nat.mul_comm, Nat.add_comm, <- H3, H1; auto.
     Qed.
 
     Definition base_p n := proj1_sig (base_p_full n).
@@ -420,7 +420,7 @@ Section base_decomp.
     Fact base_p_uniq l1 l2 : Forall2 (fun x y => x < p /\ y < p) l1 l2 -> expand p l1 = expand p l2 -> l1 = l2.
     Proof using Hp.
       induction 1 as [ | x1 x2 l1 l2 H1 H2 IH2 ]; auto; simpl; intros H3.
-      rewrite (plus_comm x1), (plus_comm x2), (mult_comm p), (mult_comm p) in H3.
+      rewrite (Nat.add_comm x1), (Nat.add_comm x2), (Nat.mul_comm p), (Nat.mul_comm p) in H3.
       apply div_rem_uniq in H3; try lia.
       destruct H3 as [ H3 ]; subst; f_equal; auto.
     Qed.

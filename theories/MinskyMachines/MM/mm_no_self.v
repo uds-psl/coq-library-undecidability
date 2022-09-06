@@ -206,7 +206,7 @@ Section remove_self_loops.
 
   Let sc_R_2 : (2+lP, DEC pos0 (1+(2+lP)) :: DEC pos0 (2+lP) :: nil) <sc (1+lP, R).
   Proof. 
-    unfold R; rewrite plus_assoc; simpl plus.
+    unfold R; rewrite Nat.add_assoc; simpl plus.
     exists (DEC pos0 0 :: nil), nil; simpl; split; auto; lia.
   Qed.
 
@@ -239,7 +239,7 @@ Section remove_self_loops.
   Proof.
     apply mm_no_self_loops_app.
     + apply g_loops; simpl; lia. 
-    + rewrite length_g, plus_comm; auto.
+    + rewrite length_g, Nat.add_comm; auto.
   Qed.
 
   Let sc_Q_1 j ρ : (j,ρ::nil) <sc (1,P) -> (j, f (1+lP) j ρ::nil) <sc (1,Q).
@@ -261,7 +261,7 @@ Section remove_self_loops.
     apply subcode_app_invert_right in H.
     destruct H as [ H | H ].
     + apply subcode_g in H; auto.
-    + rewrite length_g, plus_comm in H. 
+    + rewrite length_g, Nat.add_comm in H. 
       apply R_sc in H; auto.
   Qed. 
 

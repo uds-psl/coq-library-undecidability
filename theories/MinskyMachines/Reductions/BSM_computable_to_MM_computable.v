@@ -382,7 +382,7 @@ Section preprocess.
         rewrite update_app_left. 2:{ simpl_list. rewrite vec_list_length. cbn. lia. }
         rewrite update_app_left. 2:{ simpl_list. rewrite vec_list_length. cbn. lia. }
         rewrite update_app_right. 2:{ simpl_list. rewrite vec_list_length. cbn. lia. }
-        simpl_list. rewrite vec_list_length. rewrite minus_diag. cbn [update].
+        simpl_list. rewrite vec_list_length. rewrite Nat.sub_diag. cbn [update].
         f_equal. f_equal.
         rewrite <- !app_assoc. f_equal.
         cbn [app]. f_equal. f_equal. f_equal.
@@ -394,7 +394,7 @@ Section preprocess.
         eapply nth_error_vec_list.
         rewrite vec_list_cast, !vec_list_vec_app.
         rewrite nth_error_app2; rewrite vec_list_length. 2: lia.
-        rewrite minus_diag. reflexivity.
+        rewrite Nat.sub_diag. reflexivity.
         Unshelve. lia.
   Qed.
 
@@ -480,14 +480,14 @@ Section preprocess.
       rewrite update_app_right. 2:{ cbn. rewrite !vec_list_length. lia. }
       rewrite (@vec_list_vec_app nat (S n'') n').
       replace (S n'') with (n'' + 1) by lia.
-      rewrite vec_list_length. rewrite minus_diag. instantiate (2 := 1 + n'). cbn.
+      rewrite vec_list_length. rewrite Nat.sub_diag. instantiate (2 := 1 + n'). cbn.
       rewrite !vec_list_const. rewrite repeat_app. cbn. rewrite <- !app_assoc.
       f_equal. cbn. f_equal.
       f_equal.
       eapply nth_error_vec_list.
       rewrite vec_list_cast, !vec_list_vec_app; cbn. 
       rewrite nth_error_app2. 2: rewrite vec_list_length; lia.
-      now rewrite vec_list_length, minus_diag.
+      now rewrite vec_list_length, Nat.sub_diag.
       Unshelve. lia.
   Qed.
 

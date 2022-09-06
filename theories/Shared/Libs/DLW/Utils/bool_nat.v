@@ -317,7 +317,7 @@ Local Reserved Notation "'⟬' x '⟭'".
   Proof.
     unfold lb_mask_equiv.
     do 2 rewrite lb_mask_eq_binary_le; split.
-    + intros (? & ?); apply le_antisym; apply binary_le_le; auto.
+    + intros (? & ?); apply Nat.le_antisymm; apply binary_le_le; auto.
     + intros H; rewrite H; split; auto. 
   Qed.
 
@@ -758,7 +758,7 @@ Local Reserved Notation "'⟬' x '⟭'".
          = (r1⇣r2) + 2*(d1⇣d2).
   Proof.
     intros H1 H2.
-    do 3 rewrite (mult_comm 2).
+    do 3 rewrite (Nat.mul_comm 2).
     apply nat_meet_euclid_power_2 with (q := 1); auto.
   Qed.
   
@@ -1021,9 +1021,9 @@ Local Reserved Notation "'⟬' x '⟭'".
           ++ apply H2; lia.
           ++ apply H2; lia.
         - intros [ | i ] Hi; try lia.
-          apply lt_S_n, H3 in Hi; lia.
+          apply Nat.succ_lt_mono, H3 in Hi; lia.
         - intros [ | i ] [ | j ] (G1 & G2); simpl; try lia.
-          apply lt_n_S, H4; lia.
+          apply -> Nat.succ_lt_mono. apply H4; lia.
   Qed.
 
   Fact binary_le_joins_inv' m n f : m ≲ msum nat_join 0 n f
@@ -1053,11 +1053,11 @@ Local Reserved Notation "'⟬' x '⟭'".
     destruct (@euclid m (power q 2)) as (d & r & H3 & H4).
     + generalize (@power_ge_1 q 2); intros; lia.
     + apply binary_le_nat_meet in H1.
-      rewrite plus_comm in H3.
+      rewrite Nat.add_comm in H3.
       rewrite H3, <- (Nat.add_0_l (x*_)) in H1.
       rewrite nat_meet_euclid_power_2 in H1; auto.
       rewrite nat_meet_n0 in H1.
-      rewrite (plus_comm r), (plus_comm 0) in H1.
+      rewrite (Nat.add_comm r), (Nat.add_comm 0) in H1.
       apply div_rem_uniq in H1; auto.
       2: generalize (@power_ge_1 q 2); intros; lia.
       destruct H1 as (H0 & H1).
@@ -1115,12 +1115,12 @@ Local Reserved Notation "'⟬' x '⟭'".
     induction n as [ | n IHn ]; intros f e Hf He.
     + rewrite msum_0; apply power_ge_1; auto.
     + rewrite msum_plus1; auto.
-      apply lt_le_trans with (power (S (e n)) r).
+      apply Nat.lt_le_trans with (power (S (e n)) r).
       2: apply power_mono_l; try lia; apply He; auto.
       rewrite power_S.
-      apply lt_le_trans with (1*power (e n) r + f n * power (e n) r).
-      * rewrite Nat.mul_1_l; apply plus_lt_le_compat; auto.
-      * rewrite <- Nat.mul_add_distr_r; apply mult_le_compat; auto.
+      apply Nat.lt_le_trans with (1*power (e n) r + f n * power (e n) r).
+      * rewrite Nat.mul_1_l; apply Nat.add_lt_le_mono; auto.
+      * rewrite <- Nat.mul_add_distr_r; apply Nat.mul_le_mono; auto.
         apply Hf; auto.
   Qed.
 
@@ -1132,7 +1132,7 @@ Local Reserved Notation "'⟬' x '⟭'".
     rewrite <- sum_0n_scal_r.
     apply msum_ext.
     intros i Hi.
-    rewrite <- mult_assoc; f_equal.
+    rewrite <- Nat.mul_assoc; f_equal.
     rewrite <- power_plus; f_equal.
     generalize (Hf _ Hi); lia.
   Qed.
@@ -1217,7 +1217,7 @@ Local Reserved Notation "'⟬' x '⟭'".
           rewrite nat_meet_euclid_power_2, nat_meet_0n, nat_meet_n0; auto.
           rewrite power_mult, <- Hr; auto. }
         split; auto.
-        rewrite H1, plus_comm, nat_ortho_plus_join; auto.
+        rewrite H1, Nat.add_comm, nat_ortho_plus_join; auto.
     Qed.
         
 
@@ -1245,8 +1245,8 @@ Local Reserved Notation "'⟬' x '⟭'".
         rewrite  nat_meet_euclid_power_2.
         + rewrite nat_meet_n0, nat_meet_0n; ring.
         + do 2 rewrite power_mult; rewrite <- Hr.
-          apply lt_le_trans with (power (S i) r).
-          - rewrite power_S; apply mult_lt_compat_r; auto.
+          apply Nat.lt_le_trans with (power (S i) r).
+          - rewrite power_S; apply Nat.mul_lt_mono_pos_r; auto.
             apply power_ge_1; lia.
           - apply power_mono_l; lia.
         + rewrite power_mult, <- Hr.
@@ -1341,7 +1341,7 @@ Local Reserved Notation "'⟬' x '⟭'".
             apply nat_meet_mult_power2.
           * intros j G1 G2; apply nat_meet_powers_neq; auto.
         + intros i Hi.
-          apply le_lt_trans with (2 := Hf Hi).
+          apply Nat.le_lt_trans with (2 := Hf Hi).
           apply binary_le_le; auto.
       Qed.
 
@@ -1352,7 +1352,7 @@ Local Reserved Notation "'⟬' x '⟭'".
         + intros E i Hi.
           apply binary_le_nat_meet.
           apply power_decomp_unique with (5 := E); auto.
-          intros j Hj; apply le_lt_trans with (2 := Hf Hj).
+          intros j Hj; apply Nat.le_lt_trans with (2 := Hf Hj).
           apply binary_le_le; auto.
         + intros H; apply msum_ext.
           intros; f_equal; apply binary_le_nat_meet; auto.
@@ -1371,7 +1371,7 @@ Local Reserved Notation "'⟬' x '⟭'".
       rewrite <- sum_0n_scal_l.
       apply binary_le_nat_meet.
       rewrite meet_sum_powers; auto.
-      2: intros i Hi; rewrite Hr; apply lt_le_trans with (1 := H3 _ Hi), power_mono_l; lia. 
+      2: intros i Hi; rewrite Hr; apply Nat.lt_le_trans with (1 := H3 _ Hi), power_mono_l; lia. 
       2: { rewrite Hr.
            intros i Hi. 
            generalize (@power_ge_1 p 2); intro.
@@ -1381,7 +1381,7 @@ Local Reserved Notation "'⟬' x '⟭'".
       apply msum_ext; intros i Hi; f_equal.
       apply binary_le_nat_meet, power_2_minus_1_gt.
       assert (a i < power p 2); try lia.
-      apply lt_le_trans with (1 := H3 _ Hi), power_mono_l; lia.
+      apply Nat.lt_le_trans with (1 := H3 _ Hi), power_mono_l; lia.
     Qed.
 
     Fact sum_powers_binary_le_inv n f e m :
@@ -1420,7 +1420,7 @@ Local Reserved Notation "'⟬' x '⟭'".
       exists k, g', h; split; [ | split; [ | split ] ]; auto.
       - rewrite sum_powers_ortho, H4.
         * apply msum_ext. intros; apply Hg'; auto.
-        * intros i Hi; apply le_lt_trans with (f (h i)).
+        * intros i Hi; apply Nat.le_lt_trans with (f (h i)).
           + apply binary_le_le, Hg'; auto.
           + apply H1, H6; auto.
         * intros ? ? ? ? E; apply H0 in E; auto.
@@ -1449,7 +1449,7 @@ Local Reserved Notation "'⟬' x '⟭'".
       + rewrite H3.
         rewrite sum_powers_ortho; auto.
         * apply msum_ext; intros; apply Hh; auto.
-        * intros i Hi; apply le_lt_trans with (2 := H1 _ Hi), binary_le_le, Hh; auto.
+        * intros i Hi; apply Nat.le_lt_trans with (2 := H1 _ Hi), binary_le_le, Hh; auto.
       + intros; apply Hh; auto.
     Qed.
 
@@ -1468,7 +1468,7 @@ Local Reserved Notation "'⟬' x '⟭'".
         exists a; split; auto.
         intros i Hi; apply power_2_minus_1_gt; auto.
       + intros i Hi.
-        apply lt_le_trans with (power p 2).
+        apply Nat.lt_le_trans with (power p 2).
         - generalize (@power_ge_1 p 2); intros; lia.
         - rewrite Hr; apply power_mono_l; lia.
     Qed.

@@ -57,7 +57,7 @@ Lemma max_list_rec_max (xs : list nat) (s1 s2 : nat) :
 Proof.
   induction xs as [ | x xs IH] in s1,s2|-*; cbn in *.
   - reflexivity.
-  - rewrite Max.max_assoc. rewrite !IH. nia.
+  - rewrite Nat.max_assoc. rewrite !IH. nia.
 Qed.
 
 (* If the list is not empty, and every element in the list is greater than start-values [s1] and [s2], then the choice of start-value [s1] or [s2] doesn't matter *)
@@ -142,7 +142,7 @@ Proof.
   apply Nat.le_antisymm.
   - apply max_list_rec_lower_bound; eauto.
     + apply Nat.max_le_compat_l. apply max_list_rec_ge.
-    + intros x Hx. rewrite <- Max.le_max_r. now apply max_list_rec_ge_el.
+    + intros x Hx. rewrite <- Nat.le_max_r. now apply max_list_rec_ge_el.
   - rewrite max_list_rec_max.
     apply Nat.max_le_compat; auto.
     apply max_list_rec_ge.
@@ -154,7 +154,7 @@ Proof.
   apply Nat.le_antisymm.
   - apply max_list_rec_lower_bound; eauto.
     + apply Nat.max_le_compat_r. apply max_list_rec_ge.
-    + intros x Hx. rewrite <- Max.le_max_l. now apply max_list_rec_ge_el.
+    + intros x Hx. rewrite <- Nat.le_max_l. now apply max_list_rec_ge_el.
   - rewrite max_list_rec_max.
     apply Nat.max_le_compat; auto.
     apply max_list_rec_ge.

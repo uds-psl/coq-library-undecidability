@@ -12,7 +12,7 @@ Definition extended (H H' : Heap) := forall alpha m, nth_error H alpha = Some m 
 Lemma get_current H m H' alpha : put H m = (alpha,H') -> nth_error H' alpha = Some m.
 Proof.
   unfold put. intros [= <- <-].
-  rewrite nth_error_app2. now rewrite <- minus_n_n. reflexivity.
+  rewrite nth_error_app2. now rewrite Nat.sub_diag. reflexivity.
 Qed.
 
 Lemma put_extends H H' m b: put H m = (b,H') -> extended H H'.

@@ -194,7 +194,7 @@ Section g_eill_complete_bound.
     1: { intros ? ?; apply in_or_app; right; auto. }
     apply in_geill_perm with (1 := Permutation_sym Hv).
     fold (s x v).
-    rewrite <- (vec_zero_plus v), vec_plus_comm.
+    rewrite <- (vec_zero_plus v), vec_add_comm.
     apply H.
     rewrite ill_tps_app.
     exists vec_zero, v.
@@ -233,7 +233,7 @@ Section g_eill_complete_bound.
 
     + intros u Hu y Hy.
       rew vec.
-      rewrite vec_plus_comm.
+      rewrite vec_add_comm.
       apply in_geill_perm with (1 := Permutation_sym (vec_map_list_plus _ _ _)).
       apply in_geill_dec with a p; auto.
 

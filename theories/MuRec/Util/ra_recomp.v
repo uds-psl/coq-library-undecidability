@@ -130,14 +130,14 @@ Section ra_recomp.
       rewrite power_S in *.
       clear H1; revert H2 H3.
       generalize (S n) (power a 2) (power2_gt_0 a); clear n a; intros n p H1 H2 H3 H4.
-      rewrite H4 at 1; rewrite mult_comm; f_equal.
+      rewrite H4 at 1; rewrite Nat.mul_comm; f_equal.
       rewrite divides_rem_eq in H3.
-      rewrite (mult_comm _ p), div_mult; try lia.
-      rewrite mult_comm, rem_mult in H3; try lia.
+      rewrite (Nat.mul_comm _ p), div_mult; try lia.
+      rewrite Nat.mul_comm, rem_mult in H3; try lia.
       rewrite (@div_rem_spec1 (div n p) 2) at 1.
       rewrite H2 in H3; simpl in H3.
       generalize (@div_rem_spec2 (div n p) 2); intros H5.
-      rewrite mult_comm in H3.
+      rewrite Nat.mul_comm in H3.
       destruct (rem (div n p) 2) as [ | [ | ] ]; lia.
   Qed.
 
@@ -172,7 +172,7 @@ Section ra_recomp.
   Fact ra_recomp_val a b : ⟦ra_recomp⟧ (a##b##vec_nil) (recomp a b).
   Proof.
     unfold recomp.
-    rewrite plus_comm.
+    rewrite Nat.add_comm.
     exists (power a 2 * (S (2*b)) ## vec_nil); split; auto.
     pos split; simpl.
     exists (power a 2##S (2*b)##vec_nil); split; auto.

@@ -198,7 +198,7 @@ Section BasicLemmas.
       intros A B [H [x [H1 H2]]].
       assert (nodup eq_dec A ⊆ nodup eq_dec B) as H3 by now rewrite !nodup_seteq.
       eapply NoDup_incl_length in H3 as H4; [| eapply NoDup_nodup].
-      eapply le_lt_or_eq in H4 as []; eauto; exfalso.
+      eapply Nat.lt_eq_cases in H4 as []; eauto; exfalso.
       eapply NoDup_length_incl in H3. 
       rewrite !nodup_seteq in H3; intuition.
       eapply NoDup_nodup. lia.

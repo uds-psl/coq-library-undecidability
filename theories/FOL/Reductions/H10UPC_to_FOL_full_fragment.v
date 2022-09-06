@@ -414,8 +414,8 @@ Section validity.
         + unfold f. destruct (Nat.eqb_neq 0 (S n)) as [_ ->]. 2:lia. 
           intros m Hm. destruct (Nat.eqb_neq m (S n)) as [_ ->]. 2:lia.
           destruct (S m=?S n) eqn:Heq.
-          * apply beq_nat_true in Heq. assert (m=n) as -> by lia. exists pr, pl. rewrite chain_zero. split. 1:split. all:easy.
-          * apply chain_succ. apply beq_nat_false in Heq. lia.
+          * apply Nat.eqb_eq in Heq. assert (m=n) as -> by lia. exists pr, pl. rewrite chain_zero. split. 1:split. all:easy.
+          * apply chain_succ. apply Nat.eqb_neq in Heq. lia.
       Qed.
 
       Ltac h10ind_not_lt_0 := match goal with [H : h10upc_ind ?k 0 0 0 |- _] => exfalso; now apply (@h10upc_ind_not_less_0 k H) end.

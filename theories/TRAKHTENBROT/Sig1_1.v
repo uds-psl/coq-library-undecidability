@@ -372,8 +372,8 @@ Section Σfull_mon_rem.
       + intros r x.
         simpl in H2; specialize (H2 x).
         rewrite fol_sem_lconj in H2.
-        symmetry; apply (H2 (Eq (exist _ nil (lt_0_Sn _),r))), in_map_iff.
-        exists (exist _ nil (lt_0_Sn _),r); split; auto.
+        symmetry; apply (H2 (Eq (exist _ nil (Nat.lt_0_succ _),r))), in_map_iff.
+        exists (exist _ nil (Nat.lt_0_succ _),r); split; auto.
     Qed.
 
   End completeness.

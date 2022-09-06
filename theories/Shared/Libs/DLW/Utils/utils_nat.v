@@ -33,13 +33,13 @@ Section le_lt_pirr.
     case H2; [intro E | intros m l E].
     rewrite UIP_dec with (p1 := E) (p2 := eq_refl); auto.
     apply eq_nat_dec.
-    contradiction (le_Sn_n m); subst; auto.
+    contradiction (Nat.nle_succ_diag_l m); subst; auto.
     
     change (le_S x m H1) with (eq_rect _ (fun n' => x <= n') (le_S x m H1) _ eq_refl).
     generalize (eq_refl (S m)).
     pattern (S m) at 1 3 4 6, H2.
     case H2; [intro E | intros p H3 E].
-    contradiction (le_Sn_n m); subst; auto.
+    contradiction (Nat.nle_succ_diag_l m); subst; auto.
     injection E; intro; subst.
     rewrite (IH H3).
     rewrite UIP_dec with (p1 := E) (p2 := eq_refl); auto.
@@ -58,13 +58,14 @@ Section fin_reif.
   Fact fin_reif n : (forall i, i < n -> exists x, R i x)
                  -> exists s, forall i (Hi : i < n), R i (s i Hi).
   Proof.
+    assert (H_lt_S_n : forall n m, S n < S m -> n < m) by (now intros; apply Nat.succ_lt_mono).
     revert R; induction n as [ | n IHn ]; intros R HR.
     + assert (s : forall x, x < 0 -> X) by (intros; lia).
       exists s; intros; lia.
     + destruct (HR 0) as (x & Hx); try lia.
       destruct IHn with (R := fun i x => R (S i) x) as (s & Hs).
       { intros; apply HR; lia. }
-      exists (fun i => match i with 0 => fun _ => x | S i => fun Hi => s i (lt_S_n i n Hi) end).
+      exists (fun i => match i with 0 => fun _ => x | S i => fun Hi => s i (H_lt_S_n i n Hi) end).
       intros [ | i ] Hi; simpl; auto.
   Qed.
 
@@ -157,7 +158,7 @@ Qed. *)
 
 
 Definition lsum := fold_right plus 0.
-Definition lmax := fold_right max 0.
+Definition lmax := fold_right Nat.max 0.
 
 Fact lmax_spec l x : lmax l <= x <-> Forall (fun y => y <= x) l.
 Proof.
@@ -180,7 +181,7 @@ Qed.
 
 Fact lmax_prop l x : In x l -> x <= lmax l.
 Proof.
-  specialize (proj1 (lmax_spec l _) (le_refl _)).
+  specialize (proj1 (lmax_spec l _) (Nat.le_refl _)).
   rewrite Forall_forall; auto.
 Qed.
 
@@ -194,9 +195,9 @@ Section new.
       induction l as [ | x l IHl ].
       intros _ [].
       intros y [ [] | Hy ]; apply le_n_S;
-        [ apply le_max_l | ].
+        [ apply Nat.le_max_l | ].
       apply IHl, le_S_n in Hy.
-      apply le_trans with (1 := Hy), le_max_r.
+      apply Nat.le_trans with (1 := Hy), Nat.le_max_r.
     intros C; apply H in C; lia.
   Qed.
 
@@ -263,22 +264,22 @@ Proof.
     * simpl in Hn; lia.
     * destruct (IH d) as (p & b & H).
       - lia.
-      - exists (S p), b; rewrite pow2_fix1, <- mult_assoc, <- H; auto.
+      - exists (S p), b; rewrite pow2_fix1, <- Nat.mul_assoc, <- H; auto.
 Qed.
 
 Fact pow2_dec_uniq p a q b : pow2 p*(2*a+1) = pow2 q*(2*b+1) -> p = q /\ a = b.
 Proof.
   revert q; induction p as [ | p IHp ]; intros [ | q ].
   + simpl; lia.
-  + rewrite pow2_fix0, pow2_fix1, <- mult_assoc; lia.
-  + rewrite pow2_fix0, pow2_fix1, <- mult_assoc; lia.
-  + rewrite !pow2_fix1, <- !mult_assoc; intros H.
+  + rewrite pow2_fix0, pow2_fix1, <- Nat.mul_assoc; lia.
+  + rewrite pow2_fix0, pow2_fix1, <- Nat.mul_assoc; lia.
+  + rewrite !pow2_fix1, <- !Nat.mul_assoc; intros H.
     destruct (IHp q); lia.
 Qed.
 
 Fact pow2_dec_ge1 p b : 1 <= pow2 p*(2*b+1).
 Proof.
-  change 1 with (1*1) at 1; apply mult_le_compat; 
+  change 1 with (1*1) at 1; apply Nat.mul_le_mono; 
     try lia; apply pow2_ge1.
 Qed.
 
@@ -342,7 +343,7 @@ Section nat_sorted.
     destruct m as [ | v m ].
     inversion H4; subst; auto.
     inversion H4; subst.
-    apply lt_trans with (1 := H1), (H2 nil _ m _ r); auto.
+    apply Nat.lt_trans with (1 := H1), (H2 nil _ m _ r); auto.
     inversion H3; subst.
     apply (H2 l _ m _ r); auto.
   Qed.
@@ -473,7 +474,7 @@ Fact nat_sort_length l : length (nat_sort l) <= length l.
 Proof.
   induction l as [ | x l IHl ]; simpl.
   lia.
-  apply le_trans with (1 := nat_list_insert_length _ _); lia.
+  apply Nat.le_trans with (1 := nat_list_insert_length _ _); lia.
 Qed.
 
 Fact nat_sort_eq l : incl (nat_sort l) l /\ incl l (nat_sort l).
@@ -502,15 +503,15 @@ Proof.
     intros n m (H2 & H3); revert H2 H3.
     induction 1 as [ | m Hm IH ]; auto.
     intros H. spec in IH. lia.
-    apply le_trans with (1 := IH).
+    apply Nat.le_trans with (1 := IH).
     replace (a+S m) with (S (a+m)) by lia.
-    apply lt_le_weak, H1; lia.
+    apply Nat.lt_le_incl, H1; lia.
   assert (forall n m, n < m <= b - a -> f (a+n) < f (a+m)) as H3.
     unfold lt at 1; intros n m H.
     specialize (H1 (a+n)).
     spec in H1.
     lia.
-    apply lt_le_trans with (1 := H1).
+    apply Nat.lt_le_trans with (1 := H1).
     replace (S (a+n)) with (a+S n) by lia.
     apply H2; auto.
   intros x y H4.

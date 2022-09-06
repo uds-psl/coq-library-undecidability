@@ -25,7 +25,7 @@ Qed.
 Instance mult_le_proper : Proper (le ==> le ==> le) mult.
 Proof.
   cbv. intros. 
-  apply mult_le_compat. all:eauto. 
+  apply Nat.mul_le_mono. all:eauto. 
 Qed.
 
 #[global]

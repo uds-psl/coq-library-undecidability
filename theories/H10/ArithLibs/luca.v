@@ -39,7 +39,7 @@ Section fact.
     induction n as [ | n IHn ].
     + rewrite msum_0; auto.
     + rewrite msum_plus1; auto.
-      rewrite mult_comm, <- IHn, fact_S.
+      rewrite Nat.mul_comm, <- IHn, fact_S.
       f_equal; lia.
   Qed.
 
@@ -61,7 +61,7 @@ Section fact.
     + do 2 (rewrite msum_plus1; auto).
       do 2 rewrite nat2Zp_mult; f_equal; auto.
       apply nat2Zp_inj.
-      rewrite (plus_comm n), <- plus_assoc, plus_comm.
+      rewrite (Nat.add_comm n), <- Nat.add_assoc, Nat.add_comm.
       rewrite <- rem_plus_div; auto.
       * f_equal; lia.
       * apply divides_mult, divides_refl.
@@ -81,18 +81,18 @@ Section fact.
       rewrite mprod_factorial, msum_plus, <- mprod_factorial; auto.
       replace p with (S (p-1)) at 2 by lia.
       rewrite msum_plus1; auto.
-      rewrite <- plus_assoc.
+      rewrite <- Nat.add_assoc.
       replace (p-1+1) with p by lia.
       replace (n*p+p) with ((S n)*p) by ring.
       rewrite mscal_S, fact_S, msum_S.
       rewrite IHn.
-      repeat rewrite mult_assoc.
-      rewrite (mult_comm _ p).
-      repeat rewrite <- mult_assoc.
+      repeat rewrite Nat.mul_assoc.
+      rewrite (Nat.mul_comm _ p).
+      repeat rewrite <- Nat.mul_assoc.
       do 2 f_equal.
-      rewrite (mult_comm (S n)).
-      repeat rewrite <- mult_assoc; f_equal.
-      repeat rewrite mult_assoc; f_equal.
+      rewrite (Nat.mul_comm (S n)).
+      repeat rewrite <- Nat.mul_assoc; f_equal.
+      repeat rewrite Nat.mul_assoc; f_equal.
       rewrite msum_ext with (f := fun i => n*p+i+1)
                             (g := fun i => i+(n*p+1)).
       2: intros; ring. 
@@ -211,19 +211,19 @@ Section fact.
       rewrite Hn, Hk, Nat.mul_sub_distr_r.
       cut (K*p <= N*p).
       + generalize (K*p) (N*p); intros; lia.
-      + apply mult_le_compat; auto.
+      + apply Nat.mul_le_mono; auto.
     Qed.
   
     Fact binomial_wo_p : φ K k0 * Ψ K * φ (N-K) (n0-k0) * Ψ (N-K) * binomial n k 
                        = binomial N K * φ N n0 * Ψ N.
     Proof using Hkn.
-      apply (factorial_cancel (N-K)); repeat rewrite mult_assoc.
-      rewrite (mult_comm (fact _) (binomial _ _)).
-      apply (factorial_cancel K); repeat rewrite mult_assoc.
-      rewrite (mult_comm (fact _) (binomial _ _)).
+      apply (factorial_cancel (N-K)); repeat rewrite Nat.mul_assoc.
+      rewrite (Nat.mul_comm (fact _) (binomial _ _)).
+      apply (factorial_cancel K); repeat rewrite Nat.mul_assoc.
+      rewrite (Nat.mul_comm (fact _) (binomial _ _)).
       rewrite <- binomial_thm; auto.
       apply expo_p_cancel with N.
-      repeat rewrite mult_assoc.
+      repeat rewrite Nat.mul_assoc.
       rewrite <- mprod_factorial_euclid, <- Hn.
       rewrite binomial_thm with (1 := Hkn).
       rewrite Hnk. 
@@ -247,21 +247,21 @@ Section fact.
       repeat rewrite phi_Zp_eq in G.
       rewrite binomial_thm with (1 := H2) in G.
       repeat rewrite nat2Zp_mult in G.
-      rewrite (Zp_mult_comm _ _〚 fact k0 〛) in G.
-      repeat rewrite Zp_mult_assoc in G.
-      rewrite (Zp_mult_comm _ _〚 fact k0 〛) in G.
-      repeat rewrite <- Zp_mult_assoc in G.
+      rewrite (Zp_mul_comm _ _〚 fact k0 〛) in G.
+      repeat rewrite Zp_mul_assoc in G.
+      rewrite (Zp_mul_comm _ _〚 fact k0 〛) in G.
+      repeat rewrite <- Zp_mul_assoc in G.
       apply Zp_invertible_cancel_l in G.
       2: apply Zp_invertible_factorial; auto; lia.
-      repeat rewrite Zp_mult_assoc in G.
-      do 2 rewrite (Zp_mult_comm _ _〚 fact _ 〛) in G.
-      repeat rewrite <- Zp_mult_assoc in G.
+      repeat rewrite Zp_mul_assoc in G.
+      do 2 rewrite (Zp_mul_comm _ _〚 fact _ 〛) in G.
+      repeat rewrite <- Zp_mul_assoc in G.
       apply Zp_invertible_cancel_l in G.
       2: apply Zp_invertible_factorial; auto; lia.
-      repeat rewrite Zp_mult_assoc in G.
+      repeat rewrite Zp_mul_assoc in G.
       rewrite <- mscal_plus in G; auto.
       replace (K+(N-K)) with N in G by lia.
-      rewrite (Zp_mult_comm _ _ (expoZp _ _)) in G.
+      rewrite (Zp_mul_comm _ _ (expoZp _ _)) in G.
       apply Zp_invertible_cancel_l in G; trivial.
       apply Zp_expo_invertible, Zp_invertible_factorial; auto; lia.
     Qed.
@@ -292,15 +292,15 @@ Section fact.
       cut ((K+1)*p <= N*p).
       + rewrite Nat.mul_add_distr_r.
         generalize (K*p) (N*p); clear H3 H4 H5 H6 HNK Hkn; intros; lia.
-      + apply mult_le_compat; auto; clear H3 H4 H5 H6 HNK Hkn; lia.
+      + apply Nat.mul_le_mono; auto; clear H3 H4 H5 H6 HNK Hkn; lia.
     Qed.
 
     Fact binomial_with_p : fact K * fact (N-(K+1)) * φ K k0 * Ψ K * φ (N-(K+1)) (p-(k0-n0)) * Ψ (N-(K+1)) * binomial n k 
                          = p * fact N * φ N n0 * Ψ N.
     Proof using Hkn.
       apply expo_p_cancel with (N-1).
-      repeat rewrite mult_assoc.
-      rewrite (mult_comm (expo _ _) p).
+      repeat rewrite Nat.mul_assoc.
+      rewrite (Nat.mul_comm (expo _ _) p).
       rewrite <- mscal_S.
       rewrite H4, <- mprod_factorial_euclid, <- Hn.
       rewrite binomial_thm with (1 := Hkn).
@@ -315,11 +315,11 @@ Section fact.
     Fact binomial_with_p' : φ K k0 * Ψ K * φ (N-(K+1)) (p-(k0-n0)) * Ψ (N-(K+1)) * binomial n k 
                           = p * binomial N K * (N-K) * φ N n0 * Ψ N.
     Proof using Hkn.
-      apply (factorial_cancel (N-(K+1))); repeat rewrite mult_assoc.
-      apply (factorial_cancel K); repeat rewrite mult_assoc.
+      apply (factorial_cancel (N-(K+1))); repeat rewrite Nat.mul_assoc.
+      apply (factorial_cancel K); repeat rewrite Nat.mul_assoc.
       rewrite binomial_with_p.
       rewrite binomial_thm with (n := N) (p := K).
-      2: { apply lt_le_weak; auto. }
+      2: { apply Nat.lt_le_incl; auto. }
       rewrite HNK at 1.
       rewrite fact_S.
       rewrite <- HNK.
@@ -459,15 +459,15 @@ Section lucas_theorem.
     + simpl; auto.
     + rewrite binomial_p_fix01; simpl base_p.
       rewrite <- rem_mult_rem, <- IH4, rem_mult_rem, 
-              (mult_comm p), plus_comm, (mult_comm (binomial _ _)).
+              (Nat.mul_comm p), Nat.add_comm, (Nat.mul_comm (binomial _ _)).
       apply lucas_lemma; auto; simpl; lia.
     + rewrite binomial_p_fix10; simpl base_p.
       rewrite <- rem_mult_rem, <- IH2, rem_mult_rem; auto.
-      rewrite (mult_comm p), plus_comm, (mult_comm (binomial _ _)).
+      rewrite (Nat.mul_comm p), Nat.add_comm, (Nat.mul_comm (binomial _ _)).
       apply lucas_lemma; auto; simpl; lia.
     + rewrite binomial_p_fix11; simpl base_p.
       rewrite <- rem_mult_rem, <- IH2, rem_mult_rem; auto.
-      rewrite !(mult_comm p), !(plus_comm _ (_ * _)), (mult_comm (binomial _ _)).
+      rewrite !(Nat.mul_comm p), !(Nat.add_comm _ (_ * _)), (Nat.mul_comm (binomial _ _)).
       apply lucas_lemma; auto; simpl; lia.
   Qed.
 

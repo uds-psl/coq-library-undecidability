@@ -69,7 +69,7 @@ Proof.
     - simpl in H; discriminate.
     - trivial.
     - exfalso; revert H.
-      do 2 (rewrite mult_comm; simpl).
+      do 2 (rewrite Nat.mul_comm; simpl).
       generalize (p*x); intros; lia.
 Qed.
 
@@ -78,7 +78,7 @@ Proof.
   destruct p as [ | [ | p ] ].
   + simpl; discriminate.
   + simpl; lia.
-  + rewrite mult_comm.
+  + rewrite Nat.mul_comm.
     destruct q as [ | [ | q ] ].
     - simpl; discriminate.
     - simpl; lia.
@@ -97,17 +97,17 @@ Section divides.
   Fact divides_anti x y : x div y -> y div x -> x = y.
   Proof.
     intros (p & H1) (q & H2).
-    rewrite H1, mult_assoc in H2.
+    rewrite H1, Nat.mul_assoc in H2.
     apply own_multiple in H2.
     destruct H2 as [ H2 | H2 ].
-    + subst; rewrite mult_comm; auto.
+    + subst; rewrite Nat.mul_comm; auto.
     + apply mult_is_one in H2; destruct H2; subst; lia.
   Qed.
 
   Fact divides_trans x y z : x div y -> y div z -> x div z.
   Proof.
     intros (p & H1) (q & H2).
-    exists (q*p); rewrite <- mult_assoc, <- H1; auto.
+    exists (q*p); rewrite <- Nat.mul_assoc, <- H1; auto.
   Qed.
 
   Fact divides_0 p : p div 0.
@@ -117,7 +117,7 @@ Section divides.
   Proof. intros (?&?); subst; rewrite Nat.mul_0_r; auto. Qed.
 
   Fact divides_1 p : 1 div p.
-  Proof. exists p; rewrite mult_comm; simpl; auto. Qed.
+  Proof. exists p; rewrite Nat.mul_comm; simpl; auto. Qed.
 
   Fact divides_1_inv p : p div 1 -> p = 1.
   Proof.
@@ -134,12 +134,12 @@ Section divides.
   Fact divides_mult p q k : p div q -> p div k*q.
   Proof.
     intros (r & ?); subst.
-    exists (k*r); rewrite mult_assoc; auto.
+    exists (k*r); rewrite Nat.mul_assoc; auto.
   Qed.
 
   Fact divides_mult_r p q k : p div q -> p div q*k.
   Proof.
-    rewrite mult_comm; apply divides_mult; auto.
+    rewrite Nat.mul_comm; apply divides_mult; auto.
   Qed.
 
   Fact divides_left x k : divides x (x*k).
@@ -150,9 +150,9 @@ Section divides.
   Fact divides_mult_compat a b c d : a div b -> c div d -> a*c div b*d.
   Proof. 
     intros (u & ?) (v & ?); exists (u*v); subst.
-    repeat rewrite mult_assoc; f_equal.
-    repeat rewrite <- mult_assoc; f_equal.
-    apply mult_comm.
+    repeat rewrite Nat.mul_assoc; f_equal.
+    repeat rewrite <- Nat.mul_assoc; f_equal.
+    apply Nat.mul_comm.
   Qed.
 
   Fact divides_minus p q1 q2 : p div q1 -> p div q2 -> p div q1 - q2.
@@ -185,7 +185,7 @@ Section divides.
   Proof.
     intros H (n & Hn); exists n.
     apply Nat.mul_cancel_r with (1 := H).
-    rewrite mult_comm, Hn; ring.
+    rewrite Nat.mul_comm, Hn; ring.
   Qed.
 
   Lemma divides_fact m p : 1 < p <= m -> p div fact m.
@@ -251,7 +251,7 @@ Section gcd_lcm.
     repeat (split; auto).
     intros k H4 H5.
     apply H3; auto.
-    rewrite plus_comm in H5.
+    rewrite Nat.add_comm in H5.
     apply divides_plus_inv with (2 := H5); auto. 
   Qed.
 
@@ -263,7 +263,7 @@ Section gcd_lcm.
     split.
     + replace q with ((n*p+q)-n*p) at 2 by lia.
       apply is_gcd_modulus; auto; lia.
-    + rewrite plus_comm; apply is_gcd_moduplus; auto.
+    + rewrite Nat.add_comm; apply is_gcd_moduplus; auto.
   Qed.
 
   Fact is_gcd_div p q : p div q -> is_gcd p q p.
@@ -318,7 +318,7 @@ Section bezout.
         end 
       end); try lia.
       + destruct H0 as (H1 & H2).
-        subst r; rewrite plus_comm in H1; simpl in H1.
+        subst r; rewrite Nat.add_comm in H1; simpl in H1.
         assert (is_gcd p q p) as H3.
         { apply is_gcd_div; subst; auto. }
         rewrite (is_gcd_fun H3 H) in *.
@@ -328,12 +328,12 @@ Section bezout.
       + destruct H0 as (H1 & H2).
         destruct G0 as (H3 & H4 & H5).
         split; [ | split ]; auto.
-        * rewrite H1, Nat.mul_sub_distr_r, (mult_comm _ p).
+        * rewrite H1, Nat.mul_sub_distr_r, (Nat.mul_comm _ p).
           do 3 rewrite Nat.mul_add_distr_l.
-          rewrite (plus_comm _ (p*r)), (plus_assoc 1), (mult_comm p r), <- H3.
-          rewrite (mult_comm n a), (mult_comm p b), mult_assoc, mult_assoc.
+          rewrite (Nat.add_comm _ (p*r)), (Nat.add_assoc 1), (Nat.mul_comm p r), <- H3.
+          rewrite (Nat.mul_comm n a), (Nat.mul_comm p b), Nat.mul_assoc, Nat.mul_assoc.
           assert (a*n*p <= p*n*p) as H6.
-          { repeat (apply mult_le_compat; auto). }
+          { repeat (apply Nat.mul_le_mono; auto). }
           revert H6; generalize (b*p) (a*r) (a*n*p) (p*n*p); intros; lia.
         * rewrite H1; generalize (n*p) (n*a); intros; lia.
     Defined.
@@ -352,7 +352,7 @@ Section bezout.
       + subst; rewrite (is_gcd_fun (is_gcd_refl _) H); exists 1, 1; auto.
       + destruct bezout_rel_prime_lt with (2 := is_gcd_sym H)
           as (a & b & H2 & _); try lia.
-        exists b, a; rewrite (mult_comm p q); lia.
+        exists b, a; rewrite (Nat.mul_comm p q); lia.
     Defined.
 
     Lemma bezout_nc p q : is_gcd p q 1 -> exists a b, a*p+b*q = 1+p*q.
@@ -371,7 +371,7 @@ Section bezout.
       apply divides_plus_inv with m.
       +  destruct H2 as [ H2 | H2 ];
          apply divides_trans with (2 := H2); auto.
-      + rewrite plus_comm, <- H1.
+      + rewrite Nat.add_comm, <- H1.
         apply divides_plus; auto.
     Qed.
 
@@ -387,16 +387,16 @@ Section bezout.
     + apply divides_minus.
       - rewrite <- H3, Nat.mul_add_distr_l.
         apply divides_plus.
-        * rewrite mult_assoc; auto.
-        * rewrite (mult_comm b), mult_assoc, (mult_comm k), H2.
-          rewrite mult_comm, mult_assoc; auto.
-      - rewrite mult_comm, mult_assoc; auto.
-    + rewrite Nat.mul_add_distr_l, mult_assoc.
+        * rewrite Nat.mul_assoc; auto.
+        * rewrite (Nat.mul_comm b), Nat.mul_assoc, (Nat.mul_comm k), H2.
+          rewrite Nat.mul_comm, Nat.mul_assoc; auto.
+      - rewrite Nat.mul_comm, Nat.mul_assoc; auto.
+    + rewrite Nat.mul_add_distr_l, Nat.mul_assoc.
       generalize (k*p*q); intros; lia.
   Qed.
 
   Fact is_rel_prime_div_r p q k : is_gcd p q 1 -> p div k*q -> p div k.
-  Proof. rewrite mult_comm; apply is_rel_prime_div. Qed.
+  Proof. rewrite Nat.mul_comm; apply is_rel_prime_div. Qed.
 
   Fact divides_is_gcd a b c : divides a b -> is_gcd b c 1 -> is_gcd a c 1.
   Proof.
@@ -410,13 +410,13 @@ Section bezout.
   Proof.
     intros H.
     repeat (split; auto).
-    rewrite mult_comm; auto.
+    rewrite Nat.mul_comm; auto.
     intros k (u & ?) (v & ?); subst.
-    rewrite (mult_comm u).
+    rewrite (Nat.mul_comm u).
     apply divides_mult_compat; auto.
     apply is_gcd_sym in H.
     apply is_rel_prime_div with (1 := H) (k := u).
-    rewrite mult_comm, H1; auto.
+    rewrite Nat.mul_comm, H1; auto.
   Qed.
 
   Hint Resolve divides_1 divides_mult_compat is_gcd_refl : core.
@@ -424,7 +424,7 @@ Section bezout.
   Fact is_gcd_0 p q : is_gcd p q 0 -> p = 0 /\ q = 0.
   Proof.
     intros ((a & Ha) & (b & Hb) & H).
-    subst; do 2 rewrite mult_0_r; auto.
+    subst; do 2 rewrite Nat.mul_0_r; auto.
   Qed.
 
   Fact is_gcd_rel_prime p q g : is_gcd p q g -> exists a b, p = a*g /\ q = b*g /\ is_gcd a b 1.
@@ -437,9 +437,9 @@ Section bezout.
       exists a, b; repeat (split; auto).
       intros k H1 H2.
       destruct (H (k*g)) as (d & Hd); subst.
-      + do 2 rewrite (mult_comm _ g); auto.
-      + do 2 rewrite (mult_comm _ g); auto.
-      + rewrite mult_assoc in Hd.
+      + do 2 rewrite (Nat.mul_comm _ g); auto.
+      + do 2 rewrite (Nat.mul_comm _ g); auto.
+      + rewrite Nat.mul_assoc in Hd.
         replace g with (1*g) in Hd at 1 by (simpl; lia).
         apply Nat.mul_cancel_r in Hd; auto.
         symmetry in Hd.
@@ -455,9 +455,9 @@ Section bezout.
     + subst; simpl; auto.
     + assert (a*p = b*q) as H4.
       { rewrite <- Nat.mul_cancel_r with (1 := Hk).
-        do 2 rewrite <- mult_assoc, (mult_comm _ k).
+        do 2 rewrite <- Nat.mul_assoc, (Nat.mul_comm _ k).
         rewrite <- Hb; auto. }
-      rewrite Ha, mult_assoc, (mult_comm _ k), <- mult_assoc.
+      rewrite Ha, Nat.mul_assoc, (Nat.mul_comm _ k), <- Nat.mul_assoc.
       apply divides_mult_compat; auto.
       apply H3; auto.
       rewrite H4; auto.
@@ -471,10 +471,10 @@ Section bezout.
     * destruct is_gcd_rel_prime with (1 := H1)
         as (u & v & Hu & Hv & H2).
       intros H3. 
-      rewrite Hu, Hv, (mult_comm u), <- mult_assoc; f_equal.
-      rewrite (mult_comm u), (mult_comm v), <- mult_assoc, (mult_comm v).
+      rewrite Hu, Hv, (Nat.mul_comm u), <- Nat.mul_assoc; f_equal.
+      rewrite (Nat.mul_comm u), (Nat.mul_comm v), <- Nat.mul_assoc, (Nat.mul_comm v).
       apply is_lcm_fun with (2 := H3).
-      subst; rewrite (mult_comm u), (mult_comm v).
+      subst; rewrite (Nat.mul_comm u), (Nat.mul_comm v).
       apply is_lcm_mult, is_rel_prime_lcm; auto.
   Qed.
 
@@ -483,12 +483,12 @@ Section bezout.
     intros H0 H1 H2.
     destruct is_gcd_rel_prime with (1 := H1)
         as (u & v & Hu & Hv & H3).
-    rewrite Hu, Hv, (mult_comm u), (mult_comm v).
+    rewrite Hu, Hv, (Nat.mul_comm u), (Nat.mul_comm v).
     replace l with (g*(u*v)).
     + apply is_lcm_mult, is_rel_prime_lcm; auto.
     + rewrite <- Nat.mul_cancel_r with (1 := H0).
-      rewrite (mult_comm l), H2, Hu, Hv,
-              (mult_comm u g), mult_assoc, mult_assoc; auto.
+      rewrite (Nat.mul_comm l), H2, Hu, Hv,
+              (Nat.mul_comm u g), Nat.mul_assoc, Nat.mul_assoc; auto.
   Qed.
 
   (*  if   1) p <= q 
@@ -504,7 +504,7 @@ Section bezout.
     + intros _ _ H1 H2.
       subst; apply is_gcd_0 in H1.
       destruct H1; subst; simpl.
-      rewrite mult_0_r, Nat.sub_0_r; auto.
+      rewrite Nat.mul_0_r, Nat.sub_0_r; auto.
     + intros H1 H2 H3 H4.
       apply is_gcd_mult_lcm with (1 := H0).
       * apply is_gcd_minus; auto.
@@ -512,7 +512,7 @@ Section bezout.
         rewrite <- (is_gcd_lcm_mult H3 H4).
         f_equal.
         rewrite H2 at 2.
-        rewrite mult_assoc, (mult_comm g); auto.
+        rewrite Nat.mul_assoc, (Nat.mul_comm g); auto.
   Qed.
 
   (*  if   1) p <= q 
@@ -524,7 +524,7 @@ Section bezout.
 
   Lemma is_lcm_modulus k p q g l u : k*p <= q -> p = u*g -> is_gcd p q g -> is_lcm p q l -> is_lcm p (q-k*p) (l-k*u*p).
   Proof.
-    rewrite <- mult_assoc.
+    rewrite <- Nat.mul_assoc.
     intros H1 H2 H3 H4. revert H1.
     induction k as [ | k IHk ]; intros H1.
     + simpl; do 2 rewrite Nat.sub_0_r; auto.
@@ -551,7 +551,7 @@ Section bezout.
     + intros _ H1 H2.
       subst; apply is_gcd_0 in H1.
       destruct H1; subst; simpl.
-      rewrite mult_0_r, Nat.add_0_r; auto.
+      rewrite Nat.mul_0_r, Nat.add_0_r; auto.
     + intros H2 H3 H4.
       apply is_gcd_mult_lcm with (1 := H0).
       * apply is_gcd_plus; auto.
@@ -559,12 +559,12 @@ Section bezout.
         rewrite <- (is_gcd_lcm_mult H3 H4).
         f_equal.
         rewrite H2 at 2.
-        rewrite mult_assoc, (mult_comm g); auto.
+        rewrite Nat.mul_assoc, (Nat.mul_comm g); auto.
   Qed.
 
   Lemma is_lcm_moduplus k p q g l u : p = u*g -> is_gcd p q g -> is_lcm p q l -> is_lcm p (q+k*p) (l+k*u*p).
   Proof.
-    rewrite <- mult_assoc.
+    rewrite <- Nat.mul_assoc.
     intros H2 H3 H4.
     induction k as [ | k IHk ].
     + simpl; do 2 rewrite Nat.add_0_r; auto.
@@ -598,22 +598,22 @@ Section bezout.
       destruct (@euclid q p) as (k & r & H1 & H2); try lia.
       destruct (eq_nat_dec r 0) as [ Hr | Hr ].
       + exists 1, 1, p, (k*p), 1, k.
-        rewrite plus_comm in H1; simpl in H1.
+        rewrite Nat.add_comm in H1; simpl in H1.
         subst; repeat split; simpl; auto.
         destruct k; lia.
       + destruct (IH r _ Hq) as (a & b & g & l & u & v & H3 & H4 & H5 & H6 & H7 & H8 & H9); try lia.
         exists (b+k*v-k*a), a, g, (l+k*v*p), v, (k*v+u).
         apply is_gcd_sym in H4.
         apply is_lcm_sym in H5.
-        rewrite plus_comm in H1.
+        rewrite Nat.add_comm in H1.
         assert (g <> 0) as Hg.
         { intro; subst g; apply is_gcd_0, proj1 in H4; lia. }
         split.
-        { rewrite H1, plus_assoc, Nat.mul_add_distr_l, <- H3.
+        { rewrite H1, Nat.add_assoc, Nat.mul_add_distr_l, <- H3.
           rewrite Nat.mul_sub_distr_r, Nat.mul_add_distr_r.
-          rewrite mult_assoc, (mult_comm a k).
+          rewrite Nat.mul_assoc, (Nat.mul_comm a k).
           assert (k*a*p <= k*v*p) as G.
-          { repeat (apply mult_le_compat; auto). }
+          { repeat (apply Nat.mul_le_mono; auto). }
           revert G; generalize (b*p) (a*r) (k*a*p) (k*v*p); intros; lia. }
         split.
         { rewrite H1; apply is_gcd_moduplus; auto. }
@@ -621,12 +621,12 @@ Section bezout.
         { rewrite H1; apply is_lcm_moduplus with g; auto. }
         split; auto.
         split.
-        { rewrite H1, H6, H7, Nat.mul_add_distr_r, mult_assoc; lia. }
+        { rewrite H1, H6, H7, Nat.mul_add_distr_r, Nat.mul_assoc; lia. }
         split; auto.
-        { rewrite (plus_comm _ u), <- Nat.add_sub_assoc.
-          +  apply plus_le_compat; auto. 
+        { rewrite (Nat.add_comm _ u), <- Nat.add_sub_assoc.
+          +  apply Nat.add_le_mono; auto. 
              generalize (k*v) (k*a); intros; lia.
-          + apply mult_le_compat; auto. }
+          + apply Nat.mul_le_mono; auto. }
     Defined.
   
     Hint Resolve is_gcd_sym is_lcm_sym : core.
@@ -704,7 +704,7 @@ Section division.
   Fact rem_0 q : rem q 0 = q.
   Proof.
     generalize (div_rem_spec1 q 0).
-    rewrite mult_comm; auto.
+    rewrite Nat.mul_comm; auto.
   Qed.
 
   Fact div_rem_uniq p n1 r1 n2 r2 : 
@@ -716,12 +716,12 @@ Section division.
     + replace n2 with (n2-n1 + n1) in H2 by lia.
       rewrite Nat.mul_add_distr_r in H2.
       assert (1*p <= (n2-n1)*p) as H5.
-      { apply mult_le_compat; lia. }
+      { apply Nat.mul_le_mono; lia. }
       simpl in H5; lia.
     + replace n1 with (n1-n2 + n2) in H2 by lia.
       rewrite Nat.mul_add_distr_r in H2.
       assert (1*p <= (n1-n2)*p) as H5.
-      { apply mult_le_compat; lia. }
+      { apply Nat.mul_le_mono; lia. }
       simpl in H5; lia.
     + subst; lia.
   Qed.
@@ -762,7 +762,7 @@ Section division.
   Fact rem_erase q n p r : q = n*p+r -> rem q p = rem r p.
   Proof.
     destruct (eq_nat_dec p 0) as [ | Hp ]; subst.
-    + rewrite mult_comm, rem_0, rem_0; auto.
+    + rewrite Nat.mul_comm, rem_0, rem_0; auto.
     + destruct (div_full r p) as (m & r' & H1 & H2).
       specialize (H2 Hp).
       rewrite rem_prop with r p m r'; auto.
@@ -774,7 +774,7 @@ Section division.
   Proof.
     intros (k & Hk).
     destruct (eq_nat_dec p 0) as [ Hp | Hp ].
-    + subst; do 2 (rewrite mult_comm; simpl); auto.
+    + subst; do 2 (rewrite Nat.mul_comm; simpl); auto.
     + rewrite (@div_prop q p k 0); lia.
   Qed.
 
@@ -808,7 +808,7 @@ Section division.
       * left; subst; exists 1; auto.
       * right; contradict Hq; subst; auto.
     + destruct (@euclid q p Hp) as (n & [ | r ] & H1 & H2).
-      * left; exists n; subst; rewrite plus_comm; auto.
+      * left; exists n; subst; rewrite Nat.add_comm; auto.
       * right; intros (m & Hm).
         rewrite <- Nat.add_0_r in Hm.
         rewrite Hm in H1.
@@ -824,14 +824,14 @@ Section rem.
   Fact rem_plus_rem a b : rem (a+rem b p) p = rem (a+b) p.
   Proof.
     rewrite (div_rem_spec1 b p) at 2.
-    rewrite plus_assoc.
+    rewrite Nat.add_assoc.
     symmetry; apply rem_erase with (div (b) p); ring.
   Qed.
 
   Fact rem_mult_rem a b : rem (a*rem b p) p = rem (a*b) p.
   Proof.
     rewrite (div_rem_spec1 b p) at 2.
-    rewrite Nat.mul_add_distr_l, mult_assoc.
+    rewrite Nat.mul_add_distr_l, Nat.mul_assoc.
     symmetry; apply rem_erase with (a*div b p); auto.
   Qed.
 
@@ -884,13 +884,13 @@ End rem.
 Fact divides_rem_rem p q a : divides p q -> rem (rem a q) p = rem a p.
 Proof.
   destruct (eq_nat_dec p 0) as [ Hp | Hp ].
-  { intros (k & ->); subst; rewrite mult_0_r.
+  { intros (k & ->); subst; rewrite Nat.mul_0_r.
     repeat rewrite rem_0; auto. }
   intros H.
   generalize (div_rem_spec1 a q); intros H1.
   destruct H as (k & ->).
   rewrite H1 at 2.
-  rewrite plus_comm.
+  rewrite Nat.add_comm.
   apply rem_plus_div; auto.
   do 2 apply divides_mult.
   apply divides_refl.
@@ -924,7 +924,7 @@ Section rem_2.
   Fact rem_2_mult x y : rem (x*y) 2 = 1 <-> rem x 2 = 1 /\ rem y 2 = 1.
   Proof. 
     generalize (rem_2_is_0_or_1 x) (rem_2_is_0_or_1 y).
-    do 2 rewrite <- rem_mult_rem, mult_comm.
+    do 2 rewrite <- rem_mult_rem, Nat.mul_comm.
     intros [ H1 | H1 ] [ H2 | H2 ]; rewrite H1, H2; simpl; rewrite rem_lt; lia.
   Qed.
 

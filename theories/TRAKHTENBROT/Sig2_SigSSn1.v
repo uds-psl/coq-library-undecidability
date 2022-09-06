@@ -186,7 +186,7 @@ Section Σ2_ΣSSn1_enc_sound.
   Proof.
     intros H.
     assert (D : lmax (fol_vars A) < i).
-    { apply le_refl. }
+    { apply Nat.le_refl. }
     unfold ψ.
     destruct (eq_nat_dec i j); auto.
     apply lmax_prop in H; lia.

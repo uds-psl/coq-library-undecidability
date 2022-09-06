@@ -27,7 +27,7 @@ Tactic Notation "tacInEvar" constr(E) tactic3(tac) :=
   let t := type of E in
   let __tmp_callInEvar := fresh "__tmp_callInEvar" in
   evar (__tmp_callInEvar:t);
-  (only [__tmp_callInEvar]:tac);unify E __tmp_callInEvar;subst __tmp_callInEvar;instantiate.
+  (only [__tmp_callInEvar]:tac);unify E __tmp_callInEvar;subst __tmp_callInEvar;idtac.
 
 Tactic Notation "introsSwitch" ne_simple_intropattern_list(P):=
   once lazymatch goal with

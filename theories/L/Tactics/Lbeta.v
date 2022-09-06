@@ -165,10 +165,10 @@ Ltac Lbeta' n :=
       then eapply pow_trans;[simplify_L' n|]
       else (eapply pow_trans_eq;[simplify_L' n| |try reflexivity])
     | |- _ >(<=?i) _ => tryif is_evar i
-      then eapply redLe_trans;[apply pow_redLe_subrelation;simplify_L' n|]
-      else ((eapply redLe_trans_eq;[ | apply pow_redLe_subrelation;simplify_L' n| ]);[try reflexivity | ..])
+      then eapply redle_trans;[apply pow_redLe_subrelation;simplify_L' n|]
+      else ((eapply redle_trans_eq;[ | apply pow_redLe_subrelation;simplify_L' n| ]);[try reflexivity | ..])
                                              
-    | |- _ ⇓(<= _) _ => eapply evalLe_trans;[apply pow_redLe_subrelation;simplify_L' n|]
+    | |- _ ⇓(<= _) _ => eapply evalle_trans;[apply pow_redLe_subrelation;simplify_L' n|]
     | |- _ ⇓(_) _ => eapply evalIn_trans;[Lbeta' n|]                                                  
     | |- _ ⇓ _ => eapply eval_helper;[eapply pow_star_subrelation;simplify_L' n|]
     | |- _ >* _ => etransitivity;[eapply pow_star_subrelation;simplify_L' n|]

@@ -188,7 +188,7 @@ Proof.
     * exists (S n); split; auto.
       intros j Hj.
       destruct (le_lt_dec j n) as [ H0 | H0 ].
-      - apply le_trans with (2 := H); auto.
+      - apply Nat.le_trans with (2 := H); auto.
       - replace j with (S n); auto; lia.
     * exists i; split; auto.
       intros j Hj.
@@ -204,14 +204,14 @@ Section sum_bounded_permutation.
     replace (S n) with (i+1+(n- S i)+1) by lia.
     repeat (rewrite msum_plus; auto).
     do 2 rewrite msum_S, msum_0.
-    repeat rewrite <- plus_assoc.
-    rewrite (plus_comm). 
-    repeat rewrite <- plus_assoc.
+    repeat rewrite <- Nat.add_assoc.
+    rewrite (Nat.add_comm). 
+    repeat rewrite <- Nat.add_assoc.
     f_equal.
     { f_equal; lia. }
     simpl.
-    rewrite (plus_comm).
-    repeat rewrite <- plus_assoc.
+    rewrite (Nat.add_comm).
+    repeat rewrite <- Nat.add_assoc.
     f_equal.
     { f_equal; lia. }
     f_equal.
@@ -325,7 +325,7 @@ Section sum_bounded_permutation.
     + destruct (find_max_fun n f) as (i & H3 & H4).
       destruct (le_lt_dec n (f i)) as [ C | C ].
       - assert (f i = n) as Hf1.
-        { apply le_antisym; auto; apply le_S_n, H1; lia. }
+        { apply Nat.le_antisymm; auto; apply le_S_n, H1; lia. }
         assert (forall j, j <= n -> j <> i -> f j < n) as Hf2.
         { intros j G1 G2.
           destruct (eq_nat_dec (f j) n).
@@ -354,7 +354,7 @@ Section sum_bounded_permutation.
         constructor 2 with (1 := G) (2 := IHn).
         intros; rewrite swap_involutive; auto.
       - destruct (@php_fun n f) as (u & v & G1 & G2).
-        { intros; apply le_lt_trans with (2 := C); auto. }
+        { intros; apply Nat.le_lt_trans with (2 := C); auto. }
         apply H2 in G2; lia.
   Qed.
 

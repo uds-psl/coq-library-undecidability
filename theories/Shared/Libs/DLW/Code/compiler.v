@@ -189,7 +189,7 @@ Section linker.
   
   Fact linker_code_end : linker (code_end P) = lsum (snd P)+i.
   Proof.
-    unfold code_end; rewrite plus_comm.
+    unfold code_end; rewrite Nat.add_comm.
     apply (linker_app _ nil), app_nil_end.
   Qed.
   
@@ -211,7 +211,7 @@ Section linker.
     intros H1 H2.
     destruct (eq_nat_dec j (code_end P)) as [ H | H ].
     + rewrite H1, H; unfold code_end.
-      rewrite plus_comm, linker_app with (mm := nil); auto.
+      rewrite Nat.add_comm, linker_app with (mm := nil); auto.
       rewrite <- app_nil_end; auto.
     + apply linker_err_code; red in H2; unfold code_end, code_start in *; lia.
   Qed.

@@ -182,7 +182,7 @@ Proof.
   intros y yInt yT yInted.
   edestruct (H y yInt yT yInted) as (v&H2&?).
   eexists v. split.
-  edestruct (evalLe_trans_rev) as (H3&R3). exact H2. apply pow_step_congL. eassumption. reflexivity.
+  edestruct (evalle_trans_rev) as (H3&R3). exact H2. apply pow_step_congL. eassumption. reflexivity.
   destruct fT. cbn in *. replace (n+k-k) with n in R3 by lia. apply R3. tauto. 
 Qed.
 

@@ -45,9 +45,14 @@ Ltac mapinj :=
 
 Ltac dostep := econstructor 2; [ eauto |].
 
+Lemma add_sub' n m : n + m - n = m.
+Proof.
+  now rewrite Nat.add_comm, Nat.add_sub.
+Qed.
+
 Global Hint Rewrite
      Nat.sub_0_l Nat.sub_0_r Nat.sub_diag
-     Nat.add_sub minus_plus Nat.sub_succ
+     Nat.add_sub add_sub' Nat.sub_succ
      Nat.add_0_l Nat.add_0_r : simplify. 
         
 Ltac simplify := autorewrite with simplify listdb. 

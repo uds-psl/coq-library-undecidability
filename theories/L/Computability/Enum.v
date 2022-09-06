@@ -169,7 +169,7 @@ Qed.
 Lemma T_dup n1 n2 m1 m2 x : T n1 .[m1 ] = Some x -> T n2 .[m2] = Some x -> m1 = m2.
 Proof.
   destruct (lt_eq_lt_dec n1 n2) as [[H | H] | H]; try subst;
-  try eapply lt_le_weak in H;
+  try eapply Nat.lt_le_incl in H;
   eauto using (T_ge), dupfree_elAt, dupfree_T.
 Qed.
 
@@ -223,7 +223,7 @@ Definition eSize (p : nat * nat) := let (n,m) := p in 1 + n + m.
 Lemma C_exhaustive p : p el C( eSize p ).
 Proof.
   destruct p as [n m]. induction m.
-  - simpl. rewrite plus_0_r. destruct n; simpl; auto.
+  - simpl. rewrite Nat.add_0_r. destruct n; simpl; auto.
   - simpl.
     decide ( (n,S m) el C (n + S m) ).
     + auto.

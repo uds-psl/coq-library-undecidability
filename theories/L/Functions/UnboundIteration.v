@@ -58,7 +58,7 @@ Section uiter.
     intros ? ->.
     eexists. split. 2:reflexivity.
     eapply le_evalLe_proper. 2-3:reflexivity.
-    2:{ eapply evalLe_trans with (t := (L.app uiter (enc (preprocess z)))).
+    2:{ eapply evalle_trans with (t := (L.app uiter (enc (preprocess z)))).
         -now Lsimpl.
         -eapply uiter_sound. apply total. }
     cbn.

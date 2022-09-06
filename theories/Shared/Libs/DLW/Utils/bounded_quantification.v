@@ -19,17 +19,18 @@ Definition fmap_reifier_t X (Q : nat -> X -> Prop) k :
              (forall i, i < k -> sig (Q i))
           -> { f : forall i, i < k -> X | forall i Hi, Q i (f i Hi) }.
 Proof.
+  assert (H_lt_S_n : forall n m, S n < S m -> n < m) by (now intros; apply Nat.succ_lt_mono).
   revert Q; induction k as [ | k IHk ]; intros Q HQ.
   + assert (f : forall i, i < 0 -> X) by (intros i Hi; exfalso; revert Hi; apply Nat.nlt_0_r).
     exists f; intros i Hi; exfalso; revert Hi; apply Nat.nlt_0_r.
   + destruct (HQ 0) as (f0 & H0).
     * apply Nat.lt_0_succ.
     * destruct (IHk (fun i => Q (S i))) as (f & Hf).
-      - intros; apply HQ, lt_n_S; trivial.
+      - intros; apply HQ. apply -> Nat.succ_lt_mono; trivial.
       - set (f' :=
         fun i => match i return i < S k -> X with 
                    | 0   => fun _  => f0
-                   | S j => fun Hj => f j (lt_S_n _ _ Hj)
+                   | S j => fun Hj => f j (H_lt_S_n _ _ Hj)
                  end).
         exists f'; intros [ | i ] Hi; simpl; trivial.
 Defined.
@@ -47,7 +48,7 @@ Proof.
                         end).
   intros i Hi.
   destruct (le_lt_dec k i) as [ H1 | ]; auto.
-  exfalso; revert Hi H1; apply lt_not_le.
+  exfalso; revert Hi H1; apply Nat.lt_nge.
 Defined.
 
 (* Given predicate P : nat -> nat -> Prop such that

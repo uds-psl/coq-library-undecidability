@@ -224,7 +224,7 @@ Section iter.
   Fact iter_swap x n : iter (f x) n = f (iter x n).
   Proof. 
     change (iter (f x) n) with (iter x (1+n)).
-    rewrite plus_comm, iter_plus; auto.
+    rewrite Nat.add_comm, iter_plus; auto.
   Qed.
 
   Fact iter_S x n : iter x (S n) = f (iter x n).

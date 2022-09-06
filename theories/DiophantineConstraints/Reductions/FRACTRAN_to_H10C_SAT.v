@@ -100,8 +100,8 @@ Section dc_list_h10c.
   Let Fixpoint dc_max (l : list dio_constraint) :=
     match l with 
       | nil => 0
-      | (_,dee_nat n)::l => max n (dc_max l)
-      | (_,dee_par p)::l => max (ν p) (dc_max l)
+      | (_,dee_nat n)::l => Nat.max n (dc_max l)
+      | (_,dee_par p)::l => Nat.max (ν p) (dc_max l)
       | _::l             => dc_max l
     end.
 
@@ -117,13 +117,13 @@ Section dc_list_h10c.
       induction l as [ | (x,c) l IHl ].
       - constructor.
       - constructor.
-        * destruct c as [ n | y | p | [] y z ]; simpl; repeat constructor; apply le_max_l.
+        * destruct c as [ n | y | p | [] y z ]; simpl; repeat constructor; apply Nat.le_max_l.
         * revert IHl; apply Forall_impl.
           intros y _; apply Forall_impl.
           intros z _ Hz.
-          apply le_trans with (1 := Hz).
+          apply Nat.le_trans with (1 := Hz).
           simpl; clear y z Hz.
-          destruct c as [ n | y | p | [] y z ]; auto; apply le_max_r.
+          destruct c as [ n | y | p | [] y z ]; auto; apply Nat.le_max_r.
   Qed.
 
   Definition dc_list_h10c l := h10c_one 0 :: map h10c_nat (dc_list_const l)

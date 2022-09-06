@@ -114,13 +114,13 @@ Section binomial.
     intros H.
     symmetry; apply div_prop with (r := 0).
     + rewrite binomial_thm with (p := p); auto; ring.
-    + red; change 1 with (1*1); apply mult_le_compat; apply fact_gt_0.
+    + red; change 1 with (1*1); apply Nat.mul_le_mono; apply fact_gt_0.
   Qed.
 
   Fact binomial_sym n p : p <= n -> binomial n p = binomial n (n-p).
   Proof.
     intros H; do 2 (rewrite binomial_le; try lia).
-    rewrite mult_comm; do 3 f_equal; lia.
+    rewrite Nat.mul_comm; do 3 f_equal; lia.
   Qed.
 
   Fact binomial_spec n p : p <= n -> fact n = binomial n p * fact p * fact (n-p).

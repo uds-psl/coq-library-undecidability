@@ -307,7 +307,7 @@ Section Encoding.
         all: eapply (f_equal ord) in HH; simplify in HH.
         all: symmetry in HH; eapply Nat.eq_le_incl in HH; simplify in HH.
         all: intuition; cbn [ord'] in H9.
-        all: cbn [add] in H9; rewrite Max.succ_max_distr in H9.
+        all: cbn [add] in H9; rewrite Nat.succ_max_distr in H9.
         all: eapply Nat.max_lub_l in H9; cbn in H9; lia.
     Qed.
   End MainLemma.

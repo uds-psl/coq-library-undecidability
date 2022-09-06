@@ -201,7 +201,7 @@ Section ra_compiler.
           - apply sss_compute_trans with (length P+i,e1).
             ++ revert G2; apply subcode_sss_compute; auto.
             ++ rew length.
-               revert G5; rewrite plus_assoc, (plus_comm _ (length _)).
+               revert G5; rewrite Nat.add_assoc, (Nat.add_comm _ (length _)).
                apply subcode_sss_compute.
                subcode_tac; rewrite <- app_nil_end; auto.
         * intros v e H3 H4 H5.
@@ -277,7 +277,7 @@ Section ra_compiler.
           apply sss_compute_trans with (length P+i,e1).
           { revert G3; apply subcode_sss_compute; auto. }
           apply sss_compute_trans with (length P+length Q+i,e2).
-          { revert G5; rewrite plus_assoc, (plus_comm _ (length _)).
+          { revert G5; rewrite Nat.add_assoc, (Nat.add_comm _ (length _)).
             apply subcode_sss_compute; auto. }
           replace (length P+(length Q+2*k)+i) 
             with  (2*k+(length P+length Q+i)) by lia.
@@ -619,7 +619,7 @@ Section ra_compiler.
       * intros j Hj.
         rewrite G9, get_set_env_neq,
                 G7, get_set_env_neq, 
-                <- plus_assoc, G4; try lia.
+                <- Nat.add_assoc, G4; try lia.
         f_equal; lia.
       * rewrite G9, get_set_env_neq, G7; rew env; try lia.
         rewrite G5; lia.
@@ -632,7 +632,7 @@ Section ra_compiler.
         { revert G6; apply subcode_sss_compute; auto. }
         apply sss_progress_trans with (9+(9*n+i), e2).
         { revert G8; apply subcode_sss_progress; auto. }
-        { rewrite plus_assoc; revert G10.
+        { rewrite Nat.add_assoc; revert G10.
           apply subcode_sss_progress; auto. }
     Qed.
 
@@ -671,7 +671,7 @@ Section ra_compiler.
       { rewrite F6; rew env. }
       { rewrite F6, get_set_env_neq, F2; lia. }
       { intros j Hj.
-        rewrite F6, get_set_env_neq, F3, plus_comm; try lia.
+        rewrite F6, get_set_env_neq, F3, Nat.add_comm; try lia.
         simpl; apply G5; auto. }
       destruct mm_multi_erase_compute 
         with (zero := zero) (dst := m) (k := 2+n) (e := e3)
@@ -728,7 +728,7 @@ Section ra_compiler.
            + unfold out_code, code_end, fst, snd; lia. }
       assert (G9 : forall q : pos n, e1 ⇢ pos2nat q + (2 + m) = vec_pos v q).
       { intros j; specialize (G2 (pos_nxt j)); simpl in G2.
-        rewrite G2, pos2nat_nxt, plus_assoc, G4.
+        rewrite G2, pos2nat_nxt, Nat.add_assoc, G4.
         + f_equal; lia.
         + apply pos2nat_prop. }
       destruct rec_HF2 with (v := v) (e := e1)
@@ -765,7 +765,7 @@ Section ra_compiler.
       * simpl; rewrite Hs1, F1; rew env.
       * simpl; rewrite Hk; intros j Hj.
         specialize (Hs2 j Hj).
-        rewrite F1, get_set_env_neq, G6, plus_comm in Hs2; auto; lia.
+        rewrite F1, get_set_env_neq, G6, Nat.add_comm in Hs2; auto; lia.
     Qed.
 
     Fact ra_compiler_rec : ra_compiler_spec (ra_rec f g) i p o m.
@@ -866,7 +866,7 @@ Section ra_compiler.
         as (e2 & G9 & G10); try lia.
       1: rewrite G5, G1; lia.
       exists e2; msplit 3.
-      * intros; rewrite G9, get_set_env_neq, <- plus_assoc, G4; auto; lia.
+      * intros; rewrite G9, get_set_env_neq, <- Nat.add_assoc, G4; auto; lia.
       * rewrite G9; rew env.
       * intros; rewrite G9, get_set_env_neq, G5; auto; lia. 
       * rewrite min_Q1_length; unfold Q1.
@@ -1011,12 +1011,12 @@ Section ra_compiler.
       intros G1 G2 G3 (G4 & G5).
       destruct min_Q2_progress_rec with (e := e) (k := k) (v := v)
         as (e1 & G6 & G7 & G8); auto.
-      { intros; rewrite G3, plus_comm; auto. }
+      { intros; rewrite G3, Nat.add_comm; auto. }
       destruct min_Q2_0_progress with (v := v) (e := e1)
         as (e2 & G9 & _ & G11).
       { intros; rewrite G6, G1; lia. }
       { intros j; rewrite G2, G6; lia. }
-      { rewrite G7, G3, plus_comm; auto. }
+      { rewrite G7, G3, Nat.add_comm; auto. }
       exists e2; msplit 2.
       * intros; rewrite G9, G6; auto.
       * rewrite G9, G7, G3; lia.
@@ -1096,10 +1096,10 @@ Section ra_compiler.
       * apply subcode_sss_terminates with (P := (s1,Q2)) in G3.
         + apply min_Q2_compute_rev with (v := v) in G3.
           - destruct G3 as (x & F1 & F2).
-            rewrite G5, plus_comm in F1.
+            rewrite G5, Nat.add_comm in F1.
             exists x; split; auto.
             intros j Hj; specialize (F2 _ Hj).
-            rewrite G5, plus_comm in F2; auto.
+            rewrite G5, Nat.add_comm in F2; auto.
           - intros; rewrite G6, G1; lia.
           - intros; rewrite G2, G4; auto; apply pos2nat_prop.
         + unfold Q4, s1; auto.
@@ -1148,11 +1148,11 @@ Section ra_compiler.
       as (P & HP); try lia.
     exists P; intros v e H4 H5; split.
     + intros x H3.
-      rewrite plus_comm; apply HP with (v := v); auto.
-      intros; rewrite plus_comm; simpl; auto.
+      rewrite Nat.add_comm; apply HP with (v := v); auto.
+      intros; rewrite Nat.add_comm; simpl; auto.
     + intros H3.
       apply (HP v e); auto.
-      intros; rewrite plus_comm; simpl; auto.
+      intros; rewrite Nat.add_comm; simpl; auto.
   Qed.
 
 End ra_compiler.

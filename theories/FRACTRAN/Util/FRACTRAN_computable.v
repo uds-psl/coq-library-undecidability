@@ -11,8 +11,8 @@ Proof.
   intros (P & Hreg & HP) v m1 m2 (j1 & H1 & Hj1) % HP (j2 & H2 & Hj2) % HP. 
   eapply eval_iff in H1 as [H1 H1'], H2 as [H2 H2'].
   eapply fractran_compute_fun in H1'; eauto.
-  rewrite mult_comm in H1' at 1. symmetry in H1'.
-  rewrite mult_comm in H1' at 1. symmetry in H1'.
+  rewrite Nat.mul_comm in H1' at 1. symmetry in H1'.
+  rewrite Nat.mul_comm in H1' at 1. symmetry in H1'.
   eapply power_factor_uniq in H1'.
   - firstorder.
   - epose proof (nxtprime_spec1 (nxtprime (nxtprime 2))). cbn. lia.
@@ -35,8 +35,8 @@ Proof.
   rewrite FRACTRAN_sss.eval_iff in H1, H'. destruct H1 as [H1 H1'].
   destruct H' as [H' H''].
   eapply fractran_compute_fun in H1; eauto.
-  rewrite mult_comm in H1 at 1. symmetry in H1.
-  rewrite mult_comm in H1 at 1. symmetry in H1.
+  rewrite Nat.mul_comm in H1 at 1. symmetry in H1.
+  rewrite Nat.mul_comm in H1 at 1. symmetry in H1.
   eapply power_factor_uniq in H1.
   - firstorder.
   - epose proof (nxtprime_spec1 (nxtprime (nxtprime 2))). cbn. lia.

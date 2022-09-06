@@ -65,7 +65,7 @@ Proof.
   induction n;intros;autorewrite with list in *. reflexivity.
   rewrite natsLess_S at 2. cbn. rewrite map_app. cbn.
   rewrite map_map. cbn in IHn.
-  rewrite IHn. rewrite <- minus_n_O. reflexivity.
+  rewrite IHn. rewrite Nat.sub_0_r. reflexivity.
 Qed.
 
 

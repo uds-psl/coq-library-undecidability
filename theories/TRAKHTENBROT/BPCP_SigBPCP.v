@@ -127,9 +127,9 @@ Section BPCP_FIN_DEC_EQ_SAT.
           - intros (m & Hm) H.
             destruct (le_lt_dec n (length m)) as [ | H1 ].
             ++ right.
-            ++ left; exists (b::m); apply lt_n_S, H1.
+            ++ left; exists (b::m). apply -> Nat.succ_lt_mono. apply H1.
           - right.
-        * left; exists nil; apply lt_0_Sn.
+        * left; exists nil; apply Nat.lt_0_succ.
         * right.
       + intros []; simpl; intros v.
         * destruct (vec_head v) as [ (s & _) | ].
@@ -223,7 +223,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
       revert H.
       rewrite (app_nil_end lb); intros H.
       rewrite <- app_nil_end at 1. 
-      apply fot_sem_lb_app_Some with (Ht := lt_0_Sn _).
+      apply fot_sem_lb_app_Some with (Ht := Nat.lt_0_succ _).
       rew fot; simpl; auto.
     Qed.
 
@@ -335,7 +335,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
     Qed.
 
     Let sem_phi_solvable : ⟪ ∃ £0 ⧓ £0 ⟫ φ0.
-    Proof. exists (Some (exist _ l (lt_n_Sn _))); simpl; auto. Qed.
+    Proof. exists (Some (exist _ l (Nat.lt_succ_diag_r _))); simpl; auto. Qed.
 
     Theorem Sig_bpcp_encode_sound : @fo_form_fin_dec_eq_SAT Σbpcp Σbpcp_eq eq_refl Σbpcp_encode.
     Proof using Hl.
