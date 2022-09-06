@@ -477,11 +477,7 @@ Qed.
 Lemma vector_rev_to_list A (n : nat) (v : Vector.t A n): 
   Vector.to_list (Vector.rev v) = List.rev (Vector.to_list v).
 Proof.
-  unfold Vector.rev,Vector.rev_append.
-  specialize (vector_rev_append_tail_to_list v [| |]) as H'. cbn in H'.
-  autorewrite with list in H'. rewrite <- H'. generalize (Vector.rev_append_tail v [| |]). 
-  generalize (Plus.plus_tail_plus n 0). generalize (Plus.tail_plus n 0). generalize (plus_n_O n).
-  intros -> ? <-. rewrite <- plus_n_O. reflexivity.
+  now apply Vector.to_list_rev.
 Qed.
 
 
@@ -519,60 +515,27 @@ Qed.
 
 Local Arguments Fin.of_nat_lt _ {_} _.
 
-Lemma vector_nth_rev_append_tail_r' X n n' (v : Vector.t X n) (v' : Vector.t X n') i (i':=proj1_sig (Fin.to_nat i))
-  j (H: i' = n + j) H':
-  (Vector.rev_append_tail v v') [@ i] = v'[@ Fin.of_nat_lt j H'].
+Lemma vector_nth_to_list {X n} (v : Vector.t X n) i d :
+  v[@ i] = List.nth (proj1_sig (to_nat i)) (Vector.to_list v) d.
 Proof.
-  revert dependent n'. revert j.
-  induction v; cbn; intros.
-  {f_equal. subst j. erewrite Fin.of_nat_ext, Fin.of_nat_to_nat_inv. easy. }
-  cbn. intros.
-  erewrite IHv with (v':=h::v') (j:=S j). 2:nia. cbn.
-  f_equal. eapply Fin.of_nat_ext.
-  Unshelve. nia.
-Qed.
-
-Lemma vector_nth_rev_append_tail_r X n n' (v : Vector.t X n) (v' : Vector.t X n') i (i':=proj1_sig (Fin.to_nat i))
-  (H : n <= i') H':
-  (Vector.rev_append_tail v v') [@ i] = v'[@ Fin.of_nat_lt (i' - n) H'].
-Proof.
-  revert dependent n'.
-  induction v;cbn;intros.
-  {f_equal. revert H'. rewrite Nat.sub_0_r. intro. erewrite Fin.of_nat_ext, Fin.of_nat_to_nat_inv. easy. }
-  unshelve erewrite IHv with (v':=h::v'). 3:nia. 1:abstract (clear - H'; nia).
-  generalize (vector_nth_rev_append_tail_r_subproof n n' i H').
-  destruct (proj1_sig (Fin.to_nat i) - n) eqn:H''. nia.
-  cbn. intros. f_equal. revert H'. replace (proj1_sig (Fin.to_nat i) - S n) with n0 by nia. 
-  intros. apply Fin.of_nat_ext.
-Qed.
-
-Lemma vector_nth_rev_append_tail_l X n n' (v : Vector.t X n) (v' : Vector.t X n') i (i':=proj1_sig (Fin.to_nat i))
-  (H: i' < n) H':
-  (Vector.rev_append_tail v v') [@ i] = v[@ Fin.of_nat_lt (n-1-i') H'].
-Proof.
-  revert dependent n'.
-  induction v;cbn;intros. nia.
-  revert H'. destruct (n - 0 - proj1_sig (Fin.to_nat i)) eqn:H';cbn.
-  - unshelve erewrite vector_nth_rev_append_tail_r. 3:nia. 1:abstract nia.
-    generalize (vector_nth_rev_append_tail_l_subproof n n' i H H').
-    destruct (proj1_sig (Fin.to_nat i) - n) eqn:H''. 2:nia.
-    reflexivity.
-  - unshelve erewrite IHv. 3:nia. 1:abstract nia. intros. f_equal.
-    generalize (vector_nth_rev_append_tail_l_subproof0 n n' i H n0 H').
-    replace (n - 1 - proj1_sig (Fin.to_nat i)) with n0. 2:nia.
-    intros. eapply Fin.of_nat_ext.
+  revert v. induction i as [|n i IH].
+  - intros v. pattern n, v. now apply Vector.caseS.
+  - intros v. revert i IH. pattern n, v. apply Vector.caseS.
+    intros ???? IH.
+    assert (proj1_sig (to_nat (FS i)) = S (proj1_sig (to_nat i))) as ->.
+    { cbn. now destruct Fin.to_nat. }
+    now apply IH.
 Qed.
 
 Lemma vector_nth_rev X n (v : Vector.t X n) i H':
   (Vector.rev v) [@ i] = v[@ Fin.of_nat_lt (n -1-proj1_sig (Fin.to_nat i)) H'].
 Proof.
-  unfold Vector.rev, Vector.rev_append. 
-  specialize (vector_nth_rev_append_tail_l v []). cbn zeta. 
-  generalize (Vector.rev_append_tail v []). generalize (Plus.plus_tail_plus n 0).
-  generalize (Plus.tail_plus n 0). generalize (plus_n_O n). generalize (n+0).
-  intros ? -> ? <- ? H. apply H. now destruct Fin.to_nat.
+  assert (x : X). { destruct v; [apply (Fin.case0 _ i)|assumption]. }
+  rewrite !(vector_nth_to_list _ _ x), to_nat_of_nat. cbn.
+  rewrite vector_rev_to_list, rev_nth; rewrite vector_to_list_length.
+  - f_equal. lia.
+  - destruct Fin.to_nat. cbn in *. lia.
 Qed.
-
 
 Lemma Vector_nth_L {X k1 k2} (v1 : Vector.t X k1) (v2 : Vector.t X k2) i :
   (v1 ++ v2)[@ Fin.L k2 i] = v1[@i].

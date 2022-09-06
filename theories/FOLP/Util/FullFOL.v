@@ -80,7 +80,7 @@ Section FullFOL.
   Lemma sf_well_founded :
     well_founded sf.
   Proof.
-    intros phi. pose proof (sf_acc phi ids) as H. comp. erewrite -> idSubst_form in H; firstorder.
+    intros phi. pose proof (sf_acc phi ids) as H. now comp.
   Qed.
 
 

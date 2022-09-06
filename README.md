@@ -1,6 +1,6 @@
 # Coq Library of Undecidability Proofs
 
-[![CI](https://github.com/uds-psl/coq-library-undecidability/workflows/CI/badge.svg?branch=coq-8.15)](https://github.com/uds-psl/coq-library-undecidability/actions)
+[![CI](https://github.com/uds-psl/coq-library-undecidability/workflows/CI/badge.svg?branch=coq-8.16)](https://github.com/uds-psl/coq-library-undecidability/actions)
 
 The Coq Library of Undecidability Proofs contains mechanised reductions to establish undecidability results in Coq.
 The undecidability proofs are based on a synthetic approach to undecidability. 
@@ -100,7 +100,7 @@ If you can use `opam 2` on your system, you can follow the instructions here.
 We recommend creating a fresh opam switch:
 
 ```
-opam switch create coq-library-undecidability 4.07.1+flambda
+opam switch create coq-library-undecidability 4.09.1+flambda
 eval $(opam env)
 ```
 
@@ -109,7 +109,7 @@ Then the following commands install the library:
 ```
 opam repo add coq-released https://coq.inria.fr/opam/released
 opam update
-opam install coq-library-undecidability.1.0.1+8.15
+opam install coq-library-undecidability.1.0.1+8.16
 ```
 
 ### Install from git via opam
@@ -128,19 +128,20 @@ Then the following commands install the library:
 ```
 opam repo add coq-released https://coq.inria.fr/opam/released
 opam update
-opam pin add coq-library-undecidability.dev+8.15 "https://github.com/uds-psl/coq-library-undecidability.git#coq-8.15"
+opam pin add coq-library-undecidability.dev+8.16 "https://github.com/uds-psl/coq-library-undecidability.git#coq-8.16"
 ```
 
-### Manual installation
+### Manual installation (TENTATIVE)
 
-You need `Coq 8.15` built on OCAML `>= 4.07.1`, the [Smpl](https://github.com/uds-psl/smpl) package, the [Equations](https://mattam82.github.io/Coq-Equations/) package, and the [MetaCoq](https://metacoq.github.io/metacoq/) package for Coq. If you are using opam 2 you can use the following commands to install the dependencies on a new switch:
+You need `Coq 8.16` built on OCAML `>= 4.09.1`, the [Smpl](https://github.com/uds-psl/smpl) package and the [MetaCoq](https://metacoq.github.io/metacoq/) package for Coq. If you are using opam 2 you can use the following commands to install the dependencies on a new switch:
 
 ```
 opam switch create coq-library-undecidability --packages=ocaml-variants.4.14.0+options,ocaml-option-flambda
 eval $(opam env)
-opam repo add coq-released https://coq.inria.fr/opam/released
-opam update
-opam install . --deps-only
+opam repo add coq-core-dev https://coq.inria.fr/opam/core-dev
+opam install coq.8.16.dev
+opam pin add -k git smpl.8.16 "https://github.com/uds-psl/smpl.git#coq-8.16"
+opam pin add -k git coq-equations.1.3+8.16 "https://github.com/mattam82/Coq-Equations.git#8.16"
 ```
 
 #### Building the undecidability library
@@ -159,14 +160,9 @@ The library is compatible with Coq's compiled interfaces ([`vos`](https://coq.in
 
 ### Troubleshooting
 
-#### Windows
-
-If you use Visual Studio Code on Windows 10 with Windows Subsystem for Linux (WSL), then local opam switches may cause issues.
-To avoid this, you can use a non-local opam switch, i.e. `opam switch create 4.07.1+flambda`.
-
 #### Coq version
 
-Be careful that this branch only compiles under `Coq 8.15`. If you want to use a different Coq version you have to change to a different branch.
+Be careful that this branch only compiles under `Coq 8.16`. If you want to use a different Coq version you have to change to a different branch.
 Due to compatibility issues, not every branch contains exactly the same problems. 
 We recommend to use the newest branch if possible.
 
