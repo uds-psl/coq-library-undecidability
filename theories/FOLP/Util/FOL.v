@@ -78,7 +78,7 @@ Section FOL.
     intros H x. apply H.
     induction (f x).
     - intros y. lia.
-    - intros y. intros [] % le_lt_or_eq.
+    - intros y. intros [] % Nat.lt_eq_cases.
       + apply IHn; lia.
       + apply H. injection H0. now intros ->.
   Qed.
@@ -192,7 +192,7 @@ Section FOL.
     (forall i, n <= i -> unused i phi) -> (forall i, n - m <= i -> unused i (capture m phi)).
   Proof.
     intros H. induction m; cbn; intros i Hi.
-    - rewrite <- minus_n_O in *. intuition.
+    - rewrite Nat.sub_0_r in *. intuition.
     - constructor. apply IHm. lia.
   Qed.
 

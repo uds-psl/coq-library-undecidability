@@ -617,8 +617,8 @@ Section ra_div.
     destruct ra_prim_max_spec with (f := f) (af := af) (a := n) (b := n) (v := m##vec_nil)
       as (k & H1 & H2); auto.
     { unfold f; simpl; rewrite Nat.mul_0_r; split; try lia.
-      apply le_trans with (1*S n); try lia.
-      apply mult_le_compat; lia. }
+      apply Nat.le_trans with (1*S n); try lia.
+      apply Nat.mul_le_mono; lia. }
     exists k; split; auto.
     exists (n##n##m##vec_nil); split; auto.
     pos split; simpl; auto.
@@ -678,7 +678,7 @@ Section ra_rem.
     intros Hm.
     generalize (div_rem_spec1 n m) (ra_rem_val_0 n Hm); intros.
     replace (rem n m) with (n-m*div n m); auto.
-    rewrite mult_comm; lia.
+    rewrite Nat.mul_comm; lia.
   Qed.
 
   Fact ra_rem_rel v e : vec_pos v pos1 <> 0 -> ⟦ra_rem⟧ v e <-> e = rem (vec_pos v pos0) (vec_pos v pos1).
@@ -884,7 +884,7 @@ Section ra_lsum.
       apply Forall2_app_inv_l in H.
       destruct H as (l1 & l2 & H1 & H2 & ->).
       rewrite lsum_app.
-      rewrite plus_comm in H2; simpl in H2.
+      rewrite Nat.add_comm in H2; simpl in H2.
       apply Forall2_cons_inv_l in H2.
       destruct H2 as (yn & l3 & H2 & -> & H3).
       apply Forall2_nil_inv_l in H3; subst l3.
@@ -922,7 +922,7 @@ Section ra_lsum.
       intro; rewrite vec_pos_set; auto. }
     assert (0 < lsum (vec_list w)) as H2.
     { destruct H as (p & k & Hp & H2).
-      apply lt_le_trans with (S k); try lia.
+      apply Nat.lt_le_trans with (S k); try lia.
       apply lsum_le, vec_list_In_iff.
       exists (nat2pos Hp).
       specialize (Hw (nat2pos Hp)).

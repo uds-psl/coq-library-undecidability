@@ -194,7 +194,7 @@ Section Minsky.
     intros w Hw.
     rewrite H_s_ry in Hw.
     rewrite H_s_ry.
-    rewrite (vec_plus_comm v), vec_zero_plus.
+    rewrite (vec_add_comm v), vec_zero_plus.
     unfold vec_plus; rewrite vec_pos_set.
     subst; rewrite Hw, vec_one_spec_neq; auto.
   Qed.
@@ -251,7 +251,7 @@ Section Minsky.
     destruct H as [ (j & x & H1 & H2) | (j & x & p & H1 & [ H2 | H2 ]) ]; subst c.
     + simpl; unfold ill_tps_imp.
       intros v Hv.
-      rewrite vec_plus_comm, vec_zero_plus.
+      rewrite vec_add_comm, vec_zero_plus.
       apply H_s_q.
       apply mm_compute_INC with (1 := H1).
       specialize (Hv (vec_one x)).
@@ -265,17 +265,17 @@ Section Minsky.
         - rewrite vec_one_spec_neq, vec_change_neq; auto.
     + simpl; unfold ill_tps_imp.
       intros v (Hv1 & Hv2).
-      rewrite vec_plus_comm, vec_zero_plus.
+      rewrite vec_add_comm, vec_zero_plus.
       apply H_s_q.
       rewrite H_s_ry in Hv1.
       apply mm_compute_DEC_0 with (1 := H1); auto.
       apply H_s_q; auto.
     + simpl; unfold ill_tps_imp.
       intros v Hv w Hw.
-      rewrite (vec_plus_comm v), vec_zero_plus.
+      rewrite (vec_add_comm v), vec_zero_plus.
       apply H_s_q.
       apply H_s_rx in Hv.
-      rewrite vec_plus_comm.
+      rewrite vec_add_comm.
       assert (exists u, vec_pos (vec_plus v w) x = S u) as Hu.
       1: { exists (vec_pos w x).
            rewrite vec_pos_plus; subst.
@@ -315,7 +315,7 @@ Section Minsky.
     apply ill_tps_sound with (s := s) in H.
     red in H.
     specialize (H v).
-    rewrite vec_plus_comm, vec_zero_plus in H.
+    rewrite vec_add_comm, vec_zero_plus in H.
     apply H_s_q; auto.
     apply H.
     rewrite ill_tps_app.

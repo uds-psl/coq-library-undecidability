@@ -298,15 +298,15 @@ Section dio_rel_bounded_fall.
         - destruct H as (m & phi & Hf).
           set (q := power (ν 0+2+m) 2).
           assert (ν 0+1 < q) as Hlq.
-          { apply lt_le_trans with (ν 0+2+m); try lia.
+          { apply Nat.lt_le_trans with (ν 0+2+m); try lia.
             apply power_ge_n; auto. }
           assert (m <= power q 2) as Hmq.
-          { apply le_trans with q.
-            apply le_trans with (ν 0+2+m); try lia.
+          { apply Nat.le_trans with q.
+            apply Nat.le_trans with (ν 0+2+m); try lia.
             apply power_ge_n; auto.
             apply power_ge_n; auto. }
           exists q, (fun i j => phi j i); split; [ | split ]; auto.
-          * intros i j Hi Hj; apply lt_le_trans with m; auto; apply Hf; auto.
+          * intros i j Hi Hj; apply Nat.lt_le_trans with m; auto; apply Hf; auto.
           * intros; apply Hf; auto.
         - intros x f g Hfg.
           apply Forall_impl.

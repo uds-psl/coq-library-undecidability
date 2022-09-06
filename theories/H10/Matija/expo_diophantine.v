@@ -43,10 +43,10 @@ Section expo_diophantine.
   Let H_q3_q : 0 < q -> q*q+2 <= q*q*q+2*q.
   Proof.
     intros H. 
-    apply plus_le_compat; try lia.
+    apply Nat.add_le_mono; try lia.
     replace q with (1+(q-1)) at 3 by lia.
-    rewrite <- mult_assoc, Nat.mul_add_distr_r, Nat.mul_1_l.
-    apply le_plus_l.
+    rewrite <- Nat.mul_assoc, Nat.mul_add_distr_r, Nat.mul_1_l.
+    apply Nat.le_add_r.
   Qed.
 
   Lemma expo_sufficiency : p = expo r q -> expo_conditions.
@@ -64,11 +64,11 @@ Section expo_diophantine.
     right; right; split; auto; exists b, m, a1, a2, a3.
     assert (3 < b) as Hb.
     { rewrite Heqb.
-      apply lt_le_trans with (1+(1*1)+2); try lia.
-      repeat apply plus_le_compat; auto.
+      apply Nat.lt_le_trans with (1+(1*1)+2); try lia.
+      repeat apply Nat.add_le_mono; auto.
       + rewrite Heqa1.
         apply alpha_nat_mono with (i := 1); lia.
-      + apply mult_le_compat; lia. }
+      + apply Nat.mul_le_mono; lia. }
     assert (2 <= b) as Hb' by lia.
     destruct (@alpha_nat_power (q+4)) with (n := r)
         as (H1 & H2); try lia.
@@ -78,7 +78,7 @@ Section expo_diophantine.
     { rewrite Heqm, Heqb.
       do 2 rewrite  Nat.mul_add_distr_r.
       assert (a1*q <> 0) as Ha1.
-      { intros E; apply mult_is_O in E.
+      { intros E; apply Nat.eq_mul_0 in E.
         destruct E as [ E | ]; try lia.
         revert E; rewrite Heqa1.
         apply alpha_nat_gt_0; lia. }
@@ -88,20 +88,20 @@ Section expo_diophantine.
     { rewrite Heqm, Heqb. 
       do 2 rewrite Nat.mul_add_distr_r.
       rewrite <- Heqa1 in H1.
-      apply lt_le_trans with (a1*1+1).
-      + rewrite plus_comm, Nat.mul_1_r; apply le_n_S.
-        apply le_trans with (2 := H1).
+      apply Nat.lt_le_trans with (a1*1+1).
+      + rewrite Nat.add_comm, Nat.mul_1_r; apply le_n_S.
+        apply Nat.le_trans with (2 := H1).
         apply power_mono_r; lia.
-      + rewrite <- Nat.sub_add_distr, <- plus_assoc, <- Nat.add_sub_assoc; try lia.
-        apply plus_le_compat; try lia.
-        apply mult_le_compat; lia. }  
+      + rewrite <- Nat.sub_add_distr, <- Nat.add_assoc, <- Nat.add_sub_assoc; try lia.
+        apply Nat.add_le_mono; try lia.
+        apply Nat.mul_le_mono; lia. }  
     repeat (split; auto); try lia.
     rewrite <- nat2Zp_inj with (Hp := Hm).
     do 2 rewrite nat2Zp_plus.
     rewrite Heqa2. 
     revert Hm; rewrite Heqm; intros Hm.
     rewrite expo_congruence; auto.
-    rewrite <- H, plus_comm, nat2Zp_plus, <- Zp_plus_assoc; f_equal.
+    rewrite <- H, Nat.add_comm, nat2Zp_plus, <- Zp_add_assoc; f_equal.
     rewrite <- nat2Zp_plus; f_equal.
     rewrite Heqa3.
     destruct r as [ | r' ]; try lia.
@@ -138,15 +138,15 @@ Section expo_diophantine.
       assert (expo r q < m) as Hq.
       { rewrite Hm1, H7.
         do 2 rewrite Nat.mul_add_distr_r.
-        apply lt_le_trans with (a1*1+1).
-        + rewrite plus_comm, Nat.mul_1_r; apply le_n_S.
+        apply Nat.lt_le_trans with (a1*1+1).
+        + rewrite Nat.add_comm, Nat.mul_1_r; apply le_n_S.
           destruct alpha_nat_power with (b_nat := q+4) (n := r)
             as (G1 & _); try lia.
           rewrite H2. 
-          apply le_trans with (2 := G1), power_mono_r; lia.
-        + rewrite <- Nat.sub_add_distr, <- plus_assoc, <- Nat.add_sub_assoc; try lia.
-          apply plus_le_compat; try lia.
-          apply mult_le_compat; lia. }
+          apply Nat.le_trans with (2 := G1), power_mono_r; lia.
+        + rewrite <- Nat.sub_add_distr, <- Nat.add_assoc, <- Nat.add_sub_assoc; try lia.
+          apply Nat.add_le_mono; try lia.
+          apply Nat.mul_le_mono; lia. }
       rewrite <- (rem_lt Hm H9), <- (rem_lt Hm Hq).
       revert H10. 
       rewrite Hm1 in Hm |- *.
@@ -161,11 +161,11 @@ Section expo_diophantine.
       2: apply alpha_nat_le; lia.
       intros H; rewrite Zp_opp_plus_eq in H.
       rewrite H.
-      rewrite (Zp_plus_comm _ 〚b * _〛 (∸ _)).
-      repeat rewrite <- Zp_plus_assoc.
+      rewrite (Zp_add_comm _ 〚b * _〛 (∸ _)).
+      repeat rewrite <- Zp_add_assoc.
       rewrite Zp_minus, Zp_plus_zero_r.
-      rewrite Zp_plus_comm, <- Zp_plus_assoc.
-      rewrite (Zp_plus_comm _ (∸ _)), Zp_minus, Zp_plus_zero_r.
+      rewrite Zp_add_comm, <- Zp_add_assoc.
+      rewrite (Zp_add_comm _ (∸ _)), Zp_minus, Zp_plus_zero_r.
       trivial.
   Qed.
 

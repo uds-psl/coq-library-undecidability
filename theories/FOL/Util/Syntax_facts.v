@@ -5,7 +5,7 @@ From Undecidability.Synthetic Require Import Definitions DecidabilityFacts Enume
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 
-From Coq Require Import Eqdep_dec.
+From Coq Require Import PeanoNat Eqdep_dec.
 Require Import Coq.Vectors.Vector.
 Local Notation vec := t.
 
@@ -71,8 +71,8 @@ Section fix_signature.
   Proof.
     intros H x. apply H.
     induction (f x).
-    - intros y. lia.
-    - intros y. intros [] % Lt.le_lt_or_eq.
+    - intros y. lia. 
+    - intros y. intros [] % Nat.lt_eq_cases.
       + apply IHn; lia.
       + apply H. injection H0. now intros ->.
   Qed.

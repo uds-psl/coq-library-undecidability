@@ -133,7 +133,7 @@ Section enumerable_definitions.
       apply constructive_choice in Hm; destruct Hm as (f & Hf); clear Hm.
       exists (fun j => let (a,n) := surj j in f a n).
       intros x.
-      destruct (proj1 (Hf _ x) (le_refl _)) as (a & Ha).
+      destruct (proj1 (Hf _ x) (Nat.le_refl _)) as (a & Ha).
       destruct (Hsurj (m x) a) as (n & Hn).
       exists n; rewrite Hn; auto.
     Qed.

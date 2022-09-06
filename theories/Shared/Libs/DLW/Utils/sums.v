@@ -416,7 +416,7 @@ Section Newton_nat.
     induction k as [ | k IHk ].
     + rewrite power_0; auto.
     + rewrite power_S.
-      apply (mult_le_compat 1 _ 1); lia.
+      apply (Nat.mul_le_mono 1 _ 1); lia.
   Qed.
 
   Fact power2_gt_0 n : 0 < power n 2.
@@ -426,7 +426,7 @@ Section Newton_nat.
   Proof.
     intros Hp; rewrite power_S.
     rewrite <- (Nat.mul_1_l (power k p)) at 1.
-    apply mult_lt_compat_r; try lia.
+    apply Nat.mul_lt_mono_pos_r; try lia.
     apply power_ge_1; lia.
   Qed.
 
@@ -435,17 +435,17 @@ Section Newton_nat.
     intros Hp.
     induction k as [ | k IHk ].
     + rewrite power_0; auto.
-    + apply le_lt_trans with (2 := power_sinc _ Hp); auto.
+    + apply Nat.le_lt_trans with (2 := power_sinc _ Hp); auto.
   Qed.
 
   Fact power_mono_l p q x : 1 <= x -> p <= q -> power p x <= power q x.
   Proof.
     intros Hx.
     induction 1 as [ | q H IH ]; auto.
-    apply le_trans with (1 := IH).
+    apply Nat.le_trans with (1 := IH).
     rewrite power_S.
     rewrite <- (Nat.mul_1_l (power _ _)) at 1.
-    apply mult_le_compat; auto.
+    apply Nat.mul_le_mono; auto.
   Qed.
 
   Definition power_mono := power_mono_l.
@@ -453,7 +453,7 @@ Section Newton_nat.
   Fact power_smono_l p q x : 2 <= x -> p < q -> power p x < power q x.
   Proof.
     intros H1 H2.
-    apply lt_le_trans with (1 := power_sinc _ H1).
+    apply Nat.lt_le_trans with (1 := power_sinc _ H1).
     apply power_mono_l; lia.
   Qed.
 
@@ -462,7 +462,7 @@ Section Newton_nat.
     intros H.
     induction n as [ | n IHn ].
     + do 2 rewrite power_0; auto.
-    + do 2 rewrite power_S; apply mult_le_compat; auto.
+    + do 2 rewrite power_S; apply Nat.mul_le_mono; auto.
   Qed. 
 
   Fact power_0_inv p n : power p n = 0 <-> n = 0 /\ 0 < p.
@@ -471,7 +471,7 @@ Section Newton_nat.
     + rewrite power_0; lia.
     + rewrite power_S; split.
       * intros H.
-        apply mult_is_O in H.
+        apply Nat.eq_mul_0 in H.
         rewrite IHp in H; lia.
       * intros (?&?); subst; simpl; auto.
   Qed.
@@ -497,7 +497,7 @@ Section Newton_nat.
   Proof.
     revert f g; induction n as [ | n IHn ]; intros f g H.
     + do 2 rewrite msum_0; auto.
-    + do 2 rewrite msum_S; apply plus_le_compat.
+    + do 2 rewrite msum_S; apply Nat.add_le_mono.
       * apply H; lia.
       * apply IHn; intros; apply H; lia.
   Qed.
@@ -508,7 +508,7 @@ Section Newton_nat.
     + lia.
     + rewrite msum_S.
       destruct i as [ | i ]; try lia.
-      apply lt_S_n, IHn with (f := fun i => f (S i)) in H.
+      apply Nat.succ_lt_mono, IHn with (f := fun i => f (S i)) in H.
       lia.
   Qed.
 
@@ -518,19 +518,19 @@ Section Newton_nat.
     revert f; induction n as [ | n IHn ]; intros f Hf.
     + rewrite msum_0, power_0; lia.
     + rewrite msum_S, power_S, power_0, Nat.mul_1_r.
-      apply le_trans with (k+ k * (power n k-1)).
-      * apply (@plus_le_compat (S (f 0))).
+      apply Nat.le_trans with (k+ k * (power n k-1)).
+      * apply (@Nat.add_le_mono (S (f 0))).
         - apply Hf; lia.
         - rewrite msum_ext with (g := fun i => k*(f (S i)*power i k)).
           ++ rewrite sum_0n_distr_l with (one := 1); auto; try (intros; ring).
-             apply mult_le_compat_l.
-             apply le_S_n, le_trans with (power n k); try lia.
+             apply Nat.mul_le_mono_l.
+             apply le_S_n, Nat.le_trans with (power n k); try lia.
              apply IHn; intros; apply Hf; lia.
           ++ intros; rewrite power_S; ring.
       * generalize (power_ge_1 n Hk); intros ?.
         replace (power n k) with (1+(power n k - 1)) at 2 by lia.
         rewrite Nat.mul_add_distr_l.
-        apply plus_le_compat; lia.
+        apply Nat.add_le_mono; lia.
   Qed. 
 
   Theorem Newton_nat a b n :
@@ -539,7 +539,7 @@ Section Newton_nat.
     rewrite binomial_Newton with (1 := Nat_plus_monoid) (4 := Nat_mult_monoid); try (intros; ring); auto.
     apply msum_ext; intros i Hi.
     rewrite scal_one with (1 := Nat_plus_monoid) (3 := Nat_mult_monoid); auto; try (intros; ring).
-    rewrite <-mult_assoc; f_equal; auto.
+    rewrite <-Nat.mul_assoc; f_equal; auto.
     generalize (binomial n i); intros k.
     induction k as [ | k IHk ].
     + rewrite mscal_0; auto.
@@ -559,7 +559,7 @@ Section Newton_nat.
     destruct (le_lt_dec i n) as [ Hi | Hi ].
     + change 2 with (1+1).
       rewrite Newton_nat_S.
-      eapply le_trans.
+      eapply Nat.le_trans.
       2:{ apply sum_0n_le_one with (f := fun i => binomial n i * power i 1).
           apply le_n_S, Hi. }
       rewrite power_of_1; lia.
@@ -568,7 +568,7 @@ Section Newton_nat.
 
   Corollary binomial_lt_power n i : binomial n i < power (S n) 2.
   Proof.
-    apply le_lt_trans with (1 := binomial_le_power _ _), power_sinc; auto.
+    apply Nat.le_lt_trans with (1 := binomial_le_power _ _), power_sinc; auto.
   Qed.
 
 End Newton_nat.

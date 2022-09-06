@@ -31,15 +31,15 @@ Section stability_of_power.
     intros H1 H2.
     replace (2*k) with (k+k) by lia.
     rewrite power_plus.
-    apply lt_le_trans with ((S u)*S v).
-    simpl; rewrite (mult_comm _ (S _)); simpl; rewrite mult_comm; lia.
-    apply mult_le_compat; auto.
+    apply Nat.lt_le_trans with ((S u)*S v).
+    simpl; rewrite (Nat.mul_comm _ (S _)); simpl; rewrite Nat.mul_comm; lia.
+    apply Nat.mul_le_mono; auto.
   Qed.
 
   Fact mult_lt_power_2_4 u v k : u < power k 2 -> v < power k 2 -> u*v < power (4*k) 2.
   Proof.
     intros H1 H2.
-    apply lt_le_trans with (1 := mult_lt_power_2 _ H1 H2).
+    apply Nat.lt_le_trans with (1 := mult_lt_power_2 _ H1 H2).
     apply power_mono_l; lia.
   Qed.
 
@@ -55,9 +55,9 @@ Section stability_of_power.
     - subst k; simpl.
       rewrite power_0 in *.
       destruct u1; destruct v1; destruct u2; destruct v2; subst; lia.
-    - apply lt_le_trans with (power (S (2*k)) 2). 
+    - apply Nat.lt_le_trans with (power (S (2*k)) 2). 
       + rewrite power_S, <- mult_2_eq_plus.
-        apply plus_lt_compat; apply mult_lt_power_2; auto.
+        apply Nat.add_lt_mono; apply mult_lt_power_2; auto.
       + apply power_mono_l; lia.
   Qed.
 
@@ -79,8 +79,8 @@ Section power_decomp.
     revert q; induction n as [ | n IHn ]; intros q Hf1 Hf2 Ha.
     + rewrite msum_0; apply power_ge_1; lia.
     + rewrite msum_plus1; auto.
-      apply lt_le_trans with (1*power (f n) p + a n * power (f n) p).
-      * apply plus_lt_le_compat; auto.
+      apply Nat.lt_le_trans with (1*power (f n) p + a n * power (f n) p).
+      * apply Nat.add_lt_le_mono; auto.
         rewrite Nat.mul_1_l.
         apply IHn.
         - intros; apply Hf1; lia.
@@ -88,7 +88,7 @@ Section power_decomp.
         - intros; apply Ha; lia.
       * rewrite <- Nat.mul_add_distr_r.
         replace q with (S (q-1)).
-        - rewrite power_S; apply mult_le_compat; auto.
+        - rewrite power_S; apply Nat.mul_le_mono; auto.
           ++ apply Ha; auto.
           ++ apply power_mono_l; try lia.
              generalize (Hf2 n); intros; lia.
@@ -108,13 +108,13 @@ Section power_decomp.
              (∑ i (fun j => a j * power (f j) p)); split.
       - replace (S n) with (S i + (n-i)) by lia.
         rewrite msum_plus, msum_plus1; auto.
-        rewrite <- plus_assoc, plus_comm; f_equal.
-        rewrite Nat.mul_add_distr_r, plus_comm; f_equal.
-        rewrite <- mult_assoc, mult_comm, <- sum_0n_scal_l.
+        rewrite <- Nat.add_assoc, Nat.add_comm; f_equal.
+        rewrite Nat.mul_add_distr_r, Nat.add_comm; f_equal.
+        rewrite <- Nat.mul_assoc, Nat.mul_comm, <- sum_0n_scal_l.
         apply msum_ext.
         intros j Hj.
-        rewrite (mult_comm (_ * _));
-        repeat rewrite <- mult_assoc; f_equal.
+        rewrite (Nat.mul_comm (_ * _));
+        repeat rewrite <- Nat.mul_assoc; f_equal.
         rewrite <- power_S, <- power_plus; f_equal.
         generalize (Hf i (S i+j)); intros; lia.
       - apply power_decomp_lt; auto.
@@ -149,11 +149,11 @@ Section power_decomp_uniq.
          + a 0 * power (f 0) p.
   Proof using Hp.
     intros Hf.
-    rewrite msum_S, plus_comm; f_equal.
+    rewrite msum_S, Nat.add_comm; f_equal.
     rewrite <- sum_0n_scal_r.
     apply msum_ext.
     intros i Hi.
-    rewrite <- mult_assoc; f_equal.
+    rewrite <- Nat.mul_assoc; f_equal.
     rewrite <- power_plus; f_equal.
     generalize (Hf (S i)); intros; lia.
   Qed.
@@ -226,7 +226,7 @@ Section power_injective.
   Proof.
     intros H.
     destruct (lt_eq_lt_dec i j) as [ [] | ]; try tauto.
-    + rewrite plus_comm; apply power_2_inj_1; auto.
+    + rewrite Nat.add_comm; apply power_2_inj_1; auto.
     + apply power_2_inj_1; auto.
   Qed.
 
@@ -311,7 +311,7 @@ Proof.
     - exists 0; split; try lia.
       split; intros i Hi; try lia.
       destruct i as [ | i ]; auto.
-      apply le_trans with (1 := H), lt_le_weak, Hf; lia.
+      apply Nat.le_trans with (1 := H), Nat.lt_le_incl, Hf; lia.
     - destruct (IHn (fun i => f (S i))) as (p & H1 & H2 & H3).
       * intros; apply Hf; lia.
       * exists (S p); split; try lia; split.
@@ -348,13 +348,13 @@ Proof.
   + rewrite msum_1; auto; apply power_smono_l; auto.
   + rewrite msum_plus1; auto.
     rewrite power_S.
-    apply lt_le_trans with (power (S (f n)) r + power (f (S n)) r).
-    * apply plus_lt_compat_r; auto.
+    apply Nat.lt_le_trans with (power (S (f n)) r + power (f (S n)) r).
+    * apply Nat.add_lt_mono_r; auto.
       apply IHn; intros; apply Hf; lia.
     * assert (power (S (f n)) r <= power (f (S n)) r) as H.
       { apply power_mono_l; try lia; apply Hf; lia. }
-      apply le_trans with (2 * power (f (S n)) r); try lia.
-      apply mult_le_compat; auto.
+      apply Nat.le_trans with (2 * power (f (S n)) r); try lia.
+      apply Nat.mul_le_mono; auto.
 Qed.
 
 Fact sum_powers_inc_lt n f p r : 
@@ -366,7 +366,7 @@ Proof.
   destruct n as [ | n ].
   + intros H _ _; rewrite msum_0; apply power_ge_1; lia.
   + intros H1 H2 H3.
-    apply lt_le_trans with (power (S (f n)) r).
+    apply Nat.lt_le_trans with (power (S (f n)) r).
     * apply sum_powers_inc_lt_last; auto.
       intros; apply H3; lia.
     * apply power_mono_l; try lia.
@@ -399,7 +399,7 @@ Proof.
         apply sum_powers_inc_lt; auto.
         intros i Hi.
         destruct (eq_nat_dec i n); subst; auto.
-        apply lt_trans with (2 := E), Hf; lia.
+        apply Nat.lt_trans with (2 := E), Hf; lia.
       - do 2 (rewrite msum_plus1; auto); intros C.
         destruct (IHn m f g) as (H1 & H2).
         ++ intros; apply Hf; lia.
@@ -415,7 +415,7 @@ Proof.
         apply sum_powers_inc_lt; auto.
         intros i Hi.
         destruct (eq_nat_dec i m); subst; auto.
-        apply lt_trans with (2 := E), Hg; lia.
+        apply Nat.lt_trans with (2 := E), Hg; lia.
 Qed.
 
 Fact power_divides_sum_power r p n f :
@@ -429,7 +429,7 @@ Proof.
   + destruct inc_seq_split_lt with (k := p) (1 := Hf) as (k & H1 & H2 & H3).
     replace n with (k+(n-k)) by lia.
     rewrite msum_plus; auto.
-    rewrite plus_comm; intros H.
+    rewrite Nat.add_comm; intros H.
     apply divides_plus_inv in H.
     2: apply divides_msum; intros; apply divides_power, H3; lia.
     destruct k as [ | k ].
@@ -442,7 +442,7 @@ Proof.
   + intros H.
     apply divides_msum.
     intros i Hi; apply divides_power.
-    apply le_trans with (1 := H).
+    apply Nat.le_trans with (1 := H).
     destruct i; auto. 
     generalize (Hf 0 (S i)); intros; lia.
 Qed.
@@ -504,7 +504,7 @@ Section sums.
              intros i He.
              destruct (eq_nat_dec i (f n)); try ring; lia.
           ++ rewrite msum_S, msum_of_unit; auto.
-             ** repeat (rewrite plus_comm; simpl). 
+             ** repeat (rewrite Nat.add_comm; simpl). 
                 destruct (eq_nat_dec (f n) (f n)); try ring; lia.
              ** intros i Hi.
                 destruct (eq_nat_dec (f n+S i) (f n)); try lia.
@@ -698,10 +698,10 @@ Section sums.
       Qed.
 
       Local Lemma Hg2 i : 2*g i <= 2*m.
-      Proof. apply mult_le_compat; auto; apply (proj2_sig g_full). Qed.
+      Proof. apply Nat.mul_le_mono; auto; apply (proj2_sig g_full). Qed.
 
       Let Hg3 i : 2*g i < r.
-      Proof using Hm. apply le_lt_trans with (1 := Hg2 _); auto. Qed.
+      Proof using Hm. apply Nat.le_lt_trans with (1 := Hg2 _); auto. Qed.
       
       Let Hu2 : u2 = msum nat_join 0 (2*k) (fun i => (2*g i) * power i r).  
       Proof.
@@ -791,7 +791,7 @@ Section sums.
         apply nat_joins_binary_le.
         intros i Hi.
         exists (2*f i); split; auto.
-        apply le_lt_trans with (2 := Hk), mult_le_compat; auto.
+        apply Nat.le_lt_trans with (2 := Hk), Nat.mul_le_mono; auto.
       Qed.
 
       Let Hu1_2w : u1 ⇣ (2*w) = 0.
@@ -834,9 +834,9 @@ Section sums.
         apply nat_double_joins_binary_le.
         intros i j Hij.
         exists (f i + f j); split; auto.
-        apply le_lt_trans with (2*f i); auto.
+        apply Nat.le_lt_trans with (2*f i); auto.
         + apply Hf2 in Hij; lia.
-        + apply le_lt_trans with (2 := Hk), mult_le_compat; auto.
+        + apply Nat.le_lt_trans with (2 := Hk), Nat.mul_le_mono; auto.
           apply Hf1; lia.
       Qed. 
 
@@ -852,12 +852,12 @@ Section sums.
     Let Hl'' : 2*l < r.
     Proof.
       unfold r.
-      rewrite (mult_comm _ q), power_mult.
+      rewrite (Nat.mul_comm _ q), power_mult.
       change (power 4 2) with 16.
       apply power_smono_l with (x := 16) in Hlq; try lia.
-      apply le_lt_trans with (2 := Hlq).
-      rewrite plus_comm; simpl plus; rewrite power_S.
-      apply mult_le_compat; try lia.
+      apply Nat.le_lt_trans with (2 := Hlq).
+      rewrite Nat.add_comm; simpl plus; rewrite power_S.
+      apply Nat.mul_le_mono; try lia.
       apply power_ge_n; lia.
     Qed.
 
@@ -1034,7 +1034,7 @@ Section sums.
         intros [ | i ] Hi; simpl; apply le_n_S.
         + rewrite power_S.
           change 2 with (2*1) at 1.
-          apply mult_le_compat; auto.
+          apply Nat.mul_le_mono; auto.
           apply power_ge_1; lia.
         + apply Hk1; auto.
       Qed.
@@ -1042,8 +1042,8 @@ Section sums.
       Let Hf1_1 : forall i j, i < j <= S m -> f1 i < f1 j.
       Proof.
         intros [ | i ] [ | j ] Hij; simpl; try lia.
-        * apply lt_le_trans with (k 0); try lia.
-          destruct j; auto; apply lt_le_weak, Hk2; lia.
+        * apply Nat.lt_le_trans with (k 0); try lia.
+          destruct j; auto; apply Nat.lt_le_incl, Hk2; lia.
         * apply Hk2; lia.
       Qed.
 
@@ -1056,14 +1056,14 @@ Section sums.
       Let Hh_1 : k m = power (S l) 2.
       Proof.
         destruct (le_lt_dec (power (S l) 2) (k m)) as [ H | H ].
-        + apply le_antisym; auto.
+        + apply Nat.le_antisymm; auto.
         + assert (∑ (S (S m)) (fun i => power (f1 i) r) < power (power (S l) 2) r); try lia.
           apply sum_powers_inc_lt; auto.
           - intros [ | i ] Hi; simpl.
             * apply (@power_smono_l 1 _ 2); lia.
-            * apply le_lt_trans with (2 := H).
+            * apply Nat.le_lt_trans with (2 := H).
               destruct (eq_nat_dec i m); subst; auto.
-              apply lt_le_weak, Hk2; lia.
+              apply Nat.lt_le_incl, Hk2; lia.
           - intros; apply Hf1_1; lia.
       Qed.
  
@@ -1090,8 +1090,8 @@ Section sums.
       Let HSl_q : 2 * S (power (S l) 2) < power (2 * q) 2.
       Proof.
         rewrite <- (mult_2_eq_plus q), power_plus.
-        apply le_lt_trans with (2*power q 2).
-        + apply mult_le_compat; auto.
+        apply Nat.le_lt_trans with (2*power q 2).
+        + apply Nat.mul_le_mono; auto.
           apply power_smono_l; lia.
         + assert (power 1 2 < power q 2) as H.
           { apply power_smono_l; lia. }
@@ -1105,8 +1105,8 @@ Section sums.
            (u := u) (w := w) (f := fun i => f1 i)
            as (d & H1 & H2); auto.
         + unfold r.
-          apply le_lt_trans with (2*S (power (S l) 2)); try lia.
-          apply le_lt_trans with (power (S (S (S l))) 2).
+          apply Nat.le_lt_trans with (2*S (power (S l) 2)); try lia.
+          apply Nat.le_lt_trans with (power (S (S (S l))) 2).
           do 4 rewrite power_S.
           * generalize (@power_ge_1 l 2); intros; lia.
           * apply power_smono_l; lia.
@@ -1198,7 +1198,7 @@ Section sums.
         * generalize (@power_ge_1 (4*q) 2); intros; lia.
         * revert E5; rewrite power_S, power_1; auto.
         * revert E6; do 3 rewrite power_S; rewrite power_1.
-          repeat rewrite mult_assoc; auto.
+          repeat rewrite Nat.mul_assoc; auto.
     + intros [ (H1 & H2 & H3 & H4)
              | (H1 & H2 & u2 & w & r0 & r1 & p1 & p2 & ? & H0 & ? & ? & E1 & E2 & E3 & E4 & E5 & E6) ].
       - red; subst; do 2 rewrite msum_0; lia.
@@ -1207,7 +1207,7 @@ Section sums.
         apply obtain_u_u1_value with w u2; auto.
         * rewrite power_S, power_1; auto.
         * do 3 rewrite power_S; rewrite power_1.
-          repeat rewrite mult_assoc; auto.
+          repeat rewrite Nat.mul_assoc; auto.
   Qed.
 
   Definition is_cipher_of f a :=
@@ -1230,8 +1230,8 @@ Section sums.
     revert H5; apply power_decomp_unique.
     + apply (@power_mono_l 1 _ 2); lia.
     + intros; apply power_smono_l; lia.
-    + intros i Hi; apply lt_le_trans with (1 := H2 _ Hi), power_mono_l; lia.
-    + intros i Hi; apply lt_le_trans with (1 := H4 _ Hi), power_mono_l; lia.
+    + intros i Hi; apply Nat.lt_le_trans with (1 := H2 _ Hi), power_mono_l; lia.
+    + intros i Hi; apply Nat.lt_le_trans with (1 := H4 _ Hi), power_mono_l; lia.
   Qed.
 
   Fact is_cipher_of_fun f1 f2 a b : 
@@ -1350,7 +1350,7 @@ Section sums.
     intros H.
     replace (4*q) with (2*q+2*q) by lia.
     rewrite power_plus.
-    change 4 with ((power 1 2)*(power 1 2)); apply mult_le_compat;
+    change 4 with ((power 1 2)*(power 1 2)); apply Nat.mul_le_mono;
     apply power_mono_l; try lia.
   Qed.
 
@@ -1377,9 +1377,9 @@ Section sums.
         * intros E i Hi. 
           apply power_decomp_unique with (i := i) in E; auto; try lia; clear i Hi.
           - intros; apply power_smono_l; lia.
-          - intros i Hi; apply lt_le_trans with (1 := Ha1 _ Hi), power_mono_l; lia.
+          - intros i Hi; apply Nat.lt_le_trans with (1 := Ha1 _ Hi), power_mono_l; lia.
           - intros i Hi.
-            apply lt_le_trans with (power (S q) 2).
+            apply Nat.lt_le_trans with (power (S q) 2).
             ++ rewrite power_S, <- mult_2_eq_plus.
                generalize (Hb1 _ Hi) (Hc1 _ Hi); lia.
             ++ apply power_mono_l; lia.
@@ -1538,7 +1538,7 @@ Section sums.
           rewrite <- power_decomp_unique with (5 := E); auto; try lia.
           - intros; apply power_smono_l; lia.
           - intros j Hj; rewrite Nat.mul_1_r.
-            apply lt_le_trans with (1 := Ha1 _ Hj), power_mono_l; lia.
+            apply Nat.lt_le_trans with (1 := Ha1 _ Hj), power_mono_l; lia.
           - intros; apply mult_lt_power_2_4; auto.
     Qed.
 
@@ -1569,7 +1569,7 @@ Section sums.
           { rewrite H3; exists (fun i => i); split; auto. }
           split.
           { exists S; repeat (split; auto).
-            intros; apply lt_le_trans with q; try lia.
+            intros; apply Nat.lt_le_trans with q; try lia.
             apply power_ge_n; auto. }
           split.
           { rewrite cipher_mult_eq with (b := S) (c := fun _ => 1).
@@ -1578,26 +1578,26 @@ Section sums.
               rewrite msum_S, Nat.mul_0_l, Nat.add_0_l.
               apply msum_ext; intros; ring.
             * repeat split; auto; intros.
-              apply lt_le_trans with q; try lia.
+              apply Nat.lt_le_trans with q; try lia.
               apply power_ge_n; auto.
             * apply is_cipher_of_u; auto. }
           { rewrite H3.
             destruct l as [ | l' ]; try lia.
             rewrite msum_S, Nat.mul_0_l, Nat.add_0_l.
             rewrite msum_plus1; auto.
-            rewrite plus_assoc.
+            rewrite Nat.add_assoc.
             rewrite msum_S.
             rewrite <- msum_sum; auto.
             2: intros; ring.
-            rewrite Nat.mul_1_l, plus_comm.
-            repeat rewrite <- plus_assoc; do 2 f_equal.
+            rewrite Nat.mul_1_l, Nat.add_comm.
+            repeat rewrite <- Nat.add_assoc; do 2 f_equal.
             apply msum_ext; intros; ring. }
       + intros [ (H1 & H2 & H3) | (Hl & z & v & v1 & H1 & H2 & H3 & H4 & H5) ].
         - split; subst; auto; split; intros; try lia.
           rewrite msum_0; auto.
         - destruct H1 as (Hq & ? & ?); subst v v1.
           split; auto; split.
-          { intros i Hi; apply lt_le_trans with q; try lia.
+          { intros i Hi; apply Nat.lt_le_trans with q; try lia.
             apply power_ge_n; auto. }
           destruct H2 as (f & Hf).
           destruct H3 as (g & Hg).
@@ -1623,13 +1623,13 @@ Section sums.
           { apply power_decomp_unique with (5 := H6); try lia. 
             * intros; apply power_smono_l; lia. 
             * unfold g'; intros [ | i ] Hi; try lia.
-              apply lt_S_n in Hi.
-              apply lt_le_trans with (1 := Hg _ Hi), power_mono_l; lia.
+              apply Nat.succ_lt_mono in Hi.
+              apply Nat.lt_le_trans with (1 := Hg _ Hi), power_mono_l; lia.
             * intros i Hi; unfold h.
               destruct (le_lt_dec l i) as [ | Hi' ].
-              + apply lt_le_trans with (4*q); try lia.
+              + apply Nat.lt_le_trans with (4*q); try lia.
                 apply power_ge_n; auto.
-              + apply lt_le_trans with (1 := Hf _ Hi'), power_mono_l; lia.  }
+              + apply Nat.lt_le_trans with (1 := Hf _ Hi'), power_mono_l; lia.  }
           assert (h 0 = 0) as E0.
           { rewrite <- H8; simpl; lia. }
           assert (forall i, i < l -> h (S i) = g i) as E1.
@@ -1654,10 +1654,10 @@ Section sums.
           assert (forall i, i < l -> 1+f i = g i) as E2.
           { apply power_decomp_unique with (f := fun i => power (S i) 2) (p := r); try lia.
             + intros; apply power_smono_l; lia.
-            + intros i Hi; apply le_lt_trans with (power q 2); auto.
+            + intros i Hi; apply Nat.le_lt_trans with (power q 2); auto.
               * apply Hf; auto.
               * apply power_smono_l; lia. 
-            + intros i Hi; apply lt_le_trans with (1 := Hg _ Hi), power_mono_l; lia. } 
+            + intros i Hi; apply Nat.lt_le_trans with (1 := Hg _ Hi), power_mono_l; lia. } 
           rewrite Hy; apply msum_ext.
           clear Hy Hf Hg Hz H5 E5 E1 Hu.
           intros i Hi; f_equal; revert i Hi.

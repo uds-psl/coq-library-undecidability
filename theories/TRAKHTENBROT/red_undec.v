@@ -318,10 +318,10 @@ Section FINITARY_TO_BINARY.
     { apply FSAT_UNIFORM with (n := m).
       intros [ [] | [] ].
       + apply lmax_prop; simpl; auto.
-      + apply le_trans with (S ns).
+      + apply Nat.le_trans with (S ns).
         * simpl; apply le_n_S, Hns.
         * apply lmax_prop; simpl; auto.
-      + apply le_trans with nr.
+      + apply Nat.le_trans with nr.
         * simpl; auto.
         * apply lmax_prop; simpl; auto. }
     eapply ireduces_transitive.

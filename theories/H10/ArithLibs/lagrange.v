@@ -37,7 +37,7 @@ Section utils.
     exists (div p 2); split.
     + generalize (div_rem_spec1 p 2) (prime_ge_2 Hp).
       destruct (div p 2); intros; lia.
-    + rewrite mult_comm.
+    + rewrite Nat.mul_comm.
       rewrite (div_rem_spec1 p 2) at 1.
       f_equal; auto.
   Qed.
@@ -156,8 +156,7 @@ Section utils.
         simpl Z.of_nat.
         replace (2*Z.of_nat p*(2*Z.of_nat p))%Z 
         with    (4*(Z.of_nat p*Z.of_nat p))%Z by ring.
-        apply Zmult_le_compat_l; try lia.
-        apply Zsquare_bound; lia.
+        nia.
     + destruct (Zp_repr_interval Hm (- Z.of_nat p)%Z (1+Z.of_nat p) x) as (y & H1 & H2).
       * rewrite H, Nat2Z.inj_add, Nat2Z.inj_mul; simpl Z_of_nat; lia.
       * exists y; split; auto.
@@ -166,8 +165,7 @@ Section utils.
           simpl Z.of_nat.
           replace (2*Z.of_nat p*(2*Z.of_nat p))%Z 
           with    (4*(Z.of_nat p*Z.of_nat p))%Z by ring.
-          apply Zmult_le_compat_l; try lia.
-          apply Zsquare_bound; lia.
+          nia.
         - apply Zsquare_bound; subst.
           rewrite !Nat2Z.inj_add, !Nat2Z.inj_mul; simpl Z.of_nat; lia.
   Qed.
@@ -201,7 +199,7 @@ Section half_modulus_lemma.
     apply Z2Zp_inj in H.
     destruct H as (k & H).
     assert (x = Z.of_nat m+2*k*Z.of_nat m)%Z as Hx.
-    { rewrite Nat2Z.inj_mul, Zmult_assoc, (Zmult_comm k) in H.
+    { rewrite Nat2Z.inj_mul, Z.mul_assoc, (Z.mul_comm k) in H.
       change 2%Z with (Z.of_nat 2); lia. }
     rewrite Hx, remarkable_id1_Z, !Z2Zp_plus.
     replace (2*Z.of_nat m * (2*k*Z.of_nat m))%Z
@@ -339,7 +337,7 @@ Section lagrange_prelim_odd.
     destruct G2 as (b & G5 & G6).
     exists a, b; msplit 2.
     + rewrite divides_nat2Zp with (Hp := Hp),
-              (plus_comm 1), <- plus_assoc, 
+              (Nat.add_comm 1), <- Nat.add_assoc, 
               !nat2Zp_plus, nat2Zp_one.
       fold (f a).
       apply Zp_opp_plus_eq.
@@ -368,13 +366,13 @@ Proof.
     destruct (le_lt_dec p k) as [ H | H ]; auto.
     exfalso.
     assert (a*a+2*(1*1)+b*b <= k*p) as C; try lia.
-    apply le_trans with ((n+n)*(n+n)).
-    2: apply mult_le_compat; lia.
+    apply Nat.le_trans with ((n+n)*(n+n)).
+    2: apply Nat.mul_le_mono; lia.
     rewrite remarkable_id1_nat.
-    apply plus_le_compat; [ | apply mult_le_compat; auto ].
-    apply plus_le_compat; [ apply mult_le_compat; auto | ].
-    apply mult_le_compat_l.
-    now apply mult_le_compat.
+    apply Nat.add_le_mono; [ | apply Nat.mul_le_mono; auto ].
+    apply Nat.add_le_mono; [ apply Nat.mul_le_mono; auto | ].
+    apply Nat.mul_le_mono_l.
+    now apply Nat.mul_le_mono.
 Qed.
 
 Local Notation four_squares := (fun a b c d => a*a+b*b+c*c+d*d)%Z.
@@ -425,11 +423,11 @@ Section lagrange_for_primes.
         rewrite Z2Zp_of_nat, nat2Zp_p, Zp_mult_zero; auto. }
       apply Z2Zp_zero_inv in H4.
       destruct H4 as (r' & Hr).
-      rewrite (Zmult_comm _ r') in Hr.
+      rewrite (Z.mul_comm _ r') in Hr.
       (* r is smaller than m *)
       assert (4 * (r' * Z.of_nat m) <= 4 * (Z.of_nat m * Z_of_nat m))%Z as Hr'.
       { rewrite <- Hr, !Z.mul_add_distr_l; lia. }
-      rewrite !(Zmult_comm 4) in Hr'.
+      rewrite !(Z.mul_comm 4) in Hr'.
       apply Zmult_le_reg_r in Hr'; try lia.
       apply Zmult_le_reg_r in Hr'; try lia.
       (* r is positive *)
@@ -559,7 +557,7 @@ Section lagrange_for_primes.
       { intros E.
         apply Nat2Z.inj with (m := 0) in E.
         destruct m; try discriminate; lia. }
-      rewrite <- Nat2Z.inj_mul, mult_assoc, H.
+      rewrite <- Nat2Z.inj_mul, Nat.mul_assoc, H.
       rewrite Nat2Z.inj_mul; ring.
     Qed.
 

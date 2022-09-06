@@ -36,23 +36,23 @@ Section Informative_Chinese_Remainder_theorems.
         rewrite <- H1; apply rem_plus_div; auto. }
       assert (rem (y*v) u = rem 1 u) as H3.
       { rewrite rem_plus_div with (a := 1) (b := u*v); auto.
-        rewrite <- H1, plus_comm.
+        rewrite <- H1, Nat.add_comm.
         apply rem_plus_div; auto. }
       exists (3*(u*v)+a*(y*v)+b*(x*u)); msplit 2.
-      + rewrite <- rem_plus_rem, (mult_assoc b).
+      + rewrite <- rem_plus_rem, (Nat.mul_assoc b).
         rewrite rem_scal with (k := b*x), rem_diag; auto.
         rewrite Nat.mul_0_r, rem_of_0, Nat.add_0_r.
         rewrite <- rem_plus_rem, rem_scal, H3, <- rem_scal, Nat.mul_1_r.
-        rewrite rem_plus_rem, plus_comm.
+        rewrite rem_plus_rem, Nat.add_comm.
         symmetry; apply rem_plus_div; auto.
-      + rewrite <- plus_assoc, (plus_comm (a*_)), plus_assoc.
-        rewrite <- rem_plus_rem, (mult_assoc a).
+      + rewrite <- Nat.add_assoc, (Nat.add_comm (a*_)), Nat.add_assoc.
+        rewrite <- rem_plus_rem, (Nat.mul_assoc a).
         rewrite rem_scal with (k := a*y), rem_diag; auto.
         rewrite Nat.mul_0_r, rem_of_0, Nat.add_0_r.
         rewrite <- rem_plus_rem, rem_scal, H2, <- rem_scal, Nat.mul_1_r.
-        rewrite rem_plus_rem, plus_comm.
+        rewrite rem_plus_rem, Nat.add_comm.
         symmetry; apply rem_plus_div; auto.
-      + apply lt_le_trans with (3*1); try lia.
+      + apply Nat.lt_le_trans with (3*1); try lia.
     Qed.
 
   End Binary.
@@ -122,7 +122,7 @@ Section sequence_of_coprimes.
       + rewrite Nat.mul_sub_distr_r; lia. }
     assert (~ divides p (fact n)) as H6.
     { intros H6.
-      rewrite plus_comm in H3.
+      rewrite Nat.add_comm in H3.
       apply divides_plus_inv in H3.
       + apply divides_1_inv, Hp in H3; trivial. 
       + apply divides_mult; trivial. }
@@ -181,9 +181,9 @@ Section Godel_beta.
       generalize (Hw p); unfold m; repeat rewrite vec_pos_set.
       intros E; unfold plus in E; rewrite E.
       apply rem_idem.
-      apply lt_le_trans with (1 := Hj2 _).
-      apply le_trans with (S (1*j)); try lia.
-      apply le_n_S, mult_le_compat; try lia.
+      apply Nat.lt_le_trans with (1 := Hj2 _).
+      apply Nat.le_trans with (S (1*j)); try lia.
+      apply le_n_S, Nat.mul_le_mono; try lia.
       apply divides_le.
       * generalize (fact_gt_0 j); lia.
       * apply divides_n_fact_n; lia.
@@ -212,8 +212,8 @@ Section Godel_beta.
     end).
     destruct (godel_beta_fun_inv (3*n) g) as (a & b & Hab).
     exists a, b; intros p Hp.
-    rewrite mult_comm.
-    do 2 rewrite (plus_comm _ (p*_)).
+    rewrite Nat.mul_comm.
+    do 2 rewrite (Nat.add_comm _ (p*_)).
     replace (p*3) with (p*3+0) at 1 by lia.
     rewrite <- (Hab (p*3+0)), <- (Hab (p*3+1)), <- (Hab (p*3+2)); try lia.
     unfold g.

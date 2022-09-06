@@ -69,12 +69,12 @@ Section rings.
     intros (((a,b),c),d); apply M22_equal; ring.
   Qed.
 
-  Fact M22plus_comm  : forall x y, x ⊞ y = y ⊞ x.
+  Fact M22add_comm  : forall x y, x ⊞ y = y ⊞ x.
   Proof using R_is_ring.
     intros (((a,b),c),d) (((a',b'),c'),d'); apply M22_equal; ring.
   Qed.
 
-  Fact M22plus_assoc  : forall x y u, x ⊞ (y ⊞ u) = x ⊞ y ⊞ u.
+  Fact M22add_assoc  : forall x y u, x ⊞ (y ⊞ u) = x ⊞ y ⊞ u.
   Proof using R_is_ring.
     intros (((a,b),c),d) (((a',b'),c'),d') (((a'',b''),c''),d''); simpl; apply M22_equal; ring. 
   Qed.
@@ -87,9 +87,9 @@ Section rings.
   Fact M22plus_cancel : forall x a b, x ⊞ a = x ⊞ b -> a = b.
   Proof using R_is_ring.
     intros x a b H.
-    rewrite <- (M22plus_zero a), <- (M22minus x), (M22plus_comm x), 
-            <- M22plus_assoc, H, M22plus_assoc,
-            (M22plus_comm _ x), M22minus, M22plus_zero.
+    rewrite <- (M22plus_zero a), <- (M22minus x), (M22add_comm x), 
+            <- M22add_assoc, H, M22add_assoc,
+            (M22add_comm _ x), M22minus, M22plus_zero.
     trivial.
   Qed.
 
@@ -97,8 +97,8 @@ Section rings.
   Proof using R_is_ring.
     exists.
     + apply M22plus_zero.
-    + intro; rewrite M22plus_comm; apply M22plus_zero.
-    + intros; apply M22plus_assoc.
+    + intro; rewrite M22add_comm; apply M22plus_zero.
+    + intros; apply M22add_assoc.
   Qed.
 
   Definition MU22 : M22 -> M22 -> M22.
@@ -118,7 +118,7 @@ Section rings.
   Fact M22mult_one_r : forall x, x ⊠ ID_22 = x.
   Proof using R_is_ring. myauto 1. Qed.
 
-  Fact M22mult_assoc : forall x y u, x ⊠ (y ⊠ u) = x ⊠ y ⊠ u.
+  Fact M22mul_assoc : forall x y u, x ⊠ (y ⊠ u) = x ⊠ y ⊠ u.
   Proof using R_is_ring. myauto 3. Qed.
 
   Fact M22_mult_distr_l : forall x y u, x ⊠ (y⊞u) = x⊠y ⊞ x⊠u.
@@ -132,7 +132,7 @@ Section rings.
     exists.
     + apply M22mult_one_l.
     + apply M22mult_one_r.
-    + apply M22mult_assoc.
+    + apply M22mul_assoc.
   Qed.
 
   Fact M22_opp_mult_l : forall x y, (⊟ x) ⊠ y = ⊟ (x ⊠ y).

@@ -272,7 +272,7 @@ Section FixX.
        rewrite (rcomp_eq s t (rcomp_1 R) (eq_ref _))];
     change ((it (rcomp R) m eq)) with (pow R m) in *;
     try rewrite <- pow_add in *;
-    rewrite plus_comm; eassumption.
+    rewrite Nat.add_comm; eassumption.
   Qed.
   
   Lemma parametrized_confluence (R : X -> X -> Prop) (m n : nat) (s t1 t2 : X) : 
@@ -373,8 +373,8 @@ Proof.
      repeat eapply Nat.max_case_strong; subst m;intros. all:replace m3 with m2 by lia. all:eauto.
   - specialize (redWithMaxSize_ge H0) as [].
     specialize (redWithMaxSize_ge H2) as [].
-    eassert (H1':=Max.le_max_l _ _);rewrite H3 in H1'.
-    eassert (H2':=Max.le_max_r _ _);rewrite H3 in H2'.
+    eassert (H1':=Nat.le_max_l _ _);rewrite H3 in H1'.
+    eassert (H2':=Nat.le_max_r _ _);rewrite H3 in H2'.
     econstructor. eassumption.
      
     eapply IHredWithMaxSize. eassumption. reflexivity.

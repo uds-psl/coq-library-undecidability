@@ -95,7 +95,7 @@ Section rel_iter_bound.
   Variable (R : nat -> nat -> Prop) (k : nat) (Hk1 : forall x y, R x y -> y <= k*x).
 
   Let Hk' : forall x y, R x y -> y <= (S k)*x.
-  Proof. intros x y H; apply le_trans with (1 := Hk1 H), mult_le_compat_r; lia. Qed.
+  Proof. intros x y H; apply Nat.le_trans with (1 := Hk1 H), Nat.mul_le_mono_r; lia. Qed.
 
   (* q represents a basis big enough so that all the sequence x=x0 R x1 R ... R xn = y can be
       encoded as the digits of c in base q 
@@ -127,10 +127,10 @@ Section rel_iter_bound.
       destruct H6 as (z & H6); exists z; split.
       + apply IHn.
         exists q, c; repeat (split; auto).
-        - apply le_lt_trans with (2 := H1), mult_le_compat; auto.
+        - apply Nat.le_lt_trans with (2 := H1), Nat.mul_le_mono; auto.
           simpl.
           replace (power n (S k)) with (1*power n (S k)) at 1 by lia.
-          apply mult_le_compat; auto; lia.
+          apply Nat.mul_le_mono; auto; lia.
         - intros i Hi; apply H2; lia.
       + destruct (H2 n) as (u & v & G1 & G2 & G3); auto.
         rewrite is_digit_fun with (1 := H4) (2 := G2),
@@ -149,16 +149,16 @@ Section rel_iter_bound.
     { induction i as [ | i IHi ]; intros Hi; simpl; try lia.
       specialize (H3 _ Hi).
       apply Hk' in H3.
-      apply le_trans with (1 := H3).
-      rewrite power_S, <- mult_assoc.
-      apply mult_le_compat; auto.
+      apply Nat.le_trans with (1 := H3).
+      rewrite power_S, <- Nat.mul_assoc.
+      apply Nat.mul_le_mono; auto.
       apply IHi; lia. }
     set (q := S (x * power n (S k))).
     assert (q <> 0) as Hq by discriminate.
     assert (forall i, i <= n -> f i < q) as Hfq.
     { unfold q; intros i Hi.
-      apply le_n_S, le_trans with (1 := Hf _ Hi).
-      rewrite mult_comm; apply mult_le_compat; auto.
+      apply le_n_S, Nat.le_trans with (1 := Hf _ Hi).
+      rewrite Nat.mul_comm; apply Nat.mul_le_mono; auto.
       apply power_mono; auto; lia. } 
     set (c := ∑ (S n) (fun i => f i * power i q)).
     assert (forall i, i <= n -> is_digit c q i (f i)) as Hc.
@@ -167,12 +167,12 @@ Section rel_iter_bound.
                (∑  i    (fun i => f i * power i q)); split.
         2: apply sum_power_lt; auto; intros; apply Hfq; lia.
         unfold c; replace (S n) with (i+S (n - i)) by lia.
-        rewrite msum_plus, plus_comm; f_equal; auto. 
+        rewrite msum_plus, Nat.add_comm; f_equal; auto. 
         rewrite msum_ext with (g := fun k => power i q*(f (i+k)*power k q)).
-        * rewrite sum_0n_scal_l, mult_comm; f_equal.
-          rewrite msum_S, plus_comm; f_equal.
+        * rewrite sum_0n_scal_l, Nat.mul_comm; f_equal.
+          rewrite msum_S, Nat.add_comm; f_equal.
           2: simpl; rewrite Nat.mul_1_r; f_equal; lia.
-          rewrite (mult_comm _ q), <- sum_0n_scal_l.
+          rewrite (Nat.mul_comm _ q), <- sum_0n_scal_l.
           apply msum_ext.
           intros j _.
           replace (i+S j) with (1+i+j) by lia.
@@ -261,12 +261,12 @@ Section rel_iter_seq.
                (∑  i    (fun i => f i * power i q)); split.
         2: apply sum_power_lt; auto; intros; apply Hfq; lia.
         unfold c; replace (S n) with (i+S (n - i)) by lia.
-        rewrite msum_plus, plus_comm; f_equal; auto. 
+        rewrite msum_plus, Nat.add_comm; f_equal; auto. 
         rewrite msum_ext with (g := fun k => power i q*(f (i+k)*power k q)).
-        * rewrite sum_0n_scal_l, mult_comm; f_equal.
-          rewrite msum_S, plus_comm; f_equal.
+        * rewrite sum_0n_scal_l, Nat.mul_comm; f_equal.
+          rewrite msum_S, Nat.add_comm; f_equal.
           2: simpl; rewrite Nat.mul_1_r; f_equal; lia.
-          rewrite (mult_comm _ q), <- sum_0n_scal_l.
+          rewrite (Nat.mul_comm _ q), <- sum_0n_scal_l.
           apply msum_ext.
           intros j _.
           replace (i+S j) with (1+i+j) by lia.

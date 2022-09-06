@@ -106,7 +106,7 @@ Section mma_sim.
       apply (compiler_t_output_sound' mma_auto_compiler)
         with (i := 1) (w := v) 
         in H as (w' & H1 & <-); eauto.
-      rewrite plus_comm; auto. 
+      rewrite Nat.add_comm; auto. 
     + apply compiler_t_term_equiv; auto.
   Qed.
 

@@ -72,7 +72,7 @@ Proof. apply pow_redLe_subrelation. Qed. (* for performance, without [subrelatio
 
 Ltac Ltransitivity :=
   once lazymatch goal with
-  | |- _ >(<= _ ) _ => refine (redLe_trans _ _);[shelve.. | | ]
+  | |- _ >(<= _ ) _ => refine (redle_trans _ _);[shelve.. | | ]
   | |- _ >* _ => refine (star_trans _ _);[shelve.. | | ]
   | |- _ >(_) _ => eapply pow_add with (R:=step)
   | |- ?t => fail "not supported by Ltransitivity:" t
@@ -81,8 +81,8 @@ Ltac Ltransitivity :=
 (* generate all goals for bottom-up-rewriting*)
 Ltac Lrewrite_generateGoals :=
   once lazymatch goal with
-  | |- app _ _ >(<= _ ) _ => eapply redLe_app_helper;[instantiate;Lrewrite_generateGoals..|idtac]
-  | |- app _ _ >* _ => eapply pow_app_helper  ;[instantiate;Lrewrite_generateGoals..|idtac]
+  | |- app _ _ >(<= _ ) _ => eapply redLe_app_helper;[idtac;Lrewrite_generateGoals..|idtac]
+  | |- app _ _ >* _ => eapply pow_app_helper  ;[idtac;Lrewrite_generateGoals..|idtac]
   | |- ?s >(<= _ ) _ => (is_evar s;fail 10000) ||idtac
   | |- ?s >* _ => (is_evar s;reflexivity) ||idtac
   end.
@@ -131,7 +131,7 @@ Ltac LrewriteTime_solveGoals :=
   (* Complexity*)
   | |- @extT _ (@TyB _ _) _ _ ?inted >(<= _ ) _ =>
     (progress rewrite (extT_is_enc);[>LrewriteTime_solveGoals..]) || Lreflexivity
-  | |- app (@extT _ (_ ~> _ ) _ _ ?fInts) (@extT _ _ _ _ ?xInts) >(<= _ ) _ => eapply redLe_trans;
+  | |- app (@extT _ (_ ~> _ ) _ _ ?fInts) (@extT _ _ _ _ ?xInts) >(<= _ ) _ => eapply redle_trans;
     [let R := fresh "R" in
      specialize (extTApp fInts xInts) as R;
      once lazymatch type of R with
@@ -158,7 +158,7 @@ Ltac Lrewrite' :=
     |- ?rel ?s _ =>
     once lazymatch goal with             
     | |- _ >(<=_) _ =>
-      try (eapply redLe_trans;[Lrewrite_generateGoals;[>LrewriteTime_solveGoals..]|])
+      try (eapply redle_trans;[Lrewrite_generateGoals;[>LrewriteTime_solveGoals..]|])
     | |- _ >* _ =>
       try (etransitivity;[Lrewrite_generateGoals;[>LrewriteTime_solveGoals..]|])
     end;
@@ -173,7 +173,7 @@ Ltac Lrewrite' :=
 Tactic Notation "Lrewrite_wrapper" tactic(k):=
 once lazymatch goal with
 | |- _ >(<= _) _ => k
-| |- _ ⇓(<= _) _ => (eapply evalLe_trans;[k;Lreflexivity|])
+| |- _ ⇓(<= _) _ => (eapply evalle_trans;[k;Lreflexivity|])
 | |- _ ⇓( _) _ => idtac "Lrewrite_prepare does not support s ⇓(k) y, only s ⇓(<=k) t)" (*try (eapply evalIn_trans;[progress Lrewrite_prepare;Lreflexivity|])*)
 | |- _ >(_) _ => idtac "Lrewrite_prepare does not support s >(k) y, only s >(<=k) t)"
 | |- _ >* _ => k (* Lrewrite_prepare_old *)

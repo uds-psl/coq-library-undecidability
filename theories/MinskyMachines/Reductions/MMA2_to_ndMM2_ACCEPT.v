@@ -126,7 +126,7 @@ Section MMA2_ndMM2.
     apply mma2_instr_enc_sound with (1 := H3).
     apply incl_tran with (2 := H).
     rewrite mma2_linstr_enc_app; simpl.
-    rewrite plus_comm.
+    rewrite Nat.add_comm.
     apply incl_appr, incl_appl, incl_refl.
   Qed.
 

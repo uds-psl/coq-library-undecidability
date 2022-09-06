@@ -45,8 +45,8 @@ Section power_decomp.
     revert q; induction n as [ | n IHn ]; intros q Hf1 Hf2 Ha.
     + rewrite msum_0; apply power_ge_1; lia.
     + rewrite msum_plus1; auto.
-      apply lt_le_trans with (1*power (f n) p + a n * power (f n) p).
-      * apply plus_lt_le_compat; auto.
+      apply Nat.lt_le_trans with (1*power (f n) p + a n * power (f n) p).
+      * apply Nat.add_lt_le_mono; auto.
         rewrite Nat.mul_1_l.
         apply IHn.
         - intros; apply Hf1; lia.
@@ -54,7 +54,7 @@ Section power_decomp.
         - intros; apply Ha; lia.
       * rewrite <- Nat.mul_add_distr_r.
         replace q with (S (q-1)).
-        - rewrite power_S; apply mult_le_compat; auto.
+        - rewrite power_S; apply Nat.mul_le_mono; auto.
           ++ apply Ha; auto.
           ++ apply power_mono_l; try lia.
              generalize (Hf2 n); intros; lia.
@@ -74,13 +74,13 @@ Section power_decomp.
              (∑ i (fun j => a j * power (f j) p)); split.
       - replace (S n) with (S i + (n-i)) by lia.
         rewrite msum_plus, msum_plus1; auto.
-        rewrite <- plus_assoc, plus_comm; f_equal.
-        rewrite Nat.mul_add_distr_r, plus_comm; f_equal.
-        rewrite <- mult_assoc, mult_comm, <- sum_0n_scal_l.
+        rewrite <- Nat.add_assoc, Nat.add_comm; f_equal.
+        rewrite Nat.mul_add_distr_r, Nat.add_comm; f_equal.
+        rewrite <- Nat.mul_assoc, Nat.mul_comm, <- sum_0n_scal_l.
         apply msum_ext.
         intros j Hj.
-        rewrite (mult_comm (_ * _));
-        repeat rewrite <- mult_assoc; f_equal.
+        rewrite (Nat.mul_comm (_ * _));
+        repeat rewrite <- Nat.mul_assoc; f_equal.
         rewrite <- power_S, <- power_plus; f_equal.
         generalize (Hf i (S i+j)); intros; lia.
       - apply power_decomp_lt; auto.
@@ -115,11 +115,11 @@ Section power_decomp_uniq.
          + a 0 * power (f 0) p.
   Proof using Hp.
     intros Hf.
-    rewrite msum_S, plus_comm; f_equal.
+    rewrite msum_S, Nat.add_comm; f_equal.
     rewrite <- sum_0n_scal_r.
     apply msum_ext.
     intros i Hi.
-    rewrite <- mult_assoc; f_equal.
+    rewrite <- Nat.mul_assoc; f_equal.
     rewrite <- power_plus; f_equal.
     generalize (Hf (S i)); intros; lia.
   Qed.

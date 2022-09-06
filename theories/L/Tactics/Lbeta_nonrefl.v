@@ -12,9 +12,6 @@ Local Fixpoint subst' (s : term) (k : nat) (u : term) {struct s} : term :=
 Lemma subst'_eq s k u: subst s k u = subst' s k u.
 Proof.
   revert k;induction s;intros;simpl;try congruence.
-  (* dec;destruct (n =? k) eqn:eq;try reflexivity. *)
-  (* -apply beq_nat_false in eq. tauto. *)
-  (* -apply beq_nat_true in eq. exfalso; tauto.  *)
 Qed.
 
 Lemma lStep s t u: lambda t -> (subst' s 0 t) >* u -> (lam s) t >* u.

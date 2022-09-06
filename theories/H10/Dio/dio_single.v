@@ -25,25 +25,25 @@ Section convexity.
 
   Let convex_1 x p : 2*(x*(x+p)) <= x*x+(x+p)*(x+p).
   Proof.
-    rewrite mult_assoc.
+    rewrite Nat.mul_assoc.
     repeat rewrite Nat.mul_add_distr_r.
     repeat rewrite Nat.mul_add_distr_l.
-    rewrite (mult_comm p x).
-    repeat rewrite <- mult_assoc.
+    rewrite (Nat.mul_comm p x).
+    repeat rewrite <- Nat.mul_assoc.
     generalize (x*x) (x*p) (p*p); intros; lia.
   Qed.
 
   Let convex_2 x p : 2*(x*(x+p)) = x*x+(x+p)*(x+p) -> p = 0.
   Proof.
-    rewrite mult_assoc.
+    rewrite Nat.mul_assoc.
     intros H.
     cut (p*p = 0).
     { destruct p; simpl; auto; discriminate. }
     revert H.
     repeat rewrite Nat.mul_add_distr_r.
     repeat rewrite Nat.mul_add_distr_l.
-    rewrite (mult_comm p x).
-    repeat rewrite <- mult_assoc.
+    rewrite (Nat.mul_comm p x).
+    repeat rewrite <- Nat.mul_assoc.
     generalize (x*x) (x*p) (p*p); intros; lia.
   Qed.
 
@@ -52,7 +52,7 @@ Section convexity.
     destruct (le_lt_dec x y).
     + replace y with (x+(y-x)) by lia.
       apply convex_1.
-    + rewrite (mult_comm x y), plus_comm.
+    + rewrite (Nat.mul_comm x y), Nat.add_comm.
       replace x with (y+(x-y)) by lia.
       apply convex_1.
   Qed.
@@ -62,7 +62,7 @@ Section convexity.
     destruct (le_lt_dec x y).
     + replace y with (x+(y-x)) by lia.
       intros H; apply convex_2 in H; lia.
-    + rewrite (mult_comm x y), plus_comm.
+    + rewrite (Nat.mul_comm x y), Nat.add_comm.
       replace x with (y+(x-y)) by lia.
       intros H; apply convex_2 in H; lia.
   Qed.
@@ -90,7 +90,7 @@ Section convexity.
     revert f g; induction n as [ | n IHn ]; intros f g.
     + rewrite msum_0; auto.
     + do 2 rewrite msum_S.
-      apply plus_le_compat; auto.
+      apply Nat.add_le_mono; auto.
   Qed.
 
   Hint Resolve convex_n_le : core.

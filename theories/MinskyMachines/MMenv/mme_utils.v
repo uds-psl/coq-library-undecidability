@@ -80,7 +80,7 @@ Section mm_env_utils.
       destruct mm_transfert_spec with (e := e) (x := 0) (i := i) (k := e⇢src)
         as (e' & H3 & H4); auto.
       exists e'; split; auto.
-      intros j; rewrite H3, plus_comm; auto.
+      intros j; rewrite H3, Nat.add_comm; auto.
     Qed.
 
   End mm_transfert.
@@ -270,7 +270,7 @@ Section mm_env_utils.
       destruct mm_dup_spec with (e := e) (x := 0) (y := 0) (i := i) (k := e⇢src)
         as (e' & H4 & H5); auto.
       exists e'; split; auto.
-      intros j; rewrite H4, plus_comm; auto.
+      intros j; rewrite H4, Nat.add_comm; auto.
     Qed.
 
   End mm_dup.

@@ -199,11 +199,11 @@ Ltac domin H :=
 
 
 #[export] Hint Resolve nth_error_In : core. 
-#[export] Hint Resolve le_plus_r le_plus_l : core. 
-#[export] Hint Resolve Max.max_lub : core. 
-#[export] Hint Resolve Nat.le_succ_diag_r le_Sn_le : core. 
+#[export] Hint Resolve Nat.le_add_l Nat.le_add_r : core. 
+#[export] Hint Resolve Nat.max_lub : core. 
+#[export] Hint Resolve Nat.le_succ_diag_r Nat.lt_le_incl : core. 
 
-Global Hint Rewrite Nat.max_lub_iff Max.max_0_r Max.max_0_l: simplify.
+Global Hint Rewrite Nat.max_lub_iff Nat.max_0_r Nat.max_0_l: simplify.
 Global Hint Rewrite Nat.mul_0_r Nat.mul_succ_r Nat.mul_0_l Nat.mul_succ_l: simplify.
 Global Hint Rewrite Nat.add_succ_r : simplify.
 

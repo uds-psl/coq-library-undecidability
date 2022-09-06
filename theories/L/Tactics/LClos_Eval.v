@@ -79,5 +79,5 @@ Qed.
 Lemma CompSeval_sound (n k:nat) s t : CompSeval n (0,s) = (k,t) -> s >[(k)] t.
 Proof.
   specialize (CompSeval_sound' n s 0). destruct _;intros.
-  inv H0. rewrite <- minus_n_O in H. tauto.
+  inv H0. rewrite Nat.sub_0_r in H. tauto.
 Qed.

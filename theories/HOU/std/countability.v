@@ -76,22 +76,20 @@ Require Import Arith Lia Nat Arith.Div2.
 
 Definition I__S (s: nat + nat) :=
   match s with
-  | inl n => double n
-  | inr n => S (double n)
+  | inl n => Nat.double n
+  | inr n => S (Nat.double n)
   end.
 
 
 Definition R__S (n: nat) :=
-  if even n then inl (div2 n) else inr (div2 n).
+  if even n then inl (Nat.div2 n) else inr (Nat.div2 n).
 
 Lemma I__S_R__S n: I__S (R__S n) = n.
 Proof.
   unfold I__S, R__S.
   destruct Nat.even eqn: H1.
-  - symmetry. eapply even_double.  
-    now eapply Even.even_equiv, Nat.even_spec.
-  - symmetry. eapply odd_double; eauto.
-    eapply Even.odd_equiv, Nat.odd_spec.
+  - symmetry. now apply Nat.Even_double, Nat.even_spec.
+  - symmetry. eapply Nat.Odd_double, Nat.odd_spec.
     unfold odd; rewrite H1; eauto.
 Qed.
 

@@ -120,8 +120,8 @@ Section IMSELL.
     Fact imsell_tps_imp_zero X Y : (X -⊛ Y) ⦳ <-> X ⊆ Y.
     Proof.
       split.
-      + intros ? ? ?; rewrite <- vec_zero_plus, vec_plus_comm; auto.
-      + intros ? ?; rewrite vec_plus_comm, vec_zero_plus; auto.
+      + intros ? ? ?; rewrite <- vec_zero_plus, vec_add_comm; auto.
+      + intros ? ?; rewrite vec_add_comm, vec_zero_plus; auto.
     Qed.
 
     Variable (K : bang -> vec nat n -> Prop).
@@ -177,12 +177,12 @@ Section IMSELL.
         apply IH in H3.
         destruct H3 as (c & d & H4 & H5 & H6).
         exists (vec_plus y c), d; split.
-        * subst; apply vec_plus_assoc.
+        * subst; apply vec_add_assoc.
         * split; auto.
         exists y, c; auto.
       + destruct Hx as (y & d & ? & (z & g & ? & ? & ?) & ?).
         exists z, (vec_plus g d); split.
-        * subst; symmetry; apply vec_plus_assoc.
+        * subst; symmetry; apply vec_add_assoc.
         * split; auto.
           apply IH.
           exists g, d; auto.
@@ -195,7 +195,7 @@ Section IMSELL.
         exists y, z; repeat split; auto.
       + intros x (y & z & H1 & H2 & c & d & H3 & H4 & H5).
         exists c, (vec_plus y d); split.
-        * subst; rewrite (vec_plus_comm c), vec_plus_assoc, (vec_plus_comm c); auto.
+        * subst; rewrite (vec_add_comm c), vec_add_assoc, (vec_add_comm c); auto.
         * split; auto.
           exists y, d; auto.
     Qed.
@@ -228,10 +228,10 @@ Section IMSELL.
     Proof.
       split.
       * intros H x Hx.
-        rewrite <- vec_zero_plus, vec_plus_comm.
+        rewrite <- vec_zero_plus, vec_add_comm.
         apply (H x); trivial.
       * intros H x Hx.
-        rewrite vec_plus_comm, vec_zero_plus; auto.
+        rewrite vec_add_comm, vec_zero_plus; auto.
     Qed.
 
    Fact imsell_tps_lbang m Γ : m ≼ Γ -> ⟪‼Γ⟫ ⊆ K m.
@@ -259,7 +259,7 @@ Section IMSELL.
                      ]; unfold imsell_sequent_tps in * |- *.
 
       + intros x; simpl; intros (y & z & H1 & H2 & H3); subst; eq goal H2.
-        f_equal; do 2 rewrite vec_plus_comm, vec_zero_plus; auto.
+        f_equal; do 2 rewrite vec_add_comm, vec_zero_plus; auto.
 
       + revert IH2; apply imsell_perm_tps; auto.
 
@@ -268,11 +268,11 @@ Section IMSELL.
         apply imsell_tps_app in H5 as (g & d & H5 & H6 & H7).
         simpl in H4; apply IH1, H4 in H6.
         exists (vec_plus y g), d; repeat split; auto.
-        * subst; apply vec_plus_assoc.
+        * subst; apply vec_add_assoc.
         * eq goal H6; f_equal; rew vec.
 
       + simpl; intros y Hy x Hx.
-        rewrite vec_plus_assoc.
+        rewrite vec_add_assoc.
         apply IH1.
         exists x, y; repeat split; auto.
 
@@ -287,7 +287,7 @@ Section IMSELL.
 
       + intros x (y & z & -> & H3 & H4); rew vec.
         apply proj2, HK_unit1 in H3; auto; subst.
-        rewrite vec_plus_comm.
+        rewrite vec_add_comm.
         now apply IH2.
   
       + intros x (y & z & G2 & G3 & G4).

@@ -87,7 +87,7 @@ Section Fix_X.
                                 pos x (l ++ l') = Some ( i + |l| ).
   Proof.
     revert i l'; induction l; simpl; intros.
-    - rewrite plus_comm. eauto.
+    - rewrite Nat.add_comm. eauto.
     - destruct _; subst; try congruence.
       destruct (pos x l) eqn:EE. congruence.
       erewrite IHl; eauto.

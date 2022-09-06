@@ -37,7 +37,7 @@ Section ra_min_extra.
       * intros y _; destruct (Hf y) as ([ | k ] & Hk); auto.
         right; exists k; auto.
       * exists m; split; auto.
-      * destruct (H1 _ (le_refl _)) as (k & Hk).
+      * destruct (H1 _ (Nat.le_refl _)) as (k & Hk).
         generalize (ra_rel_fun _ _ _ _ Hx Hk); discriminate.
   Qed.
 

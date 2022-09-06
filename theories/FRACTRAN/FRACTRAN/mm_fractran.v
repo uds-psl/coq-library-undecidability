@@ -193,7 +193,7 @@ Proof.
       rewrite qs_shift with (m := 1).
       simpl.
       replace (j+S (pos2nat p)) with (S (j+p)); try tauto.
-      2: rewrite (plus_comm _ (S _)); simpl; rewrite plus_comm; auto.
+      2: rewrite (Nat.add_comm _ (S _)); simpl; rewrite Nat.add_comm; auto.
       split; intros H.
       * eapply divides_mult_inv in H as [ | ]; eauto.
         eapply divides_pow in H; auto. 
@@ -280,14 +280,14 @@ Proof.
     destruct rho as [ u | u j ]; unfold encode_inc, encode_dec, encode_dec2 in G2;
       [ destruct G2 as [ G2 | [] ] | destruct G2 as [ G2 | [ G2 | [] ] ] ]; 
       inversion G2; subst p q; clear G2;
-      repeat rewrite mult_assoc in H5.
+      repeat rewrite Nat.mul_assoc in H5.
     * apply divides_from_eq, prime_div_mult4 in H5; auto.
       destruct H5 as [ H5 | [ H5 | [ H5 | H5 ] ] ].
       + apply primestream_divides in H5; lia.
       + apply ps_qs_div in H5; tauto.
       + apply primestream_divides in H5; lia.
       + apply ps_exp in H5; tauto.
-    * rewrite <- mult_assoc in H5.
+    * rewrite <- Nat.mul_assoc in H5.
       apply divides_from_eq, prime_div_mult3 in H5; auto.
       destruct H5 as [ H5 | [ H5 | H5 ] ].
       + apply primestream_divides in H5; lia.
@@ -374,7 +374,7 @@ Proof.
   intros H. destruct st1 as (i1, v1), st2 as (i2, v2).
   assert (i1 = i2); subst.
   - eapply divides_encode_state. rewrite <- H. 
-    unfold encode_state. cbn. rewrite mult_comm. eapply divides_mult, divides_refl.
+    unfold encode_state. cbn. rewrite Nat.mul_comm. eapply divides_mult, divides_refl.
   - f_equal. unfold encode_state in H. cbn in H.
     replace (ps i2) with (ps i2 ^ 1) in H by (cbn; lia).
     eapply power_factor_uniq in H as [_ H].

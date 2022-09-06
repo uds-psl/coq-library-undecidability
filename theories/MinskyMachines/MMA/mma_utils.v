@@ -504,7 +504,7 @@ Section Minsky_Machine_alt_utils.
           mma sss DEC S with dst (3+i) d.
           mma sss INC with tmp.
           apply subcode_sss_compute with (P := (4+i,mma_decs_copy k (4+i))); auto.
-          apply sss_progress_compute; rewrite plus_assoc.
+          apply sss_progress_compute; rewrite Nat.add_assoc.
           apply IHk; rew vec; try lia.
           apply vec_pos_ext; intros x; dest x tmp; try lia; dest x dst.
     Qed.

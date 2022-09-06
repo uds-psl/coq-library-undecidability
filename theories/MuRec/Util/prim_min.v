@@ -88,7 +88,7 @@ Section prim_min.
       rewrite iter_plus.
       fold (prim_min_rec k 0).
       rewrite prim_min_rec_spec_0 with (n := k) (a := 0); auto.
-      rewrite plus_comm; apply prim_min_rec_spec_1; auto.
+      rewrite Nat.add_comm; apply prim_min_rec_spec_1; auto.
       intros; apply H3; lia. }
     rewrite H4; auto.
   Qed.
