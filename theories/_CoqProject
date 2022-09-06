@@ -333,6 +333,7 @@ MinskyMachines/MMA/bsm_mma.v
 MinskyMachines/MMA/fractran_mma.v  
 MinskyMachines/MMA/mma_k_mma_2_compiler.v 
 MinskyMachines/MMA/mma3_mma2_compiler.v 
+MinskyMachines/MMA/mma_no_self.v 
 
 MinskyMachines/MMenv/env.v          
 MinskyMachines/MMenv/mme_defs.v     
