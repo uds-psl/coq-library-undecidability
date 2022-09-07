@@ -5,7 +5,8 @@ From Undecidability.Synthetic Require Export DecidabilityFacts EnumerabilityFact
 From Undecidability.L.Datatypes Require Import LNat Lists LProd.
 From Undecidability.L Require Import Tactics.LTactics Computability.MuRec Computability.Synthetic Tactics.GenEncode.
 From Undecidability.Shared.Libs.DLW.Vec Require Import pos.
-Import ListAutomationNotations.
+Require Import Undecidability.Shared.ListAutomation.
+Import ListAutomationNotations ListAutomationHints.
 
 Require Import Nat Datatypes.
 
@@ -197,7 +198,7 @@ Proof.
   - destruct x as [[p1 p2] L]. intros.
     destruct (enum_poly p1) as [m1], (enum_poly p2) as [m2], (enumerator__T_list opt_to_list _ L) as [m3].
     exists (1 + m1 + m2 + m3). in_app 2.
-    fold plus. eapply in_filter_iff. split.
+    fold plus. eapply filter_In. split.
     + rewrite !in_prod_iff. repeat split; eapply cum_ge'; try eassumption; eauto; lia.
     + unfold test_eq. edestruct (Nat.eqb_spec (eval p1 L) (eval p2 L)); eauto.
   - destruct x as [[p1 p2] L]. intros [m].
@@ -205,7 +206,7 @@ Proof.
     + inv H.
     + eapply in_app_iff in H as [|].
       * eauto.
-      * eapply in_filter_iff in H as []. unfold test_eq in H0.
+      * eapply filter_In in H as []. unfold test_eq in H0.
         destruct (Nat.eqb_spec (eval p1 L) (eval p2 L)); eauto.
 Qed.
 

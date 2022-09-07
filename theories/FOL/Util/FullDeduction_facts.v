@@ -3,7 +3,7 @@
 From Undecidability Require Import FOL.Util.FullTarski_facts FOL.Util.Syntax_facts.
 From Undecidability Require Import Shared.ListAutomation.
 From Undecidability Require Export FOL.Util.FullDeduction.
-Import ListAutomationNotations.
+Import ListAutomationNotations ListAutomationHints.
 Local Set Implicit Arguments.
 Require Import Lia.
 

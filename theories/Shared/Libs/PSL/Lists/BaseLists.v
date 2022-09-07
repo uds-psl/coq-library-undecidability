@@ -231,20 +231,6 @@ Section Inclusion.
   Variable X : Type.
   Implicit Types A B : list X.
 
-  Lemma incl_nil_eq A :
-    A <<= nil -> A=nil.
-
-  Proof.
-    intros D. destruct A as [|x A].
-    - reflexivity.
-    - exfalso. apply (D x). auto.
-  Qed.
-
-  Lemma incl_shift x A B :
-    A <<= B -> x::A <<= x::B.
-
-  Proof. auto. Qed.
-
   Lemma incl_lcons x A B :
     x::A <<= B <-> x el B /\ A <<= B.
   Proof. 
@@ -258,26 +244,6 @@ Section Inclusion.
   Proof.
     rewrite incl_lcons. intros [D E].
     apply in_sing in D. auto.
-  Qed.
-
-  Lemma incl_rcons x A B :
-    A <<= x::B -> ~ x el A -> A <<= B.
-
-  Proof. intros C D y E. destruct (C y E) as [F|F]. 1: congruence. assumption. Qed.
-
-  Lemma incl_lrcons x A B :
-    x::A <<= x::B -> ~ x el A -> A <<= B.
-
-  Proof.
-    intros C D y E.
-    assert (F: y el x::B) by auto.
-    destruct F as [F|F]; congruence.
-  Qed.
-
-  Lemma incl_app_left A B C :
-    A ++ B <<= C -> A <<= C /\ B <<= C.
-  Proof.
-    firstorder.
   Qed.
 
 End Inclusion.
@@ -312,7 +278,7 @@ Qed.
 Instance cons_incl_proper X x : 
   Proper (@incl X ==> @incl X) (@cons X x).
 Proof.
-  hnf. apply incl_shift.
+  hnf. auto.
 Qed.
 
 #[global]

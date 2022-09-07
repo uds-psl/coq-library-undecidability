@@ -4,7 +4,7 @@ Require Import Lia Arith.
 Require Import Undecidability.PCP.PCP.
 From Undecidability Require Import FOLP.FOLFS.
 Require Import Undecidability.Shared.ListAutomation.
-Import ListAutomationNotations.
+Import ListAutomationNotations ListAutomationHints.
 
 (* ** Bounded boolean strings *)
 

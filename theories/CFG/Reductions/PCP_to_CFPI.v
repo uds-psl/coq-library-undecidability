@@ -9,6 +9,8 @@ Require Import Undecidability.PCP.Util.Facts.
 Import PCPListNotation.
 Require Import Undecidability.PCP.Util.PCP_facts.
 Require Import Undecidability.Synthetic.Definitions.
+Require Import Undecidability.Shared.ListAutomation.
+Import ListAutomationHints.
 
 Set Default Goal Selector "!".
 

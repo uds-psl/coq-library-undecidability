@@ -350,7 +350,7 @@ Tactic Notation "lsimpl" "in" "*" := autorewrite with listdb in *.
 
 Ltac lauto  := eauto with listdb. 
 
-Module ListInstances.
+Module ListAutomationInstances.
 #[export] Existing Instance incl_preorder.
 #[export] Existing Instance strict_incl_transitive.
 #[export] Existing Instance seteq_preorder.
@@ -371,4 +371,4 @@ Module ListInstances.
 #[export] Existing Instance map_seteq_proper.
 #[export] Existing Instance filter_incl_proper.
 #[export] Existing Instance filter_seqteq_proper.
-End ListInstances.
+End ListAutomationInstances.

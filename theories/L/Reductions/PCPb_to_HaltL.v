@@ -2,7 +2,7 @@ Set Default Goal Selector "!".
 
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts.
 From Undecidability Require Export PCP.PCP.
-From Undecidability.Shared Require Export ListAutomation.
+From Undecidability.Shared Require Import ListAutomation.
 Require Import Lia Arith.
 Import ListAutomationNotations.
 

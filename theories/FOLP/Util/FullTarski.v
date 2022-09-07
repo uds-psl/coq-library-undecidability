@@ -2,6 +2,7 @@
 
 From Undecidability.FOLP Require Export FullFOL.
 Require Import Undecidability.Shared.ListAutomation.
+Import ListAutomationHints.
 
 (* *** Tarki Models **)
 

@@ -5,7 +5,7 @@ Require Import Undecidability.StringRewriting.PCSnf.
 Require Import Undecidability.StringRewriting.SR.
 Require Import Undecidability.StringRewriting.Util.Definitions.
 Require Import Undecidability.Shared.ListAutomation.
-Import ListInstances.
+Import ListAutomationInstances ListAutomationHints.
 
 Lemma derv_trans X R x y z :
     @derv X R x y -> derv R y z -> derv R x z.

@@ -19,6 +19,7 @@ From Undecidability.TRAKHTENBROT
   Require Import notations utils fol_ops fo_sig fo_terms.
 
 Require Import Undecidability.Shared.ListAutomation.
+Import ListAutomationHints.
 
 Set Implicit Arguments.
 

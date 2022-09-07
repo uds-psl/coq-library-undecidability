@@ -4,11 +4,10 @@ Export Undecidability.FOL.Util.Syntax.FullSyntax.
 From Undecidability.SeparationLogic Require Import MSL.
 
 From Undecidability Require Import Shared.ListAutomation.
-Import ListAutomationNotations.
+Import ListAutomationNotations ListAutomationInstances ListAutomationHints.
 
 From Undecidability.Shared Require Import Dec.
 Require Import Undecidability.Synthetic.DecidabilityFacts.
-Import ListInstances.
 
 Set Default Goal Selector "!".
 
@@ -179,21 +178,21 @@ Section Backwards.
   - rewrite IHphi1, IHphi2; try tauto. all: intros x Hx; apply HV; apply in_app_iff; auto.
   - split; intros H.
     + intros [l|] [l'[H1 H2]]; try discriminate. injection H1. intros <-. apply IHphi.
-      * intros [|x] Hx; try now exists l. apply HV. apply in_map_iff. exists (S x). split; trivial. now apply in_filter_iff.
+      * intros [|x] Hx; try now exists l. apply HV. apply in_map_iff. exists (S x). split; trivial. now apply filter_In.
       * eapply sat_ext; try apply (H (loc2dom H2)). intros x. now rewrite update_stack_cons.
     + intros [l Hl]. assert (Hl' : (l, (None, None)) el h) by now eapply squash_iff. eapply sat_ext, IHphi, H; cbn.
       * apply update_stack_cons.
-      * intros [|x] Hx; try now exists l. apply HV. apply in_map_iff. exists (S x). split; trivial. now apply in_filter_iff.
+      * intros [|x] Hx; try now exists l. apply HV. apply in_map_iff. exists (S x). split; trivial. now apply filter_In.
       * exists l. split; trivial.
   - split; intros H.
     + destruct H as [[l Hl] H]. assert (Hl' : (l, (None, None)) el h) by now eapply squash_iff.
       exists (Some l). split; try now exists l. apply IHphi.
-      * intros [|x] Hx; try now exists l. apply HV. apply in_map_iff. exists (S x). split; trivial. now apply in_filter_iff.
+      * intros [|x] Hx; try now exists l. apply HV. apply in_map_iff. exists (S x). split; trivial. now apply filter_In.
       * eapply sat_ext; try apply H. intros x. now rewrite update_stack_cons.
     + destruct H as [[l|][[l'[H1 H2]] H]]; try discriminate. injection H1. intros <-.
       exists (loc2dom H2). eapply sat_ext, IHphi, H.
       * intros x. now erewrite update_stack_cons.
-      * intros [|x] Hx; try now exists l. apply HV. apply in_map_iff. exists (S x). split; trivial. now apply in_filter_iff.
+      * intros [|x] Hx; try now exists l. apply HV. apply in_map_iff. exists (S x). split; trivial. now apply filter_In.
   Qed.
 
   (* requirements *)
@@ -355,13 +354,13 @@ Section Forwards.
       + pose (d := rho x). pose (e := rho y). intros H. repeat split.
         * exists (Some (enc_pair d e)), (enc_pair d e). split; trivial.
           apply in_app_iff. right. apply in_map_iff. exists (d, e). split; try reflexivity.
-          apply in_filter_iff. split; trivial. apply in_prod_iff. split; apply LD_ex.
+          apply filter_In. split; trivial. apply in_prod_iff. split; apply LD_ex.
         * exists (enc_point d). split; trivial. apply in_app_iff. left. apply in_map_iff. exists d; auto.
         * exists (enc_point e). split; trivial. apply in_app_iff. left. apply in_map_iff. exists e; auto.
       + intros [[v[l[-> Hl]]] _].
         apply in_app_iff in Hl as [Hl|Hl].
         * apply in_map_iff in Hl as [d [H1 H2]]. discriminate.
-        * apply in_map_iff in Hl as [[d e] [H1 H2]]. apply in_filter_iff in H2 as [_ H2].
+        * apply in_map_iff in Hl as [[d e] [H1 H2]]. apply filter_In in H2 as [_ H2].
           unfold env2stack in H1. injection H1. now intros -> % enc_point_inj -> % enc_point_inj _.
     - now rewrite IHphi1, IHphi2.
     - now rewrite IHphi1, IHphi2.
@@ -533,7 +532,7 @@ Proof.
     apply to_list_in', H, bounded_FV_term in Ht.
     apply in_seq. lia.
   - auto.
-  - intros x [t [<- Ht]] % in_map_iff. apply in_filter_iff in Ht as [H1 H2].
+  - intros x [t [<- Ht]] % in_map_iff. apply filter_In in Ht as [H1 H2].
     destruct t; try discriminate. apply IHbounded, in_seq in H1.
     cbn. apply in_seq. lia.
   - auto.

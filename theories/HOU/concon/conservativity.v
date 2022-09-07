@@ -3,7 +3,7 @@ Require Import PeanoNat Lia List.
 From Undecidability.HOU Require Import calculus.calculus concon.conservativity_constants
   unification.higher_order_unification unification.systemunification
   unification.nth_order_unification.
-Import ListNotations ListInstances ArsInstances.
+Import ListNotations ListAutomationInstances ArsInstances.
 
 Global Hint Rewrite @consts_Lam @consts_AppL @consts_AppR : simplify.
 

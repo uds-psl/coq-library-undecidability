@@ -38,10 +38,10 @@ Lemma lookup_sound (A: eqType) (B: Type) (L : list (prod A B)) a b def :
 Proof.
   intros H1 H2. unfold lookup.
   destruct filter eqn:E.
-  - assert ((a,b) el filter (fun p : A * B => Dec (fst p = a)) L) by ( rewrite in_filter_iff ; eauto).
+  - assert ((a,b) el filter (fun p : A * B => Dec (fst p = a)) L) by ( rewrite filter_In ; eauto).
     now rewrite E in H. 
   - destruct p. assert ((e,b0) el (filter (fun p : A * B => Dec (fst p = a)) L)) by now rewrite E.
-    rewrite in_filter_iff in H. 
+    rewrite filter_In in H. 
     dec; cbn in *; subst; firstorder.
 Qed.
 
@@ -53,10 +53,10 @@ Proof.
   - right. split. 2:easy.
     intros (x&?).
     assert ((a,x) el filter (fun p : A * B => Dec (fst p = a)) L).
-    {rewrite in_filter_iff;cbn. decide _;try easy. }
+    {rewrite filter_In;cbn. decide _;try easy. }
     rewrite E in H0. easy. 
   - assert (p el (filter (fun p : A * B => Dec (fst p = a)) L)) by now rewrite E.
-    rewrite in_filter_iff in H.
+    rewrite filter_In in H.
     destruct p.
     dec; cbn in *; subst; firstorder.
 Qed.
