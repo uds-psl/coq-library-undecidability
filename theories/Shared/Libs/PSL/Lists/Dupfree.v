@@ -46,7 +46,7 @@ Section Dupfree.
     - left.
     - destruct (p x) eqn:E; [|exact IHD].
       right; [|exact IHD].
-      rewrite in_filter_iff, E. intuition.
+      rewrite filter_In, E. intuition.
   Qed.
 
 End Dupfree.

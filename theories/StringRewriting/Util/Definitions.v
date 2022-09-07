@@ -1,7 +1,7 @@
 Require Import Undecidability.StringRewriting.SR.
 Require Import Undecidability.Shared.ListAutomation.
 Require Import Setoid Morphisms Lia.
-Import ListAutomationNotations ListInstances.
+Import ListAutomationNotations ListAutomationInstances ListAutomationHints.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 

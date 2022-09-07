@@ -4,7 +4,7 @@ Import ListNotations.
 From Undecidability.HOU Require Import std.std.
 From Undecidability.HOU.calculus Require Import 
   prelim terms syntax semantics equivalence typing order confluence. 
-Import ListInstances ArsInstances.
+Import ListAutomationInstances ArsInstances.
 (* * Terms Extension *)
 
 Notation "sigma •₊ A" := (map (subst_exp sigma) A) (at level 69).

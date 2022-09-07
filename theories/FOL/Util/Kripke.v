@@ -2,7 +2,7 @@
 
 From Undecidability Require Import FOL.Util.Deduction FOL.Util.Tarski FOL.Util.Syntax.
 From Undecidability Require Import Shared.ListAutomation.
-Import ListAutomationNotations.
+Import ListAutomationNotations ListAutomationHints.
 
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.

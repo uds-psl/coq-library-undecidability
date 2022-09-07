@@ -3,7 +3,7 @@ From Undecidability.HOU Require Import calculus.calculus.
 From Undecidability.HOU Require Import
         unification.higher_order_unification unification.nth_order_unification
         concon.conservativity_constants concon.conservativity.
-Import ListNotations ListInstances ArsInstances.
+Import ListNotations ListAutomationInstances ArsInstances.
 
 #[local] Fact ge_plus_l n m : n + m >= n.
 Proof. apply Nat.le_add_r. Qed.
