@@ -12,6 +12,8 @@ Require Import List Arith Lia.
 From Undecidability.Shared.Libs.DLW 
   Require Import utils subcode.
 
+Import ListNotations.
+
 Set Implicit Arguments.
 
 (* * A certified low-level compiler *)
@@ -63,7 +65,20 @@ Section linker.
   Proof.
     revert i j; induction ll; simpl; intros; f_equal; auto.
   Qed.
-  
+
+  Fact link_le i ll j: 
+          (forall x, In x ll -> 1 <= lc x)
+       -> forall p k, In (p,k) (link i ll j) -> j <= k < lsum ll + j.
+  Proof.
+    revert i j; induction ll as [ | x ll IH ]; simpl; intros i j Hlc p k.
+    + intros [].
+    + intros [ E | H ].
+      * inversion E; subst p k.
+        generalize (Hlc x (or_introl eq_refl)); lia.
+      * apply IH in H; try lia.
+        intros; apply Hlc; auto.
+  Qed.
+
   Section comp.
   
     Variable lnk : nat -> nat.
@@ -85,7 +100,28 @@ Section linker.
       revert i j; induction ll as [ | x ll IH ]; simpl; intros i j; auto.
       rew length; rewrite IH, Hc; trivial.
     Qed.
-  
+
+    Fact comp_in_inv i ll j l' y r' : 
+               comp i ll j = l'++y::r' 
+            -> exists l x r a b, ll = l++x::r
+                              /\ c lnk (length l+i) x = a++y::b
+                              /\ l' = comp i l j ++ a
+                              /\ r' = b ++ comp (1+length l+i) r (lsum (l++[x])+j).
+    Proof.
+      revert i j l' y r'; induction ll as [ | x ll IH ]; simpl; intros i j l' y r' H.
+      + now destruct l'.
+      + apply list_app_cons_eq_inv in H
+          as [ (m & H1 & H2) | (m & H1 & H2) ].
+        * apply IH in H2 as (l & x' & r & a & b & H2 & H3 & H4 & H5).
+          exists (x::l), x', r, a, b; msplit 3; simpl.
+          - f_equal; auto.
+          - rewrite <- H3; f_equal; lia.
+          - rewrite <- H1, app_ass; f_equal; auto.
+          - rewrite H5; f_equal; f_equal; lia.
+        * exists [], x, ll, l', m; msplit 3; auto.
+          rewrite H2; do 2 f_equal; simpl; lia.
+    Qed.
+
   End comp.
 
   Variable (P : nat * list X) (i : nat) (err : nat).
@@ -128,6 +164,24 @@ Section linker.
     intros H1.
     apply in_map with (f := @fst _ _) in H1.
     rewrite link_fst, list_an_spec in H1; simpl in H1; lia.
+  Qed.
+
+  Fact linker_mono j k : fst P <= j -> j <= k -> k < length (snd P) + fst P -> linker j <= linker k.
+  Proof.
+    intros H1 H2 H3.
+    destruct (@list_split_length _ (snd P) (j - fst P))
+      as (l1 & ll & H4 & H5); try lia.
+    destruct (@list_split_length _ ll (k-j))
+      as (l2 & l3 & H6 & H7).
+    + rewrite H4, app_length in H3; lia.
+    + subst ll.
+      generalize (linker_app _ _ H4); intros E1.
+      rewrite <- app_ass in H4.
+      generalize (linker_app _ _ H4); intros E2.
+      replace (length l1+fst P) with j in E1; try lia.
+      replace (length (l1++l2)+fst P) with k in E2.
+      * rewrite E1, E2, length_compiler_app; lia.
+      * rewrite app_length; lia.
   Qed.
 
   Definition compiler := comp linker (fst P) (snd P) i.
@@ -180,7 +234,22 @@ Section linker.
     rewrite comp_app; simpl; do 3 f_equal; lia.
     rewrite comp_length; lia.
   Qed.
-  
+
+  Fact compiler_subcode_inv k µ : 
+            (k,[µ]) <sc (i,compiler) 
+         -> exists j ρ, (j,[ρ]) <sc P /\ (k,[µ]) <sc (linker j, c linker j ρ).
+  Proof using Hc.
+    intros (l' & r' & H1 & H2).
+    apply comp_in_inv in H1 as (l & ρ & r & a & b & H3 & H4 & H5 & H6).
+    exists (length l+fst P), ρ; split.
+    + destruct P as (sP,cP); simpl in *.
+      exists l, r; split; auto; lia.
+    + exists a, b; split; auto.
+      rewrite H2, H5, app_length, plus_assoc; f_equal.
+      rewrite comp_length.
+      rewrite (linker_app _ _ H3); lia.
+  Qed.
+
   Fact linker_code_start : linker (code_start P) = i.
   Proof. apply (linker_app nil (snd P)); auto. Qed.
   
@@ -217,3 +286,65 @@ Section linker.
   Qed.
 
 End linker.
+
+Section compiler_syntactic.
+
+  Variable (X Y : Type)
+           (c : (nat -> nat) -> nat -> X -> list Y) (* instruction compiler w.r.t. a given linker & a position *)
+           (lc : X -> nat)                          (* compiled code length does not depend on linker or position *)
+           .
+
+  Record compiler_syntactic := MkCompSynt {
+    cs_link     : (nat*list X) -> nat -> nat -> nat;
+    cs_code     : (nat*list X) -> nat -> list Y;
+    cs_fst      : forall P i, cs_link P i (fst P) = i;
+    cs_in       : forall P i j ρ, (j,[ρ]) <sc P -> cs_link P i (1+j) = lc ρ + cs_link P i j;
+    cs_out      : forall P i j, out_code j P -> cs_link P i j = code_end (i,cs_code P i);
+    cs_mono     : forall P i j k, code_start P <= j -> j <= k -> k < code_end P -> cs_link P i j <= cs_link P i k;
+    cs_subcode    : forall P i j ρ, (j,[ρ]) <sc P -> (cs_link P i j, c (cs_link P i) j ρ) <sc (i,cs_code P i);
+    cs_subcode_inv : forall P i k µ, (k,[µ]) <sc (i,cs_code P i) 
+                           -> exists j ρ, (j,[ρ]) <sc P /\ (k,[µ]) <sc (cs_link P i j, c (cs_link P i) j ρ)
+  }.
+
+  Hypothesis (Hc : forall f n x, length (c f n x) = lc x).
+
+  Section generic_syntactic_compiler.
+
+    Implicit Type P : nat*list X.
+
+    Let err P iQ  := iQ+length_compiler lc (snd P).
+    Let link P iQ := linker lc P iQ (err P iQ).
+    Let code P iQ := compiler c lc P iQ (err P iQ).
+
+    Local Fact fst_ok : forall P i, link P i (fst P) = i.
+    Proof. intros [] ?; apply linker_code_start. Qed.
+
+    Local Fact out_ok : forall P i j, out_code j P -> link P i j = code_end(i,code P i).
+    Proof using Hc.
+      intros (iP,cP) iQ j H.
+      unfold link, code_end.
+      rewrite linker_out_err; unfold err; simpl; auto.
+      * unfold code; rewrite compiler_length; auto.
+      * lia.
+    Qed.
+
+    Theorem generic_syntactic_compiler : compiler_syntactic.
+    Proof using Hc.
+      exists link code; auto.
+      + apply fst_ok.
+      + intros ? ? ? ? Hρ; apply compiler_subcode with (1 := Hc) (2 := Hρ).
+      + apply out_ok.
+      + intros; apply linker_mono; try assumption.
+        unfold code_end in *; lia.
+      + intros ? ? ? ? Hρ; apply compiler_subcode with (1 := Hc) (2 := Hρ).
+      + intros; apply compiler_subcode_inv; auto.
+    Qed.
+
+  End generic_syntactic_compiler.
+
+End compiler_syntactic.
+
+Print compiler_syntactic.
+Check generic_syntactic_compiler.
+
+
