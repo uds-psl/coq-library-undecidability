@@ -298,7 +298,8 @@ Section compiler_syntactic.
     cs_link     : (nat*list X) -> nat -> nat -> nat;
     cs_code     : (nat*list X) -> nat -> list Y;
     cs_fst      : forall P i, cs_link P i (fst P) = i;
-    cs_in       : forall P i j ρ, (j,[ρ]) <sc P -> cs_link P i (1+j) = lc ρ + cs_link P i j;
+    cs_in       : forall P i j, in_code j P -> in_code  (cs_link P i j) (i,cs_code P i); 
+    cs_next     : forall P i j ρ, (j,[ρ]) <sc P -> cs_link P i (1+j) = lc ρ + cs_link P i j;
     cs_out      : forall P i j, out_code j P -> cs_link P i j = code_end (i,cs_code P i);
     cs_mono     : forall P i j k, code_start P <= j -> j <= k -> k < code_end P -> cs_link P i j <= cs_link P i k;
     cs_subcode    : forall P i j ρ, (j,[ρ]) <sc P -> (cs_link P i j, c (cs_link P i) j ρ) <sc (i,cs_code P i);
@@ -306,7 +307,22 @@ Section compiler_syntactic.
                            -> exists j ρ, (j,[ρ]) <sc P /\ (k,[µ]) <sc (cs_link P i j, c (cs_link P i) j ρ)
   }.
 
-  Hypothesis (Hc : forall f n x, length (c f n x) = lc x).
+  Fact cs_exclude (gc : compiler_syntactic) P i j k : in_code k P -> cs_link gc P i j <= cs_link gc P i k
+                                                                  \/ cs_link gc P i (1+k) <= cs_link gc P i j.
+  Proof.
+    intros H; destruct gc as [ link code H1 H2 H3 H4 H5 H6 H7 ]; simpl.
+    destruct (in_out_code_dec j P) as [ G | G ].
+    + destruct (le_lt_dec j k) as [ G1 | G1 ].
+      * left; apply H5; red in H, G; lia.
+      * right; apply H5; red in H, G; lia.
+    + apply H4 with (i := i) in G.
+      destruct (in_out_code_dec (S k) P) as [ H' | H' ].
+      * apply H2 with (i := i) in H'; red in H'; try lia.
+      * apply H4 with (i := i) in H'; lia.
+  Qed. 
+
+  Hypotheses (Hc1 : forall x, 1 <= lc x) 
+             (Hc2 : forall f n x, length (c f n x) = lc x).
 
   Section generic_syntactic_compiler.
 
@@ -320,7 +336,7 @@ Section compiler_syntactic.
     Proof. intros [] ?; apply linker_code_start. Qed.
 
     Local Fact out_ok : forall P i j, out_code j P -> link P i j = code_end(i,code P i).
-    Proof using Hc.
+    Proof using Hc2.
       intros (iP,cP) iQ j H.
       unfold link, code_end.
       rewrite linker_out_err; unfold err; simpl; auto.
@@ -329,14 +345,15 @@ Section compiler_syntactic.
     Qed.
 
     Theorem generic_syntactic_compiler : compiler_syntactic.
-    Proof using Hc.
+    Proof using Hc1 Hc2.
       exists link code; auto.
       + apply fst_ok.
-      + intros ? ? ? ? Hρ; apply compiler_subcode with (1 := Hc) (2 := Hρ).
+      + intros Hlc P i j; now apply linker_in_code.
+      + intros ? ? ? ? Hρ; apply compiler_subcode with (1 := Hc2) (2 := Hρ).
       + apply out_ok.
       + intros; apply linker_mono; try assumption.
         unfold code_end in *; lia.
-      + intros ? ? ? ? Hρ; apply compiler_subcode with (1 := Hc) (2 := Hρ).
+      + intros ? ? ? ? Hρ; apply compiler_subcode with (1 := Hc2) (2 := Hρ).
       + intros; apply compiler_subcode_inv; auto.
     Qed.
 

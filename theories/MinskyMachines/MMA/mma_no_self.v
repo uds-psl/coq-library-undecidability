@@ -85,30 +85,37 @@ Section remove_self_loops.
     Local Fact il_ic_length i ρ : length (ic i ρ) = il ρ.
     Proof. now destruct ρ. Qed.
 
+    Local Fact il_le ρ : 1 <= il ρ.
+    Proof. destruct ρ; simpl; lia. Qed.
+
   End instr_compiler.
 
-  Variable lnk : nat -> nat.
+  Section no_self_loops. 
 
-  (* One would here want to use the instruction compiler but this
-     poses a problem because we do not have much syntactic information
-     available from the linker/compiler ATM, hence showing that
-     lnk j above cannot be 4+lnk i is problematic
-     this should eg follow from 
-        if   j <= i  then                lnk j <= lnk i
-     or if 1+i <= j  then  5+lnk i = lnk (1+i) <= lnk j
-     which are both compatible with lnk j = 4+lnk i *)
+    Let gc := generic_syntactic_compiler _ _ il_le il_ic_length.
 
-  Local Fact mma_no_self_loops_ic i ρ : mma_no_self_loops (lnk i,ic i ρ).
-  Proof.
-    destruct ρ as [ x | x j ]; simpl; intros k µ H.
-    + apply subcode_cons_invert_right in H as [ (? & ?) | H ]; try easy.
-      now apply subcode_nil_invert in H.
-    + repeat apply subcode_cons_invert_right in H as [ (E1 & E2) | H ].
-      * inversion E2; lia.
-      * easy.
-      * inversion E2; lia.
-      * easy.
-      * inversion E2; subst k x.
-        destruct (le_lt_dec i j) as [ 
-      apply subcode_cons_invert_right in H as [ (E1 & E2) | H ].
-      1: easy.
+    Fact gc_no_self_loops P i : mma_no_self_loops (i,cs_code gc P i).
+    Proof.
+      generalize (cs_exclude gc).
+      destruct gc as [ lnk code H0 H1 H2 H3 H4 H5 H6 ]; simpl; clear gc; intro H7.
+      intros j x H.
+      apply H6 in H as (k & [ x' | x' j' ] & G1 & G2); simpl ic in G2.
+      + apply subcode_cons_invert_right in G2 as [ (_ & ?) | G2 ]; try easy.
+        now apply subcode_nil_invert in G2.
+      + repeat apply subcode_cons_invert_right in G2 as [ (E1 & E2) | G2 ].
+        * inversion E2; lia.
+        * easy.
+        * inversion E2; lia.
+        * easy.
+        * inversion E2; clear E2.
+          generalize G1; intros G.
+          apply subcode_in_code with (i := k) in G.
+          2: simpl; lia.
+          apply H7 with (i := i) (j := j') in G.
+          apply H2 with (i := i) in G1; simpl in G1; lia.
+        * now apply subcode_nil_invert in G2.
+      Qed.
+
+  End no_self_loops.
+
+End remove_self_loops.
