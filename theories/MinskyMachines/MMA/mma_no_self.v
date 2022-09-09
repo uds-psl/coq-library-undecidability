@@ -96,7 +96,7 @@ Section remove_self_loops.
 
     Fact gc_no_self_loops P i : mma_no_self_loops (i,cs_code gc P i).
     Proof.
-      generalize (cs_exclude gc).
+      generalize (cs_not_between gc).
       destruct gc as [ lnk code H0 H1 H2 H3 H4 H5 H6 ]; simpl; clear gc; intro H7.
       intros j x H.
       apply H6 in H as (k & [ x' | x' j' ] & G1 & G2); simpl ic in G2.
@@ -108,10 +108,7 @@ Section remove_self_loops.
         * inversion E2; lia.
         * easy.
         * inversion E2; clear E2.
-          generalize G1; intros G.
-          apply subcode_in_code with (i := k) in G.
-          2: simpl; lia.
-          apply H7 with (i := i) (j := j') in G.
+          specialize (H7 P i j' k).
           apply H2 with (i := i) in G1; simpl in G1; lia.
         * now apply subcode_nil_invert in G2.
       Qed.

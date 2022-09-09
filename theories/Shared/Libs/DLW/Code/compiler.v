@@ -307,19 +307,23 @@ Section compiler_syntactic.
                            -> exists j ρ, (j,[ρ]) <sc P /\ (k,[µ]) <sc (cs_link P i j, c (cs_link P i) j ρ)
   }.
 
-  Fact cs_exclude (gc : compiler_syntactic) P i j k : in_code k P -> cs_link gc P i j <= cs_link gc P i k
-                                                                  \/ cs_link gc P i (1+k) <= cs_link gc P i j.
+  (* In such a compiler_syntatic, the linker cannot give a (jump) value in the interval ] lnk k; lnk (1+k) [ *)
+
+  Fact cs_not_between (gc : compiler_syntactic) P i j k : cs_link gc P i j <= cs_link gc P i k \/ cs_link gc P i (1+k) <= cs_link gc P i j.
   Proof.
-    intros H; destruct gc as [ link code H1 H2 H3 H4 H5 H6 H7 ]; simpl.
-    destruct (in_out_code_dec j P) as [ G | G ].
-    + destruct (le_lt_dec j k) as [ G1 | G1 ].
-      * left; apply H5; red in H, G; lia.
-      * right; apply H5; red in H, G; lia.
-    + apply H4 with (i := i) in G.
-      destruct (in_out_code_dec (S k) P) as [ H' | H' ].
-      * apply H2 with (i := i) in H'; red in H'; try lia.
-      * apply H4 with (i := i) in H'; lia.
-  Qed. 
+    destruct gc as [ link code H1 H2 H3 H4 H5 H6 H7 ]; simpl.
+    destruct (in_out_code_dec k P) as [ K | K ].
+    + destruct (in_out_code_dec j P) as [ J | J ].
+      * destruct (le_lt_dec j k) as [ G1 | G1 ]; [ left | right]; apply H5; red in K, J; lia.
+      * apply H4 with (i := i) in J.
+        destruct (in_out_code_dec (S k) P) as [ H' | H' ].
+        - apply H2 with (i := i) in H'; red in H'; try lia.
+        - apply H4 with (i := i) in H'; lia.
+    + apply H4 with (i := i) in K.
+      destruct (in_out_code_dec j P) as [ J | J ].
+      * apply H2 with (i := i) in J; red in J; lia.
+      * apply H4 with (i := i) in J; lia.
+  Qed.
 
   Hypotheses (Hc1 : forall x, 1 <= lc x) 
              (Hc2 : forall f n x, length (c f n x) = lc x).
