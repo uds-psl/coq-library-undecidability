@@ -310,6 +310,33 @@ Section comp.
  
   End compiler.
 
+  Section compiler_syntactic.
+
+    Variable (cs : compiler_syntactic icomp ilen).
+
+    Record compiler_correct := MkCompCorrect {
+      comp_sound    : forall P i, compiled_sound (cs_link cs P i) P (i,cs_code cs P i);
+      comp_complete : forall P i, compiled_complete (cs_link cs P i) P (i,cs_code cs P i);
+    }.
+
+    Theorem syntactic_correct : compiler_correct.
+    Proof.
+      split.
+      + intros P i; apply compiler_sound.
+        intros ? ? H; split; revert H.
+        * apply cs_subcode.
+        * apply cs_next.
+      + intros (iP,cP) iQ.
+        destruct cs as [ link code C1 C2 C3 C4 C5 C6 C7 ]; simpl.
+        intros i1 v1 w1 j2 w2 H1.
+        destruct compiler_complete' with (2 := H1) (P := (iP,cP))
+          as (i2 & v2 & w2' & H2 & H3 & H4 & H5); auto.
+        exists i2, v2.
+        (** see proof above *)
+    Admitted.
+
+  End compiler_syntactic.
+
   Theorem compiler_t_output_sound c P i i₁ v₁ i₂ v₂ w₁ : 
                     v₁ ⋈ w₁ /\ P /X/ (i₁,v₁) ~~> (i₂,v₂)
       -> exists w₂, v₂ ⋈ w₂ /\ (i,gc_code c P i) /Y/ (gc_link c P i i₁,w₁) ~~> (gc_link c P i i₂,w₂).
