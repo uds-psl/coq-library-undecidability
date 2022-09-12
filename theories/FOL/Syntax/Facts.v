@@ -45,6 +45,30 @@ Section fix_signature.
       + apply H. injection H0. now intros ->.
   Qed.
 
+(*
+  Definition size_rec {X:Type} (f : X -> nat) (P : X -> Type) :
+    (forall x, (forall y, f y < f x -> P y) -> P x) -> forall x, P x.
+  Proof.
+  refine (fun H x => H x _).
+  refine ((fix IH n y (H' : f y < n) : P y := _) (f x)).
+  destruct n as [|n].
+  - exfalso. eapply PeanoNat.Nat.nlt_0_r. apply H'.
+  - destruct (nat_eq_dec (S (f y)) (S n)) as [Heq|Hne].
+    + apply H. injection Heq. intros ->. apply IH.
+    + apply (IH n). apply Lt.lt_n_Sm_le in H'. apply PeanoNat.Nat.le_lteq in H'. destruct H'. 1:easy. subst. exfalso. now apply Hne.
+  Defined.
+
+  Lemma size_rec_cbn {X} (f:X->nat) P H (x:X) : 
+  (forall x Hf1 Hf2, (forall y (Hy1 : f y < f x), Hf1 y Hy1 = Hf2 y Hy1) -> H x Hf1 = H x Hf2) ->
+    @size_rec X f P H x = H x (fun (y:X) _ => @size_rec X f P H y).
+  Proof. unfold size_rec.
+    induction (f x). in Hirrel|-*. ; intros y.
+    - intros HC. exfalso. eapply PeanoNat.Nat.nlt_0_r. apply HC.
+    - intros Hy1. destruct nat_eq_dec eqn:Heq.
+      + apply Hirrel. intros y0 Hy0. assert (f y = n) as <- by lia. destruct f_equal. unfold eq_rect_r, eq_rect, eq_sym. f_equal.
+      + rewrite IHn. apply Hirrel. intros y0 Hy0. f_equal.
+  Qed.
+*)
   Lemma subst_size {ff : falsity_flag} rho phi :
     size (subst_form rho phi) = size phi.
   Proof.
@@ -67,10 +91,73 @@ Section fix_signature.
     - easy.
     - apply H2.
     - apply H3; apply H; lia.
-    - apply H4. intros sigma. apply H. rewrite subst_size. lia.
+    - apply H4. intros sigma. apply H. rewrite subst_size. econstructor.
+  Qed.
+(*
+
+  Lemma form_rec_subst' {ff : falsity_flag} :
+    forall P : form -> Type,
+      (match ff return ((form Σ_funcs Σ_preds ops ff) -> Type) -> Type with 
+      | falsity_off => fun _ => True
+      | falsity_on => fun P' => P' falsity
+      end) P ->
+      (forall P0 (t : vec term (ar_preds P0)), P (atom P0 t)) ->
+      (forall (b0 : binop) (f1 : form), P f1 -> forall f2 : form, P f2 -> P (bin b0 f1 f2)) ->
+      (forall (q : quantop) (f2 : form), (forall sigma, P (subst_form sigma f2)) -> P (quant q f2)) ->
+      forall (f4 : form), P f4.
+  Proof.
+    intros P H1 H2 H3 H4 phi. induction phi using (@size_rec _ size).
+    destruct phi; cbn in *.
+    - easy.
+    - apply H2.
+    - apply H3; apply X; apply Lt.le_lt_n_Sm. 1: apply Plus.le_plus_l. apply Plus.le_plus_r.
+    - apply H4. intros sigma. apply X. rewrite subst_size. econstructor.
+  Defined.
+
+  Lemma form_rec_subst'_cbn_falsity P f1 f2 f3 f4: 
+    (* forall q x H1 H2, (forall sigma, H1 sigma = H2 sigma) -> f4 q x H1 = f4 q x H2) -> *)
+    @form_rec_subst' _ P f1 f2 f3 f4 falsity = f1.
+  Proof.
+    unfold form_rec_subst'. rewrite size_rec_cbn. 1:reflexivity. intros ? ? ? ?. destruct x. 1-3: repeat f_equal.
+    + reflexivity.
+    + apply Hirrel. intros sigma. apply H.
   Qed.
 
+  Lemma form_rec_subst'_cbn_atom {ff} P f1 f2 f3 f4 p v: 
+    (forall q x H1 H2, (forall sigma, H1 sigma = H2 sigma) -> f4 q x H1 = f4 q x H2) ->
+    @form_rec_subst' ff P f1 f2 f3 f4 (atom p v) = f2 p v.
+  Proof. intros Hirrel.
+    unfold form_rec_subst'. rewrite size_rec_cbn. 1:reflexivity. intros ? ? ? ?. destruct x. 1-3: repeat f_equal.
+    + reflexivity.
+    + intros _ _. apply H.
+    + intros _ _. apply H.
+    + apply Hirrel. intros sigma. apply H.
+  Qed.
 
+  Lemma form_rec_subst'_cbn_bin {ff} P f1 f2 f3 f4 b phi psi: 
+    (forall q x H1 H2, (forall sigma, H1 sigma = H2 sigma) -> f4 q x H1 = f4 q x H2) ->
+    @form_rec_subst' ff P f1 f2 f3 f4 (bin b phi psi) =
+    f3 b phi (@form_rec_subst' ff P f1 f2 f3 f4 phi) psi (@form_rec_subst' _ P f1 f2 f3 f4 psi).
+  Proof. intros Hirrel.
+    unfold form_rec_subst'. rewrite size_rec_cbn. 1:reflexivity. intros ? ? ? ?. destruct x. 1-3: repeat f_equal.
+    + reflexivity.
+    + intros _ _. apply H.
+    + intros _ _. apply H.
+    + apply Hirrel. intros sigma. apply H.
+  Qed.
+
+  Lemma form_rec_subst'_cbn_quant {ff} P f1 f2 f3 f4 q phi: 
+    (forall q x H1 H2, (forall sigma, H1 sigma = H2 sigma) -> f4 q x H1 = f4 q x H2) ->
+    @form_rec_subst' ff P f1 f2 f3 f4 (quant q phi) =
+    f4 q phi (fun sigma => @form_rec_subst' ff P f1 f2 f3 f4 phi[sigma]).
+  Proof. intros Hirrel.
+    unfold form_rec_subst'. rewrite size_rec_cbn. 1:reflexivity. intros ? ? ? ?. destruct x. 1-3: repeat f_equal.
+    + reflexivity.
+    + intros _ _. apply H.
+    + intros _ _. apply H.
+    + apply Hirrel. intros sigma. apply H.
+  Qed.
+*)
   Lemma form_ind_subst :
     forall P : form -> Prop,
       P falsity ->
