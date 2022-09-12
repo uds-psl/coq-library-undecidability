@@ -15,7 +15,7 @@ Set Default Proof Using "Type".
 Local Notation vec := Vector.t.
 
 
-(** Tarski Semantics ***)
+(* Tarski Semantics ***)
 
 
 Section Tarski.

@@ -1,4 +1,4 @@
-(** ** Equivalence of Both Definitions *)
+(* ** Equivalence of Both Definitions *)
 
 From Undecidability.FOL.Syntax Require Import Core.
 From Undecidability.FOL.Semantics.Tarski Require Import FullCore.

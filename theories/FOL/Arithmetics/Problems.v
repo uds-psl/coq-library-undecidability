@@ -1,4 +1,4 @@
-(** * Peano Arithmetic *)
+(* * Peano Arithmetic *)
 (* ** Problems in PA *)
 From Undecidability.FOL Require Import Syntax.Core.
 From Undecidability.FOL.Arithmetics Require Export Signature FA Robinson PA.

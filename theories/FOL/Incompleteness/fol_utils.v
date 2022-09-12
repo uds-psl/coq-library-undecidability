@@ -13,7 +13,7 @@ From Equations Require Import Equations.
 Require Import Lia List.
 
 
-(** * First-order logic *)
+(* * First-order logic *)
 
 (* Notation for satisfying list theories *)
 Notation "I ⊨=L T" := (forall psi, List.In psi T -> I ⊨= psi) (at level 20).

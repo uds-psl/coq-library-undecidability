@@ -1,4 +1,4 @@
-(** * Peano Arithmetic *)
+(** ** Peano Arithmetic *)
 (* ** Axioms of PA *)
 Require Export Undecidability.FOL.Arithmetics.Robinson.
 Import Vector.VectorNotations.

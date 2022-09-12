@@ -59,7 +59,7 @@ Ltac custom_simpl := idtac.
 
 
 
-(** Overload deduction rules to also work for theories: *)
+(* Overload deduction rules to also work for theories: *)
 
 Class DeductionRules `{funcs_signature, preds_signature, falsity_flag} (context : Type) (ent : context -> form -> Type) (cons : form -> context -> context) (map : (form -> form) -> context -> context) (In : form -> context -> Prop) :=
 {
@@ -178,7 +178,7 @@ Instance tprv_WeakClass `{funcs_signature, preds_signature, falsity_flag, peirce
 
 
 
-(** Context utilities *)
+(* Context utilities *)
 
 Definition digit_to_string n := match n with
   | 0 => "0" | 1 => "1" | 2 => "2" | 3 => "3" | 4 => "4" | 5 => "5" 
@@ -295,7 +295,7 @@ Ltac create_context A := let x := create_context' A in match x with (?c, _) => c
 
 
 
-(** List inclusion Automation *)
+(* List inclusion Automation *)
 
 Ltac solve_list_incl :=
   try (repeat (try apply incl_refl; apply incl_tl)); firstorder.
@@ -303,7 +303,7 @@ Ltac solve_list_incl :=
 
 
 
-(** Variable names utilities: *)
+(* Variable names utilities: *)
 
 (* We save identifiers with the binder of a trivial function *)
 Inductive ident_name := Ident : (unit -> unit) -> ident_name.
@@ -403,7 +403,7 @@ Ltac update_binder_names := unfold named_quant; unfold named_var; add_binder_nam
 
 
 
-(** Proof Mode: *)
+(* Proof Mode: *)
 
 Notation "" := cnil (only printing).
 Notation "A" := (cblackbox A) (at level 1, only printing, format " A").
@@ -454,7 +454,7 @@ Ltac fstop :=
 
 
 
-(** Compatability tactics: *)
+(* Compatability tactics: *)
 
 (* All the tactics defined below work with the original `prv` type.
  * The following tactic lifts them to be compatible with `pm`.
@@ -588,7 +588,7 @@ Tactic Notation "get_form" hyp(H) := get_form_hyp H.
 
 
 
-(** Simplification: *)
+(* Simplification: *)
 
 #[global]
 Hint Rewrite -> @up_term : subst.
@@ -689,7 +689,7 @@ Ltac simpl_context_mapT :=
 
 
 
-(** End user proof tactics: *)
+(* End user proof tactics: *)
 
 Ltac ctx := make_compatible ltac:(fun _ => apply Ctx; firstorder).
 
@@ -1694,7 +1694,7 @@ Tactic Notation "fapply" "(" constr(T_imp) constr(x1) constr(x2) constr(x3) ")" 
 
 
 
-(** Classical Logic *)
+(* Classical Logic *)
 
 Section Classical.
   Context {Σ_funcs : funcs_signature}.
@@ -1768,7 +1768,7 @@ Tactic Notation "fcontradict" := fcontradict as "?".
 
 
 
-(** Provide general rewriting by abstracting the equality symbol and the
+(* Provide general rewriting by abstracting the equality symbol and the
     neccessary lemmas in the `Leibniz` type class *)
 
 Definition cast {X} {x y: X} {p: X -> Type}

@@ -1,5 +1,5 @@
-(** * Peano Arithmetic *)
-(** ** Signature *)
+(* * Peano Arithmetic *)
+(* ** Signature *)
 
 Require Import Undecidability.FOL.FullSyntax.
 From Undecidability.Synthetic Require Import EnumerabilityFacts.

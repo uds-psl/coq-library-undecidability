@@ -1,13 +1,13 @@
-(**************************************************************)
+(*************************************************************)
 (*   Copyright Dominique Larchey-Wendling [*]                 *)
 (*                                                            *)
 (*                             [*] Affiliation LORIA -- CNRS  *)
-(**************************************************************)
+(*************************************************************)
 (*      This file is distributed under the terms of the       *)
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
-(**************************************************************)
+(*************************************************************)
 
-(** * Halting problem for FRACTRAN programs FRACTRAN_HALTING *)
+(* * Halting problem for FRACTRAN programs FRACTRAN_HALTING *)
 
 Require Import List Arith.
 

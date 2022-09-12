@@ -1,11 +1,11 @@
-(**************************************************************)
+(*************************************************************)
 (*   Copyright Dominique Larchey-Wendling [*]                 *)
 (*                                                            *)
 (*                             [*] Affiliation LORIA -- CNRS  *)
-(**************************************************************)
+(*************************************************************)
 (*      This file is distributed under the terms of the       *)
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
-(**************************************************************)
+(*************************************************************)
 
 Require Import List Arith Nat Lia Relations Bool.
 
@@ -432,7 +432,7 @@ Section discrete_quotient.
 
   End fol_characterization.
 
-  (** R is an equivalence relation and a congruence for the interpretations
+  (* R is an equivalence relation and a congruence for the interpretations
       of all the symbols in ls and lr *)
 
   Definition fo_congruence_upto R := 
@@ -541,7 +541,7 @@ Section discrete_quotient.
 
   End build_the_discrete_model.
 
-  (** Additional results on FO definability *)
+  (* Additional results on FO definability *)
 
   Section FO_definability.
 
@@ -560,7 +560,7 @@ Section discrete_quotient.
 
   End FO_definability.
 
-  (** We have a much stronger statement than the decidability of ≐.
+  (* We have a much stronger statement than the decidability of ≐.
       In fact ≐ is first order definable and this follows from the 
       fact that X/M is finite *)
 
@@ -691,7 +691,7 @@ Section counter_model_to_class_FO_definability.
       apply fol_sem_ext; intros n Hn; now apply H in Hn as [ [] | [] ].
   Qed.
 
-  (** There is a (discrete, finite, decidable) model M over Σ2 with 
+  (* There is a (discrete, finite, decidable) model M over Σ2 with 
       two values α and β such that:
        1) FO bisimilarity (up to all symbols) is equivalent to identity
        2) no FO formula with one free variable can distinguish the elements

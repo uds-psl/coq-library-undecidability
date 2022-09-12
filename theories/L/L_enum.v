@@ -1,7 +1,7 @@
 Require Import Undecidability.L.L Undecidability.L.Enumerators.HaltL_enum.
 Require Import Undecidability.Synthetic.Definitions.
 
-(** ** HaltL is enumerable *)
+(* ** HaltL is enumerable *)
 
 Lemma HaltL_enum :
   enumerable (HaltL).

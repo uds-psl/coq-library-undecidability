@@ -1,4 +1,4 @@
-(** ** Translation from ZF over Skolem signature *)
+(* ** Translation from ZF over Skolem signature *)
 
 Require Import Undecidability.FOL.Syntax.Facts.
 Require Import Undecidability.FOL.Syntax.Asimpl.

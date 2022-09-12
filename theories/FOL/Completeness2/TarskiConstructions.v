@@ -1,6 +1,6 @@
-(** * Tarski Semantics *)
+(* * Tarski Semantics *)
 
-(** ** Generalized Theory Extension **)
+(* ** Generalized Theory Extension **)
 
 From Undecidability.FOL Require Import Syntax.Facts Syntax.Asimpl Deduction.FragmentNDFacts Syntax.Theories.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.

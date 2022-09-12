@@ -1,12 +1,12 @@
-(**************************************************************)
+(*************************************************************)
 (*   Copyright Dominique Larchey-Wendling [*]                 *)
 (*                                                            *)
 (*                             [*] Affiliation LORIA -- CNRS  *)
 (*                                                            *)
-(**************************************************************)
+(*************************************************************)
 (*      This file is distributed under the terms of the       *)
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
-(**************************************************************)
+(*************************************************************)
 
 (* A inductive characterization of list bi-inclusion
     as closure under contraction and permutation

@@ -1,4 +1,4 @@
-(** ** Axiomatisation just using membership *)
+(* ** Axiomatisation just using membership *)
 
 Require Export Undecidability.FOL.Syntax.Core.
 Require Export Undecidability.FOL.Semantics.Tarski.FullFacts.

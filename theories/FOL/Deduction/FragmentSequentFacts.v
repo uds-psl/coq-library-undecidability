@@ -1,4 +1,4 @@
-(** ** Normal Sequent Calculus **)
+(* ** Normal Sequent Calculus **)
 
 From Undecidability Require Import Shared.ListAutomation.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.

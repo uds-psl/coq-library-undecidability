@@ -1,4 +1,4 @@
-(** ** Variant allowing intensional models *)
+(* ** Variant allowing intensional models *)
 
 Require Import Undecidability.FOL.Syntax.Facts.
 Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.

@@ -156,7 +156,7 @@ Qed.
 
 
 
-(** Prv translations *)
+(* Prv translations *)
 
 Lemma T_II T phi psi :
   T ⋄ phi ⊩ psi -> T ⊩ (phi → psi).

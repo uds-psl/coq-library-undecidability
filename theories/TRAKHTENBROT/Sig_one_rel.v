@@ -1,13 +1,13 @@
-(**************************************************************)
+(*************************************************************)
 (*   Copyright Dominik Kirst              [+]                 *)
 (*             Dominique Larchey-Wendling [*]                 *)
 (*                                                            *)
 (*                             [+] Affiliation U. Sarrbrucken *)
 (*                             [*] Affiliation LORIA -- CNRS  *)
-(**************************************************************)
+(*************************************************************)
 (*      This file is distributed under the terms of the       *)
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
-(**************************************************************)
+(*************************************************************)
 
 (* The code was initially developed by Dominik Kirst to be 
     reimported to this alternate syntax & framework by @DLW 

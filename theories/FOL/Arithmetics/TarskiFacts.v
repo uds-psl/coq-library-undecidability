@@ -26,7 +26,7 @@ Section FA_models.
   Hypothesis FA_model : forall ax rho, List.In ax FA -> rho ⊨ ax.
   Arguments FA_model _ _ _ : clear implicits.
 
-  (** # <a id="imu" /> #*)
+  (* # <a id="imu" /> #*)
   Fixpoint iμ k := match k with
                    | O => iO
                    | S n => iσ (iμ n)

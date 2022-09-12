@@ -11,12 +11,12 @@ From Undecidability.DiophantineConstraints Require Import H10C.
 
 Set Default Proof Using "Type".
 
-(** Utils for H10UPC *)
+(* Utils for H10UPC *)
 
-(** This section contains useful functions and lemmas for proofs later on. *)
+(* This section contains useful functions and lemmas for proofs later on. *)
 Section Utils.
 
-  (** In the relation h10upc_sem_direct ((a,b),(c,d)), d is a function of b. *)
+  (* In the relation h10upc_sem_direct ((a,b),(c,d)), d is a function of b. *)
   Lemma c2_full (x:nat) : {y:nat | x * S x = y+y}.
   Proof. 
     induction x as [|x [y' IH]].
@@ -31,7 +31,7 @@ Section Utils.
     unfold c2. now destruct (c2_full x).
   Qed. 
 
-  (** Inversion lemma for h10upc_sem_direct (basically axiom 2) *)
+  (* Inversion lemma for h10upc_sem_direct (basically axiom 2) *)
   Lemma h10upc_inv (a b c d : nat) : h10upc_sem_direct ((a,S b),(c,d)) -> 
            {c':nat & {d':nat & h10upc_sem_direct ((a,b),(c',d')) 
                                /\ S c' = c /\ d' + b + 1 = d}}.
@@ -47,20 +47,20 @@ Section Utils.
     pose (c2_descr b) as Hb. nia.
   Qed.
 
-  (** h10upc_sem_direct is irreflexive *)
+  (* h10upc_sem_direct is irreflexive *)
   Lemma h10_rel_irref (p:nat*nat) : ~ (h10upc_sem_direct (p,p)).
   Proof.
   intros H. destruct p as [a b]. cbn in H. lia.
   Qed.
 
-  (** Utility function for finding the highest variable in a h10upc constraint *)
+  (* Utility function for finding the highest variable in a h10upc constraint *)
   Definition highest_var (x:h10upc) := match x with ((a,b),(c,d)) => Nat.max a (Nat.max b (Nat.max c d)) end.
   Lemma highest_var_descr (x:h10upc) : let hv := highest_var x in match x with ((a,b),(c,d)) => a <= hv /\ b <= hv /\ c <= hv /\ d <= hv end.
   Proof.
   destruct x as [[a b] [c d]]. cbn. repeat split; lia.
   Qed.
 
-  (** Utility function for finding the highest variable in a h10upc constraint collection *)
+  (* Utility function for finding the highest variable in a h10upc constraint collection *)
   Fixpoint highest_var_list (x:list h10upc) := match x with nil => 0 | x::xr => Nat.max (highest_var x) (highest_var_list xr) end.
   Lemma highest_var_list_descr (x:list h10upc) (h:h10upc) : In h x ->  highest_var h <= highest_var_list x.
   Proof.
@@ -71,7 +71,7 @@ Section Utils.
     + cbn. specialize (IH hx). lia.
   Qed.
 
-  (** Utility function for finding the highest value in an environment, considering variables up to some n *)
+  (* Utility function for finding the highest value in an environment, considering variables up to some n *)
   Fixpoint highest_num (env: nat -> nat) (n:nat) : nat := match n with 0 => env 0 | S n => Nat.max (env (S n)) (highest_num env n) end.
   Lemma highest_num_descr (env:nat -> nat) (n:nat) (m:nat) : m <= n -> env m <= highest_num env n.
   Proof.
@@ -84,12 +84,12 @@ Section Utils.
 
 End Utils.
 
-(** This section contains an alternative characterization of h10upc_sem_direct and some meta-theory.
+(* This section contains an alternative characterization of h10upc_sem_direct and some meta-theory.
     h10upc_sem_direct is the equational characterization of the H10UPC relation.
     h10upc_ind is presented as an alternative, inductive characterization of that relation. *)
 Section InductiveCharacterization.
 
-  (** Characterizing equations for h10upc_sem_direct *)
+  (* Characterizing equations for h10upc_sem_direct *)
 
   Definition ax1 (P : (nat*nat)*(nat*nat) -> Prop) := forall a c, P ((a,0),(c,0)) <-> a + 1 = c.
   Definition ax2 (P : (nat*nat)*(nat*nat) -> Prop) := forall a b c d , (b <> 0 /\ P ((a,b),(c,d))) <->
@@ -102,7 +102,7 @@ Section InductiveCharacterization.
   Definition sat P := ax1 P /\ ax2 P /\ ax3 P.
   Definition satw P := ax1 P /\ ax2w P.
 
-  (** Inductive definition of h10upc_sem_direct *)
+  (* Inductive definition of h10upc_sem_direct *)
   Inductive h10upc_ind : nat -> nat -> nat -> nat -> Prop :=
     base : forall a, h10upc_ind a 0 (S a) 0
   | step : forall a b c d b' c' d', h10upc_ind a b' c' d'
@@ -111,8 +111,8 @@ Section InductiveCharacterization.
                                  -> h10upc_ind c' 0 c 0
                                  -> h10upc_ind a b c d.
 
-  (** Prove that h10upc_ind and h10upc_sem_direct are equivalent. *)
-  (** First step: Show that there is no k < 0, since h10upc_ind is inductive. *)
+  (* Prove that h10upc_ind and h10upc_sem_direct are equivalent. *)
+  (* First step: Show that there is no k < 0, since h10upc_ind is inductive. *)
   Lemma h10upc_ind_not_less_0 : forall k, h10upc_ind k 0 0 0 -> False.
   Proof.
   enough (forall a b c d, h10upc_ind a b c d -> b = 0 -> c = 0 -> d = 0 -> False) as H.
@@ -127,7 +127,7 @@ Section InductiveCharacterization.
   Qed.
 
 
-  (** Next step: show equivalence for the base case. *)
+  (* Next step: show equivalence for the base case. *)
   Lemma base_equiv a c d : h10upc_sem_direct ((a,0),(c,d)) <-> h10upc_ind a 0 c d.
   Proof. split.
   * intros [H1 H2]. assert (d=0) as -> by lia. assert (c = S a) as -> by lia. apply base.
@@ -136,7 +136,7 @@ Section InductiveCharacterization.
     - exfalso. now eapply h10upc_ind_not_less_0 with b''.
   Qed.
 
-  (** Last step: show equivalence for the "step" case. *)
+  (* Last step: show equivalence for the "step" case. *)
   Lemma h10_equiv a b c d  : h10upc_sem_direct ((a,b),(c,d)) <-> h10upc_ind a b c d.
   Proof. induction b as [|b IH] in a,c,d|-*.
   - apply base_equiv.
@@ -154,7 +154,7 @@ Section InductiveCharacterization.
   Qed.
 
 
-  (** Show that h10upc_sem_direct satisfies the axioms. *)
+  (* Show that h10upc_sem_direct satisfies the axioms. *)
   Lemma eqRelSat : sat h10upc_sem_direct.
   Proof.
   split. 2:split.
@@ -168,8 +168,8 @@ Section InductiveCharacterization.
   Qed.
 
 
-  (** If P fulfills the axioms, and Q fulfills the weak axioms, then P is stronger than Q. *)
-  (** Again, first the base case: *)
+  (* If P fulfills the axioms, and Q fulfills the weak axioms, then P is stronger than Q. *)
+  (* Again, first the base case: *)
   Lemma satEquiv0 P Q : sat P -> satw Q -> forall a c d, P ((a,0),(c,d)) -> Q ((a,0),(c,d)).
   Proof. intros [HP1 [HP2 HP3]] [HQ1 HQ2] a c d.
   intros H.
@@ -177,7 +177,7 @@ Section InductiveCharacterization.
     rewrite (HP1 a c) in H. rewrite (HQ1 a c). easy.
   Qed.
 
-  (** Then the step case: *)
+  (* Then the step case: *)
   Lemma satEquiv P Q : sat P -> satw Q -> forall a b c d, P ((a,b),(c,d)) -> Q ((a,b),(c,d)).
   Proof. intros [HP1 [HP2 HP3]] [HQ1 HQ2] a b c d.
   induction b as [|b' IH] in a,c,d|-*.
@@ -192,7 +192,7 @@ Section InductiveCharacterization.
         all: apply IH; easy.
   Qed.
 
-  (** Congruence lemma: equivalent P,Q fulfill the same axioms *)
+  (* Congruence lemma: equivalent P,Q fulfill the same axioms *)
   Lemma satCongr P Q : (forall a b c d, P ((a,b),(c,d)) <-> Q ((a,b),(c,d))) -> sat P -> sat Q.
   Proof.
   intros H [H1 [H2 H3]]. split. 2:split.
@@ -208,7 +208,7 @@ Section InductiveCharacterization.
 
   Definition h10upc_ind' '((a,b),(c,d)) := h10upc_ind a b c d.
 
-  (** It follows that h10upc_ind also fulfills the axioms. *)
+  (* It follows that h10upc_ind also fulfills the axioms. *)
   Lemma indRelSat : sat h10upc_ind'.
   Proof.
   eapply satCongr with h10upc_sem_direct.
@@ -216,7 +216,7 @@ Section InductiveCharacterization.
   - apply eqRelSat.
   Qed.
 
-  (** The weak axioms are weaker. *)
+  (* The weak axioms are weaker. *)
   Lemma sat_satw P : sat P -> satw P.
   Proof.
   intros [H1 [H2 H3]]. split.

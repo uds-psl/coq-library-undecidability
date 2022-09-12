@@ -13,7 +13,7 @@ Existing Instance falsity_on.
 Variable p : peirce.
 
 
-(** Setup *)
+(* Setup *)
 
 Instance eqdec_funcs : EqDec PA_funcs_signature.
 Proof. intros x y; decide equality. Qed.

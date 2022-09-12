@@ -1,4 +1,4 @@
-(*** * Extensional Model of Z via Class Extensionality *)
+(* * Extensional Model of Z via Class Extensionality *)
 
 From Undecidability.FOL.Sets.Models Require Import Aczel.
 Local Set Implicit Arguments.

@@ -1,4 +1,4 @@
-(* * Kripke Semantics *)
+(** ** Kripke Semantics *)
 
 Require Import Undecidability.FOL.Semantics.Tarski.FragmentFacts.
 Require Export Undecidability.FOL.Semantics.Tarski.FragmentCore.

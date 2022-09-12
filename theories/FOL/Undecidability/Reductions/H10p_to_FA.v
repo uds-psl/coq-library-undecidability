@@ -1,4 +1,4 @@
-(** ** Reduction from H10 *)
+(* ** Reduction from H10 *)
 
 Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
 From Undecidability.FOL Require Import Syntax.Facts Deduction.FullNDFacts Semantics.Tarski.FullFacts Semantics.Tarski.FullSoundness.

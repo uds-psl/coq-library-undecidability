@@ -71,7 +71,7 @@ Proof.
   - apply erase_ra_rel. exists k2. eassumption.
 Defined.
 Definition theta_mu : nat -> nat -\ nat := fun c => mu_step (nat_recalg c).
-(** ** Church's thesis for mu-recursive functions *)
+(* ** Church's thesis for mu-recursive functions *)
 
 Section mu.
   Hypothesis mu_universal : is_universal theta_mu.
@@ -243,7 +243,7 @@ Section fol.
     Qed.
     
   End dprm.
-  (** ** Weak representability from DPRM *)
+  (* ** Weak representability from DPRM *)
   Section Q_weakly_represents.
     Context `{pei : peirce}.
     Hypothesis mu_universal : is_universal theta_mu.

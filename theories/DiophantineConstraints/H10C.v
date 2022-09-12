@@ -8,7 +8,7 @@
     (2) Saarland University, Saarbrücken, Germany
 *)
 
-(** * Satisfiability of elementary, square, and uniform Diophantine constraints H10C_SAT, H10SQC_SAT, and H10UC_SAT *)
+(* * Satisfiability of elementary, square, and uniform Diophantine constraints H10C_SAT, H10SQC_SAT, and H10UC_SAT *)
 
 (* 
   Problems(s):
@@ -87,7 +87,7 @@ Definition H10UC_SAT (cs: list h10uc) := exists (φ: nat -> nat), forall c, In c
 Definition h10upc := ((nat * nat) * (nat * nat))%type.
 
 
-(** Direct semantics of h10upc_sem *)
+(* Direct semantics of h10upc_sem *)
 Definition h10upc_sem_direct (c : h10upc) :=
   match c with 
     | ((x, y), (z1, z2)) => 

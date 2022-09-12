@@ -1,11 +1,11 @@
-(**************************************************************)
+(*************************************************************)
 (*   Copyright Dominique Larchey-Wendling [*]                 *)
 (*                                                            *)
 (*                             [*] Affiliation LORIA -- CNRS  *)
-(**************************************************************)
+(*************************************************************)
 (*      This file is distributed under the terms of the       *)
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
-(**************************************************************)
+(*************************************************************)
 
 Require Import Undecidability.Synthetic.Undecidability.
 
@@ -15,7 +15,7 @@ From Undecidability.PCP
 From Undecidability.StackMachines 
   Require Import BSM iPCPb_to_BSM_HALTING.
 
-(** ** BSM_HALTING is undecidable *)
+(* ** BSM_HALTING is undecidable *)
 
 Theorem BSM_undec : undecidable (BSM_HALTING).
 Proof.

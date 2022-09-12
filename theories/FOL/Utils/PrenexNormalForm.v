@@ -1,4 +1,4 @@
-(** * Prenex Normal Form *)
+(* * Prenex Normal Form *)
 From Undecidability.FOL.Syntax Require Import Core Facts Asimpl.
 From Undecidability.FOL.Semantics.Tarski Require Import FullCore FullFacts.
 From Undecidability.FOL.Arithmetics Require Import Signature.
@@ -312,7 +312,7 @@ Section PrenexNormalForm.
     - intros. apply PNF_quant. now apply IHϕ.
   Qed.
 
-  (*** convert PNF definiton ***)
+  (** convert PNF definiton ***)
   Notation upN := (iter up) (only parsing).
 
   Notation shift k := (iter S k >> var).
@@ -409,7 +409,7 @@ Section PrenexNormalForm.
   Definition convert_PNF `{falsity_flag} (f : form) : form :=
     quant_list_to_form (conv_list f) (conv_form f).
 
-  (*** prove result is in PNF ***)
+  (** prove result is in PNF ***)
 
   Lemma noQuant_ind_subst `{falsity_flag} : 
     forall φ s, noQuant_ind φ -> noQuant_ind φ[s].
@@ -441,7 +441,7 @@ Section PrenexNormalForm.
     apply list_noQuant_PNF, conv_form_noQuant.
   Qed.
 
-  (*** prove result in PNF is equivilant ***)
+  (** prove result in PNF is equivilant ***)
 
   Lemma quant_list_to_form_equiv {b: falsity_flag} qs ϕ1 ϕ2:
     (forall ρ, sat ρ ϕ1 <-> sat ρ ϕ2) -> forall ρ, sat ρ (quant_list_to_form qs ϕ1) <-> sat ρ (quant_list_to_form qs ϕ2).

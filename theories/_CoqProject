@@ -845,6 +845,19 @@ FOL/Sets/Models/ZF_conservativity.v
 FOL/Utils/FriedmanTranslation.v
 FOL/Utils/PrenexNormalForm.v
 
+FOL/FullSyntax.v
+FOL/FragmentSyntax.v
+
+FOL/Deduction/FullSequent.v
+FOL/Deduction/FullSequentFacts.v
+FOL/Completeness2/TarskiConstructions.v
+FOL/Completeness2/Consistency.v
+FOL/Completeness2/TarskiCompleteness.v
+FOL/Completeness2/KripkeCompleteness.v
+
+FOL/Deduction/FragmentSequent.v
+FOL/Deduction/FragmentSequentFacts.v
+
 FOL/Undecidability/Reductions/PCPb_to_FST.v
 FOL/Undecidability/Reductions/PCPb_to_FSTD.v
 FOL/Undecidability/Reductions/PCPb_to_HF.v
@@ -858,7 +871,6 @@ FOL/Undecidability/Reductions/ZF_to_HF.v
 FOL/Undecidability/Reductions/ZF_to_FST.v
 FOL/Undecidability/Reductions/PCPb_to_binZF.v
 FOL/Undecidability/Reductions/binZF_to_binFST.v
-
 
 FOL/Undecidability/Reductions/FSATd_to_FSATdc.v
 FOL/Undecidability/Reductions/TRAKHTENBROT_to_FSAT.v
@@ -878,12 +890,12 @@ FOL/Undecidability/binFOL_undec.v
 FOL/Undecidability/minFOL_undec.v
 FOL/Undecidability/FSAT_undec.v
 FOL/Undecidability/FSAT_direct_undec.v
+FOL/Undecidability/PA_undec.v
 FOL/Undecidability/ZF_undec.v
 FOL/Undecidability/minZF_undec.v
 FOL/Undecidability/binZF_undec.v
 FOL/Undecidability/FST_undec.v
 FOL/Undecidability/binFST_undec.v
-FOL/Undecidability/PA_undec.v
 FOL/Undecidability/FSAT.v
 
 FOL/Incompleteness/Abstract.v
@@ -902,9 +914,6 @@ FOL/Incompleteness/weak_strong.v
 FOL/Incompleteness/ctq.v
 FOL/Incompleteness/fol_incompleteness.v
 
-
-
-
 FOL/Reification/GeneralReflection.v
 FOL/Reification/DemoPA.v
 FOL/Reification/DemoPAExtensional.v
@@ -916,21 +925,6 @@ FOL/Proofmode/ProofMode.v
 FOL/Proofmode/DemoPA.v
 FOL/Proofmode/DemoZF.v
 FOL/Proofmode/DemoMinZF.v
-
-
-FOL/FullSyntax.v
-FOL/FragmentSyntax.v
-
-
-FOL/Deduction/FullSequent.v
-FOL/Deduction/FullSequentFacts.v
-
-FOL/Completeness2/TarskiConstructions.v
-FOL/Completeness2/Consistency.v
-FOL/Completeness2/TarskiCompleteness.v
-FOL/Completeness2/KripkeCompleteness.v
-FOL/Deduction/FragmentSequent.v
-FOL/Deduction/FragmentSequentFacts.v
 
 FOL/ArithmeticalHierarchy/ArithmeticalHierarchySyntactic.v
 FOL/ArithmeticalHierarchy/ArithmeticalHierarchySemantic.v

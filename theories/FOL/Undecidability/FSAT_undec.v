@@ -1,3 +1,5 @@
+(** ** Finite Satisfiability *)
+
 From Undecidability.TRAKHTENBROT Require Import bpcp red_undec fo_sig.
 From Undecidability.Synthetic Require Import Undecidability ReducibilityFacts.
 From Undecidability.FOL.Semantics.FiniteTarski Require Import Full.

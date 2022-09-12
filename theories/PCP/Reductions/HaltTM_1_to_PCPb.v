@@ -1,13 +1,13 @@
-(**************************************************************)
+(*************************************************************)
 (*   Copyright Dominique Larchey-Wendling [*]                 *)
 (*             Yannick Forster            [+]                 *)
 (*                                                            *)
 (*                             [*] Affiliation LORIA -- CNRS  *)
 (*                             [+] Affiliation Saarland Univ. *)
-(**************************************************************)
+(*************************************************************)
 (*      This file is distributed under the terms of the       *)
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
-(**************************************************************)
+(*************************************************************)
 
 (* Direct reductions from Halting of 1-TM to binary PCP *)
 

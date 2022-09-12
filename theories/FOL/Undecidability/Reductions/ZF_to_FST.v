@@ -1,4 +1,4 @@
-(** ** Indirect reduction from ZF to finite set theory with Skolem functions *)
+(* ** Indirect reduction from ZF to finite set theory with Skolem functions *)
 
 From Undecidability.FOL
      Require Import Syntax.Facts Semantics.Tarski.FullFacts Deduction.FullNDFacts.

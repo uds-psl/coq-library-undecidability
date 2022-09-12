@@ -2,9 +2,9 @@ From Undecidability Require Import SeparationLogic.MSL.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 
-(** Separation logic **)
+(* Separation logic **)
 
-(** Syntax **)
+(* Syntax **)
 
 Inductive sp_form :=
 | emp : sp_form                                    (* heap emptiness *)
@@ -19,7 +19,7 @@ Inductive sp_form :=
 | all : sp_form -> sp_form
 | ex : sp_form -> sp_form.
 
-(** Semantics **)
+(* Semantics **)
 
 Definition disjoint (h h' : heap) :=
   ~ exists l p p', (l, p) el h /\ (l, p') el h'.
@@ -42,7 +42,7 @@ Fixpoint sp_sat (s : stack) (h : heap) (P : sp_form) :=
   | simp P1 P2 => forall h', disjoint h h' -> sp_sat s h' P1 -> sp_sat s (h ++ h') P2
   end.
 
-(** Satisfiability problem **)
+(* Satisfiability problem **)
 
 Definition SLSAT (P : sp_form) :=
   exists s h, functional h /\ sp_sat s h P.

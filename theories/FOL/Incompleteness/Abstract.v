@@ -1,4 +1,3 @@
-(** * Abstract Undecidability and Incompleteness *)
 
 From Undecidability.Synthetic Require Import Definitions Undecidability.
 From Undecidability.Synthetic Require Import DecidabilityFacts EnumerabilityFacts ReducibilityFacts.
@@ -47,7 +46,7 @@ Qed.
 
 Section Abstract.
 
-  (** ** Abstract Incompleteness *)
+  (* ** Abstract Incompleteness *)
 
   Variable sentences : Type.
   Hypothesis sentences_discrete : discrete sentences.
@@ -97,7 +96,7 @@ Section Abstract.
       + apply refutable_enum.
   Qed.
 
-  (** ** Abstract Undecidability *)
+  (* ** Abstract Undecidability *)
 
   Variable models : Type.
   Variable sat : models -> sentences -> Prop.
@@ -149,7 +148,7 @@ End Abstract.
 
 
 
-(** ** Instantiation to first-order logic *)
+(* ** Instantiation to first-order logic *)
 
 From Undecidability.FOL Require Import FullSyntax Incompleteness.Axiomatisations.
 

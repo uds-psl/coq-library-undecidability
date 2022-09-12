@@ -1,5 +1,5 @@
-(** * Finite Set Theory with Adjunction Operation *)
-(** ** Axiomatisations *)
+(* * Finite Set Theory with Adjunction Operation *)
+(* ** Axiomatisations *)
 
 Require Export Undecidability.FOL.Syntax.Core.
 Require Export Undecidability.FOL.Semantics.Tarski.FullFacts.

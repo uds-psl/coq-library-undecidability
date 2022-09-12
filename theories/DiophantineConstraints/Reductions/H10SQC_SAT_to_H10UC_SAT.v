@@ -156,7 +156,7 @@ End Argument.
 
 Require Import Undecidability.Synthetic.Definitions.
 
-(** Square Diophantine Constraint Solvability many-one reduces to Uniform Diophantine Constraint Solvability *)
+(* Square Diophantine Constraint Solvability many-one reduces to Uniform Diophantine Constraint Solvability *)
 Theorem reduction : H10SQC_SAT ⪯ H10UC_SAT.
 Proof.
   exists (fun sqcs => Argument.ucs sqcs) => sqcs. constructor.

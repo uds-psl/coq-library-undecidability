@@ -1,4 +1,4 @@
-(** ** Conservativity Results for ZF *)
+(* ** Conservativity Results for ZF *)
 
 From Undecidability.FOL
      Require Import Semantics.Tarski.FullFacts Syntax.Facts Deduction.FullNDFacts.

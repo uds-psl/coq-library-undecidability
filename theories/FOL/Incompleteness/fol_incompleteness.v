@@ -1,3 +1,5 @@
+(** ** Essential Incompleteness of Q *)
+
 From Undecidability.Shared Require Import embed_nat Dec.
 From Undecidability.Synthetic Require Import Definitions EnumerabilityFacts.
 
@@ -10,7 +12,7 @@ From Undecidability.FOL.Proofmode Require Import Theories ProofMode.
 Require Import Lia String List.
 Import ListNotations.
 
-(** * Incompleteness of first-order logic *)
+(* * Incompleteness of first-order logic *)
 
 (* first-order logic with an enumerable theory is a formal system *)
 Section fol_fs.
@@ -43,7 +45,7 @@ Section fol.
   Existing Instance PA_preds_signature.
 
 
-  (** ** Q is essentially incomplete and essentially undecidable *)
+  (* ** Q is essentially incomplete and essentially undecidable *)
 
   (* Any theory that strongly separates two recursively inseparable predicates is incompelte *)
   Section incomplete_strong_repr.

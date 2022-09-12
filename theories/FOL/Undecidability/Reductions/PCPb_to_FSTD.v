@@ -1,4 +1,4 @@
-(** ** Reduction from PCP to deductive entailment *)
+(* ** Reduction from PCP to deductive entailment *)
 
 Require Import Undecidability.FOL.Syntax.Facts.
 Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.

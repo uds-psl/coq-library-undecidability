@@ -1,3 +1,6 @@
+(** * Undecidability *)
+(** ** The Entscheidungsproblem *)
+
 Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
 Require Import Undecidability.PCP.PCP_undec.
 Require Import Undecidability.FOL.Undecidability.FOL.

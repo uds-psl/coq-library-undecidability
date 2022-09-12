@@ -11,7 +11,7 @@ Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Und
 
 (* ** Validity *)
 
-(**
+(*
 Idea: The relation (#&#35;#) has the following properties:#<ul>#
 #<li>#n ~ p: n is left component of p#</li>#
 #<li>#p ~ n: p is right component of p#</li>#
@@ -25,7 +25,7 @@ Idea: The relation (#&#35;#) has the following properties:#<ul>#
 Set Default Proof Using "Type".
 Set Default Goal Selector "!".
 
-(** Some utils for iteration *)
+(* Some utils for iteration *)
 Section Utils.
 
   Lemma it_shift (X:Type) (f:X->X) v n : it f (S n) v = it f n (f v).
@@ -36,7 +36,7 @@ Section Utils.
   Qed.
 
 End Utils.
-(** The validity reduction.
+(* The validity reduction.
     We assume a list h10 for which we build a formula.
  *)
 
@@ -46,52 +46,52 @@ Section validity.
   Existing Instance falsity_on.
   Definition Pr (t t':term) := (@atom _ sig_binary _ _ tt (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))).
 
-  (** #&dollar;#k is a number *)
+  (* #&dollar;#k is a number *)
   Definition N k := Pr $k $k.
-  (** #&dollar;#k is a pair *)
+  (* #&dollar;#k is a pair *)
   Definition P' k := ¬ (N k).
-  (** If #&dollar;#k is a pair ($l,$r), where $l, $r are numbers, then t. *)
+  (* If #&dollar;#k is a pair ($l,$r), where $l, $r are numbers, then t. *)
   Definition P k l r:= P' k ∧ N l ∧ N r ∧ Pr $l $k ∧ Pr $k $r.
-  (** The pairs #&dollar;#pl = (#&dollar;#a,#&dollar;#b), #&dollar;#pr = (#&dollar;#c,#&dollar;#d) are in relation *)
+  (* The pairs #&dollar;#pl = (#&dollar;#a,#&dollar;#b), #&dollar;#pr = (#&dollar;#c,#&dollar;#d) are in relation *)
   Definition rel pl pr a b c d := P pl a b ∧ P pr c d ∧ Pr $pl $pr.
-  (** There exist  pairs relating (#&dollar;#a,#&dollar;#b) to (#&dollar;#c,#&dollar;#d) *)
+  (* There exist  pairs relating (#&dollar;#a,#&dollar;#b) to (#&dollar;#c,#&dollar;#d) *)
   Definition erel a b c d := ∃ ∃ rel 0 1 (2+a) (2+b) (2+c) (2+d). 
-  (** Axiom 1 - zero is a number *)
+  (* Axiom 1 - zero is a number *)
   Definition F_zero := N 0.
-  (** Axiom 2 - we can build (left) successors: for each pair (a,0) we have a pair (S a, 0) *)
+  (* Axiom 2 - we can build (left) successors: for each pair (a,0) we have a pair (S a, 0) *)
   Definition F_succ_left := ∀ N 0 → ∃ ∃ ∃ P 2 3 4 ∧ P 0 1 4 ∧ Pr $2 $0.
-  (** Axiom 3 - we can build right successors: (x,y)#&#35;#(a,b) -> (x,S y)#&#35;#(S a,S (b+y)) *)
+  (* Axiom 3 - we can build right successors: (x,y)#&#35;#(a,b) -> (x,S y)#&#35;#(S a,S (b+y)) *)
   Definition F_succ_right := ∀ ∀ ∀ ∀ ∀ ∀ ∀           (* 0 x 1 y 2 a 3 b 4 c 5 y' 6 a' 7 zero-const*)
                              erel 0 1 2 3 →         (* (x,y) # (a,b) *)
                             (erel 3 1 4 3 →         (* (b,y) # (c,b) *)
                             (erel 1 7 5 7 →       (* (y,0) # (y',0) *)
                             (erel 2 7 6 7 →       (* (a,0) # (a',0) *)
                             (erel 0 5 6 4))))     (* (x,y') # (a',c) *).
-  (** Generate n all quantifiers around i *)
+  (* Generate n all quantifiers around i *)
   Definition emplace_exists (n:nat) (i:form) := it (fun k => ∃ k) n i.
 
-  (** Translate our formula, one relation at a time *) 
+  (* Translate our formula, one relation at a time *) 
   Definition translate_single (h:h10upc) (nv:nat) := 
           match h with ((a,b),(c,d)) => 
             erel a b c d end.
-  (** Translate an entire instance of H10UPC, assuming a proper context *)
+  (* Translate an entire instance of H10UPC, assuming a proper context *)
   Fixpoint translate_rec (t:form) (nv:nat) (l:list h10upc) := 
           match l with nil => t
                      | l::lr => translate_single l nv ∧ translate_rec t nv lr end.
-  (** Actually translate the instance of H10UPC, by creating a proper context *)
+  (* Actually translate the instance of H10UPC, by creating a proper context *)
   Definition translate_constraints (x:list h10upc) := 
     let nv := S (highest_var_list x)
     in (emplace_exists nv (translate_rec (¬ ⊥) (S nv) x)).
 
-  (** The actual reduction instance. If h10 is a yes-instance of H10UPC, this formula is valid and vice-versa
+  (* The actual reduction instance. If h10 is a yes-instance of H10UPC, this formula is valid and vice-versa
       The 3 variables are the zero constant and two arbitrary values which define the atomic predicate for 
       Friedman translation. *)
   Definition F := ∀ F_zero → F_succ_left → F_succ_right → translate_constraints h10.
-  (** We now define our standard model. *)
+  (* We now define our standard model. *)
   Section InverseTransport.
-    (** An element of the standard model is either a number or a pair. *)
+    (* An element of the standard model is either a number or a pair. *)
     Inductive dom : Type := Num : nat -> dom | Pair : nat  -> nat -> dom.
-    (** The interpretation of our single binary relation *)
+    (* The interpretation of our single binary relation *)
     Definition dom_rel (a : dom) (b:dom) : Prop := match (a,b) with
     | (Num n1, Num n2) => n1 = n2
     | (Num n1, Pair x2 _) => n1 = x2
@@ -158,7 +158,7 @@ Section validity.
     Qed.
     Opaque P.
 
-    (** We show our model fulfills axiom 1 *)
+    (* We show our model fulfills axiom 1 *)
 
     Lemma IB_F_succ_left rho : rho_canon rho -> rho ⊨ F_succ_left.
     Proof.
@@ -168,7 +168,7 @@ Section validity.
       - eapply IB_P_i; cbn; try reflexivity. apply H0.
     Qed.
 
-    (** We show we can extract constraints from our model *)
+    (* We show we can extract constraints from our model *)
 
     Lemma IB_rel_e rho ipl ipr ia ib ic id : rho ⊨ rel ipl ipr ia ib ic id
                 -> {a&{b&{c&{d|rho ipl=Pair a b
@@ -229,7 +229,7 @@ Section validity.
 
     Ltac set_eq a b := assert (a = b) as -> by congruence.
 
-    (** We show our model fulfills axiom 2 *)
+    (* We show our model fulfills axiom 2 *)
 
     Lemma IB_F_succ_right rho : rho_canon rho -> rho ⊨ F_succ_right.
     Proof.
@@ -246,9 +246,9 @@ Section validity.
       eapply IB_erel_i; cbn. 1-4:eauto. lia.
     Qed.
 
-    (** We show we can encode constraints into our model *)
+    (* We show we can encode constraints into our model *)
 
-    (** rho_descr_phi describes that rho is defined by the solution to h10 *)
+    (* rho_descr_phi describes that rho is defined by the solution to h10 *)
     Definition rho_descr_phi rho (φ:nat->nat) n :=
          forall k, k < n -> match rho k with Num n => n = (φ k) | _ => True end.
     Lemma IB_single_constr rho φ (n:nat) (h:h10upc) : rho_descr_phi rho φ n 
@@ -266,7 +266,7 @@ Section validity.
       pose proof (Hrhophi d (ltac:(lia))) as Hpd. rewrite Hd in Hpd.
       now rewrite <- Hpa, <- Hpb, <- Hpc, <- Hpd.
     Qed. 
-    (** Helper for working with nested quantifiers *)
+    (* Helper for working with nested quantifiers *)
 
     Lemma IB_emplace_exists rho n i : 
         rho ⊨ emplace_exists n i
@@ -297,7 +297,7 @@ Section validity.
     Qed.
     Opaque emplace_exists. 
 
-    (** Final utility lemma: translate the entire list of constraints *)
+    (* Final utility lemma: translate the entire list of constraints *)
     Lemma IB_translate_rec rho phi f e hv : rho_descr_phi rho phi hv 
                             -> highest_var_list e < hv 
                             -> rho ⊨ translate_rec f (S hv) e
@@ -311,7 +311,7 @@ Section validity.
       + eapply (IB_single_constr Hrhophi). 1:lia. apply H. 
       + now apply IH1.
     Qed.
-    (** We can now extract the constraints from our translate_constraints function*)
+    (* We can now extract the constraints from our translate_constraints function*)
 
     Lemma IB_aux_transport rho : rho 0 = Num 0
                               -> rho ⊨ translate_constraints h10
@@ -329,7 +329,7 @@ Section validity.
       - lia.
     Qed.
 
-    (** To conclude, we can wrap the axioms around it.*)
+    (* To conclude, we can wrap the axioms around it.*)
     Lemma IB_fulfills rho : rho ⊨ F -> H10UPC_SAT h10.
     Proof.
       intros H. unfold F in H. pose (Num 0 .: rho) as nrho.
@@ -343,7 +343,7 @@ Section validity.
     Qed.
   End InverseTransport.
 
-  (** If F is valid, h10 has a solution: *)
+  (* If F is valid, h10 has a solution: *)
   Lemma inverseTransport : valid F -> H10UPC_SAT h10.
   Proof.
     intros H. apply (@IB_fulfills (fun b => Num 0)). apply H.
@@ -499,7 +499,7 @@ Section validity.
         + apply Nat.ltb_ge in Heq. lia.
       Qed.
     End withAxioms.
-    (** To conclude, we can wrap the axioms around it.*)
+    (* To conclude, we can wrap the axioms around it.*)
     Lemma F_correct rho : H10UPC_SAT h10 -> rho ⊨ F.
     Proof.
       intros [φ Hφ] z HA1 HA2 HA3. eapply translate_constraints_correct.
@@ -510,14 +510,14 @@ Section validity.
     Qed.
   End Transport.
 
-  (** If h10 has a solution, F is valid: *)
+  (* If h10 has a solution, F is valid: *)
   Lemma transport : H10UPC_SAT h10 -> valid F.
   Proof.
     intros H M I rho. now apply F_correct. 
   Qed.
 
 
-  (** sat things *)
+  (* sat things *)
   Lemma sat1 : (complement satis (¬ F)) -> complement (complement H10UPC_SAT) h10.
   Proof.
     intros Hc1 Hc2. apply Hc1. exists dom, IB, (fun b => Num 0). intros H.
@@ -529,7 +529,7 @@ Section validity.
     apply H. fold sat. eapply F_correct. exact Hh10.
   Qed.
 
-  (** sat things 2 *)
+  (* sat things 2 *)
   Lemma sat3 : (complement (complement satis) (¬ F)) -> complement H10UPC_SAT h10.
   Proof.
     intros Hc1 Hc2. apply Hc1.
@@ -542,7 +542,7 @@ Section validity.
     apply Hc1. eapply IB_fulfills. exact H.
   Qed.
 
-  (** sat things 3 *)
+  (* sat things 3 *)
   Lemma sat5 : satis (¬ F) -> complement H10UPC_SAT h10.
   Proof.
     intros [D [I [rho H]]] Hc. apply H. fold sat.

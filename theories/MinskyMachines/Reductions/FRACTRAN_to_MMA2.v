@@ -1,11 +1,11 @@
-(**************************************************************)
+(*************************************************************)
 (*   Copyright Dominique Larchey-Wendling [*]                 *)
 (*                                                            *)
 (*                             [*] Affiliation LORIA -- CNRS  *)
-(**************************************************************)
+(*************************************************************)
 (*      This file is distributed under the terms of the       *)
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
-(**************************************************************)
+(*************************************************************)
 
 (* A Coq computable reduction from n-registers MM termination
     to 2-registers MMA termination. Beware that the semantics

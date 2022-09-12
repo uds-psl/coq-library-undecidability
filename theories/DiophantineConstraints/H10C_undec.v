@@ -8,7 +8,7 @@
     (2) Saarland University, Saarbrücken, Germany
 *)
 
-(** ** H10C_SAT, H10SQC_SAT, and H10UC_SAT are undecidable *)
+(* ** H10C_SAT, H10SQC_SAT, and H10UC_SAT are undecidable *)
 
 (* 
   Undecidability Result(s):

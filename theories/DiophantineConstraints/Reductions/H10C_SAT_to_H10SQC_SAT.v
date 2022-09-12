@@ -131,7 +131,7 @@ End Argument.
 
 Require Import Undecidability.Synthetic.Definitions.
 
-(** Diophantine Constraint Solvability many-one reduces to Square Diophantine Constraint Solvability *)
+(* Diophantine Constraint Solvability many-one reduces to Square Diophantine Constraint Solvability *)
 Theorem reduction : H10C_SAT ⪯ H10SQC_SAT.
 Proof.
   exists (fun cs => Argument.sqcs cs) => cs. constructor.

@@ -1,4 +1,4 @@
-(** Reformulation of single Diophantine equations, i.e. p = q for Diophantine polynomials, without parameters. *)
+(* Reformulation of single Diophantine equations, i.e. p = q for Diophantine polynomials, without parameters. *)
 
 Inductive dio_op_pfree := do_add_pfree | do_mul_pfree.
 

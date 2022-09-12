@@ -152,7 +152,7 @@ Definition Uncurry {domain : list Type} {range : Type}
 
 #[export] Hint Unfold Uncurry : generic.
 
-(******************************************************************************)
+(*****************************************************************************)
 (* Rewriting with [generic] *)
 
 Smpl Create nary_prepare.
@@ -165,7 +165,7 @@ Ltac rew_generic_in_all := autounfold with generic in *;repeat smpl nary_prepare
 Tactic Notation "prove_nary" uconstr(L) :=
   intros; rew_generic_in_all; eapply L; eauto.
 
-(******************************************************************************)
+(*****************************************************************************)
 (* Applying n-ary lemmas stated using the combinators above *)
 
 Inductive Domain_goal_hint (G : Type) := Mk_domain_goal_hint : Domain_goal_hint G.
@@ -209,7 +209,7 @@ Ltac _nary_apply t L :=
 Tactic Notation "nary" "apply" uconstr(L) := _nary_apply ltac:(fun t => apply t) L.
 
 Tactic Notation "nary" "simple" "apply" uconstr(L) := _nary_apply ltac:(fun t => simple apply t) L.
-(******************************************************************************)
+(*****************************************************************************)
 (* Utilities *)
 
 Ltac list_of_tuple ty :=

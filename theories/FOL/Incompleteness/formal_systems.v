@@ -7,8 +7,8 @@ From Undecidability.Synthetic Require Import ReducibilityFacts.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
-(** * Abstract incompleteness *)
-(** ** Formal systems *)
+(* * Abstract incompleteness *)
+(* ** Formal systems *)
 
 Record FS (S : Type) (neg : S -> S) : Type := 
   mkFS { fprv : S -> Prop

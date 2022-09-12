@@ -1,4 +1,4 @@
-(** ** Reduction from PCP to semantic entailment in finite ZF *)
+(* ** Reduction from PCP to semantic entailment in finite ZF *)
 
 Require Import Undecidability.FOL.Syntax.Facts.
 Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.

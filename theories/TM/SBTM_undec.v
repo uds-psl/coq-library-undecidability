@@ -4,7 +4,7 @@ Require Import Undecidability.TM.SBTM.
 Require Undecidability.TM.Reductions.HaltTM_1_to_SBTM_HALT.
 Require Undecidability.TM.Enumerators.SBTM_HALT_enum.
 
-(** ** complement SBTM_HALT is undecidable *)
+(* ** complement SBTM_HALT is undecidable *)
 
 Lemma complement_SBTM_HALT_undec :
   undecidable (complement SBTM_HALT).
@@ -17,7 +17,7 @@ Proof.
 Qed.
 
 
-(** ** SBTM_HALT is undecidable  *)
+(* ** SBTM_HALT is undecidable  *)
 
 Lemma SBTM_HALT_undec :
   undecidable SBTM_HALT.

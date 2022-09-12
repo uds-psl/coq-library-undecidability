@@ -6,7 +6,7 @@ From Undecidability.PCP.Reductions Require
 
 Require Undecidability.StringRewriting.SR_undec.
 
-(** ** PCP is undecidable *)
+(* ** PCP is undecidable *)
 
 (* The modified Post correspondence problem is undecidable. *)
 Lemma MPCP_undec : undecidable MPCP.

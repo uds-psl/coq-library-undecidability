@@ -1,3 +1,5 @@
+(** ** Signature Minimisation *)
+
 From Undecidability.DiophantineConstraints Require Import H10C H10C_undec.
 From Undecidability.FOL.Syntax Require Import Core BinSig.
 From Undecidability.FOL Require Semantics.Tarski.FragmentFacts Deduction.FragmentNDFacts Semantics.Kripke.FragmentCore Semantics.FiniteTarski.Fragment.
@@ -72,15 +74,15 @@ Section finite.
   Import H10UPC_to_FSAT.
   Import Semantics.FiniteTarski.Fragment.
   Import Semantics.Tarski.FragmentFacts.
-  (** Reduction into fragment syntax. Step 1: define FSAT for fragment syntax *)
+  (* Reduction into fragment syntax. Step 1: define FSAT for fragment syntax *)
   Definition FSAT_frag (phi : minimalForm falsity_on) :=
   exists D (I : interp D) rho, listable D /\ decidable (fun v => i_atom (P:=tt) v) /\ @sat _ _ D I _ rho phi.
 
-  (** Also define FVAL for fragment syntax *)
+  (* Also define FVAL for fragment syntax *)
   Definition FVAL_frag (phi : minimalForm falsity_on) :=
   forall D (I : interp D) rho, listable D /\ decidable (fun v => i_atom (P:=tt) v) -> @sat _ _ D I _ rho phi.
 
-  (** Also define FVAL for negation-free fragment *)
+  (* Also define FVAL for negation-free fragment *)
   Definition FVAL_frag_no_negation (phi : minimalForm falsity_off) :=
   forall D (I : interp D) rho, listable D /\ decidable (fun v => i_atom (P:=tt) v) -> @sat _ _ D I _ rho phi.
 
@@ -100,7 +102,7 @@ Section finite.
     * eexists. apply frag_reduction_fval.
   Qed.
 
-  (** This is a conjecture *)
+  (* This is a conjecture *)
   Lemma minFiniteValidityConjecture : undecidable FVAL_frag_no_negation.
   Abort.
 

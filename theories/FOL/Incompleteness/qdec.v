@@ -11,7 +11,7 @@ Require Import String.
 
 Open Scope string_scope.
 
-(** ** Q-decidability *)
+(* ** Q-decidability *)
 Section Qdec.
   Existing Instance PA_preds_signature.
   Existing Instance PA_funcs_signature.

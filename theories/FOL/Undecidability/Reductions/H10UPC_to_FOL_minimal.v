@@ -10,7 +10,7 @@ From Coq Require Import Arith Lia List.
 
 (* ** Validity *)
 
-(**
+(*
 Idea: The relation (#&#35;#) has the following properties:#<ul>#
 #<li>#n ~ p: n is left component of p#</li>#
 #<li>#p ~ n: p is right component of p#</li>#
@@ -27,7 +27,7 @@ Set Default Goal Selector "!".
 
 Notation Pr t t' := (@atom _ sig_binary _ _ tt (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))).
 
-(** Some utils for iteration *)
+(* Some utils for iteration *)
 Section Utils.
 
   Lemma it_shift (X:Type) (f:X->X) v n : it f (S n) v = it f n (f v).
@@ -38,39 +38,39 @@ Section Utils.
   Qed.
 
 End Utils.
-(** The validity reduction.
+(* The validity reduction.
     We assume a generic falsity flag and a list h10 for which we build a formula.
  *)
 Section validity.
 
   Context {ff : falsity_flag}. 
   Context {h10 : list h10upc}.
-  (** All are placed in a context where #&dollar;#0 is the 0 constant and #&dollar;#1, #&dollar;#2 are arbitrary but fixed. *)
-  (** We do a Friedman translation, where this represents falsity. *)
+  (* All are placed in a context where #&dollar;#0 is the 0 constant and #&dollar;#1, #&dollar;#2 are arbitrary but fixed. *)
+  (* We do a Friedman translation, where this represents falsity. *)
   Definition wFalse t:= Pr $t $(S t).
-  (** We use a stronger version of falsity, which is <-> False in our standart model, to ease writing eliminators. *)
+  (* We use a stronger version of falsity, which is <-> False in our standart model, to ease writing eliminators. *)
   Definition sFalse := ∀ ∀ Pr $0 $1.
-  (** Friedman not *)
+  (* Friedman not *)
   Definition Not k t := k → wFalse t.
-  (** #&dollar;#k is a number *)
+  (* #&dollar;#k is a number *)
   Definition N k := Pr $k $k.
-  (** #&dollar;#k is a pair *)
+  (* #&dollar;#k is a pair *)
   Definition P' k := (N k) → sFalse.
-  (** If #&dollar;#k is a pair ($l,$r), where $l, $r are numbers, then t. *)
+  (* If #&dollar;#k is a pair ($l,$r), where $l, $r are numbers, then t. *)
   Definition P k l r c := P' k → N l → N r → Pr $l $k → Pr $k $r → c.
-  (** if the pairs #&dollar;#pl = (#&dollar;#a,#&dollar;#b), #&dollar;#pr = (#&dollar;#c,#&dollar;#d) are in relation, then t *)
+  (* if the pairs #&dollar;#pl = (#&dollar;#a,#&dollar;#b), #&dollar;#pr = (#&dollar;#c,#&dollar;#d) are in relation, then t *)
   Definition rel pl pr a b c d t := P pl a b (P pr c d (Pr $pl $pr → t)).
-  (** There exist (Friedman translated) pairs relating (#&dollar;#a,#&dollar;#b) to (#&dollar;#c,#&dollar;#d) *)
+  (* There exist (Friedman translated) pairs relating (#&dollar;#a,#&dollar;#b) to (#&dollar;#c,#&dollar;#d) *)
   Definition erel a b c d t := Not (∀ ∀ P 0 (2+a) (2+b) 
                                         (P 1 (2+c) (2+d)  
                                          (Pr $0 $1 → wFalse (2+t)))) t. 
-  (** Axiom 1 - zero is a number *)
+  (* Axiom 1 - zero is a number *)
   Definition F_zero := N 0.
-  (** Axiom 2 - we can build (left) successors: for each pair (a,0) we have a pair (S a, 0) *)
+  (* Axiom 2 - we can build (left) successors: for each pair (a,0) we have a pair (S a, 0) *)
   Definition F_succ_left := ∀ N 0 → Not (∀ ∀ ∀ P 2 3 4
                                                  (P 0 1 4
                                                   (Pr $2 $0 → wFalse 5))) 2.
-  (** Axiom 3 - we can build right successors: (x,y)#&#35;#(a,b) -> (x,S y)#&#35;#(S a,S (b+y)) *)
+  (* Axiom 3 - we can build right successors: (x,y)#&#35;#(a,b) -> (x,S y)#&#35;#(S a,S (b+y)) *)
   Definition F_succ_right := ∀ ∀ ∀ ∀ ∀ ∀ ∀ ∀         (*8 pairs *)
                              ∀ ∀ ∀ ∀ ∀ ∀ ∀           (* 0 x 1 y 2 a 3 b 4 c 5 y' 6 a' 15 zero-const*)
                              rel 7 8 0 1 2 3      (* (x,y) # (a,b) *)
@@ -78,31 +78,31 @@ Section validity.
                             (rel 11 12 1 15 5 15  (* (y,0) # (y',0) *)
                             (rel 13 14 2 15 6 15  (* (a,0) # (a',0) *)
                             (erel 0 5 6 4 16))))     (* (x,y') # (a',c) *).
-  (** Generate n all quantifiers around i *)
+  (* Generate n all quantifiers around i *)
   Definition emplace_forall (n:nat) (i:form) := it (fun k => ∀ k) n i.
 
-  (** Translate our formula, one relation at a time *) 
+  (* Translate our formula, one relation at a time *) 
   Definition translate_single (h:h10upc) nv := 
           match h with ((a,b),(c,d)) => 
             erel a b c d nv end.
-  (** Translate an entire instance of H10UPC, assuming a proper context *)
+  (* Translate an entire instance of H10UPC, assuming a proper context *)
   Fixpoint translate_rec (t:form) (nv:nat) (l:list h10upc) := 
           match l with nil => t
                      | l::lr => translate_single l nv → translate_rec t nv lr end.
-  (** Actually translate the instance of H10UPC, by creating a proper context *)
+  (* Actually translate the instance of H10UPC, by creating a proper context *)
   Definition translate_constraints (x:list h10upc) := 
     let nv := S (highest_var_list x)
     in (emplace_forall nv (translate_rec (Pr $(S nv) $(2+nv)) (S nv) x)) → Pr $1 $2.
 
-  (** The actual reduction instance. If h10 is a yes-instance of H10UPC, this formula is valid and vice-versa
+  (* The actual reduction instance. If h10 is a yes-instance of H10UPC, this formula is valid and vice-versa
       The 3 variables are the zero constant and two arbitrary values which define the atomic predicate for 
       Friedman translation. *)
   Definition F := ∀ ∀ ∀ F_zero → F_succ_left → F_succ_right → translate_constraints h10.
-  (** We now define our standard model. *)
+  (* We now define our standard model. *)
   Section InverseTransport.
-    (** An element of the standard model is either a number or a pair. *)
+    (* An element of the standard model is either a number or a pair. *)
     Inductive dom : Type := Num : nat -> dom | Pair : nat  -> nat -> dom.
-    (** The interpretation of our single binary relation *)
+    (* The interpretation of our single binary relation *)
     Definition dom_rel (a : dom) (b:dom) : Prop := match (a,b) with
     | (Num  0, Num  1) => H10UPC_SAT h10
     | (Num n1, Num n2) => n1 = n2
@@ -117,7 +117,7 @@ Section validity.
       exact (dom_rel (Vector.hd v) (Vector.hd (Vector.tl v))).
     Defined.
 
-    (** Now we need rewrite helpers which transform our syntactic sugar into useful statements in the model *)
+    (* Now we need rewrite helpers which transform our syntactic sugar into useful statements in the model *)
     Lemma IB_sFalse rho : rho ⊨ (∀ ∀ Pr $0 $1) <-> False.
     Proof.
     split.
@@ -208,7 +208,7 @@ Section validity.
     Qed.
     Opaque P.
 
-    (** We show our model fulfills axiom 1 *)
+    (* We show our model fulfills axiom 1 *)
 
     Lemma IB_F_succ_left rho : rho_canon rho -> rho ⊨ F_succ_left.
     Proof.
@@ -222,7 +222,7 @@ Section validity.
       apply Hc; split; lia.
     Qed.
 
-    (** We show we can extract constraints from our model *)
+    (* We show we can extract constraints from our model *)
 
     Lemma IB_rel_e rho ipl ipr ia ib ic id t : rho ⊨ rel ipl ipr ia ib ic id t 
                 -> {a&{b&{c&{d|rho ipl=Pair a b
@@ -257,7 +257,7 @@ Section validity.
     intros Habcd. apply H. exists a,b,c,d. cbn in Habcd. rewrite Hpl, Hpr in Habcd. now repeat split.
     Qed.
 
-    (** We show our model fulfills axiom 2 *)
+    (* We show our model fulfills axiom 2 *)
 
     Lemma IB_F_succ_right rho : rho_canon rho -> rho ⊨ F_succ_right.
     Proof.
@@ -282,9 +282,9 @@ Section validity.
         1:firstorder;congruence. lia.
     Qed.
 
-    (** We show we can encode constraints into our model *)
+    (* We show we can encode constraints into our model *)
 
-    (** rho_descr_phi describes that rho is defined by the solution to h10 *)
+    (* rho_descr_phi describes that rho is defined by the solution to h10 *)
     Definition rho_descr_phi rho (φ:nat->nat) n :=
          forall k, k < n -> match rho k with Num n => n = (φ k) | _ => True end.
     Lemma IB_single_constr rho φ (n:nat) (h:h10upc) : rho_descr_phi rho φ n 
@@ -308,7 +308,7 @@ Section validity.
       assert (nd = φ d) as ->. 1: pose (@Hrhophi d) as Hp; rewrite Hd in Hp; apply Hp; lia.
       apply Habcd.
     Qed. 
-    (** Helper for working with nested quantifiers *)
+    (* Helper for working with nested quantifiers *)
 
     Lemma IB_emplace_forall rho n i : 
         (forall f, (fun k => if k <? n then f (k) else rho (k-n)) ⊨ i)
@@ -339,7 +339,7 @@ Section validity.
             assert (x-n=S(x-S n)) as ->. 1:lia. easy.
     Qed.
     Opaque emplace_forall. 
-    (** Final utility lemma: translate the entire list of constraints *)
+    (* Final utility lemma: translate the entire list of constraints *)
 
     Lemma IB_translate_rec rho phi f e hv : rho_descr_phi rho phi hv 
                             -> (rho ⊨ f <-> dom_rel (rho (1+hv)) (rho (2+hv)))
@@ -359,7 +359,7 @@ Section validity.
         * easy.
         * intros Hsem. rewrite <- Hsat. apply H. intros c [il|ir]. 2:now apply HH. congruence.
     Qed.
-    (** We can now extract the constraints from our translate_constraints function*)
+    (* We can now extract the constraints from our translate_constraints function*)
 
     Lemma IB_aux_transport rho : rho 0 = Num 0
                               -> rho 1 = Num 0
@@ -387,7 +387,7 @@ Section validity.
         rewrite Hrho1, Hrho2. cbn. exists phi. easy.
     Qed.
 
-    (** To conclude, we can wrap the axioms around it.*)
+    (* To conclude, we can wrap the axioms around it.*)
     Lemma IB_fulfills rho : rho ⊨ F -> H10UPC_SAT h10.
     Proof.
       intros H. unfold F in H. pose (Num 0 .: Num 0 .: Num 1 .: rho) as nrho.
@@ -403,7 +403,7 @@ Section validity.
     Qed.
   End InverseTransport.
 
-  (** If F is valid, h10 has a solution: *)
+  (* If F is valid, h10 has a solution: *)
   Lemma inverseTransport : valid F -> H10UPC_SAT h10.
   Proof.
     intros H. apply (@IB_fulfills (fun b => Num 0)). apply H.
@@ -411,15 +411,15 @@ Section validity.
 
 End validity.
 
-(** Next is provability. Here we prove that if h10, our H10UPC_SAT instace, has a solution, F is provable.*)
+(* Next is provability. Here we prove that if h10, our H10UPC_SAT instace, has a solution, F is provable.*)
 Section provability.
-  (** Again, assume a falsity flag and a problem instance. *)
+  (* Again, assume a falsity flag and a problem instance. *)
   Context {ff : falsity_flag}. 
   Context {h10 : list h10upc}.
   Section ProvabilityTransport.
-    (** The solution to cs *)
+    (* The solution to cs *)
     Context (φ: nat -> nat). 
-    (** Proof that it actually is a solution *)
+    (* Proof that it actually is a solution *)
     Context (Hφ : forall c, In c h10 -> h10upc_sem φ c). 
 
     Instance lt_dec (n m : nat) : dec (n < m). Proof. 
@@ -429,7 +429,7 @@ Section provability.
     apply Compare_dec.le_dec.
     Defined. 
 
-    (** Some useful tactics for manipulating proof contexts. *)
+    (* Some useful tactics for manipulating proof contexts. *)
 
     Ltac var_eq := cbn; f_equal; lia.
     Ltac var_cbn := repeat (unfold up,scons,funcomp; cbn).
@@ -439,7 +439,7 @@ Section provability.
 
 
 
-    (** Helper for working with nested forall quantifiers. *)
+    (* Helper for working with nested forall quantifiers. *)
     Lemma emplace_forall_subst (n:nat) (i:form) sigma : (emplace_forall n i)[sigma] = 
           emplace_forall n (i[it up n sigma]).
     Proof.
@@ -478,13 +478,13 @@ Section provability.
         rewrite IH. do 2 destruct (Dec _). 2,3: exfalso;lia. all:var_eq.
     Qed.
 
-    (** We define the notion of a chain.
+    (* We define the notion of a chain.
         A chain contains the de Brujin indices at which chain entries are present. *)
     Inductive chain : nat -> Type := chainZ : chain 0
                                    | chainS : forall (h:nat) (n pl pr:nat), chain h -> chain (S h).
     Definition height h (c:chain h) := h.
 
-    (** We need to show some "uniqueness" lemmas for our chain, so we need an inversion lemma *)
+    (* We need to show some "uniqueness" lemmas for our chain, so we need an inversion lemma *)
     Lemma chain_inversion n (c:chain n) : (match n return chain n -> Type 
                                                    with 0 => fun cc => cc = chainZ | 
                                                         S nn => fun cc' => {'(n,pl,ph,cc) & cc' = chainS n pl ph cc} 
@@ -492,7 +492,7 @@ Section provability.
     Proof.
     destruct c as [|m n pl pr c]. 1:easy. exists (n,pl,pr,c). easy.
     Qed.
-    (** More functions on chains: chainData gets the data for some index, find* is an easier accessor *)
+    (* More functions on chains: chainData gets the data for some index, find* is an easier accessor *)
     Fixpoint chainData (h:nat) (c:chain h) (a:nat) := match c with
         @chainZ => (0,0,0)
       | @chainS _ n pl pr cc => if Dec (h=a) then (n,pl,pr) else chainData cc a end.
@@ -516,7 +516,7 @@ Section provability.
     (intros_defs a b c e f g ++ A)  ⊢I i -> (A ⊢I P a b c (P e f g i)).
     Proof. intros H. do 10 apply II. exact H. Qed.
 
-    (** Properties about our chain: numbers are N, pl and pr are in relation *)
+    (* Properties about our chain: numbers are N, pl and pr are in relation *)
     Lemma chain_proves_N (h:nat) (c:chain h) (i:nat) : i <= h -> In (N (findNum c i)) (chain_exists c).
     Proof.
     intros H. induction c as [|h n pl pr cc IH].
@@ -535,7 +535,7 @@ Section provability.
       + do 8 right. unfold findPairLow, findPairHigh, chainData. rewrite Heq. apply IH. lia.
     Qed.
 
-    (** Chains up to h can be lowered to chains up to l for l <= h *)
+    (* Chains up to h can be lowered to chains up to l for l <= h *)
     Lemma chain_lower (l:nat)  (h:nat) (c:chain h): l > 0 -> l <= h -> {cc : chain l & forall k, k <= l -> chainData c k = chainData cc k}.
     Proof.
     intros Hl Hh. revert c. assert (h=(h-l)+l) as -> by lia. generalize (h-l).
@@ -549,7 +549,7 @@ Section provability.
       + apply Hcc'. lia.
     Qed.
 
-    (** Chains are extensional, defined only by their data *)
+    (* Chains are extensional, defined only by their data *)
     Lemma chain_data_unique (h:nat) (c1 c2 : chain h) : (forall k, k <= h -> chainData c1 k = chainData c2 k) -> c1 = c2.
     Proof.
     intros Heq. induction c1 as [|h n pl pr cc IHcc].
@@ -563,7 +563,7 @@ Section provability.
         destruct (Dec (S h = k)) as [Ht|Hf]; [lia|easy].
     Qed.
 
-    (** Lowering a chain preserves the hypotheses *)
+    (* Lowering a chain preserves the hypotheses *)
     Lemma chain_exists_lower (l h :nat) (cl:chain l) (ch:chain h) : l<=h -> (forall k, k <= l -> chainData cl k = chainData ch k) 
                                                                          -> incl (chain_exists cl) (chain_exists ch).
     Proof.
@@ -576,7 +576,7 @@ Section provability.
       destruct (Dec (S dh + l =k)) as [Ht|Hf]; [lia|easy].
     Qed.
 
-    (** Chain hypotheses prove all needed lemmata *)
+    (* Chain hypotheses prove all needed lemmata *)
     Lemma chain_proves_P_Low (h:nat) (c:chain h) (i:nat) A f : h > 0 -> i < h -> incl (chain_exists c) A 
                                                             -> A ⊢I P (findPairLow c (S i)) (findNum c i) 0 f -> A ⊢I f.
     Proof.
@@ -627,7 +627,7 @@ Section provability.
     Qed.
 
 
-    (** Helper definition erel_i, along with utility lemmata. *)
+    (* Helper definition erel_i, along with utility lemmata. *)
     Definition erel_i (a b c d t : nat) := (∀ ∀ P 0 (2+a) (2+b) 
                                                (P 1 (2+c) (2+d)
                                                  (Pr $0 $1 → wFalse (2+t)))).
@@ -700,7 +700,7 @@ Section provability.
         * apply AllE, Ctx. now left.
     Qed.
 
-    (** We can create a chain up to an arbitrary index *)
+    (* We can create a chain up to an arbitrary index *)
     Lemma construct_chain_at (h:nat) HH : (h>0)
     -> incl (F_succ_right :: F_succ_left :: F_zero :: nil) HH
     -> (forall c:chain h, (chain_exists c ++  HH) ⊢I wFalse 1)
@@ -748,7 +748,7 @@ Section provability.
           in find 11.
     Qed.
       
-    (** Our chain can prove a single constraint *)
+    (* Our chain can prove a single constraint *)
     Lemma prove_single (a b c d h: nat) (cc:chain h): 
        b <= h -> a <= h -> c <= h -> d <= h
     -> h10upc_sem_direct ((a,b),(c,d))
@@ -805,7 +805,7 @@ Section provability.
     Qed.
 
 
-    (** This allows us to conclude *)
+    (* This allows us to conclude *)
     Lemma transport_prove : nil ⊢I F (h10:=h10).
     Proof using Hφ φ.
     unfold F. do 3 apply AllI. cbn. do 4 apply II. 
@@ -855,14 +855,14 @@ Section provability.
   End ProvabilityTransport.
 
 
-  (** Final reduction transport *)
+  (* Final reduction transport *)
   Lemma proofTransport : H10UPC_SAT h10 -> nil ⊢I F (h10:=h10).
   Proof.
   intros [φ Hφ]. eapply transport_prove. exact Hφ.
   Qed.
 
 
-  (** Reduction transport for validity, just a special case of the above *)
+  (* Reduction transport for validity, just a special case of the above *)
   Lemma transport : H10UPC_SAT h10 -> valid (F (h10:=h10)).
   Proof.
     intros Hh10.
@@ -873,7 +873,7 @@ Section provability.
   Qed.
 
 
-  (** Inverse transport, uses standard model from before *)
+  (* Inverse transport, uses standard model from before *)
   Lemma inverseProofTransport : nil ⊢I F (h10:=h10) -> H10UPC_SAT h10.
   Proof.
   intros H%soundness. apply inverseTransport. intros D I rho.
@@ -881,7 +881,7 @@ Section provability.
   Qed.
 End provability.
 
-(** We also have Kripke validity *)
+(* We also have Kripke validity *)
 Section kripke_validity.
   Context {ff : falsity_flag}. 
   Context {h10 : list h10upc}.
@@ -901,7 +901,7 @@ Section kripke_validity.
   Qed.
 End kripke_validity.
 
-(** We also have classical provability, assuming LEM *)
+(* We also have classical provability, assuming LEM *)
 Section classical_provability.
   Context {ff : falsity_flag}. 
   Context {h10 : list h10upc}.
@@ -919,7 +919,7 @@ Section classical_provability.
   Qed.
 End classical_provability.
 
-(** We have satisfiability, if we re-introduce negations *)
+(* We have satisfiability, if we re-introduce negations *)
 Section satisfiability.
   Context {h10 : list h10upc}.
 
@@ -939,7 +939,7 @@ Section satisfiability.
   Qed.
 End satisfiability.
 
-(** Similarly, we have Kripke satisfiability *)
+(* Similarly, we have Kripke satisfiability *)
 Section ksatisfiability.
   Context {h10 : list h10upc}.
 
@@ -966,7 +966,7 @@ End ksatisfiability.
 
 Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
 
-(** Final collection of undecidability reductions *)
+(* Final collection of undecidability reductions *)
 Section undecResults.
 
   Definition minimalSignature (f:funcs_signature) (p:preds_signature) : Prop := 

@@ -1,9 +1,9 @@
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 
-(** Minimal separation logic **)
+(* Minimal separation logic **)
 
-(** Syntax **)
+(* Syntax **)
 
 Definition sp_term := option nat.
 
@@ -16,7 +16,7 @@ Inductive msp_form :=
 | mall : msp_form -> msp_form
 | mex : msp_form -> msp_form.
 
-(** Semantics **)
+(* Semantics **)
 
 Definition val := option nat.
 Definition stack := nat -> val.
@@ -39,7 +39,7 @@ Fixpoint msp_sat (s : stack) (h : heap) (P : msp_form) :=
   | mex P => exists v, msp_sat (update_stack s v) h P
   end.
 
-(** Satisfiability problem **)
+(* Satisfiability problem **)
 
 Definition functional (h : heap) :=
   forall l p p', (l, p) el h -> (l, p') el h -> p = p'.

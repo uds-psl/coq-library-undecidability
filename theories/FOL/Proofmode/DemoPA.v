@@ -26,7 +26,7 @@ Definition FAeq := ax_refl :: ax_sym :: ax_trans :: ax_succ_congr :: ax_add_cong
 
 
 
-(** Setup *)
+(* Setup *)
 
 Instance eqdec_funcs : EqDec PA_funcs_signature.
 Proof. intros x y; decide equality. Qed.
@@ -39,7 +39,7 @@ Ltac custom_unfold ::= unfold ax_induction in *.
 (* Ltac custom_simpl ::= ... *)
 
 
-(** Proof mode and tactics demo *)
+(* Proof mode and tactics demo *)
 
 Goal forall a b c, nil ⊢ (a → (a → b) → (b → c) → c).
 Proof.
@@ -77,7 +77,7 @@ Qed.
 
 
 
-(** Setup rewriting *)
+(* Setup rewriting *)
 
 Program Instance PA_Leibniz : Leibniz PA_funcs_signature PA_preds_signature falsity_on.
 Next Obligation. exact Eq. Defined.
@@ -146,7 +146,7 @@ Abort.
 
 
 
-(** Classical logic *)
+(* Classical logic *)
 
 Goal forall phi, [] ⊢C (phi ∨ (phi → ⊥)).
 Proof.
@@ -162,7 +162,7 @@ Qed.
 
 
 Import Hoas.
-(** Euclidean Division Theorem with HOAS input language *)
+(* Euclidean Division Theorem with HOAS input language *)
 
 Notation "'σ' x" := (bFunc Succ (Vector.cons bterm x 0 (Vector.nil bterm))) (at level 32) : hoas_scope.
 Notation "x '⊕' y" := (bFunc Plus (Vector.cons bterm x 1 (Vector.cons bterm y 0 (Vector.nil bterm))) ) (at level 39) : hoas_scope.

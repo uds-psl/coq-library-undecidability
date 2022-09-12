@@ -1,5 +1,5 @@
-(** * ZF set theory without Skolem function symbols *)
-(** ** Axiomatisations using membership and equality *)
+(* * ZF set theory without Skolem function symbols *)
+(* ** Axiomatisations using membership and equality *)
 
 Require Export Undecidability.FOL.Syntax.Core.
 Require Export Undecidability.FOL.Semantics.Tarski.FullFacts.

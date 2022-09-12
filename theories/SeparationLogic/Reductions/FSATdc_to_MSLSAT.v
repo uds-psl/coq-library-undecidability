@@ -13,7 +13,7 @@ Set Default Proof Using "Type".
 
 
 
-(** encoding function following Cacagno, Yang, O'Hearn (2001) **)
+(* encoding function following Cacagno, Yang, O'Hearn (2001) **)
 
 Fixpoint encode {ff : falsity_flag} (phi : form) : msp_form :=
   match phi with
@@ -34,7 +34,7 @@ Definition encode' (phi : form) : msp_form :=
 
 
 
-(** backwards direction **)
+(* backwards direction **)
 
 Lemma map_hd X Y n (f : X -> Y) (v : Vector.t X (S n)) :
   Vector.hd (Vector.map f v) = f (Vector.hd v).
@@ -268,7 +268,7 @@ End Backwards.
 
 
 
-(** forwards direction **)
+(* forwards direction **)
 
 Section Forwards.
 
@@ -469,7 +469,7 @@ End Forwards.
 
 
 
-(** reduction theorem **)
+(* reduction theorem **)
 
 Require Import Undecidability.Synthetic.Definitions.
 Import Vector.VectorNotations.

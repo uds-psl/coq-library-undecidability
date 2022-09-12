@@ -1,4 +1,4 @@
-(** ** Arithmetical Hierarchy in Type Theory *)
+(* ** Arithmetical Hierarchy in Type Theory *)
 
 From Undecidability.Shared Require Import embed_nat.
 Require Import Lia Vector Fin List.
@@ -444,7 +444,7 @@ Section ArithmeticalHierarchySemantic.
     all: eexists; intros v; split; apply (fun x => x).
   Qed.
 
-  (** Σ and Π are complements **)
+  (* Σ and Π are complements **)
 
   Definition DN := forall P, ~~P -> P.
 

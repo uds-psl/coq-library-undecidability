@@ -1,15 +1,15 @@
-(**************************************************************)
+(*************************************************************)
 (*   Copyright Dominique Larchey-Wendling [*]                 *)
 (*             Yannick Forster            [+]                 *)
 (*                                                            *)
 (*                             [*] Affiliation LORIA -- CNRS  *)
 (*                             [+] Affiliation Saarland Univ. *)
-(**************************************************************)
+(*************************************************************)
 (*      This file is distributed under the terms of the       *)
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
-(**************************************************************)
+(*************************************************************)
 
-(** ** FRACTRAN_HALTING is undecidable *)
+(* ** FRACTRAN_HALTING is undecidable *)
 
 Require Import Undecidability.Synthetic.Undecidability.
 

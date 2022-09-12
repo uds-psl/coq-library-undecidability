@@ -1,4 +1,4 @@
-(** ** Constructive extensional model of finite set theory *)
+(* ** Constructive extensional model of finite set theory *)
 From Undecidability.FOL Require Import Syntax.Facts Semantics.Tarski.FullFacts.
 From Undecidability.FOL Require Import Sets.FST.
 From Undecidability.FOL Require Import Undecidability.Reductions.PCPb_to_FST.

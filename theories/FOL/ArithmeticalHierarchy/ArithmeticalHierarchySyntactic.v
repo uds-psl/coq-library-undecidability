@@ -1,5 +1,5 @@
-(** * Arithmetical Hierarchy *)
-(** ** Arithmetical Hierarchy in First-Order Arithmetic *)
+(* * Arithmetical Hierarchy *)
+(* ** Arithmetical Hierarchy in First-Order Arithmetic *)
 
 From Undecidability.FOL.Syntax Require Import Core.
 From Undecidability.FOL.Semantics.Tarski Require Import FullCore.

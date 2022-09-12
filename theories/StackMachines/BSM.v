@@ -1,11 +1,11 @@
-(**************************************************************)
+(*************************************************************)
 (*   Copyright Dominique Larchey-Wendling [*]                 *)
 (*                                                            *)
 (*                             [*] Affiliation LORIA -- CNRS  *)
-(**************************************************************)
+(*************************************************************)
 (*      This file is distributed under the terms of the       *)
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
-(**************************************************************)
+(*************************************************************)
 
 (* Certified Undecidability of Intuitionistic Linear Logic via Binary Stack Machines and Minsky Machines. Yannick Forster and Dominique Larchey-Wendling. CPP '19. http://uds-psl.github.io/ill-undecidability/ *)
 
@@ -16,7 +16,7 @@ From Undecidability.Shared.Libs.DLW
 
 Set Implicit Arguments.
 
-(** * Halting problem for binary stack machines BSM_HALTING  *)
+(* * Halting problem for binary stack machines BSM_HALTING  *)
 
 (* * Binary Stack Machines
    Binary stack machines have n stacks and there are just two instructions

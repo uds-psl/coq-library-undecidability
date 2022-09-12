@@ -10,7 +10,7 @@ Require Import String.
 
 
 Open Scope string_scope.
-(** ** Sigma1 completeness *)
+(* ** Sigma1 completeness *)
 
 Section Sigma1.
   Existing Instance PA_preds_signature.
@@ -18,7 +18,7 @@ Section Sigma1.
   Context {p : peirce}.
 
 
-  (** # <a id="Sigma1" /> #*)
+  (* # <a id="Sigma1" /> #*)
   Inductive Σ1 : form -> Prop :=
   | Sigma_exists : forall α, Σ1 α -> Σ1 (∃ α)
   | Sigma_Delta : forall α, Qdec α -> Σ1 α.
@@ -129,7 +129,7 @@ Section Sigma1.
   Context {p : peirce}.
 
 
-  (** # <a id="Sigma1_compression" /> #*)
+  (* # <a id="Sigma1_compression" /> #*)
   Lemma Σ1_compression φ n : bounded n φ -> Σ1 φ -> exists ψ, Qdec ψ /\ bounded (S n) ψ /\ Qeq ⊢I φ ↔ ∃ψ.
   Proof.
     intros Hb (k & ψ & HΔ & ->)%Σ1_exist_times.
@@ -245,7 +245,7 @@ Section Sigma1completeness.
 
   Context `{pei : peirce}.
 
-  (** # <a id="Sigma1_completeness" /> #*)
+  (* # <a id="Sigma1_completeness" /> #*)
   Theorem Σ1_completeness φ : Σ1 φ -> bounded 0 φ -> interp_nat ⊨= φ -> Qeq ⊢ φ.
   Proof.
     destruct pei; last apply Σ1_completeness_intu.
@@ -282,7 +282,7 @@ Section Sigma1completeness.
   Qed.
 
 
-  (** # <a id="Sigma1_witness" /> #*)
+  (* # <a id="Sigma1_witness" /> #*)
   Theorem Σ1_witness φ : Σ1 φ -> bounded 1 φ -> Qeq ⊢ ∃φ -> exists x, Qeq ⊢ φ[(num x)..].
   Proof.
     intros Hb HΣ Hφ. eapply Σ1_soundness with (rho := fun _ => 0) in Hφ as [x Hx].

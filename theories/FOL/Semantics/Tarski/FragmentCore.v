@@ -1,4 +1,4 @@
-(* * Tarski Semantics *)
+(** ** Tarski Semantics *)
 
 Require Export Undecidability.FOL.Syntax.Core.
 Require Import Undecidability.FOL.Syntax.Theories.
@@ -16,7 +16,7 @@ Local Notation vec := Vector.t.
 Import FragmentSyntax.
 Export FragmentSyntax.
 
-(** Tarski Semantics ***)
+(* Tarski Semantics ***)
 
 Section Tarski.
 

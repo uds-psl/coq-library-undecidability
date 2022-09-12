@@ -3,7 +3,7 @@ From Undecidability.Synthetic Require Import Undecidability.
 Require Import Fin.
 Local Set Implicit Arguments.
 
-(** Reduction from Diophantine equations with parameters to Diophantine equations without parameters *)
+(* Reduction from Diophantine equations with parameters to Diophantine equations without parameters *)
 
 Definition embed_poly n (p : dio_polynomial (Fin.t n) (Fin.t 0)) : dio_polynomial_pfree.
 Proof.

@@ -10,7 +10,7 @@ Import ListNotations.
 Open Scope string_scope.
 
 
-(** Some proofs from Reductions.PCPb_to_minZF done with the Proof Mode *)
+(* Some proofs from Reductions.PCPb_to_minZF done with the Proof Mode *)
 
 Section MinZF.
 

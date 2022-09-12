@@ -32,7 +32,7 @@ Definition ZF := ax_ext::ax_eset::ax_pair::ax_union::ax_power::ax_om1::ax_om2::a
 
 
 
-(** Setup rewriting *)
+(* Setup rewriting *)
 
 Program Instance ZF_Leibniz : Leibniz ZF_func_sig ZF_pred_sig falsity_on.
 Next Obligation. exact equal. Defined.

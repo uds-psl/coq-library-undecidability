@@ -11,7 +11,7 @@ Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
 
-(** ** The standard model *)
+(* ** The standard model *)
 
 Section StdModel.
 

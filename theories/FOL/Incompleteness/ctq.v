@@ -10,7 +10,7 @@ From Undecidability.FOL.Proofmode Require Import Theories ProofMode.
 Require Import Lia String List.
 Import ListNotations.
 
-(** * Church's thesis for Q *)
+(** ** Church's thesis for Q *)
 Section ctq.
   Context {pei : peirce}.
 
@@ -79,7 +79,7 @@ Section ctq_epf.
       + intros [T' HT']. apply Weak with (A := T'); firstorder.
   Qed.
 
-  (** ** Church's thesis implies EPF *)
+  (* ** Church's thesis implies EPF *)
   Lemma ctq_epfn : CTQ -> EPF_N.
   Proof.
     unshelve edestruct (@form_enumerable PA_funcs_signature PA_preds_signature enumerable_PA_funcs enumerable_PA_preds) as [f_form Hform].
@@ -136,7 +136,7 @@ Section ctq_repr.
 
   Context {p : peirce}. 
 
-  (** ** Church's thesis implies weak representability  and strong separability *)
+  (* ** Church's thesis implies weak representability  and strong separability *)
   Lemma ctq_weak_repr (ctq : CTQ_total) (P : nat -> Prop) :
     enumerable P -> exists φ,
     bounded 1 φ /\ Σ1 φ /\ forall x, P x <-> Qeq ⊢ φ[(num x)..].
@@ -536,7 +536,7 @@ Section ctq.
       + discriminate.
   Qed.
 
-  (** ** EPF_mu implies CTQ *)
+  (* ** EPF_mu implies CTQ *)
   Lemma epf_mu_uctq : uCTQ.
   Proof.
     destruct (@Q_weak_repr pei theta_mu_universal (fun t => let '(t', y) := unembed' t in let '(c, x) := unembed' t' in theta_mu c x ▷ y)) as (φ1 & Hb1 & HΣ1 & Hφ1); first apply theta_mu_enumerable.

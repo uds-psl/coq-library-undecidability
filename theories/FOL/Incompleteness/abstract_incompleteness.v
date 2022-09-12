@@ -1,3 +1,5 @@
+(** ** Abstract Incompleteness *)
+
 From Undecidability.FOL.Incompleteness Require Import utils formal_systems epf.
 
 From Undecidability.Synthetic Require Import Definitions.
@@ -9,7 +11,7 @@ Section abstract.
 
   Context {S : Type} {neg : S -> S} (fs : FS S neg).
 
-  (** ** Folklore proof using soundness *)
+  (* ** Folklore proof using soundness *)
 
   (* Any weakly representable predicate is in a decidable formal system is decidable *)
   Lemma weakly_representable_decidable' (fs' : FS S neg) (p : nat -> Prop) :
@@ -73,7 +75,7 @@ Section abstract.
 
   End halt.
 
-  (** ** Strengthened proof using consistency *)
+  (* ** Strengthened proof using consistency *)
 
   (* Any formal system strongly separating two recursively inseparable sets is undecidable *)
   Section insep.

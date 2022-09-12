@@ -5,7 +5,7 @@
     (1) Saarland University, Saarbrücken, Germany
 *)
 
-(** * Halting problem for one counter machines CM1_HALT  *)
+(* * Halting problem for one counter machines CM1_HALT  *)
 
 (* 
   Problem(s):

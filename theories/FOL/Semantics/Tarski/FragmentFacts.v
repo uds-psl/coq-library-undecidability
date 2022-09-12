@@ -1,4 +1,4 @@
-(* * Tarski Semantics *)
+(** ** Tarski Semantics Facts *)
 
 Require Import Undecidability.FOL.Syntax.Facts.
 Require Export Undecidability.FOL.Semantics.Tarski.FragmentCore.
@@ -15,7 +15,7 @@ Set Default Proof Using "Type".
 Local Notation vec := Vector.t.
 
 
-(** Tarski Semantics ***)
+(* Tarski Semantics ***)
 
 
 Section Tarski.

@@ -118,7 +118,7 @@ End Argument.
 
 Require Import Undecidability.Synthetic.Definitions.
 
-(** Square Diophantine Constraint Solvability many-one reduces to Uniform Diophantine Constraint Solvability *)
+(* Square Diophantine Constraint Solvability many-one reduces to Uniform Diophantine Constraint Solvability *)
 Theorem reduction : H10UC_SAT ⪯ H10UPC_SAT.
 Proof.
   exists Argument.upcs. split.

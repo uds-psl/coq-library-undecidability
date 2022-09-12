@@ -1,4 +1,4 @@
-(** ** Consistency *)
+(* ** Consistency *)
 
 From Undecidability.FOL Require Import Syntax.Facts Deduction.FragmentNDFacts Syntax.Theories.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.

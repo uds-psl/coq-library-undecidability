@@ -1,4 +1,4 @@
-(* * Natural Deduction *)
+(** ** Natural Deduction Facts *)
 
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 From Undecidability Require Import FOL.Syntax.Facts FOL.Syntax.Theories.

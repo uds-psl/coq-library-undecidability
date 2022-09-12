@@ -9,7 +9,7 @@ Set Default Proof Using "Type".
 
 (* Reduction from the TRAKHTENBROT development to the FSAT problems in FOL *)
 
-(** syntax translation **)
+(* syntax translation **)
 
 Definition term' := @fo_term Empty_set (fun f => match f with end).
 Definition form' := fol_form (Σrel 2).
@@ -31,7 +31,7 @@ Fixpoint translate (phi : form') : form :=
   | fol_quant fol_fa phi => ∀ translate phi
   end.
 
-(** verification **)
+(* verification **)
 
 Section Forward.
   
@@ -105,7 +105,7 @@ Section Backward.
 
 End Backward.
 
-(** reduction theorems **)
+(* reduction theorems **)
 
 Lemma reduction :
   @fo_form_fin_dec_SAT (Σrel 2) ⪯ Full.FSAT.

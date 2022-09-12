@@ -1,18 +1,18 @@
-(**************************************************************)
+(*************************************************************)
 (*   Copyright Dominique Larchey-Wendling [*]                 *)
 (*                                                            *)
 (*                             [*] Affiliation LORIA -- CNRS  *)
-(**************************************************************)
+(*************************************************************)
 (*      This file is distributed under the terms of the       *)
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
-(**************************************************************)
+(*************************************************************)
 
 Require Import Undecidability.Synthetic.Undecidability.
 
 From Undecidability.MinskyMachines 
   Require Import MMA MM2 MMA2_undec MMA2_to_MM2.
 
-(** ** MM2_HALTING is undecidable *)
+(* ** MM2_HALTING is undecidable *)
 
 Lemma MM2_HALTING_undec : undecidable MM2_HALTING.
 Proof.

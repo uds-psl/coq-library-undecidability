@@ -1,4 +1,4 @@
-(** * Halting problem for the call-by-value lambda-calculus HaltL  *)
+(* * Halting problem for the call-by-value lambda-calculus HaltL  *)
 
 (* * The call-by-value lambda calculus L *)
 
