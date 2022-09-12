@@ -22,6 +22,8 @@ Section Soundness.
   Context {Σ_funcs : funcs_signature}.
   Context {Σ_preds : preds_signature}.
 
+  Locate valid_ctx.
+
   Lemma soundness {ff : falsity_flag} A phi :
     A ⊢I phi -> valid_ctx A phi.
   Proof.

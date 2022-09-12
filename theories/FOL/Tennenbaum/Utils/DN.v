@@ -1,7 +1,13 @@
 Module DN.
-Definition ret_ {A : Prop} : A -> ~~A.                     tauto. Defined.
-Definition bind_ {A B : Prop} : ~~A -> (A -> ~~B) -> ~~B.  tauto. Defined.
-Definition remove_ {A B} : ~~A -> (A -> ~B) -> ~B.         tauto. Defined.
+Definition ret_ {A : Prop} : 
+  A -> ~~A.                     
+tauto. Defined.
+Definition bind_ {A B : Prop} : 
+  ~~A -> (A -> ~~B) -> ~~B.  
+tauto. Defined.
+Definition remove_ {A B} : 
+  ~~A -> (A -> ~B) -> ~B.         
+tauto. Defined.
 Definition lem_ X : ~~(X \/ ~X).                           tauto. Defined.
 Definition dne_ X : ~~(~~X -> X).                          tauto. Defined.
 

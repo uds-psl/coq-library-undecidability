@@ -23,12 +23,12 @@ Context {peirce_ : peirce}.
 
 (** ** CT_Q  *)
 
-(*  CT_Q internalizes computability, by claiming that every function
+(*  CT_Q internalizes computability, stating that every function
     nat -> nat is computable in a model of computation. In this case,
     the model of computaion is based on arithmetic: It represents
     functions by formulas in the language of PA in such a way that a 
     weak fragment (Q <<= PA) can prove the agreement of the formula
-    with the function on every input.  
+    with the function on every input.
  *)
 
 Definition represents ϕ f := forall x, Qeq ⊢ ∀ ϕ[(num x)..] ↔ num (f x) == $0.

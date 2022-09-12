@@ -945,3 +945,4 @@ FOL/Tennenbaum/Tarski/FullCoreT.v
 FOL/Tennenbaum/Tarski/FullFactsT.v
 FOL/Tennenbaum/Peano.v
 FOL/Tennenbaum/Formulas.v
+FOL/Tennenbaum/Makholm.v
