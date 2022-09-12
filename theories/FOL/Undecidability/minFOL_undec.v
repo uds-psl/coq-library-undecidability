@@ -4,8 +4,8 @@ From Undecidability.DiophantineConstraints Require Import H10C H10C_undec.
 From Undecidability.FOL.Syntax Require Import Core BinSig.
 From Undecidability.FOL Require Semantics.Tarski.FragmentFacts Deduction.FragmentNDFacts Semantics.Kripke.FragmentCore Semantics.FiniteTarski.Fragment.
 From Undecidability.FOL Require Semantics.Tarski.FragmentFacts Deduction.FullNDFacts.
-From Undecidability.FOL.Undecidability.Reductions Require H10UPC_to_FOL_minimal H10UPC_to_FSAT.
-From Undecidability.FOL.Undecidability.Reductions Require H10UPC_to_FOL_full_fragment.
+From Undecidability.FOL.Undecidability.Reductions Require H10UPC_to_FOL_minimal.
+From Undecidability.FOL.Undecidability.Reductions Require H10UPC_to_FOL_full_fragment H10UPC_to_FSAT.
 From Undecidability.Synthetic Require Import Definitions Undecidability ReducibilityFacts.
 
 Set Default Proof Using "Type".
@@ -49,10 +49,10 @@ Section general.
     exact proveReduction.
   Qed.
 
-  Lemma minClassicalProvabilityUndec (LEM : forall P:Prop, P \/ ~P) : undecidable class_provable.
+  Lemma minClassicalProvabilityUndec : undecidable class_provable.
   Proof.
     apply (undecidability_from_reducibility H10UPC_SAT_undec).
-    apply classicalProveReduction, LEM.
+    exact classicalProveReduction.
   Qed.
 
   Lemma minSatisfiabilityUndec : undecidable (fun k : minimalForm falsity_on => satis k).

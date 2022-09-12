@@ -811,6 +811,8 @@ FOL/Semantics/Kripke/FullCore.v
 FOL/Semantics/Kripke/FullToTarski.v
 FOL/Semantics/Kripke/FullSoundness.v
 
+FOL/Semantics/Heyting/Heyting.v
+
 FOL/Deduction/FragmentND.v
 FOL/Deduction/FragmentNDFacts.v
 FOL/Deduction/FragmentNDConsistency.v
@@ -843,6 +845,7 @@ FOL/Sets/Models/HF_model.v
 FOL/Sets/Models/ZF_conservativity.v
 
 FOL/Utils/FriedmanTranslation.v
+FOL/Utils/FriedmanTranslationFragment.v
 FOL/Utils/PrenexNormalForm.v
 
 FOL/FullSyntax.v
@@ -883,6 +886,8 @@ FOL/Undecidability/Reductions/H10UPC_to_FOL.v
 FOL/Undecidability/Reductions/H10UPC_to_FOL_full_fragment.v
 FOL/Undecidability/Reductions/H10UPC_to_FSAT.v
 FOL/Undecidability/Reductions/H10UPC_to_FOL_minimal.v
+FOL/Undecidability/Reductions/H10UPC_to_FOL_constructions.v
+FOL/Undecidability/Reductions/H10UPC_to_FOL_friedman.v
 
 FOL/Undecidability/FOL.v
 FOL/Undecidability/FOL_undec.v
