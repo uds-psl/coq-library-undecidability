@@ -326,7 +326,7 @@ Section compiler_syntactic.
   Qed.
 
   Hypotheses (Hc1 : forall x, 1 <= lc x) 
-             (Hc2 : forall f n x, length (c f n x) = lc x).
+             (Hc2 : forall lnk n x, length (c lnk n x) = lc x).
 
   Section generic_syntactic_compiler.
 
