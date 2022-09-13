@@ -853,11 +853,11 @@ FOL/FragmentSyntax.v
 
 FOL/Deduction/FullSequent.v
 FOL/Deduction/FullSequentFacts.v
-FOL/Completeness2/TarskiConstructions.v
-FOL/Completeness2/Consistency.v
-FOL/Completeness2/TarskiCompleteness.v
-FOL/Completeness2/KripkeCompleteness.v
-FOL/Completeness2/Lindenbaum.v
+FOL/Completeness/TarskiConstructions.v
+FOL/Completeness/Consistency.v
+FOL/Completeness/TarskiCompleteness.v
+FOL/Completeness/KripkeCompleteness.v
+FOL/Completeness/Lindenbaum.v
 
 FOL/Deduction/FragmentSequent.v
 FOL/Deduction/FragmentSequentFacts.v

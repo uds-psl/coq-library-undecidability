@@ -1,12 +1,11 @@
-(** * Completeness *)
-(** ** Tarski Semantics *)
+(** ** Tarski Completeness *)
 
 From Undecidability.FOL Require Import Syntax.Facts Syntax.Asimpl Deduction.FragmentNDFacts Syntax.Theories Semantics.Tarski.FragmentFacts Semantics.Tarski.FragmentSoundness.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 From Undecidability Require Import Shared.ListAutomation Shared.Dec.
 From Undecidability Require Import Shared.Libs.PSL.Vectors.Vectors Shared.Libs.PSL.Vectors.VectorForall.
 Import ListAutomationNotations.
-From Undecidability.FOL.Completeness2 Require Export TarskiConstructions.
+From Undecidability.FOL.Completeness Require Export TarskiConstructions.
 (* ** Completeness *)
 
 (* ** Standard Models **)

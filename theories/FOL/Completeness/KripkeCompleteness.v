@@ -1,4 +1,4 @@
-(* ** Completeness **)
+(** ** Kripke Completeness **)
 
 From Undecidability.FOL Require Import Syntax.Facts Syntax.Asimpl Deduction.FragmentNDFacts Syntax.Theories Semantics.Kripke.FragmentCore Semantics.Kripke.FragmentSoundness 
                                        Semantics.Kripke.FragmentToTarski Deduction.FragmentSequent Deduction.FragmentSequentFacts.
@@ -6,10 +6,10 @@ From Undecidability.Synthetic Require Import Definitions DecidabilityFacts Enume
 From Undecidability Require Import Shared.ListAutomation Shared.Dec.
 From Undecidability Require Import Shared.Libs.PSL.Vectors.Vectors Shared.Libs.PSL.Vectors.VectorForall.
 Import ListAutomationNotations.
-From Undecidability.FOL.Completeness2 Require Export TarskiCompleteness.
+From Undecidability.FOL.Completeness Require Export TarskiCompleteness.
 (* From Undecidability.FOLC Require Export Gentzen. *)
 
-(* *** Exploding and Minimal Models *)
+(* ** Universal Models *)
 
 Section KripkeCompleteness.
   Context {Σf : funcs_signature} {Σp : preds_signature}. (*
