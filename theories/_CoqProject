@@ -794,6 +794,13 @@ FOL/Syntax/BinSig.v
 FOL/Syntax/Theories.v
 FOL/Syntax/Asimpl.v
 
+FOL/Deduction/FragmentND.v
+FOL/Deduction/FragmentNDFacts.v
+FOL/Deduction/FragmentNDConsistency.v
+FOL/Deduction/FullND.v
+FOL/Deduction/FullNDFacts.v
+FOL/Deduction/FullNDConsistency.v
+
 FOL/Semantics/Tarski/FragmentCore.v
 FOL/Semantics/Tarski/FragmentFacts.v
 FOL/Semantics/Tarski/FragmentSoundness.v
@@ -807,18 +814,9 @@ FOL/Semantics/FiniteTarski/DoubleNegation.v
 FOL/Semantics/Kripke/FragmentCore.v
 FOL/Semantics/Kripke/FragmentToTarski.v
 FOL/Semantics/Kripke/FragmentSoundness.v
-FOL/Semantics/Kripke/FullCore.v
-FOL/Semantics/Kripke/FullToTarski.v
-FOL/Semantics/Kripke/FullSoundness.v
 
 FOL/Semantics/Heyting/Heyting.v
-
-FOL/Deduction/FragmentND.v
-FOL/Deduction/FragmentNDFacts.v
-FOL/Deduction/FragmentNDConsistency.v
-FOL/Deduction/FullND.v
-FOL/Deduction/FullNDFacts.v
-FOL/Deduction/FullNDConsistency.v
+FOL/Semantics/Heyting/Soundness.v
 
 FOL/Arithmetics/Signature.v
 FOL/Arithmetics/FA.v
@@ -857,7 +855,8 @@ FOL/Completeness/TarskiConstructions.v
 FOL/Completeness/Consistency.v
 FOL/Completeness/TarskiCompleteness.v
 FOL/Completeness/KripkeCompleteness.v
-FOL/Completeness/Lindenbaum.v
+FOL/Completeness/HeytingMacNeille.v
+FOL/Completeness/HeytingCompleteness.v
 
 FOL/Deduction/FragmentSequent.v
 FOL/Deduction/FragmentSequentFacts.v

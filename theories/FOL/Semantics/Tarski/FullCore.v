@@ -1,4 +1,4 @@
-(* ** Tarski Semantics *)
+(** ** Tarski Semantics *)
 
 Require Export Undecidability.FOL.Syntax.Core.
 From Undecidability Require Import Shared.ListAutomation.

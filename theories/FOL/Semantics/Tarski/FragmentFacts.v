@@ -1,5 +1,3 @@
-(** ** Tarski Semantics Facts *)
-
 Require Import Undecidability.FOL.Syntax.Facts.
 Require Export Undecidability.FOL.Semantics.Tarski.FragmentCore.
 From Undecidability Require Import Shared.ListAutomation.

@@ -1,3 +1,5 @@
+(** ** Trakhtenbrot's Theorem *)
+
 From Undecidability.PCP Require Import PCP_undec.
 From Undecidability.Synthetic Require Import Undecidability ReducibilityFacts.
 From Undecidability.FOL.Semantics.FiniteTarski Require Import Full.
