@@ -58,7 +58,7 @@ Section Signature.
     | quant q phi => quant q (cast phi)
     end.
 
-  (* Firedman translation *)
+  (* Friedman translation *)
   Fixpoint Fr {ff} (phi : @form Σ_funcs Σ_preds _ ff) : @form Σ_funcs extended_preds _ falsity_off :=
     match phi with
     | falsity => Q
