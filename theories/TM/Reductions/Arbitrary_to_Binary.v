@@ -4,7 +4,6 @@ Require Export Undecidability.TM.Basic.Mono Undecidability.TM.Compound.Multi.
 (* the above imports sidestep the import of ProgrammingTools below to avoid the dependency on Hoare *)
 (*From Undecidability.TM Require Import ProgrammingTools.*)
 From Undecidability Require Import ArithPrelim.
-Require Import Undecidability.Shared.FinTypeEquiv Undecidability.Shared.FinTypeForallExists.
 From Undecidability Require Import utils_list.
 
 Section fix_Sigma.
@@ -518,6 +517,18 @@ Proof.
       all:try exact 0. all: try lia. all: exact (fun _ _ => True).
 Qed.
 
+(* Specialized Facts *)
+Lemma fintype_forall_exists (F : finType) (P : F -> nat -> Prop) :
+  (forall x n, P x n -> forall m, m >= n -> P x m) ->
+  (forall x : F, exists n, P x n) -> exists N, forall x, P x N.
+Proof.
+  intros P_mono FE. destruct (fintype_choice FE) as [f Hf].
+  exists (list_sum (map f (elem F))).
+  intros x. apply (P_mono x _ (Hf x)).
+  destruct (in_split _ _ (elem_spec x)) as [? [? ->]].
+  rewrite map_app, list_sum_app. cbn. lia.
+Qed.
+
 Section FixM.
 
   Variable Σ : finType.
@@ -662,7 +673,6 @@ Section FixM.
     all:exact 0.
     Unshelve. all:exact 0.
   Qed.
-
 
   Lemma Step_total' :
     exists C, forall q, projT1 (Step q) ↓ fun t k => C <= k.

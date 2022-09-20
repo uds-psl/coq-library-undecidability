@@ -246,7 +246,7 @@ Section SubstLemmas.
     t[sigma]i[tau]i = t[sigma >> subst_term_i tau]i.
   Proof.
     induction t; cbn. reflexivity. f_equal. rewrite Vector.map_map.
-    apply map_ext_forall2, Forall2_identical, IH.
+    now apply map_ext_forall.
     f_equal. rewrite Vector.map_map. apply map_ext_forall, IH.
   Qed.
 

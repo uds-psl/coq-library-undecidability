@@ -153,7 +153,7 @@ Section MapCode.
     exists str' : list tau, str = map inr str' /\ map (Retr_g I) str' = map Some code.
   Proof.
     revert x code. induction str as [ | s str' IH]; intros; cbn in *.
-    - apply map_eq_nil' in H as ->. exists nil. cbn. tauto.
+    - destruct code; [|easy]. exists nil. cbn. tauto.
     - destruct code as [ | c code']; cbn in *; inv H.
       destruct s; cbn in *; inv H1.
       specialize (IH _ _ H2) as (str''&->&IH). rewrite <- IH.
@@ -180,9 +180,9 @@ Section MapCode.
       eapply inject_surject in L1 as ->; eauto.
       eapply inject_surject in L2 as ->; eauto.
       + f_equal. unfold injectSymbols. cbn. rewrite !map_map. eapply List.map_ext. intros. cbn. reflexivity.
-      + unfold surjectSymbols in L2. eapply map_eq_cons in L2 as (t & ? & -> & ? & -> % map_eq_nil').
+      + unfold surjectSymbols in L2. eapply map_eq_cons in L2 as (t & ? & -> & ? & -> % map_eq_nil).
         unfold surject in H. destruct t; cbn in *; swap 1 2. destruct (Retr_g I t); inv H. inv H.
-        intros [ | ]; intros [ | ]; try congruence; auto. inv H. eexists. cbn. reflexivity.
+        intros [ | ]; intros [ | ]; [|easy..]. inv H. eexists. cbn. reflexivity.
       + intros [ | ]; intros He; cbn; eauto.
         destruct (Retr_g I t) eqn:E1; cbn; eauto. exfalso.
         pose proof surject_inject_inr L1 as (str1'&->&L3).

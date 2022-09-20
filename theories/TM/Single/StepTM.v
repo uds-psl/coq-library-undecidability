@@ -30,17 +30,6 @@ Proof.
   - intros _. auto.
 Qed.
 
-
-(* TODO: ~> somewhere else *)
-Lemma vector_to_list_inj (X : Type) (n : nat) (xs ys : Vector.t X n) :
-  vector_to_list xs = vector_to_list ys -> xs = ys.
-Proof.
-  revert ys. induction xs as [ | x n xs IH]; intros; cbn in *.
-  - destruct_vector. reflexivity.
-  - destruct_vector. cbn in *. inv H. f_equal. auto.
-Qed.
-
-
 Section Fin.
 
   Global Coercion fin_to_nat (n : nat) (i : Fin.t n) : nat := proj1_sig (Fin.to_nat i).
@@ -323,11 +312,10 @@ Lemma map_vect_list_eq (X Y : Type) (n1 : nat) (f : X -> Y -> X) (vs : Vector.t 
   map_vect_list f vs (vector_to_list xs) = vector_to_list (Vector.map2 f xs vs).
 Proof.
   revert xs. induction vs as [ | v n1 vs IH]; intros; cbn in *.
-  - destruct_vector. cbn. reflexivity.
+  - destruct_vector. reflexivity.
   - pose proof destruct_vector_cons xs as (x'&xs'&->). cbn.
-    f_equal. auto.
+    f_equal. apply IH.
 Qed.
-
 
 Lemma destruct_tapes1 (sig : Type) (t : tapes sig 1) :
   exists t', t = [| t' |].
@@ -443,7 +431,7 @@ Section BookKeepingForRead.
     intros HMin_val HMinSucc_val.
     unshelve epose proof @insertKnownSymbols_correct (S n) (Vector.const None (S n)) min nil (vector_to_list T) _ _ _.
     - cbn. auto.
-    - cbn. apply vector_to_list_length.
+    - cbn. apply Vector.length_to_list.
     - cbn. tauto.
     - cbn in *. apply knowsFirstSymbols_all' in H. rewrite <- H.
       assert (min = Fin.F1) as -> by now apply fin_is_0. cbn.
@@ -1218,7 +1206,7 @@ Section ToSingleTape.
           pose proof finMin_opt_Some_val E as E_val.
           specialize (HLoop_cons nil (Vector.hd T') (vector_to_list (Vector.tl T'))). cbn in *.
           rewrite E_val in HLoop_cons. subst. specialize HLoop_cons with (1 := eq_refl). spec_assert HLoop_cons.
-          { rewrite vector_to_list_length. apply Nat.eqb_eq. reflexivity. } spec_assert HLoop_cons.
+          { rewrite Vector.length_to_list. apply Nat.eqb_eq. reflexivity. } spec_assert HLoop_cons.
           { hnf. cbn. clear_all. destruct_tapes. cbn. f_equal. simpl_list. now rewrite vector_cast_refl. }
           spec_assert HLoop_cons as [HLoop_cons1 ->] by (cbn; tauto).
           rewrite vector_to_list_eta in HLoop_cons1. subst T'. rewrite vector_cast_refl in *. split; auto. 
@@ -1256,7 +1244,7 @@ Section ToSingleTape.
           { rewrite <- Hk. clear_all. subst n T'. rewrite !vector_cast_refl. destruct_tapes. cbn. reflexivity. }
           {
             intros tmid [] HMove. cbn in HMove. hnf. left. exists (nil), (vector_to_list (Vector.tl T')), (Vector.hd T'). cbn. rewrite E_val. cbn. repeat split; auto.
-            - rewrite vector_to_list_length. apply Nat.eqb_eq. lia.
+            - rewrite Vector.length_to_list. apply Nat.eqb_eq. lia.
             - apply knowsFirstSymbols_nil.
             - rewrite HMove. hnf in HEncT. cbn in *. rewrite HEncT. clear_all. subst n T'. cbn. rewrite !vector_cast_refl.
               destruct_tapes. cbn. hnf. f_equal. now rewrite !map_app, !List.map_map, <- !app_assoc.
@@ -2101,10 +2089,10 @@ Section ToSingleTape.
           specialize HReadCurrenSymbols with (1 := HEncT) as [HReadCurrenSymbols ->].
           specialize HMoveToStart1 with (1 := HReadCurrenSymbols).
           specialize HDoActions with (2 := HMoveToStart1). spec_assert HDoActions.
-          { apply Nat.eqb_eq. apply vector_to_list_length. }
+          { apply Nat.eqb_eq. apply Vector.length_to_list. }
           specialize HMoveToStart2 with (1 := HDoActions).
           split.
-          - eapply atStart_contains; eauto. now rewrite map_vect_list_length, vector_to_list_length.
+          - eapply atStart_contains; eauto. now rewrite map_vect_list_length, Vector.length_to_list.
             rewrite E'. cbn. now rewrite map_vect_list_eq.
           - rewrite E'. cbn. reflexivity.
         }
@@ -2148,8 +2136,8 @@ Section ToSingleTape.
           repeat split; try lia. hnf; eauto.
           intros tmid0 [] HMoveToStart1. cbn in HMoveToStart1. specialize HMoveToStart1 with (1 := HReadCurrentSymbols).
           exists (DoActions_steps act (vector_to_list T)), (MoveToStart_steps (vector_to_list (doAct_multi T act))). repeat split; try lia.
-          { hnf. eexists. repeat split. 2: eauto. apply Nat.eqb_eq, vector_to_list_length. rewrite E. cbn. reflexivity. }
-          intros tmid1 [] HDoActions. cbn in HDoActions. specialize HDoActions with (2 := HMoveToStart1). spec_assert HDoActions by (apply Nat.eqb_eq, vector_to_list_length).
+          { hnf. eexists. repeat split. 2: eauto. apply Nat.eqb_eq, Vector.length_to_list. rewrite E. cbn. reflexivity. }
+          intros tmid1 [] HDoActions. cbn in HDoActions. specialize HDoActions with (2 := HMoveToStart1). spec_assert HDoActions by (apply Nat.eqb_eq, Vector.length_to_list).
           { hnf. eexists. repeat split. 2: eauto. rewrite map_vect_list_eq in HDoActions. now rewrite E in HDoActions. }
         }
       }

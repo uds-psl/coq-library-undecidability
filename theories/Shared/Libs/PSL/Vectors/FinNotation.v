@@ -104,25 +104,3 @@ Notation "'Fin96'" := (Fin.FS Fin95).
 Notation "'Fin97'" := (Fin.FS Fin96).
 Notation "'Fin98'" := (Fin.FS Fin97).
 Notation "'Fin99'" := (Fin.FS Fin98).
-
-(* Generate arbitrary big Fin.t's *)
-
-Ltac getFin i :=
-  match i with
-  | 0 =>
-    eapply Fin.F1
-  | S ?i' =>
-    eapply Fin.FS;
-    ltac:(getFin i')
-  end.
-
-(*
-Section Test.
-  Compute ltac:(getFin 4) : Fin.t 100.
-  Compute ltac:(getFin 8) : Fin.t 100.
-  Compute ltac:(getFin 15) : Fin.t 100.
-  Compute ltac:(getFin 16) : Fin.t 100.
-  Compute ltac:(getFin 23) : Fin.t 100.
-  Compute ltac:(getFin 42) : Fin.t 100.
-End Test.
-*)

@@ -1,3 +1,20 @@
+#[export] Hint Extern 4 => exact _ : core.  (* makes auto use type class inference *)
+
+(* ** Boolean propositions and decisions *)
+
+Coercion is_true : bool >-> Sortclass.
+
+Ltac simpl_congruence :=
+  match goal with
+  | [ H: False |- _ ] => destruct H
+  | [ H : 0 = S _ |- _] => congruence
+  | [ H : S _ = 0 |- _] => congruence
+  | [ H : true = false |- _] => congruence
+  | [ H : false = true |- _] => congruence
+  end.
+
+#[export] Hint Extern 1 => simpl_congruence : core.
+
 (* ** Inversion *)
 
 Ltac inv H := inversion H; subst; try clear H.

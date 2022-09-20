@@ -125,7 +125,7 @@ Lemma map_ext' : forall (A B : Type) (f g : A -> B) (l:list A),
 Proof.
   intros. induction l.
   -reflexivity.
-  -simpl. rewrite H;auto.  f_equal. apply IHl. intros. apply H. auto.
+  -simpl. rewrite H;auto with list.  f_equal. apply IHl. intros. apply H. auto with list.
 Qed.
 
 Lemma denoteTerm_correct phi s: Proc phi -> deClos (denoteComp phi s) = denoteTerm phi (rDeClos s).

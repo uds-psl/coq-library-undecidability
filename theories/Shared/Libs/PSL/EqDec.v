@@ -99,7 +99,7 @@ Defined.
 Instance bool_dec (b: bool) :
   dec b.
 Proof. 
-  unfold dec. destruct b; cbn; auto. 
+  unfold dec. now destruct b; [left|right]. 
 Defined.
 
 #[global]

@@ -69,6 +69,35 @@ Proof.
   lia.
 Qed.
 
+
+(* toSumlist1 does not change the number of occurences of an existing element in the list *)
+Lemma toSumList1_count (X: eqType) (x: X) (Y: eqType) (A: list X) :
+  count (toSumList1 Y A) (inl x) =  count A x .
+Proof.
+  induction A; simpl; dec; congruence.  
+Qed.
+
+(* toSumlist2 odes not change the numbe of occurences of an existing element in the list *)
+Lemma toSumList2_count (X Y: eqType) (y: Y) (A: list Y):
+  count (toSumList2 X A) (inr y) = count A y.
+Proof.
+  induction A; simpl; dec; congruence.  
+Qed.
+
+(* to sumList1 does not produce inr proofs *)
+Lemma toSumList1_missing (X Y: eqType) (y: Y) (A: list X):
+  count (toSumList1 Y A ) (inr y) = 0.                           
+Proof.
+  induction A; dec; firstorder.
+Qed.
+
+(* toSumlist2 does not produce inl proofs *)
+Lemma toSumList2_missing (X Y: eqType) (x: X) (A: list Y):
+  count (toSumList2 X A ) (inl x) = 0.                           
+Proof.
+  induction A; dec; firstorder.
+Qed.
+
 Lemma sum_enum_ok (X: finType) (Y: finType) x :
   count (toSumList1 Y (elem X) ++ toSumList2 X (elem Y)) x = 1.
 Proof.

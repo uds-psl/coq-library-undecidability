@@ -84,8 +84,8 @@ Section fix_sig.
       { unfold f. extract. solverec. unfold c__max1, max_time, c__max2. solverec. }
 
       eapply computableTimeExt. exact H'.
-      extract. solverec. unfold sizeOfmTapes. rewrite vector_fold_left_to_list,fold_symmetric. 2,3:intros;nia.
-      rewrite vector_map_to_list,to_list_length.
+      extract. solverec. unfold sizeOfmTapes. rewrite Vector.to_list_fold_left,fold_symmetric. 2,3:intros;nia.
+      rewrite Vector.to_list_map, to_list_length.
       set (List.fold_right _ _ _). nia. 
     Qed.
 
