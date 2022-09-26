@@ -41,6 +41,7 @@ Instance sig_pred : preds_signature :=
 (* ** List of decision problems concerning validity, satisfiability and provability *)
 
 (* Provability and validity of minimal logic without falsity *)
+Notation "FOL*_prv_class" := (@prv _ _ falsity_off class nil).
 Notation "FOL*_prv_intu" := (@prv _ _ falsity_off intu nil).
 Notation "FOL*_valid" := (@valid _ _ falsity_off).
 
