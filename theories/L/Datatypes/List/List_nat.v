@@ -30,36 +30,3 @@ Instance term_repeat A `{encodable A}: computableTime' (@repeat A) (fun _ _ => (
 Proof.
   extract. solverec.
 Qed.
-
-
-Section Fix_X.
-  Context {X:Type} {intX : encodable X}.
-
-  Variable X_eqb : X -> X -> bool.
-  Hypothesis X_eqb_spec : (forall (x y:X), Bool.reflect (x=y) (X_eqb x y)).
-    
-  Definition pos_nondec :=
-    fix pos_nondec (eqb: X -> X -> bool) (s : X) (A : list X) {struct A} : option nat :=
-      match A with
-      | [] => None
-      | a :: A0 =>
-        if eqb s a
-        then Some 0
-        else match pos_nondec eqb s A0 with
-            | Some n => Some (S n)
-            | None => None
-            end
-      end.
-
-  Lemma pos_nondec_spec (x:X) `{eq_dec X} A: pos_nondec X_eqb x A = pos x A.
-  Proof using X_eqb_spec.
-    induction A;[reflexivity|];cbn.
-    rewrite IHA. destruct (X_eqb_spec x a); repeat (destruct _; try congruence).
-  Defined. (* because other extract *)
-
-  Global Instance term_pos_nondec:
-    computable pos_nondec.
-  Proof.
-    extract.
-  Defined. (* because other extract *)
-End Fix_X.

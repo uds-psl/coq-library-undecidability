@@ -240,7 +240,7 @@ Section MoveToSymbol.
       rewrite MoveToSymbol_Fun_equation in H; cbn; auto.
     - simpl_tape in *. rewrite e, e0 in H. cbn in *. simpl_tape in *. now apply mirror_tape_inv_midtape' in H as ->.
     - simpl_tape in *. rewrite e, e0 in H. cbn in *. simpl_tape in *. auto.
-    - simpl_tape in *. destruct (current t); cbn in *; auto. now apply mirror_tape_injective in H.
+    - simpl_tape in *. destruct (current t); cbn in *; [easy|]. now apply mirror_tape_injective in H.
   Qed.
 
 
@@ -251,7 +251,7 @@ Section MoveToSymbol.
       rewrite MoveToSymbol_L_Fun_equation in H; cbn; auto.
     - simpl_tape in *. rewrite e, e0 in H. cbn in *. simpl_tape in *. now apply mirror_tape_inv_midtape' in H as ->.
     - simpl_tape in *. rewrite e, e0 in H. cbn in *. simpl_tape in *. auto.
-    - simpl_tape in *. destruct (current t); cbn in *; auto. now apply mirror_tape_injective in H.
+    - simpl_tape in *. destruct (current t); cbn in *; [easy|]. now apply mirror_tape_injective in H.
   Qed.
 
 
@@ -282,7 +282,7 @@ Section MoveToSymbol.
       simpl_tape in *; cbn in *; rewrite MoveToSymbol_steps_equation.
     - simpl_tape. now rewrite e, e0.
     - simpl_tape. rewrite e, e0. rewrite IHn. cbn. now simpl_tape.
-    - simpl_tape. destruct (current t); cbn in *; auto.
+    - simpl_tape. destruct (current t); cbn in *; easy.
   Qed.
 
   Lemma MoveToSymbol_L_Terminates :
@@ -363,7 +363,7 @@ Section MoveToSymbol_Sem.
   intros HStopR HStopX.
   destruct rs as [ | s s'] eqn:E; cbn.
   - rewrite MoveToSymbol_Fun_equation. cbn. rewrite HStopX. reflexivity.
-  - rewrite MoveToSymbol_correct_midtape; auto. rewrite <- !app_assoc. reflexivity.
+  - rewrite MoveToSymbol_correct_midtape; auto with list. rewrite <- !app_assoc. reflexivity.
   Qed.
 
 
@@ -414,7 +414,7 @@ Section MoveToSymbol_Sem.
   intros HStopL HStopX.
   destruct ls as [ | s s'] eqn:E; cbn.
   - rewrite MoveToSymbol_L_Fun_equation. cbn. rewrite HStopX. reflexivity.
-  - rewrite MoveToSymbol_L_correct_midtape; auto. rewrite <- !app_assoc. reflexivity.
+  - rewrite MoveToSymbol_L_correct_midtape; auto with list. rewrite <- !app_assoc. reflexivity.
   Qed.
 
 
@@ -466,11 +466,11 @@ Section MoveToSymbol_Sem.
     - rewrite <- Ht in Hcur. destruct (current t) eqn:Hcur'.
       2:{exfalso. destruct Hcur as [? H']. now discriminate H'. }
       rewrite MoveToSymbol_steps_equation. rewrite Hcur'.
-      rewrite Hhalt. 2:{destruct t;inv Hcur'. now inv Ht. }
+      rewrite Hhalt. 2:{destruct t;inv Hcur'. inv Ht. now trivial with list. }
       setoid_rewrite IHtr.
       +now cbn;nia.
       +cbn. rewrite tape_local_move_right'. symmetry in Ht. erewrite tape_local_right;eauto.
-      +intros. eapply Hhalt. eauto.
+      +intros. eapply Hhalt. eauto with list.
   Qed.
 
   Corollary MoveToSymbol_steps_midtape_end tl c tr :

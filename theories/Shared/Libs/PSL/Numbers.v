@@ -66,22 +66,4 @@ Section Iteration.
   Proof.
     intros A B. induction n; cbn; auto.
   Qed.
-
-  Definition FP (x : X) : Prop := f x = x.
-
-  Lemma it_fp (sigma : X -> nat) x :
-    (forall n, FP (it n x) \/ sigma (it n x) > sigma (it (S n) x)) ->
-    FP (it (sigma x) x).
-  Proof.
-    intros A.
-    assert (B: forall n, FP (it n x) \/ sigma x >= n + sigma (it n x)).
-    { intros n; induction n; cbn.
-      - auto. 
-      - destruct IHn as [B|B].
-        + left. now rewrite B. 
-        + destruct (A n) as [C|C].
-          * left. now rewrite C. 
-          * right. cbn in C. lia. }
-    destruct (A (sigma x)), (B (sigma x)); auto; exfalso; lia.
-  Qed.
 End Iteration.

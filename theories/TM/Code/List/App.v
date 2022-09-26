@@ -136,7 +136,7 @@ Section Append.
             -- lia.
             -- f_equal. cbn. rewrite rev_involutive, <- !app_assoc, !map_map. rewrite !encode_list_app. rewrite map_app, <- app_assoc.
                rewrite <- map_removelast. f_equal. cbn [encode_list].
-               rewrite removelast_cons by (intros (?&?) % appendNil; congruence).
+               rewrite removelast_cons by (intros (?&?) % app_eq_nil; congruence).
                cbn. f_equal.
                rewrite !map_app, <- !app_assoc.
                rewrite !removelast_app by congruence.

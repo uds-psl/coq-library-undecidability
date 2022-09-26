@@ -76,7 +76,7 @@ Proof.
   cbn.
   destruct (eqb_spec a a').
   -subst a. destruct H2.
-   2:now exfalso.
+   2:exfalso.
    eapply H1. all:easy.
   -apply IHL. all:intros.
    +eapply H1. all:eauto.

@@ -1,6 +1,4 @@
 From Undecidability Require TM.TM TM.KOSBTM.KOSBTM.
-Require Import Undecidability.Shared.FinTypeEquiv.
-(* Require Import Undecidability.L.Functions.FinTypeLookup. *)
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes Undecidability.Shared.Libs.PSL.Vectors.Vectors.
 Require Undecidability.TM.Util.TM_facts.
 Import VectorNotations2.

@@ -273,10 +273,7 @@ Section Usefull_Retracts.
       ].
   Defined.
 
-
-
   (* We can map retracts over sums, similiary as we have done with inversions *)
-
   Section Retract_sum.
 
     Definition retract_sum_f (f1: A -> C) (f2: B -> D) : A+B -> C+D :=
@@ -316,84 +313,3 @@ Section Usefull_Retracts.
   End Retract_sum.
 
 End Usefull_Retracts.
-
-
-
-(* If we have a retract from [A] to [Z] and a retract from [B] to Z, in general it is not possible
- * to build a retract from [A+B] to [Z]. For example, there can be no retract from [unit+unit] to
- * [unit]. However, it is possible when the images of the injections are distint.
- *)
-Section Join.
-
-  Variable A B Z : Type.
-
-  Variable retr1 : Retract A Z.
-  Variable retr2 : Retract B Z.
-
-  Local Arguments Retr_f {_ _} (Retract).
-  Local Arguments Retr_g {_ _} (Retract).
-
-  Definition retract_join_f s :=
-    match s with
-    | inl a => Retr_f retr1 a
-    | inr b => Retr_f retr2 b
-    end.
-
-  Definition retract_join_g z :=
-    match Retr_g retr1 z with
-    | Some a => Some (inl a)
-    | None =>
-      match Retr_g retr2 z with
-      | Some b => Some (inr b)
-      | None => None
-      end
-    end.
-
-  Hypothesis disjoint : forall (a : A) (b : B), Retr_f _ a <> Retr_f _ b.
-
-  Lemma retract_join : retract retract_join_f retract_join_g.
-  Proof using disjoint.
-    unfold retract_join_f, retract_join_g. hnf; intros s z; split.
-    - destruct s as [a|b]; intros H.
-      + destruct (Retr_g retr1 z) eqn:E.
-        * inv H. now apply retract_g_inv in E.
-        * destruct (Retr_g retr2 z) eqn:E2; inv H.
-      + destruct (Retr_g retr1 z) eqn:E.
-        * inv H.
-        * destruct (Retr_g retr2 z) eqn:E2.
-          -- inv H. now apply retract_g_inv in E2.
-          -- inv H.
-    - intros ->. destruct s as [a|b]; retract_adjoint. reflexivity.
-      destruct (Retr_g retr1 (Retr_f retr2 b)) eqn:E.
-      + exfalso. apply retract_g_inv in E. symmetry in E. now apply disjoint in E.
-      + reflexivity.
-  Qed.
-
-  Local Instance Retract_join : Retract (A+B) Z := Build_Retract retract_join.
-
-End Join.
-
-
-
-
-
-(* More instances like [Retract_sum] for bigger sums. *)
-
-Section MoreSums.
-
-  Local Instance Retract_sum3 (A A' B B' C C' : Type) (retr1 : Retract A A') (retr2 : Retract B B') (retr3 : Retract C C') :
-    Retract (A+B+C) (A'+B'+C') := Retract_sum (Retract_sum retr1 retr2) retr3.
-
-  Local Instance Retract_sum4 (A A' B B' C C' D D' : Type) (retr1 : Retract A A') (retr2 : Retract B B') (retr3 : Retract C C') (retr4 : Retract D D') :
-    Retract (A+B+C+D) (A'+B'+C'+D') := Retract_sum (Retract_sum (Retract_sum retr1 retr2) retr3) retr4.
-
-  Local Instance Retract_sum5 (A A' B B' C C' D D' E E' : Type) (retr1 : Retract A A') (retr2 : Retract B B') (retr3 : Retract C C') (retr4 : Retract D D') (retr5 : Retract E E') :
-    Retract (A+B+C+D+E) (A'+B'+C'+D'+E') := Retract_sum (Retract_sum (Retract_sum (Retract_sum retr1 retr2) retr3) retr4) retr5.
-
-  Local Instance Retract_sum6 (A A' B B' C C' D D' E E' F F' : Type) (retr1 : Retract A A') (retr2 : Retract B B') (retr3 : Retract C C') (retr4 : Retract D D') (retr5 : Retract E E') (retr6 : Retract F F') :
-    Retract (A+B+C+D+E+F) (A'+B'+C'+D'+E'+F') := Retract_sum (Retract_sum (Retract_sum (Retract_sum (Retract_sum retr1 retr2) retr3) retr4) retr5) retr6.
-
-  Local Instance Retract_sum7 (A A' B B' C C' D D' E E' F F' G G' : Type) (retr1 : Retract A A') (retr2 : Retract B B') (retr3 : Retract C C') (retr4 : Retract D D') (retr5 : Retract E E') (retr6 : Retract F F') (retr7 : Retract G G') :
-    Retract (A+B+C+D+E+F+G) (A'+B'+C'+D'+E'+F'+G') := Retract_sum (Retract_sum (Retract_sum (Retract_sum (Retract_sum (Retract_sum retr1 retr2) retr3) retr4) retr5) retr6) retr7.
-
-End MoreSums.

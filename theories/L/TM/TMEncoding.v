@@ -151,23 +151,3 @@ Section fix_sig.
 End fix_sig.
 
 #[export] Hint Resolve tape_enc_correct : Lrewrite.
-
-Import PrettyBounds.SizeBounds.
-
-Lemma sizeOfTape_by_size {sig} `{encodable sig} (t:(tape sig)) :
-  sizeOfTape t <= size (enc t).
-Proof.
-  unfold enc;cbn.
-  destruct t;cbn [tapeToList sizeOfTape length size].
-  all:rewrite ?app_length,?rev_length. all:cbn [length].
-  all:ring_simplify. all:try rewrite !size_list_enc_r. all:try nia.
-Qed.
-
-Lemma sizeOfmTapes_by_size {sig} `{encodable sig} n (t:tapes sig n) :
-  sizeOfmTapes t <= size (enc t).
-Proof.
-  setoid_rewrite enc_vector_eq. rewrite Lists.size_list.
-  erewrite <- sumn_map_le_pointwise with (f1:=fun _ => _). 2:{ intros. setoid_rewrite <- sizeOfTape_by_size. reflexivity. }
-  rewrite sizeOfmTapes_max_list_map. unfold MaxList.max_list_map. rewrite max_list_sumn.
-  etransitivity. 2:now apply Nat.le_add_r. rewrite vector_to_list_correct. apply sumn_map_le_pointwise. intros. nia.
-Qed.

@@ -1,5 +1,4 @@
 From Undecidability.TM Require Import ProgrammingTools.
-Require Import Undecidability.Shared.Libs.PSL.Bijection. (* [injective] *)
 
 From Undecidability Require Import Basic.Duo.
 From Undecidability Require Import Code.CaseFin Code.CaseList Code.CasePair.

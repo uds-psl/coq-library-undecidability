@@ -7,6 +7,7 @@ From Undecidability.TM Require Import Single.StepTM Code.CodeTM TM mTM_to_TM Arb
 From Undecidability.Shared.Libs.DLW Require Import vec pos sss subcode.
 From Undecidability Require Import bsm_utils bsm_defs.
 From Undecidability Require Import BSM_computable_to_MM_computable.
+From Undecidability.Shared.Libs.PSL Require FinTypes.
 
 Notation "v @[ t ]" := (Vector.nth v t) (at level 50).
 
@@ -232,7 +233,7 @@ Definition strpush_common_short (Σ : finType) (s b : Σ) :=
 encode_sym
   (projT1
      (projT2
-        (FinTypeEquiv.finite_n
+        (FinTypes.finite_n
            (finType_CS (boundary + sigList (EncodeTapes.sigTape Σ)))))
      (inl START)) ++
 true
@@ -240,7 +241,7 @@ true
    :: encode_sym
         (projT1
            (projT2
-              (FinTypeEquiv.finite_n
+              (FinTypes.finite_n
                  (finType_CS (boundary + sigList (EncodeTapes.sigTape Σ)))))
            (inr sigList_cons)) ++
       true
@@ -248,7 +249,7 @@ true
          :: encode_sym
               (projT1
                  (projT2
-                    (FinTypeEquiv.finite_n
+                    (FinTypes.finite_n
                        (finType_CS
                           (boundary + sigList (EncodeTapes.sigTape Σ)))))
                  (inr (sigList_X (EncodeTapes.LeftBlank false)))) ++
@@ -257,7 +258,7 @@ true
                :: encode_sym
                     (projT1
                        (projT2
-                          (FinTypeEquiv.finite_n
+                          (FinTypes.finite_n
                              (finType_CS
                                 (boundary + sigList (EncodeTapes.sigTape Σ)))))
                        (inr (sigList_X (EncodeTapes.MarkedSymbol b)))).
@@ -272,7 +273,7 @@ Definition strpush_zero (Σ : finType) (s b : Σ) :=
                       encode_sym
                           (projT1
                              (projT2
-                                (FinTypeEquiv.finite_n
+                                (FinTypes.finite_n
                                    (finType_CS
                                       (boundary +
                                        sigList (EncodeTapes.sigTape Σ)))))
@@ -322,7 +323,7 @@ strpush_common s b ++
                      encode_sym
                           (projT1
                              (projT2
-                                (FinTypeEquiv.finite_n
+                                (FinTypes.finite_n
                                    (finType_CS
                                       (boundary +
                                        sigList (EncodeTapes.sigTape Σ)))))
@@ -802,7 +803,7 @@ Proof.
   pose (THESYM := encode_sym
   (projT1
      (projT2
-        (FinTypeEquiv.finite_n
+        (FinTypes.finite_n
            (finType_CS
               (boundary +
                sigList (EncodeTapes.sigTape Σ)))))
@@ -830,7 +831,7 @@ Proof.
     intros (l' & Hneq).
      unfold THESYM in Hneq. eapply utils_list.list_app_inj in Hneq as [].
      2: now rewrite !length_encode_sym. eapply encode_sym_inj in H.
-     destruct FinTypeEquiv.finite_n as ( ? & f & g & H1 & H2); cbn in H.
+     destruct FinTypes.finite_n as ( ? & f & g & H1 & H2); cbn in H.
      eapply (f_equal g) in H. rewrite !H2 in H. inv H.
   - edestruct IHm as [out IH]. eexists.
     rewrite encode_bsm_succ. unfold strpush_succ. rewrite <- !app_assoc.

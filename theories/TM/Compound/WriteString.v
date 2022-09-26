@@ -168,5 +168,5 @@ Proof.
   - now destruct t.
   - reflexivity.
   - rewrite IH. autorewrite with list. setoid_rewrite app_assoc at 1 2.
-    rewrite !hd_app with (xs:=(map Some (rev str') ++ map Some [s'])). easy. all:intros (?&[=])%app_eq_nil.
+    cbn. now destruct (map Some (rev str')); cbn.
 Qed.

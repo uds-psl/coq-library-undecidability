@@ -62,8 +62,6 @@ MinskyMachines/MM_undec.v
 Shared/Dec.v
 Shared/ListAutomation.v
 Shared/embed_nat.v
-Shared/FinTypeEquiv.v
-Shared/FinTypeForallExists.v
 
 Synthetic/Definitions.v
 Synthetic/InformativeDefinitions.v
@@ -136,18 +134,10 @@ Shared/Libs/PSL/Prelim.v
 Shared/Libs/PSL/EqDecDef.v
 Shared/Libs/PSL/EqDec.v
 Shared/Libs/PSL/Numbers.v
-Shared/Libs/PSL/Bijection.v
 Shared/Libs/PSL/Retracts.v
 Shared/Libs/PSL/Inhabited.v
-Shared/Libs/PSL/FCI.v
 
 Shared/Libs/PSL/Lists/BaseLists.v
-Shared/Libs/PSL/Lists/Cardinality.v
-Shared/Libs/PSL/Lists/Dupfree.v
-Shared/Libs/PSL/Lists/Filter.v
-Shared/Libs/PSL/Lists/Position.v
-Shared/Libs/PSL/Lists/Power.v
-Shared/Libs/PSL/Lists/Removal.v
 
 Shared/Libs/PSL/Vectors/Fin.v
 Shared/Libs/PSL/Vectors/Vectors.v
@@ -161,10 +151,7 @@ Shared/Libs/PSL/FiniteTypes/FinTypesDef.v
 Shared/Libs/PSL/FiniteTypes/FinTypes.v
 Shared/Libs/PSL/FiniteTypes/BasicFinTypes.v
 Shared/Libs/PSL/FiniteTypes/CompoundFinTypes.v
-Shared/Libs/PSL/FiniteTypes/FiniteFunction.v
-Shared/Libs/PSL/FiniteTypes/Cardinality.v
 Shared/Libs/PSL/FiniteTypes/DepPairs.v
-Shared/Libs/PSL/FiniteTypes/Arbitrary.v
 Shared/Libs/PSL/FiniteTypes/VectorFin.v
 
 TM/L/Alphabets.v
@@ -596,7 +583,6 @@ L/Functions/Eval.v
 L/Functions/LoopSum.v
 L/Functions/UnboundIteration.v
 L/Functions/FinTypeLookup.v
-L/Functions/EnumInt.v
 L/Functions/Ackermann.v
 
 L/TM/TMEncoding.v
@@ -629,7 +615,6 @@ L/AbstractMachines/FlatPro/UnfoldClos.v
 L/Computability/Acceptability.v
 L/Computability/Computability.v
 L/Computability/Decidability.v
-L/Computability/Enum.v
 L/Computability/Fixpoints.v
 L/Computability/MuRec.v
 L/Computability/Partial.v

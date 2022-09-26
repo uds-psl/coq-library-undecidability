@@ -51,11 +51,6 @@ Instance finTypeC_unit: finTypeC (EqType unit).
 Proof. econstructor. apply unit_enum_ok.
 Defined.
 
-(* Instance finTypeC_empty : finTypeC (EqType emptu *)
-(* Proof. *)
-(*   econstructor. apply Empty_set_enum_ok. *)
-(* Defined. *)
-
 #[global]
 Instance finTypeC_True : finTypeC (EqType True).
 Proof.
