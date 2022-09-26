@@ -539,9 +539,8 @@ Fixpoint extract (env : nat -> nat) (s : Ast.term) (fuel : nat) : TemplateMonad 
   | tInd a _ =>  tmPrint a;;tmFail "tInd is not supported (probably there is a type not in prenex-normal form)" 
   | tProj _ _ =>   tmFail "tProj is not supported"
   | tCoFix _ _ =>  tmFail "tCoFix is not supported"
-  (* | tInt _ =>  tmFail "tInt is not supported"
+  | tInt _ =>  tmFail "tInt is not supported"
   | tFloat _ =>  tmFail "tFloat is not supported"
-   *)
    end end.
 
 Fixpoint head_of_const (t : term) :=
