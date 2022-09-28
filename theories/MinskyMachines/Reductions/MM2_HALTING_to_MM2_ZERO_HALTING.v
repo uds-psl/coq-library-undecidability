@@ -122,7 +122,7 @@ Section MM2_MM2.
 
   Lemma transport : MM2_HALTING (M, a0, b0) -> MM2_ZERO_HALTING M'.
   Proof.
-    have Hsim := sim.terminates_transport _ _ _ _ _ mm2_step_sim' mm2_stuck_sim'.
+    have Hsim := sim.terminates_transport mm2_step_sim' mm2_stuck_sim'.
     move=> /Hsim => /(_ _ erefl) [y [Hxy Hy]].
     exists y. split; [|done].
     by apply: rt_trans; [apply: init_a0b0|apply: Hxy].
@@ -134,7 +134,7 @@ Section MM2_MM2.
     have Hx'y' : mm2'_reaches (shift_state (1, (a0, b0))) y'.
     { have [z [/mm2_steps_stop_refl Hyz Hinitz]] := mm2_steps_confluent Hxy' Hinit.
       by rewrite -(Hyz Hy'). }
-    have Hsim := sim.terminates_reflection _ _ _ _ _ (@mm2_step_det M') mm2_step_sim' (mm2_exists_step_dec M).
+    have Hsim := sim.terminates_reflection (@mm2_step_det M') mm2_step_sim' (mm2_exists_step_dec M).
     apply: (Hsim _ _ erefl).
     by exists y'.
   Qed.

@@ -70,6 +70,9 @@ Section Minsky_Machine.
 
 End Minsky_Machine.
 
+Require Import Vector.
+Import VectorNotations.
+
 Section MMA_problems.
 
   Notation "P // s ~~> t" := (sss_output (@mma_sss _) P s t).
@@ -85,4 +88,9 @@ Section MMA_problems.
   Definition MMA2_HALTS_ON_ZERO := @MMA_HALTS_ON_ZERO 2.
   Definition MMA2_HALTING := @MMA_HALTING 2.
 
+  Definition MMA_computable {k} (R : Vector.t nat k -> nat -> Prop) :=
+  exists n : nat, exists P : list (mm_instr (Fin.t (1 + k + n))),
+    forall v : Vector.t nat k,
+      (forall m, R v m <->
+         exists c (v' : Vector.t nat (k + n)), (1, P) // (1, (0 :: v) ++ (Vector.const 0 n)) ~~> (c, m :: v')).
 End MMA_problems.

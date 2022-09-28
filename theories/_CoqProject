@@ -288,6 +288,8 @@ MinskyMachines/ndMM2_undec.v
 MinskyMachines/Util/MM_sss.v
 MinskyMachines/Util/MM_computable.v
 MinskyMachines/Util/MM2_facts.v
+MinskyMachines/Util/MMA_pairing.v
+MinskyMachines/Util/MMA_computable.v
 
 MinskyMachines/Reductions/BSM_MM.v
 MinskyMachines/Reductions/BSM_to_MMA_HALTING.v
@@ -306,6 +308,8 @@ MinskyMachines/Reductions/MMA3_to_MMA2_HALTING.v
 MinskyMachines/Reductions/SBTM_to_MMA2_HALTING.v
 MinskyMachines/Reductions/BSM_computable_to_MM_computable.v
 MinskyMachines/Reductions/MM2_HALTING_to_MM2_ZERO_HALTING.v
+MinskyMachines/Reductions/L_computable_to_MMA_computable.v
+MinskyMachines/Reductions/MMA_computable_to_MMA_mon_computable.v
 
 MinskyMachines/Deciders/MPM2_HALT_dec.v
 MinskyMachines/Deciders/MM_2_HALTING_dec.v
@@ -500,6 +504,9 @@ TM/Single/StepTM.v
 TM/Reductions/L_to_mTM.v
 TM/Reductions/HaltL_to_HaltTM_5.v
 TM/Reductions/L_computable_to_TM_computable.v
+TM/Reductions/MMA_mon_computable_to_TM_computable.v
+TM/Reductions/MMA_computable_to_TM_computable.v
+
 TM/Reductions/Arbitrary_to_Binary.v
 TM/Reductions/KrivineMclosed_HALT_to_HaltUTM.v
 
@@ -608,6 +615,8 @@ L/Complexity/LinDecode/LTD_def.v
 L/Complexity/LinDecode/LTDnat.v
 L/Complexity/LinDecode/LTDlist.v
 L/Complexity/LinDecode/LTDbool.v
+
+L/AbstractMachines/wCBV.v
 
 L/AbstractMachines/LargestVar.v
 L/AbstractMachines/FlatPro/Programs.v

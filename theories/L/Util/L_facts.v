@@ -210,6 +210,13 @@ Proof.
   decide (bound 0 s);[left|right];now rewrite closed_dcl.
 Defined. (* because instance *)
 
+Lemma closed_nat_enc n : closed (nat_enc n).
+Proof.
+  induction n as [|n IH].
+  - easy.
+  - intros i t. cbn. now rewrite (IH (S (S i)) t).
+Qed.
+
 (* ** Reduction *)
 
 Reserved Notation "s '≻' t" (at level 50).

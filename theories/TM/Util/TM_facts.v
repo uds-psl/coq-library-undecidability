@@ -270,6 +270,11 @@ Section Nop_Action.
 
 End Nop_Action.
 
+Lemma nth_nop_action {n Σ} i : Vector.nth (nop_action n Σ) i = (None, Nmove).
+Proof.
+  now induction i.
+Qed.
+
 (* Make [n] and [sig] contextual implicit *)
 Arguments nop_action {_ _}.
 
