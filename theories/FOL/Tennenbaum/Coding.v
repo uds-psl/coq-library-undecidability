@@ -10,7 +10,7 @@ Require Import Setoid Morphisms.
 
 Notation "x 'el' A" := (List.In x A) (at level 70).
 Notation "A '<<=' B" := (List.incl A B) (at level 70).
-Notation "x ∣ y" := (exists k, x * k = y) (at level 50).
+Notation "x ∣ y" := (PrimeFunc.div x y) (at level 50).
 
 Definition unary α := bounded 1 α.
 Definition binary α := bounded 2 α.
@@ -234,8 +234,94 @@ Section Arithmetic.
   End Overspill.
 
 
+  Section Coding.
+
+  (*  We assume that we have a formula ψ representing an injective function 
+      which only produces prime numbers.
+   *)
+  Variable ψ : form.
+  Variable Hψ : binary ψ /\ (forall x, Q ⊢I ∀ ψ[up (num x)..] ↔ $0 == num (Prime x) ).
 
 
-  
+  Definition div e d := exists k : D, e i⊗ k = d.
+  Definition div_num n (d : D) := exists e, inu I n i⊗ e = d.
+  Definition Div_nat (d : D) := fun n => div_num n d.
+  Definition div_pi n a :=  (inu I n .: (fun _ => a)) ⊨ (∃ (ψ ∧ ∃ $1 ⊗ $0 == $3)).
+
+
+
+  Lemma ψ_repr x d rho : 
+    (d .: inu I x .: rho) ⊨ ψ <-> d = inu I (Prime x).
+  Proof.
+    destruct Hψ as (_ & H).
+    specialize (H x).
+    apply soundness in H.
+    specialize (H D I). cbn -[Q] in H.
+    setoid_rewrite extensional in H.
+    setoid_rewrite eval_num in H.
+    rewrite switch_up_num.
+    apply H.
+    intros ax Hax.
+    repeat destruct Hax as [<- | Hax].
+    1-4: apply axioms; constructor; cbn; auto 11.
+    - apply axioms. constructor 2.
+    - apply axioms. constructor 3.
+    - cbn. setoid_rewrite extensional.
+      now apply zero_or_succ.
+    - tauto.
+  Qed.
+
+
+  Lemma ψ_equiv n a : div_pi n a <-> div_num (Prime n) a.
+  Proof.
+    unfold div_pi. cbn. split.
+    - intros [d [->%ψ_repr H]]. unfold div_num. 
+      setoid_rewrite <-extensional. apply H.
+    - intros. exists (inu I (Prime n)). rewrite ψ_repr.
+      setoid_rewrite extensional. now split.
+  Qed.
+
+  (** In the standard model, up to some bound. *)
+  (*  This shows that we can potentially get a code representing any
+      predicate on natural numbers up to some bound.
+   *)
+   Lemma Coding_nat A n :
+   ~ ~ exists c, forall u, (u < n -> A u <-> Prime u ∣ c) /\ (Prime u ∣ c -> u < n).
+ Proof.
+  induction n.
+  - apply DN. exists 1. intros u. split. lia.
+    intros [x ].
+    assert (Prime u > 1) by apply (Prime_prime u).
+    destruct x; lia.
+  - assert (~ ~ (A n \/ ~ A n)) as Dec_An by tauto.
+    apply (DN_chaining Dec_An), (DN_chaining IHn), DN.
+    clear IHn Dec_An.
+    intros [a Ha] [A_n | NA_n].
+    + exists (a * Prime n). intros u.
+      assert (u < S n <-> u < n \/ u = n) as -> by lia.
+      split.
+      ++ intros [| ->]. split.
+         +++ intros [k Hu]%Ha.
+             * exists (k * Prime n). lia.
+             * assumption.
+         +++ assert (prime (Prime u)) as [_ Hu] by apply (Prime_prime u).
+             intros [|H']%Hu; clear Hu.
+             * apply Ha; assumption.
+             * admit.
+          +++ intuition. exists a; lia.
+       ++ assert (prime (Prime u)) as [_ Hu] by apply (Prime_prime u).
+          intros [H |H]%Hu.
+          * apply Ha in H; auto.
+          * right. admit.
+    + exists a. intros u.
+      assert (u < S n <-> u < n \/ u = n) as -> by lia.
+      split.
+      ++ intros Hu. destruct Hu as [| ->]. 
+         now apply Ha.
+         split. now intros ?%NA_n.
+         intros H%Ha. lia.
+      ++ intros H%Ha. tauto.
+ Qed.
+
 
 End Arithmetic.
