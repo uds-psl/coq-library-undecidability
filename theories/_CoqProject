@@ -940,9 +940,14 @@ FOL/ArithmeticalHierarchy/ArithmeticalHierarchyEquiv.v
 
 FOL/Tennenbaum/Utils/Iff.v
 FOL/Tennenbaum/Utils/DN.v
+FOL/Tennenbaum/Utils/PrimeFunc.v
 FOL/Tennenbaum/Utils/Synthetic.v
+FOL/Tennenbaum/Utils/DecidabilityFacts.v
+FOL/Tennenbaum/Utils/CantorPairing.v
 FOL/Tennenbaum/Tarski/FullCoreT.v
 FOL/Tennenbaum/Tarski/FullFactsT.v
 FOL/Tennenbaum/Peano.v
+FOL/Tennenbaum/Church.v
 FOL/Tennenbaum/Formulas.v
-FOL/Tennenbaum/Makholm.v
+FOL/Tennenbaum/Coding.v
+FOL/Tennenbaum/Diagonal.v

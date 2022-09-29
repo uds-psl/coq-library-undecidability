@@ -31,7 +31,7 @@ Context {peirce_ : peirce}.
     with the function on every input.
  *)
 
-Definition represents ϕ f := forall x, Qeq ⊢ ∀ ϕ[(num x)..] ↔ num (f x) == $0.
+Definition represents ϕ f := forall x, Qeq ⊢I ∀ ϕ[(num x)..] ↔ num (f x) == $0.
 
 (*  We only assume a weaker Version of CT_Q, where the existence of
     the formula is only given potentially (i.e. behing a double negation). 
@@ -41,9 +41,9 @@ Definition WCT_Q := forall f : nat -> nat, ~ ~ exists ϕ, bounded 2 ϕ /\ Σ1 ϕ
 (** Strong Representability *)
 
 Definition strong_repr ϕ (p : nat -> Prop) := 
-  (forall x,    p x -> Qeq ⊢ ϕ[(num x)..]) /\ 
-  (forall x,  ~ p x -> Qeq ⊢ ¬ϕ[(num x)..]).
-Definition WRT_strong := forall p : nat -> Prop, decidable p ->  ~ ~ exists ϕ, bounded 1 ϕ /\ Σ1 ϕ /\ strong_repr ϕ p.
+  (forall x,    p x -> Qeq ⊢I ϕ[(num x)..]) /\ 
+  (forall x,  ~ p x -> Qeq ⊢I ¬ϕ[(num x)..]).
+Definition WRT_strong := forall p : nat -> Prop, Dec p ->  ~ ~ exists ϕ, bounded 1 ϕ /\ Σ1 ϕ /\ strong_repr ϕ p.
 
 (** Weak Representability *)
 
@@ -53,7 +53,7 @@ Definition WRT_weak := forall p : nat -> Prop, enumerable p -> ~ ~ exists ϕ, bo
 Definition WRT := WRT_strong /\ WRT_weak.
 
 
-Lemma prv_split α β Γ :
+Lemma prv_split α β Γ {p : peirce} :
   Γ ⊢ α ↔ β <-> Γ ⊢ (α → β) /\ Γ ⊢ (β → α).
 Proof.
   split; intros H.
@@ -72,9 +72,9 @@ Qed.
 
 
 Variable num_eq : forall Γ,
-  Γ <<= Qeq -> forall x y, x = y -> Γ ⊢ num x == num y.
+  Γ <<= Qeq -> forall x y, x = y -> Γ ⊢I num x == num y.
 Variable num_neq : forall Γ,
-  Γ <<= Qeq -> forall x y, x <> y -> Γ ⊢ ¬ num x == num y.
+  Γ <<= Qeq -> forall x y, x <> y -> Γ ⊢I ¬ num x == num y.
 
 
 (** ** Strong part of the representability theorem.  *)
@@ -121,8 +121,12 @@ Proof.
     exists n. specialize (H n).
     apply soundness in H.
     unshelve refine (let H := (H nat interp_nat (fun _ => 0)) _ in _ ).
-    {apply Q_std_axioms. }
-    cbn in H. specialize (H (S x)) as [_ H2].
+    { intros ax H'.
+      repeat (destruct H' as [<-| H']); cbn ; try congruence.
+      - intros []; auto. right. eexists; auto. 
+      - destruct H'.
+     }
+    (* cbn in H. specialize (H (S x)) as [_ H2].
     rewrite eval_num, inu_nat_id in *.
     apply H2 in Hn. destruct Hn as [d Hd].
     exists d.
@@ -146,7 +150,7 @@ Proof.
     eapply bound_ext.
     apply b2. 2: apply Hnd.
     intros [|[|[]]]; cbn; rewrite ?num_subst, ?eval_num, ?inu_nat_id in *.
-    all: try lia; reflexivity.
-Qed.
+    all: try lia; reflexivity. *)
+Admitted.
 
 End ChurchThesis.

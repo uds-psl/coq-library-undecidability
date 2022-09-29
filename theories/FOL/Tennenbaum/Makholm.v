@@ -16,26 +16,24 @@ Section Arithmetic.
   Notation "⊨ ϕ" := (forall ρ, ρ ⊨ ϕ) (at level 21).
 
   Variable D : Type.
-  Variable I : interp D.
+  Variable I : @interp PA_funcs_signature _ D.
+  Existing Instance I.
   Context {axioms : forall ax, PAeq ax -> ⊨ ax}.
 
-  Definition iEq x y := @i_atom PA_funcs_signature PA_preds_signature D I Eq ([x ; y]).
-  Definition iSucc x := @i_func PA_funcs_signature PA_preds_signature D I Succ ([x]).
-  Definition iPlus x y := @i_func PA_funcs_signature PA_preds_signature D I Plus ([x ; y]).
-  Definition iMult x y := @i_func PA_funcs_signature PA_preds_signature D I Mult ([x ; y]).
-
+  Notation "x 'i=' y"  := (@i_atom PA_funcs_signature PA_preds_signature D I Eq ([x ; y])) (at level 80).
+  Notation "'iσ' x" := (@i_func PA_funcs_signature PA_preds_signature D I Succ ([x])) (at level 60).
+  Notation "x 'i⊕' y" := (@i_func PA_funcs_signature PA_preds_signature D I Plus ([x ; y])) (at level 62).
+  Notation "x 'i⊗' y" := (@i_func PA_funcs_signature PA_preds_signature D I Mult ([x ; y])) (at level 61).
   Notation "'i0'" := (i_func (Σ_funcs:=PA_funcs_signature) (f:=Zero) []) (at level 2) : PA_Notation.
-  Notation "x 'i=' y" := (iEq x y) (at level 80) : PA_Notation.
-  Notation "'iσ' x" := (iSucc x) (at level 70) : PA_Notation.
-  Notation "x 'i⊕' y" := (iPlus x y) (at level 72) : PA_Notation.
-  Notation "x 'i⊗' y" := (iMult x y) (at level 71) : PA_Notation.
+
+  Context {extensional : forall x y, x i= y <-> x = y}.
 
   Definition iless x y := exists d : D, y i= iσ (x i⊕ d).
   Notation "x 'i⧀' y" := (iless x y) (at level 80).
 
 
   (* We assume that there is a binary formula which can be used for coding. *)
-  
+
   Variable γ : form.
   Variable Hγ : bounded 2 γ.
   Definition obj_Coding := forall α, bounded 1 α -> PA ⊢TI ∀¬¬∃∀ $0 ⧀ $2 → α ↔ γ.
@@ -52,9 +50,11 @@ Section Arithmetic.
 
   Hypothesis obj_Insep : exists α β, def_obj_Insep α β.
 
-  (** * We show a sliglty more general version of Makholm's statement. 
-        This is then later instantiated for the case where γ is the 
-        formula which expresses divisibility by prime numbers. *)
+  (** * 
+    We show a sliglty more general version of Makholm's statement. 
+    This is then later instantiated for the case where γ is the 
+    formula which expresses divisibility by prime numbers. 
+  *)
 
   Definition gamma d n := forall ρ, (d .: ρ) ⊨ γ[(num n)..].
 
@@ -62,8 +62,6 @@ Section Arithmetic.
     ~ std d -> inu I n i⧀ d.
   Proof.
   Admitted.
-
-  Check num_lt_nonStd.
 
   Theorem Makholm :
     @nonStd D I -> ~~ exists d, ~ decidable (gamma d).
@@ -78,7 +76,7 @@ Section Arithmetic.
       assert (forall n : nat, (fun _ => inu I n) ⊨ α <-> (inu I n .: (fun _ => c)) ⊨ γ).
       + intros n. split.
         --  specialize (Hc (inu I n)) as [H _].
-            change (exists d, e i⊕ (inu I n) i= d).
+            rewrite extensional.
             apply num_lt_nonStd.
             intros X_n. destruct H as [d Hd].
           ++  eapply bound_ext; [eauto| |apply X_n].
@@ -117,3 +115,5 @@ Section Arithmetic.
                 intros ??. apply axioms. now constructor.
     - intros ??. now apply axioms.
   Admitted.
+
+End Arithmetic.
