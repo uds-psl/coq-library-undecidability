@@ -23,7 +23,7 @@ Require Import Undecidability.Synthetic.ReducibilityFacts.
 Require Import Undecidability.DiophantineConstraints.H10C.
 
 (* For the reduction chain to complement_HaltL_undec *)
-From Undecidability.FRACTRAN  Require Import FRACTRAN Reductions.MM_FRACTRAN.
+From Undecidability.FRACTRAN  Require Import FRACTRAN Reductions.MM_FRACTRAN Reductions.FRACTRAN_FRACTRAN.
 From Undecidability.MinskyMachines Require Import MM Reductions.BSM_MM.
 From Undecidability.StackMachines Require Import BSM Reductions.SBTM_HALT_to_HaltBSM.
 Require Import Undecidability.TM.SBTM_undec.

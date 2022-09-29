@@ -394,10 +394,13 @@ MuRec/Reductions/H10C_SAT_to_RA_UNIV_HALT.v
 MuRec/Reductions/Diophantine_to_MuRec_computable.v
 
 FRACTRAN/Reductions/MM_FRACTRAN.v
+FRACTRAN/Reductions/MMA_FRACTRAN.v
+FRACTRAN/Reductions/FRACTRAN_FRACTRAN.v
 
 FRACTRAN/Util/prime_seq.v
 FRACTRAN/FRACTRAN/fractran_utils.v
 FRACTRAN/FRACTRAN/mm_fractran.v
+FRACTRAN/FRACTRAN/mma_fractran.v
 
 
 H10/ArithLibs/Zp.v

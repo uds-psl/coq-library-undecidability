@@ -34,7 +34,7 @@ Section mma_sim.
 
   Variables (n : nat).
 
-  (* The identity compiler behaves a relinking the code so that the
+  (* The identity compiler behaves as relinking the code so that the
      output PC value is always at the code end *)
 
   Definition mma_instr_compile lnk (_ : nat) (ii : mm_instr (pos n)) :=
@@ -145,7 +145,12 @@ Section mma_mma0_sim.
 
 End mma_mma0_sim.
 
-(* Termination can be simulated with termination on (0,vec_zero) *)
+(* Termination can be simulated with termination on (0,vec_zero) 
+   One cannot enforce a jump to PC=0 if there is no register at all 
+   hence the pos (S n) below.
+
+   In case of the registers (pos 0), P must be empty (as would be Q) but 
+   it is not possible for Q=[] to terminate on PC=0 when starting from PC=1 *)
 
 Theorem mma2_simulator n i (P : list (mm_instr (pos (S n)))) :
   { Q | forall v, (i,P) //ₐ (i,v) ↓ <-> (1,Q) //ₐ (1,v) ~~> (0,vec_zero) }.
