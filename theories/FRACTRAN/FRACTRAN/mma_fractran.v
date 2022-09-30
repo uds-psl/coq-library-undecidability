@@ -53,8 +53,6 @@ Set Implicit Arguments.
 (*    i: INC xu   ---> (qu*p(i+1) / pi) *)
 (*    i: DEC xu j ---> (pj / pi*qu) and (p(i+1) / pi) (the second constraint should appear AFTER in the list) *)
 
-Local Definition encode_state {n} (c : nat * vec nat n) := ps (fst c) * @exp n 0 (snd c).
-
 Local Definition encode_inc  n i (u : pos n) := (ps (i + 1) * qs u, ps i).
 Local Definition encode_dec  n i (u : pos n) j := (ps j, ps i * qs u).
 Local Definition encode_dec2 n i (u : pos n) (_ : nat) := (ps (i + 1), ps i).
@@ -90,9 +88,7 @@ Proof.
 Qed.
 
 Local Fact encode_mma_instr_regular' n i l : fractran_regular (@encode_mma_instr n i l).
-Proof.
-  generalize (encode_mma_instr_regular i l); apply Forall_impl; tauto.
-Qed.
+Proof. generalize (encode_mma_instr_regular i l); apply Forall_impl; tauto. Qed.
 
 Local Fact encode_mma_instr_in_inv n i P el c er :
           @encode_mma_instr n i P = el++c::er
@@ -120,81 +116,38 @@ Proof. apply nthprime_prime. Qed.
 
 #[local] Opaque ps qs.
 
-Local Lemma divides_encode_state i k n v : divides (ps i) (@encode_state n (k,v)) -> i = k.
+(* The divisibility results are no so complicated when
+    we do not need to show that encode_state is injective ... *)
+
+Local Fact divides_from_eq x y t : x*y = t -> divides x t.
+Proof. intros <-; apply divides_mult_r, divides_refl. Qed.
+
+Local Fact prime_div_mult3 p x y z : prime p -> divides p (x*y*z) -> divides p x \/ divides p y \/ divides p z.
+Proof. intros ? [ [] % prime_div_mult | ] % prime_div_mult; auto. Qed.
+
+Local Fact prime_div_mult4 p w x y z : prime p -> divides p (w*x*y*z) -> divides p w \/ divides p x \/ divides p y \/ divides p z.
+Proof. intros ? [ [] % prime_div_mult | ] % prime_div_mult3; auto. Qed.
+
+(** Gödel encoding if MMA states as numbers *)
+
+Local Definition encode_state {n} (c : nat * vec nat n) := ps (fst c) * exp 0 (snd c).
+
+Local Lemma divides_ps_encode_state i k n (v : vec nat n) :
+  divides (ps i) (encode_state (k,v)) <-> i = k.
 Proof.
-  unfold encode_state. 
-  induction v as [ | n x v IHv ].
-  - simpl; replace (ps k * 1) with (ps k) by lia.
-    apply primestream_divides.
-  - simpl; intros [ H | [ H | H ] % divides_mult_inv ] % divides_mult_inv; eauto.
-    + now eapply primestream_divides in H.
-    + now apply divides_pow, ps_qs_div in H; auto.
-    + now eapply ps_exp in H.
+  unfold encode_state; split. 
+  * induction v as [ | n x v IHv ].
+    - simpl; replace (ps k * 1) with (ps k) by lia.
+      apply primestream_divides.
+    - simpl; intros [ H | [ H | H ] % divides_mult_inv ] % divides_mult_inv; eauto.
+      + now eapply primestream_divides in H.
+      + now apply divides_pow, ps_qs_div in H; auto.
+      + now eapply ps_exp in H.
+  * intros <-; simpl; apply divides_mult_r, divides_refl.
 Qed.
 
-Local Lemma encode_state_inj n st1 st2 :
-  @encode_state n st1 = @encode_state n st2 -> st1 = st2.
-Proof.
-  intros H. 
-  destruct st1 as (i1, v1), st2 as (i2, v2).
-  assert (i1 = i2); subst.
-  - eapply divides_encode_state. rewrite <- H. 
-    unfold encode_state. cbn. rewrite mult_comm. eapply divides_mult, divides_refl.
-  - f_equal. unfold encode_state in H. cbn in H.
-    replace (ps i2) with (ps i2 ^ 1) in H by (cbn; lia).
-    eapply power_factor_uniq in H as [_ H].
-    + eapply exp_inj. eauto.
-    + pose proof (ps_prime i2) as ? % prime_ge_2. lia.
-    + eapply ps_exp.
-    + eapply ps_exp.
-Qed.
-
-Local Lemma skip_steps n k l r k' (v v' : vec _ n) :
-      @mma_no_self_loops n (k, l ++ r) 
-   -> encode_mma_instr (k + length l) r /F/ encode_state (k + length l,v) → encode_state (k',v') 
-   -> encode_mma_instr k (l ++ r)       /F/ encode_state (k + length l,v) → encode_state (k',v').
-Proof with eauto; try lia.
-  revert k. 
-  induction l as [ | rho l IHl ]; cbn - [subcode] in *; intros k.
-  - ring_simplify (k + 0); auto.
-  - ring_simplify (k + S (length l)). 
-    intros Hk. 
-    destruct rho as [ u | u j ].
-    + intros H; econstructor 2. 
-      1: intros [[ H1 | H1 ] % divides_mult_inv | H1 ] % divides_mult_inv; eauto.
-      * eapply primestream_divides in H1; lia.
-      * now eapply ps_qs_div in H1. 
-      * eapply divides_encode_state in H1; lia.
-      * specialize IHl with (k := 1+k). 
-        revert IHl.
-        cbn - [subcode]. 
-        ring_simplify (S (k + length l)).
-        intros IHl.
-        apply IHl; trivial. 
-        intros i x ?.
-        now apply Hk with i x, subcode_cons.
-    + intros H; repeat econstructor 2.
-      * intros [[H1|H1] % divides_mult_inv [H2|H2] % divides_mult_inv ] % divides_mult_inv_l...
-        -- now apply qs_ps_div in H2.
-        -- apply primestream_divides in H1; subst.
-           eapply (Hk j u); auto.
-        -- now apply qs_ps_div in H2.
-        -- apply divides_encode_state in H1...
-      * intros [H1|H1] % divides_mult_inv...
-        -- apply primestream_divides in H1...
-        -- apply divides_encode_state in H1...
-      * specialize (IHl (S k)). 
-        revert IHl.
-        cbn - [subcode]. 
-        ring_simplify (S (k + length l)).
-        intros IHl.
-        apply IHl; trivial.
-        intros i x ?.
-        now apply Hk with i x, subcode_cons.
-Qed.
-
-Local Lemma qs_exp i n u (v : vec nat n) :
-  divides (qs u) (encode_state (i,v)) <-> divides (qs u) (exp 0 v).
+Local Lemma divides_qs_encode_state i k n (v : vec nat n) :
+  divides (qs i) (encode_state (k,v)) <-> divides (qs i) (exp 0 v).
 Proof.
   split.
   - intros [ | ] % divides_mult_inv; eauto.
@@ -207,10 +160,10 @@ Qed.
 Local Lemma qs_encode_state i n (u : pos n) (v : vec nat n) :
   divides (qs u) (encode_state (i,v)) <-> v#>u > 0.
 Proof.
-  rewrite qs_exp.
+  rewrite divides_qs_encode_state.
   enough (forall i, divides (qs (i + u)) (exp i v) <-> v #> u > 0). 
-  1: eapply H. intros j.
-  revert u; induction v as [ | x n v IHv ]; intros u; invert pos u.
+  1: eapply H.
+  intros j; revert u; induction v as [ | x n v IHv ]; intros u; invert pos u.
   - cbn; rewrite pos2nat_fst, Nat.add_0_r. 
     split.
     * intros [ H | H ] % divides_mult_inv; eauto.
@@ -233,17 +186,60 @@ Proof.
     * now apply divides_mult.
 Qed.
 
-(* The divisibility results are no so complicated when
-    we do not need to show that encode_state is injective ... *)
+Local Lemma encode_state_inj n st1 st2 :
+  @encode_state n st1 = @encode_state n st2 -> st1 = st2.
+Proof.
+  intros H.
+  destruct st1 as (i1, v1), st2 as (i2, v2).
+  assert (i1 = i2); subst.
+  - eapply divides_ps_encode_state. rewrite <- H. 
+    unfold encode_state. cbn. rewrite mult_comm. eapply divides_mult, divides_refl.
+  - f_equal. unfold encode_state in H. cbn in H.
+    replace (ps i2) with (ps i2 ^ 1) in H by (cbn; lia).
+    eapply power_factor_uniq in H as [_ H].
+    + eapply exp_inj. eauto.
+    + pose proof (ps_prime i2) as ? % prime_ge_2. lia.
+    + eapply ps_exp.
+    + eapply ps_exp.
+Qed.
 
-Local Fact divides_from_eq x y t : x*y = t -> divides x t.
-Proof. intros <-; apply divides_mult_r, divides_refl. Qed.
+(** Skiping over leading fractions *)
 
-Local Fact prime_div_mult3 p x y z : prime p -> divides p (x*y*z) -> divides p x \/ divides p y \/ divides p z.
-Proof. intros ? [ [] % prime_div_mult | ] % prime_div_mult; auto. Qed.
-
-Local Fact prime_div_mult4 p w x y z : prime p -> divides p (w*x*y*z) -> divides p w \/ divides p x \/ divides p y \/ divides p z.
-Proof. intros ? [ [] % prime_div_mult | ] % prime_div_mult3; auto. Qed.
+Local Lemma skip_steps n k l r (v : vec _ n) st :
+      @mma_no_self_loops n (k, l ++ r) 
+   -> encode_mma_instr (k + length l) r  /F/ encode_state (k + length l,v) → encode_state st
+   -> encode_mma_instr  k       (l ++ r) /F/ encode_state (k + length l,v) → @encode_state n st.
+Proof with eauto; try lia.
+  revert k.
+  induction l as [ | rho l IHl ]; cbn - [subcode] in *; intros k.
+  - ring_simplify (k + 0); auto.
+  - ring_simplify (k + S (length l)).
+    intros Hk H. 
+    destruct rho as [ u | u j ].
+    + constructor 2. 
+      * intros [[ H1 | H1 ] % divides_mult_inv | H1 ] % divides_mult_inv; eauto.
+        -- apply primestream_divides in H1; lia.
+        -- now apply ps_qs_div in H1. 
+        -- apply divides_ps_encode_state in H1; lia.
+      * specialize IHl with (k := 1+k). 
+        revert IHl; cbn - [subcode]; ring_simplify (S (k + length l)); intros IHl.
+        apply IHl; trivial.
+        revert Hk; apply mma_no_self_loops_cons_inv.
+    + repeat constructor 2.
+      * intros [[H1|H1] % divides_mult_inv [H2|H2] % divides_mult_inv ] % divides_mult_inv_l...
+        -- now apply qs_ps_div in H2.
+        -- apply primestream_divides in H1; subst.
+           eapply (Hk j u); auto.
+        -- now apply qs_ps_div in H2.
+        -- apply divides_ps_encode_state in H1...
+      * intros [H1|H1] % divides_mult_inv...
+        -- apply primestream_divides in H1...
+        -- apply divides_ps_encode_state in H1...
+      * specialize (IHl (S k)). 
+        revert IHl; cbn - [subcode]; ring_simplify (S (k + length l)); intros IHl.
+        apply IHl; trivial.
+        revert Hk; apply mma_no_self_loops_cons_inv.
+Qed.
 
 Local Hint Resolve encode_mma_instr_regular' : core.
 
@@ -253,12 +249,12 @@ Section steps_forward.
            (HP : @mma_no_self_loops n (i,P)).
 
   Local Lemma one_step_forward st1 st2 :
-       (i, P)             /MMA/ st1               → st2 
-    -> encode_mma_instr i P /F/  encode_state st1 → encode_state st2.
+                       (i,P) /MMA/             st1 →              st2 
+    -> encode_mma_instr i P  /F/  encode_state st1 → encode_state st2.
   Proof using HP.
     intros (k & l & rho & r & v & H1 & H2 & H3).
     inversion H1; subst i P; clear H1.
-    induction H3 as [ i x v1 | i x j v1 | i x j v1 u ]; 
+    destruct H3 as [ i x v1 | i x j v1 | i x j v1 u ]; 
       inversion H2; subst i v1; clear H2;
       apply skip_steps; auto.
     + constructor.
@@ -281,8 +277,8 @@ Section steps_forward.
   Qed.
 
   Local Lemma steps_forward k st1 st2 :
-      (i, P) /MMA/ st1 -[k]-> st2
-    -> encode_mma_instr i P /F/ encode_state st1 -[k]-> encode_state st2.
+                       (i,P) /MMA/            st1 -[k]->              st2
+    -> encode_mma_instr i P  /F/ encode_state st1 -[k]-> encode_state st2.
   Proof using HP.
     induction 1 as [ st1 | k st1 st2 st3 H1 H2 IH2 ].
     + simpl; reflexivity.
@@ -297,41 +293,38 @@ Section steps_backward.
   Variable (n i : _) (P : list (mm_instr (pos _)))
            (HP : @mma_no_self_loops n (i,P)).
 
+  (* Since /F/ is functional and /MMA/ is total, we can use forward
+     steps to recover backward steps *)
+
   Local Lemma one_step_backward i1 v1 st :
-       encode_mma_instr i P /F/ encode_state (i1,v1) → st 
+       encode_mma_instr i P /F/ encode_state (i1,v1) → st
     -> exists i2 v2, st = encode_state (i2,v2)
-                /\ (i, P) /MMA/ (i1, v1) → (i2,v2).
+                  /\ (i,P) /MMA/ (i1,v1) → (i2,v2).
   Proof using HP.
     intros H2.
     destruct fractran_step_inv with (1 := H2)
       as (el & p & q & er & H3 & H4 & H5).
-    unfold encode_state in H5; simpl in H5.
+    apply divides_from_eq in H5.
+    (* we search the instruction which generates p/q *)
     destruct encode_mma_instr_in_inv with (1 := H3)
       as (l & rho & r & -> & G2).
-    assert (i1 = length l+i) as E.
-    { unfold encode_one_instr in G2.
+    (* the initial PC must be at instruction rho *)
+    assert (length l + i = i1) as E.
+    { apply divides_ps_encode_state with (v := v1).
+      unfold encode_one_instr in G2.
       destruct rho as [ u | u j ]; unfold encode_inc, encode_dec, encode_dec2 in G2;
         [ destruct G2 as [ G2 | [] ] | destruct G2 as [ G2 | [ G2 | [] ] ] ]; 
         inversion G2; subst p q; clear G2;
         repeat rewrite mult_assoc in H5.
-      * apply divides_from_eq, prime_div_mult4 in H5; auto.
-        destruct H5 as [ H5 | [ H5 | [ H5 | H5 ] ] ].
+      * apply prime_div_mult3 in H5 as [ H5 | [ H5 | H5 ] ]; auto.
         + apply primestream_divides in H5; lia.
-        + apply ps_qs_div in H5; tauto.
-        + apply primestream_divides in H5; lia.
-        + apply ps_exp in H5; tauto.
-      * rewrite <- mult_assoc in H5.
-        apply divides_from_eq, prime_div_mult3 in H5; auto.
-        destruct H5 as [ H5 | [ H5 | H5 ] ].
-        + apply primestream_divides in H5; subst j. 
-          destruct HP with (length l+i) u; auto.
-        + apply primestream_divides in H5; lia.
-        + apply ps_exp in H5; tauto.
-      * apply divides_from_eq, prime_div_mult3 in H5; auto.
-        destruct H5 as [ H5 | [ H5 | H5 ] ].
-        + apply primestream_divides in H5; lia.
-        + apply primestream_divides in H5; lia.
-        + apply ps_exp in H5; tauto. }
+        + now apply ps_qs_div in H5.
+      * apply divides_mult_inv_l in H5 as [ H5 _ ].
+        apply prime_div_mult in H5 as [ H5 | H5 ]; auto.
+        apply primestream_divides in H5; subst j.
+        destruct HP with (length l+i) u; auto.
+      * apply prime_div_mult in H5 as [ H5 | H5 ]; auto.
+        apply primestream_divides in H5; lia. }
     destruct mma_sss_total with (ii := rho) (s := (i1,v1))
       as ((i2 & v2) & H7).
     exists i2, v2.
@@ -360,7 +353,7 @@ Section steps_backward.
 End steps_backward.
 
 Theorem mma_fractran_simulation n P v :
-     @mma_no_self_loops n (1, P) 
+     @mma_no_self_loops n (1,P) 
   ->   (1,P) /MMA/ (1,v) ↓ 
    <-> encode_mma_instr 1 P /F/ ps 1 * exp 0 v ↓.
 Proof.
@@ -389,8 +382,8 @@ Proof.
 Qed.
 
 Theorem mma_fractran_simulation_forward n P v j v' :
-     @mma_no_self_loops n (1, P) 
-  -> (1,P) /MMA/ (1,v) ▹ (j, v') -> encode_mma_instr 1 P /F/ ps 1 * exp 0 v ▹ encode_state (j, v').
+     @mma_no_self_loops n (1,P) 
+  -> (1,P) /MMA/ (1,v) ▹ (j,v') -> encode_mma_instr 1 P /F/ ps 1 * exp 0 v ▹ encode_state (j,v').
 Proof.
   intros HP.
   change (ps 1* exp 0 v) with (encode_state (1,v)).
@@ -441,9 +434,10 @@ Proof.
 Qed.
 
 Theorem mma_fractran n (P : list (mm_instr (pos (S n)))) : 
-     { l | forall x, (1,P) /MMA/ (1,x##vec_zero) ↓ <-> l /F/ ps 1 * qs 0^x ↓ }.
+     { l | forall x, (1,P) /MMA/ (1,x##vec_zero) ↓ <-> l /F/ 5*3^x ↓ }.
 Proof.
   destruct mma_fractran_n with (P := P) as (l & _ & Hl).
+  rewrite <- ps_1, <- qs_0.
   exists l; intros x; rewrite Hl; simpl.
   rewrite exp_zero, Nat.mul_1_r; tauto.
 Qed.

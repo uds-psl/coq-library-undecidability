@@ -53,6 +53,14 @@ Section no_self_loops.
     + apply H2.
   Qed.
 
+  Fact mma_no_self_loops_cons_inv i ρ P :
+         mma_no_self_loops (i,ρ::P)
+      -> mma_no_self_loops (1+i,P).
+  Proof.
+    intros H j x Hj.
+    now apply (H j x), subcode_cons.
+  Qed.
+
 End no_self_loops.
 
 Section remove_self_loops.

@@ -219,6 +219,9 @@ Proof.
   intros; apply nthprime_inj in H; lia.
 Defined.
 
+Fact ps_0 : ps 0 = 2.
+Proof. simpl; apply nthprime_0. Qed.
+
 Fact ps_1 : ps 1 = 5.
 Proof. simpl; apply nthprime_2. Qed.
 
@@ -227,6 +230,9 @@ Proof.
   exists (fun n => nthprime (1 + 2 * n)); auto.
   intros; apply nthprime_inj in H; lia.
 Defined.
+
+Fact qs_0 : qs 0 = 3.
+Proof. simpl; apply nthprime_1. Qed.
 
 Fact qs_1 : qs 1 = 7.
 Proof. simpl; apply nthprime_3. Qed.
