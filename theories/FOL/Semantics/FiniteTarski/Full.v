@@ -1,6 +1,7 @@
 From Undecidability.FOL.Semantics Require Import Tarski.FullFacts.
 From Undecidability.FOL.Syntax Require Import Facts.
 Require Import Undecidability.Synthetic.DecidabilityFacts.
+Require Import Undecidability.Synthetic.EnumerabilityFacts.
 Require Import List.
 
 #[global]
@@ -10,6 +11,13 @@ Existing Instance falsity_on.
 
 Definition listable X :=
   exists L, forall x : X, In x L.
+
+Lemma listable_enumerable X :
+  listable X -> enumerable__T X.
+Proof.
+  intros [L HL]. exists (nth_error L).
+  intros x. apply In_nth_error, HL.
+Qed.
 
 Section DefaultSyntax. (* An alternative development of FSAT in Trakhtenbrot is "Trakhtenbrot Syntax" *)
   Context {Σ_funcs : funcs_signature}.

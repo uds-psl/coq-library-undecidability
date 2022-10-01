@@ -132,6 +132,40 @@ Section FixSignature.
       - decide (f n = Some x); decide (g n = Some x); firstorder.
     Qed.
 
+    Definition MP := forall (f : nat -> bool), ~ ~ (exists n, f n = true) -> exists n, f n = true.
+
+   Lemma MP_dec :
+      MP -> forall (P : nat -> Prop), (forall n, dec (P n)) -> ~ ~ (exists n, P n) -> exists n, P n.
+   Proof.
+     intros mp P HD HP. destruct (mp (fun n => if HD n then true else false)) as [n Hn].
+     - intros H. apply HP. intros [n Hn]. apply H. exists n. destruct (HD n); tauto.
+     - exists n. destruct (HD n); trivial. discriminate.
+   Qed.
+
+    Lemma MP_Post X (p : X -> Prop) :
+      MP -> discrete X -> enumerable p -> enumerable (fun x => ~ p x) -> decidable p.
+    Proof.
+      intros mp [E] % discrete_iff [f Hf] [g Hg].
+      eapply decidable_iff. econstructor. intros x.
+      assert (exists n, f n = Some x \/ g n = Some x).
+      { apply (MP_dec mp).
+        - intros n. exact _.
+        - intros H. assert (H' : ~ ~ (p x \/ ~ p x)) by tauto. apply H'. intros [Hp|Hp].
+          + apply H. apply Hf in Hp as [n Hn]. exists n. now left.
+          + apply H. apply Hg in Hp as [n Hn]. exists n. now right. }
+      destruct (@mu (fun n => f n = Some x \/ g n = Some x)) as [n HN]; trivial.
+      - intros n. exact _.
+      - decide (f n = Some x); decide (g n = Some x); firstorder.
+    Qed.
+
+    Lemma MP_enum X (p : X -> Prop) :
+      MP -> discrete X -> enumerable p -> forall x, ~ ~ p x -> p x.
+    Proof.
+      intros mp [E] % discrete_iff [f Hf].
+      intros x Hx. apply Hf. apply (MP_dec mp).
+      - intros n. exact _.
+      - intros H. apply Hx. intros H' % Hf. now apply H.
+    Qed.
 
 
     (* *** Fact 9 : consistent complete theories are decidable for closed formulas *)
@@ -467,6 +501,16 @@ Proof.
   apply enum_enumT. exists (fun _ => [Eq]).
   intros []; exists 0; auto. all: cbv; eauto.
 Qed.
+
+(*Lemma PAeq_enum :
+  enumerable PAeq.
+Proof.
+  destruct enumT_form'.
+  - apply enum_PA_syms.
+  - apply enum_PA_preds.
+  - admit.
+  - admit.
+  - exists (fun n => match n with 0 => *)
 
 Theorem incompleteness_PA (T : form -> Prop) :
   LEM -> Q' <<= T -> enumerable T -> complete T -> interp_nat ⊨=T T -> computational_explosion.

@@ -145,3 +145,25 @@ Proof.
 Qed.
 
 
+(* Given two disjoint, semi-decidable predicates one can construct a partial decider. *)
+
+Theorem general_post (X : Type) (P Q : X -> Prop) s1 s2 :
+  semi_decider s1 P -> semi_decider s2 Q -> (forall x, P x -> Q x -> False)
+  -> { f : X -\ bool | forall x, (P x <-> f x ▷ true) /\ (Q x <-> f x ▷ false) }.
+Proof.
+  intros H1 H2 HD. unshelve eexists. 2: split; split.
+  - intros x. exists (fun n => if s1 x n then Some true else if s2 x n then Some false else None).
+    intros b b' n n'. destruct (s1 x n) eqn:HS1, (s2 x n) eqn:HS2.
+    all: destruct (s1 x n') eqn:HS1', (s2 x n') eqn:HS2'; try congruence.
+    all: exfalso; apply (HD x); [ apply H1 | apply H2 ]; eauto.
+  - intros [n Hn] % H1. exists n. cbn. now rewrite Hn.
+  - intros [n Hn]. cbn in Hn. apply H1. exists n. destruct (s1 x n), (s2 x n); congruence.
+  - intros [n Hn] % H2. exists n. cbn. rewrite Hn.
+    enough (s1 x n = false) as -> by reflexivity.
+    destruct (s1 x n) eqn:H; try reflexivity.
+    exfalso. apply (HD x); [ apply H1 | apply H2 ]; eauto.
+  - intros [n Hn]. cbn in Hn. apply H2. exists n. destruct (s1 x n), (s2 x n); congruence.
+Qed.
+  
+(* TODO: unique choice -> functional relations can be partially computed *)
+
