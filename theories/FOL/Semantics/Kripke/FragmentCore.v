@@ -102,6 +102,9 @@ Section Kripke.
 
   Context {ff : falsity_flag}.
 
+  Definition kvalid_theo (T : form -> Prop) phi :=
+    forall D (M : kmodel D) u rho, (forall psi, T psi -> ksat u rho psi) -> ksat u rho phi.
+
   Definition kvalid_ctx A phi :=
     forall D (M : kmodel D) u rho, (forall psi, psi el A -> ksat u rho psi) -> ksat u rho phi.
 

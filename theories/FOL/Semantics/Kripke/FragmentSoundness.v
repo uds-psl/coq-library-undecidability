@@ -41,6 +41,18 @@ Section KSoundness.
     - now apply IHHprv in HA.
   Qed.
 
+  Lemma ksoundness' (phi : form) :
+    [] ⊢I phi -> kvalid phi.
+  Proof.
+    intros H % ksoundness. firstorder.
+  Qed.
+
+  Lemma ksoundnessT (T : form -> Prop) phi :
+    T ⊢TI phi -> kvalid_theo T phi.
+  Proof.
+    intros [A[H1 H2 % ksoundness]]. firstorder.
+  Qed.
+
   Lemma ksoundness_bot {ff1 ff2 : falsity_flag} A  (psi : @form _ _ _ ff1) (phi : @form _ _ _ ff2) :
     closed psi ->
     (forall xi, kvalid (psi → xi)) ->
@@ -84,12 +96,6 @@ Section KSoundness.
     - apply (Hexp u rho). 1: apply M. apply IHHprv. 1-2:easy. apply HA.
   Qed.
 
-  Lemma ksoundness' (phi : form) :
-    [] ⊢I phi -> kvalid phi.
-  Proof.
-    intros H % ksoundness. firstorder.
-  Qed.
-
   Lemma ksoundness'_bot {ff1 ff2 : falsity_flag} (psi : @form _ _ _ ff1) (phi : @form _ _ _ ff2) :
     closed psi ->
     (forall xi, kvalid (psi → xi)) ->
@@ -99,5 +105,46 @@ Section KSoundness.
   Qed.
 
 End KSoundness.
+
+
+(* Proof that DNE is not derivable in intuitionistic ND *)
+
+Section DNE.
+
+  Context {Σ_funcs : funcs_signature}.
+  Context {Σ_preds : preds_signature}.
+
+  Variable P : Σ_preds.
+
+  Hypothesis preds_dec : forall P', (P' = P) + (P' <> P).
+
+  Instance imodel : kmodel unit.
+  Proof.
+    unshelve esplit.
+    - exact bool.
+    - exact (fun b b' => if b then True else if b' then False else True).
+    - exact (fun b P' v => if b then False else True).
+    - now intros [].
+    - now intros [] [] [].
+    - split.
+      + intros f v. exact tt.
+      + intros P' v. exact True.
+    - now intros [] [].
+  Defined.
+
+  Lemma imodel_dne (v : vec term (ar_preds P)) :
+    ~ ksat true (fun _ => tt) (¬¬(atom P v) → (atom P v)).
+  Proof.
+    cbn. intros H. apply (H true); trivial.
+    intros [] _; trivial. intros H'. now apply (H' false).
+  Qed.
+
+  Lemma iprv_dne (v : vec term (ar_preds P)) :
+    ~ [] ⊢I (¬¬(atom P v) → (atom P v)).
+  Proof.
+    intros H % ksoundness. apply (@imodel_dne v). apply H. intros phi [].
+  Qed.
+
+End DNE.
 
 

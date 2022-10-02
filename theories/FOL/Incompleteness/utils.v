@@ -164,6 +164,3 @@ Proof.
     exfalso. apply (HD x); [ apply H1 | apply H2 ]; eauto.
   - intros [n Hn]. cbn in Hn. apply H2. exists n. destruct (s1 x n), (s2 x n); congruence.
 Qed.
-  
-(* TODO: unique choice -> functional relations can be partially computed *)
-

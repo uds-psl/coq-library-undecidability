@@ -502,15 +502,32 @@ Proof.
   intros []; exists 0; auto. all: cbv; eauto.
 Qed.
 
-(*Lemma PAeq_enum :
+Lemma PAeq_enum :
   enumerable PAeq.
 Proof.
-  destruct enumT_form'.
+  destruct enumT_form' as [f Hf].
   - apply enum_PA_syms.
   - apply enum_PA_preds.
-  - admit.
-  - admit.
-  - exists (fun n => match n with 0 => *)
+  - apply enumT_binop.
+  - apply enumT_quantop.
+  - exists (fun n => match n with 0 => Some ax_refl | 1 => Some ax_sym | 2 => Some ax_trans
+                     | 3 => Some ax_succ_congr | 4 => Some ax_add_congr
+                     | 5 => Some ax_mult_congr | 6 => Some ax_add_zero
+                     | 7 => Some ax_add_rec | 8 => Some ax_mult_zero | 9 => Some ax_mult_rec
+                     | 10 => Some ax_zero_succ | 11 => Some ax_succ_inj
+                     | S (S (S (S (S (S (S (S (S (S (S (S n))))))))))) =>
+                         match f n with Some phi => Some (ax_induction phi) | _ => None end end).
+    intros phi. split.
+    + intros [| | |psi].
+      * destruct H as [<-|[<-|[<-|[<-|[<-|[<-|[<-|[<-|[<-|[<-|[]]]]]]]]]]].
+        now exists 0. now exists 1. now exists 2. now exists 3. now exists 4. now exists 5. now exists 6. now exists 7. now exists 8. now exists 9.
+      * now exists 10.
+      * now exists 11.
+      * destruct (Hf psi) as [n Hn]. exists (12 + n). cbn. now rewrite Hn.
+    + intros [[|[|[|[|[|[|[|[|[|[|[|[|]]]]]]]]]]]] [=]]; subst; eauto using PAeq.
+      all: try (apply PAeq_FA; cbn; tauto).
+      destruct (f n); try congruence. injection H0. intros <-. apply PAeq_induction.
+Qed.
 
 Theorem incompleteness_PA (T : form -> Prop) :
   LEM -> Q' <<= T -> enumerable T -> complete T -> interp_nat ⊨=T T -> computational_explosion.
