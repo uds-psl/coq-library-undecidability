@@ -344,6 +344,35 @@ Section Bounded.
 
   Arguments bounded {_} _ _.
 
+(*
+  Fixpoint bounded_t_comp (n:nat) (t:term) : Prop := match t with
+    var x => n > x
+  | func f v => VectorDef.fold_right (fun x y => bounded_t_comp n x /\ y) v True end.
+
+  Fixpoint bounded_comp  {ff} (n:nat) (phi : form ff) : Prop := match phi with
+    falsity => True
+  | atom P v => VectorDef.fold_right (fun x y => bounded_t_comp n x /\ y) v True
+  | bin b phi psi => bounded_comp n phi /\ bounded_comp n psi
+  | quant q phi => bounded_comp (S n) phi end.
+
+  Lemma bounded_t_comp_correct n t : @bounded_t_comp n t <-> @bounded_t n t.
+  Proof.
+    induction t.
+    - cbn; split. 1: intros H; now econstructor. now inversion 1.
+    - cbn; split; intros H.
+      + econstructor. induction v in IH,H|-*.
+        * intros ? K. inversion K.
+        * intros t [->|H2]%In_cons.
+          -- cbn in H. apply IH. 1: now left. apply H.
+          -- apply IHv. 
+             { intros tt Htt. apply IH. now right. }  
+             { apply H. }
+             easy.
+      + inversion H. apply inj_pair2_eq_dec in H2. 2: 
+ cbn in H. destruct H as [Hl Hr].
+          Search In cons. apply IHv.
+  Lemma bounded_comp_eq {ff} n phi : @bounded_comp ff n phi <-> @bounded ff n phi.
+*)
   Definition closed {ff:falsity_flag} phi := bounded 0 phi.
 
   Definition bounded_L {ff : falsity_flag} n A :=

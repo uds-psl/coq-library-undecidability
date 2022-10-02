@@ -807,6 +807,7 @@ FOL/Semantics/Tarski/FragmentSoundness.v
 FOL/Semantics/Tarski/FullCore.v
 FOL/Semantics/Tarski/FullFacts.v
 FOL/Semantics/Tarski/FullSoundness.v
+FOL/Semantics/FiniteTarski/Listability.v
 FOL/Semantics/FiniteTarski/Full.v
 FOL/Semantics/FiniteTarski/Fragment.v
 FOL/Semantics/FiniteTarski/DoubleNegation.v
