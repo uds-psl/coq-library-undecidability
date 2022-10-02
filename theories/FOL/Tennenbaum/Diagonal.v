@@ -18,6 +18,8 @@ Definition binary α := bounded 2 α.
 
 Section Arithmetic.
 
+  Variable peirce_ : peirce.
+
   Existing Instance PA_preds_signature.
   Existing Instance PA_funcs_signature.
   Notation "⊨ ϕ" := (forall ρ, ρ ⊨ ϕ) (at level 21).
@@ -131,15 +133,15 @@ Section Arithmetic.
   (*  This lemma is similar to the coding lemmas in Coding.v as
       it allows decidable predicates to be coded.
    *)
-  Lemma Coding_Dec' p {peirce_ : peirce}:
+  Lemma Coding_Dec' p :
     WCT_Q -> Stable std -> ~ @stdModel D I ->
     Dec p -> ~~ exists c, forall n, p n <-> div_pi n c.
   Proof.
     intros wrt%WCT_WRTs ? notStd Dec_p.
     apply (DN_remove (wrt _ Dec_p)).
     intros [ϕ (b1 & _ & H1 & H2)] nonStd.
-    unshelve refine (let H:= Coding_nonStd_unary _ _ _ _ Hψ _ _ (∃ ϕ) _ in _); auto.
-    { now solve_bounds. }
+    unshelve refine (let H:= @Coding_nonStd_unary _ _ _ _ _ Hψ _ _ ϕ _ in _); auto.
+    2-3: admit.
     enough (~~False) by tauto.
     apply (DN_chaining H), DN.
     intros [c Hc]; clear H. apply nonStd.
@@ -147,42 +149,38 @@ Section Arithmetic.
     - intros H. specialize (Hc n (fun _ => c)) as [Hc1 _].
       apply H1 in H. apply soundness in H.
       unfold div_pi.
-      eapply bound_ext with (N:= 2)(sigma:= inu n .: c .: (fun _ => c)).
+      eapply bound_ext with (N:= 2)(sigma:= inu I n .: c .: (fun _ => c)).
       { repeat solve_bounds.
         eapply bounded_up; [apply Hψ|lia]. }
       { intros [|[]]; cbn; [reflexivity|reflexivity|lia]. }
       cbn in Hc1; apply Hc1.
-      destruct (H D I (fun _ => c)) as [d Hd].
-      intros ??; apply axioms; now constructor.
-      exists d. rewrite <-switch_up_num.
-      eapply bound_ext with (N:=1). 3: apply Hd.
-      eapply subst_bound. 1: eauto.
-      intros [|[]]; solve_bounds.
-      cbn. rewrite num_subst. apply closed_num.
-      intros [|]; solve_bounds.
+      specialize (H D I (fun _ => c)).
+      rewrite switch_num.
+      eapply sat_ext. 2: apply H.
+      + now intros [].
+      + admit.
     - specialize (Hc n (fun _ => c)) as [_ Hc2].
       destruct (Dec_p) as [dec_p]; auto.
       apply dec_contraposition; [apply dec_p|].
       intros h [d Hd].
       specialize (H2 _ h). apply soundness in H2.
       eapply H2 with (rho := fun _ => i0); fold sat.
-      intros ??; apply axioms; now constructor.
-      setoid_rewrite switch_num. cbn in Hc2.
-      eapply bound_ext with (N:= 1)(sigma:= inu n .: c .: (fun _ => c)).
+      { admit. }
+      rewrite <-switch_num. cbn in Hc2.
+      eapply bound_ext with (N:= 1)(sigma:= inu I n .: c .: (fun _ => c)).
       { now solve_bounds. }
       intros []; cbn; [reflexivity|lia].
       apply Hc2. exists d. split.
       { eapply bound_ext. apply Hψ. 2: apply Hd.
         intros [|[]]; cbn; [reflexivity|reflexivity|lia]. }
-      destruct Hd as [_ [k Hk]]. exists k.
-      now rewrite Hk.
-  Qed.
+      destruct Hd as [_ [k Hk]]. cbn in Hk. now exists k.
+  Admitted.
 
   Lemma Coding_Dec p :
-    CT_Q -> Stable std -> ~ stdModel D ->
+    WCT_Q -> Stable std -> ~ @stdModel D I ->
     Dec p -> ~~ exists c, forall n, p n <-> div_pi n c.
   Proof.
-    intros ?%CT_WCT. now apply Coding_Dec'.
+    intros ?. now apply Coding_Dec'.
   Qed.
 
 
@@ -211,10 +209,10 @@ Section Arithmetic.
     specialize enum as [G HG].
     pose (g n := match G n with None => i0 | Some d => d end).
     pose (p n := ~ div_pi n (g n)).
-    apply (Coding_Dec' p); auto.
+    apply (@Coding_Dec' p wct); auto.
     - now apply MP_Discrete_stable_std.
     - unfold p. constructor. intros n.
-      destruct (dec_div (Irred n, g n)) as [h|nh].
+      destruct (dec_div (Prime n, g n)) as [h|nh].
       + right. apply DN. now apply ψ_equiv.
       + left. intros ?. apply nh. eapply ψ_equiv; eauto.
     - intros [c' H]. destruct (HG c') as [c Hc].
@@ -224,9 +222,9 @@ Section Arithmetic.
   Qed.
 
   Corollary Tennenbaum_diagonal :
-    CT_Q -> MP -> Enumerable D -> Discrete D -> ~~ forall e, std e.
+    WCT_Q -> MP -> Enumerable D -> Discrete D -> ~~ forall e, std e.
   Proof.
-    intros ?%CT_WCT. now apply Tennenbaum_diagonal'.
+    intros ?. now apply Tennenbaum_diagonal'.
   Qed.
 
 

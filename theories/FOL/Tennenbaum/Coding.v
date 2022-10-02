@@ -307,12 +307,13 @@ Section Arithmetic.
          +++ assert (prime (Prime u)) as [_ Hu] by apply (Prime_prime u).
              intros [|H']%Hu; clear Hu.
              * apply Ha; assumption.
-             * admit.
+             * apply Prime_div_eq in H'.
+               now rewrite H'.
           +++ intuition. exists a; lia.
        ++ assert (prime (Prime u)) as [_ Hu] by apply (Prime_prime u).
           intros [H |H]%Hu.
           * apply Ha in H; auto.
-          * right. admit.
+          * right. now apply Prime_div_eq.
     + exists a. intros u.
       assert (u < S n <-> u < n \/ u = n) as -> by lia.
       split.
@@ -321,7 +322,69 @@ Section Arithmetic.
          split. now intros ?%NA_n.
          intros H%Ha. lia.
       ++ intros H%Ha. tauto.
- Qed.
+  Qed.
 
+  (*  The same as above, but if the predicate is definite, we get not only
+      potential existence of a code, but actual existence.
+   *)
+  Lemma Coding_nat_Definite A n :
+    Definite A -> exists c, forall u, (u < n -> A u <-> Prime u ∣ c) /\ (Prime u ∣ c -> u < n).
+  Proof.
+    intros Def_A.
+    induction n.
+    - exists 1. intros u. split. lia.
+      assert (Prime u > 1) by apply (Prime_prime u).
+      intros [x ]; destruct x; lia.
+    - destruct IHn as [a Ha], (Def_A n) as [A_n | NA_n].
+      + exists (a * Prime n). intros u.
+        assert (u < S n <-> u < n \/ u = n) as -> by lia.
+        (* split.
+        ++ intros [| ->]. split.
+            +++ intros A_u%Ha.
+                rewrite Mod_mult_hom, A_u.
+                now rewrite Mod0_is_0.
+                apply H.
+            +++ intros [|H']%irred_integral_domain.
+                apply Ha; assumption.
+                apply irred_Mod_eq, inj_Irred in H'. lia. 
+                all: apply irred_Irred.
+            +++ intuition. apply Mod_divides. 
+                now exists a.
+        ++ intros [H |H]%irred_integral_domain.
+            apply Ha in H. auto.
+            apply irred_Mod_eq, inj_Irred in H. lia. 
+            all: apply irred_Irred.
+      + exists a. intros u.
+        assert (u < S n <-> u < n \/ u = n) as -> by lia.
+        split.
+        ++ intros Hu. destruct Hu as [| ->]. 
+            now apply Ha.
+            split. now intros ?%NA_n.
+            intros H%Ha. lia.
+        ++ intros H%Ha. tauto. *)
+  Admitted.
+
+  Section notStd.
+
+  (** In a non-standard model. *)
+
+  (*  Above we have established coding results for arbitrary PA models.
+      We will now focus on the special case where the model is not standard.
+      Using Overspill we can eliminate the bound on the coding; in a non-standard
+      model, we can find elements which code the entirety of a predicate.
+   *)
+
+  Variable notStd : ~ @stdModel D I.
+  Variable stable_std : forall x, stable (std x).
+
+  Theorem Coding_nonStd_unary alpha : 
+    unary alpha -> ~ ~ exists c, forall u rho, (inu I u .: c .: rho) ⊨ (alpha ↔ ∃ (ψ ∧ ∃ $1 ⊗ $0 == $3)).
+  Proof.
+  Admitted.
+
+
+  End notStd.
+
+  End Coding.
 
 End Arithmetic.
