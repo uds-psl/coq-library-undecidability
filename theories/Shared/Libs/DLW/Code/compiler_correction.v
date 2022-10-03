@@ -161,6 +161,18 @@ Section correctness_generic.
           apply HPQ; subst; exists l, r; auto.
     Qed.
 
+    Definition compiled_sound_output := forall i₁ v₁ i₂ v₂ w₁,
+                      v₁ ⋈ w₁ /\ P /X/ (i₁,v₁) ~~> (i₂,v₂)
+        -> exists w₂, v₂ ⋈ w₂ /\ Q /Y/ (linker i₁,w₁) ~~> (linker i₂,w₂).
+
+    Theorem compiler_sound_output : compiled_sound_output.
+    Proof using HPQ Hilen1 Hicomp Hlink.
+      intros i1 v1 i2 v2 w1 (H1 & H2 & H3).
+      destruct compiler_sound with (1 := conj H1 H2) as (w2 & H4 & H5).
+      exists w2; msplit 2; auto.
+      revert H3; simpl fst; auto.
+    Qed.
+
     (* When still inside of P, the computation in Q simulates
        a computation in P *)
 
@@ -394,6 +406,14 @@ Section correctness_syntactic.
   Proof using Hsimul Hil.
     destruct cs as [ link code C1 C2 C3 C4 C5 C6 C7 ]; simpl.
     apply compiler_sound with ic il; auto.
+  Qed.
+
+  Theorem compiler_syntactic_sound_output P i : compiled_sound_output step_X step_Y simul (cs_link cs P i) P (i,cs_code cs P i).
+  Proof using Hsimul Hil.
+    destruct cs as [ link code C1 C2 C3 C4 C5 C6 C7 ]; simpl.
+    apply compiler_sound_output with ic il; auto.
+    intros j Hj.
+    rewrite C4; simpl; auto.
   Qed.
 
   Theorem compiler_syntactic_complete P i : compiled_complete step_X step_Y simul (cs_link cs P i) P (i,cs_code cs P i).

@@ -323,7 +323,8 @@ MinskyMachines/MM/mm_defs.v
 MinskyMachines/MM/mm_utils.v        
 MinskyMachines/MM/mm_comp.v
 MinskyMachines/MM/mm_comp_strong.v
-MinskyMachines/MM/mm_no_self.v      
+MinskyMachines/MM/mm_no_self.v
+MinskyMachines/MM/mm_no_self_alt.v    
 
 MinskyMachines/MMA/mma_defs.v       
 MinskyMachines/MMA/mma_utils.v

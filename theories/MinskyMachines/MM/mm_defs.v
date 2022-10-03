@@ -41,7 +41,7 @@ Section Minsky_Machine.
     rewrite H in H6; discriminate.
     rewrite H in H6; inversion H6; subst; auto.
   Qed.
-  
+
   Fact mm_sss_total ii s : { t | ii // s -1> t }.
   Proof.
     destruct s as (i,v).
@@ -50,6 +50,9 @@ Section Minsky_Machine.
     * exists (j,v); constructor; auto.
     * exists (1+i,v[k/x]); constructor; auto.
   Qed.
+
+  Fact mm_sss_total_ni ii s : exists t, ii // s -1> t.
+  Proof. destruct (mm_sss_total ii s); eauto. Qed.
   
   Fact mm_sss_INC_inv x i v j w : INC x // (i,v) -1> (j,w) -> j=1+i /\ w = v[(S (v#>x))/x].
   Proof. inversion 1; subst; auto. Qed.

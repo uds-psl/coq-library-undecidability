@@ -430,24 +430,6 @@ Section remove_self_loops.
       * destruct G1 as [ (? & _) | [ (? & _) | (? & _) ] ]; simpl in H5; lia.
   Qed.
 
-  Theorem mm_remove_self_loops : { Q |  mm_no_self_loops (1,Q)
-                                     /\ (forall i x j, (i,DEC x j::nil) <sc (1,Q) -> j < 1+length Q)
-                                     /\ forall v, (1,P) // (1,v) ↓ <-> (1,Q) // (1,0##v) ↓ }.
-  Proof.
-    destruct (eq_nat_dec lP 0) as [ HlP | HlP ].
-    +  exists nil.
-       split; [ | split ].
-       - intros i rho ([ | ] & ? & ? & ?); discriminate.
-       - intros i x j ([ | ] & ? & ? & ?); discriminate.
-       - destruct P; try discriminate.
-         split.
-         * exists (1,0##v); split; simpl; try lia; mm sss stop.
-         * exists (1,v); split; simpl; try lia; mm sss stop.
-    + exists Q; split; auto; split; auto; intros v; split.
-      * intros (s0 & H); revert H; apply P_imp_Q; simpl; lia.
-      * intros (s0 & H); revert H; apply Q_imp_P; simpl; lia.
-  Qed.
-
   Theorem mm_remove_self_loops_strong : { Q |  mm_no_self_loops (1,Q)
                                      /\ (forall i x j, (i,DEC x j::nil) <sc (1,Q) -> j < 1+length Q)
                                      /\ (forall v w, (exists j, (1,P) // (1,v) ~~> (j, w)) -> (exists j, (1,Q) // (1,0##v) ~~> (j, 0 ## w))) 
@@ -470,39 +452,34 @@ Section remove_self_loops.
       * intros v (s0 & H); revert H; apply Q_imp_P; simpl; lia.
   Qed.
 
+  Theorem mm_remove_self_loops : { Q |  mm_no_self_loops (1,Q)
+                                     /\ (forall i x j, (i,DEC x j::nil) <sc (1,Q) -> j < 1+length Q)
+                                     /\ forall v, (1,P) // (1,v) ↓ <-> (1,Q) // (1,0##v) ↓ }.
+  Proof.
+    destruct mm_remove_self_loops_strong as (Q' & H1 & H2 & H3 & H4).
+    exists Q'; msplit 2; auto.
+    intros v; split; auto.
+    intros ((j,w) & Hw).
+    destruct (H3 v w) as (j' & Hj'); eauto.
+    now exists (j',0##w).
+  Qed.
+
   Theorem mm_remove_self_loops_strong' : { Q |  mm_no_self_loops (1,Q)
                                      /\ (forall i x j, (i,DEC x j::nil) <sc (1,Q) -> j < 1+length Q)
                                      /\ forall v w, (exists j, (1,P) // (1,v) ~~> (j, w)) <-> (exists j, (1,Q) // (1,0##v) ~~> (j, 0 ## w)) }.
   Proof.
-    destruct (eq_nat_dec lP 0) as [ HlP | HlP ].
-    + exists nil.
-      split; [ | split ].
-      - intros i rho ([ | ] & ? & ? & ?); discriminate.
-      - intros i x j ([ | ] & ? & ? & ?); discriminate.
-      - destruct P; try discriminate.
-        split.
-        * exists 1. split; simpl; try lia; mm sss stop.
-          destruct H as [j [[i Hj] ?]].
-          eapply sss_steps_stall in Hj as [_ [=]]. 2:cbn; lia. now subst.
-        * exists 1. split; simpl; try lia; mm sss stop.
-          destruct H as [j [[i Hj] ?]].
-          eapply sss_steps_stall in Hj as [_ ? % (f_equal snd) % (f_equal (@vec_tail _ _))]. cbn in H0. congruence.
-          cbn; lia.
-    + exists Q; split; auto; split; auto; intros v; split.
-      * intros [j H]. exists 0.
-        eapply (@P_imp_Q_strong (1,v) (j,w)); simpl; try lia; eauto.
-      * intros [j H].
-        destruct (@Q_imp_P (1, 0 ## v) (j, 0 ## w)) as [[j' w'] H2]; eauto.
-        -- simpl; lia.
-        -- exists j'. cbn in H2. enough (w' = w) as <- by eauto.
-           eapply P_imp_Q_strong in H2.
-           2: simpl; lia. cbn in H2.
-           destruct H2 as [H2 ?]. destruct H as [H ?].
-           eapply sss_compute_fun in H; eauto.
-           eapply (f_equal snd) in H.
-           cbn in H.
-           eapply (f_equal (@vec_tail _ _)) in H.
-           exact H. eapply mm_sss_fun.
+    destruct mm_remove_self_loops_strong as (Q' & H1 & H2 & H3 & H4).
+    exists Q'; msplit 2; auto.
+    intros v w; split; auto.
+    intros (j & Hj).
+    destruct (H4 v) as ((i,w') & Hiw').
+    + now exists (j,0##w).
+    + destruct (H3 v w') as (i' & Hi'); eauto.
+      exists i.
+      generalize (sss_output_fun (@mm_sss_fun _) Hj Hi'); intros E.
+      apply f_equal with (f := snd), vec_cons_inv, proj2 in E; simpl in E; subst; auto.
   Qed.
 
 End remove_self_loops.
+
+ 
