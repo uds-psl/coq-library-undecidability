@@ -61,7 +61,7 @@ Proof.
   apply (undecidability_from_reducibility H10UC_SAT_undec).
   exact H10UC_SAT_to_H10UPC_SAT.reduction.
 Qed.
-
+Locate complement_SBTM_HALT_undec.
 Theorem H10UPC_SAT_compl_undec : undecidable (complement H10UPC_SAT).
 Proof. 
   apply (undecidability_from_reducibility complement_SBTM_HALT_undec).
