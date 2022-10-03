@@ -338,31 +338,30 @@ Section Arithmetic.
     - destruct IHn as [a Ha], (Def_A n) as [A_n | NA_n].
       + exists (a * Prime n). intros u.
         assert (u < S n <-> u < n \/ u = n) as -> by lia.
-        (* split.
+        split.
         ++ intros [| ->]. split.
-            +++ intros A_u%Ha.
-                rewrite Mod_mult_hom, A_u.
-                now rewrite Mod0_is_0.
-                apply H.
-            +++ intros [|H']%irred_integral_domain.
-                apply Ha; assumption.
-                apply irred_Mod_eq, inj_Irred in H'. lia. 
-                all: apply irred_Irred.
-            +++ intuition. apply Mod_divides. 
-                now exists a.
-        ++ intros [H |H]%irred_integral_domain.
-            apply Ha in H. auto.
-            apply irred_Mod_eq, inj_Irred in H. lia. 
-            all: apply irred_Irred.
+          +++ intros [k Hu]%Ha.
+              * exists (k * Prime n). lia.
+              * assumption.
+          +++ assert (prime (Prime u)) as [_ Hu] by apply (Prime_prime u).
+              intros [|H']%Hu; clear Hu.
+              * apply Ha; assumption.
+              * apply Prime_div_eq in H'.
+                now rewrite H'.
+            +++ intuition. exists a; lia.
+        ++ assert (prime (Prime u)) as [_ Hu] by apply (Prime_prime u).
+            intros [H |H]%Hu.
+            * apply Ha in H; auto.
+            * right. now apply Prime_div_eq.
       + exists a. intros u.
         assert (u < S n <-> u < n \/ u = n) as -> by lia.
         split.
         ++ intros Hu. destruct Hu as [| ->]. 
-            now apply Ha.
-            split. now intros ?%NA_n.
-            intros H%Ha. lia.
-        ++ intros H%Ha. tauto. *)
-  Admitted.
+          now apply Ha.
+          split. now intros ?%NA_n.
+          intros H%Ha. lia.
+        ++ intros H%Ha. tauto.
+  Qed.
 
   Section notStd.
 

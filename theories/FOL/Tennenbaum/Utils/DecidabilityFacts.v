@@ -1,4 +1,4 @@
-From Undecidability.FOL.Tennenbaum.Utils Require Import CantorPairing Synthetic_old.
+From Undecidability.FOL.Tennenbaum.Utils Require Import CantorPairing Synthetic.
 Require Import Lia.
 
 
