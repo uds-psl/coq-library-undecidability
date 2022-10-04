@@ -5,6 +5,7 @@ Require Import Undecidability.PCP.PCP.
 Require Import Undecidability.PCP.Util.PCP_facts.
 Require Import Undecidability.Synthetic.DecidabilityFacts.
 From Undecidability Require Import FOL.FullSyntax.
+From Undecidability Require FOL.Semantics.FiniteTarski.Fragment.
 From Undecidability Require Import FOL.Undecidability.FSAT.
 Require Import Undecidability.Shared.ListAutomation.
 Import ListAutomationNotations.
@@ -755,6 +756,7 @@ Notation f_equiv x y := (atom equiv (Vector.cons _ x _ (Vector.cons _ y _ (Vecto
     destruct (finsat_reduction_1 H) as (D & I & rho & Hlis & Hdis & HH).
     exists D, I, rho. now split.
   Qed.
+  
   
 
 End Reduction.
