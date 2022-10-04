@@ -109,18 +109,6 @@ Section FixSignature.
     Qed.
 
 
-    
-
-    Lemma MP_enum X (p : X -> Prop) :
-      MP -> discrete X -> enumerable p -> forall x, ~ ~ p x -> p x.
-    Proof.
-      intros mp [E] % discrete_iff [f Hf].
-      intros x Hx. apply Hf. apply (MP_dec mp).
-      - intros n. exact _.
-      - intros H. apply Hx. intros H' % Hf. now apply H.
-    Qed.
-
-
     (* *** Fact 9 : consistent complete theories are decidable for closed formulas *)
 
     Definition stripneg `{falsity_flag} (phi : form) : option form :=
