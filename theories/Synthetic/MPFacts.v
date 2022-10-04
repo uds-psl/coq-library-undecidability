@@ -58,3 +58,17 @@ Proof.
   - decide (f n = Some x); decide (g n = Some x); firstorder.
 Qed.
 
+Lemma MP_stable_enumerable X : 
+  MP -> forall (P : X -> Prop), enumerable P -> eq_dec X -> forall x, ~~P x -> P x.
+Proof.
+  intros mp P [f Hf] Hdec.
+  assert (forall x, P x <-> exists n,
+       (fun n => if option_eq_dec Hdec (Some x) (f n) then true else false) n = true) as Heq.
+  { intros x. split.
+    + intros Hx. destruct (Hf x) as [Hl Hr]. destruct (Hl Hx) as [n Hn]. exists n.
+      destruct option_eq_dec; try congruence.
+    + intros [n Hn]. destruct option_eq_dec; try congruence. apply Hf. now exists n. }
+  intros x. rewrite Heq.
+  apply mp.
+Qed.
+

@@ -240,26 +240,27 @@ Section Completeness.
     #[local] Existing Instance falsity_off | 0.
   End FragmentCompleteness.
  
-(*
+
   Section MPStrongCompleteness.
     Hypothesis mp : MP.
     Variables (T : @theory _ _ _ falsity_on) (phi : @form _ _ _ falsity_on).
     Hypothesis (HT : closed_T T) (Hphi : closed phi).
     Hypothesis (He : list_enumerable T).
 
-    Lemma mp_tprv_stability {p : peirce} :
-      ~ ~ T ⊢T phi -> T ⊢T phi.
+    Lemma mp_tprv_stability :
+      ~ ~ T ⊢TC phi -> T ⊢TC phi.
     Proof.
-      apply (enumeration_stability mp (enum_tprv He) (dec_form HdF HdP)).
+      apply (MP_stable_enumerable mp). 2: apply dec_form; eauto.
+      apply list_enumerable_enumerable. destruct He as [L HL]. eexists. apply enum_tprv. apply HL.
     Qed.
 
     Lemma mp_standard_completeness :
-      T ⊫S phi -> T ⊢TC phi.
+      valid_theory T phi -> T ⊢TC phi.
     Proof.
-      intros Hprv % semi_completeness_standard. 2,3: assumption.
-      now apply mp_tprv_stability.
+      apply completeness_standard_stability; eauto. unfold stable.
+      apply mp_tprv_stability.
     Qed.
-  End MPStrongCompleteness. *)
+  End MPStrongCompleteness.
 
 (* *** Minimal Models **)
 
