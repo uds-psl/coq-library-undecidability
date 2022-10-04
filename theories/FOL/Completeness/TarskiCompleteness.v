@@ -1,6 +1,6 @@
 (** ** Tarski Completeness *)
 
-From Undecidability.FOL Require Import Syntax.Facts Syntax.Asimpl Deduction.FragmentNDFacts Syntax.Theories Semantics.Tarski.FragmentFacts Semantics.Tarski.FragmentSoundness.
+From Undecidability.FOL Require Import Syntax.Facts Syntax.Asimpl Deduction.FragmentNDFacts Deduction.FragmentNDConsistency Syntax.Theories Semantics.Tarski.FragmentFacts Semantics.Tarski.FragmentSoundness.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts MPFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 From Undecidability Require Import Shared.ListAutomation Shared.Dec.
 From Undecidability Require Import Shared.Libs.PSL.Vectors.Vectors Shared.Libs.PSL.Vectors.VectorForall.
@@ -83,7 +83,6 @@ Section Completeness.
     #[local] Existing Instance falsity_on | 0.
     Variable T : theory.
     Hypothesis T_closed : closed_T T.
-    Hypothesis Hcon : consistent class T.
 
     Definition input_bot : ConstructionInputs :=
       {|
@@ -111,6 +110,7 @@ Section Completeness.
       - easy.
       - cbn. easy.
     Qed.
+    Hypothesis Hcon : consistent class T.
 
     Lemma model_bot_correct phi rho :
       (phi[rho] ∈ Out_T output_bot <-> rho ⊨ phi).
@@ -124,7 +124,7 @@ Section Completeness.
       - destruct b0. rewrite <- IHphi1. rewrite <- IHphi2. apply Out_T_impl.
       - destruct q. cbn. setoid_rewrite <- IHphi. setoid_rewrite Out_T_all.
         split; intros H t; asimpl; specialize (H t); now asimpl in H.
-    Qed.
+    Qed. 
 
     Lemma model_bot_classical :
       classical model_bot.
@@ -140,18 +140,25 @@ Section Completeness.
     Qed.
   End BotModel.
 
-  Section StandardCompletenes.
+  Section StandardCompleteness.
     Variables (T : @theory _ _ _ falsity_on) (phi : @form _ _ _ falsity_on).
     Hypothesis (HT : closed_T T) (Hphi : closed phi).
 
-    Lemma semi_completeness_standard :
-      valid_theory T phi -> ~ ~ T ⊢TC phi.
+    Lemma semi_completeness_standard_classical_model :
+      valid_theory_C (classical (ff:=falsity_on)) T phi -> ~ ~ T ⊢TC phi.
     Proof.
       intros Hval Hcons. rewrite refutation_prv in Hcons. 
       assert (Hcl : closed_T (T ⋄ (¬ phi))) by (apply closed_T_extend; try econstructor; eauto).
       unshelve eapply (model_bot_correct (T_closed := Hcl) Hcons (¬ phi) var).
       - apply Out_T_sub. cbn. right. now asimpl.
-      - apply Hval. intros ? ?. apply valid_T_model_bot; intuition.
+      - apply Hval. 1: apply model_bot_classical, Hcons. intros ? ?. apply valid_T_model_bot; intuition.
+    Qed.
+
+    Lemma semi_completeness_standard :
+      valid_theory T phi -> ~ ~ T ⊢TC phi.
+    Proof.
+      intros H. apply semi_completeness_standard_classical_model.
+      intros D I rho _. apply (H D I rho).
     Qed.
 
     Definition stable P := ~~P -> P.
@@ -160,6 +167,12 @@ Section Completeness.
       stable (T ⊢TC phi) -> valid_theory T phi -> T ⊢TC phi.
     Proof.
       intros Hstab Hsem. now apply Hstab, semi_completeness_standard.
+    Qed.
+
+    Lemma completeness_classical_stability :
+      stable (T ⊢TC phi) -> valid_theory_C (classical (ff := falsity_on)) T phi -> T ⊢TC phi.
+    Proof.
+      intros Hstab Hsem. now apply Hstab, semi_completeness_standard_classical_model.
     Qed.
 
     Lemma completeness_standard_stability' :
@@ -173,7 +186,7 @@ Section Completeness.
       - exact Hc.
       - intros a Ha. apply Hsat. apply HA, Ha.
     Qed.
-  End StandardCompletenes.
+  End StandardCompleteness.
 
   Section ExplodingCompletenessConstr.
     Variables (T : @theory _ _ _ falsity_on).
@@ -334,6 +347,95 @@ Section Completeness.
       apply valid_T_fragment, Hpsi.
     Qed.
   End FragmentCompleteness.
+
+  Section LEM_Equivalence.
+    Definition completeness_arbitrary := 
+      forall (T : @theory _ _ _ falsity_on) (phi : @form _ _ _ falsity_on),
+             closed_T T -> closed phi ->
+             valid_theory_C (classical (ff := falsity_on)) T phi -> T ⊢TC phi.
+    Definition LEM := forall (P:Prop), P \/ ~ P.
+
+    Lemma bot_valid_stable (T : @theory _ _ _ falsity_on) : closed_T T -> stable (valid_theory_C (classical (ff := falsity_on)) T ⊥).
+    Proof.
+      intros Hclosed HH D I rho Hclass H.
+      apply HH. intros Hc. apply (Hc D I rho Hclass H).
+    Qed.
+    Lemma bot_deriv_stable (T : @theory _ _ _ falsity_on) : completeness_arbitrary -> closed_T T -> stable (@tprv _ _ _ class T ⊥).
+    Proof.
+      intros Hcomp Hclosed Hc. apply (Hcomp T ⊥). 1: eauto. 1: econstructor.
+      apply bot_valid_stable. 1:easy. intros Hd. apply Hc. intros [L [HT HL]]. apply Hd.
+      intros D I rho Hclass Harg.
+      eapply sound_for_classical_model; try easy. 1: exact HL.
+      intros l Hl. apply Harg. now apply HT.
+    Qed.
+    Existing Instance falsity_on.
+    Lemma arbitrary_completeness_is_LEM : completeness_arbitrary -> LEM.
+    Proof.
+      intros HC P.
+      pose (fun x : form => closed x /\ (P \/ ~P)) as T.
+      assert (closed_T T) as Hclosed by (intros k; cbv; tauto).
+      pose proof (@bot_deriv_stable T HC Hclosed).
+      enough (T ⊢TC ⊥) as [[|lx lr] [HL HL']].
+      - exfalso. eapply consistent_ND. apply HL'.
+      - eapply HL. now left.
+      - enough (~~ (P \/ ~P)).
+        + apply H. intros Hc. apply H0. intros Hc2. apply Hc. exists [⊥]. split; try (apply Ctx; now left).
+          intros ? [<- | []]. cbv. split; try apply Hc2. econstructor.
+        + intros Hc. apply Hc. right. intros HP. apply Hc. now left.
+    Qed.
+
+    Lemma LEM_is_arbitrary_completeness : LEM -> completeness_arbitrary.
+    Proof.
+      intros Hlem T phi HT Hphi Hvalid.
+      apply completeness_classical_stability; eauto.
+      intros H. destruct (Hlem (T ⊢TC phi)); tauto.
+    Qed.
+  End LEM_Equivalence.
+
+  Section MP_Equivalence.
+    Definition completeness_enumerable := 
+      forall (T : @theory _ _ _ falsity_on) (phi : @form _ _ _ falsity_on),
+             closed_T T -> closed phi -> enumerable T ->
+             valid_theory_C (classical (ff := falsity_on)) T phi -> T ⊢TC phi.
+
+    Lemma bot_deriv_stable_enum (T : @theory _ _ _ falsity_on) : completeness_enumerable -> closed_T T -> enumerable T ->
+      stable (@tprv _ _ _ class T ⊥).
+    Proof.
+      intros Hcomp Hclosed Henum Hc. apply (Hcomp T ⊥). 1: eauto. 1: econstructor. 1: apply Henum.
+      apply bot_valid_stable. 1:easy. intros Hd. apply Hc. intros [L [HT HL]]. apply Hd.
+      intros D I rho Hclass Harg.
+      eapply sound_for_classical_model; try easy. 1: exact HL.
+      intros l Hl. apply Harg. now apply HT.
+    Qed.
+    Existing Instance falsity_on.
+
+    Lemma MP_is_enumerable_completeness : MP -> completeness_enumerable.
+    Proof.
+      intros Hmp T phi HT Hphi Henum Hvalid.
+      apply completeness_classical_stability; eauto. unfold stable.
+      eapply mp_tprv_stability; try tauto. now eapply enumerable_list_enumerable.
+    Qed.
+(*
+    Lemma enumerable_completeness_is_MP : completeness_enumerable -> MP.
+    Proof.
+      intros HC f Hf.
+      pose (fun x : form => closed x /\ (exists n, f n = true)) as T.
+      assert (closed_T T) as Hclosed by (intros k; cbv; tauto).
+      assert (enumerable T) as Henum.
+      {
+      pose proof (@bot_deriv_stable_enum T HC Hclosed).
+      enough (T ⊢TC ⊥) as [[|lx lr] [HL HL']].
+      - exfalso. eapply consistent_ND. apply HL'.
+      - eapply HL. now left.
+      - enough (~~ (P \/ ~P)).
+        + apply H. intros Hc. apply H0. intros Hc2. apply Hc. exists [⊥]. split; try (apply Ctx; now left).
+          intros ? [<- | []]. cbv. split; try apply Hc2. econstructor.
+        + intros Hc. apply Hc. right. intros HP. apply Hc. now left.
+    Qed.*)
+
+
+  End MP_Equivalence.
+
 End Completeness.
 
 (* ** Extending the Completeness Results *)
