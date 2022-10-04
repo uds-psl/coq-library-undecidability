@@ -1,7 +1,7 @@
 (** ** Tarski Completeness *)
 
 From Undecidability.FOL Require Import Syntax.Facts Syntax.Asimpl Deduction.FragmentNDFacts Syntax.Theories Semantics.Tarski.FragmentFacts Semantics.Tarski.FragmentSoundness.
-From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
+From Undecidability.Synthetic Require Import Definitions DecidabilityFacts MPFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 From Undecidability Require Import Shared.ListAutomation Shared.Dec.
 From Undecidability Require Import Shared.Libs.PSL.Vectors.Vectors Shared.Libs.PSL.Vectors.VectorForall.
 Import ListAutomationNotations.
@@ -175,58 +175,7 @@ Section Completeness.
     Qed.
   End StandardCompletenes.
 
-  Section MinimalCompleteness.
-    #[local] Existing Instance falsity_off | 0.
-    Variable T : theory.
-    Hypothesis T_closed : closed_T T.
-    Variable phi : form.
-    Hypotheses phi_closed : closed phi.
-
-    Definition input_phi : ConstructionInputs :=
-      {|
-        NBot := phi ;
-        NBot_closed := phi_closed;
-
-        variant := falsity_off ;
-
-        In_T := T ;
-        In_T_closed := T_closed ;
-        TarskiConstructions.enum := form_enum_with_default phi;
-        TarskiConstructions.enum_enum := form_default_is_enum _;
-        TarskiConstructions.enum_bounded := form_default_is_bounded (phi_closed)
-      |}.
-
-    Definition output_phi := construct_construction input_phi.
-
-    Instance model_phi : interp term :=
-      {| i_func := func; i_atom := fun P v => atom P v ∈ Out_T output_phi|}.
-
-    Lemma eval_ident_phi rho (t : term) :
-      eval rho t = subst_term rho t.
-    Proof.
-      induction t in rho|-*.
-      - easy.
-      - cbn. easy.
-    Qed.
-
-    Lemma model_phi_correct psi rho :
-      (psi[rho] ∈ Out_T output_phi <-> rho ⊨ psi).
-    Proof.
-      revert rho. induction psi using form_ind_no_falsity; intros rho. 1,2,3: cbn.
-      - split; try tauto.
-      - destruct b0. rewrite <- IHpsi1. rewrite <- IHpsi2. apply Out_T_impl.
-      - destruct q. cbn. setoid_rewrite <- IHpsi. setoid_rewrite Out_T_all.
-        split; intros H t; asimpl; specialize (H t); now asimpl in H.
-    Qed.
-
-    Lemma valid_T_model_phi psi :
-      psi ∈ T -> var ⊨ psi.
-    Proof.
-      intros H % (Out_T_sub output_phi). apply model_phi_correct. now rewrite subst_id.
-    Qed.
-  End MinimalCompleteness.
-
-  Section ExplodingCompleteness.
+  Section ExplodingCompletenessConstr.
     Variables (T : @theory _ _ _ falsity_on).
     Hypothesis (HT : closed_T T).
 
@@ -260,18 +209,46 @@ Section Completeness.
     Proof.
       intros H % (Out_T_sub (output_bot HT)). apply model_expl_correct. now rewrite subst_id.
     Qed.
+  End ExplodingCompletenessConstr.
+  Section ExplodingCompleteness.
+
+    #[local] Existing Instance falsity_on | 0.
+    Lemma semi_completeness_exploding T phi :
+      closed_T T -> closed phi -> valid_exploding_theory T phi -> T ⊢TC phi.
+    Proof.
+      intros HT Hphi Hval.
+      assert (Hcl : closed_T (T ⋄ (¬ phi))).
+      1: { intros ? ?; subst; eauto. destruct H as [Hl| ->].
+           + apply HT, Hl.
+           + repeat econstructor. apply Hphi. }
+      apply refutation_prv.
+      apply (@Out_T_econsistent _ _ _ (output_bot Hcl)).
+      use_theory [⊥]. 2: { apply Ctx. now left. }
+      intros ? [<-|[]].
+      specialize (Hval term (model_bot Hcl) (falsity ∈ Out_T (output_bot Hcl)) var (@model_bot_exploding _ Hcl)).
+      rewrite <- (@subst_id _ _ _ _ ⊥ var). 2: easy.
+      apply (@model_expl_correct _ Hcl (¬ phi) var).
+      - apply Out_T_sub. cbn. rewrite subst_id. 2:easy. now right.
+      - apply Hval. intros psi Hpsi. apply model_expl_correct. rewrite subst_id; [|easy].
+        apply Out_T_sub. left. apply Hpsi.
+    Qed.
 
   End ExplodingCompleteness.
- (*
 
+
+  Section FragmentCompleteness.
+    #[local] Existing Instance falsity_off | 0.
+  End FragmentCompleteness.
+ 
+(*
   Section MPStrongCompleteness.
     Hypothesis mp : MP.
-    Variable (T : theory) (phi : form) (L : nat -> list form).
+    Variables (T : @theory _ _ _ falsity_on) (phi : @form _ _ _ falsity_on).
     Hypothesis (HT : closed_T T) (Hphi : closed phi).
-    Hypothesis (He : DecidableEnumerable.enum T L).
+    Hypothesis (He : list_enumerable T).
 
-    Lemma mp_tprv_stability {p : peirce} {b : bottom} :
-      ~ ~ T ⊩ phi -> T ⊩ phi.
+    Lemma mp_tprv_stability {p : peirce} :
+      ~ ~ T ⊢T phi -> T ⊢T phi.
     Proof.
       apply (enumeration_stability mp (enum_tprv He) (dec_form HdF HdP)).
     Qed.
@@ -282,34 +259,7 @@ Section Completeness.
       intros Hprv % semi_completeness_standard. 2,3: assumption.
       now apply mp_tprv_stability.
     Qed.
-  End MPStrongCompleteness.
-
-(* *** Exploding Models **)
-
-  Section ExplodingCompletenes.
-    Variables (T : theory) (phi : form).
-    Hypothesis (HT : closed_T T) (Hphi : closed phi).
-
-    Lemma completeness_expl :
-      T ⊫E phi -> T ⊢TC phi.
-    Proof.
-      intros Hval. assert (Hcl : closed_T (T ⋄ (¬ phi))) by (intros ? ? [] ; subst; eauto).
-      apply refutation_prv. apply (@Out_T_econsistent _ _ (output_bot Hcl)); cbn. use_theory [⊥]. 2: ctx.
-      intros ? [<- | []]. apply (model_bot_correct _ ⊥ ids).
-      specialize (Hval term (model_bot Hcl) (model_bot_exploding Hcl) ids).
-      assert (@sat _ _ (model_bot Hcl) ids (¬ phi)) by (apply model_bot_correct, Out_T_sub; comp; firstorder).
-      apply H, Hval. intros ? ?. apply valid_T_model_bot; intuition.
-    Qed.
-
-    Lemma valid_standard_expld_stability :
-      (T ⊫S phi -> T ⊫E phi) <-> stable (T ⊢TC phi).
-    Proof.
-      rewrite <- completeness_standard_stability. 2,3: assumption. split.
-      - intros Hincl Hval % Hincl. now apply completeness_expl.
-      - intros Hcomp Hprv % Hcomp. apply (StrongSoundness Hprv).
-        all: now intros _ ? ? [].
-    Qed.
-  End ExplodingCompletenes. *)
+  End MPStrongCompleteness. *)
 
 (* *** Minimal Models **)
 

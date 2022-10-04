@@ -1,6 +1,7 @@
 (** ** Kripke Completeness **)
 
-From Undecidability.FOL Require Import Syntax.Facts Syntax.Asimpl Deduction.FragmentNDFacts Syntax.Theories Semantics.Kripke.FragmentCore Semantics.Kripke.FragmentSoundness 
+From Undecidability.FOL Require Import Syntax.Facts Syntax.Asimpl Deduction.FragmentNDFacts Syntax.Theories Semantics.Kripke.FragmentCore
+                                       Semantics.Kripke.FragmentSoundness 
                                        Semantics.Kripke.FragmentToTarski Deduction.FragmentSequent Deduction.FragmentSequentFacts.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 From Undecidability Require Import Shared.ListAutomation Shared.Dec.
@@ -36,9 +37,6 @@ Section KripkeCompleteness.
         k_interp := model_bot ;
         k_P := fun A P v => sprv A None (atom P v) ;
       |}.
-    Next Obligation.
-      abstract (intuition; now apply (incl_tran H)).
-    Qed.
     Next Obligation.
       abstract (eauto using seq_Weak).
     Qed.
@@ -262,11 +260,7 @@ Section KripkeCompleteness.
         k_P := fun A P v => ~ ~ A ⊢SC (@atom _ _ _ _ P v) 
       |}.
     Next Obligation.
-      abstract (cctx; firstorder).
-    Qed.
-    Next Obligation.
-      intros H2. apply H0. intros H3. apply H2.
-      abstract (eauto using seq_Weak).
+      abstract (apply H0; intros K; apply H1; eapply seq_Weak; eauto).
     Qed.
 
     Lemma K_std_correct (A : cons_ctx) rho phi :

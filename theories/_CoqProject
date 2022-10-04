@@ -63,6 +63,7 @@ Synthetic/MoreEnumerabilityFacts.v
 Synthetic/ReducibilityFacts.v
 Synthetic/InformativeReducibilityFacts.v
 Synthetic/Infinite.v
+Synthetic/MPFacts.v
 
 Shared/Libs/DLW/Utils/focus.v
 Shared/Libs/DLW/Utils/utils_tac.v
