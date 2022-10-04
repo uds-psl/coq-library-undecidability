@@ -173,7 +173,96 @@ Section Completeness.
       - exact Hc.
       - intros a Ha. apply Hsat. apply HA, Ha.
     Qed.
-  End StandardCompletenes. (*
+  End StandardCompletenes.
+
+  Section MinimalCompleteness.
+    #[local] Existing Instance falsity_off | 0.
+    Variable T : theory.
+    Hypothesis T_closed : closed_T T.
+    Variable phi : form.
+    Hypotheses phi_closed : closed phi.
+
+    Definition input_phi : ConstructionInputs :=
+      {|
+        NBot := phi ;
+        NBot_closed := phi_closed;
+
+        variant := falsity_off ;
+
+        In_T := T ;
+        In_T_closed := T_closed ;
+        TarskiConstructions.enum := form_enum_with_default phi;
+        TarskiConstructions.enum_enum := form_default_is_enum _;
+        TarskiConstructions.enum_bounded := form_default_is_bounded (phi_closed)
+      |}.
+
+    Definition output_phi := construct_construction input_phi.
+
+    Instance model_phi : interp term :=
+      {| i_func := func; i_atom := fun P v => atom P v ∈ Out_T output_phi|}.
+
+    Lemma eval_ident_phi rho (t : term) :
+      eval rho t = subst_term rho t.
+    Proof.
+      induction t in rho|-*.
+      - easy.
+      - cbn. easy.
+    Qed.
+
+    Lemma model_phi_correct psi rho :
+      (psi[rho] ∈ Out_T output_phi <-> rho ⊨ psi).
+    Proof.
+      revert rho. induction psi using form_ind_no_falsity; intros rho. 1,2,3: cbn.
+      - split; try tauto.
+      - destruct b0. rewrite <- IHpsi1. rewrite <- IHpsi2. apply Out_T_impl.
+      - destruct q. cbn. setoid_rewrite <- IHpsi. setoid_rewrite Out_T_all.
+        split; intros H t; asimpl; specialize (H t); now asimpl in H.
+    Qed.
+
+    Lemma valid_T_model_phi psi :
+      psi ∈ T -> var ⊨ psi.
+    Proof.
+      intros H % (Out_T_sub output_phi). apply model_phi_correct. now rewrite subst_id.
+    Qed.
+  End MinimalCompleteness.
+
+  Section ExplodingCompleteness.
+    Variables (T : @theory _ _ _ falsity_on).
+    Hypothesis (HT : closed_T T).
+
+    Definition expl_interp := (model_bot HT).
+    Existing Instance expl_interp.
+
+    Lemma model_expl_correct phi rho :
+      (phi[rho] ∈ Out_T (output_bot HT) <-> sat_bot (falsity ∈ Out_T (output_bot HT)) rho phi).
+    Proof.
+      revert rho. induction phi using form_ind_falsity; intros rho. 1,2,3: cbn.
+      - easy.
+      - erewrite (Vector.map_ext_in _ _ _ (eval rho)). 1:easy.
+        easy.
+      - destruct b0. unfold sat_bot in *. rewrite <- IHphi1. rewrite <- IHphi2. apply Out_T_impl.
+      - destruct q. cbn. unfold sat_bot in *. setoid_rewrite <- IHphi. setoid_rewrite Out_T_all.
+        split; intros H t; asimpl; specialize (H t); now asimpl in H.
+    Qed.
+
+    Lemma model_bot_exploding :
+      FragmentFacts.exploding (model_bot HT) (falsity ∈ Out_T (output_bot HT)).
+    Proof.
+      intros rho phi. cbn. intros H. apply model_expl_correct.
+      apply (Out_T_impl (output_bot HT) ⊥ (phi[rho])). 2: easy.
+      apply Out_T_prv. exists []. split.
+      - intros ? [].
+      - apply II. apply FragmentND.Exp. apply Ctx. now left.
+    Qed.
+
+    Lemma valid_T_model_exploding phi :
+      phi ∈ T -> sat_bot (falsity ∈ Out_T (output_bot HT)) var phi.
+    Proof.
+      intros H % (Out_T_sub (output_bot HT)). apply model_expl_correct. now rewrite subst_id.
+    Qed.
+
+  End ExplodingCompleteness.
+ (*
 
   Section MPStrongCompleteness.
     Hypothesis mp : MP.

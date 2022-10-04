@@ -1,4 +1,4 @@
-Require Import Undecidability.FOL.Syntax.Facts.
+Require Import Undecidability.FOL.Syntax.Facts Undecidability.FOL.Syntax.Theories.
 Require Export Undecidability.FOL.Semantics.Tarski.FragmentCore.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
@@ -318,4 +318,29 @@ Section Bottom.
   Qed.
 
 End Bottom.
+
+Arguments sat_bot {_} {_} {_} {_} {_} _ _ _.
+
+Section BottomDef.
+
+  Context {Σ_funcs : funcs_signature}.
+  Context {Σ_preds : preds_signature}.
+
+  Context {ff : falsity_flag}.
+
+  Definition exploding D (M : interp D) (F_P:Prop) := forall rho phi, sat_bot F_P rho (⊥ → phi).
+  Arguments exploding _ _ _ : clear implicits.
+  Definition valid_exploding_ctx A phi :=
+    forall D (M : interp D) F_P rho, exploding D M F_P -> (forall psi, psi el A -> sat_bot F_P rho psi) -> sat_bot F_P rho phi.
+
+  Definition valid_exploding_theory (T:theory) phi := 
+    forall D (M : interp D) F_P rho, exploding D M F_P ->  (forall psi, T psi -> sat_bot F_P rho psi) -> sat_bot F_P rho phi.
+
+  Definition valid_exploding phi :=
+    forall D (M : interp D) F_P rho, exploding D M F_P -> sat_bot F_P rho phi.
+
+  Definition satis_exploding phi :=
+    exists D (M : interp D) F_P rho, exploding D M F_P /\ sat_bot F_P rho phi.
+
+End BottomDef.
 

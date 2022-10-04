@@ -181,6 +181,20 @@ Section fix_signature.
     induction phi; try destruct b; [apply H1|easy| apply H2|easy|apply H3|easy|apply H4]. 1: apply IHphi1; assumption. 1: apply IHphi2; assumption. apply IHphi; assumption.
   Qed.
 
+  Lemma form_ind_no_falsity  (P : form falsity_off -> Prop) :
+    (forall  (P0 : Σ_preds ) (t : t term (ar_preds P0)), P (atom P0 t)) ->
+    (forall  (b0 : binop) (f1 : form), P f1 -> forall f2 : form, P f2 -> P (bin b0 f1 f2)) ->
+    (forall (q : quantop) (f2 : form), P f2 -> P (quant q f2)) ->
+    forall (f4 : form), P f4.
+  Proof.
+    intros H2 H3 H4 phi.
+    change ((fun ff => match ff with falsity_on => fun phi => True | _ => fun _ => P phi end) falsity_off phi).
+    induction phi; try destruct b; [easy|apply H2|easy|apply H3|easy|apply H4|easy].
+    1: apply IHphi1; assumption.
+    1: apply IHphi2; assumption.
+       apply IHphi; assumption.
+  Qed.
+
 End fix_signature.
 
 
