@@ -325,6 +325,15 @@ Section compiler_syntactic.
       * apply H4 with (i := i) in J; lia.
   Qed.
 
+  Fact cs_between (gc : compiler_syntactic) P i j : code_start (i, cs_code gc P i) <= cs_link gc P i j <= code_end (i, cs_code gc P i).
+  Proof.
+    destruct (in_out_code_dec j P) as [ H | H ].
+    + apply (cs_in gc i) in H.
+      simpl in H |- *; lia.
+    + apply (cs_out gc i) in H as ->.
+      simpl; lia.
+  Qed.
+
   Hypotheses (Hc1 : forall x, 1 <= lc x) 
              (Hc2 : forall lnk n x, length (c lnk n x) = lc x).
 

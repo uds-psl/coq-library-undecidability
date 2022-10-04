@@ -154,31 +154,33 @@ Section remove_self_loops.
         * now apply subcode_nil_invert in G2.
       Qed.
 
-    Local Fact gc_bounded i x j : (i,DEC x j::nil) <sc (1,Q) -> j < 1+length Q.
+    Local Fact gc_bounded i x j : (i,DEC x j::nil) <sc (1,Q) -> j <= 1+length Q.
     Proof.
+      generalize (cs_between gc (1,P) 1); fold Q; intros H10.
       destruct gc as [ lnk code H0 H1 H2 H3 H4 H5 H6 ]; clear gc.
-      simpl in Q.
+      simpl in Q, H10.
       intros H.
       apply H6 in H as (k' & [ x' | x' j' ] & G1 & G2); simpl ic in G2.
       + apply subcode_cons_invert_right in G2 as [ (_ & ?) | G2 ]; try easy.
         now apply subcode_nil_invert in G2.
       + generalize G1; intros G0.
         apply H5 with (i := i) in G0; fold Q in G0; apply subcode_length' in G0; simpl in G0.
-        apply subcode_in_code with (i := k') in G1.
-        2: simpl; lia.
-        apply H1 with (i := i) in G1; fold Q in G1; red in G1; unfold code_end, code_start in G1.
-        unfold fst, snd in G1.
-        admit.
-    Admitted.
+        apply (H2 _ 1) in G1; simpl in G1.
+        repeat apply subcode_cons_invert_right in G2 as [ (G3 & G4) | G2 ].
+        * specialize (H10 (S k')); inversion G4; lia.
+        * specialize (H10 (S k')); inversion G4; lia.
+        * specialize (H10 j'); inversion G4; lia.
+        * now apply subcode_nil_invert in G2.
+    Qed.
 
     Hint Resolve il_ic_length ic_correct mm_sss_total_ni : core.
 
     Let lnk := cs_link gc (1,P) 1.
 
     Theorem mm_remove_self_loops_strong : { Q | mm_no_self_loops (1,Q)
-                                     /\ (forall i x j, (i,DEC x j::nil) <sc (1,Q) -> j < 1+length Q)
-                                     /\ (forall v w, (exists j, (1,P) // (1,v) ~~> (j, w)) -> (exists j, (1,Q) // (1,0##v) ~~> (j, 0 ## w))) 
-                                     /\ (forall v,  (1,Q) // (1,0##v) ↓ -> (1,P) // (1,v) ↓)}.
+                                            /\ (forall i x j, (i,DEC x j::nil) <sc (1,Q) -> j <= 1+length Q)
+                                            /\ (forall v w, (exists j, (1,P) // (1,v) ~~> (j, w)) -> (exists j, (1,Q) // (1,0##v) ~~> (j, 0 ## w))) 
+                                            /\ (forall v,  (1,Q) // (1,0##v) ↓ -> (1,P) // (1,v) ↓)}.
     Proof.
       destruct (eq_nat_dec (length P) 0) as [ HlP | HlP ].
       + (** This is the case where P is empty *)
@@ -208,9 +210,9 @@ Section remove_self_loops.
           split; rew vec.
     Qed.
 
-    Theorem mm_remove_self_loops : { Q |  mm_no_self_loops (1,Q)
-                                       /\ (forall i x j, (i,DEC x j::nil) <sc (1,Q) -> j < 1+length Q)
-                                       /\ forall v, (1,P) // (1,v) ↓ <-> (1,Q) // (1,0##v) ↓ }.
+    Theorem mm_remove_self_loops : { Q | mm_no_self_loops (1,Q)
+                                      /\ (forall i x j, (i,DEC x j::nil) <sc (1,Q) -> j <= 1+length Q)
+                                      /\ forall v, (1,P) // (1,v) ↓ <-> (1,Q) // (1,0##v) ↓ }.
     Proof.
       destruct mm_remove_self_loops_strong as (Q' & H1 & H2 & H3 & H4).
       exists Q'; msplit 2; auto.
@@ -218,6 +220,22 @@ Section remove_self_loops.
       intros ((j,w) & Hw).
       destruct (H3 v w) as (j' & Hj'); eauto.
       now exists (j',0##w).
+    Qed.
+
+    Theorem mm_remove_self_loops_strong' : { Q | mm_no_self_loops (1,Q)
+                                             /\ (forall i x j, (i,DEC x j::nil) <sc (1,Q) -> j <= 1+length Q)
+                                             /\ forall v w, (exists j, (1,P) // (1,v) ~~> (j, w)) <-> (exists j, (1,Q) // (1,0##v) ~~> (j, 0 ## w)) }.
+    Proof.
+      destruct mm_remove_self_loops_strong as (Q' & H1 & H2 & H3 & H4).
+      exists Q'; msplit 2; auto.
+      intros v w; split; auto.
+      intros (j & Hj).
+      destruct (H4 v) as ((i,w') & Hiw').
+      + now exists (j,0##w).
+      + destruct (H3 v w') as (i' & Hi'); eauto.
+        exists i.
+        generalize (sss_output_fun (@mm_sss_fun _) Hj Hi'); intros E.
+        apply f_equal with (f := snd), vec_cons_inv, proj2 in E; simpl in E; subst; auto.
     Qed.
 
   End no_self_loops.
