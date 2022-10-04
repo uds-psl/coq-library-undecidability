@@ -164,3 +164,17 @@ Proof.
     exfalso. apply (HD x); [ apply H1 | apply H2 ]; eauto.
   - intros [n Hn]. cbn in Hn. apply H2. exists n. destruct (s1 x n), (s2 x n); congruence.
 Qed.
+
+Theorem general_post_dec (X : Type) (P Q : X -> Prop) s1 s2 :
+  semi_decider s1 P -> semi_decider s2 Q -> (forall x, P x -> Q x -> False)
+  -> (forall x, P x \/ Q x) -> decidable P.
+Proof.
+  intros H1 H2 HD HE. destruct (general_post H1 H2 HD) as [f Hf]. unshelve eexists.
+  - intros x. unshelve edestruct (@totalise _ _ f) as [b Hb]; try exact x.
+    + intros y. destruct (HE y) as [H|H].
+      * exists true. now apply Hf.
+      * exists false. now apply Hf.
+    + exact b.
+  - cbn. intros x. destruct totalise as [b Hb]. unfold reflects.
+    destruct b; firstorder congruence.
+Qed.
