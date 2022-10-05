@@ -5,7 +5,7 @@ From Undecidability.Synthetic Require Import Definitions DecidabilityFacts MPFac
 From Undecidability Require Import Shared.ListAutomation Shared.Dec.
 From Undecidability Require Import Shared.Libs.PSL.Vectors.Vectors Shared.Libs.PSL.Vectors.VectorForall.
 Import ListAutomationNotations.
-From Undecidability.FOL.Completeness Require Export TarskiConstructions.
+From Undecidability.FOL.Completeness Require Export TarskiConstructions EnumerationUtils.
 (* ** Completeness *)
 
 (* ** Standard Models **)
@@ -19,65 +19,6 @@ Section Completeness.
   Context {HeP : enumerator__T eP Σp}.
 
   #[local] Hint Constructors bounded : core.
-  
-  Section Enumeration.
-  
-
-    Definition list_enum_to_enum {X} (L : nat -> list X) (n : nat) : option X :=
-      let (n, m) := Cantor.of_nat n in nth_error (L n) m.
-
-    Definition form_list_enum := (@L_form _ _ _
-                                  _ (enumerator__T_of_list HeF) _ (enumerator__T_of_list HeP)
-                                  _ enum_frag_logic_binop _ enum_frag_logic_quant).
-
-    Definition form_list_enum_bounded {ff:falsity_flag} (n:nat) : list form := 
-      (flat_map (fun f => if bounded_dec f n then [f] else []) (form_list_enum ff n)).
-
-    Lemma form_list_is_enum {ff:falsity_flag} : list_enumerator__T (form_list_enum ff) _.
-    Proof.
-      apply enum_form.
-    Qed.
-
-    Lemma form_list_bounded_is_enum {ff:falsity_flag} : list_enumerator__T (@form_list_enum_bounded ff) _.
-    Proof.
-      intros f. destruct (form_list_is_enum f) as [m Hm].
-      destruct (find_bounded f) as [m2 Hm2].
-      exists (max m m2).
-      unfold form_list_enum_bounded. eapply in_flat_map. exists f; split.
-      - unfold form_list_enum. eapply cum_ge'. 1: apply L_form_cml. 1: apply Hm. lia.
-      - destruct bounded_dec as [Hl|Hr]. 1:now left. exfalso. apply Hr. eapply bounded_up. 1: apply Hm2. lia.
-    Qed.
-
-    Definition form_enum_with_default {ff} d n := match list_enum_to_enum (@form_list_enum_bounded ff) n with Some k => k | _ => d end.
-
-    Lemma form_default_is_enum {ff:falsity_flag} d : forall f, exists n, (@form_enum_with_default ff d n) = f.
-    Proof.
-      intros f. destruct (form_list_bounded_is_enum f) as [m Hm].
-      unfold form_enum_with_default, list_enum_to_enum.
-      destruct (In_nth_error _ _ Hm) as [n Hn].
-      exists (Cantor.to_nat (m, n)). rewrite Cantor.cancel_of_to.
-      rewrite Hn. easy.
-    Qed.
-
-    Lemma form_default_is_bounded {ff:falsity_flag} d : bounded 0 d -> forall n, bounded n (@form_enum_with_default ff d n).
-    Proof.
-      intros Hb n.
-      unfold form_enum_with_default, list_enum_to_enum.
-      destruct (Cantor.of_nat n) as [n' m'] eqn:Hn.
-      pose proof (Cantor.to_nat_non_decreasing n' m'). rewrite <- Hn in H.
-      rewrite Cantor.cancel_to_of in H.
-      unfold form_list_enum_bounded.
-      generalize (form_list_enum ff n'); intros l.
-      destruct (nth_error _ _) as [k|] eqn:Heq.
-      2: eapply bounded_up; [apply Hb|lia].
-      apply nth_error_In in Heq.
-      apply in_flat_map in Heq.
-      destruct Heq as [x [Hx1 Hx2]].
-      destruct (bounded_dec x n') as [Hbo|]. 2:easy.
-      destruct Hx2 as [->|[]]. eapply bounded_up. 1: apply Hbo. lia.
-    Qed.
-
-  End Enumeration.
 
   Section BotModel.
     #[local] Existing Instance falsity_on | 0.
@@ -415,24 +356,27 @@ Section Completeness.
       apply completeness_classical_stability; eauto. unfold stable.
       eapply mp_tprv_stability; try tauto. now eapply enumerable_list_enumerable.
     Qed.
-(*
+
     Lemma enumerable_completeness_is_MP : completeness_enumerable -> MP.
     Proof.
       intros HC f Hf.
-      pose (fun x : form => closed x /\ (exists n, f n = true)) as T.
-      assert (closed_T T) as Hclosed by (intros k; cbv; tauto).
+      pose (fun x : form => exists n, from_form x = Some n /\ f n = true) as T.
+      assert (closed_T T) as Hclosed by (intros x (n & ->%to_from_form & Hfn); apply to_form_closed).
       assert (enumerable T) as Henum.
-      {
+      { exists (fun n => if f n then Some (to_form n) else None). intros phi; split; intros H.
+        + destruct H as (n & Heq%to_from_form & Hfn). exists n. rewrite Hfn. now rewrite Heq.
+        + destruct H as (n & Hn). unfold T. exists n. destruct (f n); try congruence. split; try easy.
+          assert (phi = to_form n) as -> by congruence. apply from_to_form. }
       pose proof (@bot_deriv_stable_enum T HC Hclosed).
       enough (T ⊢TC ⊥) as [[|lx lr] [HL HL']].
       - exfalso. eapply consistent_ND. apply HL'.
-      - eapply HL. now left.
-      - enough (~~ (P \/ ~P)).
-        + apply H. intros Hc. apply H0. intros Hc2. apply Hc. exists [⊥]. split; try (apply Ctx; now left).
-          intros ? [<- | []]. cbv. split; try apply Hc2. econstructor.
-        + intros Hc. apply Hc. right. intros HP. apply Hc. now left.
-    Qed.*)
-
+      - destruct (HL lx) as (n & Heq%to_from_form & Hfn). 1:now left. now exists n.
+      - enough (~~ (exists n, f n = true)).
+        + apply H. 1:easy. intros Hc. apply H0. intros [n Hn]. apply Hc. exists [to_form n]. split.
+          * intros ? [<- | []]. unfold T. exists n. split; try easy. apply from_to_form.
+          * apply to_form_contradictory.
+        + intros Hc. apply Hf. apply Hc.
+    Qed.
 
   End MP_Equivalence.
 

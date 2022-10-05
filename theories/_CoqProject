@@ -855,6 +855,7 @@ FOL/Deduction/FullSequent.v
 FOL/Deduction/FullSequentFacts.v
 FOL/Completeness/TarskiConstructions.v
 FOL/Completeness/Consistency.v
+FOL/Completeness/EnumerationUtils.v
 FOL/Completeness/TarskiCompleteness.v
 FOL/Completeness/KripkeCompleteness.v
 FOL/Completeness/HeytingMacNeille.v
