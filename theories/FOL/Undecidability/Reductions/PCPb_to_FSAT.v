@@ -589,6 +589,12 @@ Notation f_equiv x y := (atom equiv (Vector.cons _ x _ (Vector.cons _ y _ (Vecto
     - rewrite IHx. reflexivity.
   Qed.
 
+  Lemma tprep_bounded x t n : bounded_t n t -> bounded_t n (tprep x t).
+  Proof.
+    intros H; induction x; solve_bounds. 1: apply H.
+    apply IHx.
+  Qed.
+
   Definition tenc (x : list bool) := tprep x t_e.
 
   Definition ax_P := ∀ ∀ f_P $1 $0 → ($1 ≢ t_dum) ∧ ($0 ≢ t_dum).
@@ -635,6 +641,13 @@ Notation f_equiv x y := (atom equiv (Vector.cons _ x _ (Vector.cons _ y _ (Vecto
       right. apply IHA. now exists phi.
   Qed.
 
+  Lemma list_or_closed n A : (forall a, In a A -> bounded n a) -> bounded n (list_or A).
+  Proof.
+    intros H. induction A; solve_bounds.
+    - apply H. now left.
+    - apply IHA. intros a' Ha. apply H. now right.
+  Qed.
+
   Definition ax_HI (R : BSRS) := ∀ ∀ f_P $1 $0 → list_or (map ax_HI' R).
 
   Definition finsat_formula (R : BSRS) :=
@@ -642,6 +655,14 @@ Notation f_equiv x y := (atom equiv (Vector.cons _ x _ (Vector.cons _ y _ (Vecto
     ∧ ax_HF2 ∧ ax_HF3_true ∧ ax_HF3_false ∧ ax_HI R 
     ∧ ax_HE1 ∧ ax_HE2 ∧ ax_HE3 ∧ ax_HER1_true ∧ ax_HER1_false ∧ ax_HER3
     ∧ ∃ f_P $0 $0.
+
+  Lemma finsat_closed R : closed (finsat_formula R).
+  Proof.
+    unfold closed. solve_bounds.
+    apply list_or_closed.
+    intros a [x [<- Hx2]]%in_map_iff.
+    solve_bounds. all: apply tprep_bounded; solve_bounds.
+  Qed.
 
   (* Verification of the reduction *)
   Ltac rsplit n := let rec f n := match n with 0 => idtac | S ?nn => split; [f nn|idtac] end in f n.
@@ -756,7 +777,13 @@ Notation f_equiv x y := (atom equiv (Vector.cons _ x _ (Vector.cons _ y _ (Vecto
     destruct (finsat_reduction_1 H) as (D & I & rho & Hlis & Hdis & HH).
     exists D, I, rho. now split.
   Qed.
-  
-  
+
+  Theorem FSATdc_reduction R :
+    dPCPb R <-> FSATdc (exist _ (finsat_formula R) (finsat_closed R)).
+  Proof.
+    split; intros H. 1: now apply finsat_reduction_1.
+    destruct H as (D & I & rho & Hlis & Hdis & HH).
+    apply finsat_reduction_2. exists D, I, rho. now split.
+  Qed.
 
 End Reduction.

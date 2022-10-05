@@ -141,33 +141,17 @@ Section Fsat.
       - cbn. eapply bounded_quant. apply IH. now rewrite Nat.add_succ_r.
     Qed.
 
-
-    Ltac solve_bounded := let rec IH := match goal with
-      |- bounded ?n ?H   => first [apply bounded_falsity; fail
-                                  |apply bounded_bin; [IH|IH]
-                                  |apply bounded_quant; [IH]
-                                  |apply bounded_atom; intros ?; IHvec| idtac]
-    | |- bounded_t ?n ?T => first [apply bounded_var; lia
-                                  |apply bouded_func; intros ?; IHvec 
-                                  |idtac] end
-    with IHvec := let H := fresh "H" in intros H;
-                      first [exfalso; apply (@Vectors.In_nil _ _ H)
-                            |apply vec_cons_inv in H; destruct H as [->|H];
-                              [IH
-                              |revert H; try IHvec]]
-    in IH.
-
     Lemma F_closed n : bounded n F.
     Proof.
-      solve_bounded.
+      solve_bounds.
       apply emplace_exists_bounded.
       assert (forall k, k >= highest_var_list h10 ->
         bounded (k + S (S (S n))) (translate_list (S k) h10)) as Hk.
       2: apply Hk; lia. 
       intros k Hk.
       induction h10 as [|((xa &xb)& xc & xd) h10l IH] in Hk|-*.
-      - cbn. solve_bounded.
-      - cbn. cbn in Hk. solve_bounded.
+      - cbn. solve_bounds.
+      - cbn. cbn in Hk. solve_bounds.
         apply IH. lia.
     Qed.
   End closedness.
@@ -176,7 +160,7 @@ Section Fsat.
     (* We assume a finite model and extract a solution *)
     Context (D:Type).
     Context (I:interp D).
-    Context (rho : env D). Locate dec.
+    Context (rho : env D).
     Context (decP : forall a b, dec ((a .: b.: rho) ⊨ Pr $0 $1)).
     Context (fini : cListable D).
     
@@ -982,6 +966,26 @@ Section result.
     + exact H.
   Qed.
 
+  Definition F_cform (h:list h10upc) : cform := exist _ (@F h) (ltac:(apply F_closed)).
+
+  Lemma fsatdc_reduction : reduction (@F_cform) H10UPC_SAT FSATdc.
+  Proof.
+  intros Hl. unfold F_cform. split.
+  - intros [rho H]. pose (@m Hl rho) as m. exists (model m). exists (model_interp m). exists (fun _ => Num (fN le0)). repeat split.
+    + apply m_listable.
+    + apply m_discrete.
+    + apply m_decidable.
+    + apply (@valid Hl rho H).
+  - intros [D [I [rho [lst [tdisc [tdec H]]]]]]. specialize (tdec tt).
+    destruct lst as [l Hlst].  destruct tdec as [f Hf].
+    apply (@F_correct Hl D I rho).
+    + intros a b. cbn. destruct (f (Vector.cons D a 1 (Vector.cons D b 0 (Vector.nil D)))) as [|] eqn:Hdec.
+      * left. now apply Hf.
+      * right. intros Hc. apply Hf in Hc. congruence.
+    + exists l. exact Hlst.
+    + exact H.
+  Qed.
+
   Notation FSAT_frag := Fragment.FSAT.
   Notation FSATd_frag := Fragment.FSATd.
   Notation FSATdc_frag := Fragment.FSATdc.
@@ -1072,16 +1076,16 @@ Section result.
         ++ left. unfold decider,reflects in Hf. rewrite <- Hf in Heq. rewrite <- eval_same_atom. exact Heq.
         ++ right. unfold decider,reflects in Hf. rewrite <- eval_same_atom, Hf. cbn in Heq. congruence.
   Qed.
-(*
+
   (* Reduce from FSAT to FSATdc_frag using double negation translation. *)
-  Definition frag_reduction_fsatd : reduction (translate_form) FSATd FSATdc_frag.
+  Definition frag_reduction_fsatdc : reduction (translate_form_closed) FSATdc FSATdc_frag.
   Proof.
-  intros f. split.
+  intros [f Hfclosed]. split.
   - intros [D [I [rho [Hl [Hdisc [Hd Hsat]]]]]]. exists D. exists (full_tarski_tarski_interp I). exists rho. repeat split.
     + easy.
     + easy.
     + setoid_rewrite eval_same_atom. rewrite (full_interp_inverse_1 I). apply Hd.
-    + destruct Hl as [ll Hll]. destruct (Hd tt) as [df Hf]. edestruct (@DoubleNegation.correct _ _ D (full_tarski_tarski_interp I)) as [HH _].
+    + destruct Hl as [ll Hll]. destruct (Hd tt) as [df Hf]. cbn. edestruct (@DoubleNegation.correct _ _ D (full_tarski_tarski_interp I)) as [HH _].
       2: rewrite HH, (full_interp_inverse_1 I); apply Hsat.
       intros ff fm e. apply general_decider.
       * now exists ll.
@@ -1100,6 +1104,6 @@ Section result.
         ++ left. unfold decider,reflects in Hf. rewrite <- Hf in Heq. rewrite <- eval_same_atom. exact Heq.
         ++ right. unfold decider,reflects in Hf. rewrite <- eval_same_atom, Hf. cbn in Heq. congruence.
   Qed.
-*)
+
 
 End result.

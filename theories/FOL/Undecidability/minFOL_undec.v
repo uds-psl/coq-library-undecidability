@@ -82,6 +82,20 @@ Section finite.
     * eexists. apply fsat_reduction.
     * eexists. apply frag_reduction_fsat.
   Qed.
+  Lemma minDiscreteFiniteSatisfiabilityUndec : undecidable FSATd.
+  Proof.
+    apply (undecidability_from_reducibility H10UPC_SAT_undec).
+    eapply reduces_transitive.
+    * eexists. apply fsatd_reduction.
+    * eexists. apply frag_reduction_fsatd.
+  Qed.
+  Lemma minDiscreteClosedFiniteSatisfiabilityUndec : undecidable FSATdc.
+  Proof.
+    apply (undecidability_from_reducibility H10UPC_SAT_undec).
+    eapply reduces_transitive.
+    * eexists. apply fsatdc_reduction.
+    * eexists. apply frag_reduction_fsatdc.
+  Qed.
 
   Lemma minFiniteValidityUndec : undecidable FVAL.
   Proof.

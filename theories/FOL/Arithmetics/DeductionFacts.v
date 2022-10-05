@@ -36,7 +36,7 @@ Section FA_prv.
     change (FAeq ⊢ _) with (FAeq ⊢ ($0 == $0)[sigma]).
     
     eapply subst_forall_prv with 1.
-    apply Ctx. all : firstorder. constructor.
+    apply Ctx. all : firstorder.
     repeat solve_bounds.
   Qed.
 

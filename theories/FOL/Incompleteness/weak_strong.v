@@ -205,18 +205,18 @@ Section value_disjoint.
       exists (∃ φ1'[$1 .: $0 ..]). repeat apply conj.
       { do 2 constructor. apply Qdec_subst, φ1'_qdec. }
       { constructor. eapply subst_bounded_max; last apply φ1'_bounded.
-        intros [|[|n]]; solve_bounds. }
+        intros [|[|n]]; intros H; solve_bounds. }
       - intros x H%DR1. 
         replace ((_)[_]) with (∃ φ1'[(num x)..]); first assumption.
         change (∃ _)[_] with (∃ φ1'[$1 .: $0 ..][up (num x)..]).
         f_equal. rewrite subst_comp. eapply bounded_subst; first apply φ1'_bounded.
-        intros [|[|n]] Hn; cbn. 2-3:solve_bounds.
+        intros [|[|n]] Hn; cbn. 2-3:now asimpl.
         now rewrite num_subst.
       - intros x H%DR2.
         replace ((_)[_]) with (∃ φ1'[(num x)..]); first assumption.
         change (∃ _)[_] with (∃ φ1'[$1 .: $0 ..][up (num x)..]).
         f_equal. rewrite subst_comp. eapply bounded_subst; first apply φ1'_bounded.
-        intros [|[|n]] Hn; cbn. 2-3:solve_bounds.
+        intros [|[|n]] Hn; cbn. 2-3: now asimpl.
         now rewrite num_subst.
     Qed.
 
@@ -243,8 +243,8 @@ Section value_disjoint.
       destruct (@Σ1_compression φ1 1) as (ψ1 & HQ1 & Hb1 & Hψ1), (@Σ1_compression φ2 1) as (ψ2 & HQ2 & Hb2 & Hψ2).
       all: try assumption.
       apply weak_strong' with (φ1 := ψ1[$1.:$0..]) (φ2 := ψ2[$1.:$0..]).
-      { eapply subst_bounded_max; last eassumption. intros [|[|n]]; solve_bounds. }
-      { eapply subst_bounded_max; last eassumption. intros [|[|n]]; solve_bounds. }
+      { eapply subst_bounded_max; last eassumption. intros [|[|n]] Hn; solve_bounds. }
+      { eapply subst_bounded_max; last eassumption. intros [|[|n]] Hn; solve_bounds. }
       { now apply Qdec_subst. }
       { now apply Qdec_subst. }
       - intros x. rewrite φ1_syn. 

@@ -358,35 +358,6 @@ Section Bounded.
 
   Arguments bounded {_} _ _.
 
-(*
-  Fixpoint bounded_t_comp (n:nat) (t:term) : Prop := match t with
-    var x => n > x
-  | func f v => VectorDef.fold_right (fun x y => bounded_t_comp n x /\ y) v True end.
-
-  Fixpoint bounded_comp  {ff} (n:nat) (phi : form ff) : Prop := match phi with
-    falsity => True
-  | atom P v => VectorDef.fold_right (fun x y => bounded_t_comp n x /\ y) v True
-  | bin b phi psi => bounded_comp n phi /\ bounded_comp n psi
-  | quant q phi => bounded_comp (S n) phi end.
-
-  Lemma bounded_t_comp_correct n t : @bounded_t_comp n t <-> @bounded_t n t.
-  Proof.
-    induction t.
-    - cbn; split. 1: intros H; now econstructor. now inversion 1.
-    - cbn; split; intros H.
-      + econstructor. induction v in IH,H|-*.
-        * intros ? K. inversion K.
-        * intros t [->|H2]%In_cons.
-          -- cbn in H. apply IH. 1: now left. apply H.
-          -- apply IHv. 
-             { intros tt Htt. apply IH. now right. }  
-             { apply H. }
-             easy.
-      + inversion H. apply inj_pair2_eq_dec in H2. 2: 
- cbn in H. destruct H as [Hl Hr].
-          Search In cons. apply IHv.
-  Lemma bounded_comp_eq {ff} n phi : @bounded_comp ff n phi <-> @bounded ff n phi.
-*)
   Definition closed {ff:falsity_flag} phi := bounded 0 phi.
 
   Definition bounded_L {ff : falsity_flag} n A :=
@@ -652,17 +623,77 @@ Section Bounded.
       apply subst_bounded_up_t. intros i' Hi'. apply Hi. lia.
   Qed.
 
+  Fixpoint bounded_t_comp (n:nat) (t:term) : Prop := match t with
+    var x => n > x
+  | func f v => VectorDef.fold_right (fun x y => bounded_t_comp n x /\ y) v True end.
+
+  Fixpoint bounded_comp  {ff} (n:nat) (phi : form ff) : Prop := match phi with
+    falsity => True
+  | atom P v => VectorDef.fold_right (fun x y => bounded_t_comp n x /\ y) v True
+  | bin b phi psi => bounded_comp n phi /\ bounded_comp n psi
+  | quant q phi => bounded_comp (S n) phi end.
+
+  Lemma bounded_t_comp_correct n t : @bounded_t_comp n t <-> @bounded_t n t.
+  Proof using sig_funcs_dec.
+    induction t.
+    - cbn; split. 1: intros H; now econstructor. now inversion 1.
+    - cbn; split; intros H.
+      + econstructor. induction v in IH,H|-*.
+        * intros ? K. inversion K.
+        * intros t [->|H2]%In_cons.
+          -- cbn in H. apply IH. 1: now left. apply H.
+          -- apply IHv. 
+             { intros tt Htt. apply IH. now right. }  
+             { apply H. }
+             easy.
+      + inversion H. apply inj_pair2_eq_dec in H2. 2: easy.
+        subst. induction v in IH,H1|-*.
+        * cbn. easy.
+        * cbn. split. 1: apply IH; [now left|apply H1; now left].
+          apply IHv. 1: intros t Ht; apply (IH t); now right.
+          intros t Ht; apply H1; now right.
+  Qed.
+  Lemma bounded_comp_eq {ff} n phi : @bounded_comp ff n phi <-> @bounded ff n phi.
+  Proof using sig_funcs_dec sig_preds_dec.
+    induction phi in n|-*; cbn; (split; [intros H; econstructor|inversion 1; subst]).
+    - easy.
+    - induction t in H|-*; try easy.
+      intros t' [->|Hin]%vec_cons_inv.
+      + apply bounded_t_comp_correct. destruct H as [H1 H2]; apply H1.
+      + apply IHt; try easy. destruct H as [H1 H2]; apply H2; easy.
+    - apply inj_pair2_eq_dec in H4. 2: easy. subst.
+      induction t in H3|-*; try easy.
+      cbn. split.
+      * apply bounded_t_comp_correct. apply H3. now left.
+      * apply IHt. intros t' Ht'; apply H3. now right.
+    - apply IHphi1. apply H.
+    - apply IHphi2. apply H.
+    - apply inj_pair2_eq_dec in H1. 2: decide equality.
+      apply inj_pair2_eq_dec in H5. 2: decide equality.
+      subst. split; try apply IHphi1; try apply IHphi2; easy.
+    - now apply IHphi.
+    - apply inj_pair2_eq_dec in H4. 2: decide equality.
+      subst. apply IHphi. easy.
+  Qed.
+
 End Bounded.
 
 #[global] Arguments subst_bounded {_} {_} {_} {_} k phi sigma.
 
-Ltac solve_bounds :=
-  repeat (lia + constructor); try inversion X; intros;
-  match goal with
-  | H : Vector.In ?x (@Vector.cons _ ?y _ ?v) |- _ => repeat apply vec_cons_inv in H as [->|H]; try inversion H
-  | H : Vector.In ?x (@Vector.nil _) |- _ => try inversion H
-  | _ => idtac
-  end.
+Ltac solve_bounds := let rec IH := match goal with
+  |- bounded ?n ?H   => first [apply bounded_falsity; fail
+                              |apply bounded_bin; [IH|IH]
+                              |apply bounded_quant; [IH]
+                              |apply bounded_atom; intros ?; IHvec]
+| |- bounded_t ?n ?T => first [apply bounded_var; lia
+                              |apply bouded_func; intros ?; IHvec]
+| |- _ => idtac end
+with IHvec := let H := fresh "H" in intros H;
+                  first [exfalso; apply (@Vectors.In_nil _ _ H)
+                        |apply vec_cons_inv in H; destruct H as [->|H];
+                          [IH
+                          |revert H; try IHvec]]
+in IH.
 
 
 

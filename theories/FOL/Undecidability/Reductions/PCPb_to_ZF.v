@@ -111,7 +111,7 @@ Qed.
 Lemma combinations_bound (B : BSRS) n k l :
   n > 2 + l -> n > 4 + k -> bounded n (combinations B $k $l).
 Proof.
-  revert n k l. induction B as [|[s t] B IH]; cbn; repeat solve_bounds; trivial.
+  revert n k l. induction B as [|[s t] B IH]; cbn; intros n k l H1 H2; repeat solve_bounds; trivial.
   apply IH; lia. all: apply prep_string_bound; solve_bounds.
 Qed.
 

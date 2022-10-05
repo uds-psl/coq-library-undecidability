@@ -233,6 +233,7 @@ Section Signature.
     bounded N ϕ -> bounded N (Fr ϕ).
   Proof.
     induction 1; cbn; solve_bounds; auto.
+    - econstructor. apply H.
     - destruct binop; now solve_bounds.
     - destruct quantop; now solve_bounds.
   Qed.

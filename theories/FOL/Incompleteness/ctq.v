@@ -31,7 +31,7 @@ Section ctq.
     exists (φ[(num c)..]). 
     split.
     { eapply subst_bounded_max; last eassumption.
-      intros [|[|[|n]]]; solve_bounds; apply num_bound. }
+      intros [|[|[|n]]] Hn; solve_bounds; apply num_bound. }
     split.
     { apply Σ1_subst, HΣ. }
     intros x y.  specialize (Hc x y). 
@@ -243,7 +243,7 @@ Section ctq.
     repeat (solve_bounds; cbn in *).
     - assumption.
     - eapply subst_bounded_max; last eassumption.
-      intros [|[|[|[|k]]]]; solve_bounds.
+    intros [|[|[|[|n]]]] Hn; cbn; now solve_bounds.
   Qed.
   Lemma ψ_bounded : bounded 3 ψ.
   Proof.
@@ -268,11 +268,11 @@ Section ctq.
   Proof.
     cbn. do 2 f_equal.
     { eapply bounded_subst; first eassumption.
-      intros [|[|[|[|n]]]]; cbn; solve_bounds. }
+      intros [|[|[|[|n]]]] Hn; cbn; now solve_bounds. }
     do 4 f_equal.
     rewrite subst_comp. 
     eapply bounded_subst; first eassumption.
-    intros [|[|[|[|n]]]]; cbn; solve_bounds.
+    intros [|[|[|[|n]]]] Hn; cbn; now solve_bounds.
   Qed.
   Lemma ψ'_subst k c x y :
     ψ'[k .: c .: x .: y ..] = φ[k .: c .: x .: y..] ∧  ∀∀ ($1 ⊕ $0 ⧀= y`[↑]`[↑] ⊕ k`[↑]`[↑]) → φ[$0 .: c`[↑]`[↑] .: x`[↑]`[↑] .: $1..] → $1 == y`[↑]`[↑].
@@ -281,7 +281,7 @@ Section ctq.
     do 4 f_equal.
     rewrite subst_comp. 
     eapply bounded_subst; first eassumption.
-    intros [|[|[|[|n]]]]; cbn; solve_bounds.
+    intros [|[|[|[|n]]]] Hn; cbn; now solve_bounds.
   Qed.
 
   Lemma ψ_φ s t u :
@@ -302,7 +302,7 @@ Section ctq.
     apply AllE with (t := num y) in H.
     cbn -[ψ] in H. replace (ψ[_][_]) with ψ[num c .: num x .: (num y)..] in H.
     2: { rewrite subst_comp. eapply bounded_subst; first apply ψ_bounded.
-      intros [|[|[|n]]]; solve_bounds; cbn; now rewrite num_subst. }
+      intros [|[|[|n]]] Hn; solve_bounds; cbn; try easy; now rewrite num_subst. }
     eapply IE.
     { eapply CE2, H. }
     rewrite num_subst. fapply ax_refl.
@@ -326,28 +326,28 @@ Section ctq.
     apply Σ1_completeness.
     { apply Σ1_subst, ψ_Σ1. }
     { eapply subst_bounded_max; last apply ψ_bounded.
-      intros [|[|[|n]]]; solve_bounds; apply num_bound. }
+      intros [|[|[|n]]] Hn; solve_bounds; apply num_bound. }
     intros ρ.
     pose proof H as [k Hk]%wrepr%Σ1_witness; first apply Σ1_soundness with (rho := ρ) in Hk; first last.
     { eapply subst_bounded_max; last eassumption.
-      intros [|[|[|[|n]]]]; solve_bounds; apply num_bound. }
+      intros [|[|[|[|n]]]] Hn; solve_bounds; apply num_bound. }
     { apply Σ1_subst. now constructor. }
     { rewrite subst_comp. eapply subst_bounded_max; last eassumption.
-      intros [|[|[|[|n]]]]; solve_bounds; cbn; rewrite ?num_subst; apply num_bound. }
+      intros [|[|[|[|n]]]] Hn; solve_bounds; try easy; cbn; rewrite ?num_subst; apply num_bound. }
     { do 2 apply Σ1_subst. now constructor. }
     exists k. split.
     - pattern (φ[up (num c .: num x .: (num y)..)]).
       erewrite bounded_subst.
       + apply sat_single_nat, Hk.
       + eassumption.
-      + intros [|[|[|[|n]]]]; solve_bounds; apply num_subst.
+      + intros [|[|[|[|n]]]] Hn; solve_bounds; now try apply num_subst.
     - intros y' k' _ H'. cbn.
       rewrite !num_subst. rewrite nat_eval_num.
       eapply part_functional; last apply H.
       apply wrepr, Σ1_completeness.
       { do 2 constructor. now apply Qdec_subst. }
       { constructor. eapply subst_bounded_max; last eassumption.
-        intros [|[|[|[|n]]]]; solve_bounds; apply num_bound. }
+        intros [|[|[|[|n]]]] Hn; solve_bounds; now try apply num_bound. }
       intros ρ'. exists k'. 
       apply sat_single_nat. do 3 rewrite sat_single_nat in H'.
       evar (f : form).
@@ -367,7 +367,7 @@ Section ctq.
     intros [k Hk]%Σ1_witness.
     2: { apply Σ1_subst. constructor. apply ψ'_Qdec. }
     2: { eapply subst_bounded_max; last apply ψ'_bounded.
-      intros [|[|[|[|n]]]]; solve_bounds; cbn; rewrite num_subst; apply num_bound. }
+      intros [|[|[|[|n]]]] Hn; solve_bounds; try easy; cbn; rewrite num_subst; apply num_bound. }
     asimpl in Hk.
     rewrite ψ'_subst in Hk.
     fstart.
@@ -465,8 +465,8 @@ Section ctq.
     split. 
     { eapply subst_bounded_max; last eassumption.
       intros [|k] H; cbn.
-      - repeat (constructor; lia + solve_bounds).
-      - unfold funcomp. constructor. lia. }
+      - solve_bounds. 
+      - cbv; solve_bounds. }
     intros x y.
     assert (Qeq ⊢ num (embed' (x, y)) == num y ⊗ (σ σ zero) ⊕ (num y ⊕ num x) ⊗ (num y ⊕ num x ⊕ σ zero)) as Heq.
     { apply Σ1_completeness.

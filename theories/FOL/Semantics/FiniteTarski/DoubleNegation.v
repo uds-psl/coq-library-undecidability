@@ -1,6 +1,7 @@
 Require Import Vector.
 From Undecidability.FOL Require Import Syntax.Facts.
 From Undecidability.FOL.Semantics.Tarski Require Import FullFacts FragmentFacts.
+From Undecidability.FOL.Semantics.FiniteTarski Require Import Full Fragment.
 From Undecidability.Shared Require Import Dec.
 From Undecidability.Shared.Libs.PSL Require Import Numbers.
 From Coq Require Import Arith Lia List.
@@ -192,78 +193,93 @@ Section translation.
   Qed.
 
   #[local] Hint Constructors bounded : core.
-(*
-  (* Show correctness by induction. *)
-  Lemma translate_bounded (f:falsity_flag)(phi : (@form _ _ full_operators f)) n : 
-     ((bounded n (translate_form phi) <-> bounded n phi)
-  /\ (bounded n (translate_negated phi) <-> bounded n phi))
-  /\ (forall wterm, bounded n (conj_to_impl_chain phi wterm) <-> (bounded n phi /\ bounded n wterm))
-  /\ (forall wterm, bounded n (disj_to_impl_chain phi wterm) <-> (bounded n phi /\ bounded n wterm)).
+
+  (* This proof is a lot of copy-paste. It should be automated *)
+  Lemma translate_bounded_full (f:falsity_flag)(phi : (@form _ _ full_operators f)) n : 
+     ((bounded_comp n (translate_form phi) <-> bounded_comp n phi)
+  /\ (bounded_comp n (translate_negated phi) <-> bounded_comp n phi))
+  /\ (forall wterm, bounded_comp n (conj_to_impl_chain phi wterm) <-> (bounded_comp n phi /\ bounded_comp n wterm))
+  /\ (forall wterm, bounded_comp n (disj_to_impl_chain phi wterm) <-> (bounded_comp n phi /\ bounded_comp n wterm)).
   Proof.
-  induction phi as [|p v|f [| |] l IH r IH2|f [|] s IH] in n|-*; split; split; split; cbv; intros H; eauto.
-  - dependent inversion H. Search existT eq "dec".
-  - admit.
-  - 
-  - cbn. recsplit 3. 1-2:easy. 1-2:intros term wterm ->; tauto.
-  - recsplit 3.
-    + cbn. erewrite (Vector.map_ext). 1: apply eval_same_atom. apply eval_same.
-    + cbn. erewrite (Vector.map_ext). 1: apply equiv_impl; apply eval_same_atom. apply eval_same.
-    + intros term wterm H. cbn. rewrite <- eval_same_atom. rewrite <- H. erewrite (Vector.map_ext). 1:easy.  apply eval_same. 
-    + intros term wterm H. cbn. rewrite H. apply equiv_impl, equiv_impl. erewrite (Vector.map_ext). 1:apply eval_same_atom. apply eval_same.
-  - destruct (IHl rho) as [l1 [l2 [l3 l4]]], (IHr rho) as [r1 [r2 [r3 r4]]]. recsplit 3.
-    + cbn. rewrite l3. 2:easy. rewrite r3. 2:easy. split.
-      * intros H. destruct (Ddec l rho) as [Hl|Hnl], (Ddec r rho) as [Hr|Hnr]. 1:easy. all:exfalso; apply H; intros Hcl Hcr; cbn; easy.
-      * intros [Hl Hr] H. now apply H.
-    + cbn. rewrite l3. 2:easy. rewrite r3. 2:easy. tauto.
-    + intros term wterm H. cbn. rewrite l3. 2:easy. rewrite r3. 2:easy. rewrite H. tauto.
-    + intros term wterm H. cbn. rewrite l3. 2:easy. rewrite r3. 2:easy. rewrite H. apply equiv_impl. tauto.
-  - destruct (IHl rho) as [l1 [l2 [l3 l4]]], (IHr rho) as [r1 [r2 [r3 r4]]]. 
-    cbn. recsplit 3.
-    + rewrite l4. 2:easy. rewrite r4. 2:easy.  split.
-      * intros H. destruct (Ddec l rho) as [Hl|Hnl], (Ddec r rho) as [Hr|Hnr]. 1-3:tauto.
-        exfalso. now apply H.
-      * tauto.
-    + rewrite l4. 2:easy. rewrite r4. 2:easy. tauto.
-    + intros term wterm H. rewrite l4. 2:easy. rewrite r4. 2:easy. rewrite H. apply equiv_impl. split. 2:tauto.
-      intros Hc. destruct (Ddec l rho) as [Hl|Hnl], (Ddec r rho) as [Hr|Hnr]. 1-3:tauto. exfalso. now apply Hc.
-    + intros term wtertranslate_formm H. rewrite l4. 2:easy. rewrite r4. 2:easy. rewrite H. tauto.
-  - destruct (IHl rho) as [l1 [l2 [l3 l4]]], (IHr rho) as [r1 [r2 [r3 r4]]].
-    cbn. rewrite l3. 2:easy. rewrite r1. recsplit 3.
-    + tauto.
-    + tauto.
-    + intros term wterm H. rewrite l3. 2:easy. rewrite H. rewrite r1. tauto.
-    + intros term wterm H. rewrite l3. 2:easy. rewrite H. rewrite r1. tauto.
-  - cbn. recsplit 3.
-    + split.  
-      * intros H d. destruct (IHs (d.:rho)) as [IH1 [IH2 [IH3 IH4]]]. rewrite <- IH1. apply H.
-      * intros H d. destruct (IHs (d.:rho)) as [IH1 [IH2 [IH3 IH4]]]. rewrite IH1. apply H.
-    + split. 
-      * intros Hc H. apply Hc. intros d. destruct (IHs (d.:rho)) as [IH1 [IH2 [IH3 IH4]]]. rewrite IH1. apply H.
-      * intros Hc H. apply Hc. intros d. destruct (IHs (d.:rho)) as [IH1 [IH2 [IH3 IH4]]]. rewrite <- IH1. apply H.
-    + intros term wterm ->. split.
-      * intros Hc H. apply Hc. intros d. destruct (IHs (d.:rho)) as [IH1 [IH2 [IH3 IH4]]]. rewrite IH1. apply H.
-      * intros Hc H. apply Hc. intros d. destruct (IHs (d.:rho)) as [IH1 [IH2 [IH3 IH4]]]. rewrite <- IH1. apply H.
-    + intros term wterm ->. split.
-      * intros Hc H. apply Hc. intros Hcc. apply H. intros d. destruct (IHs (d.:rho)) as [IH1 [IH2 [IH3 IH4]]]. rewrite <- IH1. apply Hcc.
-      * intros Hc H. apply Hc. intros Hcc. apply H. intros d. destruct (IHs (d.:rho)) as [IH1 [IH2 [IH3 IH4]]]. rewrite IH1. apply Hcc.
-  - cbn. recsplit 3.
-    + split.
-      * intros H. destruct (Ddec (∃ s) rho) as [[e He]|Hne].
-        -- now exists e.
-        -- exfalso. apply H. intros d. destruct (IHs (d.:rho)) as [IH1 [IH2 [IH3 IH4]]].
-           rewrite IH2. intros Hc. apply Hne. now exists d.
-      * intros [d Hd] Hc. contradict Hd. destruct (IHs (d.:rho)) as [IH1 [IH2 [IH3 IH4]]]. rewrite <- IH2. apply Hc.
-    + split.
-      * intros Hc [d Hd]. contradict Hd.  destruct (IHs (d.:rho)) as [IH1 [IH2 [IH3 IH4]]]. rewrite <- IH2. apply Hc.
-      * intros Hc d. destruct (IHs (d.:rho)) as [IH1 [IH2 [IH3 IH4]]]. rewrite IH2. intros H. apply Hc. now exists d.
-    + intros term wterm ->. apply equiv_impl. split.
-      * intros H. destruct (Ddec (∃ s) rho) as [[e He]|Hne].
-        -- now exists e.
-        -- exfalso. apply H. intros d. destruct (IHs (d.:rho)) as [IH1 [IH2 [IH3 IH4]]].
-           rewrite IH2. intros Hc. apply Hne. now exists d.
-      * intros [d Hd] Hc. contradict Hd. destruct (IHs (d.:rho)) as [IH1 [IH2 [IH3 IH4]]]. rewrite <- IH2. apply Hc.
-    + intros term wterm ->. apply equiv_impl. firstorder.
-  Qed. *)
+  induction phi as [|p v|f [| |] l IH r IH2|f [|] s IH] in n|-*; split; split; split; cbn; 
+    cbn; intros H; try tauto; eauto; try easy.
+  - destruct H as [HL _]. apply IH in HL. destruct HL as [HL HR]. apply IH2 in HR.
+    tauto.
+  - split; try easy. destruct (IH n) as [[_ _] [IH' _]]. apply IH'. split; try tauto.
+    destruct (IH2 n) as [[_ _] [IH2' _]]. apply IH2'. split; now try tauto.
+  - apply IH in H. destruct H as [HL HR]. apply IH2 in HR.
+    tauto.
+  - destruct (IH n) as [[_ _] [IH' _]]. apply IH'. split; try tauto.
+    destruct (IH2 n) as [[_ _] [IH2' _]]. apply IH2'. split; now try tauto.
+  - apply IH in H. destruct H as [HL HR]. apply IH2 in HR.
+    tauto.
+  - destruct (IH n) as [[_ _] [IH' _]]. apply IH'. split; try tauto.
+    destruct (IH2 n) as [[_ _] [IH2' _]]. apply IH2'. split; now try tauto.
+  - destruct H as [HL HH]. apply IH in HL. destruct HL as [HL HR]. apply IH2 in HR.
+    tauto.
+  - split; try easy. destruct (IH n) as [[_ _] [IH' _]]. apply IH'. split; try tauto.
+    destruct (IH2 n) as [[_ _] [IH2' _]]. apply IH2'. split; now try tauto.
+  - apply IH in H. destruct H as [HL HR]. apply IH2 in HR.
+    tauto.
+  - destruct (IH n) as [[_ _] [_ IH']]. apply IH'. split; try tauto.
+    destruct (IH2 n) as [[_ _] [_ IH2']]. apply IH2'. split; now try tauto.
+  - destruct H as [H _]. apply IH in H. destruct H as [HL HR]. apply IH2 in HR.
+    tauto.
+  - split; try easy. destruct (IH n) as [[_ _] [_ IH']]. apply IH'. split; try tauto.
+    destruct (IH2 n) as [[_ _] [_ IH2']]. apply IH2'. split; now try tauto.
+  - destruct H as [H HH]. apply IH in H. destruct H as [HL HR]. apply IH2 in HR.
+    tauto.
+  - split; try easy. destruct (IH n) as [[_ _] [_ IH']]. apply IH'. split; try tauto.
+    destruct (IH2 n) as [[_ _] [_ IH2']]. apply IH2'. split; now try tauto.
+  - apply IH in H. destruct H as [HL HR]. apply IH2 in HR.
+    tauto.
+  - destruct (IH n) as [[_ _] [_ IH']]. apply IH'. split; try tauto.
+    destruct (IH2 n) as [[_ _] [_ IH2']]. apply IH2'. split; now try tauto.
+  - apply IH in H. destruct H as [HL HR]. apply IH2 in HR.
+    tauto.
+  - destruct (IH n) as [[_ _] [IH' _]]. apply IH'. split; try tauto.
+    destruct (IH2 n) as [[IH2' _] [_ _]]. apply IH2'. tauto.
+  - destruct H as [H HH]. apply IH in H. destruct H as [HL HR]. apply IH2 in HR.
+    tauto.
+  - split; try easy. destruct (IH n) as [[_ _] [IH' _]]. apply IH'. split; try tauto.
+    destruct (IH2 n) as [[IH2' _] [_ _]]. apply IH2'. tauto.
+  - destruct H as [H HH]. apply IH in H. destruct H as [HL HR]. apply IH2 in HR.
+    tauto.
+  - split; try easy. destruct (IH n) as [[_ _] [IH' _]]. apply IH'. split; try tauto.
+    destruct (IH2 n) as [[IH2' _] [_ _]]. apply IH2'. tauto.
+  - destruct H as [[H _] HH]. apply IH in H. destruct H as [HL HR]. apply IH2 in HR.
+    tauto.
+  - do 2 (split; try easy). destruct (IH n) as [[_ _] [IH' _]]. apply IH'. split; try tauto.
+    destruct (IH2 n) as [[IH2' _] [_ _]]. apply IH2'. tauto.
+  - destruct (IH (S n)) as [[IH' _] _]. apply IH'. easy.
+  - destruct (IH (S n)) as [[IH' _] _]. apply IH'. easy.
+  - destruct (IH (S n)) as [[IH' _] _]. apply IH'. easy.
+  - split; try tauto. destruct (IH (S n)) as [[IH' _] _]. apply IH'. easy.
+  - split; try tauto. destruct (IH (S n)) as [[IH' _] _]. apply IH'. easy.
+  - split; try tauto. destruct (IH (S n)) as [[IH' _] _]. apply IH'. easy.
+  - split; try tauto. destruct (IH (S n)) as [[IH' _] _]. apply IH'. easy.
+  - do 2 (split; try tauto). destruct (IH (S n)) as [[IH' _] _]. apply IH'. easy.
+  - destruct (IH (S n)) as [[_ IH'] _]. apply IH'. easy.
+  - split; try tauto. destruct (IH (S n)) as [[_ IH'] _]. apply IH'. easy.
+  - destruct (IH (S n)) as [[_ IH'] _]. apply IH'. easy.
+  - destruct (IH (S n)) as [[_ IH'] _]. apply IH'. easy.
+  - split; try tauto. destruct (IH (S n)) as [[_ IH'] _]. apply IH'. easy.
+  - do 2 (split; try tauto). destruct (IH (S n)) as [[_ IH'] _]. apply IH'. easy.
+  - split; try tauto. destruct (IH (S n)) as [[_ IH'] _]. apply IH'. easy.
+  - split; try tauto. destruct (IH (S n)) as [[_ IH'] _]. apply IH'. easy.
+  Qed.
+
+  Context {sig_funcs_dec : eq_dec Σ_funcs}.
+  Context {sig_preds_dec : eq_dec Σ_preds}.
+
+  Lemma translate_form_bounded {ff:falsity_flag} n phi : bounded n phi <-> bounded n (translate_form phi).
+  Proof using sig_funcs_dec sig_preds_dec.
+    rewrite <- ! bounded_comp_eq.
+    destruct (translate_bounded_full phi n) as [[H _] _]. symmetry. apply H.
+  Qed.
+  Definition translate_form_closed {ff:falsity_flag} (f:Full.cform) : (Fragment.cform (ff:=falsity_on)) := match f with
+  exist _ phi Hclosed => exist _ (translate_form phi) (ltac:(apply translate_form_bounded; apply Hclosed)) end.
+
 
 End translation.
 
