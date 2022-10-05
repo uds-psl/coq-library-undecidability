@@ -371,11 +371,9 @@ Section Completeness.
       enough (T ⊢TC ⊥) as [[|lx lr] [HL HL']].
       - exfalso. eapply consistent_ND. apply HL'.
       - destruct (HL lx) as (n & Heq%to_from_form & Hfn). 1:now left. now exists n.
-      - enough (~~ (exists n, f n = true)).
-        + apply H. 1:easy. intros Hc. apply H0. intros [n Hn]. apply Hc. exists [to_form n]. split.
-          * intros ? [<- | []]. unfold T. exists n. split; try easy. apply from_to_form.
-          * apply to_form_contradictory.
-        + intros Hc. apply Hf. apply Hc.
+      - apply H. 1:easy. intros Hc. apply Hf. intros [n Hn]. apply Hc. exists [to_form n]. split.
+        + intros ? [<- | []]. unfold T. exists n. split; try easy. apply from_to_form.
+        + apply to_form_contradictory.
     Qed.
 
   End MP_Equivalence.
