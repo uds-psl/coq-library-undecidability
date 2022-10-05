@@ -97,6 +97,12 @@ Section finite.
     * eexists. apply frag_reduction_fsatdc.
   Qed.
 
+  Lemma minDiscreteClosedFullFiniteSatisfiabilityUndec : undecidable Full.FSATdc.
+  Proof.
+    apply (undecidability_from_reducibility H10UPC_SAT_undec).
+    eexists. apply fsatdc_reduction.
+  Qed.
+
   Lemma minFiniteValidityUndec : undecidable FVAL.
   Proof.
     apply (undecidability_from_reducibility H10UPC_SAT_compl_undec).
