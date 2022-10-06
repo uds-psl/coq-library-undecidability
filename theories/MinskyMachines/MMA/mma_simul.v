@@ -34,7 +34,7 @@ Section mma_sim.
 
   Variables (n : nat).
 
-  (* The identity compiler behaves a relinking the code so that the
+  (* The identity compiler behaves as relinking the code so that the
      output PC value is always at the code end *)
 
   Definition mma_instr_compile lnk (_ : nat) (ii : mm_instr (pos n)) :=
@@ -119,11 +119,11 @@ Section mma_mma0_sim.
   Let Q := proj1_sig (mma_auto_simulator i P).
   Let HQ := proj2_sig (mma_auto_simulator i P).
 
-  Definition mma_mma0_sim := Q ++ mma_null_all _ (length Q+1) ++ mma_jump 0 pos0.
+  Definition mma_mma0_sim := Q ++ mma_zeroify pos0 (length Q+1).
 
   Notation R := mma_mma0_sim.
 
-  Hint Rewrite mma_null_all_length : length_db.
+  Hint Rewrite mma_zeroify_length : length_db.
 
   Theorem mma_mma0_sim_spec v : (i,P) //ₐ (i,v) ↓ <-> (1,R) //ₐ (1,v) ~~> (0,vec_zero).
   Proof.
@@ -134,8 +134,8 @@ Section mma_mma0_sim.
       split; [ | simpl; lia ].
       unfold R.
       apply subcode_sss_compute_trans with (2 := H); auto.
-      apply subcode_sss_compute_trans with (2 := mma_null_all_spec _ _); auto.
-      apply subcode_sss_compute with (2 := mma_jump_spec _ pos0 _ _); auto.
+      apply sss_progress_compute.
+      apply subcode_sss_progress with (2 := mma_zeroify_spec pos0 _ _); auto.
     + intros H.
       apply HQ; fold Q.
       apply subcode_sss_terminates with (Q := (1,R)).
@@ -145,7 +145,12 @@ Section mma_mma0_sim.
 
 End mma_mma0_sim.
 
-(* Termination can be simulated with termination on (0,vec_zero) *)
+(* Termination can be simulated with termination on (0,vec_zero) 
+   One cannot enforce a jump to PC=0 if there is no register at all 
+   hence the pos (S n) below.
+
+   In case of the registers (pos 0), P must be empty (as would be Q) but 
+   it is not possible for Q=[] to terminate on PC=0 when starting from PC=1 *)
 
 Theorem mma2_simulator n i (P : list (mm_instr (pos (S n)))) :
   { Q | forall v, (i,P) //ₐ (i,v) ↓ <-> (1,Q) //ₐ (1,v) ~~> (0,vec_zero) }.

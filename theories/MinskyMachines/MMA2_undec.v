@@ -10,7 +10,7 @@
 Require Import Undecidability.Synthetic.Undecidability.
 
 From Undecidability.FRACTRAN 
-  Require Import FRACTRAN FRACTRAN_undec.
+  Require Import FRACTRAN FRACTRAN_FRACTRAN FRACTRAN_undec.
 
 From Undecidability.MinskyMachines 
   Require Import MMA FRACTRAN_to_MMA2.

@@ -7,26 +7,22 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-From Undecidability.Shared.Libs.DLW 
-  Require Import utils list_bool pos vec sss compiler_correction.
+From Undecidability.StackMachines Require Import bsm_defs.
 
-From Undecidability.StackMachines
-  Require Import bsm_defs.
+From Undecidability.MinskyMachines Require Import MMA.
 
-From Undecidability.MinskyMachines
-  Require Import mma_defs mma_utils_bsm bsm_mma MMA_to_MMA_zero.
+From Undecidability.MinskyMachines 
+  Require BSM_to_MMA_HALTING MMA_to_MMA_zero.
 
 From Undecidability.Synthetic
   Require Import Definitions ReducibilityFacts.
 
-Theorem reduction n : BSMn_HALTING n ⪯ @MMA_HALTING (1+n).
+Theorem reduction n : BSMn_HALTING n ⪯ MMA_HALTS_ON_ZERO (1+n).
 Proof.
-  apply reduces_dependent; exists.
-  intros (i,(P,v)).
-  exists (gc_code (bsm_mma_compiler _) (i, P) 1, 0##vec_map stack_enc v).
-  apply (compiler_t_term_equiv (bsm_mma_compiler n) (i,P) 1); simpl; split; auto.
-  intros; rew vec.
+  eapply reduces_transitive. apply BSM_to_MMA_HALTING.reduction.
+  apply MMA_to_MMA_zero.reduction.
 Qed.
+
 
 
 

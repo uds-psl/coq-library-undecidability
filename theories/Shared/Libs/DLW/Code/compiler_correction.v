@@ -19,7 +19,7 @@ Import ListNotations.
 Set Implicit Arguments.
 Set Default Goal Selector "!".
 
-Section comp.
+Section correctness_generic.
 
   (* This is an abstract proof of compiler soundness & completeness 
 
@@ -40,14 +40,15 @@ Section comp.
                                                            whether this assumption is strong or not is debatable
                                                            but we only encountered cases which satisfy this assuption
                                                          *)
-           (Hilen : forall lnk n x, length (icomp lnk n x) = ilen x)
-           (*Hilen2  : forall x, 1 <= ilen x*).           (* compiled code should not be empty, even if the source
+           (Hilen1 : forall lnk n x, length (icomp lnk n x) = ilen x)
+           (*Hilen2 : forall x, 1 <= ilen x*).            (* compiled code should not be empty, even if the source
                                                            instruction is something like NO-OP, to ensure progress
                                                            in the simulation as source code executes 
                                                            also not a strong requirement
 
-                                                           This can be removed because it can be deduced (where it
-                                                           is used) from Hilen & step_X_tot & Hicomp 
+                                                           This could be removed because it can be deduced (where it
+                                                           is used) from Hilen & step_X_tot & Hicomp, but this mixed
+                                                           semantic and syntactic conditions so we keep it.
                                                          *)
 
   (* Semantics for X and Y instructions *)
@@ -125,7 +126,8 @@ Section comp.
               (Q : nat * list Y)
               (HPQ : forall i ρ, (i,[ρ]) <sc P 
                               -> (linker i, icomp linker i ρ) <sc Q
-                               /\ linker (1+i) = ilen ρ + linker i).
+                               /\ linker (1+i) = ilen ρ + linker i)
+              (Hlink : forall i, out_code i P -> out_code (linker i) Q).
 
     (* From semantic correctness of individually compiled instructions and
         syntactic correctness of the whole compiled program, we derive
@@ -137,7 +139,8 @@ Section comp.
         -> exists w₂, v₂ ⋈ w₂ /\ Q /Y/ (linker i₁,w₁) ->> (linker i₂,w₂).
 
     Theorem compiler_sound : compiled_sound.
-    Proof using HPQ Hilen Hicomp.
+    Proof using HPQ Hilen1 Hicomp.
+      clear Hlink.
       intros i1 v1 i2 v2 w1.
       change i1 with (fst (i1,v1)) at 2; change v1 with (snd (i1,v1)) at 1.
       change i2 with (fst (i2,v2)) at 2; change v2 with (snd (i2,v2)) at 2.
@@ -149,13 +152,25 @@ Section comp.
         inversion G2; subst v' i1; clear G2.
         destruct (Hicomp linker) with (1 := G3) (3 := H0)
           as (w2 & G4 & G5).
-        * rewrite Hilen; apply HPQ; subst; exists l, r; auto.
+        * rewrite Hilen1; apply HPQ; subst; exists l, r; auto.
         * destruct (IH2 _ G5) as (w3 & G6 & G7).
           exists w3; split; auto.
           apply sss_compute_trans with (2 := G7); simpl.
           apply sss_progress_compute.
           revert G4; apply subcode_sss_progress.
           apply HPQ; subst; exists l, r; auto.
+    Qed.
+
+    Definition compiled_sound_output := forall i₁ v₁ i₂ v₂ w₁,
+                      v₁ ⋈ w₁ /\ P /X/ (i₁,v₁) ~~> (i₂,v₂)
+        -> exists w₂, v₂ ⋈ w₂ /\ Q /Y/ (linker i₁,w₁) ~~> (linker i₂,w₂).
+
+    Theorem compiler_sound_output : compiled_sound_output.
+    Proof using HPQ Hilen1 Hicomp Hlink.
+      intros i1 v1 i2 v2 w1 (H1 & H2 & H3).
+      destruct compiler_sound with (1 := conj H1 H2) as (w2 & H4 & H5).
+      exists w2; msplit 2; auto.
+      revert H3; simpl fst; auto.
     Qed.
 
     (* When still inside of P, the computation in Q simulates
@@ -172,7 +187,7 @@ Section comp.
                         /\ P /X/ st1 ->> st2
                         /\ Q /Y/ w2 -[q]-> w3
                         /\ q < p.
-    Proof using HPQ Hicomp Hilen step_Y_fun step_X_tot.
+    Proof using HPQ Hicomp Hilen1 step_Y_fun step_X_tot.
       revert st1 w1 w3; intros (i1,v1) (j1,w1) (j3,w3); simpl fst; simpl snd.
       intros H1 H2 H3 H4 H5.
       destruct (in_code_subcode H3) as (I & HI).
@@ -183,17 +198,17 @@ Section comp.
       { intros H.
         destruct (step_X_tot I (i1,v1)) as ((i2,v2) & Hst).
         apply (Hicomp linker) with (3 := H1) in Hst; auto.
-        2: rewrite Hilen; auto.
+        2: rewrite Hilen1; auto.
         destruct Hst as (w2 & (q & Hq1 & Hq2) & _).
-        rewrite <- (Hilen linker i1) in H.
+        rewrite <- (Hilen1 linker i1) in H.
         destruct (icomp linker i1 I); try discriminate.
         apply sss_steps_stall, proj1 in Hq2; simpl; lia. }
       assert (in_code (linker i1) (linker i1, icomp linker i1 I)) as G3.
-      { simpl; rewrite (Hilen linker i1 I); lia. }
+      { simpl; rewrite (Hilen1 linker i1 I); lia. }
       rewrite <- H2 in H5.
       destruct (step_X_tot I (i1,v1)) as ((i2,v2) & G4).
       destruct (Hicomp linker) with (1 := G4) (3 := H1) as (w2 & G5 & G6).
-      * rewrite H7, Hilen; auto.
+      * rewrite H7, Hilen1; auto.
       * apply subcode_sss_progress_inv with (3 := H6) (4 := G5) in H5; auto.
         destruct H5 as (q & H5 & G7).
         exists q, (i2,v2), (linker i2, w2); simpl; repeat (split; auto).
@@ -207,7 +222,7 @@ Section comp.
 
     Theorem compiler_complete i1 v1 w1 : 
           v1 ⋈ w1 -> Q /Y/ (linker i1,w1) ↓ -> P /X/ (i1,v1) ↓.
-    Proof using HPQ Hicomp Hilen step_Y_fun step_X_tot.
+    Proof using HPQ Hicomp Hilen1 step_Y_fun step_X_tot.
       intros H1 (st & (q & H2) & H3). 
       revert i1 v1 w1 H1 H2 H3.
       induction q as [ q IHq ] using (well_founded_induction lt_wf).
@@ -227,7 +242,7 @@ Section comp.
                             v₁ ⋈ w₁ /\ Q /Y/ (linker i₁,w₁) ~~> st
         -> exists i₂ v₂ w₂, v₂ ⋈ w₂ /\ P /X/ (i₁,v₁) ~~> (i₂,v₂)
                                     /\ Q /Y/ (linker i₂,w₂) ~~> st. 
-    Proof using HPQ Hicomp Hilen step_Y_fun step_X_tot.
+    Proof using HPQ Hicomp Hilen1 step_Y_fun step_X_tot.
       intros i1 v1 w1 st (H1 & H2).
       destruct compiler_complete with (1 := H1) (2 := ex_intro (fun x => Q /Y/ (linker i1, w1) ~~> x) _ H2)
         as ((i2,v2) & H3 & H4).
@@ -242,6 +257,20 @@ Section comp.
     Definition compiled_complete := forall i₁ v₁ w₁ j₂ w₂,
                          v₁ ⋈ w₁ /\ Q /Y/ (linker i₁,w₁) ~~> (j₂,w₂)
         -> exists i₂ v₂, v₂ ⋈ w₂ /\ P /X/ (i₁,v₁) ~~> (i₂,v₂) /\ j₂ = linker i₂.
+
+    Corollary compiler_complete'' : compiled_complete.
+    Proof using HPQ Hicomp Hilen1 Hlink step_Y_fun step_X_tot.
+      intros i1 v1 w1 j2 w2 H.
+      destruct compiler_complete' with (1 := H) as (i2 & v2 & w2' & G1 & G2 & G3 & G4).
+      destruct H as (H1 & H2).
+      exists i2, v2.
+      match type of G3 with _ /Y/ (?a,?b) ->> (?c,?d) => assert (a = c /\ b = d) as E end.
+      1:{ apply sss_compute_stop in G3.
+          + inversion G3; auto.
+          + simpl fst.
+            apply Hlink, G2. }
+      destruct E as (<- & ->); auto.
+   Qed.
 
   End correctness.
 
@@ -268,7 +297,7 @@ Section comp.
     Proof. intros [] ?; apply linker_code_start. Qed.
 
     Local Fact out_ok : forall P i j, out_code j P -> link P i j = code_end(i,code P i).
-    Proof using Hilen.
+    Proof using Hilen1.
       intros (iP,cP) iQ j H.
       unfold link, code_end.
       rewrite linker_out_err; unfold err; simpl; auto.
@@ -277,33 +306,24 @@ Section comp.
     Qed.
 
     Local Fact sound : forall P i, compiled_sound (link P i) P (i,code P i).
-    Proof using Hilen Hicomp.
+    Proof using Hilen1 Hicomp.
       intros (iP,cP) iQ; apply compiler_sound.
       intros; apply compiler_subcode; auto.
     Qed.
 
     Local Fact complete : forall P i, compiled_complete (link P i) P (i,code P i).
-    Proof using Hilen Hicomp step_Y_fun step_X_tot.
+    Proof using Hilen1 Hicomp step_Y_fun step_X_tot.
       intros (iP,cP) iQ; unfold link, code.
-      intros i1 v1 w1 j2 w2 H1.
-      destruct compiler_complete' with (2 := H1) (P := (iP,cP))
-        as (i2 & v2 & w2' & H2 & H3 & H4 & H5); auto.
+      apply compiler_complete''.
       + intros; apply compiler_subcode; auto.
-      + exists i2, v2.
-        match type of H4 with _ /Y/ (?a,?b) ->> (?c,?d) => assert (a = c /\ b = d) as E end.
-        1:{ apply sss_compute_stop in H4.
-            * inversion H4; auto.
-            * simpl fst.
-              apply linker_out_code; auto.
-              - right; unfold err; lia.
-              - apply H3. }
-        destruct E as [ E -> ]; auto.
+      + intro; apply linker_out_code; auto.
+        right; unfold err; simpl; lia.
     Qed.
 
     Hint Resolve fst_ok out_ok sound complete : core.
 
     Theorem generic_compiler : compiler_t.
-    Proof using Hilen Hicomp step_Y_fun step_X_tot.
+    Proof using Hilen1 Hicomp step_Y_fun step_X_tot.
       exists link code; auto. 
     Defined.
  
@@ -359,7 +379,71 @@ Section comp.
     apply compiler_t_term_correct.
   Qed.
 
-End comp.
+End correctness_generic.
+
+Section correctness_syntactic.
+
+  Variables (X Y : Set)
+            (ic : (nat -> nat) -> nat -> X -> list Y)
+            (il : X -> nat)
+            (Hil : forall lnk i x, length (ic lnk i x) = il x)
+            (cs : compiler_syntactic ic il).
+
+  Variables (state_X state_Y : Type)
+            (step_X : X -> (nat*state_X) -> (nat*state_X) -> Prop)
+            (step_Y : Y -> (nat*state_Y) -> (nat*state_Y) -> Prop).
+
+  Notation "ρ '/X/' s -1> t" := (step_X ρ s t) (at level 70, no associativity).
+  Notation "µ '/Y/' s -1> t" := (step_Y µ s t) (at level 70, no associativity).
+
+  Hypothesis (step_X_tot : forall ρ st1, exists st2, ρ /X/ st1 -1> st2)
+             (step_Y_fun : forall µ st st1 st2, µ /Y/ st -1> st1 -> µ /Y/ st -1> st2 -> st1 = st2).
+
+  Variables (simul : state_X -> state_Y -> Prop)
+            (Hsimul : instruction_compiler_sound ic step_X step_Y simul).
+
+  Theorem compiler_syntactic_sound P i : compiled_sound step_X step_Y simul (cs_link cs P i) P (i,cs_code cs P i).
+  Proof using Hsimul Hil.
+    destruct cs as [ link code C1 C2 C3 C4 C5 C6 C7 ]; simpl.
+    apply compiler_sound with ic il; auto.
+  Qed.
+
+  Theorem compiler_syntactic_sound_output P i : compiled_sound_output step_X step_Y simul (cs_link cs P i) P (i,cs_code cs P i).
+  Proof using Hsimul Hil.
+    destruct cs as [ link code C1 C2 C3 C4 C5 C6 C7 ]; simpl.
+    apply compiler_sound_output with ic il; auto.
+    intros j Hj.
+    rewrite C4; simpl; auto.
+  Qed.
+
+  Theorem compiler_syntactic_complete P i : compiled_complete step_X step_Y simul (cs_link cs P i) P (i,cs_code cs P i).
+  Proof using step_Y_fun step_X_tot Hsimul Hil.
+    destruct cs as [ link code C1 C2 C3 C4 C5 C6 C7 ]; simpl.
+    apply compiler_complete'' with ic il; auto.
+    intros j Hj.
+    apply C4 with (i := i) in Hj as ->.
+    right; auto.
+  Qed.
+
+  Theorem compiler_syntactic_term_equiv i P j v w : simul v w -> sss_terminates step_X (i,P) (i,v)
+                                                             <-> sss_terminates step_Y (j,cs_code cs (i,P) j) (j,w).
+  Proof using step_Y_fun step_X_tot Hsimul Hil.
+    intros Hvw; split.
+    + intros ((i',v') & H2 & H3).
+      destruct compiler_syntactic_sound with (1 := conj Hvw H2) (i := j)
+        as (w' & H4 & H5).
+      rewrite  <- (cs_fst cs (i,P) j) at 3; simpl fst.
+      exists (cs_link cs (i, P) j i', w'); split; auto.
+      simpl fst in H3 |- *.
+      rewrite (cs_out cs _ H3); simpl; lia.
+    + intros ((j',w') & H1).
+      rewrite <- (cs_fst cs (i,P) j) in H1 at 3; simpl fst in H1.
+      destruct compiler_syntactic_complete with (1 := conj Hvw H1)
+        as (j'' & v' & H2 & H3 & H4).
+      now exists (j'', v').
+  Qed.
+
+End correctness_syntactic.
 
 Section compiler_t_simul_equiv.
 
@@ -386,5 +470,3 @@ Section compiler_t_simul_equiv.
   Qed.
 
 End compiler_t_simul_equiv.
-      
-    

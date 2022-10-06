@@ -17,7 +17,7 @@ From Undecidability.MinskyMachines
   Require Import MM MM_undec.
 
 From Undecidability.FRACTRAN
-  Require Import FRACTRAN Reductions.MM_FRACTRAN FRACTRAN_sss.
+  Require Import FRACTRAN MM_FRACTRAN FRACTRAN_FRACTRAN FRACTRAN_sss.
 
 Theorem FRACTRAN_REG_undec : undecidable FRACTRAN_REG_HALTING.
 Proof.

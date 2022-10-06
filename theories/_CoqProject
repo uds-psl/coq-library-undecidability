@@ -301,10 +301,12 @@ MinskyMachines/Util/MM_computable.v
 
 MinskyMachines/Reductions/BSM_MM.v
 MinskyMachines/Reductions/BSM_to_MMA_HALTING.v
+MinskyMachines/Reductions/BSM_HALTING_to_MMA_zero_HALTING.v
 MinskyMachines/Reductions/PCPb_to_MM.v
 MinskyMachines/Reductions/HaltTM_1_to_MM.v
 MinskyMachines/Reductions/FRACTRAN_to_MMA2.v
 MinskyMachines/Reductions/MMA2_to_MM2.v
+MinskyMachines/Reductions/MMA_to_MMA_zero.v
 MinskyMachines/Reductions/MMA2_to_MMA2_zero.v
 MinskyMachines/Reductions/MM_to_MMA2.v
 MinskyMachines/Reductions/MUREC_MM.v
@@ -323,7 +325,8 @@ MinskyMachines/MM/mm_defs.v
 MinskyMachines/MM/mm_utils.v        
 MinskyMachines/MM/mm_comp.v
 MinskyMachines/MM/mm_comp_strong.v
-MinskyMachines/MM/mm_no_self.v      
+MinskyMachines/MM/mm_no_self.v
+MinskyMachines/MM/mm_no_self_alt.v    
 
 MinskyMachines/MMA/mma_defs.v       
 MinskyMachines/MMA/mma_utils.v
@@ -333,6 +336,7 @@ MinskyMachines/MMA/bsm_mma.v
 MinskyMachines/MMA/fractran_mma.v  
 MinskyMachines/MMA/mma_k_mma_2_compiler.v 
 MinskyMachines/MMA/mma3_mma2_compiler.v 
+MinskyMachines/MMA/mma_no_self.v 
 
 MinskyMachines/MMenv/env.v          
 MinskyMachines/MMenv/mme_defs.v     
@@ -393,10 +397,13 @@ MuRec/Reductions/H10C_SAT_to_RA_UNIV_HALT.v
 MuRec/Reductions/Diophantine_to_MuRec_computable.v
 
 FRACTRAN/Reductions/MM_FRACTRAN.v
+FRACTRAN/Reductions/MMA_FRACTRAN.v
+FRACTRAN/Reductions/FRACTRAN_FRACTRAN.v
 
 FRACTRAN/Util/prime_seq.v
 FRACTRAN/FRACTRAN/fractran_utils.v
 FRACTRAN/FRACTRAN/mm_fractran.v
+FRACTRAN/FRACTRAN/mma_fractran.v
 
 
 H10/ArithLibs/Zp.v

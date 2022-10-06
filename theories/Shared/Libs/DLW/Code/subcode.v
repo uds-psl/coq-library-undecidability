@@ -140,6 +140,9 @@ Section subcode.
     + exists a, l, r; split; auto; lia.
   Qed.
 
+  Fact subcode_nil_invert j i I : ~ (i,I::nil) <sc (j,nil).
+  Proof. now intros ([] & ? & ? & _). Qed.
+
   Fact subcode_app_invert_right j Q1 Q2 i I : 
         (i,I::nil) <sc (j,Q1++Q2) -> (i,I::nil) <sc (j,Q1)
                                   \/ (i,I::nil) <sc (length Q1+j,Q2).
