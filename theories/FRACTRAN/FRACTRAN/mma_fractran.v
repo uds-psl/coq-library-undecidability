@@ -417,7 +417,7 @@ Theorem mma_fractran_not_zero n (P : list (mm_instr (pos n))) :
         { l |  Forall (fun c => fst c <> 0 /\ snd c <> 0) l
             /\ forall v, (1,P) /MMA/ (1,v) ↓ <-> l /F/ ps 1 * exp 0 v ↓ }.
 Proof.
-   destruct mma_remove_self_loops with (P := P) as (Q & H1 & H2).
+   destruct mma_remove_self_loops with (P := P) as (Q & H1 & _ & H2).
    exists (encode_mma_instr 1 Q); split. 
    + apply encode_mma_instr_regular.
    + intros x.

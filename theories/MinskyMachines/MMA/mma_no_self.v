@@ -152,45 +152,42 @@ Section remove_self_loops.
           specialize (H7 (1,P) 1 j' k).
           apply H2 with (i := 1) in G1; simpl in G1; lia.
         * now apply subcode_nil_invert in G2.
-      Qed.
+    Qed.
 
-  (*
-
-    Local Fact gc_bounded j x k : (j,DECₐ x k::nil) <sc (i,Q) -> k < i+length Q.
+    Local Fact gc_bounded i x j : (i,DEC x j::nil) <sc (1,Q) -> j <= 1+length Q.
     Proof.
+      generalize (cs_between gc (1,P) 1); fold Q; intros H10.
       destruct gc as [ lnk code H0 H1 H2 H3 H4 H5 H6 ]; clear gc.
-      simpl in Q.
+      simpl in Q, H10.
       intros H.
       apply H6 in H as (k' & [ x' | x' j' ] & G1 & G2); simpl ic in G2.
       + apply subcode_cons_invert_right in G2 as [ (_ & ?) | G2 ]; try easy.
         now apply subcode_nil_invert in G2.
       + generalize G1; intros G0.
         apply H5 with (i := i) in G0; fold Q in G0; apply subcode_length' in G0; simpl in G0.
-        apply subcode_in_code with (i := k') in G1.
-        2: simpl; lia.
-        apply H1 with (i := i) in G1; fold Q in G1; red in G1; unfold code_end, code_start in G1.
-        unfold fst, snd in G1.
-        admit.
-    Admitted.
-
-  *)
+        apply (H2 _ 1) in G1; simpl in G1.
+        repeat apply subcode_cons_invert_right in G2 as [ (G3 & G4) | G2 ]; try easy.
+        * specialize (H10 (S k')); inversion G4; lia.
+        * specialize (H10 (S k')); inversion G4; lia.
+        * specialize (H10 j'); inversion G4; lia.
+        * now apply subcode_nil_invert in G2.
+    Qed.
 
     Hint Resolve il_ic_length ic_correct mma_sss_total_ni : core.
 
     Let lnk := cs_link gc (1,P) 1.
 
     Theorem mma_remove_self_loops : { Q | mma_no_self_loops (1,Q)
+                                       /\ (forall i x j, (i,DEC x j::nil) <sc (1,Q) -> j <= 1+length Q)
                                        /\ forall v, (1,P) // (1,v) ↓ <-> (1,Q) // (1,v) ↓ }.
     Proof.
-      exists Q; split.
+      exists Q; msplit 2.
       + apply gc_no_self_loops.
+      + apply gc_bounded.
       + intros; apply compiler_syntactic_term_equiv with (simul := eq); auto.
         * apply mma_sss_total_ni.
         * apply mma_sss_fun.
     Qed.
-
-    (* DLW to YF: on may want more information like a bound on jumps
-                  in the loop-free program *)
 
   End no_self_loops.
 
