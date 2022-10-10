@@ -45,6 +45,9 @@ TM/SBTM.v
 TM/SBTM_enum.v
 TM/SBTM_undec.v
 
+TM/UTM.v
+TM/UTM_undec.v
+
 TM/PCTM.v
 TM/PCTM/pctm_defs.v
 TM/PCTM/pctm_sbtm.v
@@ -492,12 +495,8 @@ TM/Single/StepTM.v
 TM/Reductions/L_to_mTM.v
 TM/Reductions/HaltL_to_HaltTM_5.v
 TM/Reductions/L_computable_to_TM_computable.v
-
 TM/Reductions/Arbitrary_to_Binary.v
-
-TM/Univ/LookupAssociativeListTM.v
-TM/Univ/LowLevel.v
-TM/Univ/Univ.v
+TM/Reductions/KrivineMclosed_HALT_to_HaltUTM.v
 
 TM/PrettyBounds/MaxList.v
 TM/PrettyBounds/SizeBounds.v
