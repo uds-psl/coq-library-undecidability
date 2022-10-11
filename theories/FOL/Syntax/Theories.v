@@ -87,7 +87,7 @@ Section TheoryMap.
   Definition tmap (f : @form Σ_funcs1 Σ_preds1 ops1 ff1 -> @form Σ_funcs2 Σ_preds2 ops2 ff2) (T : @theory Σ_funcs1 Σ_preds1 ops1 ff1) : @theory Σ_funcs2 Σ_preds2 ops2 ff2 :=
     fun phi => exists psi, T psi /\ f psi = phi.
 
-  Lemma enum_tmap (f : @form Σ_funcs1 Σ_preds1 ops1 ff1 -> @form Σ_funcs2 Σ_preds2 ops2 ff2) (T : @theory Σ_funcs1 Σ_preds1 ops1 ff1) L :
+  Lemma enum_tmap' (f : @form Σ_funcs1 Σ_preds1 ops1 ff1 -> @form Σ_funcs2 Σ_preds2 ops2 ff2) (T : @theory Σ_funcs1 Σ_preds1 ops1 ff1) L :
     cumulative L -> list_enumerator L T -> cumulative (L >> List.map f) /\ list_enumerator (L >> List.map f) (tmap f T).
   Proof.
     intros H H0. split; unfold ">>".
@@ -95,6 +95,19 @@ Section TheoryMap.
     - intros x; split.
       + intros (phi & [m Hin] % H0 & <-). exists m. apply in_map_iff. firstorder.
       + intros (m & (phi & <- & Hphi) % in_map_iff). firstorder.
+  Qed.
+
+  Lemma enum_tmap (f : @form Σ_funcs1 Σ_preds1 ops1 ff1 -> @form Σ_funcs2 Σ_preds2 ops2 ff2) (T : @theory Σ_funcs1 Σ_preds1 ops1 ff1) :
+    enumerable T -> enumerable (tmap f T).
+  Proof.
+    intros (L & HL).
+    exists (fun n => match (L n) with Some k => Some (f k) | None => None end).
+    split.
+    - intros (y & Hy & <-). destruct (HL y) as [HL1 HL2].
+      destruct (HL1 Hy) as [n Hn]. exists n. rewrite Hn. easy.
+    - intros (n & Hn). destruct (L n) as [f0|] eqn:Heq; try congruence.
+      exists f0. split; try congruence. destruct (HL f0) as [HL1 HL2].
+      apply HL2. exists n. easy.
   Qed.
 
   Lemma tmap_contains_L (f : @form Σ_funcs1 Σ_preds1 ops1 ff1 -> @form Σ_funcs2 Σ_preds2 ops2 ff2) T A :
@@ -105,6 +118,14 @@ Section TheoryMap.
     - intros H. destruct IHA as (B & -> & HB). 1: firstorder.
       destruct (H a (or_introl eq_refl)) as (b & Hb & <-).
       exists (b :: B). split. 1: auto. intros ? []; subst; auto.
+  Qed.
+
+  Lemma tmap_closed (f : @form Σ_funcs1 Σ_preds1 ops1 ff1 -> @form Σ_funcs2 Σ_preds2 ops2 ff2) T : 
+    (forall x, closed x -> closed (f x)) ->
+    closed_T T -> closed_T (tmap f T).
+  Proof.
+    intros Hf Hclosed ? (y & Hy & <-).
+    apply Hf, Hclosed, Hy.
   Qed.
 
 End TheoryMap.

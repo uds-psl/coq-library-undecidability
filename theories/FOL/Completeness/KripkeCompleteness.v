@@ -1,9 +1,9 @@
 (** ** Kripke Completeness **)
 
-From Undecidability.FOL Require Import Syntax.Facts Syntax.Asimpl Deduction.FragmentNDFacts Syntax.Theories Semantics.Kripke.FragmentCore
+From Undecidability.FOL Require Import Syntax.Facts Syntax.Asimpl Deduction.FragmentNDFacts Deduction.FragmentNDConsistency Syntax.Theories Semantics.Kripke.FragmentCore
                                        Semantics.Kripke.FragmentSoundness 
                                        Semantics.Kripke.FragmentToTarski Deduction.FragmentSequent Deduction.FragmentSequentFacts.
-From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
+From Undecidability.Synthetic Require Import Definitions DecidabilityFacts MPFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 From Undecidability Require Import Shared.ListAutomation Shared.Dec.
 From Undecidability Require Import Shared.Libs.PSL.Vectors.Vectors Shared.Libs.PSL.Vectors.VectorForall.
 Import ListAutomationNotations.
@@ -345,27 +345,115 @@ Section KripkeCompleteness.
     Qed.
   End StandardCompleteness.
 
-  (* *** MP is required *)
-(*
-  Section MPRequired.
-    Variable C : stab_class.
-    Hypothesis HC : map_closed C dnt.
-    Variable K_completeness : forall T phi, C T -> closed_T T -> closed phi -> kvalid_T kstandard T phi -> T ⊩SE phi.
 
-    Lemma cend_dn T phi :
+  Section Stability.
+    Existing Instance falsity_on.
+    Check @stprv.
+    Context (T_kind : theory -> Prop).
+    Definition K_completeness := forall T phi, T_kind T -> closed_T T -> closed phi -> 
+                  kvalid_theo T phi -> T ⊩SE phi.
+    Lemma kcompleteness_implies_stability T phi : K_completeness ->
+      T_kind (tmap negative_translation T) ->
       closed_T T -> closed phi ->
-      C T -> ~ ~ T ⊩CE phi -> T ⊩CE phi.
+      ~ ~ T ⊢TC phi -> T ⊢TC phi.
     Proof.
-      intros clT clphi HT Hdn. apply DN_T, dnt_to_TCE. cbn. apply (@seq_ND_T _ _ (tmap dnt T) (¬ (¬ dnt phi))). 
-      apply K_completeness. 1: apply HC, HT.
-      - intros ? ? (? & ? & <-). eapply dnt_unused. now eapply clT.
-      - intros n. repeat econstructor. eapply dnt_unused; eauto. 
-      - intros D M St u rho HT' v Hv Hn. contradict Hdn. intros Hphi % dnt_to_TIE.
-        apply strong_ksoundness with (C0 := kstandard) in Hphi. apply (St v), Hn. 1: reflexivity.
-        2: intros; apply kstandard_explodes. 1: apply (Hphi D M St v rho).
-        intros psi Hpsi % HT'. apply (ksat_mon Hv Hpsi).
+      intros Hcomp kindT clT clphi HTDN.
+      apply DN_T. apply nt_correct_theory. cbn. apply seq_ND_T.
+      apply Hcomp.
+      - easy.
+      - apply tmap_closed. 1: apply nt_bounded. easy.
+      - unfold closed. solve_bounds. apply nt_bounded. apply clphi.
+      - intros D M u rho HT.
+        intros v Huv Hphiv. cbn. apply HTDN.
+        intros (A & HTA & HTphi). eapply nt_Cprv_to_Iprv in HTphi.
+        eapply DN_into in HTphi.
+        apply ksoundness in HTphi.
+        unshelve eapply (@HTphi D M u rho _ v Huv Hphiv).
+        intros ? (psi & <- & HApsi) %in_map_iff. apply HT.
+        exists psi. split; try easy. now apply HTA.
     Qed.
-  End MPRequired.
+  End Stability.
+
+  Section MP_Equivalence.
+    Definition kcompleteness_enumerable := K_completeness enumerable.
+
+    Lemma bot_deriv_stable_enum_k (T : @theory _ _ _ falsity_on) : kcompleteness_enumerable -> closed_T T -> enumerable T ->
+      stable (@FragmentND.tprv _ _ _ class T ⊥).
+    Proof.
+      intros Hcomp Hclosed Henum HC.
+      apply (kcompleteness_implies_stability Hcomp); try easy. 2: econstructor.
+      now apply enum_tmap.
+    Qed.
+
+(*
+    Lemma kcompleteness_enum_implies_MP : MP -> kcompleteness_enumerable.
+    Proof.
+      intros Hmp T phi HT Hphi Henum Hvalid.
+      apply completeness_classical_stability; eauto. unfold stable.
+      eapply mp_tprv_stability; try tauto. now eapply enumerable_list_enumerable.
+    Qed.
 *)
-  
+    Lemma MP_implies_kcompleteness_enum : kcompleteness_enumerable -> MP.
+    Proof.
+      intros HC f Hf.
+      pose (fun x : form => exists n, x = ⊥ /\ f n = true) as T.
+      assert (closed_T T) as Hclosed by (now intros k [n [-> Hn]]; econstructor).
+      assert (enumerable T) as Henum.
+      { exists (fun n => if f n then Some (⊥) else None). intros phi; split; intros H.
+        + destruct H as (n & Heq & Hfn). exists n. rewrite Hfn. now rewrite Heq.
+        + destruct H as (n & Hn). unfold T. exists n. destruct (f n); try congruence.
+          split; try easy. congruence.
+       }
+      pose proof (@bot_deriv_stable_enum_k T HC Hclosed Henum).
+      enough (T ⊢TC ⊥) as [[|lx lr] [HL HL']].
+      - exfalso. eapply consistent_ND. apply HL'.
+      - destruct (HL lx) as (n & Heq & Hfn). 1:now left. now exists n.
+      - apply H. intros Hc. apply Hf. intros [n Hn]. apply Hc. exists [⊥]. split.
+        + intros ? [<- | []]. unfold T. exists n. split; try easy.
+        + apply Ctx; now left.
+    Qed.
+
+  End MP_Equivalence.
+
+  Section LEM_Equivalence.
+    Definition kcompleteness_arbitrary := K_completeness (fun x => True).
+    Definition LEM := forall (P:Prop), P \/ ~ P.
+
+    Lemma bot_valid_stable (T : @theory _ _ _ falsity_on) : closed_T T -> stable (valid_theory_C (classical (ff := falsity_on)) T ⊥).
+    Proof.
+      intros Hclosed HH D I rho Hclass H.
+      apply HH. intros Hc. apply (Hc D I rho Hclass H).
+    Qed.
+    Lemma bot_deriv_stable_k (T : @theory _ _ _ falsity_on) : kcompleteness_arbitrary -> 
+      closed_T T -> stable (@FragmentND.tprv _ _ _ class T ⊥).
+    Proof.
+      intros Hcomp Hclosed HC.
+      apply (kcompleteness_implies_stability Hcomp); try easy. econstructor.
+    Qed.
+    Existing Instance falsity_on.
+    Lemma kcompleteness_implies_LEM : kcompleteness_arbitrary -> LEM.
+    Proof.
+      intros HC P.
+      pose (fun x : form => closed x /\ (P \/ ~P)) as T.
+      assert (closed_T T) as Hclosed by (intros k; cbv; tauto).
+      pose proof (@bot_deriv_stable_k T HC Hclosed).
+      enough (T ⊢TC ⊥) as [[|lx lr] [HL HL']].
+      - exfalso. eapply consistent_ND. apply HL'.
+      - eapply HL. now left.
+      - enough (~~ (P \/ ~P)).
+        + apply H. intros Hc. apply H0. intros Hc2. apply Hc. exists [⊥]. split; try (apply Ctx; now left).
+          intros ? [<- | []]. cbv. split; try apply Hc2. econstructor.
+        + tauto.
+    Qed.
+(*
+    Lemma LEM_implies_kcompleteness : LEM -> kcompleteness_arbitrary.
+    Proof.
+      intros Hlem T phi HT Hphi Hvalid Htheo.
+      destruct (Hlem (T ⊩SE phi)); try easy. exfalso.
+      apply K_std_completeness.
+      intros H. destruct (Hlem (T ⊢TC phi)); tauto.
+    Qed.
+*)
+  End LEM_Equivalence.
+
 End KripkeCompleteness.

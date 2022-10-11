@@ -322,7 +322,7 @@ Section Completeness.
       - enough (~~ (P \/ ~P)).
         + apply H. intros Hc. apply H0. intros Hc2. apply Hc. exists [⊥]. split; try (apply Ctx; now left).
           intros ? [<- | []]. cbv. split; try apply Hc2. econstructor.
-        + intros Hc. apply Hc. right. intros HP. apply Hc. now left.
+        + tauto.
     Qed.
 
     Lemma LEM_is_arbitrary_completeness : LEM -> completeness_arbitrary.
@@ -360,20 +360,21 @@ Section Completeness.
     Lemma enumerable_completeness_is_MP : completeness_enumerable -> MP.
     Proof.
       intros HC f Hf.
-      pose (fun x : form => exists n, from_form x = Some n /\ f n = true) as T.
-      assert (closed_T T) as Hclosed by (intros x (n & ->%to_from_form & Hfn); apply to_form_closed).
+      pose (fun x : form => exists n, x = ⊥ /\ f n = true) as T.
+      assert (closed_T T) as Hclosed by now intros k [n [-> Hn]].
       assert (enumerable T) as Henum.
-      { exists (fun n => if f n then Some (to_form n) else None). intros phi; split; intros H.
-        + destruct H as (n & Heq%to_from_form & Hfn). exists n. rewrite Hfn. now rewrite Heq.
-        + destruct H as (n & Hn). unfold T. exists n. destruct (f n); try congruence. split; try easy.
-          assert (phi = to_form n) as -> by congruence. apply from_to_form. }
-      pose proof (@bot_deriv_stable_enum T HC Hclosed).
+      { exists (fun n => if f n then Some (⊥) else None). intros phi; split; intros H.
+        + destruct H as (n & Heq & Hfn). exists n. rewrite Hfn. now rewrite Heq.
+        + destruct H as (n & Hn). unfold T. exists n. destruct (f n); try congruence.
+          split; try easy. congruence.
+       }
+      pose proof (@bot_deriv_stable_enum T HC Hclosed Henum).
       enough (T ⊢TC ⊥) as [[|lx lr] [HL HL']].
       - exfalso. eapply consistent_ND. apply HL'.
-      - destruct (HL lx) as (n & Heq%to_from_form & Hfn). 1:now left. now exists n.
-      - apply H. 1:easy. intros Hc. apply Hf. intros [n Hn]. apply Hc. exists [to_form n]. split.
-        + intros ? [<- | []]. unfold T. exists n. split; try easy. apply from_to_form.
-        + apply to_form_contradictory.
+      - destruct (HL lx) as (n & Heq & Hfn). 1:now left. now exists n.
+      - apply H. intros Hc. apply Hf. intros [n Hn]. apply Hc. exists [⊥]. split.
+        + intros ? [<- | []]. unfold T. exists n. split; try easy.
+        + apply Ctx; now left.
     Qed.
 
   End MP_Equivalence.

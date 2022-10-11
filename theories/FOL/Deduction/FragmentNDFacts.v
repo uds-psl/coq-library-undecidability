@@ -1,7 +1,7 @@
 (* * Natural Deduction *)
 
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
-From Undecidability.FOL Require Import Syntax.Facts Syntax.Theories.
+From Undecidability.FOL Require Import Syntax.Facts Syntax.Theories Syntax.Asimpl.
 From Undecidability.FOL Require Export Deduction.FragmentND.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
@@ -104,6 +104,28 @@ Section ND_def.
   Proof.
     split; try apply II.
     intros H. apply IE with phi; auto. apply (Weak H). auto.
+  Qed.
+
+  Lemma big_imps A B phi : (A ++ B) ⊢ phi <-> B ⊢ (impl A phi).
+  Proof.
+    induction A as [|psi A IH] in B,phi|-*; cbn; try tauto.
+    split; intros Hprv.
+    - apply II. apply IH. eapply Weak. 1: apply Hprv.
+      intros x [->|[HA|HB]%in_app_iff]; apply in_app_iff.
+      + right; now left.
+      + now left.
+      + right; now right.
+    - eapply Weak. 1: apply (IH (psi::B)).
+      + eapply IE. 1: eapply Weak; [apply Hprv|firstorder]. apply Ctx; now left.
+      + intros x [HA|[->|HB]]%in_app_iff.
+        * right. apply in_app_iff. now left.
+        * now left.
+        * right. apply in_app_iff. now right.
+  Qed.
+
+  Lemma big_imps_nil A phi : A ⊢ phi <-> [] ⊢ (impl A phi).
+  Proof.
+    specialize (big_imps A nil phi). rewrite <- (app_nil_end). easy.
   Qed.
 
   Lemma subst_forall_prv phi {N Gamma} :
@@ -441,6 +463,11 @@ Section DNFacts.
     apply Exp. eapply IE. 2: apply Ctx; now left.
     eapply Weak. 1: apply H. intros a Ha; now right.
   Qed.
+  Lemma DN_into {p:peirce} A phi: A ⊢ phi -> A ⊢ (¬ (¬ phi)).
+  Proof.
+    intros H. apply II. eapply IE. 1: apply Ctx; now left. eapply Weak; [apply H|].
+    firstorder.
+  Qed.
 
   Lemma XMc A (phi chi : form) : (phi::A) ⊢C chi -> ((¬ phi)::A) ⊢C chi -> A ⊢C chi.
   Proof.
@@ -452,6 +479,11 @@ Section DNFacts.
       eapply II. eapply IE. 1: apply Ctx; do 3 right; now left. do 2 eapply II.
       eapply IE. 1: apply Ctx; right; now left.
       apply Ctx; now eauto.
+  Qed.
+
+  Lemma DN_T T phi : T ⊢TC (¬¬phi) -> T ⊢TC phi.
+  Proof.
+    intros (A & HT & HA). exists A. split; [apply HT|now apply DN].
   Qed.
 
 End DNFacts.
@@ -474,13 +506,13 @@ End RefutationComp.
 Section FlagsTransport.
   Context {Σ_funcs : funcs_signature} {Σ_preds : preds_signature}.
   Context {p : peirce}.
+  Context {ff : falsity_flag}.
 
-  Lemma prv_transport_to_falsity A (phi : @form _ _ _ falsity_off) :
+  Lemma prv_transport_to_falsity  A phi :
     A ⊢ phi -> (map to_falsity A) ⊢ (to_falsity phi).
   Proof.
-    remember falsity_off as ff eqn:Hff.
     intros H; induction H.
-    - cbn. apply II. apply IHprv. easy.
+    - cbn. apply II. apply IHprv.
     - cbn. eapply IE. 1: now apply IHprv1. now apply IHprv2.
     - cbn. apply AllI. rewrite map_map in *.
       erewrite map_ext. 1: now apply IHprv.
@@ -489,8 +521,21 @@ Section FlagsTransport.
     - rewrite <- subst_falsity_id.
       change (⊥) with (⊥[t..]). rewrite <- subst_falsity_comm.
       apply AllE. rewrite subst_falsity_id. now apply IHprv.
-    - exfalso; congruence.
+    - apply Exp. apply IHprv.
     - apply Ctx. now apply in_map.
+    - apply Pc.
+  Qed.
+
+  Lemma prv_transport_to_class A phi :
+    A ⊢ phi -> A ⊢C phi.
+  Proof.
+    induction 1.
+    - now apply II.
+    - eapply IE. 1: apply IHprv1. easy.
+    - now apply AllI.
+    - now apply AllE.
+    - now apply Exp.
+    - now apply Ctx.
     - apply Pc.
   Qed.
 (*
@@ -520,3 +565,133 @@ Section FlagsTransport.
       all: congruence.
     - eapply IE. *)
 End FlagsTransport.
+
+Section NegativeTranslation.
+  Context {Σ_funcs : funcs_signature} {Σ_preds : preds_signature}.
+
+  Fixpoint negative_translation {ff:falsity_flag} (phi : @form _ _ _ ff) : @form _ _ _ falsity_on := match phi with
+    falsity => falsity
+  | atom P v => ¬¬(atom P v)
+  | bin Impl phi psi => (negative_translation phi) → (negative_translation psi)
+  | quant All phi => ∀ (negative_translation phi)
+  end.
+
+  Lemma nt_impl {ff:falsity_flag} A phi : negative_translation (impl A phi) = impl (map negative_translation A) (negative_translation phi).
+  Proof.
+    induction A as [|psi A IH]; cbn; congruence.
+  Qed.
+
+  Lemma nt_subst {ff:falsity_flag} phi σ : negative_translation (phi[σ]) = (negative_translation phi)[σ].
+  Proof.
+    induction phi as [| |?[]|?[]] in σ|-*; try easy.
+    - cbn. now rewrite IHphi1, IHphi2.
+    - cbn. now rewrite IHphi.
+  Qed.
+
+  Lemma nt_dn_float' {p:peirce} {ff:falsity_flag} A phi:
+   A ⊢ ((¬¬negative_translation phi) → negative_translation phi).
+  Proof.
+  revert A. induction phi as [| |?[]|?[]]; intros A; cbn.
+  - apply II. eapply IE. 1: apply Ctx; now left. apply II. apply Ctx; now left.
+  - apply II. apply II. eapply IE. 1: apply Ctx; right; now left.
+    apply II. eapply IE. 1: apply Ctx; now left. apply Ctx; right; now left.
+  - apply II. apply II. eapply IE. 1: apply IHphi2. apply II.
+    eapply IE. 1: apply Ctx; right; right; now left. apply II.
+    eapply IE. 1: apply Ctx; right; now left.
+    eapply IE. 1: apply Ctx; now left.
+    apply Ctx; right; right; now left.
+  - apply II. apply AllI. cbn. eapply IE. 1: apply IHphi.
+    apply II. eapply IE. 1: apply Ctx; right; now left.
+    apply II. eapply IE. 1: apply Ctx; right; now left.
+    assert ((negative_translation phi)[up ↑][$0..] = negative_translation phi) as <- by now asimpl.
+    apply AllE. apply Ctx; left; now asimpl.
+  Qed.
+
+  Lemma nt_dn_float {p:peirce} {ff:falsity_flag} A phi : 
+    A ⊢ (¬¬negative_translation phi) -> A ⊢ negative_translation phi.
+  Proof.
+    intros H. eapply IE. 1: apply nt_dn_float'. easy.
+  Qed.
+
+  Lemma nt_peirce {p:peirce} {ff:falsity_flag} A phi psi: 
+    A ⊢ negative_translation (((phi → psi) → phi) → phi).
+  Proof.
+    cbn. apply II.
+    apply nt_dn_float.
+    apply II. eapply IE. 1: apply Ctx; now left.
+    eapply IE. 1: apply Ctx; right; now left.
+    apply II. apply Exp. eapply IE. 1: apply Ctx; right; now left.
+    apply Ctx. now left.
+  Qed.
+
+  Lemma nt_Cprv_to_Iprv {p1 : peirce} {ff:falsity_flag} A phi :
+    A ⊢C phi -> (map negative_translation A) ⊢ (negative_translation phi).
+  Proof.
+    remember class as p2. induction 1; cbn in *.
+    all: try specialize (IHprv Heqp2).
+    all: try specialize (IHprv1 Heqp2).
+    all: try specialize (IHprv2 Heqp2).
+    - eapply II. now apply IHprv.
+    - eapply IE. 1: apply IHprv1. apply IHprv2.
+    - eapply AllI. rewrite map_map in *. erewrite map_ext. 1: apply IHprv.
+      intros a; cbn. now rewrite nt_subst.
+    - rewrite nt_subst. eapply AllE. apply IHprv.
+    - eapply Exp. apply IHprv.
+    - eapply Ctx. now apply in_map.
+    - apply nt_peirce.
+  Qed.
+
+  Lemma nt_Cprv_equiv A phi : 
+    A ⊢C phi <-> A ⊢C (negative_translation phi).
+  Proof.
+    revert A. induction phi as [| |[]|[]] using form_ind_falsity; intros A; cbn; split; intros Hprv.
+    - easy.
+    - easy.
+    - eapply DN_into. easy.
+    - eapply DN. easy. 
+    - apply II. apply IHphi2. eapply IE. 1: eapply Weak; [apply Hprv|firstorder].
+      apply IHphi1. apply Ctx; now left.
+    - apply II. apply IHphi2. eapply IE. 1: eapply Weak; [apply Hprv|firstorder].
+      apply IHphi1. apply Ctx; now left.
+    - apply (subst_Weak ↑) in Hprv. asimpl in Hprv.
+      eapply (AllE $0) in Hprv. asimpl in Hprv.
+      apply AllI. apply IHphi. apply Hprv.
+    - apply (subst_Weak ↑) in Hprv. asimpl in Hprv.
+      eapply (AllE $0) in Hprv. asimpl in Hprv.
+      apply AllI. apply IHphi. apply Hprv.
+  Qed.
+
+
+  Lemma nt_bounded {ff:falsity_flag} n phi : bounded n phi -> bounded n (negative_translation phi).
+  Proof.
+    induction 1; cbn.
+    - solve_bounds. now econstructor.
+    - destruct binop. now solve_bounds.
+    - destruct quantop. now solve_bounds.
+    - solve_bounds.
+  Qed.
+
+  #[local] Existing Instance falsity_on.
+  Lemma nt_correct A phi:
+    (map negative_translation A) ⊢I negative_translation phi -> A ⊢C phi.
+  Proof.
+    intros H.
+    apply big_imps_nil. apply nt_Cprv_equiv.
+    eapply prv_transport_to_class.
+    rewrite nt_impl. apply big_imps_nil in H. apply H.
+  Qed.
+
+  Lemma nt_correct_theory T phi:
+    (tmap negative_translation T) ⊢TI negative_translation phi -> T ⊢TC phi.
+  Proof.
+    intros (? & (A & -> & HA1) % tmap_contains_L & HA2 % nt_correct).
+    now exists A.
+  Qed.
+
+End NegativeTranslation.
+
+
+
+
+
+

@@ -41,4 +41,4 @@ Notation "A ';;' phi '⊢sE' psi" := (sprv falsity_on A (Some phi) psi) (at leve
 Notation "A '⊢SL' phi" := (sprv lconst A None phi) (at level 30).
 Notation "A ';;' phi '⊢sL' psi" := (sprv lconst A (Some phi) psi) (at level 70). *)
 Arguments sprv {_} {_} {_} _ _ _.
-Notation "T '⊩SE' phi" := (@stprv _ falsity_on T phi) (at level 30).
+Notation "T '⊩SE' phi" := (@stprv _ _ falsity_on T phi) (at level 30).
