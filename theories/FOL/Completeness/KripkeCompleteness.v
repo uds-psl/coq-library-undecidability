@@ -348,7 +348,6 @@ Section KripkeCompleteness.
 
   Section Stability.
     Existing Instance falsity_on.
-    Check @stprv.
     Context (T_kind : theory -> Prop).
     Definition K_completeness := forall T phi, T_kind T -> closed_T T -> closed phi -> 
                   kvalid_theo T phi -> T ⊩SE phi.
@@ -386,14 +385,14 @@ Section KripkeCompleteness.
     Qed.
 
 (*
-    Lemma kcompleteness_enum_implies_MP : MP -> kcompleteness_enumerable.
+    Lemma MP_implies_kcompleteness_enum : MP -> kcompleteness_enumerable.
     Proof.
       intros Hmp T phi HT Hphi Henum Hvalid.
       apply completeness_classical_stability; eauto. unfold stable.
       eapply mp_tprv_stability; try tauto. now eapply enumerable_list_enumerable.
     Qed.
 *)
-    Lemma MP_implies_kcompleteness_enum : kcompleteness_enumerable -> MP.
+    Lemma kcompleteness_enum_implies_MP : kcompleteness_enumerable -> MP.
     Proof.
       intros HC f Hf.
       pose (fun x : form => exists n, x = ⊥ /\ f n = true) as T.
