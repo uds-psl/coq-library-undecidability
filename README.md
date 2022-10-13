@@ -133,7 +133,7 @@ opam pin add coq-library-undecidability.dev+8.16 "https://github.com/uds-psl/coq
 
 ### Manual installation (TENTATIVE)
 
-You need `Coq 8.16` built on OCAML `>= 4.09.1`, the [Smpl](https://github.com/uds-psl/smpl) package and the [MetaCoq](https://metacoq.github.io/metacoq/) package for Coq. If you are using opam 2 you can use the following commands to install the dependencies on a new switch:
+You need `Coq 8.16` built on OCAML `>= 4.09.1`, the [Smpl](https://github.com/uds-psl/smpl) package and the Template-Coq (part of [MetaCoq](https://metacoq.github.io/)) package for Coq. If you are using opam 2 you can use the following commands to install the dependencies on a new switch:
 
 ```
 opam switch create coq-library-undecidability --packages=ocaml-variants.4.14.0+options,ocaml-option-flambda
