@@ -19,11 +19,6 @@ Proof.
   cbn. rewrite IH. unfold Dec. now destruct (HX x y); destruct (HX y x); congruence.
 Qed.
 
-(* Crossing any list with the empty list always yields the empty list *)
-Lemma prod_nil (X Y: Type) (A: list X) :
-  list_prod A ([]: list Y) = [].
-Proof. now induction A. Qed.
-
 (* This function takes a (A: list X) and yields a list (option X) which for every x in A contains Some x. The resultung list also contains None. The order is preserved. None is the first element of the resulting list. *)
 
 Definition toOptionList {X: Type} (A: list X) :=
