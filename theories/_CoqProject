@@ -315,6 +315,7 @@ MinskyMachines/Reductions/KrivineMclosed_HALT_to_MMA_HALTING.v
 MinskyMachines/Reductions/MMA3_to_MMA2_HALTING.v
 MinskyMachines/Reductions/SBTM_to_MMA2_HALTING.v
 MinskyMachines/Reductions/BSM_computable_to_MM_computable.v
+MinskyMachines/Reductions/MM2_to_MM2_starting_zero.v
 
 MinskyMachines/Deciders/MPM2_HALT_dec.v
 MinskyMachines/Deciders/MM_2_HALTING_dec.v

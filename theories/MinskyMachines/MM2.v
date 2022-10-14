@@ -89,5 +89,7 @@ Section self_contained_mm2.
   Definition MM2_HALTS_ON_ZERO (P : MM2_PROBLEM) := 
     match P with (P,a,b) => P // (1,(a,b)) ↠ (0,(0,0)) end.
 
+  Definition MM2_HALTS_STARTING_ZERO (P : list mm2_instr) := P // (1,(0,0)) ↓.
+
 End self_contained_mm2.
 

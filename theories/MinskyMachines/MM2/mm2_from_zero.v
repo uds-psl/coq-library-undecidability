@@ -7,14 +7,15 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Relations Lia.
+Require Import List Arith Lia.
 
 Import ListNotations.
 
-Require Import Undecidability.Synthetic.Definitions.
+From Undecidability.Shared.Libs.DLW
+  Require Import utils sss subcode compiler compiler_correction.
 
-From Undecidability.Shared.Libs.DLW Require Import utils sss subcode compiler compiler_correction.
-From Undecidability.MinskyMachines Require Import MM2.
+From Undecidability.MinskyMachines 
+  Require Import MM2.
 
 Set Implicit Arguments.
 
@@ -47,6 +48,46 @@ Qed.
 
 Fact mm2_atom_total_ni i st : exists st', i // st ⇢ st'.
 Proof. destruct (mm2_atom_total i st); eauto. Qed.
+
+(** This is VERY boring below *)
+
+Fact mm2_terminates_equiv P st : mm2_terminates P st <-> (1,P) // st ↓.
+Proof.
+  split.
+  + intros (st' & H1 & H2); exists st'; split.
+    * clear H2.
+      induction H1.
+      - destruct H as (i & (l & r & H1 & H2) & H3).
+        exists 1; constructor 2 with y.
+        ++ exists 1, l, i, r, (snd x); msplit 2; auto.
+           ** now f_equal.
+           ** now rewrite H2, <- surjective_pairing.
+        ++ constructor.
+      - exists 0; constructor.
+      - eapply sss_compute_trans; eauto.
+    * destruct (in_out_code_dec (fst st') (1,P)) as [ H3 | ]; auto.
+      destruct in_code_subcode with (1 := H3) as (i & Hi). 
+      destruct (mm2_atom_total_ni i st') as (st'' & H4).
+      destruct (H2 st'').
+      destruct Hi as (l & r & Hi & H').
+      exists i; split; auto.
+      exists l, r;split; auto.
+  + intros (st' & (k & H1) & H2).
+    exists st'; split.
+    * clear H2.
+      induction H1 as [ | k st1 st2 st3 H1 H2 IH2 ].
+      - constructor 2.
+      - econstructor 3; eauto.
+        constructor 1.
+        destruct H1 as (n & l & i & r & d & H3 & H4 & H5).
+        exists i; split; auto.
+        inversion H3; subst.
+        exists l, r; subst; split; auto.
+    * intros st'' (i & (l & r & H3 & H4) & H5).
+      revert H2; apply in_out_code.
+      red; rewrite H3, <- H4.
+      simpl; rew length; lia.
+Qed.
 
 Section MM2_to_MM2.
 
@@ -188,8 +229,8 @@ Section mm2_mm2_0_simulator.
 
   Variable (P : list mm2_instr) (a b : nat).
 
-  Let Q1 := proj1_sig (mm2_auto_simulator 1 P (a+b)).
-  Let HQ1 := proj2_sig (mm2_auto_simulator 1 P (a+b)).
+  Let Q1 := proj1_sig (mm2_auto_simulator 1 P (1+a+b)).
+  Let HQ1 := proj2_sig (mm2_auto_simulator 1 P (1+a+b)).
 
   Let Q0 := mm2_incs_a a ++ mm2_incs_b b.
   Let R := Q0++Q1.
@@ -201,34 +242,34 @@ Section mm2_mm2_0_simulator.
 
   Hint Rewrite Q0_length : length_db.
 
-  Local Fact Q0_init : (0,Q0) // (0,(0,0)) ↠ (a+b,(a,b)).
+  Local Fact Q0_init : (1,Q0) // (1,(0,0)) ↠ (1+a+b,(a,b)).
   Proof.
     unfold Q0.
-    apply subcode_sss_compute_trans with (P := (0,mm2_incs_a a)) (st2 := (a+0,(a+0,0))); auto.
+    apply subcode_sss_compute_trans with (P := (1,mm2_incs_a a)) (st2 := (a+1,(a+0,0))); auto.
     + apply mm2_incs_a_compute.
-    + rewrite !(plus_comm a).
-      apply subcode_sss_compute with (a,mm2_incs_b b); auto.
+    + rewrite !(plus_comm a), (plus_comm (1+a)).
+      apply subcode_sss_compute with (1+a,mm2_incs_b b); auto.
       replace b with (b+0) at 3 by lia.
       apply mm2_incs_b_compute.
   Qed.
 
-  Local Lemma R_sim_1 : (1,P) // (1,(a,b)) ↓ -> (0,R) // (0,(0,0)) ↓.
+  Local Lemma R_sim_1 : (1,P) // (1,(a,b)) ↓ -> (1,R) // (1,(0,0)) ↓.
   Proof.
     intros ((i,(a',b')) & H).
-    exists (length Q1+(a+b),(a',b')); split.
+    exists (length Q1+(1+a+b),(a',b')); split.
     + generalize (proj1 (HQ1 (a,b)) _ _ H); intros (H1 & _).
       apply subcode_sss_compute_trans with (2 := Q0_init); unfold R; auto.
-      apply subcode_sss_compute with (a+b,Q1); auto.
+      apply subcode_sss_compute with (1+a+b,Q1); auto.
     + unfold R; simpl; rew length; lia.
   Qed.
 
-  Local Lemma R_sim_2 : (0,R) // (0,(0,0)) ↓ -> (1,P) // (1,(a,b)) ↓.
+  Local Lemma R_sim_2 : (1,R) // (1,(0,0)) ↓ -> (1,P) // (1,(a,b)) ↓.
   Proof.
     intros H.
     apply HQ1; fold Q1.
-    apply subcode_sss_terminates with (0,R).
+    apply subcode_sss_terminates with (1,R).
     1: unfold R; auto.
-    apply subcode_sss_terminates_inv with (2 := H) (P := (0,mm2_incs_a a ++ mm2_incs_b b)).
+    apply subcode_sss_terminates_inv with (2 := H) (P := (1,mm2_incs_a a ++ mm2_incs_b b)).
     + apply mm2_atom_fun.
     + now apply subcode_left.
     + split. 
@@ -236,9 +277,9 @@ Section mm2_mm2_0_simulator.
       * simpl; rew length; lia.
   Qed. 
 
-  Theorem mm2_mm2_0_simulator : { Q | (1,P) // (1,(a,b)) ↓ <-> (0,Q) // (0,(0,0)) ↓ }.
+  Theorem mm2_mm2_0_simulator : { Q | mm2_terminates P (1,(a,b)) <-> mm2_terminates Q (1,(0,0)) }.
   Proof.
-    exists R; split.
+    exists R; rewrite !mm2_terminates_equiv; split.
     + apply R_sim_1.
     + apply R_sim_2.
   Qed.
