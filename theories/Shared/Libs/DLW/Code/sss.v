@@ -271,6 +271,15 @@ Section Small_Step_Semantics.
   
   Notation "P // r -+> s" := (sss_progress P r s).
   Notation "P // r ->> s" := (sss_compute P r s).
+
+  Fact sss_one_steps i rho d st : rho // (i,d) -1> st -> (i,rho::nil) // (i,d) -+> st.
+  Proof.
+    intros H.
+    exists 1; split; auto.
+    apply sss_steps_1.
+    exists i, nil, rho, nil, d; msplit 2; auto.
+    rew length; f_equal; lia.
+  Qed.
   
   Fact sss_progress_compute P st1 st2 : P // st1 -+> st2 -> P // st1 ->> st2.
   Proof. intros (k & _ & ?); exists k; auto. Qed. 
