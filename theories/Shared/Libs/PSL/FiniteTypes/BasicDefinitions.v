@@ -19,21 +19,6 @@ Proof.
   cbn. rewrite IH. unfold Dec. now destruct (HX x y); destruct (HX y x); congruence.
 Qed.
 
-(* Function that takes two lists and returns the list of all pairs of elements from the two lists *)
-Fixpoint prodLists {X Y: Type} (A: list X) (B: list Y) {struct A} :=
-  match A with
-  | nil => nil
-  | cons x A' => map (fun y => (x,y)) B ++ prodLists A' B end.
-
-(* Crossing any list with the empty list always yields the empty list *)
-Lemma prod_nil (X Y: Type) (A: list X) :
-  prodLists A ([]: list Y) = [].
-Proof.
-  induction A.
-  - reflexivity.
-  - cbn. assumption.
-Qed.
-
 (* This function takes a (A: list X) and yields a list (option X) which for every x in A contains Some x. The resultung list also contains None. The order is preserved. None is the first element of the resulting list. *)
 
 Definition toOptionList {X: Type} (A: list X) :=
