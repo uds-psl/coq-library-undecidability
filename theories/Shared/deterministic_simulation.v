@@ -71,7 +71,8 @@ Section Deterministic_simulation.
       + now apply IH.
   Qed.
 
-  (* terminating configurations are accessible *)
+  (* terminating configurations are accessible
+     note that (Acc R^-1 s) means s is strongly normalizing for R in a constructive setting *)
   Lemma terminating_Acc s : terminates step2 s -> Acc (fun y x => step2 x y) s.
   Proof using step2_det.
     intros [t [Hst%clos_rt_rt1n Ht]].
@@ -80,7 +81,9 @@ Section Deterministic_simulation.
     - intros y' Hxy'. rewrite <- (step2_det Hxy Hxy'). now apply IH.
   Qed.
 
-  (* reflection of termination by well-founded induction on transitive closure *)
+  (* reflection of termination by well-founded induction on transitive closure using
+     Lemma Acc_clos_trans A R x : Acc R x -> Acc (clos_trans A R) x
+     from the Coq standard library *)
   Lemma terminates_reflection s s' : sync s s' -> terminates step2 s' -> terminates step1 s.
   Proof using step2_det step1_intro fstep.
     intros Hss' Hs'%terminating_Acc%(Acc_clos_trans Y).
