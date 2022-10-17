@@ -21,14 +21,15 @@ Require Undecidability.MinskyMachines.MM2.
 Require Undecidability.MinskyMachines.Util.MM2_facts.
 Require Undecidability.StringRewriting.Util.List_facts.
 
-Require Undecidability.Synthetic.Definitions.
-
 Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 
+(* Auxiliary, richer rewriting system to encode mm2 computation *)
 Module SR2ab.
 
+(* Pair of (symbol type, optional mm2 program counter)
+   to encode a mm2 configuration as a list of symbols *)
 Definition Symbol : Set := nat * option nat.
 
 (* rules ab -> cd *)
@@ -40,15 +41,6 @@ Inductive step (srs: Srs) : list Symbol -> list Symbol -> Prop :=
 
 Definition multi_step (srs: Srs) : list Symbol -> list Symbol -> Prop := 
   clos_refl_trans (list Symbol) (step srs).
-
-(* given a Srs and Symbols a b, is there a length n such that a^(1+n) ->> b^(1+n) *)
-Definition SR2ab : Srs * Symbol * Symbol -> Prop :=
-  fun '(srs, a, b) => exists n, multi_step srs (repeat a (1+n)) (repeat b (1+n)).
-End SR2ab.
-
-Module SR2ab_facts.
-
-Import SR2ab.
 
 Lemma sym_eq_dec (x y: Symbol) : {x = y} + {x <> y}.
 Proof. by do 3 (decide equality). Qed.
@@ -71,16 +63,12 @@ Proof. move=> /multi_step_appI => /(_ u []). by rewrite ?app_nil_r. Qed.
 
 Lemma multi_step_apprI {srs v s t} : multi_step srs s t -> multi_step srs (s ++ v) (t ++ v).
 Proof. by move=> /multi_step_appI => /(_ [] v). Qed.
-End SR2ab_facts.
 
-Module MM2_ZERO_HALTING_to_SR2ab.
-Import SR2ab MM2 List_facts SR2ab_facts MM2_facts.
+Import MM2 List_facts MM2_facts.
 
 Local Arguments rt_trans {A R x y z}.
 Local Arguments in_combine_l {A B l l' x y}.
 Local Notation mm2_state := (nat*(nat*nat))%type.
-
-Module Argument.
 
 Section Reduction.
 (* given two-counter machine *)
@@ -524,10 +512,9 @@ Proof.
         ** apply: multi_step_applI. apply: multi_step_repeat_sorI. by right.
 Qed.
 
-Lemma to_SR2ab : SR2ab (srs, sz, so).
+Lemma to_SR2ab : multi_step srs (repeat sz (1+(d - 1))) (repeat so (1+(d - 1))).
 Proof using Hc0c'0 Hc'0.
   have H'y := simulate_mm_halting Hc0c'0 Hc'0.
-  exists (d - 1).
   apply: rt_trans; last by eassumption.
   apply: rt_trans; first by apply: (multi_step_enc_c0).
   move: (Hc0c'0) => /(@clos_rt_rtn1 mm2_state).
@@ -537,12 +524,6 @@ Proof using Hc0c'0 Hc'0.
 Qed.
 
 End Transport.
-
-Lemma transport : MM2_ZERO_HALTING mm -> SR2ab (srs, sz, so).
-Proof.
-  move=> [y [Hc0y Hy]].
-  by apply: to_SR2ab; eassumption.
-Qed.
 
 Section InverseTransport.
 Context (N: nat). (* number of 0s / 1s *)
@@ -672,7 +653,7 @@ Proof.
 Qed.
 
 (* each srs step is sound *)
-Lemma simulate_srs_step {x s t} : SR2ab.step srs s t -> encodes x s ->
+Lemma simulate_srs_step {x s t} : step srs s t -> encodes x s ->
   encodes x t \/ (forall y, mm2_step mm x y -> encodes y t).
 Proof.
   move: x => [p [a b]] [] u v a' b' c' d' H [u'] [v'] [{}t].
@@ -783,27 +764,14 @@ Qed.
 
 End InverseTransport.
 
-Lemma inverse_transport : SR2ab (srs, sz, so) -> MM2_ZERO_HALTING mm.
-Proof.
-  move=> [n Hn]. by apply: to_MM2_ZERO_HALTING n Hn.
-Qed.
-
 End Reduction.
-End Argument.
 
-Import Synthetic.Definitions.
+End SR2ab.
 
-Theorem reduction : MM2_ZERO_HALTING ⪯ SR2ab.
-Proof.
-  exists (fun mm => (Argument.srs mm, (4, None), (5, Some 0))).
-  intros mm. constructor.
-  - exact (Argument.transport mm).
-  - exact (Argument.inverse_transport mm).
-Qed.
-End MM2_ZERO_HALTING_to_SR2ab.
+Module Argument.
 
-Module SR2ab_to_SSTS01.
-Import SR2ab SSTS.
+Import SSTS.
+Import SR2ab (Srs, Symbol, sym_eq_dec).
 
 Local Arguments rt_trans {A R x y z}.
 
@@ -819,12 +787,10 @@ Qed.
 
 Opaque enc_pair.
 
-Module Argument.
-Section Reduction.
+Section SR2ab_SSTS01.
+
 (* given simple rewriting system *)
 Context (srs : Srs) (a0: Symbol) (b0: Symbol) (Ha0b0: b0 <> a0).
-
-Import SR2ab_facts (sym_eq_dec).
 
 Definition enc (x: Symbol) : nat :=
   if sym_eq_dec x a0 then 0
@@ -869,7 +835,7 @@ Proof.
     rewrite firstn_app (ltac:(lia) : length u' - length u' = 0) firstn_all.
     rewrite skipn_app (ltac:(lia) : length u' + 2 - length u' = 2) skipn_all2 /=; first by lia.
     by rewrite app_nil_r.
-  - move: H => /SR2ab_facts.stepI. apply; last done.
+  - move: H => /SR2ab.stepI. apply; last done.
     apply: map_enc_inj. rewrite Hs map_app /= -firstn_map -skipn_map Hs.
     rewrite firstn_app (ltac:(lia) : length u' - length u' = 0) firstn_all.
     rewrite skipn_app (ltac:(lia) : length u' + 2 - length u' = 2) skipn_all2 /=; first by lia.
@@ -889,19 +855,23 @@ Proof using Ha0b0.
   move=> n /= ->. congr cons.
   rewrite /enc. case: (sym_eq_dec b0 a0); [done | by case: (sym_eq_dec b0 b0)].
 Qed.
-  
-Lemma transport : SR2ab (srs, a0, b0) -> SSTS01 ssts.
+
+Lemma transport n :
+  SR2ab.multi_step srs (repeat a0 (1+n)) (repeat b0 (1+n)) ->
+  SSTS.multi_step ssts (repeat 0 (1+n)) (repeat 1 (1+n)).
 Proof using Ha0b0.
-  move=> [n Hn]. exists n. move: Hn. rewrite repeat_a0 repeat_b0. 
+  rewrite repeat_a0 repeat_b0. 
   move: (repeat a0 _) (repeat b0 _) => s t. elim.
   - move=> > ?. apply: rt_step. by apply: sim_step.
   - move=> *. by apply rt_refl.
   - move=> *. apply: rt_trans; by eassumption.
 Qed.
 
-Lemma inverse_transport : SSTS01 ssts -> SR2ab (srs, a0, b0).
+Lemma inverse_transport n :
+  SSTS.multi_step ssts (repeat 0 (1+n)) (repeat 1 (1+n)) ->
+  SR2ab.multi_step srs (repeat a0 (1+n)) (repeat b0 (1+n)).
 Proof using Ha0b0.
-  move=> [n Hn]. exists n. move: Hn. rewrite repeat_a0 repeat_b0.
+  rewrite repeat_a0 repeat_b0.
   move: (repeat a0 _) (repeat b0 _) => s t.
   move Hs': (map enc s) => s'. move Ht': (map enc t) => t' /(@clos_rt_rt1n_iff _ _) Hs't'.
   elim: Hs't' s t Hs' Ht'.
@@ -911,35 +881,21 @@ Proof using Ha0b0.
     apply /rt_trans; [apply: rt_step; by eassumption | by apply: IH2].
 Qed.
 
-End Reduction.
+End SR2ab_SSTS01.
+
 End Argument.
 
-Import Synthetic.Definitions.
-
-Theorem reduction : SR2ab ⪯ SSTS01.
-Proof.
-  exists (fun '(srs, a0, b0) => 
-    if SR2ab_facts.sym_eq_dec b0 a0 then [((0, 0), (1, 1))] else Argument.ssts srs a0 b0).
-  move=> [[srs a0] b0]. constructor.
-  - case: (SR2ab_facts.sym_eq_dec b0 a0).
-    + move=> *. exists 1. rewrite /=. apply: rt_step.
-      apply: (step_intro _ (u := [])). by left.
-    + move=> H /=. by apply: Argument.transport.
-  - case: (SR2ab_facts.sym_eq_dec b0 a0).
-    + move=> /= -> _. exists 0. by apply: rt_refl.
-    + move=> /= H. by apply: Argument.inverse_transport.
-Qed.
-
-End SR2ab_to_SSTS01.
-
-
-Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.ReducibilityFacts.
 Import MM2 SSTS.
+Require Import Undecidability.Synthetic.Definitions.
 
 (* Two Counter Machine Halting starting from (0, 0) 
    many-one reduces to Simple Semi-Thue System 01 Rewriting *)
 Theorem reduction : MM2_ZERO_HALTING ⪯ SSTS01.
 Proof.
-  apply (reduces_transitive MM2_ZERO_HALTING_to_SR2ab.reduction).
-  exact SR2ab_to_SSTS01.reduction.
+  eexists=> [mm]. split.
+  - move=> [c'0] [Hc0c'0 Hc'0]. eexists.
+    by apply: Argument.transport; [|apply: SR2ab.to_SR2ab; eassumption].
+  - move=> [N HN].
+    apply: SR2ab.to_MM2_ZERO_HALTING.
+    by apply: Argument.inverse_transport; [|eassumption].
 Qed.
