@@ -7,10 +7,10 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Bool.
+Require Import List Bool Arith Lia.
 
 From Undecidability.Shared.Libs.DLW 
-  Require Import utils sss.
+  Require Import utils sss subcode.
 
 Import ListNotations.
 
@@ -59,6 +59,8 @@ Definition half_tape_right t :=
   | (l,h,[])   => (h::l,false,[])
   | (l,h,x::r) => (h::l,x,r)
   end).
+
+Arguments half_tape_right t /.
 
 Definition half_tape_move d :=
   match d with
@@ -115,6 +117,9 @@ Module PCTMNotations.
   Notation rd := half_tape_read.
   Notation wr := half_tape_write.
   Notation mv := half_tape_move.
+  Notation L := mv_left.
+  Notation R := mv_right.
+  Notation "'<<' w₀ , d₀ , j₀ '|' w₁ , d₁ , j₁ '>>'" := (pctm_combi w₀ d₀ j₀ w₁ d₁ j₁) (at level 1).
 End PCTMNotations.
 
 Import PCTMNotations.
@@ -171,19 +176,297 @@ Qed.
 #[local] Notation "P // s ->> t" := (sss_compute pctm_sss P s t).
 #[local] Notation "P // s -+> t" := (sss_progress pctm_sss P s t).
 
-Section displace_1_right.
+Section PC_based_Turing_Machine.
 
-  Variables (l : list bool) (x : bool) (a : nat) (y : bool) (r : list bool) (t : half_tape) (i : nat) (P : list pctm_instr).
+  Implicit Type P : (nat*list pctm_instr)%type.
 
-  Fact displace_1a_left : (i,P) // (i,(l,x,true↑a++false::y::r)) -+> (length P+i,(true↑a++false::x::l,false,r)).
-  Admitted.
+  Tactic Notation "mydiscr" := 
+    match goal with H: ?x = _, G : ?x = _ |- _ => rewrite H in G; discriminate end.
 
-  Fact 
-
-                       -> exists t' (i,P) // (i,t) 
-
+  Tactic Notation "myinj" := 
+    match goal with H: ?x = _, G : ?x = _ |- _ => rewrite H in G; inversion G; subst; auto end.      
   
+  (* pctm_sss is a functional relation *)
+      
+  Fact pctm_sss_fun ρ s s1 s2 : ρ // s -1> s1 -> ρ // s -1> s2 -> s1 = s2.
+  Proof. intros []; subst; inversion 1; subst; auto; try mydiscr; myinj. Qed.
 
+  Tactic Notation "solve" "progress" :=
+    let H := fresh 
+    in intros H;
+       apply sss_progress_compute_trans;
+       apply subcode_sss_progress with (1 := H);
+       exists 1; split; auto; apply sss_steps_1;
+       apply in_sss_step with (l := nil); [ simpl; lia | ];
+       try (constructor; auto).
+
+  Fact pctm_progress P w0 d0 j0 w1 d1 j1 i t st :
+         (i,[<< w0,d0,j0 | w1,d1,j1 >>]) <sc P
+      -> match rd t with
+         | true => 
+           match mv d1 (wr t w1) with
+           | Some t1 => P // (j1,t1) ->> st
+           | None => False
+           end
+         | false => 
+           match mv d0 (wr t w0) with
+           | Some t0 => P // (j0,t0) ->> st
+           | None => False
+           end
+         end
+      -> P // (i,t) -+> st.
+  Proof. 
+    intros H.
+    destruct t as ((l,[]),r); simpl.
+    + case_eq (mv d1 (l,w1,r)); try easy; intros t' E.
+      apply sss_progress_compute_trans.
+      apply subcode_sss_progress with (1 := H).
+      exists 1; split; auto; apply sss_steps_1.
+      apply in_sss_step with (l := nil); [ simpl; lia | ].
+      constructor; auto.
+    + case_eq (mv d0 (l,w0,r)); try easy; intros t' E.
+      apply sss_progress_compute_trans.
+      apply subcode_sss_progress with (1 := H).
+      exists 1; split; auto; apply sss_steps_1.
+      apply in_sss_step with (l := nil); [ simpl; lia | ].
+      constructor; auto.
+  Qed.
+
+  Hint Resolve pctm_progress : core.
+
+  Tactic Notation "solve" "compute" :=
+    intros; apply sss_progress_compute; eauto.
+
+  Fact pctm_compute P w0 d0 j0 w1 d1 j1 i t st :
+         (i,[<< w0,d0,j0 | w1,d1,j1 >>]) <sc P
+      -> match rd t with
+         | true => 
+           match mv d1 (wr t w1) with
+           | Some t1 => P // (j1,t1) ->> st
+           | None => False
+           end
+         | false => 
+           match mv d0 (wr t w0) with
+           | Some t0 => P // (j0,t0) ->> st
+           | None => False
+           end
+         end
+      -> P // (i,t) ->> st.
+  Proof. solve compute. Qed. 
+
+End PC_based_Turing_Machine.
+
+Tactic Notation "pctm" "sss" "with" uconstr(a) uconstr(b) uconstr(c) uconstr(d) uconstr(e) uconstr(f) := 
+  match goal with
+    | |- _ // _ -+> _ => apply pctm_progress with (w0 := a) (d0 := b) (j0 := c) (w1 := d) (d1 := e) (j1 := f)
+    | |- _ // _ ->> _ => apply pctm_compute with (w0 := a) (d0 := b) (j0 := c) (w1 := d) (d1 := e) (j1 := f)
+  end; auto.
+
+Tactic Notation "pctm" "sss" "stop" := exists 0; apply sss_steps_0; auto.
+
+#[local] Hint Resolve subcode_refl : core.
+
+Section pctm_move_right.
+
+  Variable (i j : nat).
+
+  Definition pctm_move_right :=
+    [ << false, R, j | true, R, j >> ].
+
+  Fact pctm_move_right_length : length pctm_move_right = 1.
+  Proof. trivial. Qed.
+
+  Fact pctm_move_right_spec l h x r : (i,pctm_move_right) // (i,(l,h,x::r)) -+> (j,(h::l,x,r)).
+  Proof.
+    unfold pctm_move_right.
+    pctm sss with false R j true R j; simpl.
+    destruct h; simpl; pctm sss stop.
+  Qed.
+
+End pctm_move_right.
+
+Section pctm_write_l.
+
+  Variables (i : nat) (b : bool).
+
+  Definition pctm_write_l := 
+    [ << b,     L, 1+i | b,    L, 1+i >> ;
+      << false, R, 2+i | true, R, 2+i >> ].
+
+  Fact pctm_write_l_length : length pctm_write_l = 2.
+  Proof. trivial. Qed.
+
+  Variables (l r : list bool) (x h : bool).
+
+  Fact pctm_write_l_spec : (i,pctm_write_l) // (i,(x::l,h,r)) -+> (2+i,(x::l,b,r)).
+  Proof.
+    unfold pctm_write_l.
+    pctm sss with b L (1+i) b L (1+i); cbn.
+    destruct h; pctm sss with false R (S (S i)) true R (S (S i));
+      destruct x; simpl; pctm sss stop.
+  Qed.
+
+End pctm_write_l.
+
+Section pctm_write_r.
+
+  Variables (i : nat) (b : bool).
+
+  Definition pctm_write_r := 
+    [ << b,     R, 1+i | b,    R, 1+i >> ;
+      << false, L, 2+i | true, L, 2+i >> ].
+
+  Fact pctm_write_r_length : length pctm_write_r = 2.
+  Proof. trivial. Qed.
+
+  Variables (l r : list bool) (x h : bool).
+
+  Fact pctm_write_r_spec : (i,pctm_write_r) // (i,(l,h,x::r)) -+> (2+i,(l,b,x::r)).
+  Proof.
+    unfold pctm_write_r.
+    pctm sss with b R (1+i) b R (1+i); cbn.
+    destruct h; pctm sss with false L (S (S i)) true L (S (S i));
+      destruct x; simpl; pctm sss stop.
+  Qed.
+
+End pctm_write_r.
+
+Section pctm_tozero_right.
+
+  Variables (i : nat).
+
+  Definition pctm_tozero_right :=
+    [ << true, R, 1+i | true, R, i >> ].
+
+  Fact pctm_tozero_right_length : length pctm_tozero_right = 1.
+  Proof. trivial. Qed.
+
+  Fact pctm_tozero_spec_false l x r : (i,pctm_tozero_right) // (i,(l,false,x::r)) -+> (1+i,(true::l,x,r)).
+  Proof.
+    unfold pctm_tozero_right.
+    pctm sss with true R (1+i) true R i; simpl.
+    pctm sss stop.
+  Qed.
+
+  Fact pctm_tozero_spec_true n l x r : (i,pctm_tozero_right) // (i,(l,true,true↑n++false::x::r)) -+> (1+i,(true↑(n+2)++l,x,r)).
+  Proof.
+    unfold pctm_tozero_right.
+    revert l; induction n as [ | n IHn ]; intros l.
+    + do 2 (pctm sss with true R (1+i) true R i; simpl).
+      pctm sss stop.
+    + pctm sss with true R (1+i) true R i; simpl.
+      apply sss_progress_compute.
+      apply sss_progress_compute_trans with (1 := IHn (true::l)).
+      pctm sss stop; do 3 f_equal.
+      change (true::l) with (true↑1++l); rewrite <- app_ass, <- list_repeat_plus.
+      change (true :: true↑(n+2) ++ l) with (true↑(1+(n+2)) ++ l).
+      do 2 f_equal; lia.
+  Qed.
+
+End pctm_tozero_right.
+
+#[local] Hint Rewrite pctm_move_right_length
+                      pctm_write_l_length
+                      pctm_write_r_length
+                      pctm_tozero_right_length : length_db.
+
+Section displace_1a_right.
+
+  Variables (i : nat).
+
+  Definition displace_1a_right :=
+       pctm_move_right (1+i)
+    ++ << false,R,3+i | false,R,2+i >>
+    :: pctm_tozero_right (2+i)
+    ++ pctm_write_l (3+i) false.
+
+  Fact displace_1a_right_length : length displace_1a_right = 5.
+  Proof. trivial. Qed.
+
+  (* l - [x] - T↑a - F - y - r    -->    l - x - F - T↑a - [F] - r *)
+  Fact displace_1a_right_spec l x a y r : 
+     (i,displace_1a_right) // (i,(l,x,true↑a++false::y::r)) -+> (5+i,(true↑a++false::x::l,false,r)).
+  Proof.
+    unfold displace_1a_right.
+    destruct a as [ | a ]; simpl list_repeat.
+    + apply sss_progress_compute_trans with (1+i,(x::l,false,y::r)).
+      * apply subcode_sss_progress with (2 := pctm_move_right_spec _ _ _ _ _ _); auto.
+      * pctm sss with false R (3+i) false R (2+i). 
+        simpl rd; simpl mv; simpl half_tape_right; cbv iota.
+        apply sss_progress_compute,
+              subcode_sss_progress with (2 := pctm_write_l_spec _ _ _ _ _ _); auto.
+    + apply sss_progress_compute_trans with (1+i,(x::l,true,true↑a++false::y::r)).
+      * apply subcode_sss_progress with (2 := pctm_move_right_spec _ _ _ _ _ _); auto.
+      * pctm sss with false R (3+i) false R (2+i).
+        simpl rd; cbn iota.
+        destruct a as [ | a ]; simpl list_repeat; simpl mv; cbn iota.
+        - apply sss_compute_trans with (3+i,(true::false::x::l,y,r)).
+          ++ apply sss_progress_compute,
+                   subcode_sss_progress with (2 := pctm_tozero_spec_false _ _ _ _); auto.
+          ++ apply sss_progress_compute,
+                   subcode_sss_progress with (2 := pctm_write_l_spec _ _ _ _ _ _); auto.
+        - apply sss_compute_trans with (3+i,(true↑(a+2)++false::x::l,y,r)).
+          ++ apply sss_progress_compute,
+                   subcode_sss_progress with (2 := pctm_tozero_spec_true _ _ _ _ _); auto.
+          ++ change (true::true::true↑a) with (true↑(2+a)); rewrite (plus_comm a). 
+             apply sss_progress_compute,
+                   subcode_sss_progress with (2 := pctm_write_l_spec _ _ _ _ _ _); auto.
+  Qed.
+
+End displace_1a_right.
+
+Check displace_1a_right_spec.
+
+Section write_ones.
+
+  Variable (i : nat).
+
+  Definition write_ones := 
+    [ << false, L, (1+i) | true, R, i >> ].
+
+  Fact write_ones_length : length write_ones = 1.
+  Proof. trivial. Qed.
+
+  Fact write_ones_spec l n r : (i,write_ones) // (i,(l,true,true↑n++false::r)) -+> (1+i,(true↑n++l,true,false::r)).
+  Proof.
+    unfold write_ones.
+    induction n as [ | n IHn ] in l |- *; simpl list_repeat; simpl app.
+    + do 2 (pctm sss with false L (1+i) true R i; simpl rd; simpl mv; cbn iota).
+      pctm sss stop.
+    + pctm sss with false L (1+i) true R i; simpl.
+      apply sss_progress_compute.
+      replace (true :: true↑n ++ l) with (true↑n ++ true↑1 ++ l).
+      * apply IHn.
+      * now rewrite <- app_ass, <- list_repeat_plus, plus_comm.
+  Qed.
+
+End write_ones.
+
+#[local] Hint Rewrite write_ones_length : length_db. 
+
+Section displace_1a_left.
+
+  Variable (i : nat).
+
+  Definition displace_1a_left : list pctm_instr :=
+    pctm_write_r i true ++ write_ones (2+i) ++ pctm_write_r (3+i) false.
+
+  Fact displace_1a_left_length : length displace_1a_left = 5.
+  Proof. trivial. Qed.
+
+  (* l - [x] - T↑a - F - r   -->   l - T↑a - [F] - F - r *)
+  Fact displace_1a_left_spec l x a r : 
+     (i,displace_1a_left) // (i,(l,x,true↑a++false::r)) -+> (5+i,(true↑a++l,false,false::r)).
+  Proof.
+    unfold displace_1a_left.
+    apply sss_progress_trans with (2+i,(l,true,true↑a++false::r)).
+    1: destruct a; apply subcode_sss_progress with (2 := pctm_write_r_spec _ _ _ _ _ _); auto.
+    apply sss_progress_trans with (3+i,(true↑a++l,true,false::r)).
+    1: apply subcode_sss_progress with (2 := write_ones_spec _ _ _ _); auto.
+    apply subcode_sss_progress with (2 := pctm_write_r_spec _ _ _ _ _ _); auto.
+  Qed.
+
+End displace_1a_left.
 
 
 Definition option_lift X Y (f : X -> option Y) x :=
@@ -222,7 +505,7 @@ Proof.
     apply (H (S n)).
 Qed.
 
-
+(*
 
 Definition half_tape := (list bool * bool * option (list bool))%type.
 
@@ -352,3 +635,4 @@ Section half_tape.
 
 End half_tape.
 
+*)
