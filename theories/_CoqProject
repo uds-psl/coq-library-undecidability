@@ -49,6 +49,8 @@ TM/PCTM.v
 TM/PCTM/pctm_defs.v
 TM/PCTM/pctm_sbtm.v
 
+TM/PCTM_half.v
+
 
 StackMachines/BSM.v
 StackMachines/BSM_undec.v
