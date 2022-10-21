@@ -35,10 +35,29 @@ Implicit Type t : half_tape.
 Reserved Notation "l '~r' m" (at level 70, no associativity).
 
 Inductive half_tape_equiv_right : list bool -> list bool -> Prop :=
+  | ht_right_eq_nil : ø ~r ø
   | ht_right_eq_lft l : l ~r ø -> ◻::l ~r ø
   | ht_right_eq_rt  l : ø ~r l -> ø ~r ◻::l
   | ht_right_eq_bth b l m : l ~r m -> b::l ~r b::m
 where "l ~r m" := (half_tape_equiv_right l m).
+
+#[local] Hint Constructors half_tape_equiv_right : core.
+
+Fact half_tape_equiv_right_app k l m  : l ~r m -> k++l ~r k++m.
+Proof. intro; induction k; simpl; eauto. Qed. 
+
+Fact half_tape_equiv_right_refl l : l ~r l.
+Proof. induction l; eauto. Qed.
+
+Fact half_tape_equiv_right_sym l m : l ~r m -> m ~r l.
+Proof. induction 1; eauto. Qed.
+
+Fact half_tape_equiv_right_trans l m k : l ~r m -> m ~r k -> l ~r k.
+Proof. induction 1 in k |- *; auto; inversion 1; eauto. Qed.
+
+#[local] Hint Resolve half_tape_equiv_right_refl
+                      half_tape_equiv_right_sym
+                      half_tape_equiv_right_trans : core.
 
 Definition half_tape_equiv t1 t2 :=
   match t1, t2 with
@@ -46,6 +65,15 @@ Definition half_tape_equiv t1 t2 :=
   end.
 
 Infix "~~" := half_tape_equiv (at level 70, no associativity).
+
+Fact half_tape_equiv_refl : forall t, t ~~ t.
+Proof. intros ((?,?),?); msplit 2; eauto. Qed.
+
+Fact half_tape_equiv_sym : forall t₁ t₂, t₁ ~~ t₂ -> t₂ ~~ t₁.
+Proof. intros ([]&?) ([]&?) (? & ? & ?); msplit 2; eauto. Qed.
+
+Fact half_tape_equiv_trans : forall t₁ t₂ t₃, t₁ ~~ t₂ -> t₂ ~~ t₃ -> t₁ ~~ t₃.
+Proof. intros ([]&?) ([]&?) ([]&?) (? & ? & ?) (? & ? & ?); msplit 2; subst; eauto. Qed.
 
 Definition half_tape_opt_equiv (ot1 ot2 : option half_tape) :=
   match ot1, ot2 with
@@ -96,7 +124,7 @@ Qed.
 Fact half_tape_right_equiv t1 t2 : t1 ~~ t2 -> half_tape_right t1 ~o half_tape_right t2.
 Proof.
   revert t1 t2; intros ((l,h),r1) ((l2,h2),r2) (<- & <- & H).
-  induction H as [ r1 H IH | r2 H IH | b r1 r2 H IH ]; simpl; auto.
+  induction H as [ | r1 H IH | r2 H IH | b r1 r2 H IH ]; simpl; auto.
 Qed.
 
 Fact half_tape_move_equiv d t1 t2 : t1 ~~ t2 -> half_tape_move d t1 ~o half_tape_move d t2.
@@ -179,9 +207,46 @@ Proof.
     * intros H; now rewrite H in H5.
 Qed.
 
+#[local] Notation "P // s :1> t" := (sss_step pctm_sss P s t).
+#[local] Notation "P // s -[ k ]-> t" := (sss_steps pctm_sss P k s t).
 #[local] Notation "P // s -[ k ]-> t" := (sss_steps pctm_sss P k s t).
 #[local] Notation "P // s ->> t" := (sss_compute pctm_sss P s t).
 #[local] Notation "P // s -+> t" := (sss_progress pctm_sss P s t).
+
+Fact pctm_step_equiv P s₁ s₂ s₁' : 
+   P // s₁ :1> s₁' -> s₁ ~s s₂ -> exists s₂', P // s₂ :1> s₂' /\ s₁' ~s s₂'.
+Proof.
+  intros (i & l & rho & r & t & H1 & H2 & H3) H4.
+  destruct pctm_sss_equiv with (1 := H3) (2 := H4) as (s' & H5 & H6).
+  exists s'; split; auto.
+  case_eq s₂; intros j t2 E.
+  rewrite <- E.
+  exists i, l, rho, r, t2; msplit 2; auto.
+  subst; destruct H4; subst; auto.
+Qed.
+
+Fact pctm_steps_equiv P k s₁ s₂ s₁' : 
+   P // s₁ -[k]-> s₁' -> s₁ ~s s₂ -> exists s₂', P // s₂ -[k]-> s₂' /\ s₁' ~s s₂'.
+Proof.
+  intros H; revert H s₂.
+  induction 1 as [ s | k s1 s1' s1'' H1 H2 IH2 ]; intros s2 H3.
+  + eexists; split; eauto; constructor.
+  + destruct pctm_step_equiv with (1 := H1) (2 := H3)
+      as (s2' & H4 & H5).
+    destruct IH2 with (1 := H5) as (s2'' & H6 & H7).
+    exists s2''; split; auto.
+    constructor 2 with s2'; auto.
+Qed.
+
+Fact pctm_progress_equiv P s₁ s₂ s₁' : 
+   P // s₁ -+> s₁' -> s₁ ~s s₂ -> exists s₂', P // s₂ -+> s₂' /\ s₁' ~s s₂'.
+Proof.
+  intros (k & Hk & H) H'.
+  destruct pctm_steps_equiv with (1 := H) (2 := H')
+    as (s₂' & ? & ?).
+  exists s₂'; split; auto.
+  exists k; auto.
+Qed.
 
 Section PC_based_Turing_Machine.
 
@@ -824,6 +889,77 @@ Check pctm_dec_a_spec_S.
 Check pctm_dec_b_spec_0.
 Check pctm_dec_b_spec_S.
 
+From Undecidability.Shared.Libs.DLW
+  Require Import compiler compiler_correction.
+
+From Undecidability.MinskyMachines 
+  Require Import MM2 mm2_from_zero.
+
+#[local] Notation "i '/MM/' r '⇢' s" := (mm2_atom i r s) (at level 70, no associativity).
+#[local] Notation "P '/MM/' r '→' s" := (sss_step mm2_atom P r s) (at level 70, no associativity).
+#[local] Notation "P '/MM/' r '-[' k ']->' s" := (sss_steps mm2_atom P k r s) (at level 70, no associativity).
+#[local] Notation "P '/MM/' r '↠' s" := (sss_compute mm2_atom P r s) (at level 70, no associativity).
+#[local] Notation "P '/MM/' r '~~>' s" := (sss_output mm2_atom P r s) (at level 70, no associativity).
+#[local] Notation "P '/MM/' s ↓" := (sss_terminates mm2_atom P s) (at level 70, no associativity).
+
+Section MM2_PCTM_half.
+
+  Definition il rho :=
+    match rho with
+      | mm2_inc_a   => 16
+      | mm2_inc_b   => 13
+      | mm2_dec_a j => 20
+      | mm2_dec_b j => 20
+    end.
+
+  Definition ic lnk i rho :=
+    match rho with
+      | mm2_inc_a   => pctm_inc_a (lnk i)
+      | mm2_inc_b   => pctm_inc_b (lnk i)
+      | mm2_dec_a j => pctm_dec_a (lnk i) (lnk (1+i)) (lnk j)
+      | mm2_dec_b j => pctm_dec_b (lnk i) (lnk (1+i)) (lnk j)
+    end.
+
+  Fact il_ic_ok lnk i rho : length (ic lnk i rho) = il rho.
+  Proof. now destruct rho. Qed.
+
+  Definition simul '(a,b) t := t ~~ ⟬ ø ⟨◻⟩ ◼↑a++◻::◼↑b++[◻] ⟭.
+
+  Fact soundness : instruction_compiler_sound ic mm2_atom pctm_sss simul.
+  Proof.
+    intros lnk rho i1 c1 i2 c2 t1.
+    change i1 with (fst (i1,c1)).
+    change i2 with (fst (i2,c2)).
+    change c1 with (snd (i1,c1)) at 2 6.
+    change c2 with (snd (i2,c2)) at 2 4.
+    rewrite <- !surjective_pairing.
+    generalize (i1,c1) (i2,c2); clear i1 c1 i2 c2; intros s1 s2.
+    induction 1 as [ i a b | i a b | i j a b | i j a b | i j b | i j a ]; 
+      simpl fst; simpl snd; intros H1 H2; simpl in H2; simpl ic.
+    + generalize (pctm_inc_a_spec (lnk i) a b); intros H3.
+      destruct pctm_progress_equiv with (1 := H3) (s₂ := (lnk i, t1))
+        as ((j,t2) & H4 & H5 & H6).
+      * split; auto.
+        apply half_tape_equiv_sym, half_tape_equiv_trans with (1 := H2).
+        msplit 2; auto.
+        do 2 apply half_tape_equiv_right_app, ht_right_eq_bth; auto.
+      * exists t2; split.
+        - now simpl in H1, H5; rewrite H1, H5.
+        - now apply half_tape_equiv_sym.
+    + generalize (pctm_inc_b_spec (lnk i) a b); intros H3.
+      destruct pctm_progress_equiv with (1 := H3) (s₂ := (lnk i,t1))
+        as ((j,t2) & H4 & H5 & H6).
+      * split; auto; now apply half_tape_equiv_sym.
+      * exists t2; split.
+        - now simpl in H1, H5; rewrite H1, H5.
+        - now apply half_tape_equiv_sym.
+    + admit.
+  Admitted.
+
+  Fact simul_0 : simul (0,0) ⟬ ø ⟨◻⟩ ø ⟭.
+  Proof. cbv; msplit 2; auto. Qed.
+
+End MM2_PCTM_half.
 
 (*
 
