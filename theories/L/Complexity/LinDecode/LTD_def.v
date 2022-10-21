@@ -15,3 +15,4 @@ Arguments c__linDec : clear implicits.
 Arguments c__linDec _ {_ _ _}.
 
 Global Existing Instance comp_enc_lin.
+

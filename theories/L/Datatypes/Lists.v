@@ -1,7 +1,6 @@
 From Undecidability.L.Tactics Require Import LTactics GenEncode.
 From Undecidability.L Require Import Functions.EqBool.
 From Undecidability.L.Datatypes Require Import LBool LNat LOptions LProd.
-From Undecidability.L Require Import UpToC.
 
 (* ** Encoding of lists *)
 

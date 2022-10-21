@@ -42,8 +42,11 @@ Section Shift.
     { unfold Shift_Step.
       eapply Switch_RealiseIn with
           (R2 := fun (c : option sig) => match c with Some c => if f c then _ else _ | None => _ end).
-      - TM_Correct.
-      - intros [ c | ]; [ destruct (f c) | ]; TM_Correct. }
+      - apply ReadChar_Sem.
+      - intros [ c | ]; [ destruct (f c) | ]; apply Return_RealiseIn.
+        + apply Write_Sem.
+        + apply WriteMove_Sem.
+        + apply Write_Sem. }
     { reflexivity. }
     {intros tin (yout, tout) H. TMSimp. TMCrush; TMSolve 1. }
   Qed.
@@ -83,7 +86,7 @@ Section Shift.
   Lemma Shift_Realise (s : sig) : Shift s ⊨ Shift_Rel s.
   Proof.
     eapply Realise_monotone.
-    { unfold Shift. TM_Correct. intros. eapply RealiseIn_Realise. apply Shift_Step_Sem. }
+    { apply StateWhile_Realise. intros. eapply RealiseIn_Realise. apply Shift_Step_Sem. }
     {
       apply StateWhileInduction; intros; cbn in *.
       - destruct (current tin[@Fin0]) eqn:E.
@@ -145,7 +148,7 @@ Section Shift.
            (fun tin k => Shift_steps (tape_local tin[@Fin0]) <= k).
   Proof.
     eapply TerminatesIn_monotone.
-    { unfold Shift. TM_Correct.
+    { apply StateWhile_TerminatesIn.
       - intros ?s. eapply RealiseIn_Realise. apply Shift_Step_Sem.
       - intros ?s. eapply RealiseIn_TerminatesIn. apply Shift_Step_Sem.
     }
@@ -219,7 +222,7 @@ Section Shift.
   Lemma Shift_L_Realise (s : sig) : Shift_L s ⊨ Shift_L_Rel s.
   Proof.
     eapply Realise_monotone.
-    { unfold Shift_L. TM_Correct. apply Shift_Realise. }
+    { unfold Shift_L. apply Mirror_Realise, Shift_Realise. }
     {
       intros tin ([], tout) H. hnf in H; hnf.
       destruct_tapes; cbn in *. now apply Shift_fun_mirror in H.
@@ -257,20 +260,15 @@ Section Shift.
            (fun tin k => Shift_steps (tape_local_l tin[@Fin0]) <= k).
   Proof.
     eapply TerminatesIn_monotone.
-    { unfold Shift_L. TM_Correct. apply Shift_TerminatesIn. }
+    { unfold Shift_L. apply Mirror_Terminates, Shift_TerminatesIn. }
     { intros tin k Hk. hnf. now simpl_tape in *. }
   Qed.
 
 
 End Shift.
 
+#[export] Hint Extern 1 (Shift _ _ ⊨ _) => eapply Shift_Realise : TMdb.
+#[export] Hint Extern 1 (projT1 (Shift   _ _) ↓ _) => eapply Shift_TerminatesIn : TMdb.
 
-Ltac smpl_TM_Shift :=
-  once lazymatch goal with
-  | [ |- Shift   _ _ ⊨ _ ] => eapply Shift_Realise
-  | [ |- Shift_L _ _ ⊨ _ ] => eapply Shift_L_Realise
-  | [ |- projT1 (Shift   _ _) ↓ _ ] => eapply Shift_TerminatesIn
-  | [ |- projT1 (Shift_L _ _) ↓ _ ] => eapply Shift_L_TerminatesIn
-  end.
-
-Smpl Add smpl_TM_Shift : TM_Correct.
+#[export] Hint Extern 1 (Shift_L _ _ ⊨ _) => eapply Shift_L_Realise : TMdb.
+#[export] Hint Extern 1 (projT1 (Shift_L _ _) ↓ _) => eapply Shift_L_TerminatesIn : TMdb.

@@ -1,5 +1,4 @@
 From Undecidability.L.Tactics Require Import LTactics.
-From Undecidability.L Require Import UpToC.
 From Undecidability.L.Datatypes Require Export List_enc List_in List_basics LBool LNat.
 
 Definition lengthEq A :=

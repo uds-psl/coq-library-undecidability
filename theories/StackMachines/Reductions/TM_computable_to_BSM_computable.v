@@ -6,6 +6,7 @@ Require Import
 From Undecidability.TM Require Import Single.StepTM Code.CodeTM TM mTM_to_TM Arbitrary_to_Binary HaltTM_1_to_HaltKOSBTM HaltKOSBTM_to_HaltBSM.
 From Undecidability.Shared.Libs.DLW Require Import vec pos sss subcode.
 From Undecidability Require Import bsm_utils bsm_defs.
+Require Import Undecidability.TM.Code.Code.
 From Undecidability Require Import BSM_computable_to_MM_computable.
 From Undecidability.Shared.Libs.PSL Require FinTypes.
 

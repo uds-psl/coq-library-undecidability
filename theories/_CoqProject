@@ -419,10 +419,7 @@ TM/Util/TM_computable.v
 
 TM/Util/TM_facts.v
 
-TM/Basic/Basic.v
-TM/Basic/Null.v
 TM/Basic/Mono.v
-TM/Basic/Duo.v
 
 TM/Combinators/Combinators.v
 TM/Combinators/Switch.v
@@ -432,20 +429,13 @@ TM/Combinators/While.v
 TM/Combinators/StateWhile.v
 TM/Combinators/Mirror.v
 
-TM/Lifting/Lifting.v
-TM/Lifting/LiftTapes.v
-TM/Lifting/LiftAlphabet.v
-
 TM/Compound/TMTac.v
 TM/Compound/Multi.v
 TM/Compound/WriteString.v
 TM/Compound/MoveToSymbol.v
-TM/Compound/CopySymbols.v
 TM/Compound/Shift.v
-TM/Compound/Compare.v
 
 TM/Code/Code.v
-TM/Code/ChangeAlphabet.v
 TM/Code/CodeTM.v
 
 TM/Single/EncodeTapes.v
@@ -457,9 +447,6 @@ TM/Reductions/MMA_computable_to_TM_computable.v
 
 TM/Reductions/Arbitrary_to_Binary.v
 TM/Reductions/KrivineMclosed_HALT_to_HaltUTM.v
-
-TM/PrettyBounds/MaxList.v
-TM/PrettyBounds/SizeBounds.v
 
 TM/Reductions/mTM_to_TM.v
 TM/Reductions/HaltTM_1_to_SBTM_HALT.v
@@ -478,7 +465,6 @@ L/Prelim/MoreList.v
 L/Prelim/LoopSum.v
 
 L/Util/L_facts.v
-L/Util/Subterm.v
 
 L/Tactics/Computable.v
 L/Tactics/ComputableTime.v
@@ -544,13 +530,8 @@ L/Reductions/HaltMuRec_to_HaltL.v
 L/Reductions/HaltL_to_HaltLclosed.v
 L/Reductions/MuRec_computable_to_L_computable.v
 
-L/Complexity/UpToC.v
-L/Complexity/GenericNary.v
-L/Complexity/ResourceMeasures.v
 L/Complexity/LinDecode/LTD_def.v
 L/Complexity/LinDecode/LTDnat.v
-L/Complexity/LinDecode/LTDlist.v
-L/Complexity/LinDecode/LTDbool.v
 
 L/AbstractMachines/wCBV.v
 

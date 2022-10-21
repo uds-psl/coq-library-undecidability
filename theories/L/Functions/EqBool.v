@@ -1,6 +1,4 @@
 From Undecidability.L Require Import L Tactics.LTactics LBool.
-(*From Undecidability.L.Complexity Require Import Monotonic UpToC.*)
-
 
 Class eqbClass X (eqb : X -> X -> bool): Type := 
   _eqb_spec : forall (x y:X), reflect (x=y) (eqb x y).
@@ -72,12 +70,3 @@ Lemma eqbTime_le_r X (R : encodable X) (eqb : X -> X -> bool) (H : eqbClass eqb)
 Proof.
   unfold eqbTime. rewrite Nat.le_min_r. easy.
 Qed.
-
-(*
-Lemma eqbTime_upToC X {R:encodable X} eqb {H:eqbClass (X:=X) eqb} {_:eqbCompT X}:
-  eqbTime (X:=X) <=c (fun (x y:nat) => min x y).
-Proof.
-  unfold eqbTime. hnf.
-  exists (c__eqbComp X). unfold leHO;repeat intro; cbn;nia.
-Qed.
-*)

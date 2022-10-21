@@ -194,9 +194,8 @@ Section MoveToSymbol.
     projT1 MoveToSymbol ↓ (fun tin k => MoveToSymbol_steps (tin[@Fin0]) <= k).
   Proof.
     eapply TerminatesIn_monotone.
-    { unfold MoveToSymbol. TM_Correct.
-      1-2: eapply Realise_total; eapply MoveToSymbol_Step_Sem.
-    }
+    { apply While_TerminatesIn.
+      all: eapply Realise_total, MoveToSymbol_Step_Sem. }
     {
       apply WhileCoInduction; intros. cbn.
       exists 3. repeat split.
@@ -294,16 +293,6 @@ Section MoveToSymbol.
   Qed.
 
 End MoveToSymbol.
-
-Ltac smpl_TM_MoveToSymbol :=
-  once lazymatch goal with
-  | [ |- MoveToSymbol   _ _ ⊨ _ ] => eapply MoveToSymbol_Realise
-  | [ |- MoveToSymbol_L _ _ ⊨ _ ] => eapply MoveToSymbol_L_Realise
-  | [ |- projT1 (MoveToSymbol   _ _) ↓ _ ] => eapply MoveToSymbol_Terminates
-  | [ |- projT1 (MoveToSymbol_L _ _) ↓ _ ] => eapply MoveToSymbol_L_Terminates
-  end.
-
-Smpl Add smpl_TM_MoveToSymbol : TM_Correct.
 
 Section MoveToSymbol_Sem.
 
@@ -513,3 +502,8 @@ Section MoveToSymbol_Sem.
   Qed.
 
 End MoveToSymbol_Sem.
+
+#[export] Hint Extern 1 (MoveToSymbol _ _ ⊨ _) => eapply MoveToSymbol_Realise : TMdb.
+#[export] Hint Extern 1 (projT1 (MoveToSymbol   _ _) ↓ _) => eapply MoveToSymbol_Terminates : TMdb.
+#[export] Hint Extern 1 (MoveToSymbol_L _ _ ⊨ _) => eapply MoveToSymbol_L_Realise : TMdb.
+#[export] Hint Extern 1 (projT1 (MoveToSymbol_L _ _) ↓ _) => eapply MoveToSymbol_L_Terminates : TMdb.

@@ -1,22 +1,22 @@
 From Undecidability Require Import TM.Util.Prelim TM.Util.TM_facts.
-From Undecidability.TM Require Import Lifting.LiftTapes CodeTM ChangeAlphabet. (* for [simpl_not_in] *)
+From Undecidability.TM Require Import CodeTM. (* for [simpl_not_in] *)
 
 (* * Tactics that help verifying complex machines *)
 
 
 (* This tactic automatically solves/instantiates premises of a hypothesis. If the hypothesis is a conjunction, it is destructed. *)
 Ltac modpon' H :=
-  simpl_surject;
+  (*simpl_surject;*)
   once lazymatch type of H with
   | forall (i : Fin.t _), ?P => idtac
   | forall (x : ?X), ?P =>
     once lazymatch type of X with
     | Prop =>
       tryif spec_assert H by
-          (simpl_surject;
+          ((*simpl_surject;*)
            solve [ eauto
-                 | contains_ext
-                 | isVoid_mono
+                 (*| contains_ext
+                 | isVoid_mono*)
                  ]
           )
       then idtac (* "solved premise of type" X *);
@@ -39,52 +39,6 @@ Ltac modpon' H :=
   end.
 
 Ltac modpon H := progress (modpon' H).
-
-
-Ltac dec_pos P := let H := fresh in destruct (Dec P) as [_ | H]; [ | now contradiction H].
-Ltac dec_neg P := let H := fresh in destruct (Dec P) as [H | _]; [now contradiction H | ].
-
-Ltac simpl_dec :=
-  match goal with
-  | [ H : context [ Dec (?x = ?x) ] |- _ ] => dec_pos (x=x)
-  | [ |- context [ Dec (?x = ?x) ]] => dec_pos (x=x)
-  | [ _ : ?H |- context [ Dec ?H ]] => dec_pos H
-  | [ _ : ~ ?H |- context [ Dec ?H ]] => dec_neg H
-  | [ _ : ?H, _ : context [ Dec ?H ] |- _] => dec_pos H
-  | [ _ : ~ ?H, _ : context [ Dec ?H ] |- _] => dec_neg H
-  | _ => fail "could not match goal"
-  end.
-
-Section test.
-  Variable P : Prop.
-  Variable dec_P : dec P.
-  Goal if Dec (1 = 1) then True else False.
-  Proof.
-    intros. deq 1. tauto.
-  Qed.
-  Goal P -> if (Dec P) then True else False.
-  Proof.
-    intros. simpl_dec. tauto.
-  Qed.
-  Goal ~ P -> if (Dec P) then False else True.
-  Proof.
-    intros. simpl_dec. tauto.
-  Qed.
-  Goal P -> (if (Dec P) then False else True) -> False.
-  Proof.
-    intros. simpl_dec. tauto.
-  Qed.
-  Goal ~ P -> (if (Dec P) then True else False) -> False.
-  Proof.
-    intros. simpl_dec. tauto.
-  Qed.
-End test.
-
-Ltac inv_pair :=
-  once lazymatch goal with
-  | [ H : (_, _) = (_, _) |- _] => inv H
-  | [ |- (_, _) = (_, _) ] => f_equal
-  end.
 
 Ltac destruct_param_tape_pair :=
   once lazymatch goal with
@@ -149,7 +103,7 @@ Proof. intros. eapply Vector.eq_nth_iff. now intros ? ? ->. Qed.
   
 Ltac TMSimp1 T :=
   try destruct_param_tape_pair; destruct_unit;
-  simpl_not_in;
+  (*simpl_not_in;*)
   cbn in *;
   repeat match goal with
   | [ H : ?x = _ |- _ ] => is_var x;move x at bottom;subst x

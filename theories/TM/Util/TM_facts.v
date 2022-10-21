@@ -971,13 +971,8 @@ Definition execTM_p (sig : finType) (n : nat) (F : Type) (pM : { M : TM sig n & 
 
 
 (* ** Automation of the generation of relations *)
-
-(* Create the smpl tactic databases *)
-Smpl Create TM_Correct.
-
-(* This tactics apply exactly one tactic from the corresponding hint database *)
-Ltac TM_Correct_step := smpl TM_Correct.
-Ltac TM_Correct := repeat TM_Correct_step.
+(* Alternative to the the smpl-based tactic databases *)
+Create HintDb TMdb discriminated.
 
 (* ** TM evaluation and loop is equivalent  *)
 

@@ -28,7 +28,6 @@ install: [
 depends: [
   "coq" {= "8.16.0"}
   "ocaml"
-  "coq-smpl" {>= "8.16"}
   "coq-metacoq-template" {>= "1.1+8.16"}
 ]
 

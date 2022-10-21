@@ -1,5 +1,4 @@
 From Undecidability.L.Tactics Require Import LTactics.
-From Undecidability.L Require Import UpToC.
 From Undecidability.L Require Import Functions.EqBool.
 
 From Undecidability.L.Datatypes Require Export List.List_enc LBool LOptions LNat.

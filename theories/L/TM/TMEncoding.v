@@ -5,7 +5,6 @@ From Undecidability.L Require Import Functions.EqBool.
 From Undecidability.TM.Util Require Import VectorPrelim TM_facts.
 
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.
-From Undecidability.TM Require PrettyBounds.SizeBounds.
 
 
 Import L_Notations.

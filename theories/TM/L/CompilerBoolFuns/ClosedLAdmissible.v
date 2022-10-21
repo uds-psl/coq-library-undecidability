@@ -4,7 +4,7 @@ From Coq Require Import Vector List.
 
 From Undecidability.L Require Import L LTactics L_facts Functions.Eval Functions.Decoding Functions.Encoding.
 From Undecidability.L.Datatypes Require Import LBool Lists LVector List.List_fold.
-From Undecidability.L.Complexity.LinDecode Require Import LTDbool LTDlist LTDnat.
+From Undecidability.L.Complexity.LinDecode Require Import LTDnat.
 
 From Undecidability.TM.L.CompilerBoolFuns Require Import NaryApp.
 
