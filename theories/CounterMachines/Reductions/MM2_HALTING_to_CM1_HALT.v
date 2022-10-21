@@ -383,8 +383,7 @@ Section MM2_CM1.
         have [|] := Config_eq_dec x (CM1.step M x); [done|].
         tauto.
       + move=> > [Hxy ?] _ IH /IH [n {}IH].
-        exists (1+n).
-        by rewrite iter_plus /= Hxy.
+        exists (n+1). by rewrite /Nat.iter nat_rect_plus /= Hxy.
   Qed.
 
   Lemma init_M_a0 (n: nat) : n <= a0+b0 ->
@@ -420,9 +419,9 @@ Section MM2_CM1.
     {| CM1.state := 0; CM1.value := 1 |} =
       {| CM1.state := a0 + b0 + b0; CM1.value := κ a0 b0 0 |}.
   Proof.
-    rewrite iter_plus init_M_a0. { done. }
+    rewrite /Nat.iter Nat.add_comm nat_rect_plus -!/(Nat.iter _ _ _) init_M_a0. { done. }
     rewrite init_M_b0. { done. }
-    congr CM1.mkConfig. congr κ. lia.
+    rewrite (Nat.add_comm b0). congr CM1.mkConfig. congr κ. lia.
   Qed.
 
   Lemma transport : MM2_HALTING (P, a0, b0) -> CM1.CM1_HALT (exist _ M M_capped).

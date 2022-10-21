@@ -1,4 +1,4 @@
-Require Import List PeanoNat Lia.
+Require Import List PeanoNat BinNat Lia.
 Import ListNotations.
 
 Require Import Undecidability.CounterMachines.CM1.

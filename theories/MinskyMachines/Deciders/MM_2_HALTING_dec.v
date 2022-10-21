@@ -31,12 +31,6 @@ Set Default Goal Selector "!".
 (* local facts *)
 Module Facts.
 
-Lemma iter_plus {X} (f : X -> X) (x : X) n m : Nat.iter (n + m) f x = Nat.iter m f (Nat.iter n f x).
-Proof.
-  elim: m; first by rewrite Nat.add_0_r.
-  move=> m /= <-. by have ->: n + S m = S n + m by lia.
-Qed.
-
 Lemma oiter_None {X : Type} (f : X -> option X) k : Nat.iter k (obind f) None = None.
 Proof. elim: k; [done | by move=> /= ? ->]. Qed.
 

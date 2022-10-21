@@ -36,12 +36,6 @@ Proof.
   - move=> ??. right. tauto.
 Qed.
 
-Lemma iter_plus {X} (f : X -> X) (x : X) n m : Nat.iter (n + m) f x = Nat.iter m f (Nat.iter n f x).
-Proof.
-  elim: m; first by rewrite Nat.add_0_r.
-  move=> m /= <-. by have ->: n + S m = S n + m by lia.
-Qed.
-
 Lemma clos_trans_flip {A R} {x y : A} :
   clos_trans A R x y -> clos_trans A (fun y' x' => R x' y') y x.
 Proof.
@@ -261,8 +255,8 @@ Proof using HM.
   - move: (Hy) => /step'_inc_index ?.
     have /IH : ((S (length M) - index y = n)) by lia.
     move=> [z] [Hyz ?]. exists z. split; last done.
-    move: Hyz => [k Hk]. exists (1+k).
-    by rewrite /steps' iter_plus /= Hy.
+    move: Hyz => [k Hk]. exists (k+1).
+    by rewrite /steps' /Nat.iter nat_rect_plus /= Hy.
   - exists x. split; first by exists 0.
     move: Hy. rewrite /step' /step.
     rewrite (mm2_state_eta x) /=.

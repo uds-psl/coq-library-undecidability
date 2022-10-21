@@ -28,7 +28,7 @@ Target problems are very expressive and thus work well as targets for reduction,
 
 - Halting problem for single-tape two-symbol Turing machines (`SBTM_HALT` in [`TM/SBTM.v`](theories/TM/SBTM.v))
 - Post correspondence problem (`PCP` in [`PCP/PCP.v`](theories/PCP/PCP.v))
-- Halting problem for two counters Minsky machines (`MM2_HALTING` in [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v)) 
+- Halting problem for two counters Minsky machines (`MM2_HALTING` in [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v))
 - Halting problem for FRACTRAN programs (`FRACTRAN_REG_HALTING` in [`FRACTRAN/FRACTRAN.v`](theories/FRACTRAN/FRACTRAN.v))
 - Satisfiability of elementary Diophantine constraints of the form `x = 1`, `x = y + z` or `x = y · z` (`H10C_SAT` in [`DiophantineConstraints/H10C.v`](theories/DiophantineConstraints/H10C.v))
 - Satisfiability of uniform Diophantine constraints of the form `x = 1 + y + z · z` (`H10UC_SAT` in [`DiophantineConstraints/H10C.v`](theories/DiophantineConstraints/H10C.v))
@@ -77,7 +77,7 @@ An equivalence proof that most of the mentioned models of computation compute th
 - String rewriting in Post canonical systems in normal form (`PCSnf` in [`StringRewriting/PCSnf.v`](theories/StringRewriting/PCSnf.v))
 - Hilbert's 10th problem, i.e. solvability of a single diophantine equation (`H10` in [`H10/H10.v`](theories/H10/H10.v))
 - Solvability of linear polynomial (over N) constraints of the form `x = 1`, `x = y + z`, `x = X · y` (`LPolyNC_SAT` in [`PolynomialConstraints/LPolyNC.v`](theories/PolynomialConstraints/LPolyNC.v))
-- One counter machine halting problem (`CM1_HALT` in [`CounterMachines/CM1.v`](theories/CounterMachines/CM1.v)), 
+- One counter machine halting problem (`CM1_HALT` in [`CounterMachines/CM1.v`](theories/CounterMachines/CM1.v))
 - Finite multiset constraint solvability (`FMsetC_SAT` in [`SetConstraints/FMsetC.v`](theories/SetConstraints/FMsetC.v))
 - Uniform boundedness of deterministic, length-preserving stack machines (`SMNdl_UB` in [`StackMachines/SMN.v`](theories/StackMachines/SMN.v))
 - Semi-unification (`SemiU` in [`SemiUnification/SemiU.v`](theories/SemiUnification/SemiU.v))
@@ -86,7 +86,8 @@ An equivalence proof that most of the mentioned models of computation compute th
 
 #### Decidable Problems
 
-- Two-counter Minsky Program Machine Halting (`MPM2_HALT` in [`MinskyMachines/Deciders/MPM2_HALT_dec.v`](theories/MinskyMachines/Deciders/MPM2_HALT_dec.v))
+- Two-counter Minsky Program Machine Halting (`MPM2_HALT` in [`MinskyMachines/Deciders/MPM2_HALT_dec.v`](theories/MinskyMachines/Deciders/MPM2_HALT_dec.v))<br/>
+  The definition follows exactly Minsky[^1] (Chapter 11, Table 11.1-1), and is different from `MM2_HALTING` in [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v).
 - Reversible Two-counter Machine Halting (`MM2_REV_HALT` in [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v))
 - Two-counter Machine Uniform Mortality (`MM2_UMORTAL` in [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v))
 - Two-counter Machine Uniform Boundedness (`MM2_UBOUNDED` in [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v))
@@ -226,3 +227,5 @@ We have [guidelines for the directory structure of projects](https://github.com/
 - Maximilian Wuttke
 
 Parts of the Coq Library of Undecidability Proofs reuse generic code initially developed as a library for the lecture ["Introduction to Computational Logics"](https://courses.ps.uni-saarland.de/icl_16/) at [Saarland University](https://www.uni-saarland.de/nc/en/home.html), which was written by a subset of the above contributors, Sigurd Schneider, and Jan Christian Menz.
+
+[^1]: Minsky, Marvin Lee. Computation. Englewood Cliffs: Prentice-Hall, 1967.
