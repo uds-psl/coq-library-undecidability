@@ -414,7 +414,7 @@ Require Import Undecidability.L.Reductions.MuRec.MuRec_extract.
 
 Definition evalfun fuel c v := match eval fuel 0 c v with Some (inl x) => Some x | _ => None end.
 
-From Undecidability Require Import Compiler_spec MuRec_computable LVector.
+From Undecidability Require Import MuRec_computable LVector.
 From Undecidability.TM Require Import NaryApp ClosedLAdmissible.
 
 Import L_Notations.

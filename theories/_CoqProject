@@ -160,25 +160,6 @@ Shared/Libs/PSL/FiniteTypes/VectorFin.v
 
 Shared/deterministic_simulation.v
 
-TM/L/Alphabets.v
-TM/L/CaseCom.v
-TM/L/HeapInterpreter/LookupTM.v
-TM/L/HeapInterpreter/StepTM.v
-TM/L/HeapInterpreter/M_LHeapInterpreter.v
-TM/L/HeapInterpreter/UnfoldClos.v
-TM/L/HeapInterpreter/JumpTargetTM.v
-TM/L/Transcode/Boollist_to_Enc.v
-TM/L/Transcode/Enc_to_Boollist.v
-TM/L/Transcode/BoollistEnc.v
-TM/L/Eval.v
-
-
-TM/L/CompilerBoolFuns/Compiler_spec.v
-TM/L/CompilerBoolFuns/LComp_to_TMComp.v
-TM/L/CompilerBoolFuns/Compiler_facts.v
-TM/L/CompilerBoolFuns/Compiler_nat_facts.v
-TM/L/CompilerBoolFuns/EncBoolsTM_boolList.v
-TM/L/CompilerBoolFuns/Compiler.v
 TM/L/CompilerBoolFuns/NaryApp.v
 TM/L/CompilerBoolFuns/ClosedLAdmissible.v
 
@@ -464,44 +445,11 @@ TM/Compound/Shift.v
 TM/Compound/Compare.v
 
 TM/Code/Code.v
-TM/Code/CodeTM.v
-TM/Code/WriteValue.v
 TM/Code/ChangeAlphabet.v
-TM/Code/Copy.v
-TM/Code/CompareValue.v
-TM/Code/ProgrammingTools.v
-
-TM/Code/CaseNat.v
-TM/Code/CaseSum.v
-TM/Code/CaseList.v
-TM/Code/CaseFin.v
-TM/Code/CasePair.v
-TM/Code/CaseBool.v
-
-TM/Code/NatTM.v
-TM/Code/NatSub.v
-TM/Code/ListTM.v
-TM/Code/List/App.v
-TM/Code/List/Concat_Repeat.v
-TM/Code/List/Cons_constant.v
-TM/Code/List/Length.v
-TM/Code/List/Nth.v
-TM/Code/List/Rev.v
-
-TM/Code/BinNumbers/EncodeBinNumbers.v
-TM/Code/BinNumbers/PosDefinitions.v
-TM/Code/BinNumbers/PosPointers.v
-TM/Code/BinNumbers/PosHelperMachines.v
-TM/Code/BinNumbers/PosIncrementTM.v
-TM/Code/BinNumbers/PosCompareTM.v
-TM/Code/BinNumbers/PosShiftTM.v
-TM/Code/BinNumbers/PosAddTM.v
-TM/Code/BinNumbers/PosMultTM.v
-TM/Code/BinNumbers/NTM.v
+TM/Code/CodeTM.v
 
 TM/Single/EncodeTapes.v
 TM/Single/StepTM.v
-TM/Reductions/L_to_mTM.v
 TM/Reductions/HaltL_to_HaltTM_5.v
 TM/Reductions/L_computable_to_TM_computable.v
 TM/Reductions/MMA_mon_computable_to_TM_computable.v
@@ -520,17 +468,6 @@ TM/Reductions/SBTM_HALT_to_PCTM_HALT.v
 TM/Reductions/MMA_HALTING_n_to_HaltTM_n.v
 
 TM/Enumerators/SBTM_HALT_enum.v
-
-TM/Hoare/Hoare.v
-TM/Hoare/HoareLogic.v
-TM/Hoare/HoareCombinators.v
-TM/Hoare/HoareRegister.v
-TM/Hoare/HoareTactics.v
-TM/Hoare/HoareTacticsView.v
-# TM/Hoare/HoareExamples.v
-TM/Hoare/HoareMult.v
-TM/Hoare/HoareStdLib.v
-TM/Hoare/HoareLegacy.v
 
 L/Enumerators/term_enum.v
 
@@ -608,7 +545,6 @@ L/Reductions/HaltL_to_HaltLclosed.v
 L/Reductions/MuRec_computable_to_L_computable.v
 
 L/Complexity/UpToC.v
-L/Complexity/UpToCNary.v
 L/Complexity/GenericNary.v
 L/Complexity/ResourceMeasures.v
 L/Complexity/LinDecode/LTD_def.v
@@ -617,13 +553,6 @@ L/Complexity/LinDecode/LTDlist.v
 L/Complexity/LinDecode/LTDbool.v
 
 L/AbstractMachines/wCBV.v
-
-L/AbstractMachines/LargestVar.v
-L/AbstractMachines/FlatPro/Programs.v
-L/AbstractMachines/FlatPro/ProgramsDef.v
-L/AbstractMachines/FlatPro/LM_heap_def.v
-L/AbstractMachines/FlatPro/LM_heap_correct.v
-L/AbstractMachines/FlatPro/UnfoldClos.v
 
 L/Computability/Acceptability.v
 L/Computability/Computability.v
