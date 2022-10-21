@@ -2,19 +2,13 @@ From Undecidability Require Import TM.SBTM.
 Require Import PeanoNat Lia List ssreflect ssrbool ssrfun.
 Import ListNotations SBTMNotations.
 
-Lemma iter_plus {X} (f : X -> X) (x : X) n m : Nat.iter (n + m) f x = Nat.iter m f (Nat.iter n f x).
-Proof.
-  elim: m; first by rewrite Nat.add_0_r.
-  move=> m /= <-. by have ->: n + S m = S n + m by lia.
-Qed.
-
 Lemma oiter_None {X : Type} (f : X -> option X) k : Nat.iter k (obind f) None = None.
 Proof. elim: k; [done | by move=> /= ? ->]. Qed.
 
 Lemma steps_plus {M} k1 k2 {x} :
   steps M (k1 + k2) x = obind (fun y => steps M k2 y) (steps M k1 x).
 Proof.
-  rewrite /steps iter_plus /=.
+  rewrite /steps Nat.add_comm /Nat.iter nat_rect_plus /= -!/(Nat.iter _ _ _).
   move: (Nat.iter k1 _ (Some x)) => [y|] /=; first done.
   apply: oiter_None.
 Qed.

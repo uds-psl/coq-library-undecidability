@@ -626,7 +626,7 @@ Section Reduction.
     move=> [j n] /nth_error_Some_In_iP. rewrite /step_time.
     move Hm: (S c mod (n + 1)) => m. move: m Hm => [|m] Hcn /= Hijn.
     (* case n+1 divides c *)
-    - have := mod_frac_lt Hcn. move Hd: (S c * (n + 2) / (n + 1)) => d Hcd HC.
+    - have := CM_facts.mod_frac_lt Hcn. move Hd: (S c * (n + 2) / (n + 1)) => d Hcd HC.
 
       apply: (first_step (index_try_spec (i, (j, n))) l (§0^c ++ [§1] ++ §0^(d - S c) ++ r)); 
         [ by lia | by auto with M | by rewrite ?app_norm | ].
@@ -1159,7 +1159,7 @@ Section Reduction.
     move=> [j n] /nth_error_Some_In_iP /=.
     move Hm: (S c mod (n + 1)) => m. move: m Hm => [|m] Hcn /= Hijn.
     (* case n+1 divides c *)
-    - have := mod_frac_lt Hcn.
+    - have := CM_facts.mod_frac_lt Hcn.
       move Hd: (S c * (n + 2) / (n + 1)) => d Hcd.
 
       apply: (maybe_first_step (index_try_spec (i, (j, n))) l (§0^c ++ [§1] ++ §0^(d - S c) ++ r)); 
