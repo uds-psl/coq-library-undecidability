@@ -16,9 +16,17 @@ Import ListNotations.
 
 Set Implicit Arguments.
 
+#[local] Notation ø := nil.
+
+#[local] Notation "◻" := false.
+#[local] Notation "◼" := true.
+
 Notation "x ↑ n" := (list_repeat x n) (at level 1, no associativity, format "x ↑ n").
 
 Inductive direction : Set := mv_left | mv_right.
+
+#[local] Notation L := mv_left.
+#[local] Notation R := mv_right.
 
 Definition half_tape := (list bool * bool * list bool)%type.
 
@@ -27,8 +35,8 @@ Implicit Type t : half_tape.
 Reserved Notation "l '~r' m" (at level 70, no associativity).
 
 Inductive half_tape_equiv_right : list bool -> list bool -> Prop :=
-  | ht_right_eq_lft l : l ~r [] -> false::l ~r []
-  | ht_right_eq_rt  l : [] ~r l -> [] ~r false::l
+  | ht_right_eq_lft l : l ~r ø -> ◻::l ~r ø
+  | ht_right_eq_rt  l : ø ~r l -> ø ~r ◻::l
   | ht_right_eq_bth b l m : l ~r m -> b::l ~r b::m
 where "l ~r m" := (half_tape_equiv_right l m).
 
@@ -48,35 +56,34 @@ Definition half_tape_opt_equiv (ot1 ot2 : option half_tape) :=
 
 Infix "~o" := half_tape_opt_equiv (at level 70, no associativity).
 
+#[local] Notation "'⟬' l '⟨' x '⟩' r '⟭'" := (l,x,r) (at level 1, format "⟬  l  ⟨ x ⟩  r  ⟭").
+
+(* ⟬⟨⟩⟭ ◻ ◼ *)
+
 Definition half_tape_left t :=
   match t with
-  | ([],h,r)   => None
-  | (x::l,h,r) => Some (l,x,h::r)
+  | ⟬ ø ⟨x⟩ r ⟭   => None
+  | ⟬ x::l ⟨h⟩ r⟭ => Some ⟬ l ⟨x⟩ h::r ⟭ 
   end.
 
 Definition half_tape_right t :=
   Some (match t with 
-  | (l,h,[])   => (h::l,false,[])
-  | (l,h,x::r) => (h::l,x,r)
+  | ⟬ l ⟨h⟩ ø ⟭    => ⟬ h::l ⟨◻⟩ ø ⟭
+  | ⟬ l ⟨h⟩ x::r ⟭ => ⟬ h::l ⟨x⟩ r ⟭
   end).
 
 Arguments half_tape_right t /.
 
 Definition half_tape_move d :=
   match d with
-  | mv_left  => half_tape_left
-  | mv_right => half_tape_right
+  | L => half_tape_left
+  | R => half_tape_right
   end.
 
-Definition half_tape_read t :=
-  match t with
-  | (_,h,_) => h
-  end.
+Definition half_tape_read t := match t with ⟬ _ ⟨h⟩ _ ⟭ => h end.
 
-Definition half_tape_write t h : half_tape := 
-  match t with
-  | (l,_,r) => (l,h,r)
-  end.
+Definition half_tape_write t h : half_tape :=
+  match t with ⟬ l ⟨_⟩ r ⟭ => ⟬ l ⟨h⟩ r ⟭ end.
 
 (** ~~ is a congruence for all tape operations *)
 
@@ -266,17 +273,36 @@ Tactic Notation "pctm" "sss" "stop" := exists 0; apply sss_steps_0; auto.
 
 #[local] Hint Resolve subcode_refl : core.
 
+Section pctm_move_left.
+
+  Variable (i j : nat).
+
+  Definition pctm_move_left :=
+    [ << ◻, L, j | ◼, L, j >> ].
+
+  Fact pctm_move_left_length : length pctm_move_left = 1.
+  Proof. trivial. Qed.
+
+  Fact pctm_move_left_spec l h x r : (i,pctm_move_left) // (i,⟬ x::l ⟨h⟩ r ⟭) -+> (j,⟬ l ⟨x⟩ h::r ⟭).
+  Proof.
+    unfold pctm_move_left.
+    pctm sss with false L j true L j; simpl.
+    destruct h; simpl; pctm sss stop.
+  Qed.
+
+End pctm_move_left.
+
 Section pctm_move_right.
 
   Variable (i j : nat).
 
   Definition pctm_move_right :=
-    [ << false, R, j | true, R, j >> ].
+    [ << ◻, R, j | ◼, R, j >> ].
 
   Fact pctm_move_right_length : length pctm_move_right = 1.
   Proof. trivial. Qed.
 
-  Fact pctm_move_right_spec l h x r : (i,pctm_move_right) // (i,(l,h,x::r)) -+> (j,(h::l,x,r)).
+  Fact pctm_move_right_spec l h x r : (i,pctm_move_right) // (i,⟬ l ⟨h⟩ x::r ⟭) -+> (j,⟬ h::l ⟨x⟩ r ⟭).
   Proof.
     unfold pctm_move_right.
     pctm sss with false R j true R j; simpl.
@@ -290,17 +316,18 @@ Section pctm_write_l.
   Variables (i : nat) (b : bool).
 
   Definition pctm_write_l := 
-    [ << b,     L, 1+i | b,    L, 1+i >> ;
-      << false, R, 2+i | true, R, 2+i >> ].
+    [ << b, L, 1+i | b, L, 1+i >> ;
+      << ◻, R, 2+i | ◼, R, 2+i >> ].
 
   Fact pctm_write_l_length : length pctm_write_l = 2.
   Proof. trivial. Qed.
 
-  Variables (l r : list bool) (x h : bool).
+  Variables (l r : list bool) (h : bool).
 
-  Fact pctm_write_l_spec : (i,pctm_write_l) // (i,(x::l,h,r)) -+> (2+i,(x::l,b,r)).
+  Fact pctm_write_l_spec : l <> ø -> (i,pctm_write_l) // (i,⟬ l ⟨h⟩ r ⟭) -+> (2+i,⟬ l ⟨b⟩ r ⟭).
   Proof.
     unfold pctm_write_l.
+    destruct l as [ | x l' ]; [ now intros [] | intros _ ].
     pctm sss with b L (1+i) b L (1+i); cbn.
     destruct h; pctm sss with false R (S (S i)) true R (S (S i));
       destruct x; simpl; pctm sss stop.
@@ -313,17 +340,18 @@ Section pctm_write_r.
   Variables (i : nat) (b : bool).
 
   Definition pctm_write_r := 
-    [ << b,     R, 1+i | b,    R, 1+i >> ;
-      << false, L, 2+i | true, L, 2+i >> ].
+    [ << b, R, 1+i | b, R, 1+i >> ;
+      << ◻, L, 2+i | ◼, L, 2+i >> ].
 
   Fact pctm_write_r_length : length pctm_write_r = 2.
   Proof. trivial. Qed.
 
-  Variables (l r : list bool) (x h : bool).
+  Variables (l r : list bool) (h : bool).
 
-  Fact pctm_write_r_spec : (i,pctm_write_r) // (i,(l,h,x::r)) -+> (2+i,(l,b,x::r)).
+  Fact pctm_write_r_spec : r <> ø -> (i,pctm_write_r) // (i,⟬ l ⟨h⟩ r ⟭) -+> (2+i,⟬ l ⟨b⟩ r ⟭).
   Proof.
     unfold pctm_write_r.
+    destruct r as [ | x r' ]; [ now intros [] | intros _ ].
     pctm sss with b R (1+i) b R (1+i); cbn.
     destruct h; pctm sss with false L (S (S i)) true L (S (S i));
       destruct x; simpl; pctm sss stop.
@@ -331,24 +359,29 @@ Section pctm_write_r.
 
 End pctm_write_r.
 
+#[local] Hint Rewrite pctm_move_left_length
+                      pctm_move_right_length
+                      pctm_write_l_length
+                      pctm_write_r_length : length_db.
+
 Section pctm_tozero_right.
 
   Variables (i : nat).
 
   Definition pctm_tozero_right :=
-    [ << true, R, 1+i | true, R, i >> ].
+    [ << ◼, R, 1+i | ◼, R, i >> ].
 
   Fact pctm_tozero_right_length : length pctm_tozero_right = 1.
   Proof. trivial. Qed.
 
-  Fact pctm_tozero_spec_false l x r : (i,pctm_tozero_right) // (i,(l,false,x::r)) -+> (1+i,(true::l,x,r)).
+  Fact pctm_tozero_spec_false l x r : (i,pctm_tozero_right) // (i,⟬ l ⟨◻⟩ x::r ⟭) -+> (1+i,⟬ ◼::l ⟨x⟩ r ⟭).
   Proof.
     unfold pctm_tozero_right.
     pctm sss with true R (1+i) true R i; simpl.
     pctm sss stop.
   Qed.
 
-  Fact pctm_tozero_spec_true n l x r : (i,pctm_tozero_right) // (i,(l,true,true↑n++false::x::r)) -+> (1+i,(true↑(n+2)++l,x,r)).
+  Fact pctm_tozero_spec_true n l x r : (i,pctm_tozero_right) // (i,⟬ l ⟨◼⟩ ◼↑n++◻::x::r ⟭) -+> (1+i,⟬ ◼↑(n+2)++l ⟨x⟩ r ⟭).
   Proof.
     unfold pctm_tozero_right.
     revert l; induction n as [ | n IHn ]; intros l.
@@ -365,27 +398,146 @@ Section pctm_tozero_right.
 
 End pctm_tozero_right.
 
-#[local] Hint Rewrite pctm_move_right_length
-                      pctm_write_l_length
-                      pctm_write_r_length
-                      pctm_tozero_right_length : length_db.
+Section pctm_next_zero.
+
+  Variables (i j : nat).
+
+  Local Definition pctm_seak_zero_right :=
+    [ << ◻, L, 2+i | ◼, R, 1+i >> ].
+
+  Local Fact pctm_seak_zero_right_length : length pctm_seak_zero_right = 1.
+  Proof. trivial. Qed.
+
+  Hint Rewrite pctm_seak_zero_right_length : length_db.
+
+  Local Fact pctm_seak_zero_right_spec_false l x r : (1+i,pctm_seak_zero_right) // (1+i,⟬ x::l ⟨◻⟩ r ⟭) -+> (2+i,⟬ l ⟨x⟩ ◻::r ⟭).
+  Proof.
+    unfold pctm_seak_zero_right.
+    pctm sss with false L (2+i) true R (1+i); simpl.
+    pctm sss stop.
+  Qed.
+
+  Local Fact pctm_seak_zero_right_spec_true n l r : (1+i,pctm_seak_zero_right) // (1+i,⟬ l ⟨◼⟩ ◼↑n++◻::r ⟭) -+> (2+i,⟬ ◼↑n++l ⟨◼⟩ ◻::r ⟭).
+  Proof.
+    unfold pctm_seak_zero_right.
+    revert l; induction n as [ | n IHn ]; intros l.
+    + do 2 (pctm sss with false L (2+i) true R (1+i); simpl).
+      pctm sss stop.
+    + pctm sss with false L (2+i) true R (1+i); simpl.
+      apply sss_progress_compute.
+      apply sss_progress_compute_trans with (1 := IHn (true::l)).
+      pctm sss stop; do 3 f_equal.
+      change (true::l) with (true↑1++l); rewrite <- app_ass, <- list_repeat_plus.
+      change (true :: true↑n ++ l) with (true↑(1+n) ++ l).
+      do 2 f_equal; lia.
+  Qed.
+
+  Definition pctm_next_zero :=
+    pctm_move_right (1+i) ++ pctm_seak_zero_right ++ pctm_move_right j.
+
+  Fact pctm_next_zero_length : length pctm_next_zero = 3.
+  Proof. trivial. Qed.
+
+  Fact pctm_next_zero_spec n l r : (i,pctm_next_zero) // (i,⟬ l ⟨◻⟩ ◼↑n++◻::r ⟭) -+> (j, ⟬ ◼↑n++◻::l ⟨◻⟩ r ⟭).
+  Proof.
+    unfold pctm_next_zero.
+    destruct n as [ | n ]; simpl list_repeat; simpl app at 3 4.
+    + apply sss_progress_trans with (1+i,⟬ ◻::l ⟨◻⟩ r ⟭).
+      1: apply subcode_sss_progress with (2 := pctm_move_right_spec _ _ _ _ _ _); auto.
+      apply sss_progress_trans with (2+i,⟬ l ⟨◻⟩ ◻::r ⟭).
+      1: apply subcode_sss_progress with (2 := pctm_seak_zero_right_spec_false _ _ _); auto.
+      apply subcode_sss_progress with (2 := pctm_move_right_spec _ _ _ _ _ _); auto.
+    + apply sss_progress_trans with (1+i,⟬ ◻::l ⟨◼⟩ ◼↑n++◻::r ⟭).
+      1: apply subcode_sss_progress with (2 := pctm_move_right_spec _ _ _ _ _ _); auto.
+      apply sss_progress_trans with (2+i,⟬ ◼↑n++◻::l ⟨◼⟩ ◻::r ⟭).
+      1: apply subcode_sss_progress with (2 := pctm_seak_zero_right_spec_true _ _ _); auto.
+      apply subcode_sss_progress with (2 := pctm_move_right_spec _ _ _ _ _ _); auto.
+  Qed.
+
+End pctm_next_zero.
+
+Section pctm_prev_zero.
+
+  Variables (i j : nat).
+
+  Local Definition pctm_seak_zero_left :=
+    [ << ◻, R, 2+i | ◼, L, 1+i >> ].
+
+  Local Fact pctm_seak_zero_left_length : length pctm_seak_zero_left = 1.
+  Proof. trivial. Qed.
+
+  Hint Rewrite pctm_seak_zero_left_length : length_db.
+
+  Local Fact pctm_seak_zero_left_spec_false l x r : (1+i,pctm_seak_zero_left) // (1+i,⟬ l ⟨◻⟩ x::r ⟭) -+> (2+i,⟬ ◻::l ⟨x⟩ r ⟭).
+  Proof.
+    unfold pctm_seak_zero_left.
+    pctm sss with false R (2+i) true L (1+i); simpl.
+    pctm sss stop.
+  Qed.
+
+  Local Fact pctm_seak_zero_left_spec_true n l r : (1+i,pctm_seak_zero_left) // (1+i,⟬ ◼↑n++◻::l ⟨◼⟩ r ⟭) -+> (2+i,⟬ ◻::l ⟨◼⟩ ◼↑n++r ⟭).
+  Proof.
+    unfold pctm_seak_zero_left.
+    revert r; induction n as [ | n IHn ]; intros r.
+    + do 2 (pctm sss with false R (2+i) true L (1+i); simpl).
+      pctm sss stop.
+    + pctm sss with false R (2+i) true L (1+i); simpl.
+      apply sss_progress_compute.
+      apply sss_progress_compute_trans with (1 := IHn (true::r)).
+      pctm sss stop; do 3 f_equal.
+      change (true::r) with (true↑1++r); rewrite <- app_ass, <- list_repeat_plus.
+      change (true :: true↑n ++ r) with (true↑(1+n) ++ r).
+      do 2 f_equal; lia.
+  Qed.
+
+  Definition pctm_prev_zero :=
+    pctm_move_left (1+i) ++ pctm_seak_zero_left ++ pctm_move_left j.
+
+  Fact pctm_prev_zero_length : length pctm_prev_zero = 3.
+  Proof. trivial. Qed.
+
+  Fact pctm_prev_zero_spec n l r : (i,pctm_prev_zero) // (i,⟬ ◼↑n++◻::l ⟨◻⟩ r ⟭) -+> (j, ⟬ l ⟨◻⟩ ◼↑n++◻::r ⟭).
+  Proof.
+    unfold pctm_prev_zero.
+    destruct n as [ | n ]; simpl list_repeat; simpl app at 3 4.
+    + apply sss_progress_trans with (1+i,⟬ l ⟨◻⟩ ◻::r ⟭).
+      1: apply subcode_sss_progress with (2 := pctm_move_left_spec _ _ _ _ _ _); auto.
+      apply sss_progress_trans with (2+i,⟬ ◻::l ⟨◻⟩ r ⟭).
+      1: apply subcode_sss_progress with (2 := pctm_seak_zero_left_spec_false _ _ _); auto.
+      apply subcode_sss_progress with (2 := pctm_move_left_spec _ _ _ _ _ _); auto.
+    + apply sss_progress_trans with (1+i,⟬ ◼↑n++◻::l ⟨◼⟩ ◻::r ⟭).
+      1: apply subcode_sss_progress with (2 := pctm_move_left_spec _ _ _ _ _ _); auto.
+      apply sss_progress_trans with (2+i,⟬ ◻::l ⟨◼⟩ ◼↑n++◻::r ⟭).
+      1: apply subcode_sss_progress with (2 := pctm_seak_zero_left_spec_true _ _ _); auto.
+      apply subcode_sss_progress with (2 := pctm_move_left_spec _ _ _ _ _ _); auto.
+  Qed.
+
+End pctm_prev_zero.
+
+(** These are the two main tools to move arround to ◻ markers on the tape *)
+Check pctm_prev_zero_spec.
+Check pctm_next_zero_spec.
+
+#[local] Hint Rewrite pctm_tozero_right_length 
+                      pctm_prev_zero_length
+                      pctm_next_zero_length : length_db.
 
 Section displace_1a_right.
 
   Variables (i : nat).
 
-  Definition displace_1a_right :=
+  Local Definition displace_1a_right :=
        pctm_move_right (1+i)
-    ++ << false,R,3+i | false,R,2+i >>
+    ++ << ◻, R, 3+i | ◻, R, 2+i >>
     :: pctm_tozero_right (2+i)
-    ++ pctm_write_l (3+i) false.
+    ++ pctm_write_l (3+i) ◻.
 
-  Fact displace_1a_right_length : length displace_1a_right = 5.
+  Local Fact displace_1a_right_length : length displace_1a_right = 5.
   Proof. trivial. Qed.
 
-  (* l - [x] - T↑a - F - y - r    -->    l - x - F - T↑a - [F] - r *)
-  Fact displace_1a_right_spec l x a y r : 
-     (i,displace_1a_right) // (i,(l,x,true↑a++false::y::r)) -+> (5+i,(true↑a++false::x::l,false,r)).
+  (* l - [x] - ◼↑a - F - y - r    -->    l - x - ◻ - ◼↑a - [◻] - r *)
+  Local Fact displace_1a_right_spec l x a y r : 
+     (i,displace_1a_right) // (i,⟬ l ⟨x⟩ ◼↑a++◻::y::r ⟭) -+> (5+i,⟬ ◼↑a++◻::x::l ⟨◻⟩ r ⟭).
   Proof.
     unfold displace_1a_right.
     destruct a as [ | a ]; simpl list_repeat.
@@ -393,8 +545,9 @@ Section displace_1a_right.
       * apply subcode_sss_progress with (2 := pctm_move_right_spec _ _ _ _ _ _); auto.
       * pctm sss with false R (3+i) false R (2+i). 
         simpl rd; simpl mv; simpl half_tape_right; cbv iota.
-        apply sss_progress_compute,
-              subcode_sss_progress with (2 := pctm_write_l_spec _ _ _ _ _ _); auto.
+        apply sss_progress_compute.
+        apply subcode_sss_progress with (3+i,pctm_write_l (3+i) ◻); auto.
+        now apply pctm_write_l_spec.
     + apply sss_progress_compute_trans with (1+i,(x::l,true,true↑a++false::y::r)).
       * apply subcode_sss_progress with (2 := pctm_move_right_spec _ _ _ _ _ _); auto.
       * pctm sss with false R (3+i) false R (2+i).
@@ -403,71 +556,276 @@ Section displace_1a_right.
         - apply sss_compute_trans with (3+i,(true::false::x::l,y,r)).
           ++ apply sss_progress_compute,
                    subcode_sss_progress with (2 := pctm_tozero_spec_false _ _ _ _); auto.
-          ++ apply sss_progress_compute,
-                   subcode_sss_progress with (2 := pctm_write_l_spec _ _ _ _ _ _); auto.
+          ++ apply sss_progress_compute.
+             apply subcode_sss_progress with (3+i,pctm_write_l (3+i) ◻); auto.
+             now apply pctm_write_l_spec.
         - apply sss_compute_trans with (3+i,(true↑(a+2)++false::x::l,y,r)).
           ++ apply sss_progress_compute,
                    subcode_sss_progress with (2 := pctm_tozero_spec_true _ _ _ _ _); auto.
-          ++ change (true::true::true↑a) with (true↑(2+a)); rewrite (plus_comm a). 
-             apply sss_progress_compute,
-                   subcode_sss_progress with (2 := pctm_write_l_spec _ _ _ _ _ _); auto.
+          ++ change (true::true::true↑a) with (true↑(2+a)); rewrite (plus_comm a).
+             apply sss_progress_compute.
+             apply subcode_sss_progress with (3+i,pctm_write_l (3+i) ◻); auto.
+             now apply pctm_write_l_spec.
   Qed.
 
 End displace_1a_right.
 
-Check displace_1a_right_spec.
-
-Section write_ones.
+Section displace_1a_left.
 
   Variable (i : nat).
 
-  Definition write_ones := 
-    [ << false, L, (1+i) | true, R, i >> ].
+  Local Definition write_ones := 
+    [ << ◻, L, (3+i) | ◼, R, (2+i) >> ].
 
-  Fact write_ones_length : length write_ones = 1.
+  Local Fact write_ones_length : length write_ones = 1.
   Proof. trivial. Qed.
 
-  Fact write_ones_spec l n r : (i,write_ones) // (i,(l,true,true↑n++false::r)) -+> (1+i,(true↑n++l,true,false::r)).
+  Local Fact write_ones_spec l n r : (2+i,write_ones) // (2+i,⟬ l ⟨◼⟩ ◼↑n++◻::r ⟭) -+> (3+i,⟬ ◼↑n++l ⟨◼⟩ ◻::r ⟭).
   Proof.
     unfold write_ones.
     induction n as [ | n IHn ] in l |- *; simpl list_repeat; simpl app.
-    + do 2 (pctm sss with false L (1+i) true R i; simpl rd; simpl mv; cbn iota).
+    + do 2 (pctm sss with false L (3+i) true R (2+i); simpl rd; simpl mv; cbn iota).
       pctm sss stop.
-    + pctm sss with false L (1+i) true R i; simpl.
+    + pctm sss with false L (3+i) true R (2+i); simpl.
       apply sss_progress_compute.
       replace (true :: true↑n ++ l) with (true↑n ++ true↑1 ++ l).
       * apply IHn.
       * now rewrite <- app_ass, <- list_repeat_plus, plus_comm.
   Qed.
 
-End write_ones.
+  Hint Rewrite write_ones_length : length_db. 
 
-#[local] Hint Rewrite write_ones_length : length_db. 
+  Local Definition displace_1a_left : list pctm_instr :=
+    pctm_write_r i ◼ ++ write_ones ++ pctm_write_r (3+i) ◻.
 
-Section displace_1a_left.
-
-  Variable (i : nat).
-
-  Definition displace_1a_left : list pctm_instr :=
-    pctm_write_r i true ++ write_ones (2+i) ++ pctm_write_r (3+i) false.
-
-  Fact displace_1a_left_length : length displace_1a_left = 5.
+  Local Fact displace_1a_left_length : length displace_1a_left = 5.
   Proof. trivial. Qed.
 
-  (* l - [x] - T↑a - F - r   -->   l - T↑a - [F] - F - r *)
-  Fact displace_1a_left_spec l x a r : 
-     (i,displace_1a_left) // (i,(l,x,true↑a++false::r)) -+> (5+i,(true↑a++l,false,false::r)).
+  (* l - [_] - ◼↑a - ◻ - r   -->   l - T↑a - [◻] - ◻ - r *)
+  Local Fact displace_1a_left_spec l x a r : 
+     (i,displace_1a_left) // (i,⟬ l ⟨x⟩ ◼↑a++◻::r ⟭) -+> (5+i,⟬ ◼↑a++l ⟨◻⟩ ◻::r ⟭).
   Proof.
     unfold displace_1a_left.
     apply sss_progress_trans with (2+i,(l,true,true↑a++false::r)).
-    1: destruct a; apply subcode_sss_progress with (2 := pctm_write_r_spec _ _ _ _ _ _); auto.
+    1:{ apply subcode_sss_progress with (i, pctm_write_r i ◼); auto.
+        apply pctm_write_r_spec.
+        now destruct a. }
     apply sss_progress_trans with (3+i,(true↑a++l,true,false::r)).
-    1: apply subcode_sss_progress with (2 := write_ones_spec _ _ _ _); auto.
-    apply subcode_sss_progress with (2 := pctm_write_r_spec _ _ _ _ _ _); auto.
+    1: apply subcode_sss_progress with (2 := write_ones_spec _ _ _); auto.
+    apply subcode_sss_progress with (3+i, pctm_write_r (3+i) ◻); auto.
+    now apply pctm_write_r_spec.
   Qed.
 
 End displace_1a_left.
 
+#[local] Hint Rewrite displace_1a_left_length
+                      displace_1a_right_length : length_db.
+
+Section pctm_inc_a.
+
+  Variable (i : nat).
+
+  Definition pctm_inc_a :=
+   (*    i *)    pctm_next_zero i (3+i)
+   (*  3+i *) ++ pctm_write_r (3+i) ◼
+   (*  5+i *) ++ displace_1a_right (5+i)
+   (* 10+i *) ++ pctm_prev_zero (10+i) (13+i)
+   (* 13+i *) ++ pctm_prev_zero (13+i) (16+i)
+   .
+
+  Fact pctm_inc_a_length : length pctm_inc_a = 16.
+  Proof. reflexivity. Qed.
+
+  Fact pctm_inc_a_spec a b : (i,pctm_inc_a) // (i,⟬ ø ⟨◻⟩ ◼↑a++◻::◼↑b++[◻;◻] ⟭) -+> (16+i,⟬ ø ⟨◻⟩ ◼↑(1+a)++◻::◼↑b++[◻] ⟭).
+  Proof.
+    unfold pctm_inc_a.
+    apply sss_progress_trans with (3+i,⟬ ◼↑a++◻::ø ⟨◻⟩ ◼↑b++◻::◻::ø ⟭).
+    1:{ apply subcode_sss_progress with (i,pctm_next_zero i (3+i)); auto.
+        apply pctm_next_zero_spec. }
+    apply sss_progress_trans with (5+i,⟬ ◼↑a++◻::ø ⟨◼⟩ ◼↑b++◻::◻::ø ⟭).
+    1:{ apply subcode_sss_progress with (3+i,pctm_write_r (3+i) ◼); auto.
+        apply pctm_write_r_spec.
+        now destruct b. }
+    apply sss_progress_trans with (10+i,⟬ ◼↑b++◻::◼↑(1+a)++◻::ø ⟨◻⟩ ø ⟭).
+    1:{ apply subcode_sss_progress with (5+i,displace_1a_right (5+i)); auto.
+        apply displace_1a_right_spec. }
+    apply sss_progress_trans with (13+i,⟬ ◼↑(1+a)++◻::ø ⟨◻⟩ ◼↑b++◻::ø ⟭).
+    1:{ apply subcode_sss_progress with (10+i,pctm_prev_zero (10+i) (13+i)); auto.
+        apply pctm_prev_zero_spec. }
+    apply subcode_sss_progress with (13+i,pctm_prev_zero (13+i) (16+i)); auto.
+    apply pctm_prev_zero_spec.
+  Qed.
+
+End pctm_inc_a.
+
+Section pctm_inc_b.
+
+  Variable (i : nat).
+
+  Definition pctm_inc_b :=
+   (*    i *)    pctm_next_zero i (3+i)
+   (*  3+i *) ++ pctm_next_zero (3+i) (6+i)
+   (*  6+i *) ++ << ◼, R, 7+i | ◼, R, 7+i >>
+   (*  7+i *) :: pctm_prev_zero (7+i) (10+i)
+   (* 10+i *) ++ pctm_prev_zero (10+i) (13+i)
+   .
+
+  Fact pctm_inc_b_length : length pctm_inc_b = 13.
+  Proof. reflexivity. Qed.
+
+  Fact pctm_inc_b_spec a b : (i,pctm_inc_b) // (i,⟬ ø ⟨◻⟩ ◼↑a++◻::◼↑b++[◻] ⟭) -+> (13+i,⟬ ø ⟨◻⟩ ◼↑a++◻::◼↑(1+b)++[◻] ⟭).
+  Proof.
+    unfold pctm_inc_b.
+    apply sss_progress_trans with (3+i,⟬ ◼↑a++◻::ø ⟨◻⟩ ◼↑b++◻::ø ⟭).
+    1:{ apply subcode_sss_progress with (i,pctm_next_zero i (3+i)); auto.
+        apply pctm_next_zero_spec. }
+    apply sss_progress_trans with (6+i,⟬ ◼↑b++◻::◼↑a++◻::ø ⟨◻⟩ ø ⟭).
+    1:{ apply subcode_sss_progress with (3+i,pctm_next_zero (3+i) (6+i)); auto.
+        apply pctm_next_zero_spec. }
+    pctm sss with ◼ R (7+i) ◼ R (7+i); simpl rd; cbn iota; simpl mv; cbn iota.
+    apply sss_progress_compute.
+    apply sss_progress_trans with (10+i,⟬ ◼↑a++◻::ø ⟨◻⟩ ◼↑(1+b)++◻::ø ⟭).
+    1:{ apply subcode_sss_progress with (7+i,pctm_prev_zero (7+i) (10+i)); auto.
+        apply pctm_prev_zero_spec with (n := S _). }
+    apply subcode_sss_progress with (10+i,pctm_prev_zero (10+i) (13+i)); auto.
+    apply pctm_prev_zero_spec.
+  Qed.
+
+End pctm_inc_b.
+
+Section pctm_dec_a.
+
+  Variable (i j k : nat).
+
+  Definition pctm_dec_a := 
+   (*    i *)    pctm_move_right (1+i)
+   (*  1+i *) ++ << ◻, L, j |  ◼, L, 2+i >>
+   (*  2+i *) :: pctm_move_right (3+i)
+   (*  3+i *) ++ displace_1a_left (3+i)
+   (*  8+i *) ++ pctm_move_right (9+i)
+   (*  9+i *) ++ displace_1a_left (9+i)
+   (* 14+i *) ++ pctm_prev_zero (14+i) (17+i)
+   (* 17+i *) ++ pctm_prev_zero (17+i) k
+   .
+
+  Fact pctm_dec_a_length : length pctm_dec_a = 20.
+  Proof. reflexivity. Qed.
+
+  Fact pctm_dec_a_spec_0 b : (i,pctm_dec_a) // (i,⟬ ø ⟨◻⟩ ◼↑0++◻::◼↑b++[◻] ⟭) -+> (j,⟬ ø ⟨◻⟩ ◼↑0++◻::◼↑b++[◻] ⟭).
+  Proof.
+    unfold pctm_dec_a.
+    simpl list_repeat; simpl app at 7 9.
+    apply sss_progress_trans with (1+i,⟬ ◻::ø ⟨◻⟩ ◼↑b++◻::ø ⟭).
+    1:{ apply subcode_sss_progress with (i,pctm_move_right (1+i)); auto.
+        apply pctm_move_right_spec. }
+    pctm sss with ◻ L j ◼ L (2+i); simpl rd; simpl mv; cbn iota.
+    pctm sss stop.
+  Qed.
+
+  Fact pctm_dec_a_spec_S a b : (i,pctm_dec_a) // (i,⟬ ø ⟨◻⟩ ◼↑(1+a)++◻::◼↑b++[◻] ⟭) -+> (k,⟬ ø ⟨◻⟩ ◼↑a++◻::◼↑b++[◻;◻] ⟭).
+  Proof.
+    unfold pctm_dec_a.
+    simpl list_repeat; simpl app at 7 9.
+    apply sss_progress_trans with (1+i,⟬ ◻::ø ⟨◼⟩ ◼↑a++◻::◼↑b++◻::ø ⟭).
+    1:{ apply subcode_sss_progress with (i,pctm_move_right (1+i)); auto.
+        apply pctm_move_right_spec. }
+    pctm sss with ◻ L j ◼ L (2+i); simpl rd; simpl mv; cbn iota.
+    apply sss_progress_compute.
+    apply sss_progress_trans with (3+i,⟬ ◻::ø ⟨◼⟩ ◼↑a++◻::◼↑b++◻::ø ⟭).
+    1:{ apply subcode_sss_progress with (2+i,pctm_move_right (3+i)); auto.
+        apply pctm_move_right_spec. }
+    apply sss_progress_trans with (8+i,⟬ ◼↑a++◻::ø ⟨◻⟩ ◻::◼↑b++◻::ø ⟭).
+    1:{ apply subcode_sss_progress with (3+i,displace_1a_left (3+i)); auto.
+        apply displace_1a_left_spec. }
+    apply sss_progress_trans with (9+i,⟬ ◻::◼↑a++◻::ø ⟨◻⟩ ◼↑b++◻::ø ⟭).
+    1:{ apply subcode_sss_progress with (8+i,pctm_move_right (9+i)); auto.
+        apply pctm_move_right_spec. }
+    apply sss_progress_trans with (14+i,⟬ ◼↑b++◻::◼↑a++◻::ø ⟨◻⟩ ◻::ø ⟭).
+    1:{ apply subcode_sss_progress with (9+i,displace_1a_left (9+i)); auto.
+        apply displace_1a_left_spec. }
+    apply sss_progress_trans with (17+i,⟬ ◼↑a++◻::ø ⟨◻⟩ ◼↑b++[◻;◻] ⟭).
+    1:{ apply subcode_sss_progress with (14+i,pctm_prev_zero (14+i) (17+i)); auto.
+        apply pctm_prev_zero_spec. }
+    apply subcode_sss_progress with (17+i,pctm_prev_zero (17+i) k); auto.
+    apply pctm_prev_zero_spec.
+  Qed.
+
+End pctm_dec_a.
+
+Section pctm_dec_b.
+
+  Variable (i j k : nat).
+
+  Definition pctm_dec_b :=
+   (*    i *)    pctm_next_zero i (3+i)
+   (*  3+i *) ++ pctm_move_right (4+i)
+   (*  4+i *) ++ << ◻, L, 5+i | ◼, L, 8+i >>
+   (*  5+i *) :: pctm_prev_zero (5+i) j
+   (*  8+i *) ++ pctm_move_right (9+i)
+   (*  9+i *) ++ displace_1a_left (9+i)
+   (* 14+i *) ++ pctm_prev_zero (14+i) (17+i)
+   (* 17+i *) ++ pctm_prev_zero (17+i) k
+   .
+
+  Fact pctm_dec_b_length : length pctm_dec_b = 20.
+  Proof. reflexivity. Qed.
+
+  Fact pctm_dec_b_spec_0 a : (i,pctm_dec_b) // (i,⟬ ø ⟨◻⟩ ◼↑a++◻::◼↑0++[◻] ⟭) -+> (j,⟬ ø ⟨◻⟩ ◼↑a++◻::◼↑0++[◻] ⟭).
+  Proof.
+    unfold pctm_dec_b.
+    simpl list_repeat; simpl app at 7 9.
+    apply sss_progress_trans with (3+i,⟬ ◼↑a++◻::ø ⟨◻⟩ ◻::ø ⟭).
+    1:{ apply subcode_sss_progress with (i,pctm_next_zero i (3+i)); auto.
+        apply pctm_next_zero_spec. }
+    apply sss_progress_trans with (4+i,⟬ ◻::◼↑a++◻::ø ⟨◻⟩ ø ⟭).
+    1:{ apply subcode_sss_progress with (3+i,pctm_move_right (4+i)); auto.
+        apply pctm_move_right_spec. }
+    pctm sss with ◻ L (5+i) ◼ L (8+i); simpl rd; simpl mv; cbn iota.
+    apply sss_progress_compute.
+    apply subcode_sss_progress with (5+i,pctm_prev_zero (5+i) j); auto.
+    apply pctm_prev_zero_spec.
+  Qed.
+
+  Fact pctm_dec_b_spec_S a b : (i,pctm_dec_b) // (i,⟬ ø ⟨◻⟩ ◼↑a++◻::◼↑(1+b)++[◻] ⟭) -+> (k,⟬ ø ⟨◻⟩ ◼↑a++◻::◼↑b++[◻;◻] ⟭).
+  Proof.
+    unfold pctm_dec_b.
+    simpl list_repeat; simpl app at 8 10.
+    apply sss_progress_trans with (3+i,⟬ ◼↑a++◻::ø ⟨◻⟩ ◼::◼↑b++◻::ø ⟭).
+    1:{ apply subcode_sss_progress with (i,pctm_next_zero i (3+i)); auto.
+        apply pctm_next_zero_spec. }
+    apply sss_progress_trans with (4+i,⟬ ◻::◼↑a++◻::ø ⟨◼⟩ ◼↑b ++ [◻] ⟭).
+    1:{ apply subcode_sss_progress with (3+i,pctm_move_right (4+i)); auto.
+        apply pctm_move_right_spec. }
+    pctm sss with ◻ L (5+i) ◼ L (8+i); simpl rd; simpl mv; cbn iota.
+    apply sss_progress_compute.
+    apply sss_progress_trans with (9+i,⟬ ◻::◼↑a++◻::ø ⟨◼⟩ ◼↑b ++ [◻] ⟭).
+    1:{ apply subcode_sss_progress with (8+i,pctm_move_right (9+i)); auto.
+        apply pctm_move_right_spec. }
+    apply sss_progress_trans with (14+i,⟬ ◼↑b ++◻::◼↑a++[◻] ⟨◻⟩ [◻] ⟭).
+    1:{ apply subcode_sss_progress with (9+i,displace_1a_left (9+i)); auto.
+        apply displace_1a_left_spec. }
+    apply sss_progress_trans with (17+i,⟬ ◼↑a++◻::ø ⟨◻⟩ ◼↑b++[◻;◻] ⟭).
+    1:{ apply subcode_sss_progress with (14+i,pctm_prev_zero (14+i) (17+i)); auto.
+        apply pctm_prev_zero_spec. }
+    apply subcode_sss_progress with (17+i,pctm_prev_zero (17+i) k); auto.
+    apply pctm_prev_zero_spec.
+  Qed.
+
+End pctm_dec_b.
+
+(* These are the tools to simulate MM2 instructions with PCTM_half *)
+
+Check pctm_inc_a_spec.
+Check pctm_inc_b_spec.
+
+Check pctm_dec_a_spec_0.
+Check pctm_dec_a_spec_S.
+
+Check pctm_dec_b_spec_0.
+Check pctm_dec_b_spec_S.
+
+
+(*
 
 Definition option_lift X Y (f : X -> option Y) x :=
   match x with Some x => f x | _ => None end.
@@ -505,7 +863,6 @@ Proof.
     apply (H (S n)).
 Qed.
 
-(*
 
 Definition half_tape := (list bool * bool * option (list bool))%type.
 
