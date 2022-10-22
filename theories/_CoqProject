@@ -49,6 +49,8 @@ TM/PCTM.v
 TM/PCTM/pctm_defs.v
 TM/PCTM/pctm_sbtm.v
 
+TM/PCTM_half.v
+
 
 StackMachines/BSM.v
 StackMachines/BSM_undec.v
@@ -315,6 +317,7 @@ MinskyMachines/Reductions/KrivineMclosed_HALT_to_MMA_HALTING.v
 MinskyMachines/Reductions/MMA3_to_MMA2_HALTING.v
 MinskyMachines/Reductions/SBTM_to_MMA2_HALTING.v
 MinskyMachines/Reductions/BSM_computable_to_MM_computable.v
+MinskyMachines/Reductions/MM2_to_MM2_starting_zero.v
 
 MinskyMachines/Deciders/MPM2_HALT_dec.v
 MinskyMachines/Deciders/MM_2_HALTING_dec.v
@@ -323,7 +326,9 @@ MinskyMachines/MM/mm_defs.v
 MinskyMachines/MM/mm_utils.v        
 MinskyMachines/MM/mm_comp.v
 MinskyMachines/MM/mm_comp_strong.v
-MinskyMachines/MM/mm_no_self.v      
+MinskyMachines/MM/mm_no_self.v
+
+MinskyMachines/MM2/mm2_from_zero.v
 
 MinskyMachines/MMA/mma_defs.v       
 MinskyMachines/MMA/mma_utils.v
