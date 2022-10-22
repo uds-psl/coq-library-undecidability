@@ -212,6 +212,7 @@ Qed.
 #[local] Notation "P // s -[ k ]-> t" := (sss_steps pctm_sss P k s t).
 #[local] Notation "P // s ->> t" := (sss_compute pctm_sss P s t).
 #[local] Notation "P // s -+> t" := (sss_progress pctm_sss P s t).
+#[local] Notation "P // s ↓" := (sss_terminates pctm_sss P s).
 
 Fact pctm_step_equiv P s₁ s₂ s₁' : 
    P // s₁ :1> s₁' -> s₁ ~s s₂ -> exists s₂', P // s₂ :1> s₂' /\ s₁' ~s s₂'.
@@ -953,13 +954,60 @@ Section MM2_PCTM_half.
       * exists t2; split.
         - now simpl in H1, H5; rewrite H1, H5.
         - now apply half_tape_equiv_sym.
-    + admit.
-  Admitted.
+    + generalize (pctm_dec_a_spec_S (lnk i) (lnk (1+i)) (lnk j) a b); intros H3.
+      destruct pctm_progress_equiv with (1 := H3) (s₂ := (lnk i,t1))
+        as ((?,t2) & H4 & <- & H6).
+      * split; auto; now apply half_tape_equiv_sym.
+      * exists t2; split; auto.
+        apply half_tape_equiv_sym, half_tape_equiv_trans with (2 := H6).
+        msplit 2; auto.
+        do 2 apply half_tape_equiv_right_app, ht_right_eq_bth; auto.
+    + generalize (pctm_dec_b_spec_S (lnk i) (lnk (1+i)) (lnk j) a b); intros H3.
+      destruct pctm_progress_equiv with (1 := H3) (s₂ := (lnk i,t1))
+        as ((?,t2) & H4 & <- & H6).
+      * split; auto; now apply half_tape_equiv_sym.
+      * exists t2; split; auto.
+        apply half_tape_equiv_sym, half_tape_equiv_trans with (2 := H6).
+        msplit 2; auto.
+        do 2 apply half_tape_equiv_right_app, ht_right_eq_bth; auto.
+    + generalize (pctm_dec_a_spec_0 (lnk i) (lnk (1+i)) (lnk j) b); intros H3.
+      destruct pctm_progress_equiv with (1 := H3) (s₂ := (lnk i,t1))
+        as ((?,t2) & H4 & <- & H6).
+      * split; auto; now apply half_tape_equiv_sym.
+      * exists t2; split; auto.
+        apply half_tape_equiv_sym, half_tape_equiv_trans with (2 := H6).
+        apply half_tape_equiv_refl.
+    + generalize (pctm_dec_b_spec_0 (lnk i) (lnk (1+i)) (lnk j) a); intros H3.
+      destruct pctm_progress_equiv with (1 := H3) (s₂ := (lnk i,t1))
+        as ((?,t2) & H4 & <- & H6).
+      * split; auto; now apply half_tape_equiv_sym.
+      * exists t2; split; auto.
+        apply half_tape_equiv_sym, half_tape_equiv_trans with (2 := H6).
+        apply half_tape_equiv_refl.
+  Qed.
 
   Fact simul_0 : simul (0,0) ⟬ ø ⟨◻⟩ ø ⟭.
-  Proof. cbv; msplit 2; auto. Qed.
+  Proof. msplit 2; cbv; auto. Qed.
+
+  Theorem mm2_pctm_compiler : compiler_t mm2_atom pctm_sss simul.
+  Proof.
+    apply generic_compiler with ic il.
+    + apply il_ic_ok.
+    + apply mm2_atom_total_ni.
+    + apply pctm_sss_fun.
+    + apply soundness.
+  Qed.
+
+  Theorem mm2_zero_pctm_half_red P : 
+    { Q | (1,P) /MM/ (1,(0,0)) ↓ <-> (1,Q) // (1,⟬ ø ⟨◻⟩ ø ⟭) ↓ }.
+  Proof.
+    exists (gc_code mm2_pctm_compiler (1,P) 1).
+    apply compiler_t_term_equiv, simul_0.
+  Qed.
 
 End MM2_PCTM_half.
+
+Check mm2_zero_pctm_half_red.
 
 (*
 
