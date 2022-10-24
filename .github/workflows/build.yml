@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 env:
   OCAML_VERSION: 4.11.0
-  CACHE_KEY: opam-8.16-${{github.base_ref}}-${{github.ref}} 
+  CACHE_KEY: opam-8.16-${{github.base_ref}}-${{github.ref}}
 jobs:
   build-deps:
     runs-on: ubuntu-latest
