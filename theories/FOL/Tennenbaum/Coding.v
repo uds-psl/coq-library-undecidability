@@ -156,7 +156,7 @@ Section Arithmetic.
   split.
   - intros H.
     pose (phi := $0 == $0).
-    exists phi. split.
+    exists phi. split. unfold unary.
     repeat solve_bounds.
     intros e; split; intros ?; [cbn|apply H].
     intros _. now apply extensional.
