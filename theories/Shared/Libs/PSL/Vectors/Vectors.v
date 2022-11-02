@@ -63,39 +63,6 @@ Ltac existT_eq' :=
   end.
 
 
-Lemma vect_map_injective X Y n (f : X -> Y) (v1 v2 : Vector.t X n) :
-  (forall x y, f x = f y -> x = y) ->
-  map f v1 = map f v2 -> v1 = v2.
-Proof.
-  intros Inj Eq.
-  induction n; cbn in *.
-  - dependent destruct v1. dependent destruct v2; reflexivity.
-  - dependent destruct v1. dependent destruct v2. cbn in *.
-    eapply cons_inj in Eq as (-> % Inj &?). f_equal. now apply IHn.
-Qed.
-
-
-
-Lemma replace_nth X n (v : Vector.t X n) i (x : X) :
-  (Vector.replace v i x) [@i] = x.
-Proof.
-  induction i; dependent destruct v; cbn; auto.
-Qed.
-
-Lemma replace_nth2 X n (v : Vector.t X n) i j (x : X) :
-  i <> j -> (Vector.replace v i x) [@j] = v[@j].
-Proof.
-  revert v. pattern i, j. revert n i j.
-  eapply Fin.rect2; intros; try congruence.
-  - revert f H. pattern v. revert n v.
-    eapply Vector.caseS. 
-    cbn. reflexivity.
-  - revert f H. pattern v. revert n v.
-    eapply Vector.caseS. 
-    cbn. reflexivity.
-  - revert g f H H0. pattern v. revert n v.
-    eapply Vector.caseS. firstorder congruence.
-Qed.
 
 Lemma destruct_vector_nil (X : Type) :
   forall v : Vector.t X 0, v = [| |].
@@ -249,18 +216,7 @@ Section tabulate_vec.
     }
   Qed.
 
-  Lemma Vector_tabulate_const {n} (c : X) f :
-  (forall n, f n = c) ->
-  tabulate f = Vector.const c n.
-  Proof.
-  induction n; cbn.
-  - reflexivity.
-  - intros. rewrite H. f_equal. eapply IHn. intros. eapply H.
-  Qed.
-
 End tabulate_vec.
-
-    
 
 Lemma Vector_map_tabulate {X Y n} (f : X -> Y) g :
   Vector.map (n:=n) f (tabulate g) = tabulate (fun x => f (g x)).
@@ -270,28 +226,6 @@ induction n; cbn.
 - f_equal. eapply IHn.
 Qed.
 
-
-Lemma const_at n X (c : X) i :
-  (Vector.const c n)[@i] = c.
-Proof.
-  induction i; cbn; eauto.
-Qed.
-
-
-(*
-Lemma vec_replace_nth X x n (t : Vector.t X n) (i : Fin.t n) :
-  x = Vector.nth (Vector.replace t i x) i.
-Proof.
-  induction i; dependent destruct t; simpl; auto.
-Qed.
-
-Lemma vec_replace_nth_nochange X x n (t : Vector.t X n) (i j : Fin.t n) :
-  Fin.to_nat i <> Fin.to_nat j -> Vector.nth t i = Vector.nth (Vector.replace t j x) i.
-Proof.
-  revert j. induction i; dependent destruct t; dependent destruct j; simpl; try tauto.
-  apply IHi. contradict H. cbn. now rewrite !H.
-Qed.
- *)
 
 #[global]
 Instance Vector_eq_dec n A: eq_dec A -> eq_dec (Vector.t A n).
@@ -346,34 +280,6 @@ Proof.
   - intros (x&<-&H). now apply vect_in_map.
 Qed.
 
-
-Lemma In_replace (X : Type) (n : nat) (xs : Vector.t X n) (i : Fin.t n) (x y : X) :
-  In y (replace xs i x) -> (x = y \/ In y xs).
-Proof.
-  revert i x y. induction xs; intros; cbn in *.
-  - inv i.
-  - dependent destruct i; cbn in *; apply In_cons in H as [-> | H]; auto; try now (right; constructor).
-    specialize (IHxs _ _ _ H) as [-> | IH]; [ now left | right; now constructor ].
-Qed.
-
-Lemma In_replace' (X : Type) (n : nat) (xs : Vector.t X n) (i : Fin.t n) (x y : X) :
-  In y (replace xs i x) -> x = y \/ exists j, i <> j /\ xs[@j] = y.
-Proof.
-  revert i x y. induction xs; intros; cbn -[nth] in *.
-  - inv i.
-  - dependent destruct i; cbn -[nth] in *.
-    + apply In_cons in H as [->|H].
-      * tauto.
-      * apply vect_nth_In' in H as (j&H). right. exists (Fin.FS j). split. discriminate. cbn. assumption.
-    + apply In_cons in H as [->|H].
-      * right. exists Fin.F1. split. discriminate. cbn. reflexivity.
-      * specialize (IHxs _ _ _ H) as [-> | (j&IH1&IH2)]; [ tauto | ].
-        right. exists (Fin.FS j). split. now intros -> % Fin.FS_inj. cbn. assumption.
-Qed.
-
-
-
-
 (* Tactic for simplifying a hypothesis of the form [In x v] *)
 
 
@@ -420,10 +326,9 @@ Ltac vector_not_in :=
 
 Goal Vector.In (Fin.F1 (n := 10)) [|Fin1; Fin2; Fin3 |] -> False.
 Proof. intros H. simpl_vector_in. Qed.
-  
+
 Goal Vector.In (Fin.F1 (n := 10)) (map (Fin.FS) [|Fin0; Fin1; Fin2|]) -> False.
 Proof. intros H. simpl_vector_in. Qed.
-
 
 
 (* Conversion between vectors and lists *)
@@ -433,14 +338,6 @@ End VecToListCoercion.
 
 Import VecToListCoercion.
 
-Lemma tolist_In (X : Type) (n : nat) (xs : Vector.t X n) (x : X) :
-  Vector.In x xs <-> List.In x xs.
-Proof.
-  split; intros H.
-  - induction H; cbn; auto.
-  - induction xs; cbn in *; auto. destruct H as [-> | H]; econstructor; eauto.
-Qed.
-
 Arguments Vector.eqb {_}  _ {_ _}.
 
 Lemma vector_eqb_spec X n eqb:
@@ -449,68 +346,12 @@ Lemma vector_eqb_spec X n eqb:
 Proof with try (constructor;congruence).
   intros Hf x y.
   apply iff_reflect. symmetry. apply Vector.eqb_eq. symmetry. apply reflect_iff. eauto.
-Qed. 
-
-Lemma vector_to_list_inj (X : Type) (n : nat) (xs ys : Vector.t X n) :
-  Vector.to_list xs = Vector.to_list ys -> xs = ys.
-Proof.
-  revert ys. induction xs as [ | x n xs IH]; intros; cbn in *.
-  - destruct_vector. reflexivity.
-  - destruct_vector. cbn in *. inv H. f_equal. auto.
-Qed.
-
-Lemma vector_to_list_length (X : Type) (n : nat) (xs : Vector.t X n) :
-  length(Vector.to_list xs) = n. 
-Proof.
-  induction xs as [ | x n xs IH]. 
-  - now cbn. 
-  - change (S (length xs) = S n). congruence.
-Qed. 
-
-Lemma vector_rev_append_tail_to_list A (n m: nat) (v : Vector.t A n) (w : Vector.t A m): 
-Vector.to_list (Vector.rev_append_tail v w) = (List.rev (Vector.to_list v) ++ Vector.to_list w)%list.
-Proof.
-  unfold Vector.to_list. revert v m w. induction n;intros v;dependent destruct v;cbn. reflexivity.
-  intros. specialize IHn with (w:=h:::w). cbn in *. rewrite IHn. autorewrite with list. easy.
-Qed.
-
-Lemma vector_rev_to_list A (n : nat) (v : Vector.t A n): 
-  Vector.to_list (Vector.rev v) = List.rev (Vector.to_list v).
-Proof.
-  now apply Vector.to_list_rev.
-Qed.
-
-
-Lemma vector_map_to_list A B (f : A -> B)(n : nat) (v : Vector.t A n): 
-  Vector.to_list (Vector.map f v) = List.map f (Vector.to_list v).
-Proof.
-  unfold Vector.map, Vector.to_list. revert v;induction n;intros v;dependent destruct v;cbn. easy. now rewrite IHn.
-Qed.
-
-
-Lemma eq_nth_iff' X n (v w : Vector.t X n):
-  (forall i : Fin.t n, v[@i] = w[@i]) -> v = w.
-Proof. intros. eapply Vector.eq_nth_iff. now intros ? ? ->. Qed.
-
-
-
-Lemma vector_fold_right_to_list (A B : Type) (f : A -> B -> B) (n : nat) (v : Vector.t A n) (a : B):
-      Vector.fold_right f v a = List.fold_right f a (Vector.to_list v).
-Proof.
-  unfold Vector.to_list. induction n. all:destruct_vector. all:cbn;congruence.
-Qed.
-Lemma vector_fold_left_to_list (A B : Type) (f : A -> B -> A) (n : nat) (v : VectorDef.t B n) (a : A):
-  VectorDef.fold_left f a v = List.fold_left f (Vector.to_list v) a.
-Proof.
-  unfold Vector.to_list. induction n in v,a|-*. all:destruct_vector. all:cbn;congruence.
 Qed.
 
 Lemma vector_fold_left_right (A B : Type) (f : A -> B -> A) (n : nat) (v : VectorDef.t B n) (a : A):
   Vector.fold_left f a v = Vector.fold_right (fun x y => f y x) (Vector.rev v) a.
 Proof.
-  rewrite vector_fold_right_to_list, vector_fold_left_to_list.
-  setoid_rewrite <- List.rev_involutive at 2. rewrite List.fold_left_rev_right. f_equal.
-  rewrite vector_rev_to_list,List.rev_involutive. easy.
+  now rewrite to_list_fold_right, to_list_fold_left, to_list_rev, List.fold_left_rev_right.
 Qed.
 
 Local Arguments Fin.of_nat_lt _ {_} _.
@@ -532,7 +373,7 @@ Lemma vector_nth_rev X n (v : Vector.t X n) i H':
 Proof.
   assert (x : X). { destruct v; [apply (Fin.case0 _ i)|assumption]. }
   rewrite !(vector_nth_to_list _ _ x), to_nat_of_nat. cbn.
-  rewrite vector_rev_to_list, rev_nth; rewrite vector_to_list_length.
+  rewrite Vector.to_list_rev, rev_nth; rewrite length_to_list.
   - f_equal. lia.
   - destruct Fin.to_nat. cbn in *. lia.
 Qed.

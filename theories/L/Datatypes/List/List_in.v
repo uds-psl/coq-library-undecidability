@@ -112,9 +112,9 @@ Section dupfree_dec.
     - induction l; constructor. all: cbn in H; apply andb_prop in H. 
       all: cbn in H; destruct H. apply ssrbool.negbTE in H.
       now intros H1%(list_in_decb_iff eqbX_correct).
-      now apply IHl.  
+      now apply IHl.
     - intros H0. induction H0. cbn in H; congruence. 
-      apply IHdupfree. cbn in H; apply andb_false_elim in H. destruct H.
+      apply IHNoDup. cbn in H; apply andb_false_elim in H. destruct H.
       apply ssrbool.negbFE in e. apply (list_in_decb_iff eqbX_correct) in e. tauto. 
       assumption. 
   Qed.

@@ -1,9 +1,8 @@
 From Undecidability.Shared.Libs.PSL Require Import FinTypes.
 
 (* * Definition of prod as finType *)
-
 Lemma ProdCount (T1 T2: eqType) (A: list T1) (B: list T2) (a:T1) (b:T2)  :
-  count (prodLists A B) (a,b) =  count A a * count B b .
+  count (list_prod A B) (a,b) =  count A a * count B b .
 Proof.
   induction A.
   - reflexivity.
@@ -13,7 +12,7 @@ Proof.
 Qed.
 
 Lemma prod_enum_ok (T1 T2: finType) (x: T1 * T2):
-  count (prodLists (elem T1) (elem T2)) x = 1.
+  count (list_prod (elem T1) (elem T2)) x = 1.
 Proof.
   destruct x as [x y]. rewrite ProdCount. unfold elem.
   now repeat rewrite enum_ok.
@@ -67,6 +66,35 @@ Defined.
 Lemma proveOne m n: m = 1 /\ n = 0 \/ n = 1 /\ m = 0 -> m + n = 1.
 Proof.
   lia.
+Qed.
+
+
+(* toSumlist1 does not change the number of occurences of an existing element in the list *)
+Lemma toSumList1_count (X: eqType) (x: X) (Y: eqType) (A: list X) :
+  count (toSumList1 Y A) (inl x) =  count A x .
+Proof.
+  induction A; simpl; dec; congruence.  
+Qed.
+
+(* toSumlist2 odes not change the numbe of occurences of an existing element in the list *)
+Lemma toSumList2_count (X Y: eqType) (y: Y) (A: list Y):
+  count (toSumList2 X A) (inr y) = count A y.
+Proof.
+  induction A; simpl; dec; congruence.  
+Qed.
+
+(* to sumList1 does not produce inr proofs *)
+Lemma toSumList1_missing (X Y: eqType) (y: Y) (A: list X):
+  count (toSumList1 Y A ) (inr y) = 0.                           
+Proof.
+  induction A; dec; firstorder.
+Qed.
+
+(* toSumlist2 does not produce inl proofs *)
+Lemma toSumList2_missing (X Y: eqType) (x: X) (A: list Y):
+  count (toSumList2 X A ) (inl x) = 0.                           
+Proof.
+  induction A; dec; firstorder.
 Qed.
 
 Lemma sum_enum_ok (X: finType) (Y: finType) x :

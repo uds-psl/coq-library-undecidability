@@ -31,7 +31,7 @@ Section isVoid.
   Proof.
     split.
     - intros (r1&r2&H&Hs). destruct t; cbn in *; inv H. rewrite map_length in Hs.
-      apply map_eq_nil in H3 as ->. hnf. eauto.
+      destruct l0; [|easy]. hnf. eauto.
     - intros (r1&r2&->&Hs). hnf. cbn. do 2 eexists; repeat split; eauto. now simpl_list.
   Qed.
 
@@ -40,7 +40,7 @@ Section isVoid.
   Proof.
     split.
     - intros (r1&r2&H). destruct t; cbn in *; inv H.
-      apply map_eq_nil in H3 as ->. hnf. eauto.
+      destruct l0; [|easy]. hnf. eauto.
     - intros (r1&r2&->). hnf. cbn. eauto.
   Qed.
 

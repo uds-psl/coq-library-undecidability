@@ -85,5 +85,5 @@ Lemma sumn_map_le_pointwise X (xs:list X) f1 f2:
 Proof.
   intros Hle. 
   induction xs. easy.
-  cbn. rewrite Hle. 2:easy. rewrite IHxs. easy. intros. eauto.
+  cbn. rewrite Hle. 2:now trivial with list. rewrite IHxs. easy. intros. eauto with list.
 Qed.

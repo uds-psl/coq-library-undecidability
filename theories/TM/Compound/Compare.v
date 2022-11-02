@@ -313,7 +313,7 @@ Section Compare_fun_lemmas.
       rewrite andb_comm in e1. rewrite orb_comm in e2. rewrite e1, e2.
       decide (c2=c1) as [ <- | H]; [ now contradiction _x | ]. auto.
     - rewrite Compare_fun_equation. cbn.
-      destruct (current t1); auto; destruct (current t2); auto.
+      destruct (current t1); auto; destruct (current t2); easy.
   Qed.
 
 
@@ -431,9 +431,9 @@ Section Compare_fun_lemmas.
     intros.
     pose proof compare_lists str1 str2 as[ HC | [ (a&b&l1&l2&l3&HC1&HC2&HC3) | [ (a&l1&l2&HC1&HC2) | (a&l1&l2&HC1&HC2) ]]]; subst.
     - rewrite Compare_correct_eq_midtape; cbn; auto. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. lia.
-    - simpl_list; cbn. rewrite Compare_correct_neq_midtape; cbn; auto. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. lia.
-    - simpl_list; cbn. rewrite Compare_correct_short_midtape; cbn; auto. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. lia.
-    - simpl_list; cbn. rewrite Compare_correct_long_midtape; cbn; auto. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. lia.
+    - simpl_list; cbn. rewrite Compare_correct_neq_midtape; cbn; auto with list. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. lia.
+    - simpl_list; cbn. rewrite Compare_correct_short_midtape; cbn; auto with list. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. lia.
+    - simpl_list; cbn. rewrite Compare_correct_long_midtape; cbn; auto with list. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. lia.
   Qed.
 
   Lemma Compare_Move_steps_midtape2 (stop' : X -> bool) (str1 str2 : list X) (s1 s2 : X) (m : X) ls1 ls2 rs1 rs2 :
@@ -451,9 +451,9 @@ Section Compare_fun_lemmas.
     intros.
     pose proof compare_lists str1 str2 as[ HC | [ (a&b&l1&l2&l3&HC1&HC2&HC3) | [ (a&l1&l2&HC1&HC2) | (a&l1&l2&HC1&HC2) ]]]; subst.
     - rewrite Compare_correct_eq_midtape; cbn; auto. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. lia.
-    - simpl_list; cbn. rewrite Compare_correct_neq_midtape; cbn; auto. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. lia.
-    - simpl_list; cbn. rewrite Compare_correct_short_midtape; cbn; auto. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. lia.
-    - simpl_list; cbn. rewrite Compare_correct_long_midtape; cbn; auto. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. lia.
+    - simpl_list; cbn. rewrite Compare_correct_neq_midtape; cbn; auto with list. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. lia.
+    - simpl_list; cbn. rewrite Compare_correct_short_midtape; cbn; auto with list. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. lia.
+    - simpl_list; cbn. rewrite Compare_correct_long_midtape; cbn; auto with list. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. lia.
   Qed.
 
 End Compare_fun_lemmas.

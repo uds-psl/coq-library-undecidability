@@ -1,6 +1,4 @@
 From Undecidability Require TM.TM TM.SBTM.
-Require Import Undecidability.Shared.FinTypeEquiv.
-(* Require Import Undecidability.L.Functions.FinTypeLookup. *)
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes Undecidability.Shared.Libs.PSL.Vectors.Vectors.
 Require Undecidability.TM.Util.TM_facts.
 Import VectorNotations2.
@@ -134,7 +132,7 @@ Qed.
 Theorem reduction :
   TM.HaltTM 1 ⪯ SBTM.HaltSBTM.
 Proof.
-  eapply reduces_transitive. eapply Arbitrary_to_Binary.reduction_tobin.
+  eapply reduces_transitive. eapply Arbitrary_to_Binary.reduction.
   unshelve eexists. { intros [M t]. refine (_, conv_tape t). refine (SBTM.Build_SBTM (num_states M) (@trans M)). }
   intros [M t]. split.
   - intros [q' [t' H]]. eapply red_correct1 in H.

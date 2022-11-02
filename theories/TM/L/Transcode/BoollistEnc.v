@@ -26,7 +26,7 @@ Proof.
   induction bs as [ | b bs]. reflexivity.
   cbn - [concat repeat]. rewrite IHbs. replace (S (| bs |)) with (|bs|+1) by nia.
   destruct b;cbn - [concat repeat]. all:repeat (autorewrite with list; cbn - [concat repeat]). all:repeat f_equal.
-  all:rewrite repeat_add_app,concat_app. all:easy.
+  all:rewrite repeat_app,concat_app. all:easy.
 Qed.
 
 Lemma enc_boollist_helper bs :

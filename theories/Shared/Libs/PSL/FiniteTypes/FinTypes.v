@@ -1,5 +1,4 @@
 From Undecidability.Shared.Libs.PSL Require Export BasicDefinitions FinTypesDef.
-From Undecidability.Shared.Libs.PSL Require Import Bijection.
 
 (* ** Formalisation of finite types using canonical structures and type classes *)
 
@@ -15,11 +14,14 @@ Qed.
 #[export] Hint Resolve elem_spec : core.
 #[export] Hint Resolve enum_ok : core.
 
-Lemma allSub (X: finType) (A:list X) : A <<= elem X.
+#[global]
+Instance Fin_eq_dec n : eq_dec (Fin.t n).
 Proof.
-  intros x _. apply elem_spec.
-Qed.
-#[export] Hint Resolve allSub : core.
+  intros; hnf.
+  destruct (Fin.eqb x y) eqn:E.
+  - left. now eapply Fin.eqb_eq.
+  - right. intros H. eapply Fin.eqb_eq in H. congruence.
+Defined.
 
 (* A properties that hold on every element of (elem X) hold for every element of the finType X *)
 Theorem Equivalence_property_all (X: finType) (p: X -> Prop) :
@@ -97,7 +99,7 @@ Proof.
 Qed.
 
 Lemma getPosition_nth (X:eqType) k (d :X) xs:
-  Dupfree.dupfree xs ->
+  dupfree xs ->
   k < length xs ->
   getPosition xs (nth k xs d) = k.
 Proof.
@@ -109,8 +111,6 @@ Proof.
    +subst a. cbn in H2. edestruct H3. eapply nth_In. lia.
    + cbn in H2. rewrite IHxs. all:try easy;lia.
 Qed.
-
-Definition pos_def (X : eqType) (x : X) A n :=  match pos x A with None => n | Some n => n end. 
 
 Definition index {F: finType} (x:F) := getPosition (elem F) x.
 
@@ -126,8 +126,9 @@ Lemma injective_index (A: finType) (x1 x2 : A) : index x1 = index x2 -> x1 = x2.
 Proof.
   destruct (elem A) eqn:E.
   - hnf. intros. assert (x1 el elem A) by eauto using elem_spec. rewrite E in H0. auto.
-  - clear E. eapply (left_inv_inj (g := (fun y => nth y (elem A) e))).
-    hnf. intros. now rewrite index_nth.
+  - clear E. intros E.
+    apply (f_equal (fun y => nth y (elem A) e)) in E.
+    now rewrite !index_nth in E.
 Qed.
 
 Lemma index_le (A:finType) (x:A): index x < length (elem A).
@@ -142,7 +143,35 @@ Proof.
   -destruct H. congruence. apply IHl in H. lia.
 Qed.
 
-Lemma index_leq (A:finType) (x:A): index x <= length (elem A).
+Lemma finite_n (F : finType) :
+    { n & { f : F -> Fin.t n & { g : Fin.t n -> F | (forall i, f (g i) = i) /\ forall x, g (f x) = x }}}.
 Proof.
-  eapply Nat.lt_le_incl,index_le.
+  destruct (pickx F) as [z|f].
+  - exists (length (elem F)).
+    exists (fun x => Fin.of_nat_lt (index_le x)).
+    exists (fun i => List.nth (proj1_sig (Fin.to_nat i)) (elem F) z).
+    split.
+    + intros i. apply Fin.to_nat_inj. rewrite Fin.to_nat_of_nat.
+      cbn. destruct (Fin.to_nat i) as [n Hn].
+      apply (getPosition_nth); [|easy].
+      apply (NoDup_count_occ' (@eqType_dec F)).
+      intros x _. rewrite <-count_count_occ. now apply enum_ok.
+    + intros x. rewrite Fin.to_nat_of_nat. now apply index_nth.
+  - exists 0, (fun x => match f x with end), (fun i => Fin.case0 _ i). split.
+    + intros i. apply (Fin.case0 _ i).
+    + intros x. destruct (f x).
+Qed.
+
+Lemma fintype_choice (F : finType) (Y : Type) (P : F -> Y -> Prop) :
+  (forall x : F, exists y, P x y) -> exists f : F -> Y, forall x, P x (f x).
+Proof.
+  intros FE.
+  enough (forall l, exists f : F -> Y, forall x : F, x el l -> P x (f x)) as H.
+  { destruct (H (elem F)) as [f Hf]. eexists. now eauto using elem_spec. }
+  intros l. destruct (pickx F) as [x'|f].
+  2: { exists (fun x => match f x with end). intros x. destruct (f x). }
+  induction l as [|x l [f Hf]].
+  - destruct (FE x') as [y' _]. now exists (fun _ => y').
+  - destruct (FE x) as [y Hxy]. exists (fun z => if Dec (x = z) then y else f z).
+    intros z [?|?]; destruct (Dec _); now (congruence || auto).
 Qed.

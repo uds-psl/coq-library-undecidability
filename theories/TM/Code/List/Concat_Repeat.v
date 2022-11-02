@@ -112,7 +112,7 @@ Module ConcatRepeat.
        TMSimp. easy.
       -hnf in HStar. modpon HStar. destruct n. easy. TMSimp.
        modpon HLastStep. replace (cs ++ concat (repeat cs n)) with (concat (repeat cs (n+1))).
-       +rewrite repeat_add_app, concat_app;cbn;autorewrite with list;cbn. easy.
+       +rewrite repeat_app, concat_app;cbn;autorewrite with list;cbn. easy.
        +rewrite Nat.add_comm. reflexivity.
     Qed.
 

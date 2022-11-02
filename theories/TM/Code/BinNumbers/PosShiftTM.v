@@ -224,7 +224,7 @@ Proof.
       replace str' with (tl (encode_pos p)) in * by now rewrite Hstr'.
       destruct (tl (encode_pos p)) eqn:Ep; cbn in *.
       + TMSimp. hnf. cbn. assert (p = 1) as -> by now apply Encode_positive_is_xH. eauto.
-      + assert (In s (tl (encode_pos p))) as Hs by now rewrite Ep.
+      + assert (In s (tl (encode_pos p))) as Hs by (rewrite Ep; trivial with list).
         pose proof Encode_positive_tl_bits Hs as [-> | ->].
         * TMSimp. hnf; eexists. f_equal. cbn. rewrite Hstr'. cbn. f_equal.
         * TMSimp. hnf; eexists. f_equal. cbn. rewrite Hstr'. cbn. f_equal.
@@ -232,7 +232,7 @@ Proof.
       replace str' with (tl (encode_pos p)) in * by now rewrite Hstr'.
       destruct (tl (encode_pos p)) eqn:Ep; cbn in *.
       + TMSimp. hnf. cbn. assert (p = 1) as -> by now apply Encode_positive_is_xH. eauto.
-      + assert (In s (tl (encode_pos p))) as Hs by now rewrite Ep.
+      + assert (In s (tl (encode_pos p))) as Hs by (rewrite Ep; trivial with list).
         pose proof Encode_positive_tl_bits Hs as [-> | ->].
         * TMSimp. hnf; eexists. f_equal. cbn. rewrite Hstr'. cbn. f_equal.
         * TMSimp. hnf; eexists. f_equal. cbn. rewrite Hstr'. cbn. f_equal.

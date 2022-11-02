@@ -4,7 +4,6 @@ Require Export Undecidability.TM.Basic.Mono Undecidability.TM.Compound.Multi.
 (* the above imports sidestep the import of ProgrammingTools below to avoid the dependency on Hoare *)
 (*From Undecidability.TM Require Import ProgrammingTools.*)
 From Undecidability Require Import ArithPrelim.
-Require Import Undecidability.Shared.FinTypeEquiv Undecidability.Shared.FinTypeForallExists.
 From Undecidability Require Import utils_list.
 
 Section fix_Sigma.
@@ -518,6 +517,18 @@ Proof.
       all:try exact 0. all: try lia. all: exact (fun _ _ => True).
 Qed.
 
+(* Specialized Facts *)
+Lemma fintype_forall_exists (F : finType) (P : F -> nat -> Prop) :
+  (forall x n, P x n -> forall m, m >= n -> P x m) ->
+  (forall x : F, exists n, P x n) -> exists N, forall x, P x N.
+Proof.
+  intros P_mono FE. destruct (fintype_choice FE) as [f Hf].
+  exists (list_sum (map f (elem F))).
+  intros x. apply (P_mono x _ (Hf x)).
+  destruct (in_split _ _ (elem_spec x)) as [? [? ->]].
+  rewrite map_app, list_sum_app. cbn. lia.
+Qed.
+
 Section FixM.
 
   Variable Σ : finType.
@@ -662,7 +673,6 @@ Section FixM.
     all:exact 0.
     Unshelve. all:exact 0.
   Qed.
-
 
   Lemma Step_total' :
     exists C, forall q, projT1 (Step q) ↓ fun t k => C <= k.
@@ -820,33 +830,46 @@ Proof.
     * intros tin k [q'_ tout] Hter. cbn in *. exists q'_. eapply TM_eval_iff. exists k. exact Hter.
 Qed.
 
-Require Import Undecidability.Synthetic.Definitions.
-Require Import Undecidability.Synthetic.ReducibilityFacts Undecidability.TM.Util.TM_facts.
+Section HaltTM_Σ_to_HaltTM_bool.
 
-Theorem reduction_tobin :
+Variables (Σ : finType) (M : TM Σ 1) (ts : Vector.t (tape Σ) 1).
+
+Definition Σ' := finType_CS bool.
+Definition M' : TM Σ' 1 := projT1 (StateWhile (@Step Σ M) (start M)).
+Definition ts' : Vector.t (tape Σ') 1 := Vector.map (fun t => encode_tape' t) ts.
+
+Lemma HaltTM_Σ_to_HaltTM_bool_correct : HaltsTM M ts <-> HaltsTM M' ts'.
+Proof.
+  unfold M', ts'. split.
+  - intros (q' & t' & [n H] % TM_eval_iff).
+    edestruct @Sim_Terminates with (M := (existT _ M (fun _ : state M => tt))) (T := fun tin k => tin = ts /\ k >= n).
+    + intros tin k [-> Hk]. cbn. exists (mk_mconfig q' t').  eapply @loop_monotone. exact H. eapply Hk.
+    + destruct H0 as [k H0]. cbn in H0. edestruct H0 as [[] H1].
+      -- exists (Vector.hd ts), n. split. reflexivity. split. 2: now unfold ge. split. 2:lia.
+          apply (Vector.caseS' ts). intros ?.
+          apply (Vector.case0). reflexivity.
+      -- exists cstate. eexists ctapes. eapply TM_eval_iff. exists (x * n + k). unfold Relabel, initc in H1. cbn in H1.
+          revert H1. apply (Vector.caseS' ts). intros ?. cbn.
+          intros t0. pattern t0. apply Vector.case0.
+          intros H1. exact H1.
+  - intros (q' & t' & [n H] % TM_eval_iff). 
+    eapply (Sim_Realise (M := (existT _ M (fun _ : state M => tt))) (R := fun tin '(_,tout) => exists q', eval M (start M) tin q' tout)) in H.
+    + revert H. apply (Vector.caseS' ts). intros ?. cbn.
+      intros t0. pattern t0. apply Vector.case0.
+      clear ts. rename h into t. intros H.
+      specialize (H t eq_refl) as [t'_sig [[q'_ H1] H2]]. cbn in H1. 
+      cbn in H2. subst. exists q'_, [|t'_sig|]. eassumption. 
+    + intros tin k [q'_ tout] Hter. cbn in *. exists q'_. eapply TM_eval_iff. exists k. exact Hter.
+Qed.
+
+End HaltTM_Σ_to_HaltTM_bool.
+
+Require Import Undecidability.Synthetic.Definitions.
+
+Theorem reduction :
   HaltTM 1 ⪯ fun '(M,t) => @HaltsTM (finType_CS bool) 1 M t.
 Proof.
   unshelve eexists.
-  - intros [Σ M t]. split. exact (projT1 (StateWhile (@Step Σ M) (start M))).
-    exact (Vector.map (fun t => encode_tape' t) t).
-  - intros [Σ M t]. cbn. split.
-    + intros (q' & t' & [n H] % TM_eval_iff).
-      edestruct @Sim_Terminates with (M := (existT _ M (fun _ : state M => tt))) (T := fun tin k => tin = t /\ k >= n).
-      * intros tin k [-> Hk]. cbn. exists (mk_mconfig q' t').  eapply @loop_monotone. exact H. eapply Hk.
-      * destruct H0 as [k H0]. cbn in H0. edestruct H0 as [[] H1].
-        -- exists (Vector.hd t), n. split. reflexivity. split. 2: now unfold ge. split. 2:lia.
-           apply (Vector.caseS' t). intros ?.
-           apply (Vector.case0). reflexivity.
-        -- exists cstate. eexists ctapes. eapply TM_eval_iff. exists (x * n + k). unfold Relabel, initc in H1. cbn in H1.
-           revert H1. apply (Vector.caseS' t). intros ?. cbn.
-           intros t0. pattern t0. apply Vector.case0.
-           intros H1. exact H1.
-    + intros (q' & t' & [n H] % TM_eval_iff). 
-      eapply (Sim_Realise (M := (existT _ M (fun _ : state M => tt))) (R := fun tin '(_,tout) => exists q', eval M (start M) tin q' tout)) in H.
-      * revert H. apply (Vector.caseS' t). intros ?. cbn.
-        intros t0. pattern t0. apply Vector.case0.
-        clear t. rename h into t. intros H.
-        specialize (H t eq_refl) as [t'_sig [[q'_ H1] H2]]. cbn in H1. 
-        cbn in H2. subst. exists q'_, [|t'_sig|]. eassumption. 
-      * intros tin k [q'_ tout] Hter. cbn in *. exists q'_. eapply TM_eval_iff. exists k. exact Hter.
+  - intros [Σ M t]. exact (M' M, ts' t).
+  - intros [Σ M t]. now apply HaltTM_Σ_to_HaltTM_bool_correct.
 Qed.
