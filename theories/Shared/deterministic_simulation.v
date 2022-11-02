@@ -5,7 +5,7 @@
   such that
   - step2 is deterministic (step2_det)
   - one step in step1 is simulated by a positive number of steps in step2 (fstep)
-  - halting in step2 is simulated by termination in step2 (fstop)
+  - halting in step1 is simulated by termination in step2 (fstop)
   - step1 admits existential successor decision (step1_intro)
 
   Then, strong normalization in step1 is transported to (terminates_transport)
