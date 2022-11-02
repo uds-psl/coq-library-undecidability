@@ -53,7 +53,7 @@ Section loopM.
            ring_simplify.
            [c__elem']: exact (4 * (| elem sig |)). subst c__elem'. unfold c__listsizeCons. lia.
          }
-         rewrite map_length,to_list_length.
+         rewrite map_length, Vector.length_to_list.
          unfold c__elem',transTime,c__trans,t,c__elem. reflexivity.
     }
     
@@ -70,7 +70,7 @@ Section loopM.
     solverec.
     rewrite time_map2_leq with (k:=90).
     2:now solverec.
-    solverec. now rewrite to_list_length.
+    solverec. now rewrite Vector.length_to_list.
   Qed.
 
 

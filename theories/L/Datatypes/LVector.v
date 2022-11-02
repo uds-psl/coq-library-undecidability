@@ -126,12 +126,6 @@ Proof.
   induction v in n',v'|-*;cbn;destruct v';cbn;try tauto. rewrite <- IHv. f_equal.
 Qed.
 
-(*MOVE*)
-Lemma to_list_length X n0 (l:Vector.t X n0) :length (Vector.to_list l) = n0.
-Proof.
-  induction l. reflexivity. rewrite <- IHl at 3. reflexivity.
-Qed.
-
 From Undecidability.L Require Import Functions.EqBool.
 
 Global Instance eqbVector  X eqbx `{eqbClass (X:=X) eqbx} n:
