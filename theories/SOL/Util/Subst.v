@@ -111,8 +111,7 @@ Module SubstNotations.
 
 End SubstNotations.
 
-
-
+(*
 Section SubstLemmas.
 
   Import SubstNotations.
@@ -597,3 +596,4 @@ Section SubstLemmas.
   Qed.
 
 End SubstLemmas.
+*)

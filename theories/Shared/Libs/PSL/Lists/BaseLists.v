@@ -66,16 +66,6 @@ Proof.
   - right. intros [x [E F]]. apply find_none with (x := x) in Eq; auto. eauto. (* New: Why can't auto solve this? *)
 Qed.
 
-Lemma list_exists_DM X A  (p : X -> Prop) : 
-  (forall x, dec (p x)) ->
-  ~ (forall x, x el A -> ~ p x) -> exists x, x el A /\ p x.
-Proof. 
-  intros D E. 
-  destruct (find (fun x => Dec (p x)) A) eqn:Eq.
-  + apply find_some in Eq as [? ?%Dec_true]. eauto.
-  + exfalso. apply E. intros. apply find_none with (x := x) in Eq;  eauto. 
-Qed.
-
 Lemma list_cc X (p : X -> Prop) A : 
   (forall x, dec (p x)) -> 
   (exists x, x el A /\ p x) -> {x | x el A /\ p x}.
@@ -113,43 +103,6 @@ We use the following lemmas from Coq's standard library List.
 
 #[export] Hint Resolve incl_refl incl_tl incl_cons incl_appl incl_appr incl_app incl_nil_l : core.
 
-(* *** Setoid rewriting with list inclusion and list equivalence *)
-
-#[global]
-Instance incl_preorder X : 
-  PreOrder (@incl X).
-Proof. 
-  constructor; hnf; unfold incl; auto. 
-Qed.
-
-#[global]
-Instance cons_incl_proper X x : 
-  Proper (@incl X ==> @incl X) (@cons X x).
-Proof.
-  hnf. auto with list.
-Qed.
-
-#[global]
-Instance in_incl_proper X x : 
-  Proper (@incl X ==> Basics.impl) (@In X x).
-Proof.
-  intros A B D. hnf. auto.
-Qed.
-
-#[global]
-Instance app_incl_proper X : 
-  Proper (@incl X ==> @incl X ==> @incl X) (@app X).
-Proof. 
-  intros A B D A' B' E. auto.
-Qed.
-
-Lemma in_concat_iff A l (a:A) : a el concat l <-> exists l', a el l' /\ l' el l.
-Proof.
-  induction l; cbn.
-  - intuition. now destruct H. 
-  - rewrite in_app_iff, IHl. firstorder subst. auto.
-Qed.
-
 Lemma app_comm_cons' (A : Type) (x y : list A) (a : A) :
   x ++ a :: y = (x ++ [a]) ++ y.
 Proof. rewrite <- app_assoc. cbn. trivial. Qed.
@@ -164,33 +117,6 @@ Proof.
   intros ->. revert ys. induction xs; cbn; auto.
 Qed.
 
-(* Facts about equality for [map] and [rev] *)
-Lemma map_eq_nil (Y Z: Type) (f: Y->Z) (l: list Y) :
-  nil = map f l -> l = nil.
-Proof. now destruct l. Qed.
-
-Lemma map_eq_cons (A B: Type) (f: A->B) (xs: list A) (y: B) (ys: list B) :
-  map f xs = y :: ys ->
-  exists x xs', xs = x :: xs' /\
-          y = f x /\
-          ys = map f xs'.
-Proof. induction xs; intros H; cbn in *; inv H; eauto. Qed.
-
-Lemma map_eq_app (A B: Type) (f: A -> B) (ls : list A) (xs ys : list B) :
-  map f ls = xs ++ ys ->
-  exists ls1 ls2, ls = ls1 ++ ls2 /\
-             xs = map f ls1 /\
-             ys = map f ls2.
-Proof.
-  revert xs ys. induction ls; intros; cbn in *.
-  - symmetry in H. apply app_eq_nil in H as (->&->). exists nil, nil. cbn. tauto.
-  - destruct xs; cbn in *.
-    + exists nil. eexists. repeat split. cbn. now subst.
-    + inv H. specialize IHls with (1 := H2) as (ls1&ls2&->&->&->).
-      repeat econstructor. 2: instantiate (1 := a :: ls1). all: reflexivity.
-Qed.
-
-
 (* Injectivity of [map], if the function is injective *)
 Lemma map_injective (X Y: Type) (f: X -> Y) :
   (forall x y, f x = f y -> x = y) ->
@@ -201,31 +127,9 @@ Proof.
   - intros [|??]; [easy|]. intros [= E1%HInj E2%IH]. now subst.
 Qed.
 
-#[global]
-Instance map_ext_proper A B: Proper (@ pointwise_relation A B (@eq B) ==> (@eq (list A)) ==> (@eq (list B))) (@map A B).
-Proof.
-  intros f f' Hf a ? <-. induction a;cbn;congruence.
-Qed.
-
-(* ** Lemmas about [hd], [tl] and [removelast] *)
-
-Lemma tl_map (A B: Type) (f: A -> B) (xs : list A) :
-  tl (map f xs) = map f (tl xs).
-Proof. now destruct xs; cbn. Qed.
-
 (* Analogous to [removelast_app] *)
 
 Lemma tl_app (A: Type) (xs ys : list A) :
   xs <> nil ->
   tl (xs ++ ys) = tl xs ++ ys.
 Proof. destruct xs; cbn; congruence. Qed.
-
-Lemma tl_rev (A: Type) (xs : list A) :
-  tl (rev xs) = rev (removelast xs).
-Proof.
-  induction xs; cbn; auto.
-  destruct xs; cbn in *; auto.
-  rewrite tl_app; cbn in *.
-  - now rewrite IHxs.
-  - intros (H1&H2) % app_eq_nil; inv H2.
-Qed.

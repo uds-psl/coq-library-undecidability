@@ -23,37 +23,6 @@ Proof.
   - right. intros H. eapply Fin.eqb_eq in H. congruence.
 Defined.
 
-(* A properties that hold on every element of (elem X) hold for every element of the finType X *)
-Theorem Equivalence_property_all (X: finType) (p: X -> Prop) :
-  (forall x, p x) <-> forall x, x el (elem X) -> p x.
-Proof.
-  split; auto. 
-Qed.
-
-Theorem Equivalence_property_exists (X: finType) (p:X -> Prop):
-  (exists x, p x) <-> exists x, x el (elem X) /\ p x.
-Proof.
-  split.
-  - intros [x P]. eauto.
-  - intros [x [E P]]. eauto.
-Qed.
-
-#[global]
-Instance finType_forall_dec (X: finType) (p: X -> Prop): (forall x, dec (p x)) -> dec (forall x, p x).
-Proof.
-  intros D. eapply dec_transfer.
-  - symmetry. exact (Equivalence_property_all p).
-  - auto.
-Qed.
-
-#[global]
-Instance finType_exists_dec (X:finType) (p: X -> Prop) : (forall x, dec (p x)) -> dec (exists x, p x).
-Proof.
-  intros D. eapply dec_transfer.
-  - symmetry. exact (Equivalence_property_exists p).
-  - auto.
-Qed.
-
 Definition finType_cc (X: finType) (p: X -> Prop) (D: forall x, dec (p x)) : (exists x, p x) -> {x | p x}.
 Proof.
   intro H.
@@ -68,21 +37,6 @@ Proof.
   - right. intro x. discriminate (ok x).
   - tauto.
 Defined.
-
-(* * Properties of decidable Propositions *)
-
-Lemma DM_notAll (X: finType) (p: X -> Prop) (D:forall x, dec (p x)): (~ (forall x, p x)) <-> exists x, ~ (p x).
-Proof.     
-  decide (exists x,~ p x); firstorder.
-Qed.
-
-Lemma DM_exists (X: finType) (p: X -> Prop) (D: forall x, dec (p x)):
-  (exists x, p x) <->  ~(forall x, ~ p x).
-Proof.
-  split.
-  - firstorder.
-  - decide (exists x, p x); firstorder.
-Qed.
 
 (* Index is an injective function *)
 

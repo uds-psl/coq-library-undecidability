@@ -7,7 +7,6 @@ Require Export Undecidability.TM.Basic.Mono Undecidability.TM.Compound.Multi.
 
 From Undecidability Require Import TM.Util.VectorPrelim.
 
-
 Inductive sigTape (sig : Type) : Type :=
 | LeftBlank (marked : bool)
 | RightBlank (marked : bool)
@@ -36,7 +35,6 @@ Proof.
   - rewrite <- countSplit. rewrite countMap_injective, countMap_zero by congruence. now rewrite enum_ok.
 Qed.
 
-
 Definition isMarked (sig : Type) (s : sigTape sig) : bool :=
   match s with
   | LeftBlank marked => marked
@@ -44,30 +42,6 @@ Definition isMarked (sig : Type) (s : sigTape sig) : bool :=
   | NilBlank => true
   | MarkedSymbol _ => true
   | UnmarkedSymbol _ => false
-  end.
-
-Definition isNilBlank {sig : Type} (s : sigTape sig) : bool :=
-  match s with
-    NilBlank => true
-  | _ => false
-  end.
-
-Definition isLeftBlank {sig : Type} (s : sigTape sig) : bool :=
-  match s with
-  | LeftBlank _  => true
-  | _ => false
-  end.
-
-Definition isVoidBlank {sig : Type} (s : sigTape sig) : bool :=
-  match s with
-  | RightBlank _ => true
-  | _ => false
-  end.
-
-Definition isSymbol {sig : Type} (s : sigTape sig) : bool :=
-  match s with
-  | UnmarkedSymbol _ | MarkedSymbol _ => true
-  | _ => false
   end.
 
 Definition encode_tape (sig : Type) (t : tape sig) : list (sigTape sig) :=
@@ -88,14 +62,6 @@ Definition encode_tapes (sig : Type) (n : nat) (t : tapes sig n) :=
   encode_list (@Encode_tape sig) (vector_to_list t).
 
 Arguments encode_tapes {sig n}.
-
-
-#[global]
-Instance Encode_tapes (sig : Type) (n : nat) : codable (sigList (sigTape sig)) (tapes sig n) :=
-  {|
-    encode := @encode_tapes sig n;
-  |}.
-
 
 (* Compute encode_tapes [| niltape nat; midtape [3;2;1] 4 [5;6;7]; leftof 1 [2;3];rightof 3 [2;1] |]. *)
 

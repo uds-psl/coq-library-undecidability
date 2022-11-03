@@ -146,7 +146,6 @@ Shared/Libs/PSL/Lists/BaseLists.v
 Shared/Libs/PSL/Vectors/Fin.v
 Shared/Libs/PSL/Vectors/Vectors.v
 Shared/Libs/PSL/Vectors/FinNotation.v
-Shared/Libs/PSL/Vectors/VectorDupfree.v
 Shared/Libs/PSL/Vectors/VectorForall.v
 
 Shared/Libs/PSL/FiniteTypes.v

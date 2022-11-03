@@ -1,4 +1,5 @@
 From Undecidability Require Import TM.Util.Prelim.
+Require Import Undecidability.Shared.Libs.PSL.Retracts.
 Require Import Coq.Lists.List.
 
 (* * Codable Class **)
@@ -29,26 +30,11 @@ Coercion encode : codable >-> Funclass.
 Definition size (sig X : Type) (cX : codable sig X) (x : X) := length (cX x).
 Arguments size {sig X cX} x, {_ _} _ _ (*legacy with two arguments*).
 
-
-(* Hint database for encoding compatibility lemmas. For example, size functions are usually parametrised over an encoding. It doesn't matter for the size, whether we apply [Encode_map] on this encoding. This kind of lemmas is encodable in this HintDb. *)
-Create HintDb encode_comp.
-
-Ltac simpl_comp := autorewrite with encode_comp.
-
-
 #[global]
 Instance Encode_unit : codable Empty_set unit :=
   {|
     encode x := nil
   |}.
-
-Lemma Encode_unit_hasSize (t:unit) :
-  size t = 0.
-Proof. cbn. reflexivity. Qed.
-
-Lemma Encode_unit_injective : injective Encode_unit.
-Proof. now intros [] [] _. Qed.
-
 
 #[global]
 Instance Encode_bool : codable bool bool:=
@@ -56,35 +42,11 @@ Instance Encode_bool : codable bool bool:=
     encode x := [x]
   |}.
 
-Lemma Encode_bool_hasSize (b:bool) :
-  size Encode_bool b = 1.
-Proof. cbn. reflexivity. Qed.
-
-Lemma Encode_bool_injective : injective Encode_bool.
-Proof. intros [ | ] [ | ] H; cbn in *; congruence. Qed.
-
 #[global]
 Instance Encode_Fin n : codable (Fin.t n) (Fin.t n):=
   {|
     encode i := [i]
   |}.
-
-Lemma Encode_Fin_hasSize n i :
-  size (Encode_Fin n) i = 1.
-Proof. cbn. reflexivity. Qed.
-
-Lemma Encode_Fin_injective n : injective (Encode_Fin n).
-Proof. intros i1 i2. cbn. congruence. Qed.
-
-(*
-Compute encode true.
-(* This works thanks to the coercion above *)
-Compute Encode_bool true.
-Compute encode tt.
-Check encode Fin0.
-Compute encode Fin0 : list (Fin.t 10).
-*)
-
 
 Section Encode_Finite.
   Variable sig : finType.
@@ -94,13 +56,6 @@ Section Encode_Finite.
     {|
       encode x := [x];
     |}.
-
-  Lemma Encode_Finite_hasSize f :
-    size Encode_Finite f = 1.
-  Proof. reflexivity. Qed.
-
-  Lemma Encode_Finite_injective : injective Encode_Finite.
-  Proof. intros x1 x2. cbn. congruence. Qed.
 
 End Encode_Finite.
 
@@ -120,37 +75,7 @@ Section Encode_map.
       encode x := map Retr_f (encode x);
     |}.
 
-  Lemma Encode_map_hasSize x :
-    size Encode_map x =size x.
-  Proof. cbn. now rewrite map_length. Qed.
-
-  Lemma Encode_map_injective :
-    injective cX -> injective Encode_map.
-  Proof. intros H. hnf in H; hnf. cbn in *. intros x1 x2 ? % map_injective; auto. apply retract_f_injective. Qed.
-
 End Encode_map.
-
-(* Hint Rewrite Encode_map_hasSize : encode_comp. *)
-
-Section Encode_map_comp.
-  Variable (X : Type).
-  Variable (sig1 sig2 sig3 : Type).
-  Variable (cX : codable sig1 X).
-  Variable (I1 : Retract sig1 sig2) (I2 : Retract sig2 sig3).
-
-  Lemma Encode_map_id x :
-    Encode_map cX (Retract_id _) x = cX x.
-  Proof. cbn. now rewrite map_id. Qed.
-
-  Lemma Encode_map_comp x :
-    Encode_map (Encode_map cX I1) I2 x = Encode_map cX (ComposeRetract I2 I1) x.
-  Proof. cbn. rewrite List.map_map. reflexivity. Qed.
-
-End Encode_map_comp.
-
-
-Global Hint Rewrite Encode_map_id Encode_map_comp : encode_comp.
-
 
 (* Builds simple retract functions like [sigSum -> option sigX] in the form
 [fun x => match x with constructor_name y => Retr_g y | _ => None] *)
@@ -212,16 +137,6 @@ Qed.
 
 (* Check _ : codable (sigPair bool (sigSum Empty_set bool)) unit. *)
 
-(* TODO: ~> Base *)
-Lemma skipn_0 (A:Type) (xs : list A) : skipn 0 xs = xs. Proof. reflexivity. Qed.
-
-(* TODO: ~> Base *)
-Lemma skipn_tl (A:Type) (xs : list A) (n : nat) : skipn (S n) xs = skipn n (tl xs).
-Proof. induction n; cbn; destruct xs; auto. Qed.
-
-
-
-
 Section Encode_list.
 
   Inductive sigList (sigX : Type) : Type :=
@@ -248,7 +163,6 @@ Section Encode_list.
     - rewrite countMap_zero. lia. congruence.
   Qed.
 
-
   Variable sigX: Type.
   Variable (X : Type) (cX : codable sigX X).
 
@@ -257,13 +171,6 @@ Section Encode_list.
     | nil => [sigList_nil]
     | x :: xs' => sigList_cons :: Encode_map _ _ x ++ encode_list xs'
     end.
-
-  Lemma encode_list_concat l:
-    encode_list l = concat (map (fun t => sigList_cons :: map sigList_X (encode t)) l) ++[sigList_nil].
-  Proof.
-    induction l;cbn. reflexivity.
-    rewrite IHl. cbn. now autorewrite with list.
-  Qed.
 
   Global Instance Encode_list : codable (sigList sigX) (list X) :=
     {|
@@ -284,17 +191,9 @@ Section Encode_list.
       + destruct xs; cbn; congruence.
   Qed.
 
-  Corollary Encode_list_app (xs ys : list X) :
-    Encode_list (xs ++ ys) = removelast (Encode_list xs) ++ Encode_list ys.
-  Proof. cbn. now apply encode_list_app. Qed.
-
   Lemma encode_list_neq_nil (xs : list X) :
     encode_list xs <> nil.
   Proof. destruct xs; cbn; congruence. Qed.
-
-  Corollary Encode_list_neq_nil (xs : list X) :
-    Encode_list xs <> nil.
-  Proof. cbn. apply encode_list_neq_nil. Qed.
 
   Lemma encode_list_remove (xs : list X) :
     removelast (encode_list xs) ++ [sigList_nil] = encode_list xs.
@@ -307,47 +206,6 @@ Section Encode_list.
       rewrite removelast_app by apply encode_list_neq_nil.
       rewrite <- app_assoc. f_equal. auto.
   Qed.
-
-  Corollary Encode_list_remove (xs : list X) :
-    removelast (Encode_list xs) ++ [sigList_nil] = Encode_list xs.
-  Proof. cbn. apply encode_list_remove. Qed.
-
-  Fixpoint Encode_list_size (xs : list X) : nat :=
-    match xs with
-    | nil => 1
-    | x :: xs' => S (size x + Encode_list_size xs')
-    end.
-
-  Lemma Encode_list_hasSize (xs : list X) : size xs = Encode_list_size xs.
-  Proof.
-    induction xs as [ | x xs IH]; cbn; f_equal.
-    rewrite app_length, !map_length. fold (size x). now rewrite <- IH.
-  Qed.
-
-  Lemma Encode_list_hasSize_skipn (xs : list X) (n : nat) :
-    Encode_list_size (skipn n xs) <= Encode_list_size xs.
-  Proof.
-    revert n. induction xs as [ | x xs' IH]; intros n.
-    - cbn. rewrite skipn_nil. cbn. reflexivity.
-    - cbn. destruct n.
-      + rewrite skipn_0. cbn. reflexivity.
-      + cbn. rewrite IH. lia.
-  Qed.
-
-  Lemma Encode_list_hasSize_ge1 (xs : list X) :
-    1 <= Encode_list_size xs.
-  Proof. induction xs; cbn; lia. Qed.
-
-  Lemma Encode_list_hasSize_app (xs ys : list X) :
-    Encode_list_size (xs ++ ys) = Encode_list_size xs + Encode_list_size ys - 1.
-  Proof.
-    induction xs as [ | x xs IH] in xs,ys|-*; cbn.
-    - lia.
-    - rewrite IH. enough (1 <= Encode_list_size xs) by lia. apply Encode_list_hasSize_ge1.
-  Qed.
-
-  Lemma encode_list_eq_nil (xs : list X) : encode_list xs = [sigList_nil] -> xs = nil.
-  Proof. destruct xs; cbn; congruence. Qed.
 
 End Encode_list.
 

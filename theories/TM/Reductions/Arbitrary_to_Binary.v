@@ -532,14 +532,6 @@ Section FixM.
   Let Hf := (proj1 (proj2_sig (projT2 (projT2 (finite_n Σ))))).
   Let Hg := (proj2 (proj2_sig (projT2 (projT2 (finite_n Σ))))).
 
-  Instance R : Retract (Fin.t n) Σ.
-  Proof.
-    eapply (@Build_Retract _ _ g (fun x => Some (f x ))).
-    econstructor.
-    - intros [= <-]; now rewrite Hg.
-    - intros ->; now rewrite Hf.
-  Qed.
-
   Definition encode_tape' (t : tape Σ) : tape bool := encode_tape (mapTape f t).
 
   Lemma ReadB_Realise' :

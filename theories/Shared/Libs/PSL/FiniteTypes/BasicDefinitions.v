@@ -71,19 +71,6 @@ Proof.
   rewrite count_count_occ. now intros ?%count_occ_In.
 Qed.
 
-Lemma InCount (X:eqType) (x:X) A:
-  x el A -> count A x > 0.
-Proof.
-  rewrite count_count_occ. intros ?. now apply count_occ_In.
-Qed.
-
-Lemma count_in_equiv (X: eqType) (x:X) A : count A x > 0 <-> x el A.
-Proof.
-  split.
-  - apply countIn.
-  - apply InCount.
-Qed.
-
 (*  Dupfree Lists containing every x countain x exactly once *)
 Lemma dupfreeCount (X: eqType) (x:X) (A: list X) : dupfree A -> x el A -> count A x = 1.
 Proof.
