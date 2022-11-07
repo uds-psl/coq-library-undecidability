@@ -11,12 +11,6 @@ Definition Forall {X} (p : X -> Prop) := fix Forall {n} (v : t X n) :=
   | cons _ x _ v => p x /\ Forall v
   end.
 
-Definition ForallT {X} (p : X -> Type) := fix ForallT {n} (v : t X n) :=
-  match v with
-  | nil _ => (unit : Type)
-  | cons _ x _ v => (p x * ForallT v)%type
-  end.
-
 Definition Forall2 {X Y} (p : X -> Y -> Prop) := fix Forall2 {n} (v1 : t X n) (v2 : t Y n) :=
   match v1 in Vector.t _ n return t Y n -> Prop with
   | nil _ => fun _ => True
@@ -58,33 +52,6 @@ Qed.
 
 Lemma Forall_map {X Y n} (p : Y -> Prop) (f : X -> Y) (v : t X n) :
   Forall p (map f v) <-> Forall (fun x => p (f x)) v.
-Proof.
-  induction v; firstorder.
-Qed.
-
-Lemma Forall_dec {X n}  (p : X -> Prop) (v : t X n) :
-  ForallT (fun x => dec (p x)) v -> dec (Forall p v).
-Proof.
-  induction v; firstorder.
-Qed.
-
-Lemma ForallT_translate {X Y n} (p : X -> Y -> Prop) (v : t X n) :
-  ForallT (fun x => { x' | p x x' }) v -> { v' : t Y n | Forall2 p v v'}.
-Proof.
-  intros H. induction v.
-  - now exists (nil _).
-  - destruct H as [[x' H1] H2]. destruct IHv as [v' IHv]. easy. 
-    now exists (cons _ x' _ v').
-Qed.
-
-Lemma ForallT_ext {X n} (p q : X -> Type) (v : t X n) :
-  (forall x, p x -> q x) -> ForallT p v -> ForallT q v.
-Proof.
-  induction v; firstorder.
-Qed.
-
-Lemma ForallT_general {X n} (p : X -> Type) (v : t X n) :
-  (forall x, p x) -> ForallT p v.
 Proof.
   induction v; firstorder.
 Qed.

@@ -31,9 +31,6 @@ Section Fix_Sigma.
 
   Definition sizeOfTape t := |tapeToList t|.
 
-  Definition sizeOfmTapes n (v : tapes n) :=
-    Vector.fold_left max 0 (Vector.map sizeOfTape v).
-  
   Definition left :=
     fun (t : tape) =>
       match t with

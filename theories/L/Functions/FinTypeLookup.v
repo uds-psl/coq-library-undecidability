@@ -14,27 +14,13 @@ Section Lookup.
       if eqb x key then Lproc else lookup x A d
     end.
 
-  Context `{encodable X} `{@eqbCompT X _ eqbX _}.
-
-  Definition lookupTime (x:nat) (l:list (X*Y)):=
-    fold_right (fun '(a,b) res => eqbTime (X:=X) x (size (enc (a:X))) + res +24) 4 l.
+  Context `{encodable X} `{@eqbComp X _ eqbX _}.
 
   Global Instance term_lookup `{encodable Y}:
-    computableTime' (lookup) (fun x _ => (5, fun l _ => (1, fun d _ => (lookupTime (size (enc x)) l,tt)))).
-  Proof.
+    computable (lookup).
+  Proof using H1.
   unfold lookup. unfold eqb.
-  extract. unfold lookupTime. solverec.
-  Qed.
-
-  Lemma lookupTime_leq x (l:list (X*Y)):
-    lookupTime x l <= length l * (x* c__eqbComp X + 24) + 4.
-  Proof.
-    induction l as [ | [a b] l].
-    -cbn. lia.
-    -unfold lookupTime. cbn [fold_right]. fold (lookupTime x l).
-     rewrite eqbTime_le_l.
-     setoid_rewrite IHl. cbn [length].
-     ring_simplify. unfold eqb. lia.
+  extract.
   Qed.
 
 End Lookup.

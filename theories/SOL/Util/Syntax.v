@@ -84,33 +84,6 @@ Section Elimination.
     - apply H2. clear f. induction v; constructor. apply term_ind'. exact IHv.
   Qed.
 
-  Lemma term_rect (p : term -> Type) :
-    (forall n, p (var_indi n))
-    -> (forall ar n v (IH : ForallT p v), p (func (var_func n ar) v))
-    -> (forall f v (IH : ForallT p v), p (func (sym f) v))
-    -> forall t, p t.
-  Proof.
-    intros H1 H2 H3. fix term_ind 1. destruct t.
-    - apply H1.
-    - destruct f.
-      + apply H2. induction v.
-        * constructor.
-        * constructor. apply term_ind. exact IHv.
-      + apply H3. induction v.
-        * constructor.
-        * constructor. apply term_ind. exact IHv.
-  Qed.
-
-  Lemma term_rect' (p : term -> Type) :
-    (forall n, p (var_indi n))
-    -> (forall ar (f : function ar) v (IH : ForallT p v), p (func f v))
-    -> forall t, p t.
-  Proof.
-    intros H1 H2. fix term_rect' 1. destruct t.
-    - apply H1.
-    - apply H2. clear f. induction v; constructor. apply term_rect'. exact IHv.
-  Qed.
-
 End Elimination.
 
 
@@ -137,22 +110,6 @@ Section FirstorderFragment.
     | quant_pred _ _ _ => False
   end.
 
-  Lemma first_order_term_dec t :
-    dec (first_order_term t).
-  Proof.
-    induction t using term_rect; cbn.
-    - now left.
-    - now right.
-    - now apply Forall_dec.
-  Qed.
-
-  Lemma first_order_dec :
-    forall phi, dec (first_order phi).
-  Proof.
-    induction phi; cbn. 2: destruct p. 3: apply Forall_dec, ForallT_general, first_order_term_dec.
-    all: firstorder.
-  Qed.
-
 End FirstorderFragment.
 
 
@@ -176,22 +133,6 @@ Section FunctionFreeFragment.
   | quant_func _ ar' phi => False
   | quant_pred _ _ phi => funcfree phi
   end.
-
-  Lemma funcfreeTerm_dec t :
-    dec (funcfreeTerm t).
-  Proof.
-    induction t using term_rect; cbn.
-    - now left.
-    - now right.
-    - now apply Forall_dec.
-  Qed.
-
-  Lemma funcfree_dec phi :
-    dec (funcfree phi).
-  Proof.
-    induction phi; cbn. 2: apply Forall_dec, ForallT_general, funcfreeTerm_dec.
-    all: firstorder.
-  Qed.
 
   Lemma firstorder_funcfree_term t :
     first_order_term t -> funcfreeTerm t.
@@ -304,141 +245,6 @@ Section Bounded.
     - right. split. easy. eapply IHphi. 2: apply H2. lia.
   Qed.
 
-
-  Lemma bounded_indi_term_dec n t :
-    dec (bounded_indi_term n t).
-  Proof.
-    induction t using term_rect; cbn.
-    - destruct (Compare_dec.lt_dec n0 n) as [|]. now left. now right.
-    - apply Forall_dec, IH.
-    - apply Forall_dec, IH.
-  Qed.
-
-  Lemma bounded_indi_dec n phi :
-    dec (bounded_indi n phi).
-  Proof.
-    induction phi in n |-*; cbn; trivial.
-    - now left.
-    - apply Forall_dec, ForallT_general, bounded_indi_term_dec.
-    - now apply and_dec.
-  Qed.
-
-
-  Lemma find_bounded_indi_step n (v : vec term n) :
-    (ForallT (fun t => { n | bounded_indi_term n t }) v) -> { n | Forall (bounded_indi_term n) v }.
-  Proof using Σ_pred ops.
-    intros [v' H]%ForallT_translate. induction v; cbn in *.
-    - now exists 0.
-    - revert H. apply (Vector.caseS' v'). intros.
-      destruct (IHv t) as [h1 H1]. apply H. exists (max h0 h1). split. 
-      eapply bounded_indi_term_up. 2: apply H. cbn. lia. apply Forall_in. intros t' H2.
-      eapply Forall_in in H2. eapply bounded_indi_term_up. 2: apply H2. 2: apply H1. lia.
-  Qed.
-
-  Lemma find_bounded_func_step n ar (v : vec term n) :
-    (ForallT (fun t => { n | bounded_func_term ar n t }) v) -> { n | Forall (bounded_func_term ar n) v }.
-  Proof.
-    intros [v' H]%ForallT_translate. induction v; cbn in *.
-    - now exists 0.
-    - revert H. apply (Vector.caseS' v'). intros.
-      destruct (IHv t) as [h1 H1]. apply H. exists (max h0 h1). split. 
-      eapply bounded_func_term_up. 2: apply H. cbn. lia. apply Forall_in. intros t' H2.
-      eapply Forall_in in H2. eapply bounded_func_term_up. 2: apply H2. 2: apply H1. lia.
-  Qed.
-
-  Lemma find_bounded_indi_term t :
-    { n | bounded_indi_term n t }.
-  Proof using Σ_pred ops.
-    induction t using term_rect'; cbn.
-    - exists (S n). lia.
-    - apply find_bounded_indi_step, IH.
-  Qed.
-
-  Lemma find_bounded_func_term ar t :
-    { n | bounded_func_term ar n t }.
-  Proof.
-    induction t using term_rect; cbn.
-    - now exists 0.
-    - edestruct find_bounded_func_step as [n' H]. apply IH. exists (max (S n) n').
-      split. lia. apply Forall_in. intros t H1. eapply Forall_in in H. 
-      eapply bounded_func_term_up. 2: apply H. lia. easy.
-    - apply find_bounded_func_step, IH.
-  Qed.
-
-  Lemma find_bounded_indi phi :
-    { n | bounded_indi n phi }.
-  Proof.
-    induction phi; cbn.
-    - now exists 0.
-    - apply find_bounded_indi_step, ForallT_general, find_bounded_indi_term.
-    - destruct IHphi1 as [n1 IHphi1]. destruct IHphi2 as [n2 IHphi2].
-      exists (max n1 n2). split; eapply bounded_indi_up. 2: apply IHphi1. lia.
-      2: apply IHphi2. lia.
-    - destruct IHphi as [n IHphi]. exists n. eapply bounded_indi_up. 2: apply IHphi. lia.
-    - apply IHphi.
-    - apply IHphi.
-  Qed.
-
-  Lemma find_bounded_func ar phi :
-    { n | bounded_func ar n phi }.
-  Proof.
-    induction phi; cbn.
-    - now exists 0.
-    - apply find_bounded_func_step, ForallT_general, find_bounded_func_term.
-    - destruct IHphi1 as [n1 IHphi1]. destruct IHphi2 as [n2 IHphi2].
-      exists (max n1 n2). split; eapply bounded_func_up. 2: apply IHphi1. lia.
-      2: apply IHphi2. lia.
-    - apply IHphi.
-    - destruct IHphi as [n' IHphi]. exists n'. destruct (PeanoNat.Nat.eq_dec ar n) as [->|].
-      + left. split. reflexivity. eapply bounded_func_up. 2: apply IHphi. lia.
-      + right. now split.
-    - apply IHphi.
-  Qed.
-
-  Lemma find_bounded_pred ar phi :
-    { n | bounded_pred ar n phi }.
-  Proof.
-    induction phi; cbn.
-    - now exists 0.
-    - destruct p; cbn. exists (S n); lia. now exists 0.
-    - destruct IHphi1 as [n1 IHphi1]. destruct IHphi2 as [n2 IHphi2].
-      exists (max n1 n2). split; eapply bounded_pred_up. 2: apply IHphi1. lia.
-      2: apply IHphi2. lia.
-    - apply IHphi.
-    - apply IHphi.
-    - destruct IHphi as [n' IHphi]. exists n'. destruct (PeanoNat.Nat.eq_dec ar n) as [->|].
-      + left. split. reflexivity. eapply bounded_pred_up. 2: apply IHphi. lia.
-      + right. now split.
-  Qed.
-
-  Lemma find_bounded_indi_L (A : list SOL.form) :
-    { n : nat | bounded_indi_L n A }.
-  Proof.
-    induction A.
-    - exists 0. now intros ? H.
-    - destruct IHA as [n IHA]. destruct (find_bounded_indi a) as [n' H]. exists (max n n').
-      intros phi [->|]; eapply bounded_indi_up. 2: apply H. lia. 2: apply IHA. lia. easy.
-  Qed.
-
-  Lemma find_bounded_func_L ar (A : list SOL.form) :
-    { n : nat | bounded_func_L ar n A }.
-  Proof.
-    induction A.
-    - exists 0. now intros ? H.
-    - destruct IHA as [n IHA]. destruct (find_bounded_func ar a) as [n' H]. exists (max n n').
-      intros phi [->|]; eapply bounded_func_up. 2: apply H. lia. 2: apply IHA. lia. easy.
-  Qed.
-
-  Lemma find_bounded_pred_L ar (A : list SOL.form) :
-    { n : nat | bounded_pred_L ar n A }.
-  Proof.
-    induction A.
-    - exists 0. now intros ? H.
-    - destruct IHA as [n IHA]. destruct (find_bounded_pred ar a) as [n' H]. exists (max n n').
-      intros phi [->|]; eapply bounded_pred_up. 2: apply H. lia. 2: apply IHA. lia. easy.
-  Qed.
-
-
   Lemma funcfree_bounded_func_term t :
     funcfreeTerm t -> forall x ar, bounded_func_term x ar t.
   Proof.
@@ -454,20 +260,14 @@ Section Bounded.
     eapply Forall_in in F. apply F. easy.
   Qed.
 
-  Lemma firstorder_bounded_func phi :
-    first_order phi -> forall x ar, bounded_func x ar phi.
-  Proof.
-    intros F. apply funcfree_bounded_func, firstorder_funcfree, F.
-  Qed.
-
   Lemma firstorder_bounded_pred phi :
     first_order phi -> forall x ar, bounded_pred x ar phi.
   Proof.
     induction phi; firstorder. now destruct p.
   Qed.
 
-End Bounded.
 
+End Bounded.
 
 
 
@@ -798,25 +598,6 @@ Section Enumerability'.
     intros x. split.
     - intros H%Hg. destruct (Hf x) as [n H1]. exists n. now rewrite H1, H.
     - intros [n H]. destruct f. destruct g eqn:H1. apply Hg. all: congruence.
-  Qed.
-
-  Lemma decidable_if X (p : X -> Prop) :
-    (forall x, dec (p x)) -> decidable p.
-  Proof.
-    intros H. exists (fun x => if H x then true else false). 
-    split; now destruct (H x).
-  Qed.
-
-  Lemma form_enumerable_firstorder :
-    enumerable (fun phi => first_order phi).
-  Proof using enumerable_quantop enumerable_preds enumerable_funcs enumerable_binop.
-    apply enumerable_decidable. apply form_enumerable. apply decidable_if, first_order_dec.
-  Qed.
-
-  Lemma form_enumerable_funcfree :
-    enumerable (fun phi => funcfree phi).
-  Proof using enumerable_quantop enumerable_preds enumerable_funcs enumerable_binop.
-    apply enumerable_decidable. apply form_enumerable. apply decidable_if, funcfree_dec.
   Qed.
 
 End Enumerability'.

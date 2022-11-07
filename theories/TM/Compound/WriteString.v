@@ -160,7 +160,8 @@ Proof.
   revert t. induction str as [ | s [ | s' str'] IH]; intros; cbn in *.
   - tauto.
   - reflexivity.
-  - rewrite IH. simpl_tape. rewrite tl_app with (ys:=[s]),<- !app_assoc. reflexivity. intros (?&[=])%app_eq_nil.
+  - rewrite IH. simpl_tape. destruct (rev str'); [easy|].
+    cbn. now rewrite <- !app_assoc.
 Qed.
 
 Lemma WriteString_L_current (sig : Type) (str : list sig) t :

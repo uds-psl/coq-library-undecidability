@@ -24,24 +24,22 @@ Proof.
 Qed.
 
 #[global]
-Instance term_to_list X `{encodable X} n : computableTime' (Vector.to_list (A:=X) (n:=n)) (fun _ _ => (1,tt)).
+Instance term_to_list X `{encodable X} n : computable (Vector.to_list (A:=X) (n:=n)).
 Proof.
-  apply cast_computableTime.
+  apply cast_computable.
 Qed.
 
 Import Vector.
 #[global]
-Instance term_vector_map X Y `{encodable X} `{encodable Y} n (f:X->Y) fT:
-  computableTime' f fT ->
-  computableTime' (VectorDef.map f (n:=n))
-                 (fun l _ => (map_time (fun x=> fst (fT x tt)) (Vector.to_list l) + 3,tt)).
+Instance term_vector_map X Y `{encodable X} `{encodable Y} n (f:X->Y) :
+  computable f ->
+  computable (VectorDef.map f (n:=n)).
 Proof.
   intros ?.
   computable_casted_result.
-  apply computableTimeExt with (x:= fun x => List.map f (Vector.to_list x)).
+  apply computableExt with (x:= fun x => List.map f (Vector.to_list x)).
   2:{
     extract.
-    solverec.
   }
 
   cbn. intros x.
@@ -51,32 +49,9 @@ Proof.
   setoid_rewrite IHn. reflexivity.
 Qed.
 
-(* Instance term_vector_map X Y `{encodable X} `{encodable Y} n (f:X->Y): computable f -> computable (VectorDef.map f (n:=n)). *)
-(* Proof. *)
-(*   intros ?. *)
-
-(*   internalize_casted_result. *)
-(*   apply computableExt with (x:= fun x => map f (Vector.to_list x)). *)
-(*   2:{ *)
-(*     extract. *)
-(*   } *)
-
-(*   cbn. intros x.  *)
-(*   clear - x. *)
-(*   induction n. revert x. apply VectorDef.case0. easy. revert IHn. apply Vector.caseS' with (v:=x). *)
-(*   intros. cbn. f_equal. fold (Vector.fold_right (A:=X) (B:=Y)). *)
-(*   setoid_rewrite IHn. reflexivity. *)
-(* Qed. *)
-
-Fixpoint time_map2 {X Y Z} `{encodable X} `{encodable Y} `{encodable Z} (gT : timeComplexity (X->Y->Z)) (l1 :list X) (l2 : list Y) :=
-  match l1,l2 with
-  | x::l1,y::l2 => callTime2 gT x y + 18 + time_map2 gT l1 l2
-  | _,_ => 9
-  end.
-
 Global
-Instance term_map2 n A B C `{encodable A} `{encodable B} `{encodable C} (g:A -> B -> C) gT:
-  computableTime' g gT-> computableTime' (Vector.map2 g (n:=n)) (fun l1 _ => (1,fun l2 _ => (time_map2 (X:=A) (Y:=B) (Z:=C) gT (Vector.to_list l1) (Vector.to_list l2) +8,tt))).
+Instance term_map2 n A B C `{encodable A} `{encodable B} `{encodable C} (g:A -> B -> C) :
+  computable g -> computable (Vector.map2 g (n:=n)).
 Proof.
   intros ?.
   computable_casted_result.
@@ -85,14 +60,12 @@ Proof.
                 t1::t,a1::a => g t1 a1 :: f t a
               | _,_ => []
               end)).
-  assert (computableTime' f (fun l1 _ => (5,fun l2 _ => (time_map2 gT l1 l2,tt)))).
-  {subst f; extract.
+  assert (computable f).
+  {subst f; extract. }
 
 
-
-   solverec. }
-  apply computableTimeExt with (x:= fun t a => f (Vector.to_list t) (Vector.to_list a)).
-  2:{extract. solverec. }
+  apply computableExt with (x:= fun t a => f (Vector.to_list t) (Vector.to_list a)).
+  2:{extract. }
   induction n;cbn.
   -do 2 destruct x using Vector.case0. reflexivity.
   -destruct x using Vector.caseS'. destruct x0 using Vector.caseS'.
@@ -100,28 +73,14 @@ Proof.
 Qed.
 
 
-Lemma time_map2_leq X Y Z `{encodable X}  `{encodable Y}  `{encodable Z}  (fT:timeComplexity (X -> Y -> Z))(l1 : list X) (l2:list Y) k:
-  (forall x y, callTime2 fT x y <= k) ->
-  time_map2 fT l1 l2<= length l1 * (k+18) + 9.
-Proof.
-  intros H';
-    induction l1 in l2|-*;cbn [time_map2].
-  -intuition.
-  -destruct l2;ring_simplify. intuition.
-   rewrite H',IHl1. cbn [length]. ring_simplify. intuition.
-Qed.
-
 #[global]
-Instance term_vector_eqb X `{encodable X} (n' m:nat) (eqb:X->X->bool) eqbT:
-  computableTime' eqb eqbT
-  -> computableTime'
-      (VectorEq.eqb eqb (A:=X) (n:=n') (m:=m))
-      (fun A _ => (1,fun B _ => (list_eqbTime eqbT (Vector.to_list A) (Vector.to_list B) + 9,tt))).
+Instance term_vector_eqb X `{encodable X} (n' m:nat) (eqb:X->X->bool) :
+  computable eqb ->
+  computable (VectorEq.eqb eqb (A:=X) (n:=n') (m:=m)).
 Proof.
   intros ?.
-  apply computableTimeExt with (x:=(fun x y => list_eqb eqb (Vector.to_list x) (Vector.to_list y))).
-  2:{extract.
-     solverec. }
+  apply computableExt with (x:=(fun x y => list_eqb eqb (Vector.to_list x) (Vector.to_list y))).
+  2:{extract. }
   intros v v'. hnf.
   induction v in n',v'|-*;cbn;destruct v';cbn;try tauto. rewrite <- IHv. f_equal.
 Qed.
@@ -134,27 +93,9 @@ Proof.
   intros ? ?. eapply vector_eqb_spec. all:eauto using eqb_spec.
 Qed.
 
-Global Instance eqbComp_List X `{encodable X} `{eqbCompT X (R:=_)} n:
-  eqbCompT (Vector.t X n).
+Global Instance eqbComp_List X `{encodable X} `{eqbComp X (R:=_)} n:
+  eqbComp (Vector.t X n).
 Proof.
-  evar (c:nat). exists c. edestruct term_vector_eqb with (X:=X). now eauto using comp_eqb.
-  eexists.
-  eapply computesTime_timeLeq. 2:eauto. clear.
-  repeat (hnf;intros;cbn [fst snd];split). easy.
-  unfold enc;cbn - [plus mult c max] in *. all:fold (@enc X _).
-  change VectorDef.to_list with (@Vector.to_list X n).
-  generalize (Vector.to_list x) as l, (Vector.to_list x0). clear.
-  setoid_rewrite size_list.
-  induction l;intros l'.
-  -cbn - [plus mult c max min] in *.
-    unfold c__listsizeNil, c__listsizeCons. 
-   enough (10<= c). nia. shelve.
-  -destruct l' as [ |? l'].
-   all:cbn - [plus mult c max min] in *; unfold c__listsizeNil, c__listsizeCons in *. 
-   1:{ enough (10<= c). nia. shelve. }
-   specialize (IHl l').
-   unfold eqbTime at 1.
-   enough (10+c__eqbComp X<= c ). nia. shelve.
-  [c]:exact (c__eqbComp X + 10).
-   Unshelve. all:subst c. all:nia.
+  constructor. apply term_vector_eqb.
+  apply comp_eqb.
 Qed.

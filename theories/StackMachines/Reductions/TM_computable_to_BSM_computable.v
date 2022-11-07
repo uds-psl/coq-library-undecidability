@@ -12,6 +12,10 @@ From Undecidability.Shared.Libs.PSL Require FinTypes.
 
 Notation "v @[ t ]" := (Vector.nth v t) (at level 50).
 
+Lemma skipn_app' (X : Type) (xs ys : list X) (n : nat) :
+  n = (| xs |) -> skipn n (xs ++ ys) = ys.
+Proof. intros ->. now rewrite List.skipn_app, skipn_all, Nat.sub_diag. Qed.
+
 Definition complete_encode (Σ : finType) n (t : Vector.t (tape Σ) n) :=
   (conv_tape [| encode_tape' (Vector.nth (mTM_to_TM.enc_tape [] t) Fin0) |]).
 
@@ -224,7 +228,7 @@ Proof.
     symmetry. etransitivity.
     1: destruct destruct_vector_cons as (? & ? & E).  1: inv E.  1: cbn - [skipn].
     1: destruct_tapes.  1: cbn - [skipn].  1: reflexivity.
-    rewrite skipn_app. 2: now rewrite length_encode_sym.
+    rewrite skipn_app'. 2: now rewrite length_encode_sym.
   
     instantiate (1 := encode_sym _ ++ true :: false :: encode_sym _ ++ true :: false :: encode_sym _). cbn.
     rewrite <- app_assoc. cbn. now rewrite <- app_assoc.
@@ -315,7 +319,7 @@ Proof.
   symmetry. etransitivity.
   1: destruct destruct_vector_cons as (? & ? & E).  1: inv E.  1: cbn - [skipn].
   1: destruct_tapes.  1: cbn - [skipn].  1: reflexivity.
-  rewrite skipn_app. 2: now rewrite length_encode_sym. unfold strpush_zero, strpush_common, strpush_common_short.
+  rewrite skipn_app'. 2: now rewrite length_encode_sym. unfold strpush_zero, strpush_common, strpush_common_short.
   rewrite <- app_assoc. cbn. rewrite <- app_assoc. cbn. rewrite <- app_assoc. cbn. rewrite <- app_assoc. cbn. rewrite <- app_assoc. reflexivity.
 Qed.
 
@@ -349,7 +353,7 @@ Proof.
     replace (x1 ++ true :: false :: x2 ++ true :: false :: x3 ++ true :: false :: x4 ++ x5) with
             ((x1 ++ true :: false :: x2 ++ true :: false :: x3 ++ true :: false :: x4) ++ x5)
   end.
-  1: rewrite skipn_app. 2:{ reflexivity. }
+  1: rewrite skipn_app'. 2:{ reflexivity. }
   2:{ rewrite <- app_assoc. cbn. rewrite <- app_assoc. cbn. rewrite <- app_assoc. cbn. reflexivity. }
   unfold strpush_succ, strpush_common, strpush_common_short.
   rewrite <- app_assoc. cbn. rewrite <- app_assoc. cbn. rewrite <- app_assoc. cbn. rewrite <- app_assoc. cbn. rewrite <- app_assoc. cbn. reflexivity.
@@ -817,7 +821,7 @@ Proof.
   induction m in i, m' |- *.
   - pose proof (encode_bsm_zero s b) as [n' Hn'].
     rewrite Hn'. unfold strpush_zero. rewrite <- !app_assoc.
-    rewrite skipn_app; [ | reflexivity].
+    rewrite skipn_app'; [ | reflexivity].
     edestruct (@pop_exactly_spec2 (1 + k + 4) (pos_right (1 + k) Fin2) (pos_right (1 + k) Fin0) (i + 4 + 2 * length THESYM)) as [x' Hpop].
     1:{ intros ? % pos_right_inj; congruence. }
     3:{ eexists. eapply subcode_sss_compute_trans. 2: eapply Hpop.  1: auto.  1: eexists [], _.  1: cbn.  1: split. 2: lia.  1: repeat f_equal.
@@ -836,7 +840,7 @@ Proof.
      eapply (f_equal g) in H. rewrite !H2 in H. inv H.
   - edestruct IHm as [out IH]. eexists.
     rewrite encode_bsm_succ. unfold strpush_succ. rewrite <- !app_assoc.
-    rewrite skipn_app; try reflexivity.
+    rewrite skipn_app'; try reflexivity.
     fold THESYM.
     eapply subcode_sss_compute_trans. 2: eapply pop_exactly_spec1. { eexists [], _. split. 2:cbn;lia. { cbn.  f_equal. } }
     1:{ intros ? % pos_nxt_inj % pos_right_inj. congruence. }

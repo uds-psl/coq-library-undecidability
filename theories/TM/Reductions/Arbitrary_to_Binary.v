@@ -317,7 +317,11 @@ Proof.
       pose proof (length_encode_sym t).
       destruct (encode_sym) eqn:E.
       * cbn in *. subst. reflexivity.
-      * cbn in *. inv H. rewrite skipn_app. reflexivity. rewrite app_length. cbn. lia.
+      * cbn in *. inv H. rewrite skipn_app.
+        generalize (encode_string l0). intros ?.
+        replace (S (length l1 )) with (length (l1 ++ [true])).
+        { now rewrite Nat.sub_diag, skipn_all. }
+        rewrite app_length. simpl. lia.
       * now rewrite <- app_assoc.
   - cbn. eapply Realise_monotone. now auto with nocore TMdb.
     intros t ([], t') ->. eauto.

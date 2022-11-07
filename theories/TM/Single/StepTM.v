@@ -21,7 +21,9 @@ Local Arguments Vector.to_list {A n} (!v).
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
 
-
+Lemma app_comm_cons' (A : Type) (x y : list A) (a : A) :
+  x ++ a :: y = (x ++ [a]) ++ y.
+Proof. now rewrite <- app_assoc. Qed.
 
 Lemma removelast_cons (X : Type) (xs : list X) (x : X) :
   xs <> nil ->

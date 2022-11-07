@@ -34,48 +34,6 @@ Proof.
   intros D. apply in_dec. exact D.
 Qed.
 
-(* Certifying find *)
-
-Lemma cfind X A (p: X -> Prop) (p_dec: forall x, dec (p x)) :
-  {x | x el A /\ p x} + {forall x, x el A -> ~ p x}.
-Proof.
-  destruct (find (fun x => Dec (p x)) A) eqn:E.
-  - apply find_some in E. firstorder.
-  - right. intros. eapply find_none in E; eauto.
-Qed.
-
-Arguments cfind {X} A p {p_dec}.
-
-#[export]
-Instance list_forall_dec X A (p : X -> Prop) :
-  (forall x, dec (p x)) -> dec (forall x, x el A -> p x).
-Proof.
-  intros p_dec.
-  destruct (find (fun x => Dec (~ p x)) A) eqn:Eq.
-  - apply find_some in Eq as [H1 H0 %Dec_true]; right; auto. 
-  - left. intros x E. apply find_none with (x := x) in Eq. apply dec_DN; auto. auto.
-Qed.
-
-#[export]
-Instance list_exists_dec X A (p : X -> Prop) :
-  (forall x, dec (p x)) -> dec (exists x, x el A /\ p x).
-Proof.
-  intros p_dec.
-  destruct (find (fun x => Dec (p x)) A) eqn:Eq. (* New: eta expansion needed *)
-  - apply find_some in Eq as [H0 H1 %Dec_true]. firstorder. (* New: Need firstorder here *)
-  - right. intros [x [E F]]. apply find_none with (x := x) in Eq; auto. eauto. (* New: Why can't auto solve this? *)
-Qed.
-
-Lemma list_cc X (p : X -> Prop) A : 
-  (forall x, dec (p x)) -> 
-  (exists x, x el A /\ p x) -> {x | x el A /\ p x}.
-Proof.
-  intros D E. 
-  destruct (cfind A p) as [[x [F G]]|F].
-  - eauto.
-  - exfalso. destruct E as [x [G H]]. apply (F x); auto.
-Qed.
-
 (* *** Membership
 
 We use the following lemmas from Coq's standard library List.
@@ -102,34 +60,3 @@ We use the following lemmas from Coq's standard library List.
 *)
 
 #[export] Hint Resolve incl_refl incl_tl incl_cons incl_appl incl_appr incl_app incl_nil_l : core.
-
-Lemma app_comm_cons' (A : Type) (x y : list A) (a : A) :
-  x ++ a :: y = (x ++ [a]) ++ y.
-Proof. rewrite <- app_assoc. cbn. trivial. Qed.
-
-
-(* skipn *)
-
-Lemma skipn_app (X : Type) (xs ys : list X) (n : nat) :
-  n = (| xs |) ->
-  skipn n (xs ++ ys) = ys.
-Proof.
-  intros ->. revert ys. induction xs; cbn; auto.
-Qed.
-
-(* Injectivity of [map], if the function is injective *)
-Lemma map_injective (X Y: Type) (f: X -> Y) :
-  (forall x y, f x = f y -> x = y) ->
-  forall xs ys, map f xs = map f ys -> xs = ys.
-Proof.
-  intros HInj. hnf. intros x1. induction x1 as [ | x x1' IH]; cbn in *.
-  - now intros [|??].
-  - intros [|??]; [easy|]. intros [= E1%HInj E2%IH]. now subst.
-Qed.
-
-(* Analogous to [removelast_app] *)
-
-Lemma tl_app (A: Type) (xs ys : list A) :
-  xs <> nil ->
-  tl (xs ++ ys) = tl xs ++ ys.
-Proof. destruct xs; cbn; congruence. Qed.

@@ -74,43 +74,6 @@ Ltac destruct_vector_in :=
   | [ H: Vector.In _ (?x ::: _) |- _ ] => simple apply In_cons in H as [H| H] ; try (is_var x;move H at bottom;subst x) 
   end.
 
-Section In_Dec.
-  Variable X : Type.
-  Hypothesis X_dec : eq_dec X.
-
-  Fixpoint in_dec (n : nat) (x : X) (xs : Vector.t X n) { struct xs } : bool :=
-    match xs with
-    | [| |] => false
-    | y ::: xs' => if Dec (x = y) then true else in_dec x xs'
-    end.
-
-  Lemma in_dec_correct (n : nat) (x : X) (xs : Vector.t X n) :
-    in_dec x xs = true <-> In x xs.
-  Proof.
-    split; intros.
-    {
-      induction xs; cbn in *.
-      - congruence.
-      - decide (x = h) as [ -> | D].
-        + constructor.
-        + constructor. now apply IHxs.
-    }
-    {
-      induction H; cbn.
-      - have (x = x).
-      - decide (x = x0).
-        + reflexivity.
-        + apply IHIn.
-    }
-  Qed.
-
-  Global Instance In_dec (n : nat) (x : X) (xs : Vector.t X n) : dec (In x xs).
-  Proof using X_dec. eapply dec_transfer. eapply in_dec_correct. auto. Defined.
-
-End In_Dec.
-
-  
-
 (* Destruct a vector of known size *)
 Ltac destruct_vector :=
   repeat match goal with

@@ -12,10 +12,9 @@ end.
 
 
 #[global]
-Instance term_boundb : computableTime' boundb (fun _ _ => (5,fun s _ => (size s * 31+9,tt))).
+Instance term_boundb : computable boundb.
 Proof.
-  extract. solverec.
-  unfold c__leb2, leb_time, c__leb. nia. 
+  extract.
 Qed.
 
 Lemma boundb_spec k t : Bool.reflect (bound k t) (boundb k t).
@@ -41,10 +40,10 @@ Proof.
 Qed.
 
 #[global]
-Instance termT_closedb : computableTime' closedb (fun s _ => (size s * 31+15,tt)).
+Instance termT_closedb : computable closedb.
 Proof.
   change closedb with (fun x => boundb 0 x).
-  extract. solverec.
+  extract.
 Qed.
 
 
@@ -55,9 +54,9 @@ match t with
 end.
 
 #[global]
-Instance term_lambdab : computableTime' lambdab (fun _ _ => (11,tt)).
+Instance term_lambdab : computable lambdab.
 Proof.
-  extract. solverec.
+  extract.
 Qed.
 
 Lemma lambdab_spec t : Bool.reflect (lambda t) (lambdab t).

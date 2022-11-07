@@ -23,14 +23,6 @@ Proof.
   - right. intros H. eapply Fin.eqb_eq in H. congruence.
 Defined.
 
-Definition finType_cc (X: finType) (p: X -> Prop) (D: forall x, dec (p x)) : (exists x, p x) -> {x | p x}.
-Proof.
-  intro H.
-  assert(exists x, x el (elem X) /\ p x) as E by firstorder.
-  pose proof (list_cc D E) as [x G].
-  now exists x.
-Defined.
-
 Definition pickx (X: finType): X + (X -> False).
 Proof.
   destruct X as [X [enum ok]]. induction enum.

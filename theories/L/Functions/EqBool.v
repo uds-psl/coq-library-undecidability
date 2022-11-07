@@ -33,40 +33,18 @@ Proof.
   apply dec_reflect_remove. eapply eqb_spec.
 Qed.
 
-Class eqbCompT X {R:encodable X} eqb {H:eqbClass (X:=X) eqb} :=
-  { c__eqbComp :nat;
-    eqbTime x y:= min x y* c__eqbComp;
-    comp_eqb : computableTime' eqb (fun x _ =>(5,fun y _ => (eqbTime (size (enc x)) (size (enc y)),tt)))
-  }.
-Arguments eqbCompT _ {_ _ _}.
-Arguments c__eqbComp _ {_ _ _ _}.
+Class eqbComp X {R:encodable X} eqb {H:eqbClass (X:=X) eqb} :=
+  { comp_eqb : computable eqb  }.
+Arguments eqbComp _ {_ _ _}.
 
-#[export] Hint Mode eqbCompT + - - -: typeclass_instances.
+#[export] Hint Mode eqbComp + - - -: typeclass_instances.
 
 #[global]
 Existing Instance comp_eqb.
 
 #[global]
-Instance eqbComp_bool : eqbCompT bool.
+Instance eqbComp_bool : eqbComp bool.
 Proof.
-  evar (c:nat). exists c. unfold Bool.eqb.
-  unfold enc;cbn.
+  constructor. unfold Bool.eqb.
   extract.
-  solverec.
-  [c]:exact 3.
-  all:unfold c;try lia.
-Qed.
-
-Lemma eqbTime_le_l X {R : encodable X} (eqb : X -> X -> bool) {H : eqbClass eqb}
-      {H' : eqbCompT X} x n':
-  eqbTime (X:=X) x n' <= x * c__eqbComp X.
-Proof.
-  unfold eqbTime. rewrite Nat.le_min_l. easy.
-Qed.
-
-Lemma eqbTime_le_r X (R : encodable X) (eqb : X -> X -> bool) (H : eqbClass eqb)
-      (eqbCompT : eqbCompT X) x n':
-  eqbTime (X:=X) n' x <= x * c__eqbComp X.
-Proof.
-  unfold eqbTime. rewrite Nat.le_min_r. easy.
 Qed.

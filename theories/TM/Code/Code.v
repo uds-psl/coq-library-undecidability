@@ -1,5 +1,4 @@
 From Undecidability Require Import TM.Util.Prelim.
-Require Import Undecidability.Shared.Libs.PSL.Retracts.
 Require Import Coq.Lists.List.
 
 (* * Codable Class **)
@@ -14,13 +13,6 @@ Arguments encode {sig} {X} {_}.
 (* either the type or the alphabet must be know at head: *)
 #[export] Hint Mode codable - ! : typeclass_instances.
 #[export] Hint Mode codable ! - : typeclass_instances.
-
-(* right side must be fully known, left side at head *)
-#[export] Hint Mode Retract ! + : typeclass_instances.
-
-(* (* Both sides must be known at head. *)
-#[export] Hint Mode Retract ! - : typeclass_instances.
-#[export] Hint Mode Retract - ! : typeclass_instances. *)
 
 #[export] Hint Extern 4 (codable (FinType(EqType ?sigX)) ?X) => cbn : typeclass_instances.
 
@@ -60,7 +52,7 @@ Section Encode_Finite.
 End Encode_Finite.
 
 
-
+(*
 (* [Encode_map] is no longer an instance for [codable] *)
 
 Section Encode_map.
@@ -68,7 +60,8 @@ Section Encode_map.
   Variable (sig tau : Type).
   Hypothesis (cX : codable sig X).
 
-  Variable inj : Retract sig tau.
+  Variable Retr_f : sig -> tau.
+  Variable inj : forall x1 x2, Retr_f x1 = Retr_f x2 -> x1 = x2.
 
   Definition Encode_map : codable tau X :=
     {|
@@ -76,37 +69,7 @@ Section Encode_map.
     |}.
 
 End Encode_map.
-
-(* Builds simple retract functions like [sigSum -> option sigX] in the form
-[fun x => match x with constructor_name y => Retr_g y | _ => None] *)
-
-Local Hint Mode Retract - - : typeclass_instances.
-Ltac build_simple_retract_g :=
-  once lazymatch goal with
-  | [ |- ?Y -> option ?X ] =>
-    (* idtac "Retract function" X Y; *)
-    let x := fresh "x" in
-    intros x; destruct x; intros; try solve [now apply Retr_g ]; right
-  end.
-
-Ltac build_simple_retract :=
-  once lazymatch goal with
-  | [ |- Retract ?X ?Y ] =>
-    (* idtac "Retract from" X "to" Y; *)
-    let x := fresh "x" in
-    let y := fresh "y" in
-    let f := (eval simpl in (ltac:(intros x; constructor; now apply Retr_f) : X -> Y)) in
-    (* idtac "f:" f; *)
-    let g := (eval simpl in (ltac:(build_simple_retract_g) : Y -> option X)) in
-    (* idtac "g:" g; *)
-    apply Build_Retract with (Retr_f := f) (Retr_g := g);
-    abstract now hnf; intros x y; split;
-    [ destruct y; try congruence; now intros -> % retract_g_inv
-    | now intros ->; now retract_adjoint
-    ]
-  end
-.
-
+*)
 Ltac build_eq_dec :=
   let x := fresh "x" in
   let y := fresh "y" in
@@ -147,20 +110,24 @@ Section Encode_list.
 
   Arguments sigList_nil {sigX}. Arguments sigList_cons {sigX}. Arguments sigList_X {sigX}.
 
+  (*
   Global Instance Retract_sigList_X (sig tau : Type) (retr : Retract sig tau) : Retract sig (sigList tau).
   Proof. build_simple_retract. Defined. (* because definition *)
+*)
 
   Global Instance sigList_dec sigX (decX : eq_dec sigX) :
     eq_dec (sigList sigX) := ltac:(build_eq_dec).
+
+ 
 
   Global Instance sigList_fin (sigX : finType) : finTypeC (EqType (sigList sigX)).
   Proof.
     split with (enum := sigList_nil :: sigList_cons :: map sigList_X enum).
     intros [x| | ]; cbn; f_equal.
-    - rewrite countMap_injective. 2: apply retract_f_injective with (I := Retract_sigList_X (Retract_id _)).
-      now apply enum_ok.
-    - rewrite countMap_zero. lia. congruence.
-    - rewrite countMap_zero. lia. congruence.
+    - rewrite countMap_injective. { apply enum_ok. }
+      now intros ?? [= ?].
+    - now apply countMap_zero.
+    - now apply countMap_zero.
   Qed.
 
   Variable sigX: Type.
@@ -169,7 +136,7 @@ Section Encode_list.
   Fixpoint encode_list (xs : list X) : list (sigList sigX) :=
     match xs with
     | nil => [sigList_nil]
-    | x :: xs' => sigList_cons :: Encode_map _ _ x ++ encode_list xs'
+    | x :: xs' => sigList_cons :: (map sigList_X (encode x)) ++ encode_list xs'
     end.
 
   Global Instance Encode_list : codable (sigList sigX) (list X) :=
@@ -201,8 +168,8 @@ Section Encode_list.
     induction xs.
     - reflexivity.
     - cbn [encode_list].
-      change (sigList_cons :: Encode_map _ _ a ++ encode_list xs)
-        with ((sigList_cons :: Encode_map _ _ a) ++ encode_list xs).
+      change (sigList_cons :: map sigList_X (cX a) ++ encode_list xs) with
+        ((sigList_cons :: map sigList_X (cX a)) ++ encode_list xs).
       rewrite removelast_app by apply encode_list_neq_nil.
       rewrite <- app_assoc. f_equal. auto.
   Qed.

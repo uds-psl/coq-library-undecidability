@@ -415,14 +415,14 @@ Require Import Undecidability.L.Reductions.MuRec.MuRec_extract.
 Definition evalfun fuel c v := match eval fuel 0 c v with Some (inl x) => Some x | _ => None end.
 
 From Undecidability Require Import MuRec_computable LVector.
-From Undecidability.TM Require Import NaryApp ClosedLAdmissible.
+From Undecidability.L.Util Require Import NaryApp ClosedLAdmissible.
 
 Import L_Notations.
 
-Definition cont_vec (k : nat) : term := lam (many_lam k (k (Vector.fold_right (fun n s => (extT (@cons nat) (var n)) s) (many_vars k)  (ext (@nil nat))))).
+Definition cont_vec (k : nat) : term := lam (many_lam k (k (Vector.fold_right (fun n s => (ext (@cons nat) (var n)) s) (many_vars k)  (ext (@nil nat))))).
 
 Lemma helper_closed k :
-  bound k (Vector.fold_right (fun (n : nat) (s0 : term) => extT (@cons nat) n s0) (many_vars k) (ext (@nil nat))).
+  bound k (Vector.fold_right (fun (n : nat) (s0 : term) => ext (@cons nat) n s0) (many_vars k) (ext (@nil nat))).
 Proof.
   induction k.
   - cbn. cbv. repeat econstructor.
@@ -469,7 +469,6 @@ Proof.
     repeat (rewrite many_subst_closed; [ | now Lproc]).
     rewrite bound_closed_k. 2:eapply helper_closed. rewrite IHv.
     rewrite !enc_vector_eq.
-    change (extT (@cons nat)) with (ext (@cons nat)).
     now Lsimpl.
 Qed.
 

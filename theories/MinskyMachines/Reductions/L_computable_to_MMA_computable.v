@@ -1229,7 +1229,7 @@ End Argument.
 
 (* use L_computable_closed *)
 From Undecidability Require
-  TM.L.CompilerBoolFuns.ClosedLAdmissible.
+  L.Util.ClosedLAdmissible.
 
 Theorem L_computable_to_MMA_computable {k} (R : Vector.t nat k -> nat -> Prop) :
   L_computable R -> MMA_computable R.

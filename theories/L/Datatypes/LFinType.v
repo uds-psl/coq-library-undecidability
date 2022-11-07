@@ -24,45 +24,20 @@ Qed.
 Section finType_eqb.
   Local Existing Instance encodable_finType.
 
-  Global Instance term_index (F:finType): computableTime' (@index F) (fun _ _=> (1, tt)).
+  Global Instance term_index (F:finType): computable (@index F).
   Proof.
-    apply cast_computableTime.
+    apply cast_computable.
   Qed.
 
   Local Instance eqbFinType_inst (X:finType): eqbClass finType_eqb (X:=X).
   Proof.
     intros ? ?. eapply finType_eqb_reflect. 
   Qed.
-  Import Nat.
-  Global Instance eqbFinType (X:finType): eqbCompT X.
+
+  Global Instance eqbFinType (X:finType): eqbComp X.
   Proof.
-    evar (c:nat). exists c. unfold finType_eqb.
-    unfold enc;cbn.
-    extract. unfold eqbTime.
-    solverec. 
-    [c]:exact (c__eqbComp nat + 8).
-    rewrite !size_nat_enc.
-    all:unfold c, c__natsizeO;try nia. 
+    constructor. unfold finType_eqb.
+    extract.
   Qed.
 
-(*  
-  Global Instance term_finType_eqb (X:finType) : computableTime' (finType_eqb (X:=X)) (fun x _ => (1,fun y _ => (17 * Init.Nat.min (index x) (index y) + 17,tt))).
-  Proof.
-    extract.
-    solverec.
-  Qed. *)
-
 End finType_eqb.
-
-Lemma enc_finType_eq (X:finType) (x:X):
-  enc (encodable := encodable_finType) x = enc (index x).
-Proof.
-  reflexivity.
-Qed.
-
-Lemma size_finType_le (X:finType) (x:X):
-  size (enc (encodable := encodable_finType) x) <= length (elem X) * 4.
-Proof.
-  rewrite enc_finType_eq,size_nat_enc. specialize (index_le x). 
-  unfold c__natsizeS, c__natsizeO. lia.
-Qed.
