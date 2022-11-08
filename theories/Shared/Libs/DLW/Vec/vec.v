@@ -163,19 +163,29 @@ Section vector.
     + repeat rewrite vec_change_neq; auto.
   Qed.
 
+  Section vec_eq_dec_pos.
+
+    Fixpoint vec_eq_dec_pos n (u v : vec n) { struct u } :
+         (forall p, { vec_pos u p = vec_pos v p } + { vec_pos u p <> vec_pos v p })
+      -> { u = v } + { u <> v }.
+    Proof.
+      destruct u as [ | x n u ].
+      + rewrite (vec_0_nil v); left; reflexivity.
+      + rewrite (vec_head_tail v); generalize (vec_head v) (vec_tail v); intros y w H.
+        destruct (H pos0) as [ G1 | G1 ]; simpl vec_pos in G1; subst.
+        2:{ right; contradict G1; apply vec_cons_inv in G1; tauto. }
+        destruct (vec_eq_dec_pos _ u w) as [ G2 | G2 ]; subst.
+        * intros p; apply (H (pos_nxt p)).
+        * left; reflexivity.
+        * right; contradict G2; apply vec_cons_inv in G2; tauto.
+    Qed.
+
+  End vec_eq_dec_pos.
+
   Variable eq_X_dec : forall x y : X, { x = y } + { x <> y }.
 
-  Fixpoint vec_eq_dec n (u v : vec n) : { u = v } + { u <> v }.
-  Proof using eq_X_dec.
-    destruct u as [ | x n u ].
-    + left.
-      rewrite vec_0_nil; trivial.
-    + destruct (eq_X_dec x (vec_head v)) as [ E1 | D ].
-      * destruct (vec_eq_dec _ u (vec_tail v)) as [ E2 | D ].
-        - left; subst; rewrite <- vec_head_tail; auto.
-        - right; contradict D; subst; rewrite <- D; auto.
-      * right; contradict D; subst; auto.
-  Defined.
+  Fact vec_eq_dec n (u v : vec n) : { u = v } + { u <> v }.
+  Proof using eq_X_dec. apply vec_eq_dec_pos; auto. Qed.
   
   Fixpoint vec_list n (v : vec n) := 
     match v with  
