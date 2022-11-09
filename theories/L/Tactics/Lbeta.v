@@ -21,15 +21,6 @@ Ltac reflexivity' :=
     | |- ?G => has_no_evar G;reflexivity
   end.
 
-Lemma evalIn_refl n s : proc s -> s ⇓(<=n) s.
-Proof.
-  intros. split.
-  -exists 0;split.
-   +lia.
-   +reflexivity.
-  -Lproc.
-Qed.
-
 Lemma eval_refl s : lambda s -> s ⇓ s.
 Proof.
   intros. split. reflexivity. Lproc.
@@ -147,9 +138,7 @@ Qed.
 
 Ltac Lreflexivity :=
   once lazymatch goal with
-  | |- _ ⇓(<=_) _ => solve [apply (@evalIn_refl 0);Lproc | apply evalIn_refl;Lproc ]
   | |- _ >(<= _ ) _ => apply redLe_refl
-  | |- _ ⇓(?i) _ => unify i 0;split;[reflexivity|Lproc]
   | |- _ ⇓ _ => solve [apply eval_refl;Lproc]
   | |- _ >* _ => reflexivity
   | |- _ >(_) _ => now apply pow0_refl
@@ -167,9 +156,6 @@ Ltac Lbeta' n :=
     | |- _ >(<=?i) _ => tryif is_evar i
       then eapply redle_trans;[apply pow_redLe_subrelation;simplify_L' n|]
       else ((eapply redle_trans_eq;[ | apply pow_redLe_subrelation;simplify_L' n| ]);[try reflexivity | ..])
-                                             
-    | |- _ ⇓(<= _) _ => eapply evalle_trans;[apply pow_redLe_subrelation;simplify_L' n|]
-    | |- _ ⇓(_) _ => eapply evalIn_trans;[Lbeta' n|]                                                  
     | |- _ ⇓ _ => eapply eval_helper;[eapply pow_star_subrelation;simplify_L' n|]
     | |- _ >* _ => etransitivity;[eapply pow_star_subrelation;simplify_L' n|]
     | |- ?G => fail "Not supported for LSimpl (or other failed):" G 

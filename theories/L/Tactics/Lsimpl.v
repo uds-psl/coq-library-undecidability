@@ -1,5 +1,5 @@
 From Undecidability.L Require Export Util.L_facts.
-From Undecidability.L.Tactics Require Import Lproc Lbeta Lrewrite Reflection mixedTactics.
+From Undecidability.L.Tactics Require Import Lproc Lbeta Lrewrite Reflection.
 Require Import ListTactics.
 Import L_Notations.
 
@@ -16,27 +16,11 @@ Ltac Lsimpl' :=
   end.
 
 Ltac Lreduce :=
-  repeat progress ( (Lrewrite;try Lbeta) || Lbeta). 
-           
-
-(*Lsimpl that uses correctnes lemmas*)
-Ltac Lsimpl_old :=intros;
-  once lazymatch goal with
-  | |- _ >(<= _ ) _ => Lreduce;try Lreflexivity
-  | |- _ ⇓(_ ) _ => repeat progress Lbeta;try Lreflexivity
-  | |- _ ⇓(<= _ ) _ => Lreduce;try Lreflexivity
-  | |- _ >(_) _ => repeat progress Lbeta;try Lreflexivity
-  | |- _ >* _ => Lreduce;try Lreflexivity (* test *)
-  | |- eval _ _ => Lreduce;try Lreflexivity (* test *) 
-  (*| |- _ >* _  => repeat Lsimpl';try reflexivity'
-  | |- eval _ _  => repeat Lsimpl';try reflexivity'*)
-  | |- _ == _  => repeat Lsimpl';try reflexivity'
-  end.
-
+  repeat progress ( (Lrewrite;try Lbeta) || Lbeta).
 
 Ltac Lsimpl :=
   lazymatch goal with
-  | |- _ >( _ ) _ => Lsimpl_old
+  | |- _ >( _ ) _ => repeat progress Lbeta;try Lreflexivity
   | |- _ => LrewriteSimpl
   end.
 
@@ -71,13 +55,6 @@ Tactic Notation "redStep" "in" hyp(h) := redStep in h at 1.
 Lemma rho_correct s t : proc s -> lambda t -> rho s t >* s (rho s) t.
 Proof.
   intros. unfold rho,r. redStep at 1. apply star_trans_l. now Lsimpl. 
-Qed.
-
-Lemma rho_correctPow s t : proc s -> lambda t -> rho s t >(3) s (rho s) t.
-Proof.
-  intros. unfold rho,r. change 3 with (1+2). apply pow_add.
-  eexists;split. apply (rcomp_1 step). now inv H0.
-  cbn. closedRewrite. apply pow_step_congL;[|reflexivity]. now Lbeta.  
 Qed.
 
 (* Hint Resolve rho_correct : Lrewrite. *)
@@ -132,12 +109,3 @@ Qed.
 
 #[export] Hint Extern 0 (I >(_) _)=> unfold I;reflexivity : Lrewrite.
 #[export] Hint Extern 0 (K >(_) _)=> unfold K;reflexivity : Lrewrite.
-
-
-Lemma Omega_diverge t: ~ eval Omega t.
-Proof.
-  intros (?&?). remember Omega as s eqn:HO. induction H;subst.
-  -inv H0. easy.
-  -unfold Omega in H. inv H. cbn in *. eauto. all:easy.
-Qed.
-

@@ -1,6 +1,7 @@
-Require Export Undecidability.TM.Code.CodeTM Undecidability.TM.Code.ChangeAlphabet.
+Require Export Undecidability.TM.Code.CodeTM.
 Require Export Undecidability.TM.Compound.TMTac.
 Require Export Undecidability.TM.Basic.Mono Undecidability.TM.Compound.Multi.
+Require Import Undecidability.TM.Combinators.Combinators.
 (* the above imports sidestep the import of ProgrammingTools below to avoid the dependency on Hoare *)
 (*From Undecidability.TM Require Import ProgrammingTools.*)
 From Undecidability Require Import ArithPrelim.
@@ -86,21 +87,21 @@ Definition ReadB_rel' d n : Vector.t (tape bool) 1 -> option (Fin.t (d + n)) * V
   fun t '(l, t') =>
     forall t_sig : tape (Fin.t n), t = [| encode_tape t_sig |] -> t' = t /\ forall s, current t_sig = Some s -> l = Some (Fin.R d s).
 
-Smpl Add eassumption : TM_Correct.
+#[local] Hint Extern 0 => eassumption : TMdb.
 
 Fixpoint ReadB_canonical n :
   {Rel | ReadB n ⊨ Rel}.
 Proof.
   destruct n; cbn.
-  - eexists. TM_Correct.
-  - eexists. eapply Switch_Realise. TM_Correct. cbn in *. intros [ | ].
+  - eexists. now auto with nocore TMdb.
+  - eexists. eapply Switch_Realise. now auto with nocore TMdb. cbn in *. intros [ | ].
     instantiate (1 := fun o => match o with None => _ | Some _ => _ end).
-    eapply Seq_Realise. TM_Correct.
-    eapply Switch_Realise. TM_Correct. cbn in *. intros [[] | ].
+    eapply Seq_Realise. now auto with nocore TMdb.
+    eapply Switch_Realise. now auto with nocore TMdb. cbn in *. intros [[] | ].
     instantiate (1 := fun o => match o with None => _ | Some true => _ | Some false => _ end). cbn in *.
-    TM_Correct. eapply Switch_Realise. eapply (proj2_sig (ReadB_canonical n)).
+    now auto with nocore TMdb. eapply Switch_Realise. eapply (proj2_sig (ReadB_canonical n)).
     instantiate (1 := fun o => match o with None => _ | Some _ => _ end).
-    intros []; TM_Correct. TM_Correct. cbn. TM_Correct. 
+    intros []; now auto with nocore TMdb. now auto with nocore TMdb. cbn. now auto with nocore TMdb. 
 Defined. (* because definition *)
 
 Lemma ReadB_Realise n :
@@ -156,28 +157,26 @@ Lemma ReadB_total n :
   isTotal (ReadB n).
 Proof. 
   induction n. 
-  - cbn. eexists. eapply TerminatesIn_monotone. TM_Correct. 
+  - cbn. eexists. eapply TerminatesIn_monotone. now auto with nocore TMdb. 
     intros ? ? H. exact H.
   - destruct IHn as [c IH].
     eexists. eapply TerminatesIn_monotone. cbn.
-    eapply Switch_TerminatesIn. TM_Correct. TM_Correct.
+    eapply Switch_TerminatesIn. now auto with nocore TMdb. now auto with nocore TMdb.
     intros []. instantiate (1 := fun f => if f then _ else _). cbn.
     instantiate (1 := ltac:(clear f; refine _)).
-    eapply Seq_TerminatesIn. TM_Correct. TM_Correct.
-    eapply Switch_TerminatesIn. TM_Correct. TM_Correct.
+    eapply Seq_TerminatesIn. now auto with nocore TMdb. now auto with nocore TMdb.
+    eapply Switch_TerminatesIn. now auto with nocore TMdb. now auto with nocore TMdb.
     intros []. instantiate (1 := fun f => match f with Some true => _ | Some false => _ | None => _ end). cbn.
     destruct b0 as [[] | ].
     + cbn. instantiate (1 := ltac:(clear f b0; refine _)).
-      TM_Correct.
+      now auto with nocore TMdb.
     + instantiate (1 := ltac:(clear f b0; refine _)).
       eapply Switch_TerminatesIn. eapply ReadB_Realise. eassumption.
-      intros []. cbn. TM_Correct.
-      instantiate (1 := fun f => if f then _ else _). cbn.
-      instantiate (1 := ltac:(clear f; refine _)). TM_Correct.
-      cbn.
-      instantiate (1 := ltac:(clear f; refine _)).  TM_Correct.
-    + cbn. instantiate (1 := ltac:(clear f; refine _)).  TM_Correct.
-    + cbn. instantiate (1 := ltac:(clear f; refine _)).  TM_Correct.
+      intros []. cbn. 
+      instantiate (1 := fun f => if f then _ else _). cbn. now auto with nocore TMdb.
+      now auto with nocore TMdb.
+    + cbn. instantiate (1 := ltac:(clear f; refine _)).  now auto with nocore TMdb.
+    + cbn. instantiate (1 := ltac:(clear f; refine _)).  now auto with nocore TMdb.
     + cbn. intros ? ? ?. exists 1. eexists. split.
       lia. split. 2:{ intros. TMSimp. destruct_tapes. TMSimp.
       destruct (current _).
@@ -206,10 +205,21 @@ Definition TestLeftof {Σ : finType} : pTM Σ bool 1 :=
 Lemma TestLeftof_Realise {Σ : finType} : 
   @TestLeftof Σ ⊨ fun t '(b, t') => t = t' /\ match t with [| leftof _ _ |] => b = true | _ => b = false end.
 Proof.
-  eapply Realise_monotone. unfold TestLeftof. TM_Correct.
+  eapply Realise_monotone.
+  { unfold TestLeftof. apply Switch_Realise; [now auto with nocore TMdb|].
+    instantiate (1 := fun x => if x then _ else _).
+    intros [].
+    - now auto with nocore TMdb.
+    - apply Switch_Realise; [now auto with nocore TMdb|].
+      intros ?. instantiate (1 := fun x => _).
+      apply Switch_Realise; [now auto with nocore TMdb|].
+      instantiate (1 := fun x => if x then _ else _).
+      intros []; now auto with nocore TMdb. }
   intros t (b, t') ?. TMSimp. destruct_tapes. TMSimp. rename t_0 into t.
   destruct t; cbn in *; TMSimp; eauto.
 Qed.
+
+#[local] Hint Extern 1 (TestLeftof ⊨ _) => eapply TestLeftof_Realise : TMdb.
 
 Definition MoveL_rel {Σ : finType} D (n : nat) : Vector.t (tape Σ) 1 -> unit * Vector.t (tape Σ) 1 -> Prop := 
   fun t '(_, t') => t' = Vector.map (Nat.iter n (fun t => @tape_move Σ t D)) t.
@@ -218,11 +228,13 @@ Lemma MoveM_Realise {Σ : finType} D (n : nat) :
   @MoveM Σ D n ⊨ MoveL_rel D n.
 Proof.
   induction n; unfold MoveL_rel; cbn.
-  - eapply Realise_monotone. TM_Correct. intros t ([], t') ->.
+  - eapply Realise_monotone. now auto with nocore TMdb. intros t ([], t') ->.
     destruct_tapes. reflexivity.
-  - eapply Realise_monotone. eapply Seq_Realise. eassumption. TM_Correct.
+  - eapply Realise_monotone. eapply Seq_Realise. eassumption. now auto with nocore TMdb.
     intros t ([], t') ?; cbn in *. TMSimp. destruct_tapes. TMSimp. reflexivity.
 Qed.
+
+#[local] Hint Extern 1 (MoveM _ _ ⊨ _) => eapply MoveM_Realise : TMdb.
 
 Definition WriteB (n : nat) (c : option (Fin.t n)) : pTM (FinType (EqType bool)) unit 1 :=
   match c with
@@ -257,7 +269,7 @@ Qed.
 Lemma WriteString_MoveBack {Σ : finType} (x : Σ) l :
   (WriteString Rmove (x :: l) ;; MoveM Lmove (|l|)) ⊨ fun t '(_, t') => t' = Vector.map (fun t => midtape (left t) x (l ++ skipn (|l|) (right t))) t.
 Proof.
-  eapply Realise_monotone. TM_Correct. eapply RealiseIn_Realise, WriteString_Sem. eapply MoveM_Realise.
+  eapply Realise_monotone. { now auto with nocore TMdb. }
   intros t ([], t') ([] & t1 & ? & ?). TMSimp. destruct_tapes. TMSimp. f_equal. rename t_0 into t.
   induction l in x, t |- *.
   - reflexivity.
@@ -305,9 +317,13 @@ Proof.
       pose proof (length_encode_sym t).
       destruct (encode_sym) eqn:E.
       * cbn in *. subst. reflexivity.
-      * cbn in *. inv H. rewrite skipn_app. reflexivity. rewrite app_length. cbn. lia.
+      * cbn in *. inv H. rewrite skipn_app.
+        generalize (encode_string l0). intros ?.
+        replace (S (length l1 )) with (length (l1 ++ [true])).
+        { now rewrite Nat.sub_diag, skipn_all. }
+        rewrite app_length. simpl. lia.
       * now rewrite <- app_assoc.
-  - cbn. eapply Realise_monotone. TM_Correct.
+  - cbn. eapply Realise_monotone. now auto with nocore TMdb.
     intros t ([], t') ->. eauto.
 Qed.
 
@@ -315,49 +331,61 @@ Lemma MoveM_isTotal {Σ : finType} D (n : nat) :
   isTotal (@MoveM Σ D n).
 Proof.
   induction n; cbn.
-  - eexists. TM_Correct.
+  - eexists. now auto with nocore TMdb.
   - destruct IHn as [c IH]. eexists. eapply TerminatesIn_monotone.
-    TM_Correct. eapply MoveM_Realise. intros ? ? ?.
+    { now eauto with nocore TMdb. }
+    intros ? ? ?.
     repeat eexists. eapply Nat.le_add_r. cbn. 2: intros; eapply Nat.le_add_r.
     eapply H.
   Unshelve. all:exact 0.
+Qed.
+
+Lemma TestLeftof_total {Σ} :
+  isTotal (@TestLeftof Σ).
+Proof.
+  unfold TestLeftof.
+  eexists. eapply TerminatesIn_monotone.
+  { eapply Switch_TerminatesIn; [now auto with nocore TMdb..|].
+    instantiate (1 := fun x => if x then _ else ltac:(clear x; refine _)).
+    intros []; [now auto with nocore TMdb..|].
+    apply Seq_TerminatesIn; [now auto with nocore TMdb..|].
+    eapply Switch_TerminatesIn; [now auto with nocore TMdb..|].
+    instantiate (1 := fun x => if x then _ else _).
+    intros []; now auto with nocore TMdb. }
+  intros ? ? ?. repeat eexists; help.
+  destruct current; help.
+  repeat eexists. help. help. help. instantiate (1 := ltac:(destruct x; refine _)). cbn. eapply Nat.le_add_r.
+  help. destruct current. help. help.
+  Unshelve. all: try destruct x; cbn.
+  4:{ eapply H. } all:exact 0.
 Qed.
 
 Lemma WriteB_TerminatesIn (n : nat) (c : option (Fin.t n)) :
   isTotal (WriteB c).
 Proof.
   destruct (@MoveM_isTotal (finType_CS bool) Lmove n) as [MoveM_c H_MoveM].
+  destruct (@TestLeftof_total (finType_CS bool)) as [kT HT].
   red. eexists. eapply TerminatesIn_monotone.
   unfold WriteB. destruct c; cbn.
   - instantiate (1 := ltac:(destruct c; refine _ )). cbn.
-    TM_Correct. eapply TestLeftof_Realise. unfold TestLeftof.
-    TM_Correct. eapply RealiseIn_TerminatesIn, WriteString_Sem.
-    eapply RealiseIn_Realise, WriteString_Sem.
-    eapply RealiseIn_TerminatesIn, WriteString_Sem.
-    eapply MoveM_Realise.
-  - cbn. TM_Correct.
+    apply Switch_TerminatesIn; [now auto with nocore TMdb..|].
+    instantiate (1 := fun x => if x then _ else _).
+    intros []; now auto with nocore TMdb.
+  - cbn. now auto with nocore TMdb.
   - cbn. intros ? ? ?. destruct c; cbn.
-    + repeat eexists. help. eapply Nat.le_add_r.
+    + repeat eexists. eapply Nat.le_add_r.
+      unshelve eapply (Nat.le_trans _ _ _ _ H).
+      eapply Nat.le_add_r.
       intros. TMSimp. destruct_tapes. cbn.
-      destruct (current _).
-      * destruct b; help.
-      * repeat eexists. help. help. help. eapply Nat.le_add_r.
-        intros. TMSimp. destruct_tapes. TMSimp. destruct current.
-        destruct b; help. lia.
-      * eapply H.
-      * intros. TMSimp. destruct_tapes. rename tout_0 into h. destruct h; help.
-        -- TMSimp. repeat eexists.
-           rewrite !app_length, length_encode_sym. cbn. eapply Nat.le_add_r. cbn.
-           instantiate (1 := ltac:(destruct c; refine _ )). cbn in *.
-           eapply Nat.le_add_r. eapply Nat.le_add_r. eapply Nat.le_add_r. intros. eapply Nat.le_add_r.
-        -- TMSimp. rewrite !app_length, rev_length, !app_length, length_encode_sym. cbn. lia.
-        -- TMSimp. repeat eexists. rewrite !app_length, length_encode_sym. cbn. eapply Nat.le_add_r.
-           2: eapply Nat.le_add_r. 2:eapply Nat.le_add_r. 2: intros; eapply Nat.le_add_r.
-           ring_simplify. shelve.
-        -- TMSimp. repeat eexists. rewrite !app_length, length_encode_sym. cbn.
-           eapply Nat.le_add_r. cbn. shelve. eapply Nat.le_add_r. eapply Nat.le_add_r. intros. eapply Nat.le_add_r.
+      destruct yout.
+      * cbn. repeat (rewrite !app_length, ?rev_length, ?length_encode_sym; cbn). eapply Nat.le_add_r.
+      * repeat eexists. eapply Nat.le_add_r.
+        repeat (rewrite !app_length, ?rev_length, ?length_encode_sym; cbn).
+        eapply Nat.le_add_l.
+        eapply Nat.le_add_r. eapply Nat.le_add_r.
+        intros. TMSimp. eapply Nat.le_add_r.
     + lia.
-    Unshelve. all: try exact 0. lia. lia. lia.
+    Unshelve. all: exact 0.
 Qed.
 
 Definition MoveB (m : move) n : pTM (finType_CS bool) unit 1 :=
@@ -407,8 +435,7 @@ Proof.
     instantiate (1 := R m). subst R. 
     instantiate (1 := fun m b => if b then _ else _). cbn.
     intros []. cbn. instantiate (1 := match m0 with Rmove => _ | _ => _ end). cbn. destruct m.
-    TM_Correct. eapply MoveM_Realise. TM_Correct. TM_Correct. eapply MoveM_Realise.
-    TM_Correct. eapply MoveM_Realise. } subst R.
+    all: now auto with nocore TMdb. } subst R.
 
   assert (forall n c rs, Nat.iter n (fun t : tape bool  => tape_move_left t) (leftof c rs) = leftof c rs) as Eleft. {
     clear. intros. clear. induction  n; cbn. reflexivity. rewrite Nat_iter_S', IHn. reflexivity. }
@@ -453,19 +480,6 @@ Proof.
     + cbn. rewrite Nat_iter_id. reflexivity.
 Qed.
 
-Lemma TestLeftof_total {Σ} :
-  isTotal (@TestLeftof Σ).
-Proof.
-  unfold TestLeftof.
-  eexists. eapply TerminatesIn_monotone.
-  TM_Correct. intros ? ? ?. repeat eexists; help.
-  destruct current; help.
-  repeat eexists. help. help. help. instantiate (1 := ltac:(destruct x; refine _)). cbn. eapply Nat.le_add_r.
-  help. destruct current. help. help.
-  Unshelve. all: try destruct x; cbn.
-  4:{ eapply H. } all:exact 0.
-Qed.
-
 Lemma MoveB_total (n : nat) :
   exists c, forall m, projT1 (MoveB m n) ↓ fun t k => c <= k.
 Proof.
@@ -473,48 +487,31 @@ Proof.
   destruct (@MoveM_isTotal (finType_CS bool) Lmove n) as [c1 H1].
   destruct (@MoveM_isTotal (finType_CS bool) Nmove n) as [c2 H2].
   destruct (@MoveM_isTotal (finType_CS bool) Rmove n) as [c3 H3].
-
-  eexists. intros m. eapply TerminatesIn_monotone.
-  unfold MoveB.
-  eapply Switch_TerminatesIn.
-  TM_Correct. eapply TestLeftof_Realise. eapply Hlo.
-  intros f. instantiate (1 := fun f => if f then _ else _). cbn.
-  destruct f.
-  - destruct m. instantiate (1 := ltac:(destruct m, f; refine _)). all: cbn.
-    eapply Seq_TerminatesIn. TM_Correct. eapply MoveM_Realise. TM_Correct.
-    eapply MoveM_Realise. TM_Correct. TM_Correct.
-    TM_Correct. eapply MoveM_Realise. eapply MoveM_Realise.
-  - instantiate (1 := ltac:(destruct f; refine _)); cbn.
-    TM_Correct. eapply MoveM_Realise. eapply MoveM_Realise.
-    destruct m. instantiate (1 := ltac:(destruct m; refine _)); cbn. all: cbn.
-    all:eassumption.
-  - cbn. intros ? ? ?. repeat eexists; help.
-    TMSimp. destruct_tapes. TMSimp.
-    rename tout_0 into h. destruct h; TMSimp. repeat eexists; help. destruct m.
-    instantiate (1:= ltac:(destruct m; refine _)); cbn. all:cbn.
-    all:help.
-    destruct m. instantiate (1:= ltac:(destruct m; refine _)); cbn. all:cbn.
-
-    repeat eexists; help. lia.
-    repeat eexists; help.     
-    repeat eexists. destruct m. instantiate (1:= ltac:(destruct m; refine _)); cbn. all:cbn.
-    all:help.
-    repeat eexists. destruct m. instantiate (1:= ltac:(destruct m; refine _)); cbn. all:cbn.
-    all:help.
-    Unshelve. all: try destruct x; cbn in *.
-      all: try destruct x; cbn in *. 
-      all:try destruct m; cbn in *.
-      17:{ eapply H. }
-      16:{
-      instantiate (6 := c1).
-      instantiate (6 := c3) in H. ring_simplify in H.
-      ring_simplify.
-      replace (c + c1 + c3) with (c + c3 + c1) by lia. eapply H. }
-      14:{ring_simplify. ring_simplify in H.
-      instantiate (6 := c3). instantiate (5 := c1).
-      instantiate (5 := c2) in H.
-      replace (c + c3 + c2 + c1) with (c + c3 + c1 + c2) by lia. eapply H. }
-      all:try exact 0. all: try lia. all: exact (fun _ _ => True).
+  assert (forall m, projT1 (MoveM m n) ↓ (fun (_ : tapes (finType_CS bool) 1) (k : nat) => c1+c2+c3 <= k)) as HMoveM.
+  { intros []; eapply TerminatesIn_monotone; try eassumption.
+    all: intros ??; lia. }
+  eexists. intros m. specialize (HMoveM m).
+  eapply TerminatesIn_monotone.
+  { unfold MoveB. eapply Switch_TerminatesIn; [now auto with nocore TMdb..|].
+    intros f. instantiate (1 := fun f => if f then _ else _).
+    destruct f.
+    - destruct m. instantiate (1 := ltac:(destruct m, f; refine _)). all: cbn.
+      all: now auto with nocore TMdb.
+    - instantiate (1 := ltac:(destruct f; refine _)); cbn.
+      now auto with nocore TMdb. }
+  cbn. intros ? ? ?. repeat eexists.
+  eapply Nat.le_add_r.
+  unshelve eapply (Nat.le_trans _ _ _ _ H).
+  eapply Nat.le_add_r.
+  intros. TMSimp. destruct yout.
+  + destruct m; cbn.
+    * repeat eexists. all: intros; eapply Nat.le_add_r.
+    * eapply Nat.le_add_l.
+    * repeat eexists. all: intros; eapply Nat.le_add_r.
+  + repeat eexists. all: intros; eapply Nat.le_add_r.
+  Unshelve.
+  all: try exact (fun _ _ => True).
+  all: exact 0.
 Qed.
 
 (* Specialized Facts *)
@@ -538,14 +535,6 @@ Section FixM.
   Let g := (proj1_sig (projT2 (projT2 (finite_n Σ)))).
   Let Hf := (proj1 (proj2_sig (projT2 (projT2 (finite_n Σ))))).
   Let Hg := (proj2 (proj2_sig (projT2 (projT2 (finite_n Σ))))).
-
-  Instance R : Retract (Fin.t n) Σ.
-  Proof.
-    eapply (@Build_Retract _ _ g (fun x => Some (f x ))).
-    econstructor.
-    - intros [= <-]; now rewrite Hg.
-    - intros ->; now rewrite Hf.
-  Qed.
 
   Definition encode_tape' (t : tape Σ) : tape bool := encode_tape (mapTape f t).
 
@@ -588,10 +577,10 @@ Section FixM.
                                           let '(existT _ (c', m) _) := destruct_vector_cons e in
                                           WriteB (map_opt f c') ;; MoveB m n ;; Return Nop (inl q')).
 
-  Smpl Add (eapply ReadB_Realise') : TM_Correct.
-  Smpl Add (eapply WriteB_Realise') : TM_Correct.
-  Smpl Add (eapply MoveB_Realise') : TM_Correct.
-                                                                         
+  #[local] Hint Extern 1 (ReadB _ ⊨ _) => eapply ReadB_Realise' : TMdb.
+  #[local] Hint Extern 1 (WriteB _ ⊨ _) => eapply WriteB_Realise' : TMdb.
+  #[local] Hint Extern 1 (MoveB _ _ ⊨ _) => eapply MoveB_Realise' : TMdb.
+
   Lemma Step_Realise q :
     Step q ⊨ fun t '(q_, t') => 
       forall t_sig, t = [| encode_tape' t_sig |] ->
@@ -603,16 +592,16 @@ Section FixM.
     eapply Realise_monotone.
 
     {
-      unfold Step. eapply Switch_Realise. TM_Correct. cbn.
+      unfold Step. eapply Switch_Realise. now auto with nocore TMdb. cbn.
       intros c_i. instantiate (1 := fun c_i => _). cbn. instantiate (1 := ltac:(destruct (halt q); refine _)).
       destruct (halt q). cbn.
-      TM_Correct. 
+      now auto with nocore TMdb. 
       instantiate (1 := ltac:(destruct (trans (q, [|map_opt g c_i|])); refine _)). cbn.
       destruct (trans (q, [|map_opt g c_i|])).
       instantiate (1 := ltac:(destruct (destruct_vector_cons t); refine _)). cbn.
       destruct (destruct_vector_cons t). cbn.
       instantiate (1 := ltac:(destruct x; refine _)). cbn.
-      destruct x. TM_Correct.
+      destruct x. now auto with nocore TMdb.
     }
 
     intros t (q_, t') ? t_sig ->. TMSimp. 
@@ -627,6 +616,8 @@ Section FixM.
       TMSimp. destruct_vector. split. reflexivity.
       now eapply H0, H.
   Qed.
+
+  #[local] Hint Extern 1 (Step _ ⊨ _) => eapply Step_Realise : TMdb.
 
   Lemma WriteB_total'  :
     exists C, forall (c : option (Fin.t n)), projT1 (WriteB c) ↓ fun t k => k >= C.
@@ -645,25 +636,25 @@ Section FixM.
     destruct (WriteB_total').
     eexists. eapply TerminatesIn_monotone.
     - unfold Step. eapply Switch_TerminatesIn.
-      TM_Correct.  cbn in *. eapply H0. cbn.
+      now auto with nocore TMdb.  cbn in *. eapply H0. cbn.
       intros c_i. instantiate (1 := ltac:(intros c_i; refine _)); cbn.
         instantiate (1 := ltac:(destruct (halt q); refine _)); cbn.
         destruct halt.  
-        TM_Correct. 
+        now auto with nocore TMdb. 
         instantiate (1 := ltac:(destruct (trans (q, [| map_opt g c_i |])),
         (destruct_vector_cons t),
         x2 ; refine _)); cbn.
         
         destruct (trans (q, [| map_opt g c_i |])); cbn.
         destruct (destruct_vector_cons t); cbn.
-        destruct x2. TM_Correct. eapply H1. eapply H.
+        destruct x2. now auto with nocore TMdb.
     - cbn. intros ? ? ?. repeat eexists; help.  
       instantiate (1 := ltac:(destruct (halt q); refine _)); cbn.
       destruct halt. lia. rename yout into c_i.
       destruct (trans (q, [| map_opt g c_i |])); cbn.
       destruct (destruct_vector_cons t); cbn.
       instantiate (1 := ltac:(destruct x2; refine _)).
-      destruct x2. TM_Correct.
+      destruct x2.
       repeat eexists. 
       eapply Nat.le_add_r. eapply Nat.le_add_r. eapply Nat.le_add_r.
       eapply Nat.le_add_r. intros. eapply Nat.le_add_r.
@@ -673,6 +664,7 @@ Section FixM.
     all:exact 0.
     Unshelve. all:exact 0.
   Qed.
+
 
   Lemma Step_total' :
     exists C, forall q, projT1 (Step q) ↓ fun t k => C <= k.
@@ -689,9 +681,7 @@ Section FixM.
     generalize (start M). intros q.
 
     eapply Realise_monotone.
-    { 
-      TM_Correct. eapply Step_Realise. 
-    }
+    { now auto with nocore TMdb. }
 
     intros t (l, t') ? t_sig E.
     TMSimp. destruct_tapes. rename t'_0 into t'.

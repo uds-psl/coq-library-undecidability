@@ -56,11 +56,13 @@ Section Write_String.
     WriteString str ⊨c(WriteString_steps (length str)) (WriteString_sem_fix str).
   Proof.
     induction str as [ | s [ | s' str'] IH ].
-    - cbn. change (2 * 0 - 1) with 0. TM_Correct.
-    - cbn. change (2 * 1 - 1) with 1. TM_Correct.
+    - apply Nop_Sem.
+    - apply Write_Sem.
     - change (WriteString (s :: s' :: str')) with (WriteMove s D;; WriteString (s' :: str')).
       eapply RealiseIn_monotone.
-      { TM_Correct. TM_Correct. apply IH. }
+      { apply Seq_RealiseIn.
+        - apply WriteMove_Sem.
+        - apply IH. }
       { unfold WriteString_steps. cbn. lia. }
       { intros t1 t3 H. destruct H as (()&t2&H1&H2).
         change (WriteString_sem_fix (s :: s' :: str')) with (WriteMove_Rel s D |_tt ∘ WriteString_sem_fix (s' :: str')).
@@ -158,7 +160,8 @@ Proof.
   revert t. induction str as [ | s [ | s' str'] IH]; intros; cbn in *.
   - tauto.
   - reflexivity.
-  - rewrite IH. simpl_tape. rewrite tl_app with (ys:=[s]),<- !app_assoc. reflexivity. intros (?&[=])%app_eq_nil.
+  - rewrite IH. simpl_tape. destruct (rev str'); [easy|].
+    cbn. now rewrite <- !app_assoc.
 Qed.
 
 Lemma WriteString_L_current (sig : Type) (str : list sig) t :
@@ -170,3 +173,7 @@ Proof.
   - rewrite IH. autorewrite with list. setoid_rewrite app_assoc at 1 2.
     cbn. now destruct (map Some (rev str')); cbn.
 Qed.
+
+#[export] Hint Extern 1 (WriteString _ _ ⊨ _) => eapply RealiseIn_Realise; eapply WriteString_Sem : TMdb.
+#[export] Hint Extern 1 (WriteString _ _ ⊨c(_) _) => eapply WriteString_Sem : TMdb.
+#[export] Hint Extern 1 (projT1 (WriteString _ _) ↓ _) => eapply RealiseIn_TerminatesIn; eapply WriteString_Sem : TMdb.

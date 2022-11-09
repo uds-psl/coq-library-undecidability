@@ -1,4 +1,4 @@
-From Undecidability.L Require Export Prelim.ARS Prelim.MoreBase.
+From Undecidability.L Require Export Prelim.ARS.
 From Undecidability.Shared.Libs.PSL Require Export Base.
 From Undecidability.L Require Export L.
 
@@ -210,6 +210,13 @@ Proof.
   decide (bound 0 s);[left|right];now rewrite closed_dcl.
 Defined. (* because instance *)
 
+Lemma closed_nat_enc n : closed (nat_enc n).
+Proof.
+  induction n as [|n IH].
+  - easy.
+  - intros i t. cbn. now rewrite (IH (S (S i)) t).
+Qed.
+
 (* ** Reduction *)
 
 Reserved Notation "s '≻' t" (at level 50).
@@ -235,7 +242,7 @@ Proof.
   revert k t; induction s; intros k t cls_s cls_t; simpl; inv cls_s; eauto 6 using bound, bound_gt.
   destruct (Nat.eqb_spec n k); eauto. econstructor.  lia.
 Qed.
-  
+
 Lemma closed_step s t : s ≻ t -> closed s -> closed t.
 Proof.
   rewrite !closed_dcl; induction 1; intros cls_s; inv cls_s; eauto using bound.
@@ -252,15 +259,6 @@ Proof with try tauto.
     + right; subst. firstorder; eexists. eapply stepAppL. eassumption.
     + right. subst. firstorder. eexists. eapply stepAppR. eassumption.
   - left. split. eassumption. firstorder.
-Qed.
-
-Goal forall s, closed s -> ((~ exists t, s ≻ t) <-> proc s).
-Proof.
-  intros s cls_s. split.
-  destruct (comb_proc_red cls_s).
-  - eauto.
-  - tauto.
-  - destruct 1 as [? [? ?]]. subst. destruct 1 as [? B]. inv B.
 Qed.
 
 (* Properties of the reduction relation *)
@@ -486,18 +484,6 @@ Instance converges_proper :
 Proof.
   intros s t H. now eapply converges_equiv.
 Qed.
-(*
-Lemma eq_lam s t : lambda s -> lambda t -> lam s == lam t <-> s = t.
-Proof.
-  split.
-  - intros H. eapply equiv_lambda in H; repeat inv_step; reflexivity.
-  - intros []. reflexivity.
-Qed.  
-
-Lemma unique_normal_forms' (s t t' : term) : s == lam t -> s == lam t' -> lam t = lam t'.
-Proof.
-  intros Ht Ht'. rewrite Ht in Ht'. eapply eq_lam in Ht'. congruence.
-Qed.*)
 
 Lemma unique_normal_forms (s t : term) : lambda s -> lambda t ->  s == t -> s = t.
 Proof.
@@ -558,56 +544,13 @@ Proof.
   repeat intro;subst. destruct H1. split;try auto. apply equiv_lambda. auto. now rewrite <- H0, H.
 Qed.
 
-Definition evalIn i s t := s >(i) t /\ lambda t.
-
-Notation "s '⇓(' l ')' t" := (evalIn l s t) (at level 50, format "s  '⇓(' l ')'  t").
-
 Definition redLe l s t := exists i , i <= l /\ pow step i s t.
 Notation "s '>(<=' l ')' t" := (redLe l s t) (at level 50, format "s  '>(<=' l ')'  t").
-
-Definition evalLe l s t := s >(<=l) t /\ lambda t.
-Notation "s '⇓(<=' l ')' t" := (evalLe l s t) (at level 50, format "s  '⇓(<=' l ')'  t").
-
-#[global]
-Instance evalLe_eval_subrelation i: subrelation (evalLe i) eval.
-Proof.
-  intros ? ? [[? []] ?]. split. eapply pow_star_subrelation. all:eauto. 
-Qed.
-
-Lemma evalLe_evalIn s t k:
-  s ⇓(<=k) t -> exists k', k' <= k /\ s ⇓(k') t.
-Proof.
-  unfold evalLe,redLe,evalIn. firstorder.
-Qed.
-
-Lemma evalIn_evalLe s t k k':
-  k' <= k -> s ⇓(k') t -> s ⇓(<=k) t.
-Proof.
-  unfold evalLe,redLe,evalIn. firstorder.
-Qed.
-
-#[global]
-Instance evalIn_evalLe_subrelation i: subrelation (evalIn i) (evalLe i).
-Proof.
-  intros s t (R & lt). split;[now exists i|trivial]. 
-Qed.
 
 #[global]
 Instance pow_redLe_subrelation i: subrelation (pow step i) (redLe i).
 Proof.
   intros s t R. now exists i. 
-Qed.
-
-#[global]
-Instance evalLe_redLe_subrelation i: subrelation (evalLe i) (redLe i).
-Proof.
-  now intros ? ? [].
-Qed.
-
-#[global]
-Instance evalIn_eval_subrelation i: subrelation (evalIn i) eval.
-Proof.
-  intros ? ? [?  ?]. split. eapply pow_star_subrelation. all:eauto. 
 Qed.
 
 #[global]
@@ -629,26 +572,6 @@ Proof.
   intros ? <-. easy.
 Qed.
 
-#[global]
-Instance le_evalLe_proper: Proper (le ==> eq ==> eq ==> Basics.impl) evalLe.
-Proof.
-  intros ? ? H' ? ? -> ? ? -> [H p].
-  split. 2:tauto. now rewrite <- H'.
-Qed.
-
-Lemma evalIn_mono s t n n' :
-  s ⇓(<=n) t -> n <= n' -> s ⇓(<=n') t.
-Proof.
-  intros ? <-. easy.
-Qed.
-
-Lemma evalIn_trans s t u i j :
-  s >(i) t -> t ⇓(j) u -> s ⇓(i+j) u.
-Proof.
-  intros R1 [R2 lam].
-  split; eauto using pow_trans.  
-Qed.
-
 Lemma redle_trans s t u i j :
   s >(<=i) t -> t >(<=j) u -> s >(<=i+j) u.
 Proof.
@@ -660,13 +583,6 @@ Lemma redle_trans_eq s t u i j k :
   i+j=k ->  s >(<=i) t -> t >(<=j) u -> s >(<=k) u.
 Proof.
   intros;subst;eauto using redle_trans.  
-Qed.
-
-Lemma evalle_trans s t u i j :
-  s >(<=i) t -> t ⇓(<=j) u -> s ⇓(<=i+j) u.
-Proof.
-  intros R1 [R2 lam].
-  split; eauto using redle_trans.  
 Qed.
 
 #[global]
@@ -681,56 +597,7 @@ Proof.
   intro. eexists; split;reflexivity.  
 Qed.
 
-Lemma evalIn_unique s k1 k2 v1 v2 :
-  s ⇓(k1) v1 -> s ⇓(k2) v2 -> k1 = k2 /\ v1 = v2.
-Proof.
-  intros (R1&L1) (R2&L2).
-  eapply uniform_confluence_parameterized_both_terminal.
-  all:eauto using lam_terminal,uniform_confluence.
-Qed.
-
-Lemma eval_evalIn s t:
-  eval s t -> exists k, evalIn k s t.
-Proof.
-  intros [(R&?)%star_pow ?]. unfold evalIn. eauto.
-Qed.
-
-(* Helpfull Lemmas*)
-
-Lemma pow_trans_lam' t v s k j:
-  lambda v -> pow step j t v -> pow step k t s  -> j>=k /\ pow step (j-k) s v.
-Proof.
-  intros lv A B.
-  destruct (parametrized_confluence uniform_confluence A B) 
-     as [m' [l [u [m_le_Sk [l_le_n [C [D E]]]]]]].
-  cut (m' = 0).
-  -intros ->. split. lia. replace (j-k) with l by lia. hnf in C. subst v. tauto. 
-  -destruct m'; eauto. destruct C. destruct H. inv lv. inv H.
-Qed.
-
-Lemma evalle_trans_rev t v s k j:
-  evalLe j t v -> pow step k t s  -> j>=k /\ evalLe (j-k) s v.
-Proof.
-  intros [(i&lti&R) lv] B.
-  edestruct (pow_trans_lam' lv R B). split. lia. split. 2:tauto. eexists;split. 2:eauto. lia. 
-Qed.
-
-Lemma pow_trans_lam t v s k n :
-  lambda v -> pow step n t v -> pow step (S k) t s  -> exists m, m < n /\ pow step m s v.
-Proof.
-  intros H1 H2 H3. edestruct (pow_trans_lam' H1 H2 H3) as (H'1&H'2). do 2 eexists. 2:eassumption. lia.
-Qed.
-
-Lemma powSk t t' s : t ≻ t' -> t' >* s -> exists k, pow step (S k) t s.
-Proof.
-  intros A B.
-  eapply star_pow in B. destruct B as [n B]. exists n.
-  unfold pow. simpl. econstructor. unfold pow in B. split; eassumption.
-Qed.
-
 (* Properties of rho *)
-
-
 
 Lemma rho_dcls n s : bound (S n) s -> bound n (rho s).
 Proof.

@@ -1,4 +1,4 @@
-From Undecidability.L Require Import Tactics.Computable Lproc Lbeta ComputableTime mixedTactics.
+From Undecidability.L Require Import Tactics.Computable Lproc Lbeta.
 Import L_Notations.
 
 (* *** Lrewrite: simplification with correctness statements*)
@@ -47,7 +47,6 @@ Ltac find_Lrewrite_lemma :=
   once lazymatch goal with
     | |- ?R (lam _) => fail
     | |- ?R (enc _) => fail
-    | |- ?R (extT (ty:=TyB _) _) => fail
     | |- ?R (ext (ty:=TyB _) _) => fail
     | |- ?R ?s _ => has_no_evar s;solve [eauto 20 with Lrewrite nocore]
   end.
@@ -100,18 +99,6 @@ Ltac useFixHypo :=
       computes ?ty _ ?v =>
       change v with (@ext _ ty _ (Build_computable IHInts)) in IHR;exact (proj1 IHR)
     end
-  | |- ?s >(<= ?i ) ?t=>
-    has_no_evar s;
-    let IH := fresh "IH" in
-    unshelve epose (IH:=_);[|(notypeclasses refine (_:{v:term & computesTimeExp _ _ s _ v _}));solve [once auto with nocore]|];
-    (* (let t := type of IH in idtac "Used IH:" t); *)
-    let v := constr:(projT1 IH) in
-    assert (IHR := fst (projT2 IH));
-    let IHInts := constr:( snd (projT2 IH)) in
-    once lazymatch type of IHInts with
-      computesTime ?ty _ ?v _=>
-      change v with (@extT _ ty _ _ (Build_computableTime IHInts)) in IHR;exact (proj1 IHR)
-    end
   end.
 
 Ltac LrewriteTime_solveGoals :=
@@ -124,32 +111,6 @@ Ltac LrewriteTime_solveGoals :=
   | |- app (@ext _ (_ ~> _ ) _ _) (ext _) >* _ => etransitivity;[apply extApp|LrewriteTime_solveGoals]
   | |- app (@ext _ (_ ~> _ ) _ ?ints) (@enc _ ?reg ?x) >* ?v =>
     change (app (@ext _ _ _ ints) (@ext _ _ _ (reg_is_ext reg x)) >* v);LrewriteTime_solveGoals
-
-                                                                          
-
-
-  (* Complexity*)
-  | |- @extT _ (@TyB _ _) _ _ ?inted >(<= _ ) _ =>
-    (progress rewrite (extT_is_enc);[>LrewriteTime_solveGoals..]) || Lreflexivity
-  | |- app (@extT _ (_ ~> _ ) _ _ ?fInts) (@extT _ _ _ _ ?xInts) >(<= _ ) _ => eapply redle_trans;
-    [let R := fresh "R" in
-     specialize (extTApp fInts xInts) as R;
-     once lazymatch type of R with
-       (* As we might build n using the projection on an on-ty-fly constructed computableTime-instance, we mustavoid it to depend on the proof that the time function is correct*)
-       ?s >(<= ?n) ?t => let n' := eval unfold evalTime in n in
-                          change (s >(<= n') t) in R
-     end; exact R
-    |LrewriteTime_solveGoals] 
-  | |- app (@extT _ (_ ~> _ ) _ _ ?ints) (@enc _ ?reg ?x) >(<= ?k ) ?v =>
-    change (app (@extT _ _ _ _ ints) (@extT _ _ _ _ (reg_is_extT reg x)) >(<= k) v);LrewriteTime_solveGoals
-
-  (*| xInts : computes ?ty ?x ?xInt _
-    |- ?R ?xInt ?res => change (R (@ext _ _ x (Build_computable xInts)) res)
-                      ;reflexivity*)
-  (* Correctness Lemmatas: *) 
-
-(* do nothing to debug: use idtac here!*)
-  | |- _ >(<= _ ) _ => Lreflexivity (* TO DEBUG: use idtac here*)
   | |- _ >* _ => reflexivity (* TO DEBUG: use idtac here*)
   end.
 
@@ -173,8 +134,6 @@ Ltac Lrewrite' :=
 Tactic Notation "Lrewrite_wrapper" tactic(k):=
 once lazymatch goal with
 | |- _ >(<= _) _ => k
-| |- _ ⇓(<= _) _ => (eapply evalle_trans;[k;Lreflexivity|])
-| |- _ ⇓( _) _ => idtac "Lrewrite_prepare does not support s ⇓(k) y, only s ⇓(<=k) t)" (*try (eapply evalIn_trans;[progress Lrewrite_prepare;Lreflexivity|])*)
 | |- _ >(_) _ => idtac "Lrewrite_prepare does not support s >(k) y, only s >(<=k) t)"
 | |- _ >* _ => k (* Lrewrite_prepare_old *)
 | |- eval _ _ => (eapply eval_helper;[k;Lreflexivity|])
@@ -204,88 +163,7 @@ Lemma ext_rel_helper X `(H:encodable X) (x:X) (inst : computable x) (R: term -> 
 Proof.
   now rewrite ext_is_enc.
 Qed.
-
-Lemma extT_rel_helper X `(H:encodable X) (x:X) xT (inst : computableTime x xT) (R: term -> term -> Prop) u:
-  R (enc x) u -> R (@extT _ _ _ _ inst) u.
-Proof.
-  now rewrite extT_is_enc.
-Qed.
-    
-
-(* version of Lrewrite that des the beta-steps as well *)
-Ltac LrewriteSimpl_old':=
-  idtac;
-  (* time "LrewriteSimpl'" *) (
-  once lazymatch goal with
-  | |- _ (@ext _ (@TyB _ ?reg) _ _) _ => eapply ext_rel_helper (* for backwards-compability, if used on term with hole*)
-  | |- _ (@extT _ (@TyB _ ?reg) _ _ _) _ => eapply extT_rel_helper (* for backwards-compability, if used on term with hole*)
-  | |- ?R ?s _  => has_no_evar s(* ;idtac "head" s *)
-  end;
-  once lazymatch goal with
-  | |- ?R (L.app _ _) _ =>
-    (* first reduce recursively *)
-    (once lazymatch R with
-     |  star step => refine (pow_app_helper _ _ _)
-     | redLe _ => refine (redLe_app_helper _ _ _)
-     end);[LrewriteSimpl_old';Lreflexivity..| ];
-
-    (* then reduce here/above *)
-    once lazymatch goal with
-         (* beta-reduce here & recurse down again (if argument abstraction)*)
-         | |- _ (L.app (lam _) ?t) _ =>                      
-           let valt := fresh "valt" in
-           assert (valt:proc t) by Lproc;
-           Lbeta; (*;
-           once lazymatch goal with
-             |- _ (L.app (lam _) t) _ => fail "could not reduce"
-           | |- _ => idtac
-           end; *)
-           clear valt;LrewriteSimpl_old'
-         | |- _ =>
-
-           let appTimeHelper tt:=
-               (once lazymatch goal with
-                | |- app (@extT _ (_ ~> _ ) _ _ ?fInts) (@extT _ _ _ _ ?xInts) >(<= _ ) _
-                  => let R := fresh "R" in
-                    specialize (extTApp fInts xInts) as R;
-                    once lazymatch type of R with
-                      (* As we might build n using the projection on an on-ty-fly constructed computableTime-instance, we mustavoid it to depend on the proof that the time function is correct*)
-                      ?s >(<= ?n) ?t => (
-                        let n' := eval unfold evalTime in n in
-                            change (s >(<= n') t) in R)
-                    end; Ltransitivity;[exact R|]
-                end) in
-
-           (* use correctness lemmates of int here*)
-           once lazymatch goal with                
-           | |- L.app (@ext _ (_ ~> _ ) _ _) (ext _) >* _ => Ltransitivity;[apply extApp|]
-           | |- L.app (@ext _ (_ ~> _ ) _ ?ints) (@enc _ ?reg ?x) >* ?v =>
-             change (app (@ext _ _ _ ints) (@ext _ _ _ (reg_is_ext reg x)) >* v);
-             Ltransitivity;[apply extApp|]
-
-           | |- L.app (@extT _ (_ ~> _ ) _ _ ?fInts) (@extT _ _ _ _ ?xInts) >(<= _ ) _ => appTimeHelper tt
-           | |- L.app (@extT _ (_ ~> _ ) _ _ ?ints) (@enc _ ?reg ?x) >(<= ?k ) ?v =>
-             change (L.app (@extT _ _ _ _ ints) (@extT _ _ _ _ (reg_is_extT reg x)) >(<= k) v);appTimeHelper tt                                                            
-           | |- _ => idtac
-
-           end
-         end
-  | |- _ => idtac
-  end;
-  try repeat' (Ltransitivity;[find_Lrewrite_lemma|LrewriteSimpl_old']);
-  try (once (Ltransitivity;[useFixHypo|]));
-  (* clean up goal*)
-  once lazymatch goal with
-  | |- _ (@ext _ (@TyB _ ?reg) _ _) _ => eapply ext_rel_helper
-  | |- _ (@extT _ (@TyB _ ?reg) _ _ _) _ => eapply extT_rel_helper                  
-  | |- _ => idtac
-  end).
-
-Lemma LrewriteTime_helper_index:
-forall [s t : term] [i i' : nat], i = i' -> s >(<=i) t -> s >(<=i') t.
-Proof. intros. now subst. Qed.
-
-  
+ 
 Lemma redLe_app_helperL s s' t u i j:
 s >(<= i) s' -> app s' t >(<=j) u -> app s t >(<=i+j) u.
 Proof. intros ? H'. eapply redLe_app_helper in H'. 2:eassumption. 2:Lreflexivity. now rewrite Nat.add_0_r in H'. Qed. 
@@ -315,21 +193,11 @@ lazymatch R with
 | redLe _ => refine (redLe_app_helperR _ _)
 end.
 
-
-Ltac appTimeHelper tt:=
- (* As we might build n using the projection on an on-ty-fly constructed computableTime-instance, we mustavoid it to depend on the proof that the time function is correct*)
-  (once lazymatch goal with
-  | |- app (@extT _ (_ ~> _ ) _ _ ?fInts) (@extT _ _ _ _ ?xInts) >(<= _ ) _
-    => Ltransitivity;[refine (LrewriteTime_helper_index _ (extTApp fInts xInts));[unfold evalTime;reflexivity]| ]
-    end ).
-
-
 Ltac isValue s:=
   lazymatch s with
   | lam _ => idtac
   | app _ _ => fail
   | @ext _ _ _ _ => idtac
-  | @extT _ _ _ _ _ => idtac
   | @enc _ _ _ => idtac
   | I => idtac
   | ?P => tryif (is_var P;lazymatch eval unfold P in P with rho _ => idtac end) then idtac
@@ -348,7 +216,6 @@ Ltac LrewriteSimpl'' canReduceFlag :=
   (* time "LrewriteSimpl'" *) 
   once lazymatch goal with
   | |- _ (@ext _ (@TyB _ ?reg) _ _) _ => refine (ext_rel_helper _ _) (* for backwards-compability, if used on term with hole*)
-  | |- _ (@extT _ (@TyB _ ?reg) _ _ _) _ => refine (extT_rel_helper _ _) (* for backwards-compability, if used on term with hole*)
   | |- ?R ?s _  => has_no_evar s;(* idtac "recurse to" s; *)
 
   repeat' (idtac;
@@ -361,13 +228,8 @@ Ltac LrewriteSimpl'' canReduceFlag :=
     | |- L.app (@ext _ (_ ~> _ ) _ ?ints) (@enc _ ?reg ?x) >* ?v =>
       change (app (@ext _ _ _ ints) (@ext _ _ _ (reg_is_ext reg x)) >* v);
       Ltransitivity;[refine (extApp _ _)|]
-    | |- L.app (@extT _ (_ ~> _ ) _ _ ?fInts) (@extT _ _ _ _ ?xInts) >(<= _ ) _ => appTimeHelper tt
-    | |- L.app (@extT _ (_ ~> _ ) _ _ ?ints) (@enc _ ?reg ?x) >(<= ?k ) ?v =>
-      change (L.app (@extT _ _ _ _ ints) (@extT _ _ _ _ (reg_is_extT reg x)) >(<= k) v);appTimeHelper tt  
-
     (* clean up goal *)
     | |- _ (@ext _ (@TyB _ ?reg) _ _) _ => refine (ext_rel_helper _ _)
-    | |- _ (@extT _ (@TyB _ ?reg) _ _ _) _ => refine (extT_rel_helper _ _)  
 
       (* last reduce recursively, and then try to apply rewrite lemmas o Lbeta *)
     | |- ?R (L.app _ _) _ =>
@@ -405,86 +267,7 @@ Ltac LrewriteSimpl'' canReduceFlag :=
     end)
   end.
 
-
-
-  
 Ltac LrewriteSimpl' := let flag := fresh in assert (flag:=tt);
   (tryif Lbeta then try LrewriteSimpl'' flag else LrewriteSimpl'' flag);try clear flag.
 
-
 Ltac LrewriteSimpl := Lrewrite_wrapper ltac:(idtac;LrewriteSimpl').
-
-
-  
-  (*
-  From Ltac2 Require Import Ltac2.
-  Ltac2 rec lrewriteSimpl' () :=
-    (* time "LrewriteSimpl'" *)
-    lazy_match! goal with
-    | [ |- _ (@ext _ (@TyB _ ?reg) _ _) _ ] => eapply ext_rel_helper (* for backwards-compability, if used on term with hole*)
-    | [ |- _ (@extT _ (@TyB _ ?reg) _ _ _) _] => eapply extT_rel_helper (* for backwards-compability, if used on term with hole*)
-    | [ |- ?rel ?s _ ] => ltac1:(has_no_evar &s) (* ;idtac "head" s *)
-    end ;
-    lazy_match! goal with 
-    | [ |- ?rel (L.app _ _) _] => 
-      (* first reduce recursively *)
-      (lazy_match! rel with
-       |  star step => ltac1:(refine (pow_app_helper _ _ _))
-       | redLe _ => ltac1:(refine (redLe_app_helper _ _ _))
-       end)  > [lrewriteSimpl' ();ltac1:(Lreflexivity)..| ]  ;
-  
-      (* then reduce here/above *)
-      lazy_match! goal with
-           (* beta-reduce here & recurse down again (if argument abstraction)*)
-         | [ |- _ (L.app (lam _) ?t) _ ] =>              
-             let valt := Fresh.in_goal @H in
-             assert (valt:proc t) by ltac1:(Lproc);
-             ltac1:(Lbeta);
-             lazy_match! goal with
-               [ |- _ (L.app (lam _) t) _] => Control.backtrack_tactic_failure "could not reduce" 
-             | [ |- _] => ()
-             end; 
-             Std.clear [valt];(lrewriteSimpl' ()) 
-           | [ |- _] =>
-  
-             let appTimeHelper _:=
-                  (lazy_match! goal with
-                  | [ |- app (@extT _ (_ ~> _ ) _ _ ?fInts) (@extT _ _ _ _ ?xInts) >(<= _ ) _ ]
-                    => let rr := Fresh.in_goal @R in 
-                      specialize (extTApp &fInts &xInts) as rr;
-                      lazy_match! Constr.type &rr with
-                        (* As we might build n using the projection on an on-ty-fly constructed computableTime-instance, we mustavoid it to depend on the proof that the time function is correct*)
-                        | ?s >(<= ?n) ?t =>
-                          let n' := Std.eval_unfold [(reference:(&evalTime), Std.AllOccurrences)] &n in
-                              change (&s >(<= &n') t) in rr
-                      end;
-                      ltac1:(Ltransitivity)> [exact &rr|]
-                 end) in
-  
-             (* use correctness lemmates of int here*)
-             lazy_match! goal with                
-             | [ |- L.app (@ext _ (_ ~> _ ) _ _) (ext _) >* _] => ltac1:(Ltransitivity) > [apply extApp|]
-             | [ |- L.app (@ext _ (_ ~> _ ) _ ?ints) (@enc _ ?reg ?x) >* ?v ]=>
-               change (app (@ext _ _ _ &ints) (@ext _ _ _ (reg_is_ext &reg &x)) >* &v);
-               ltac1:(Ltransitivity) > [apply extApp|]
-  
-             | [ |- L.app (@extT _ (_ ~> _ ) _ _ ?fInts) (@extT _ _ _ _ ?xInts) >(<= _ ) _ ]=> appTimeHelper ()
-             | [ |- L.app (@extT _ (_ ~> _ ) _ _ ?ints) (@enc _ ?reg ?x) >(<= ?k ) ?v ]=>
-               change (L.app (@extT _ _ _ _ &ints) (@extT _ _ _ _ (reg_is_extT &reg &x)) >(<= &k) &v);appTimeHelper ()                                                            
-             | [ |- _ ]=> ()
-              
-             end 
-           end
-    | [|- _] => ()
-    end;
-    let rec loop () :=  ltac1:(Ltransitivity)> [ltac1:(find_Lrewrite_lemma)|lrewriteSimpl' ()];try (loop ()) in
-    try (loop ()) ;
-    try ((ltac1:(Ltransitivity) > [ltac1:(useFixHypo)|]));
-    (* clean up goal*)
-    lazy_match! goal with
-    | [ |- _ (@ext _ (@TyB _ ?reg) _ _) _] => eapply ext_rel_helper
-    | [ |- _ (@extT _ (@TyB _ ?reg) _ _ _) _] => eapply extT_rel_helper                  
-    | [ |- _ ]=> ()
-    end.
-
-  Ltac LrewriteSimpl' ::= ltac2:(lrewriteSimpl' ()). *)

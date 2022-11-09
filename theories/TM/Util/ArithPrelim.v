@@ -1,4 +1,3 @@
-From smpl Require Import Smpl.
 Require Import Lia.
 Require Export Psatz Arith.
 Require Export RelationClasses Morphisms.

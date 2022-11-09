@@ -1,17 +1,22 @@
 From Undecidability.Shared.Libs.PSL Require Import BasicDefinitions.
 From Undecidability.Shared.Libs.PSL Require Import FiniteTypes.FinTypes.
 From Undecidability.Shared.Libs.PSL Require Import Vectors.Vectors.
-From Undecidability.Shared.Libs.PSL Require Import Vectors.VectorDupfree.
 Import VectorNotations2.
 
 Import VecToListCoercion.
+Open Scope vector_scope.
 
 #[global]
 Instance Fin_finTypeC n : finTypeC (EqType (Fin.t n)).
 Proof.
   constructor 1 with (enum := tabulate (fun i : Fin.t n => i)).
   cbn. intros x. eapply dupfreeCount.
-  - eapply tolist_dupfree. now eapply dupfree_tabulate_injective.
+  - clear x. induction n as [|n IH].
+    + constructor.
+    + simpl. rewrite Vector.to_list_cons, <- Vector_map_tabulate, Vector.to_list_map.
+      constructor.
+      * now intros [? [? ?]]%in_map_iff.
+      * apply (FinFun.Injective_map_NoDup Fin.FS_inj IH).
   - eapply Vector.to_list_In. apply in_tabulate. now eexists.
 Defined.
 

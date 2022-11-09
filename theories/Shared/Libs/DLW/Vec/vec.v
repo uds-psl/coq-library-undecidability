@@ -348,6 +348,22 @@ Proof.
     destruct (pos_both n m p); auto.
 Qed.
 
+Fact vec_change_app_left X n m v w i x :
+  vec_change (@vec_app X n m v w) (pos_left m i) x = vec_app (vec_change v i x) w.
+Proof.
+  revert v. induction i as [|?? IH].
+  - intros v. rewrite (Vector.eta v), vec_app_cons. simpl. now rewrite vec_app_cons. 
+  - intros v. rewrite (Vector.eta v), vec_app_cons. simpl. now rewrite vec_app_cons, IH.
+Qed.
+
+Fact vec_change_app_right X n m v w i x :
+  vec_change (@vec_app X n m v w) (pos_right _ i) x = vec_app v (vec_change w i x).
+Proof.
+  induction v as [|??? IH].
+  - now rewrite !vec_app_nil.
+  - now rewrite !vec_app_cons, <- IH.
+Qed.
+
 Section vec_map_def.
 
 Variable (X Y : Type).

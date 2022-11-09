@@ -130,13 +130,3 @@ End Mirror.
 Arguments Mirror : simpl never.
 Arguments Mirror_Rel { n sig F } R x y /.
 Arguments Mirror_T { n sig } T x y /.
-
-
-Ltac smpl_TM_Mirror :=
-  once lazymatch goal with
-  | [ |- Mirror _ ⊨ _ ] => eapply Mirror_Realise
-  | [ |- Mirror _ ⊨c(_) _ ] => eapply Mirror_RealiseIn
-  | [ |- projT1 (Mirror _) ↓ _ ] => eapply Mirror_Terminates
-  end.
-
-Smpl Add smpl_TM_Mirror : TM_Correct.

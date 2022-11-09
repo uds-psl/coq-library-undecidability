@@ -31,9 +31,6 @@ Section Fix_Sigma.
 
   Definition sizeOfTape t := |tapeToList t|.
 
-  Definition sizeOfmTapes n (v : tapes n) :=
-    Vector.fold_left max 0 (Vector.map sizeOfTape v).
-  
   Definition left :=
     fun (t : tape) =>
       match t with
@@ -269,6 +266,11 @@ Section Nop_Action.
   Qed.
 
 End Nop_Action.
+
+Lemma nth_nop_action {n Σ} i : Vector.nth (nop_action n Σ) i = (None, Nmove).
+Proof.
+  now induction i.
+Qed.
 
 (* Make [n] and [sig] contextual implicit *)
 Arguments nop_action {_ _}.
@@ -966,13 +968,8 @@ Definition execTM_p (sig : finType) (n : nat) (F : Type) (pM : { M : TM sig n & 
 
 
 (* ** Automation of the generation of relations *)
-
-(* Create the smpl tactic databases *)
-Smpl Create TM_Correct.
-
-(* This tactics apply exactly one tactic from the corresponding hint database *)
-Ltac TM_Correct_step := smpl TM_Correct.
-Ltac TM_Correct := repeat TM_Correct_step.
+(* Alternative to the the smpl-based tactic databases *)
+Create HintDb TMdb discriminated.
 
 (* ** TM evaluation and loop is equivalent  *)
 

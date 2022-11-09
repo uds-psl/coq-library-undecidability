@@ -46,17 +46,6 @@ Tactic Notation "intros" "***" := repeat (intros ?).
 
 Ltac fstep N := unfold N; fold N.
 
-(* From Program.Tactics *)
-Ltac destruct_one_pair :=
- match goal with
-   | [H : (_ /\ _) |- _] => destruct H
-   | [H : prod _ _ |- _] => destruct H
- end.
-
-Ltac destruct_pairs := repeat (destruct_one_pair).
-
-
-
 (* ** Assumption Locking *)
 
 
@@ -165,6 +154,5 @@ Ltac print_goal_cbn :=
   end.
 
 Ltac print_type e := first [ let x := type of e in idtac x | idtac "Untyped:" e ].
-
 
 From Undecidability.Shared.Libs.PSL Require Export AutoIndTac.
