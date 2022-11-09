@@ -153,13 +153,20 @@ End Recursive_algorithms.
 
 Section ra_eq_dec.
 
-  Hint Resolve ra_cst_inj ra_proj_inj : core.
+  Hint Resolve ra_cst_inj ra_proj_inj ra_min_inj eq_nat_dec pos_eq_dec vec_eq_dec_pos : core.
 
   Ltac solve :=
     let e := fresh in
-    try ((intros e; exfalso; lia) 
-             || (now intros e; inversion e; subst; try rewrite (eq_nat_pirr e); right)
-             || (intros e; rewrite (eq_nat_pirr e); simpl; auto; right; easy)).
+    try ( (intros e; exfalso; lia) 
+       || (now intros e; inversion e; subst; try rewrite (eq_nat_pirr e); right)
+       || (intros e; rewrite (eq_nat_pirr e); simpl; auto; right; easy)).
+
+  Ltac eqdec a b C :=
+    assert ({ a = b } + { a <> b }) as [ | C ]; 
+      [  
+      | subst 
+      | right; contradict C
+      ]; auto.
 
   Local Lemma ra_eq_dec_rec ka (a : recalg ka) kb (b : recalg kb) (e : ka = kb) : 
       { eq_rect ka recalg a kb e = b } + { eq_rect ka recalg a kb e <> b }.
@@ -167,30 +174,23 @@ Section ra_eq_dec.
     revert kb b e.
     induction a as [ na | | | ka ia | ka ia fa ga Hfa Hga | ka fa ga Hfa Hga | ka fa Hfa ];
       intros ? [ nb | | | kb ib | kb ib fb gb | kb fb gb | kb fb ]; solve.
-    + intros e; rewrite (eq_nat_pirr e); simpl.
-      destruct (eq_nat_dec na nb) as [ -> | C ]; auto; right; contradict C; auto.
-    + intros e; revert e ib; intros [] ib; simpl.
-      destruct (pos_eq_dec ia ib) as [ <- | ]; auto.
+    + intros e; rewrite (eq_nat_pirr e); simpl; eqdec na nb C.
+    + intros e; revert e ib; intros [] ib; simpl; eqdec ia ib C.
     + intros e; subst ib; simpl.
-      destruct (eq_nat_dec ka kb) as [ | C ] ; [ subst kb | ].
-      2: now right; contradict C; apply ra_comp_inj in C as (? & _).
+      eqdec ka kb C.
+      2: now apply ra_comp_inj in C as [].
       specialize (fun b => Hfa _ b eq_refl); simpl in Hfa.
       specialize (fun p b => Hga p _ b eq_refl); simpl in Hga.
-      destruct (Hfa fb) as [ <- | C ].
-      2:{ right; contradict C; apply ra_comp_inj in C as (e & ? & ?).
-          rewrite (eq_nat_pirr e) in *; auto. }
-      destruct (vec_eq_dec_pos ga gb) as [ <- | C ]; auto.
-      right; contradict C; apply ra_comp_inj in C as (e & _ & ?).
-      now rewrite (eq_nat_pirr e) in *.
+      eqdec fa fb C; [ eqdec ga gb C | ].
+      all: apply ra_comp_inj in C as (e & ? & ?); rewrite (eq_nat_pirr e) in *; auto.
     + intros e; inversion e; subst; rewrite (eq_nat_pirr e); simpl; clear e.
-      destruct (Hfa _ fb eq_refl) as [ G | G ]; simpl in G; subst.
-      2: right; contradict G; apply ra_rec_inj in G; tauto.
-      destruct (Hga _ gb eq_refl) as [ G | G ]; simpl in G; subst.
-      2: right; contradict G; apply ra_rec_inj in G; tauto.
-      now left.
+      specialize (fun b => Hfa _ b eq_refl); simpl in Hfa.
+      specialize (fun b => Hga _ b eq_refl); simpl in Hga.
+      eqdec fa fb C; [ eqdec ga gb C | ].
+      all: apply ra_rec_inj in C; tauto.
     + intros <-; simpl.
-      destruct (Hfa _ fb eq_refl) as [ G | G ]; simpl in G; subst; auto.
-      right; contradict G; revert G; apply ra_min_inj.
+      specialize (fun b => Hfa _ b eq_refl); simpl in Hfa.
+      eqdec fa fb C.
   Qed.
 
   Theorem ra_eq_dec k (a : recalg k) (b : recalg k) : { a = b } + { a <> b }.
