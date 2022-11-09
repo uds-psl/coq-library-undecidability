@@ -198,7 +198,7 @@ Section BasicLemmas.
       intros A B [H [x [H1 H2]]].
       assert (nodup eq_dec A ⊆ nodup eq_dec B) as H3 by now rewrite !nodup_seteq.
       eapply NoDup_incl_length in H3 as H4; [| eapply NoDup_nodup].
-      eapply le_lt_or_eq in H4 as []; eauto; exfalso.
+      eapply Nat.lt_eq_cases in H4 as []; eauto; exfalso.
       eapply NoDup_length_incl in H3. 
       rewrite !nodup_seteq in H3; intuition.
       eapply NoDup_nodup. lia.
@@ -350,7 +350,7 @@ Tactic Notation "lsimpl" "in" "*" := autorewrite with listdb in *.
 
 Ltac lauto  := eauto with listdb. 
 
-Module ListInstances.
+Module ListAutomationInstances.
 #[export] Existing Instance incl_preorder.
 #[export] Existing Instance strict_incl_transitive.
 #[export] Existing Instance seteq_preorder.
@@ -371,4 +371,4 @@ Module ListInstances.
 #[export] Existing Instance map_seteq_proper.
 #[export] Existing Instance filter_incl_proper.
 #[export] Existing Instance filter_seqteq_proper.
-End ListInstances.
+End ListAutomationInstances.

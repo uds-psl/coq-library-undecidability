@@ -7,6 +7,7 @@ From Undecidability.TM Require Import Single.StepTM Code.CodeTM TM mTM_to_TM Arb
 From Undecidability.Shared.Libs.DLW Require Import vec pos sss subcode.
 From Undecidability Require Import bsm_utils bsm_defs.
 From Undecidability Require Import BSM_computable_to_MM_computable.
+From Undecidability.Shared.Libs.PSL Require FinTypes.
 
 Notation "v @[ t ]" := (Vector.nth v t) (at level 50).
 
@@ -152,14 +153,14 @@ Lemma BSM_addstacks_step_bwd' n i (P : list (bsm_instr n)) m j v v'' out :
   sss_step (bsm_sss (n := m + n)) (i, (@bsm_addstacks n m P)) (j, vec_app v'' v) out -> exists o v', out = (o, vec_app v'' v') /\ sss_step (bsm_sss (n := n)) (i, P) (j, v) (o, v').
 Proof.
   intros (? & ? & ? & ? & ? & ? & ? & ?). inv H. inv H0.
-  assert (nth_error (bsm_addstacks m P) (length x0) = Some x1).  1: rewrite H4.  1: rewrite nth_error_app2. 2:lia.  1: rewrite minus_diag.  1: reflexivity.
+  assert (nth_error (bsm_addstacks m P) (length x0) = Some x1).  1: rewrite H4.  1: rewrite nth_error_app2. 2:lia.  1: rewrite Nat.sub_diag.  1: reflexivity.
   unfold bsm_addstacks in H.
   destruct (nth_error_Some P (|x0|)) as [_ HH].
   destruct (nth_error P (|x0|)) as [d | ] eqn:E. 2:{ exfalso. eapply HH; try reflexivity. erewrite <- (map_length _ P). unfold bsm_addstacks in H4. rewrite H4.
   rewrite app_length. cbn. lia. }
   pose proof (E' := E).
   eapply map_nth_error in E. unfold bsm_addstacks in H4. rewrite H4 in E.
-  rewrite nth_error_app2 in E. 2:lia. rewrite minus_diag in E. cbn in E. inv E.
+  rewrite nth_error_app2 in E. 2:lia. rewrite Nat.sub_diag in E. cbn in E. inv E.
   eapply BSM_addstacks_step_bwd in H1 as (? & ? & ? & ?). subst.
   repeat eexists; eauto.
   1: f_equal.  1: instantiate (2 := firstn (length x0) P).
@@ -232,7 +233,7 @@ Definition strpush_common_short (Σ : finType) (s b : Σ) :=
 encode_sym
   (projT1
      (projT2
-        (FinTypeEquiv.finite_n
+        (FinTypes.finite_n
            (finType_CS (boundary + sigList (EncodeTapes.sigTape Σ)))))
      (inl START)) ++
 true
@@ -240,7 +241,7 @@ true
    :: encode_sym
         (projT1
            (projT2
-              (FinTypeEquiv.finite_n
+              (FinTypes.finite_n
                  (finType_CS (boundary + sigList (EncodeTapes.sigTape Σ)))))
            (inr sigList_cons)) ++
       true
@@ -248,7 +249,7 @@ true
          :: encode_sym
               (projT1
                  (projT2
-                    (FinTypeEquiv.finite_n
+                    (FinTypes.finite_n
                        (finType_CS
                           (boundary + sigList (EncodeTapes.sigTape Σ)))))
                  (inr (sigList_X (EncodeTapes.LeftBlank false)))) ++
@@ -257,7 +258,7 @@ true
                :: encode_sym
                     (projT1
                        (projT2
-                          (FinTypeEquiv.finite_n
+                          (FinTypes.finite_n
                              (finType_CS
                                 (boundary + sigList (EncodeTapes.sigTape Σ)))))
                        (inr (sigList_X (EncodeTapes.MarkedSymbol b)))).
@@ -272,7 +273,7 @@ Definition strpush_zero (Σ : finType) (s b : Σ) :=
                       encode_sym
                           (projT1
                              (projT2
-                                (FinTypeEquiv.finite_n
+                                (FinTypes.finite_n
                                    (finType_CS
                                       (boundary +
                                        sigList (EncodeTapes.sigTape Σ)))))
@@ -322,7 +323,7 @@ strpush_common s b ++
                      encode_sym
                           (projT1
                              (projT2
-                                (FinTypeEquiv.finite_n
+                                (FinTypes.finite_n
                                    (finType_CS
                                       (boundary +
                                        sigList (EncodeTapes.sigTape Σ)))))
@@ -365,7 +366,7 @@ Proof.
   - intros q t t' [q1 H % (SIM_computes i) ] % Hf1.
     intros. eapply Hf2. eapply BSM_sss.eval_iff. split.
     1: cbn [Fin.to_nat proj1_sig mult] in H.  1: rewrite !NPeano.Nat.add_0_l, NPeano.Nat.add_0_r in H.
-    1: rewrite <- Hl.  1: rewrite SIM_length.  1: rewrite mult_comm.  1: eapply H.
+    1: rewrite <- Hl.  1: rewrite SIM_length.  1: rewrite Nat.mul_comm.  1: eapply H.
     right. unfold fst, subcode.code_end, snd, fst. rewrite <- Hl. lia.
   - intros t v'' (out & [[out1 out2] [Ho1 Ho2]% BSM_sss.eval_iff] % Hb2). eapply Hb1.
     eapply SIM_term with (q := Fin.F1) in Ho2 .
@@ -693,7 +694,7 @@ Proof.
        cbn [vec_list app]. f_equal. rewrite !vec_list_vec_app.
        cbn [Vector.map]. rewrite vec_app_cons. f_equal. 2:{ f_equal. f_equal. f_equal.
        subst v. f_equal. rewrite <- vec_pos_spec. eapply nth_error_vec_list.
-       rewrite vec_list_cast, <- vec_app_spec, vec_list_vec_app, nth_error_app2; rewrite !vec_list_length, ?minus_diag; try lia.
+       rewrite vec_list_cast, <- vec_app_spec, vec_list_vec_app, nth_error_app2; rewrite !vec_list_length, ?Nat.sub_diag; try lia.
        reflexivity. }
        rewrite vec_list_vec_change.
        pose proof (@vec_list_vec_app (list bool) (S k') k''). cbn [plus] in H. rewrite !H. clear H.
@@ -702,7 +703,7 @@ Proof.
        rewrite update_app_left. 2: rewrite Fin.to_nat_of_nat; cbn; rewrite map_length, vec_list_length; lia.
        subst v. rewrite vec_list_cast. rewrite <- vec_app_spec. rewrite vec_list_vec_app. cbn [vec_list]. rewrite Fin.to_nat_of_nat. cbn.
        rewrite map_app, update_app_right.  2: rewrite map_length, vec_list_length; lia.
-       rewrite map_length, vec_list_length, minus_diag. cbn. now simpl_list.
+       rewrite map_length, vec_list_length, Nat.sub_diag. cbn. now simpl_list.
     Unshelve. exact 0.
 Qed.
 
@@ -782,7 +783,7 @@ Proof.
   eapply subcode_sss_compute_trans. 2: eapply H1.  1: auto.
   eapply subcode_sss_compute_trans. 2: eapply H2.  1: auto.
   eapply subcode_sss_compute_trans. 2: specialize H3 with (v := [] ## Vector.const [] k); apply H3.  1: auto.
-  bsm sss stop. f_equal. rewrite !app_length. now rewrite plus_assoc.
+  bsm sss stop. f_equal. rewrite !app_length. now rewrite Nat.add_assoc.
 Qed.
 
 Lemma skipn_plus n m {X} (l : list X) : skipn n (skipn m l) = skipn (n + m) l.
@@ -802,7 +803,7 @@ Proof.
   pose (THESYM := encode_sym
   (projT1
      (projT2
-        (FinTypeEquiv.finite_n
+        (FinTypes.finite_n
            (finType_CS
               (boundary +
                sigList (EncodeTapes.sigTape Σ)))))
@@ -830,7 +831,7 @@ Proof.
     intros (l' & Hneq).
      unfold THESYM in Hneq. eapply utils_list.list_app_inj in Hneq as [].
      2: now rewrite !length_encode_sym. eapply encode_sym_inj in H.
-     destruct FinTypeEquiv.finite_n as ( ? & f & g & H1 & H2); cbn in H.
+     destruct FinTypes.finite_n as ( ? & f & g & H1 & H2); cbn in H.
      eapply (f_equal g) in H. rewrite !H2 in H. inv H.
   - edestruct IHm as [out IH]. eexists.
     rewrite encode_bsm_succ. unfold strpush_succ. rewrite <- !app_assoc.

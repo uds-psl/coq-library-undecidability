@@ -1,12 +1,26 @@
-Require Import List PeanoNat Lia.
+Require Import List PeanoNat BinNat Lia.
 Import ListNotations.
 
 Require Import Undecidability.CounterMachines.CM1.
-Require Import Undecidability.CounterMachines.Util.Nat_facts.
 
 Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
+
+Lemma iter_plus {X: Type} {f: X -> X} {x: X} {n m: nat} : 
+  Nat.iter (n + m) f x = Nat.iter m f (Nat.iter n f x).
+Proof. by rewrite Nat.add_comm /Nat.iter nat_rect_plus. Qed.
+
+Lemma mod_frac_lt {n m: nat} : (S m) mod (n + 1) = 0 -> S m < (S m * (n + 2)) / (n + 1).
+Proof.
+  have ->: S m * (n + 2) = S m + S m * (n + 1) by lia.
+  have := Nat.div_mod_eq (S m) (n + 1).
+  rewrite Nat.div_add; lia.
+Qed.
+
+(* Config is discrete *)
+Lemma Config_eq_dec (x' y' : Config) : {x' = y'} + {x' <> y'}.
+Proof. do ? decide equality. Qed. 
 
 (* halting conditions *)
 Lemma haltingP {M : Cm1} {x: Config}: 
@@ -33,6 +47,19 @@ Proof.
   move=> ? ?. have -> : m = n + (m-n) by lia.
   rewrite iter_plus. elim: (m-n); first done.
   move=> * /=. by congruence.
+Qed.
+
+(* remination respect reachability *)
+Lemma terminating_reaches_iff {M : Cm1} {k x y} :
+  (Nat.iter k (CM1.step M) x = y ->
+  ((exists m, CM1.halting M (Nat.iter m (CM1.step M) y))) <->
+  (exists n, CM1.halting M (Nat.iter n (CM1.step M) x))).
+Proof.
+  move=> Hxy. split.
+  - move=> [m Hm]. exists (k+m). by rewrite iter_plus Hxy.
+  - move=> [n] /(halting_monotone (m := k+n)) => /(_ ltac:(lia)).
+    rewrite iter_plus Hxy => ?.
+    by exists n.
 Qed.
 
 Lemma step_value_monotone (M : Cm1) (x: Config) :

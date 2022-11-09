@@ -3,7 +3,7 @@
 From Undecidability Require Import FOL.Util.Tarski FOL.Util.Syntax FOL.Util.Syntax_facts.
 Import FragmentSyntax.
 From Undecidability Require Import Shared.ListAutomation.
-Import ListAutomationNotations.
+Import ListAutomationNotations ListAutomationHints.
 Local Set Implicit Arguments.
 Require Import Lia.
 

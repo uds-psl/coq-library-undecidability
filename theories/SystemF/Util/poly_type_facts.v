@@ -366,7 +366,7 @@ Lemma map_ren_poly_type_id {Gamma} : map (ren_poly_type id) Gamma = Gamma.
 Proof. under map_ext => ? do rewrite ren_poly_type_id. by rewrite map_id. Qed.
 
 Lemma many_poly_abs_many_poly_abs {n m t} : many_poly_abs n (many_poly_abs m t) = many_poly_abs (n + m) t.
-Proof. by rewrite /many_poly_abs iter_plus. Qed.
+Proof. by rewrite /many_poly_abs /Nat.iter nat_rect_plus. Qed.
 
 Lemma many_poly_abs_eqE {n s t} : many_poly_abs n s = many_poly_abs n t -> s = t.
 Proof. elim: n; [done | by move=> ? + []]. Qed.

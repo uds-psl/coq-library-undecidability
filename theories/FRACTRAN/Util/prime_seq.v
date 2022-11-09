@@ -40,7 +40,7 @@ Lemma power_factor_lt_neq p i j x y :
 Proof.
   intros H1 H2 H3 H5.
   replace j with (i+S (j-i-1)) in H5 by lia.
-  rewrite Nat.pow_add_r, <- mult_assoc in H5.
+  rewrite Nat.pow_add_r, <- Nat.mul_assoc in H5.
   rewrite Nat.mul_cancel_l in H5.
   2: apply Nat.pow_nonzero; auto.
   apply H3; subst x; simpl. 
@@ -145,7 +145,7 @@ Proof.
   destruct (first_prime_above n) as (q & G1 & G2 & G3); simpl.
   split.
   + intros ((H1 & H2) & H3).
-    apply le_antisym.
+    apply Nat.le_antisymm.
     * apply G3; auto.
     * apply Nat.nlt_ge. 
       intro; apply (H2 q); auto; lia.
@@ -164,7 +164,7 @@ Lemma nthprime_ge n m : n < m -> nthprime n < nthprime m.
 Proof.
   unfold nthprime.
   induction 1; simpl iter; rewrite iter_swap; auto.
-  apply lt_trans with (2 := nxtprime_spec1 _); auto.  
+  apply Nat.lt_trans with (2 := nxtprime_spec1 _); auto.  
 Qed.
 
 Lemma nthprime_inj n m : nthprime n = nthprime m -> n = m.

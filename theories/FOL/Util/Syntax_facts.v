@@ -3,9 +3,9 @@
 
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 From Undecidability Require Import Shared.ListAutomation.
-Import ListAutomationNotations.
+Import ListAutomationNotations ListAutomationHints.
 
-From Coq Require Import Eqdep_dec.
+From Coq Require Import PeanoNat Eqdep_dec.
 Require Import Coq.Vectors.Vector.
 Local Notation vec := t.
 
@@ -71,8 +71,8 @@ Section fix_signature.
   Proof.
     intros H x. apply H.
     induction (f x).
-    - intros y. lia.
-    - intros y. intros [] % Lt.le_lt_or_eq.
+    - intros y. lia. 
+    - intros y. intros [] % Nat.lt_eq_cases.
       + apply IHn; lia.
       + apply H. injection H0. now intros ->.
   Qed.
@@ -596,7 +596,7 @@ Section Enumerability.
     intros t. induction t using term_rect.
     - exists (S x); cbn; eauto.
     - apply vec_forall_cml in H as [m H]. 2: exact L_term_cml. destruct (el_T F) as [m' H'].
-      exists (S (m + m')); cbn. in_app 3. eapply in_concat_iff. eexists. split. 2: in_collect F...
+      exists (S (m + m')); cbn. in_app 3. eapply in_concat. eexists. split. 1: in_collect F...
       apply in_map. rewrite <- vecs_from_correct in H |-*. intros x H''. specialize (H x H'')...
   Qed.
 
@@ -627,8 +627,8 @@ Section Enumerability.
     intros phi. induction phi.
     - exists 1. cbn; eauto.
     - rename t into v. destruct (el_T P) as [m Hm], (vec_forall_cml term L_term _ v) as [m' Hm']; eauto using enum_term.
-      exists (S (m + m')); cbn. in_app 2. eapply in_concat_iff. eexists. split.
-      2: in_collect P... eapply in_map. rewrite <- vecs_from_correct in *. intuition...
+      exists (S (m + m')); cbn. in_app 2. eapply in_concat. eexists. split.
+      1: in_collect P... eapply in_map. rewrite <- vecs_from_correct in *. intuition...
     - destruct (el_T b0) as [m Hm], IHphi1 as [m1], IHphi2 as [m2]. exists (1 + m + m1 + m2). cbn.
       in_app 3. apply in_concat. eexists. split. apply in_map... in_collect (pair phi1 phi2)...
     - destruct (el_T q) as [m Hm], IHphi as [m' Hm']. exists (1 + m + m'). cbn -[L_T].

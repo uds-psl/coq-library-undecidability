@@ -8,6 +8,10 @@
 (*
   Decision Procedure(s):
     Two-counter Minsky Machine Halting (MM_2_HALTING)
+
+  References:
+  [1] Dudenhefner, Andrej. "Certified Decision Procedures for Two-Counter Machines."
+      FSCD 2022. https://drops.dagstuhl.de/opus/volltexte/2022/16297/
 *)
 
 Require Import PeanoNat Lia List.
@@ -20,11 +24,23 @@ Module MPM2 := MPM2_HALT_dec.
 From Undecidability.Shared.Libs.DLW
   Require Import Vec.pos Vec.vec Code.sss.
 
-Require Import Undecidability.CounterMachines.Util.Facts.
-
 Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
+
+(* local facts *)
+Module Facts.
+
+Lemma oiter_None {X : Type} (f : X -> option X) k : Nat.iter k (obind f) None = None.
+Proof. elim: k; [done | by move=> /= ? ->]. Qed.
+
+Lemma obind_oiter {X : Type} (f : X -> option X) k x : 
+  obind f (Nat.iter k (obind f) (Some x)) = Nat.iter k (obind f) (f x).
+Proof. elim: k; [done|by move=> k /= ->]. Qed.
+
+End Facts.
+
+Import Facts.
 
 #[local] Notation "P // s ↓" := (sss_terminates (@mm_sss _) P s).
 #[local] Notation "P // r ->> s" := (sss_compute (@mm_sss _) P r s).

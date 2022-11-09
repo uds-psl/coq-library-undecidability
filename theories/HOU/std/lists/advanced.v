@@ -184,7 +184,7 @@ Section Repeated.
     induction n; cbn; eauto.
     rewrite IHn. change [x] with (repeat x 1).
     rewrite <-repeated_plus.
-    rewrite plus_comm. reflexivity.
+    rewrite Nat.add_comm. reflexivity.
   Qed.
 
   Lemma repeated_map n x f:

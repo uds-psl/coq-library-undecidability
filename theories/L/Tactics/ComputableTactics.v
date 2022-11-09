@@ -1,4 +1,4 @@
-Require Import Undecidability.Shared.Libs.PSL.Bijection MetaCoq.Template.All Strings.Ascii.
+Require Import MetaCoq.Template.All Strings.Ascii.
 From Undecidability.L Require Import Prelim.StringBase.
 From Undecidability.L.Tactics Require Import Lproc Computable ComputableTime Lsimpl mixedTactics Lbeta Lrewrite.
 Require Export Ring Arith Lia.
@@ -45,7 +45,7 @@ Ltac recStepInit P:=
            | |- ARS.pow step _ (app _ _) _ => eapply pow_step_congL;[loop|reflexivity]
            end
        in
-       eapply evalLe_trans;[apply pow_redLe_subrelation;loop|fold P; unfold rP]
+       eapply evalle_trans;[apply pow_redLe_subrelation;loop|fold P; unfold rP]
      | |- evalIn _ _ _ =>
        let rec loop := 
            once lazymatch goal with

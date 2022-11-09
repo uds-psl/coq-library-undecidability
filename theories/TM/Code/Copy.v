@@ -57,7 +57,7 @@ Section Copy.
         * now simpl_tape.
         * f_equal; simpl_tape. reflexivity. now rewrite skipn_tl.
         * now simpl_tape.
-    - destruct (current (fst tin)) eqn:E; auto.
+    - destruct (current (fst tin)) eqn:E; [easy|].
       apply tape_local_nil in E. rewrite E in HEnc. now apply app_cons_not_nil in HEnc.
   Qed.
 

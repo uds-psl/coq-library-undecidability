@@ -10,26 +10,13 @@ From Undecidability.Shared.Libs.PSL Require Import FinTypesDef.
 (* dec is used to destruct all decisions appearing in the goal or assumptions. *)
 Ltac dec := repeat (destruct Dec).
 
-(* This tactic completely solves listComplete goals for base types *)
-Ltac listComplete := intros x; simpl; dec; destruct x; try congruence.
 (* simplifies (decision x = x) *)
 Ltac deq x := destruct (Dec (x=x)) as [[]  | isnotequal]; [> | contradict isnotequal; reflexivity] .
 
-
-
-(* Function that takes two lists and returns the list of all pairs of elements from the two lists *)
-Fixpoint prodLists {X Y: Type} (A: list X) (B: list Y) {struct A} :=
-  match A with
-  | nil => nil
-  | cons x A' => map (fun y => (x,y)) B ++ prodLists A' B end.
-
-(* Crossing any list with the empty list always yields the empty list *)
-Lemma prod_nil (X Y: Type) (A: list X) :
-  prodLists A ([]: list Y) = [].
+Lemma count_count_occ {X : Type} {HX : eq_dec X} (l : list X) x : count l x = count_occ HX l x.
 Proof.
-  induction A.
-  - reflexivity.
-  - cbn. assumption.
+  induction l as [|y l IH]; [easy|].
+  cbn. rewrite IH. unfold Dec. now destruct (HX x y); destruct (HX y x); congruence.
 Qed.
 
 (* This function takes a (A: list X) and yields a list (option X) which for every x in A contains Some x. The resultung list also contains None. The order is preserved. None is the first element of the resulting list. *)
@@ -58,11 +45,7 @@ Qed.
 
 Lemma countSplit (X: eqType) (A B: list X) (x: X)  : count A x + count B x = count (A ++ B) x.
 Proof.
-  induction A.
-  - reflexivity.
-  - cbn. decide (x=a).
-    +cbn. f_equal; exact IHA.
-    + exact IHA.
+  now rewrite !count_count_occ, count_occ_app.
 Qed.
 
 (* In a list of tupels with x as a left element the number of tupels with something different from x as a left element is 0. *)
@@ -79,37 +62,19 @@ Qed.
 Lemma notInZero (X: eqType) (x: X) A :
   not (x el A) <-> count A x = 0.
 Proof.
-  split; induction A.
-  -  reflexivity.
-  - intros H. cbn in *. dec.
-    + exfalso. apply H. left. congruence.
-    + apply IHA. intros F. apply H. now right.
-  - tauto.
-  - cbn. dec.
-    + subst a. lia.
-    + intros H [E | E].
-      * now symmetry in E.
-      * tauto.
+  rewrite count_count_occ. now apply count_occ_not_In.
 Qed.
 
 Lemma countIn (X:eqType) (x:X) A:
   count A x > 0 -> x el A.
 Proof.
-  induction A.
-  - cbn. lia.
-  - cbn.  dec.
-    + intros. left. symmetry. exact e.
-    + intros. right. apply IHA. exact H.
+  rewrite count_count_occ. now intros ?%count_occ_In.
 Qed.
 
 Lemma InCount (X:eqType) (x:X) A:
   x el A -> count A x > 0.
 Proof.
-  induction A.
-  - intros [].
-  - intros [[] | E]; cbn.
-    + deq a. lia.
-    + specialize (IHA E). dec; lia.
+  rewrite count_count_occ. intros ?. now apply count_occ_In.
 Qed.
 
 Lemma count_in_equiv (X: eqType) (x:X) A : count A x > 0 <-> x el A.
@@ -118,14 +83,6 @@ Proof.
   - apply countIn.
   - apply InCount.
 Qed.
-
-
-Lemma countApp (X: eqType) (x: X) (A B: list X) :
-  count (A ++ x::B) x > 0.
-Proof.
-  auto using InCount.
-Qed.
-
 
 (*  Dupfree Lists containing every x countain x exactly once *)
 Lemma dupfreeCount (X: eqType) (x:X) (A: list X) : dupfree A -> x el A -> count A x = 1.
@@ -136,65 +93,3 @@ Proof.
     + f_equal. subst x0. now apply notInZero.
     + destruct E as [E | E]; [> congruence | auto].
 Qed.        
-
-(* toSumlist1 does not change the number of occurences of an existing element in the list *)
-Lemma toSumList1_count (X: eqType) (x: X) (Y: eqType) (A: list X) :
-  count (toSumList1 Y A) (inl x) =  count A x .
-Proof.
-  induction A; simpl; dec; congruence.  
-Qed.
-
-(* toSumlist2 odes not change the numbe of occurences of an existing element in the list *)
-Lemma toSumList2_count (X Y: eqType) (y: Y) (A: list Y):
-  count (toSumList2 X A) (inr y) = count A y.
-Proof.
-  induction A; simpl; dec; congruence.  
-Qed.
-
-(* to sumList1 does not produce inr proofs *)
-Lemma toSumList1_missing (X Y: eqType) (y: Y) (A: list X):
-  count (toSumList1 Y A ) (inr y) = 0.                           
-Proof.
-  induction A; dec; firstorder.
-Qed.
-
-(* toSumlist2 does not produce inl proofs *)
-Lemma toSumList2_missing (X Y: eqType) (x: X) (A: list Y):
-  count (toSumList2 X A ) (inl x) = 0.                           
-Proof.
-  induction A; dec; firstorder.
-Qed.
-
-
-(* * Cardinality Lemmas for lists*)
-Lemma cons_incll (X: Type) (A B: list X) (x:X) : x::A <<= B -> A <<= B.
-Proof.
-  unfold "<<=". auto.
-Qed.
-
-Lemma card_length_leq (X: eqType) (A: list X) : card A <= length A.
-Proof.
-  induction A; auto. cbn. dec; lia.
-Qed.
-
-(* * Various helpful Lemmas *)
-
-
-(* If the concatenation of two lists is nil then each list was nil *)
-Lemma appendNil (X: Type) (A B: list X) :
-  A ++ B = nil -> A = nil /\ B = nil.
-Proof.
-  intros H. assert (|A ++ B| = 0) by now rewrite H.
-  rewrite app_length in H0. rewrite <- !length_zero_iff_nil. lia.
-Qed.
-
-Lemma countZero (X: eqType) (x: X) (A: list X) : count A x = 0 -> not (x el A).
-Proof.
-  induction A; cbn in *; dec; firstorder congruence.
-Qed.
-
-(* The product of two numbers is greater zero if both numbers are greater zero *)
-Lemma NullMul a b : a > 0 -> b > 0 -> a * b > 0.
-Proof.
-  induction 1; cbn; lia.
-Qed.

@@ -1,5 +1,5 @@
 From Undecidability.L Require Export Util.L_facts Tactics.Extract.
-Require Import Undecidability.Shared.Libs.PSL.Bijection String.
+Require Import String.
 
 (* * Correctness and time bounds *)
 
@@ -8,7 +8,7 @@ Require Import Undecidability.Shared.Libs.PSL.Bijection String.
 (* Encodable is in GenEncode *)
 
 Class encInj (X : Type) `(R : encodable X) := 
-  inj_enc : injective (X:=X) enc (* encoding is injective *).
+  inj_enc : injective (A:=X) enc (* encoding is injective *).
 
 #[export] Hint Mode encInj - + : typeclass_instances. (* treat argument as input and force evar-freeness*)
 

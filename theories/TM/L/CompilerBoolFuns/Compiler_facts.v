@@ -51,10 +51,9 @@ Lemma TM_bool_computable_hoare_in_spec {k n Σ} (s b:_ + Σ) (v: Vector.t (list 
   ([niltape] ++ Vector.map (encBoolsTM s b) v) ++ const niltape n
     ≃≃ ([]%list, TM_bool_computable_hoare_in s b v).
 Proof.
-  eapply tspecI;cbn;[easy|]; unfold TM_bool_computable_hoare_in;intros i;
+  eapply tspecI;cbn;[easy|]; unfold TM_bool_computable_hoare_in;intros i.
   destruct_fin i;cbn;repeat (rewrite Vector_nth_L + rewrite Vector_nth_R + rewrite nth_map' + rewrite const_nth);cbn; reflexivity.
 Qed.
-
 
 Lemma nth_error_to_list {X n} (v : Vector.t X n) i k :
   k = (proj1_sig (Fin.to_nat i)) ->
@@ -145,8 +144,12 @@ Proof.
   3: eapply Vector_dupfree_app; repeat split.
   + rewrite !Fin.R_sanity in Hi. cbn in Hi. lia.
   + rewrite !Fin.L_sanity, !Fin.R_sanity in Hi. destruct (Fin.to_nat i); cbn in *; lia.
-  + eapply dupfree_tabulate_injective. eapply Fin_R_fillive.
-  + eapply dupfree_tabulate_injective. intros. eapply Fin_R_fillive. eapply Fin_L_fillive. eassumption.
+  + eapply dupfree_tabulate_injective. intros ?? E. apply Fin.to_nat_inj.
+    apply (f_equal (fun i => proj1_sig (Fin.to_nat i))) in E.
+    rewrite !Fin.R_sanity in E. lia.
+  + eapply dupfree_tabulate_injective. intros ?? E. apply Fin.to_nat_inj.
+    apply (f_equal (fun i => proj1_sig (Fin.to_nat i))) in E.
+    rewrite !Fin.L_sanity, !Fin.R_sanity in E. lia.
   + intros ? (? & ?) % in_tabulate (? & ?) % in_tabulate. subst.
     eapply (f_equal (fun H => proj1_sig (Fin.to_nat H))) in H0. rewrite Fin.R_sanity, !Fin.L_sanity in H0.
     destruct Fin.to_nat, Fin.to_nat. cbn in *. lia.

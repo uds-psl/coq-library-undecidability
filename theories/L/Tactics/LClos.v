@@ -326,7 +326,7 @@ Qed.
 Lemma subst_substList x s t A: validEnv' A -> subst (substList s (S x) A) x t = substList s x (t::A).
 Proof.
   revert x;induction s;simpl;intros x cl.
-  -decide (S x > n);simpl. decide (x>n); destruct (Nat.eqb_spec n x);try lia;try tauto. subst. now rewrite minus_diag. decide (x>n). lia. destruct (n-x) eqn: eq. lia. assert (n2=n-S x) by lia. subst n2. destruct (nth_in_or_default (n-S x) A #n).
+  -decide (S x > n);simpl. decide (x>n); destruct (Nat.eqb_spec n x);try lia;try tauto. subst. now rewrite Nat.sub_diag. decide (x>n). lia. destruct (n-x) eqn: eq. lia. assert (n2=n-S x) by lia. subst n2. destruct (nth_in_or_default (n-S x) A #n).
    + apply cl in i. now rewrite i.
    +rewrite e. simpl. destruct (Nat.eqb_spec n x). lia. auto. 
   -now rewrite IHs1,IHs2.
@@ -349,7 +349,7 @@ Proof with repeat (cbn in * || eauto || congruence || lia || subst).
   -destruct i... rewrite IHR1,IHR2...
   -destruct IHR...
   -rewrite IHR...
-  -simpl. rewrite <- minus_n_O. rewrite <-map_nth with (f:=deClos)...
+  -simpl. rewrite Nat.sub_0_r. rewrite <-map_nth with (f:=deClos)...
 Qed.
 
 Lemma deClos_correct'' s t : validComp s -> s >(1) t -> deClos s = deClos t \/ deClos s ≻ deClos t.
@@ -360,7 +360,7 @@ Proof with repeat (cbn in * || eauto || congruence || lia || subst).
     right... split;eauto. destruct IHR. auto.  left... right...
   -destruct IHR. auto.  left... right...
   -left...
-  -left. simpl. rewrite <- minus_n_O. rewrite <-map_nth with (f:=deClos)...
+  -left. simpl. rewrite Nat.sub_0_r. rewrite <-map_nth with (f:=deClos)...
   -right. inv H. simpl. rewrite <-subst_substList...
 Qed.*)
 
@@ -371,7 +371,7 @@ Proof with repeat (cbn in * || eauto 10 using star || congruence || lia || subst
   -eapply pow_trans;eauto.
   -inv cs;apply pow_step_congL...
   -inv cs;apply pow_step_congR...
-  -rewrite <- minus_n_O. rewrite <-map_nth with (f:=deClos)...
+  -rewrite Nat.sub_0_r. rewrite <-map_nth with (f:=deClos)...
   -inv H. inv cs. inv H1. eexists;split... rewrite <- subst_substList... 
 Qed.
 
@@ -455,7 +455,7 @@ Lemma CStep_equivC s t: validComp s -> s >[]> t -> s =[]= t.
   -now rewrite IHR.
   -now rewrite IHR.
   -constructor. reflexivity.
-  -constructor. simpl. rewrite <- minus_n_O. rewrite <-map_nth with (f:= deClos). reflexivity.
+  -constructor. simpl. rewrite Nat.sub_0_r. rewrite <-map_nth with (f:= deClos). reflexivity.
   -constructor. rewrite deClos_correct'. reflexivity. auto. auto. 
 Qed.
 
@@ -531,7 +531,7 @@ Proof.
   -congruence.
   -congruence.
   -intros p A IH s eq. destruct p; simpl in eq.
-   +rewrite <- minus_n_O in eq. change (var n) with (deClos (CompVar n)) in eq. rewrite map_nth in eq. apply IH in eq as [t [? [? R]]]. exists t;repeat split;auto. now rewrite CStepVar. destruct (nth_in_or_default n A (CompVar n)).
+   +rewrite Nat.sub_0_r in eq. change (var n) with (deClos (CompVar n)) in eq. rewrite map_nth in eq. apply IH in eq as [t [? [? R]]]. exists t;repeat split;auto. now rewrite CStepVar. destruct (nth_in_or_default n A (CompVar n)).
     *auto.
     *rewrite e in eq. simpl in eq. congruence.
    +inv eq.
@@ -556,7 +556,7 @@ Fixpoint normComp s :=
 Lemma normComp'_deClos s A: deClos (CompClos s A) = deClos (normComp' s A).
 Proof.
   induction s;simpl.
-  -rewrite <- minus_n_O. reflexivity.
+  -rewrite Nat.sub_0_r. reflexivity.
   -simpl in *. congruence.
   -simpl in *. congruence.
 Qed.
@@ -630,7 +630,7 @@ Proof.
    +apply IHvs2 in H2 as [u [? R]]. exists (s1 u). split; simpl. congruence. now rewrite R. congruence.  
    +apply IHvs1 in H2 as [u [? R]]. exists (u s2). split; simpl. congruence. now rewrite R. congruence.
   -destruct s;simpl in nc.
-   +simpl in R. rewrite <- minus_n_O in R. change (var n) with (deClos (CompVar n)) in R. rewrite map_nth in R. apply H0 in R. destruct R as [t' [? ?]].
+   +simpl in R. rewrite Nat.sub_0_r in R. change (var n) with (deClos (CompVar n)) in R. rewrite map_nth in R. apply H0 in R. destruct R as [t' [? ?]].
     *eexists. split. eauto. now rewrite CStepVar.
     *apply nth_In. now inv H2.
     *destruct (nth_in_or_default n A (CompVar n)). apply H1 in i. inv i. now simpl.  rewrite e. reflexivity.

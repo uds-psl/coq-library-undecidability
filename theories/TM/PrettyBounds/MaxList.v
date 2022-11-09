@@ -31,7 +31,7 @@ Lemma strict_greatest_upper_bound : forall (xs : list nat) (M s : nat),
     (forall x, In x xs -> x < s).
 Proof.
   intros xs. induction xs as [ | x xs IH]; intros M s HM1 Hs HM2 y Hy; cbn in *.
-  - auto.
+  - easy.
   - destruct Hy as [ <- | Hy].
     + destruct HM1 as [ [ <- | HM1] | (->&HM1)]; eauto.
       * exfalso. specialize (HM2 x ltac:(eauto)). nia.
@@ -57,7 +57,7 @@ Lemma max_list_rec_max (xs : list nat) (s1 s2 : nat) :
 Proof.
   induction xs as [ | x xs IH] in s1,s2|-*; cbn in *.
   - reflexivity.
-  - rewrite Max.max_assoc. rewrite !IH. nia.
+  - rewrite Nat.max_assoc. rewrite !IH. nia.
 Qed.
 
 (* If the list is not empty, and every element in the list is greater than start-values [s1] and [s2], then the choice of start-value [s1] or [s2] doesn't matter *)
@@ -142,7 +142,7 @@ Proof.
   apply Nat.le_antisymm.
   - apply max_list_rec_lower_bound; eauto.
     + apply Nat.max_le_compat_l. apply max_list_rec_ge.
-    + intros x Hx. rewrite <- Max.le_max_r. now apply max_list_rec_ge_el.
+    + intros x Hx. rewrite <- Nat.le_max_r. now apply max_list_rec_ge_el.
   - rewrite max_list_rec_max.
     apply Nat.max_le_compat; auto.
     apply max_list_rec_ge.
@@ -154,7 +154,7 @@ Proof.
   apply Nat.le_antisymm.
   - apply max_list_rec_lower_bound; eauto.
     + apply Nat.max_le_compat_r. apply max_list_rec_ge.
-    + intros x Hx. rewrite <- Max.le_max_l. now apply max_list_rec_ge_el.
+    + intros x Hx. rewrite <- Nat.le_max_l. now apply max_list_rec_ge_el.
   - rewrite max_list_rec_max.
     apply Nat.max_le_compat; auto.
     apply max_list_rec_ge.
@@ -174,7 +174,7 @@ Qed.
 Lemma max_list_rec_el_or_eq xs s :
   max_list_rec s xs el xs \/ max_list_rec s xs = s /\ (forall x : nat, x el xs -> x <= s).
 Proof.
-  revert s. induction xs as [ | x xs IH]; intros; cbn in *; eauto.
+  revert s. induction xs as [ | x xs IH]; intros; cbn in *; [tauto|].
   rewrite !max_list_rec_max.
   assert (max_list_rec s xs <= max_list_rec x xs \/ max_list_rec x xs <= max_list_rec s xs) as [H|H] by lia.
   - rewrite !max_l by assumption.
@@ -263,7 +263,7 @@ Lemma max_list_In (xs : list nat) :
 Proof.
   destruct xs as [ | x xs]; [ congruence | intros _].
   pose proof max_list_rec_In (x :: xs) 0 as [ (_&Absurd) | NotSoAbsurd ].
-  - exfalso. specialize (Absurd x ltac:(auto)). lia.
+  - exfalso. specialize (Absurd x ltac:(auto with list)). lia.
   - apply NotSoAbsurd.
 Qed.
 

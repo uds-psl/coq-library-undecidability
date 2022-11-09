@@ -1,7 +1,7 @@
 Set Implicit Arguments.
 Require Import Morphisms Lia List.
 From Undecidability.HOU Require Import calculus.calculus.
-Import ListNotations ListInstances ArsInstances.
+Import ListNotations ListAutomationInstances ArsInstances.
 
 (* * Conservativity *)
 

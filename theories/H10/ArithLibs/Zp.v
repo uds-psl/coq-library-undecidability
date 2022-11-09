@@ -37,13 +37,13 @@ Section le_pirr.
     case H2; [intro E | intros m l E].
     rewrite UIP_dec with (p1 := E) (p2 := eq_refl); auto.
     apply eq_nat_dec.
-    contradiction (le_Sn_n m); subst; auto.
+    contradiction (Nat.nle_succ_diag_l m); subst; auto.
     
     change (le_S n m H1) with (eq_rect _ (fun n0 => n <= n0) (le_S n m H1) _ eq_refl).
     generalize (eq_refl (S m)).
     pattern (S m) at 1 3 4 6, H2.
     case H2; [intro E | intros p H3 E].
-    contradiction (le_Sn_n m); subst; auto.
+    contradiction (Nat.nle_succ_diag_l m); subst; auto.
     injection E; intro; subst.
     rewrite (IH H3).
     rewrite UIP_dec with (p1 := E) (p2 := eq_refl); auto.
@@ -169,16 +169,16 @@ Section Zp.
     apply rem_prop with 0; simpl; auto.
   Qed.
 
-  Fact Zp_plus_comm : forall x y,  x ⊕ y = y ⊕ x.
+  Fact Zp_add_comm : forall x y,  x ⊕ y = y ⊕ x.
   Proof.
     intros (x & ?) (y & ?); apply Zp_inj; simpl.
     f_equal; lia.
   Qed.
 
-  Fact Zp_plus_assoc : forall x y z, x ⊕ (y ⊕ z) = x ⊕ y ⊕ z.
+  Fact Zp_add_assoc : forall x y z, x ⊕ (y ⊕ z) = x ⊕ y ⊕ z.
   Proof.
     intros (x & ?) (y & ?) (z & ?); apply Zp_inj; simpl.
-    rewrite (plus_comm (rem _ _) z), rem_plus_rem, rem_plus_rem.
+    rewrite (Nat.add_comm (rem _ _) z), rem_plus_rem, rem_plus_rem.
     f_equal; ring.
   Qed.
 
@@ -202,19 +202,19 @@ Section Zp.
       rewrite Nat.mul_1_l, rem_lt; lia.
   Qed.
 
-  Fact Zp_mult_comm : forall x y, x ⊗ y = y ⊗ x.
+  Fact Zp_mul_comm : forall x y, x ⊗ y = y ⊗ x.
   Proof.
     intros (x & ?) (y & ?); apply Zp_inj; simpl.
     f_equal; ring.
   Qed.
 
   Fact Zp_mult_one_r x : x ⊗ Op = x.
-  Proof. rewrite Zp_mult_comm, Zp_mult_one; auto. Qed.
+  Proof. rewrite Zp_mul_comm, Zp_mult_one; auto. Qed.
 
-  Fact Zp_mult_assoc : forall x y z, x ⊗ (y ⊗ z) = x ⊗ y ⊗ z.
+  Fact Zp_mul_assoc : forall x y z, x ⊗ (y ⊗ z) = x ⊗ y ⊗ z.
   Proof.
     intros (x & ?) (y & ?) (z & ?); apply Zp_inj; simpl.
-    rewrite (mult_comm (rem _ _) z), rem_mult_rem, rem_mult_rem.
+    rewrite (Nat.mul_comm (rem _ _) z), rem_mult_rem, rem_mult_rem.
     f_equal; ring.
   Qed.
 
@@ -225,7 +225,7 @@ Section Zp.
   Qed.
 
   Fact Zp_mult_plus_distr_r x y z : (y ⊕ z) ⊗ x = y ⊗ x ⊕ z ⊗ x.
-  Proof. do 3 rewrite (Zp_mult_comm _ x); apply Zp_mult_plus_distr_l. Qed.
+  Proof. do 3 rewrite (Zp_mul_comm _ x); apply Zp_mult_plus_distr_l. Qed.
 
   (* Define a ring structureon Zp *)
 
@@ -233,11 +233,11 @@ Section Zp.
   Proof.
     exists.
     + apply Zp_plus_zero.
-    + apply Zp_plus_comm.
-    + apply Zp_plus_assoc.
+    + apply Zp_add_comm.
+    + apply Zp_add_assoc.
     + apply Zp_mult_one.
-    + apply Zp_mult_comm.
-    + apply Zp_mult_assoc.
+    + apply Zp_mul_comm.
+    + apply Zp_mul_assoc.
     + intros; apply Zp_mult_plus_distr_r.
     + auto.
     + apply Zp_minus.
@@ -252,9 +252,9 @@ Section Zp.
     generalize (is_gcd_fun H H2); intro; subst g.
     exists (exist _ (rem v p) (@div_rem_spec2 v p Hp)).
     apply Zp_inj; simpl.
-    rewrite mult_comm, <- rem_scal.
+    rewrite Nat.mul_comm, <- rem_scal.
     destruct H3 as (k & H3).
-    rewrite mult_comm.
+    rewrite Nat.mul_comm.
     rewrite <- rem_erase with (n := u) (1 := eq_refl).
     rewrite <- rem_erase with (n := k) (r := 1) (1 := eq_refl).
     f_equal.
@@ -332,8 +332,8 @@ Section Zp.
   Fact Zp_invertible_cancel_l x y z : Zp_invertible x -> x⊗y = x⊗z -> y = z.
   Proof. 
     intros (i & Hi) H.
-    rewrite <- (Zp_mult_one y), <- Hi, <- Zp_mult_assoc,
-            H, Zp_mult_assoc, Hi, Zp_mult_one; auto.
+    rewrite <- (Zp_mult_one y), <- Hi, <- Zp_mul_assoc,
+            H, Zp_mul_assoc, Hi, Zp_mult_one; auto.
   Qed.
 
   (* ⊕  ⊗  ∸ *)
@@ -345,8 +345,8 @@ Section Zp.
   Proof.
     intros H.
     apply f_equal with (f := fun a => ∸ x ⊕ a) in H.
-    do 2 rewrite Zp_plus_assoc in H.
-    rewrite (Zp_plus_comm _ x), Zp_minus in H.
+    do 2 rewrite Zp_add_assoc in H.
+    rewrite (Zp_add_comm _ x), Zp_minus in H.
     do 2 rewrite Zp_plus_zero in H; auto.
   Qed.
 
@@ -378,7 +378,7 @@ Section Zp.
   Proof.
     intros (i & Hi) H1.
     rewrite <- (Zp_mult_one y), <- Hi at 1.
-    rewrite <- Zp_mult_assoc, H1; ring.
+    rewrite <- Zp_mul_assoc, H1; ring.
   Qed.
 
   Fact Zp_zero_is_one : Zp = Op <-> p = 1.
@@ -452,14 +452,14 @@ Section Zp.
     Fact nat2Zp_plus u v : 〚u+v〛=〚u〛⊕〚v〛.
     Proof.
       apply Zp_inj; simpl.
-      rewrite rem_plus_rem, (plus_comm (rem _ _)), rem_plus_rem.
+      rewrite rem_plus_rem, (Nat.add_comm (rem _ _)), rem_plus_rem.
       f_equal; ring.
     Qed.
 
     Fact nat2Zp_minus u v : v <= u -> 〚u-v〛=〚u〛⊕ ∸〚v〛.
     Proof.
       intros; apply Zp_inj; simpl.
-      rewrite rem_plus_rem, (plus_comm (rem _ _)), plus_comm.
+      rewrite rem_plus_rem, (Nat.add_comm (rem _ _)), Nat.add_comm.
       generalize (div u p) (div v p) (div_rem_spec1 u p) (div_rem_spec1 v p).
       intros a b H1 H2.
       assert (b <= a) as Hab.
@@ -498,7 +498,7 @@ Section Zp.
     Fact nat2Zp_mult u v :〚u*v〛=〚u〛⊗〚v〛.
     Proof.
       apply Zp_inj; simpl.
-      rewrite rem_mult_rem, (mult_comm (rem _ _)), rem_mult_rem.
+      rewrite rem_mult_rem, (Nat.mul_comm (rem _ _)), rem_mult_rem.
       f_equal; ring.
     Qed.
 
@@ -550,7 +550,7 @@ Section Zp.
     split.
     + intros (i & Hi) E.
       subst.
-      rewrite Zp_mult_comm, Zp_mult_zero, Zp_zero_is_one in Hi.
+      rewrite Zp_mul_comm, Zp_mult_zero, Zp_zero_is_one in Hi.
       apply prime_ge_2 in H; lia.
     + intros Hx.
       destruct (nat2Zp_surj x) as (u & _ & Hu).
@@ -649,7 +649,7 @@ Section Zp.
         replace (u+v) with (v-(-u)) by lia.
         rewrite Z2Nat.inj_sub; try lia.
         rewrite nat2Zp_minus.
-        + apply Zp_plus_comm.
+        + apply Zp_add_comm.
         + rewrite <- Z2Nat.inj_le; lia.
       Qed.
 
@@ -674,7 +674,7 @@ Section Zp.
         + do 3 (rewrite Z2Zp_pos; try lia).
           rewrite Z2Nat.inj_add; auto.
           apply nat2Zp_plus.
-        + rewrite Z.add_comm, Zp_plus_comm.
+        + rewrite Z.add_comm, Zp_add_comm.
           destruct (Z_pos_or_neg (u+v)).
           - apply Z2Zp_plus_loc; lia.
           - apply Z2Zp_plus_loc'; lia.
@@ -776,15 +776,15 @@ Section Zp.
         + apply Z2Zp_mult_loc; auto.
         + replace (u*v) with (-(u*-v)); try ring.
           rewrite Z2Zp_opp, Z2Zp_mult_loc; try lia.
-          rewrite Z2Zp_opp, Zp_mult_comm, Zp_opp_mult, Zp_opp_inv.
-          apply Zp_mult_comm.
+          rewrite Z2Zp_opp, Zp_mul_comm, Zp_opp_mult, Zp_opp_inv.
+          apply Zp_mul_comm.
         + replace (u*v) with (- ((-u)*v)); try ring.
           rewrite Z2Zp_opp, Z2Zp_mult_loc; try lia.
           rewrite Z2Zp_opp, Zp_opp_mult, Zp_opp_inv; auto.
         + replace (u*v) with ((-u)*(-v)); try ring.
           rewrite Z2Zp_mult_loc; try lia.
           do 2 rewrite Z2Zp_opp.
-          do 2 rewrite Zp_opp_mult, Zp_mult_comm.
+          do 2 rewrite Zp_opp_mult, Zp_mul_comm.
           apply Zp_opp_inv.
       Qed.
 
@@ -843,7 +843,7 @@ Section Zp.
       rewrite <- Z2Zp_zero in H.
       apply Z2Zp_inj in H.
       destruct H as (y & Hy); exists y.
-      rewrite Zmult_comm, <- Hy; ring.
+      rewrite Z.mul_comm, <- Hy; ring.
     Qed.
 
     Fact nat2Zp_choose : forall x, x = Zp \/ x = Op \/ x = ∸ Op \/ exists m,  (1 < m < p-1)%nat /\〚m〛= x.
@@ -924,8 +924,8 @@ Section Zp.
         + intros H2; rewrite <- H2; apply Zp_invert_spec2; auto.
         + intros H2.
           apply Zp_invert_spec2 in H1.
-          rewrite <- (Zp_mult_one (inv x)) , <- H2, <- Zp_mult_assoc,
-                    (Zp_mult_comm x), H1, Zp_mult_comm, Zp_mult_one.
+          rewrite <- (Zp_mult_one (inv x)) , <- H2, <- Zp_mul_assoc,
+                    (Zp_mul_comm x), H1, Zp_mul_comm, Zp_mult_one.
           trivial.
       Qed.
 
@@ -936,7 +936,7 @@ Section Zp.
         + apply Zp_invert_eq_not_zero.
           * contradict Hx.
             rewrite <- (Zp_opp_inv x), Hx, Zp_opp_zero; trivial.
-          * do 2 rewrite Zp_opp_mult, Zp_mult_comm.
+          * do 2 rewrite Zp_opp_mult, Zp_mul_comm.
             rewrite Zp_opp_inv, Zp_invert_spec2; auto.
       Qed.
 
@@ -977,7 +977,7 @@ Section Zp.
             apply Zp_invert_spec2 in Hx.
             rewrite H, Zp_mult_zero in Hx.
             apply Zp_zero_is_one in Hx; lia.
-          * rewrite Zp_mult_comm; apply Zp_invert_spec2; auto.
+          * rewrite Zp_mul_comm; apply Zp_invert_spec2; auto.
       Qed.
 
       Fact Zp_invert_not_fix n : (1 < n < p-1)%nat -> inv〚n〛<>〚n〛.
@@ -1036,9 +1036,9 @@ Section Zp.
           1: destruct H2; auto.
           destruct in_split with (1 := H3) as (u & v & ?); subst.
           rewrite Zp_lprod_cons, Zp_lprod_app, Zp_lprod_cons.
-          rewrite (Zp_mult_assoc _ (inv x)), (Zp_mult_comm _ (inv x)).
-          repeat rewrite Zp_mult_assoc.
-          rewrite (Zp_mult_comm _ (inv x)), Zp_invert_spec2; auto.
+          rewrite (Zp_mul_assoc _ (inv x)), (Zp_mul_comm _ (inv x)).
+          repeat rewrite Zp_mul_assoc.
+          rewrite (Zp_mul_comm _ (inv x)), Zp_invert_spec2; auto.
           rewrite Zp_mult_one, <- Zp_lprod_app.
           apply IHl.
           * simpl; do 2 rewrite app_length; simpl; lia.
@@ -1076,11 +1076,11 @@ Section Zp.
         + apply Zp_inj; simpl; auto.
         + rewrite fact_S, nat2Zp_mult.
           replace (S n)%nat with (n+1)%nat by lia.
-          rewrite list_an_plus, map_app, Zp_lprod_app, <- IHn, Zp_mult_comm.
+          rewrite list_an_plus, map_app, Zp_lprod_app, <- IHn, Zp_mul_comm.
           f_equal.
           * do 2 f_equal; lia.
           * simpl list_an; unfold map. 
-            rewrite Zp_lprod_cons, Zp_mult_comm, Zp_mult_one.
+            rewrite Zp_lprod_cons, Zp_mul_comm, Zp_mult_one.
             f_equal; lia.
       Qed.
 
@@ -1125,7 +1125,7 @@ Section Zp.
     Fact Zp_divides_and_invertible d k n i : (d * k = n)%nat ->〚i〛⊗〚d〛= Op ->〚k〛=〚i〛⊗〚n〛.
     Proof.
       intros H1 H2.
-      rewrite <- H1, nat2Zp_mult, Zp_mult_assoc, H2; ring.
+      rewrite <- H1, nat2Zp_mult, Zp_mul_assoc, H2; ring.
     Qed.
 
   End Z2Zp.
@@ -1154,7 +1154,7 @@ Proof.
     assert (Hp : p <> 0) by lia.
     rewrite divides_nat2Zp with (Hp := Hp).
     rewrite nat2Zp_plus, Wilson_thm_1; auto.
-    rewrite nat2Zp_one, Zp_plus_comm, Zp_minus; auto.
+    rewrite nat2Zp_one, Zp_add_comm, Zp_minus; auto.
   + intros H2; split; try lia.
     intros q Hq.
     destruct (eq_nat_dec q p) as [ Hp | Hp ]; auto.

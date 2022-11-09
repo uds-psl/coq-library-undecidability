@@ -116,19 +116,19 @@ Section sinc_decidable.
   Let f_mono x y : x <= y -> f x <= f y.
   Proof.
     induction 1 as [ | y H IH ]; auto.
-    apply le_trans with (1 := IH), lt_le_weak, Hf.
+    apply Nat.le_trans with (1 := IH), Nat.lt_le_incl, Hf.
   Qed.
 
   Let f_smono x y : x < y -> f x < f y.
   Proof.
     intros H; apply f_mono in H.
-    apply lt_le_trans with (2 := H), Hf.
+    apply Nat.lt_le_trans with (2 := H), Hf.
   Qed.
 
   Let f_ge_n n : n <= f n.
   Proof.
     induction n as [ | n IHn ]; try lia.
-    apply le_trans with (2 := Hf _); lia.
+    apply Nat.le_trans with (2 := Hf _); lia.
   Qed.
 
   Let unbounded n : exists k, n <= k /\ P k.

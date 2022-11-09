@@ -73,7 +73,7 @@ Section vec_first_half.
   Proof using Hk.
     apply vec_set_pos; intros p.
     refine (vec_pos v (@nat2pos _ (pos2nat p) _)).
-    apply lt_le_trans with (2 := Hk), pos2nat_prop.
+    apply Nat.lt_le_trans with (2 := Hk), pos2nat_prop.
   Defined.
 
   Fact vec_first_half_fill_tail v e : vec_first_half (vec_fill_tail _ v e) = v.

@@ -74,7 +74,7 @@ Proof. apply UIP_dec, bt_eq_dec. Qed.
 Fixpoint bt_depth t :=
   match t with
     | ∅   => 0
-    | r⪧s => max (S ⌞r⌟) ⌞s⌟
+    | r⪧s => Nat.max (S ⌞r⌟) ⌞s⌟
   end
 where "⌞ t ⌟" := (bt_depth t).
 
@@ -275,7 +275,7 @@ Proof. exists (bt_list t); apply bt_list_spec. Qed.
 
 Section bte_depth.
 
-  Opaque max.
+  Opaque Nat.max.
 
   (* Well-foundness *)
 

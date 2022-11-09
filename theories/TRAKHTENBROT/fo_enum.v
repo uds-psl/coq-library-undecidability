@@ -123,16 +123,16 @@ Section fol_enumerable.
         - exists (inl (inr (existT _ r v))); simpl; auto.
         - apply le_S_n in H.
           exists (inr (inl (b,(A,B)))); simpl; repeat split; auto; 
-            apply le_trans with (2 := H).
-          ++ apply le_max_l.
-          ++ apply le_max_r.
+            apply Nat.le_trans with (2 := H).
+          ++ apply Nat.le_max_l.
+          ++ apply Nat.le_max_r.
         - apply le_S_n in H.
           exists (inr (inr (q,A))); simpl; repeat split; auto. 
       * intros ([ [ [] | (r&v) ] | [ (b,(B,C)) | (q,B) ] ] & H); revert H; simpl.
         - intros (_ & ->); simpl; lia.
         - intros (_ & ->); simpl; lia.
         - intros ((_ & G1 & G2) & ->); simpl.
-          apply le_n_S, max_lub; auto.
+          apply le_n_S, Nat.max_lub; auto.
         - intros ((_ & G1) & ->); simpl; lia.
   Qed.
 

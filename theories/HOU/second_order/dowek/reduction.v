@@ -21,7 +21,7 @@ Section EquationEquivalences.
       cbn. unfold shift, var_zero, funcomp; rewrite H; asimpl.
       rewrite !enc_app.
       change (var 0 (var 1)) with (@AppL X (repeat (var 0) 1) (var 1)).
-      now rewrite <-AppL_app, <-repeated_plus, plus_comm.
+      now rewrite <-AppL_app, <-repeated_plus, Nat.add_comm.
     Qed.
 
     Lemma backward_vars x:

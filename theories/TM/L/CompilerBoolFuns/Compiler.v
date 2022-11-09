@@ -376,7 +376,7 @@ Section mk_init.
     rewrite vector_fold_left_right with (v:=v), <- (startRen_spec v).
     apply EntailsI. intros t H. eapply tspec_ext. eassumption. easy.
     intros i. clear - i. 
-    repeat (destruct (fin_destruct_S i) as [(i'&->) | ->];[rename i' into i;cbn| ]);try (intros H;exact H).
+    repeat (destruct (fin_destruct_S i) as [(i'&->) | ->];[rename i' into i;cbn| ]);(intros H;exact H).
   Qed.
 
 

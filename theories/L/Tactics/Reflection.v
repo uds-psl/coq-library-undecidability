@@ -125,7 +125,7 @@ Lemma map_ext' : forall (A B : Type) (f g : A -> B) (l:list A),
 Proof.
   intros. induction l.
   -reflexivity.
-  -simpl. rewrite H;auto.  f_equal. apply IHl. intros. apply H. auto.
+  -simpl. rewrite H;auto with list.  f_equal. apply IHl. intros. apply H. auto with list.
 Qed.
 
 Lemma denoteTerm_correct phi s: Proc phi -> deClos (denoteComp phi s) = denoteTerm phi (rDeClos s).
@@ -189,7 +189,7 @@ Functional Scheme rCompSeval'_ind := Induction for rCompSeval' Sort Prop.
 
 Lemma rCompSeval_sound n phi s l:
   Proc phi -> let (k,t) := rCompSeval n (l,s) in k >= l /\ denoteComp phi s >[(k-l)] denoteComp phi t.
-Proof with (repeat inv_validComp;repeat (eassumption || constructor || intuition|| subst ; eauto using star || rewrite Nat.sub_diag in * || rewrite <- minus_n_O in *||cbn in * )).
+Proof with (repeat inv_validComp;repeat (eassumption || constructor || intuition|| subst ; eauto using star || rewrite Nat.sub_diag in * || rewrite Nat.sub_0_r in *||cbn in * )).
   intros. unfold rCompSeval.
   pose (p:= (l,s)).
   change (let (k, t) := fst (rCompSeval' n p) in k >= fst p /\denoteComp phi  (snd p) >[(k-(fst p))] denoteComp phi t).
@@ -258,7 +258,7 @@ Proof with eauto.
   intros pp cl. unfold rPow. rewrite rClosed_valid in *;auto. assert (cl': rValidComp phi (snd (rCompSeval n (0,rCompClos s [])))).
   -apply rCompSeval_rValidComp;auto.
   - destruct rCompSeval eqn:eq1. rewrite !expandDenote;auto.  specialize (rCompSeval_sound n (rCompClos s []) 0 pp);intros  H. rewrite eq1 in H.
-    destruct H as [_ H]. rewrite <- minus_n_O in H. rewrite <- rDeClos_reduce... apply deClos_correct... destruct cl...
+    destruct H as [_ H]. rewrite Nat.sub_0_r in H. rewrite <- rDeClos_reduce... apply deClos_correct... destruct cl...
 Qed.
 
 Lemma rStandardizeUsePow n phi s:

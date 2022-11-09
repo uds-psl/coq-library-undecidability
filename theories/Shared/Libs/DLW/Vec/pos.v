@@ -345,8 +345,8 @@ Section pos_nat.
               | pos_fst   => exist _ 0 _
               | pos_nxt q => exist _ (S (proj1_sig (pos_nat _ q))) _
             end).
-    apply lt_O_Sn.
-    apply lt_n_S, (proj2_sig (pos_nat _ q)).
+    apply Nat.lt_0_succ.
+    apply -> Nat.succ_lt_mono. apply (proj2_sig (pos_nat _ q)).
   Defined.
 
   Definition pos2nat n p := proj1_sig (@pos_nat n p).
@@ -360,11 +360,11 @@ Section pos_nat.
               | O   => fun x H => _
               | S i => fun x H => _
             end).
-    exfalso; revert H; apply lt_n_O.
+    exfalso; revert H; apply Nat.nlt_0_r.
     destruct x as [ | x ].
     apply pos_fst.
-    apply pos_nxt. 
-    apply (nat2pos i x); revert H; apply lt_S_n.
+    apply pos_nxt.
+    apply (nat2pos i x); revert H; apply Nat.succ_lt_mono.
   Defined.
 
   Definition nat_pos n : { i | i < n } -> pos n.
@@ -414,7 +414,7 @@ Section pos_nat.
     apply pos_fst.
     exfalso; clear pos_sub; abstract lia.
     apply pos_nxt.
-    apply (pos_sub n p), lt_S_n, Hm.
+    apply (pos_sub n p), Nat.succ_lt_mono, Hm.
   Defined.
   
   Fact pos_sub2nat n p m Hm : pos2nat (@pos_sub n p m Hm) = pos2nat p.

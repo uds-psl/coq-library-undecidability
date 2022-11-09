@@ -4,7 +4,6 @@ Require Export Undecidability.TM.Basic.Mono Undecidability.TM.Compound.Multi.
 (* the above imports sidestep the import of ProgrammingTools below to avoid the dependency on Hoare *)
 (*From Undecidability.TM Require Import ProgrammingTools.*)
 From Undecidability Require Import ArithPrelim.
-Require Import Undecidability.Shared.FinTypeEquiv Undecidability.Shared.FinTypeForallExists.
 From Undecidability Require Import utils_list.
 
 Section fix_Sigma.
@@ -149,7 +148,7 @@ Definition isTotal {Σ} {L} {n} (M : pTM Σ L n) := exists c, projT1 M ↓ fun t
 Ltac help :=
   intros;TMSimp; destruct_tapes; TMSimp; try lia;
   try match goal with
-  [ |- ?L <= ?R ] => tryif (is_evar R) then (eapply le_plus_l) else (ring_simplify; shelve)
+  [ |- ?L <= ?R ] => tryif (is_evar R) then (eapply Nat.le_add_r) else (ring_simplify; shelve)
   | _ => idtac
   end.
 
@@ -319,7 +318,7 @@ Proof.
   - eexists. TM_Correct.
   - destruct IHn as [c IH]. eexists. eapply TerminatesIn_monotone.
     TM_Correct. eapply MoveM_Realise. intros ? ? ?.
-    repeat eexists. eapply le_plus_l. cbn. 2: intros; eapply le_plus_l.
+    repeat eexists. eapply Nat.le_add_r. cbn. 2: intros; eapply Nat.le_add_r.
     eapply H.
   Unshelve. all:exact 0.
 Qed.
@@ -338,25 +337,25 @@ Proof.
     eapply MoveM_Realise.
   - cbn. TM_Correct.
   - cbn. intros ? ? ?. destruct c; cbn.
-    + repeat eexists. help. eapply le_plus_l.
+    + repeat eexists. help. eapply Nat.le_add_r.
       intros. TMSimp. destruct_tapes. cbn.
       destruct (current _).
       * destruct b; help.
-      * repeat eexists. help. help. help. eapply le_plus_l.
+      * repeat eexists. help. help. help. eapply Nat.le_add_r.
         intros. TMSimp. destruct_tapes. TMSimp. destruct current.
         destruct b; help. lia.
       * eapply H.
       * intros. TMSimp. destruct_tapes. rename tout_0 into h. destruct h; help.
         -- TMSimp. repeat eexists.
-           rewrite !app_length, length_encode_sym. cbn. eapply le_plus_l. cbn.
+           rewrite !app_length, length_encode_sym. cbn. eapply Nat.le_add_r. cbn.
            instantiate (1 := ltac:(destruct c; refine _ )). cbn in *.
-           eapply le_plus_l. eapply le_plus_l. eapply le_plus_l. intros. eapply le_plus_l.
+           eapply Nat.le_add_r. eapply Nat.le_add_r. eapply Nat.le_add_r. intros. eapply Nat.le_add_r.
         -- TMSimp. rewrite !app_length, rev_length, !app_length, length_encode_sym. cbn. lia.
-        -- TMSimp. repeat eexists. rewrite !app_length, length_encode_sym. cbn. eapply le_plus_l.
-           2: eapply le_plus_l. 2:eapply le_plus_l. 2: intros; eapply le_plus_l.
+        -- TMSimp. repeat eexists. rewrite !app_length, length_encode_sym. cbn. eapply Nat.le_add_r.
+           2: eapply Nat.le_add_r. 2:eapply Nat.le_add_r. 2: intros; eapply Nat.le_add_r.
            ring_simplify. shelve.
         -- TMSimp. repeat eexists. rewrite !app_length, length_encode_sym. cbn.
-           eapply le_plus_l. cbn. shelve. eapply le_plus_l. eapply le_plus_l. intros. eapply le_plus_l.
+           eapply Nat.le_add_r. cbn. shelve. eapply Nat.le_add_r. eapply Nat.le_add_r. intros. eapply Nat.le_add_r.
     + lia.
     Unshelve. all: try exact 0. lia. lia. lia.
 Qed.
@@ -386,7 +385,7 @@ Lemma midtape_right_midtape {Σ : finType} l m r1 c r2 n :
 Proof. 
   intros ->. induction r1 in m, c, r2 |- * using rev_ind; cbn.
   - reflexivity.
-  - rewrite app_length. cbn. rewrite plus_comm. cbn.
+  - rewrite app_length. cbn. rewrite Nat.add_comm. cbn.
     rewrite <- app_assoc, Nat_iter_S'. cbn.
     rewrite (IHr1 m x (c :: r2)). cbn. now rewrite rev_app_distr.
 Qed.
@@ -461,7 +460,7 @@ Proof.
   eexists. eapply TerminatesIn_monotone.
   TM_Correct. intros ? ? ?. repeat eexists; help.
   destruct current; help.
-  repeat eexists. help. help. help. instantiate (1 := ltac:(destruct x; refine _)). cbn. eapply le_plus_l.
+  repeat eexists. help. help. help. instantiate (1 := ltac:(destruct x; refine _)). cbn. eapply Nat.le_add_r.
   help. destruct current. help. help.
   Unshelve. all: try destruct x; cbn.
   4:{ eapply H. } all:exact 0.
@@ -516,6 +515,18 @@ Proof.
       instantiate (5 := c2) in H.
       replace (c + c3 + c2 + c1) with (c + c3 + c1 + c2) by lia. eapply H. }
       all:try exact 0. all: try lia. all: exact (fun _ _ => True).
+Qed.
+
+(* Specialized Facts *)
+Lemma fintype_forall_exists (F : finType) (P : F -> nat -> Prop) :
+  (forall x n, P x n -> forall m, m >= n -> P x m) ->
+  (forall x : F, exists n, P x n) -> exists N, forall x, P x N.
+Proof.
+  intros P_mono FE. destruct (fintype_choice FE) as [f Hf].
+  exists (list_sum (map f (elem F))).
+  intros x. apply (P_mono x _ (Hf x)).
+  destruct (in_split _ _ (elem_spec x)) as [? [? ->]].
+  rewrite map_app, list_sum_app. cbn. lia.
 Qed.
 
 Section FixM.
@@ -654,15 +665,14 @@ Section FixM.
       instantiate (1 := ltac:(destruct x2; refine _)).
       destruct x2. TM_Correct.
       repeat eexists. 
-      eapply le_plus_l. eapply le_plus_l. eapply le_plus_l.
-      eapply le_plus_l. intros. eapply le_plus_l.
+      eapply Nat.le_add_r. eapply Nat.le_add_r. eapply Nat.le_add_r.
+      eapply Nat.le_add_r. intros. eapply Nat.le_add_r.
     Unshelve. all:cbn.
     all: try destruct x2; cbn in *.
     3:{ destruct halt. cbn. eapply H2. eapply H2. }
     all:exact 0.
     Unshelve. all:exact 0.
   Qed.
-
 
   Lemma Step_total' :
     exists C, forall q, projT1 (Step q) ↓ fun t k => C <= k.
@@ -732,13 +742,13 @@ Section FixM.
     induction steps in tin, t_sig, Heqtin, q, H0, H |- *.
     - cbn in H. unfold haltConf in H. cbn in *.
       destruct (halt q) eqn:Eq; cbn.
-      + inv H. eexists. split. eapply le_plus_l.
+      + inv H. eexists. split. eapply Nat.le_add_r.
         intros. destruct_tapes. specialize (H _ eq_refl) as [[= ->] [= ->]].
         ring_simplify in H0. shelve.
       + inv H.
     - cbn in H. unfold haltConf in H. cbn in *.
       destruct (halt q) eqn:Eq; cbn.  
-      + inv H. eexists. split. eapply le_plus_l.
+      + inv H. eexists. split. eapply Nat.le_add_r.
         intros. destruct_tapes. specialize (H _ eq_refl) as [[= ->] [= ->]].
         ring_simplify in H0. shelve.
       + subst. unfold step in H. cbn in *.
@@ -749,7 +759,7 @@ Section FixM.
         destruct_vector.
         cbn in *. pose proof (Hrem := H).
         eapply IHsteps in H. eexists. split.
-        eapply le_plus_l.
+        eapply Nat.le_add_r.
         intros. specialize (H1 _ eq_refl).
         rewrite Et in H1. rewrite E2 in H1. destruct H1. subst.
         repeat eexists. rewrite <- Hrem. repeat f_equal. now destruct t_sig, m, c'.
@@ -820,33 +830,46 @@ Proof.
     * intros tin k [q'_ tout] Hter. cbn in *. exists q'_. eapply TM_eval_iff. exists k. exact Hter.
 Qed.
 
-Require Import Undecidability.Synthetic.Definitions.
-Require Import Undecidability.Synthetic.ReducibilityFacts Undecidability.TM.Util.TM_facts.
+Section HaltTM_Σ_to_HaltTM_bool.
 
-Theorem reduction_tobin :
+Variables (Σ : finType) (M : TM Σ 1) (ts : Vector.t (tape Σ) 1).
+
+Definition Σ' := finType_CS bool.
+Definition M' : TM Σ' 1 := projT1 (StateWhile (@Step Σ M) (start M)).
+Definition ts' : Vector.t (tape Σ') 1 := Vector.map (fun t => encode_tape' t) ts.
+
+Lemma HaltTM_Σ_to_HaltTM_bool_correct : HaltsTM M ts <-> HaltsTM M' ts'.
+Proof.
+  unfold M', ts'. split.
+  - intros (q' & t' & [n H] % TM_eval_iff).
+    edestruct @Sim_Terminates with (M := (existT _ M (fun _ : state M => tt))) (T := fun tin k => tin = ts /\ k >= n).
+    + intros tin k [-> Hk]. cbn. exists (mk_mconfig q' t').  eapply @loop_monotone. exact H. eapply Hk.
+    + destruct H0 as [k H0]. cbn in H0. edestruct H0 as [[] H1].
+      -- exists (Vector.hd ts), n. split. reflexivity. split. 2: now unfold ge. split. 2:lia.
+          apply (Vector.caseS' ts). intros ?.
+          apply (Vector.case0). reflexivity.
+      -- exists cstate. eexists ctapes. eapply TM_eval_iff. exists (x * n + k). unfold Relabel, initc in H1. cbn in H1.
+          revert H1. apply (Vector.caseS' ts). intros ?. cbn.
+          intros t0. pattern t0. apply Vector.case0.
+          intros H1. exact H1.
+  - intros (q' & t' & [n H] % TM_eval_iff). 
+    eapply (Sim_Realise (M := (existT _ M (fun _ : state M => tt))) (R := fun tin '(_,tout) => exists q', eval M (start M) tin q' tout)) in H.
+    + revert H. apply (Vector.caseS' ts). intros ?. cbn.
+      intros t0. pattern t0. apply Vector.case0.
+      clear ts. rename h into t. intros H.
+      specialize (H t eq_refl) as [t'_sig [[q'_ H1] H2]]. cbn in H1. 
+      cbn in H2. subst. exists q'_, [|t'_sig|]. eassumption. 
+    + intros tin k [q'_ tout] Hter. cbn in *. exists q'_. eapply TM_eval_iff. exists k. exact Hter.
+Qed.
+
+End HaltTM_Σ_to_HaltTM_bool.
+
+Require Import Undecidability.Synthetic.Definitions.
+
+Theorem reduction :
   HaltTM 1 ⪯ fun '(M,t) => @HaltsTM (finType_CS bool) 1 M t.
 Proof.
   unshelve eexists.
-  - intros [Σ M t]. split. exact (projT1 (StateWhile (@Step Σ M) (start M))).
-    exact (Vector.map (fun t => encode_tape' t) t).
-  - intros [Σ M t]. cbn. split.
-    + intros (q' & t' & [n H] % TM_eval_iff).
-      edestruct @Sim_Terminates with (M := (existT _ M (fun _ : state M => tt))) (T := fun tin k => tin = t /\ k >= n).
-      * intros tin k [-> Hk]. cbn. exists (mk_mconfig q' t').  eapply @loop_monotone. exact H. eapply Hk.
-      * destruct H0 as [k H0]. cbn in H0. edestruct H0 as [[] H1].
-        -- exists (Vector.hd t), n. split. reflexivity. split. 2: now unfold ge. split. 2:lia.
-           apply (Vector.caseS' t). intros ?.
-           apply (Vector.case0). reflexivity.
-        -- exists cstate. eexists ctapes. eapply TM_eval_iff. exists (x * n + k). unfold Relabel, initc in H1. cbn in H1.
-           revert H1. apply (Vector.caseS' t). intros ?. cbn.
-           intros t0. pattern t0. apply Vector.case0.
-           intros H1. exact H1.
-    + intros (q' & t' & [n H] % TM_eval_iff). 
-      eapply (Sim_Realise (M := (existT _ M (fun _ : state M => tt))) (R := fun tin '(_,tout) => exists q', eval M (start M) tin q' tout)) in H.
-      * revert H. apply (Vector.caseS' t). intros ?. cbn.
-        intros t0. pattern t0. apply Vector.case0.
-        clear t. rename h into t. intros H.
-        specialize (H t eq_refl) as [t'_sig [[q'_ H1] H2]]. cbn in H1. 
-        cbn in H2. subst. exists q'_, [|t'_sig|]. eassumption. 
-      * intros tin k [q'_ tout] Hter. cbn in *. exists q'_. eapply TM_eval_iff. exists k. exact Hter.
+  - intros [Σ M t]. exact (M' M, ts' t).
+  - intros [Σ M t]. now apply HaltTM_Σ_to_HaltTM_bool_correct.
 Qed.

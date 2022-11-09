@@ -1,7 +1,7 @@
 Set Implicit Arguments.
 Require Import List Lia.
 From Undecidability.HOU Require Import std.std calculus.calculus unification.higher_order_unification.
-Import ListNotations ListInstances ArsInstances.
+Import ListNotations ListAutomationInstances ArsInstances.
 
 (* * System Unification *)
 Section SystemUnification.

@@ -1,9 +1,9 @@
 Set Implicit Arguments.
-Require Import Lia List.
+Require Import PeanoNat Lia List.
 From Undecidability.HOU Require Import calculus.calculus concon.conservativity_constants
   unification.higher_order_unification unification.systemunification
   unification.nth_order_unification.
-Import ListNotations ListInstances ArsInstances.
+Import ListNotations ListAutomationInstances ArsInstances.
 
 Global Hint Rewrite @consts_Lam @consts_AppL @consts_AppR : simplify.
 
@@ -388,7 +388,7 @@ Section Conservativity.
 
   Theorem unification_steps n m: 1 <= n <= m -> OU n X ⪯ OU m X.
   Proof.
-    intros [H1 H2]; induction H2; eauto using unification_step, Arith.Le.le_trans.
+    intros [H1 H2]; induction H2; eauto using unification_step, Nat.le_trans.
   Qed.
 
   Theorem unification_conserve n: 1 <= n -> OU n X ⪯ U X.
@@ -405,7 +405,7 @@ Section Conservativity.
 
   Theorem systemunification_steps n m: 1 <= n <= m -> @SOU X n ⪯ @SOU X m.
   Proof.
-    intros [H1 H2]; induction H2; eauto using systemunification_step, Arith.Le.le_trans.
+    intros [H1 H2]; induction H2; eauto using systemunification_step, Nat.le_trans.
   Qed.
 
   Theorem systemunification_conserve n: 1 <= n -> @SOU X n ⪯ @SU X.

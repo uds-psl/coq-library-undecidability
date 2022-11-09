@@ -257,7 +257,7 @@ Section Minsky_Machine_alt_utils_BSM.
           end. 
           rew vec; intros H3. 
           rewrite div2_2p1 in H3.
-          rewrite (plus_comm _ 1) in H3.
+          rewrite (Nat.add_comm _ 1) in H3.
           rewrite H2.
           apply H3; f_equal; simpl; rew vec.
           apply vec_pos_ext; intros p; dest p src; dest p zero. }
@@ -285,7 +285,7 @@ Section Minsky_Machine_alt_utils_BSM.
       end.
       rew vec; intros H3. 
       rewrite div2_2p0 in H3.
-      rewrite (plus_comm _ 0) in H3.
+      rewrite (Nat.add_comm _ 0) in H3.
       rewrite H2.
       apply H3; f_equal.
       apply vec_pos_ext; intros p; dest p src; dest p zero.

@@ -210,15 +210,15 @@ Section ra_mm_comp.
             /\ (forall v, (1,P) /v/ (1,vec_app v vec_zero) ↓ -> ex (⟦f⟧ v)) } }.
   Proof.
     destruct ra_mm_env_simulator with (f := f) as (P & HP).
-    set (k := max (S n) (mm_nat_bound P)).
-    assert (S n <= k) as H3 by apply le_max_l.
+    set (k := Nat.max (S n) (mm_nat_bound P)).
+    assert (S n <= k) as H3 by apply Nat.le_max_l.
     assert { m | k = n+S m } as H4.
     { exists (k-S n); lia. }
     clear H3.
     destruct H4 as (m & Hm).
     exists m.
     destruct mm_nat_pos with (n := k) (l := P) as (Q & HQ).
-    + apply le_max_r.
+    + apply Nat.le_max_r.
     + revert Q HQ; rewrite Hm; clear k Hm; intros Q HQ.
       exists Q; split.
       * intros x v H.
@@ -246,7 +246,7 @@ Section ra_mm_comp.
                 f_equal; apply nat2pos_pos2nat.
              ** intros p.
                 rewrite vec_pos_app_right, G2, pos2nat_right; simpl snd.
-                rewrite plus_comm.
+                rewrite Nat.add_comm.
                 analyse pos p.
                 -- rewrite pos2nat_fst; simpl.
                    rewrite G1; rew env.

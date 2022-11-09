@@ -6,7 +6,7 @@ From Undecidability.FOL Require Import Util.Syntax Util.Kripke Util.Deduction Ut
 From Undecidability.Shared Require Import Dec.
 From Undecidability.Shared.Libs.PSL Require Import Numbers.
 From Coq Require Import Arith Lia List.
-Import Undecidability.Shared.ListAutomation.ListInstances.
+Import Undecidability.Shared.ListAutomation.ListAutomationInstances.
 
 (* ** Validity *)
 
@@ -656,7 +656,7 @@ Section provability.
     cbn.
     do 11 apply II. eapply Weak. 1: apply (Hpr pl pr).
     apply incl_app.
-    - unfold erel_findNum_H. now repeat apply ListAutomation.incl_shift.
+    - unfold erel_findNum_H. now repeat (apply incl_cons; [now left|apply incl_tl]).
     - now do 11 apply incl_tl.
     Qed.
 

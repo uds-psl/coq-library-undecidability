@@ -158,8 +158,8 @@ Proof.  unfold withSpace.
   eapply RealiseIn_TripleT.
   - apply CaseNat_Sem.
   - intros tin yout tout H HEnc. specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H.
-    destruct yout, y; cbn in *; auto.
-    + tspec_solve. easy.
+    destruct yout, y; cbn in *; [easy|..|easy].
+    + tspec_solve; easy.
     + tspec_solve. easy.
 Qed.
 

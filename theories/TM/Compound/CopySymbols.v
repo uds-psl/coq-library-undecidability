@@ -207,7 +207,7 @@ Section CopySymbols.
       cbn in *. simpl_tape in *. f_equal; eauto.
     - simpl_tape in *. rewrite e, e0 in H. cbn in *. apply IHp. rewrite <- H. f_equal. unfold mirror_tapes. cbn.
       do 2 (f_equal; simpl_tape; auto).
-    - simpl_tape in H. destruct (current (fst tin)) eqn:E; auto. inv H. simpl_tape in *.
+    - simpl_tape in H. destruct (current (fst tin)) eqn:E; [easy|]. inv H. simpl_tape in *.
       apply mirror_tape_injective in H1 as <-. apply mirror_tape_injective in H2 as <-. now destruct tin.
   Qed.
 
@@ -225,7 +225,7 @@ Section CopySymbols.
       cbn in *. simpl_tape in *. f_equal; eauto.
     - simpl_tape in *. rewrite e, e0 in H. cbn in *. apply IHp. rewrite <- H. f_equal. unfold mirror_tapes. cbn.
       do 2 (f_equal; simpl_tape; auto).
-    - simpl_tape in H. destruct (current (fst tin)) eqn:E; auto. inv H. simpl_tape in *.
+    - simpl_tape in H. destruct (current (fst tin)) eqn:E; [easy|]. inv H. simpl_tape in *.
       apply mirror_tape_injective in H1 as <-. apply mirror_tape_injective in H2 as <-. now destruct tin.
   Qed.
 
@@ -263,7 +263,7 @@ Section CopySymbols.
         rewrite CopySymbols_steps_equation; simpl_tape.
     - now rewrite e, e0.
     - rewrite e, e0. lia.
-    - destruct (current t); cbn; auto.
+    - destruct (current t); cbn; easy.
   Qed.
 
   Lemma CopySymbols_L_Terminates :

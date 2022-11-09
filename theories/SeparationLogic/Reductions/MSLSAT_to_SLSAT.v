@@ -1,6 +1,6 @@
 From Undecidability.SeparationLogic Require Import MSL SL.
 From Undecidability Require Import Shared.ListAutomation.
-Import ListAutomationNotations.
+Import ListAutomationNotations ListAutomationHints.
 
 Set Default Goal Selector "!".
 

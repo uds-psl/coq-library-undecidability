@@ -81,7 +81,7 @@ Section OrderTyping.
     Lemma ord'_cons n Gamma A:
       ord A < n -> ord' Gamma <= n -> ord' (A :: Gamma) <= n.
     Proof.
-      intros; cbn; eapply Max.max_lub; lia.
+      intros; cbn; eapply Nat.max_lub; lia.
     Qed.
 
     Lemma order_head Gamma s A B:

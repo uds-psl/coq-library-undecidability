@@ -6,7 +6,7 @@ Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb Undecidability.PCP.P
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ReducibilityFacts MoreReducibilityFacts.
 Require Import List.
 Require Import Undecidability.Shared.ListAutomation.
-Import ListNotations.
+Import ListNotations. Import ListAutomationHints.
 
 (* ** Double Negation Translation *)
 

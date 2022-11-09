@@ -23,7 +23,7 @@ Section div_mult.
   Fact div_rem_mult n : div n (p*q) = div (div n p) q /\ rem n (p*q) = rem n p + p*rem (div n p) q.
   Proof using Hp Hq.
     assert (p*q <> 0) as Hpq.
-    { intros E; apply mult_is_O in E; lia. }
+    { intros E; apply Nat.eq_mul_0 in E; lia. }
     apply div_rem_uniq with (p := p*q); auto.
     + generalize (div_rem_spec1 n p)
                  (div_rem_spec1 (div n p) q)
@@ -34,8 +34,8 @@ Section div_mult.
                  (div_rem_spec2 (div n p) Hq); intros H1 H2.
       replace q with (1+(q-1)) at 2 by lia.
       rewrite Nat.mul_add_distr_l.
-      apply plus_lt_le_compat; try lia.
-      apply mult_le_compat; lia.
+      apply Nat.add_lt_le_mono; try lia.
+      apply Nat.mul_le_mono; lia.
   Qed.
 
   Corollary div_mult n : div n (p*q) = div (div n p) q.
@@ -80,15 +80,15 @@ Section nat_nat2_bij.
     intros H1 H.
     replace a2 with (a1+(S (a2-a1-1))) in H by lia.
     rewrite power_plus in H.
-    rewrite <- mult_assoc, Nat.mul_cancel_l in H.
+    rewrite <- Nat.mul_assoc, Nat.mul_cancel_l in H.
     2: generalize (power2_gt_0 a1); lia.
-    revert H; rewrite power_S, <- mult_assoc.
+    revert H; rewrite power_S, <- Nat.mul_assoc.
     generalize (power (a2-a1-1) 2*b1); intros; lia.
   Qed.
 
   Let comp_gt a b : power a 2 *(2*b+1) <> 0.
   Proof. 
-    intros E; apply mult_is_O in E.
+    intros E; apply Nat.eq_mul_0 in E.
     generalize (power2_gt_0 a); intros; lia.
   Qed. 
 

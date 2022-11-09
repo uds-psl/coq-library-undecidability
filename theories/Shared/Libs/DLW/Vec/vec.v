@@ -478,14 +478,14 @@ Section vec_plus.
   Fact vec_zero_spec p : vec_pos vec_zero p = 0.
   Proof. unfold vec_zero; rewrite vec_pos_set; trivial. Qed.
 
-  Fact vec_plus_comm v w : vec_plus v w = vec_plus w v.
+  Fact vec_add_comm v w : vec_plus v w = vec_plus w v.
   Proof.
     apply vec_pos_ext.
     intros p; unfold vec_zero, vec_plus.
     repeat rewrite vec_pos_set; lia.
   Qed.
 
-  Fact vec_plus_assoc u v w : vec_plus u (vec_plus v w) = vec_plus (vec_plus u v) w.
+  Fact vec_add_assoc u v w : vec_plus u (vec_plus v w) = vec_plus (vec_plus u v) w.
   Proof.
     apply vec_pos_ext.
     intros p; unfold vec_zero, vec_plus.
@@ -546,10 +546,10 @@ Tactic Notation "rew" "vec" :=
     | |- context[ ?v[(?v#>?x)/?x] ] => rewrite vec_change_same with (p := x)
     | |- context[ _[_/?x]#>?y ] => rewrite vec_change_neq with (p := x) (q := y); [ | discriminate ]
     | |- context[ vec_plus vec_zero ?x ] => rewrite vec_zero_plus with (v := x)
-    | |- context[ vec_plus ?x vec_zero ] => rewrite (vec_plus_comm x vec_zero); rewrite vec_zero_plus with (v := x)
+    | |- context[ vec_plus ?x vec_zero ] => rewrite (vec_add_comm x vec_zero); rewrite vec_zero_plus with (v := x)
     | |- context[ (vec_set_pos ?f) #> ?p ] => rewrite (vec_pos_set f p)
     | |- context[ (vec_map ?f ?v) #> ?p ] => rewrite (vec_pos_map f v p)
-    | |- vec_plus ?x ?y = vec_plus ?y ?x => apply vec_plus_comm
+    | |- vec_plus ?x ?y = vec_plus ?y ?x => apply vec_add_comm
   end; auto.
 
 Tactic Notation "vec" "split" hyp(v) "with" ident(n) :=

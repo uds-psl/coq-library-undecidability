@@ -545,7 +545,7 @@ Section fixM.
       induction n as [n IH] using lt_wf_ind; intros q. 
       destruct n.
       - intros. lia.
-      - intros H0. eapply le_lt_or_eq in H0 as [H0 | H0].
+      - intros H0. eapply Nat.lt_eq_cases in H0 as [H0 | H0].
         + unfold sim. fold sim. eapply subcode_app_end. eapply IH. lia. lia.
         + inversion H0. subst. clear H0. unfold sim. fold sim. revert H IH.
           eapply (Fin.caseS' q).
@@ -606,7 +606,7 @@ Section fixM.
     Proof.
       split.
       - intros (q' & t' & H). eapply SIM_computes in H.
-        unfold BSM_HALTING. eexists. split. rewrite mult_comm in H.
+        unfold BSM_HALTING. eexists. split. rewrite Nat.mul_comm in H.
         match type of H with _ // (?K, _) ->> _ => replace K with j in H end. 2: cbn; lia.
         eapply H.
         unfold out_code. right. unfold fst, code_end, snd, fst. rewrite SIM_length. lia.

@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 env:
   OCAML_VERSION: 4.11.0
-  CACHE_KEY: opam-8.15-metacoqrel-${{github.base_ref}}-${{github.ref}} 
+  CACHE_KEY: opam-8.16-${{github.base_ref}}-${{github.ref}} 
 jobs:
   build-deps:
     runs-on: ubuntu-latest
@@ -16,7 +16,7 @@ jobs:
         path: "~/.opam"
         key: ${{env.CACHE_KEY}}
         restore-keys: |
-          opam-8.15-metacoqrel--refs/heads/${{github.base_ref}}
+          opam-8.16--refs/heads/${{github.base_ref}}
 
     - name: Install OCaml
       uses: avsm/setup-ocaml@v1

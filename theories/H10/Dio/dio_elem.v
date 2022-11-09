@@ -435,7 +435,7 @@ Section diophantine_system.
           { red; simpl; intros; lia. }
           exists g; split; auto.
           constructor; simpl; [ | apply Forall_app; split ].
-          ++ rewrite Hg1, (Hg3 r2), H2, mult_comm; auto.
+          ++ rewrite Hg1, (Hg3 r2), H2, Nat.mul_comm; auto.
           ++ apply Forall_impl with (2 := H3).
              intros c Hc; apply dc_eval_ext; auto.
              intros x Hx; apply Hg2, F1 with c; auto.
@@ -446,7 +446,7 @@ Section diophantine_system.
         inversion Hg1 as [ | ? ? Hg3 Hg4 ].
         apply Forall_app in Hg4; destruct Hg4 as (Hg4 & Hg5).
         simpl in Hg3; rewrite Hg2 in Hg3.
-        symmetry in Hg3; apply mult_is_O in Hg3.
+        symmetry in Hg3; apply Nat.eq_mul_0 in Hg3.
         destruct Hg3 as [ Hg3 | Hg3 ]; [ left | right ]; exists g; auto.
       * intros ((g1 & H1 & H2) & (g2 & H3 & H4)).
         destruct (@valuation_one_union (a2+n2) 0 (a1,a1+n1) g1 (a2,a2+n2) g2) 

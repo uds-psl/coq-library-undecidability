@@ -9,6 +9,8 @@ Require Import Undecidability.StringRewriting.SR.
 Require Import Undecidability.StringRewriting.Util.Definitions.
 
 Require Import Undecidability.Synthetic.Definitions.
+Require Import Undecidability.Shared.ListAutomation.
+Import ListAutomationHints.
 
 Import RuleNotation.
 

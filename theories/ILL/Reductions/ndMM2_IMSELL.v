@@ -310,10 +310,10 @@ Section ndmm2_imsell.
       apply (H1 (0##1##vec_nil)); auto.
       simpl; rewrite HKb; auto.
     + destruct H1 as ((-> & ->) & _); simpl.
-      intro pair as x y; simpl; rewrite (plus_comm x), (plus_comm y).
+      intro pair as x y; simpl; rewrite (Nat.add_comm x), (Nat.add_comm y).
       constructor 4 with q; auto.
     + destruct H1 as ((-> & ->) & _); simpl.
-      intro pair as x y; simpl; rewrite (plus_comm x), (plus_comm y).
+      intro pair as x y; simpl; rewrite (Nat.add_comm x), (Nat.add_comm y).
       constructor 5 with q; auto.
     + rewrite HKb in H1.
       destruct H1 as (H1 & ->).
@@ -336,7 +336,7 @@ Section ndmm2_imsell.
   Proof using Hba Hb Hab Ha.
     intros Hxy; apply imsell_tps_sound with (s := sem) (K := K) in Hxy; eauto.
     specialize (Hxy (x##y##vec_nil)).
-    rewrite vec_plus_comm, vec_zero_plus in Hxy.
+    rewrite vec_add_comm, vec_zero_plus in Hxy.
     apply Hxy; clear Hxy.
     unfold ndmm2_imsell_ctx.
     apply imsell_tps_app.

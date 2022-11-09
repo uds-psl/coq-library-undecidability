@@ -133,7 +133,7 @@ Proof.
   - rewrite tl_app in H by apply Encode_positive_eq_nil. apply in_app_iff in H as [H|H].
     + now apply IHp.
     + destruct H as [-> | []]. auto.
-  - auto.
+  - easy.
 Qed.
 
 

@@ -1,6 +1,6 @@
 # Coq Library of Undecidability Proofs
 
-[![CI](https://github.com/uds-psl/coq-library-undecidability/workflows/CI/badge.svg?branch=coq-8.15)](https://github.com/uds-psl/coq-library-undecidability/actions)
+[![CI](https://github.com/uds-psl/coq-library-undecidability/workflows/CI/badge.svg?branch=coq-8.16)](https://github.com/uds-psl/coq-library-undecidability/actions)
 
 The Coq Library of Undecidability Proofs contains mechanised reductions to establish undecidability results in Coq.
 The undecidability proofs are based on a synthetic approach to undecidability. 
@@ -15,12 +15,12 @@ The library is a collaborative effort, growing constantly and we invite everybod
 
 ## Problems in the Library
 
-The problems in the library can mostly be categorized into seed
-problems, advanced problems, and target problems.
+The problems in the library can mostly be categorized into seed problems, advanced problems, and target problems.
 
 Seed problems are simple to state and thus make for good starting points of undecidability proofs, often leading to easier reductions to other problems.
 
 Advanced problems do not work well as seeds, but they highlight the potential of our library as a framework for mechanically checking pen&paper proofs of potentially hard undecidability results.
+Some advanced problems are proven decidable to contrast negative results.
 
 Target problems are very expressive and thus work well as targets for reduction, with the aim of closing loops in the reduction graph to establish the inter-reducibility of problems.
 
@@ -28,7 +28,7 @@ Target problems are very expressive and thus work well as targets for reduction,
 
 - Halting problem for single-tape two-symbol Turing machines (`SBTM_HALT` in [`TM/SBTM.v`](theories/TM/SBTM.v))
 - Post correspondence problem (`PCP` in [`PCP/PCP.v`](theories/PCP/PCP.v))
-- Halting problem for two counters Minsky machines (`MM2_HALTING` in [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v)) 
+- Halting problem for two counters Minsky machines (`MM2_HALTING` in [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v))
 - Halting problem for FRACTRAN programs (`FRACTRAN_REG_HALTING` in [`FRACTRAN/FRACTRAN.v`](theories/FRACTRAN/FRACTRAN.v))
 - Satisfiability of elementary Diophantine constraints of the form `x = 1`, `x = y + z` or `x = y · z` (`H10C_SAT` in [`DiophantineConstraints/H10C.v`](theories/DiophantineConstraints/H10C.v))
 - Satisfiability of uniform Diophantine constraints of the form `x = 1 + y + z · z` (`H10UC_SAT` in [`DiophantineConstraints/H10C.v`](theories/DiophantineConstraints/H10C.v))
@@ -77,12 +77,20 @@ An equivalence proof that most of the mentioned models of computation compute th
 - String rewriting in Post canonical systems in normal form (`PCSnf` in [`StringRewriting/PCSnf.v`](theories/StringRewriting/PCSnf.v))
 - Hilbert's 10th problem, i.e. solvability of a single diophantine equation (`H10` in [`H10/H10.v`](theories/H10/H10.v))
 - Solvability of linear polynomial (over N) constraints of the form `x = 1`, `x = y + z`, `x = X · y` (`LPolyNC_SAT` in [`PolynomialConstraints/LPolyNC.v`](theories/PolynomialConstraints/LPolyNC.v))
-- One counter machine halting problem (`CM1_HALT` in [`CounterMachines/CM1.v`](theories/CounterMachines/CM1.v)), 
+- One counter machine halting problem (`CM1_HALT` in [`CounterMachines/CM1.v`](theories/CounterMachines/CM1.v))
 - Finite multiset constraint solvability (`FMsetC_SAT` in [`SetConstraints/FMsetC.v`](theories/SetConstraints/FMsetC.v))
 - Uniform boundedness of deterministic, length-preserving stack machines (`SMNdl_UB` in [`StackMachines/SMN.v`](theories/StackMachines/SMN.v))
 - Semi-unification (`SemiU` in [`SemiUnification/SemiU.v`](theories/SemiUnification/SemiU.v))
 - System F Inhabitation (`SysF_INH` in [`SystemF/SysF.v`](theories/SystemF/SysF.v)), System F Typability (`SysF_TYP` in [`SystemF/SysF.v`](theories/SystemF/SysF.v)), System F Type Checking (`SysF_TC` in [`SystemF/SysF.v`](theories/SystemF/SysF.v))
 - Halting problem for Krivine machines (`KrivineM_HALT` in [`LambdaCalculus/Krivine.v`](theories/LambdaCalculus/Krivine.v))
+
+#### Decidable Problems
+
+- Two-counter Minsky Program Machine Halting (`MPM2_HALT` in [`MinskyMachines/Deciders/MPM2_HALT_dec.v`](theories/MinskyMachines/Deciders/MPM2_HALT_dec.v))<br/>
+  The definition follows exactly Minsky[^1] (Chapter 11, Table 11.1-1), and is different from `MM2_HALTING` in [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v).
+- Reversible Two-counter Machine Halting (`MM2_REV_HALT` in [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v))
+- Two-counter Machine Uniform Mortality (`MM2_UMORTAL` in [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v))
+- Two-counter Machine Uniform Boundedness (`MM2_UBOUNDED` in [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v))
 
 ### Target Problems
 
@@ -100,7 +108,7 @@ If you can use `opam 2` on your system, you can follow the instructions here.
 We recommend creating a fresh opam switch:
 
 ```
-opam switch create coq-library-undecidability 4.07.1+flambda
+opam switch create coq-library-undecidability 4.09.1+flambda
 eval $(opam env)
 ```
 
@@ -109,7 +117,7 @@ Then the following commands install the library:
 ```
 opam repo add coq-released https://coq.inria.fr/opam/released
 opam update
-opam install coq-library-undecidability.1.0.1+8.15
+opam install coq-library-undecidability.1.0.1+8.16
 ```
 
 ### Install from git via opam
@@ -128,19 +136,20 @@ Then the following commands install the library:
 ```
 opam repo add coq-released https://coq.inria.fr/opam/released
 opam update
-opam pin add coq-library-undecidability.dev+8.15 "https://github.com/uds-psl/coq-library-undecidability.git#coq-8.15"
+opam pin add coq-library-undecidability.dev+8.16 "https://github.com/uds-psl/coq-library-undecidability.git#coq-8.16"
 ```
 
-### Manual installation
+### Manual installation (TENTATIVE)
 
-You need `Coq 8.15` built on OCAML `>= 4.07.1`, the [Smpl](https://github.com/uds-psl/smpl) package, the [Equations](https://mattam82.github.io/Coq-Equations/) package, and the [MetaCoq](https://metacoq.github.io/metacoq/) package for Coq. If you are using opam 2 you can use the following commands to install the dependencies on a new switch:
+You need `Coq 8.16` built on OCAML `>= 4.09.1`, the [Smpl](https://github.com/uds-psl/smpl) package and the Template-Coq (part of [MetaCoq](https://metacoq.github.io/)) package for Coq. If you are using opam 2 you can use the following commands to install the dependencies on a new switch:
 
 ```
 opam switch create coq-library-undecidability --packages=ocaml-variants.4.14.0+options,ocaml-option-flambda
 eval $(opam env)
-opam repo add coq-released https://coq.inria.fr/opam/released
-opam update
-opam install . --deps-only
+opam repo add coq-core-dev https://coq.inria.fr/opam/core-dev
+opam install coq.8.16.dev
+opam pin add -k git smpl.8.16 "https://github.com/uds-psl/smpl.git#coq-8.16"
+opam pin add -k git coq-equations.1.3+8.16 "https://github.com/mattam82/Coq-Equations.git#8.16"
 ```
 
 #### Building the undecidability library
@@ -159,14 +168,9 @@ The library is compatible with Coq's compiled interfaces ([`vos`](https://coq.in
 
 ### Troubleshooting
 
-#### Windows
-
-If you use Visual Studio Code on Windows 10 with Windows Subsystem for Linux (WSL), then local opam switches may cause issues.
-To avoid this, you can use a non-local opam switch, i.e. `opam switch create 4.07.1+flambda`.
-
 #### Coq version
 
-Be careful that this branch only compiles under `Coq 8.15`. If you want to use a different Coq version you have to change to a different branch.
+Be careful that this branch only compiles under `Coq 8.16`. If you want to use a different Coq version you have to change to a different branch.
 Due to compatibility issues, not every branch contains exactly the same problems. 
 We recommend to use the newest branch if possible.
 
@@ -180,14 +184,16 @@ Computability in Constructive Type Theory. Yannick Forster. PhD thesis. https://
 
 ### Papers and abstracts on problems and proofs included in the library
 
-- Constructive Many-One Reduction from the Halting Problem to Semi-Unification. Andrej Dudenhefner. CSL2022. Subdirectory `SemiUnification`. https://drops.dagstuhl.de/opus/volltexte/2022/15738/
+- Certified Decision Procedures for Two-Counter Machines. Andrej Dudenhefner. FSCD 2022. Subdirectory `MinskyMachines/Deciders`. https://drops.dagstuhl.de/opus/volltexte/2022/16297/
+- Constructive Many-One Reduction from the Halting Problem to Semi-Unification. Andrej Dudenhefner. CSL 2022. Subdirectory `SemiUnification`. https://drops.dagstuhl.de/opus/volltexte/2022/15738/
 - Undecidability, Incompleteness, and Completeness of Second-Order Logic in Coq. Mark Koch and Dominik Kirst. CPP 2022. Subdirectory `SOL`. https://www.ps.uni-saarland.de/extras/cpp22-sol/
-- A Mechanised Proof of the Time Invariance Thesis for the Weak Call-By-Value λ-Calculus. Yannick Foster, Fabian Kunze, Gert Smolka, Maximilian Wuttke. Subdirectory `TM/L`. https://drops.dagstuhl.de/opus/volltexte/2021/13914/
+- A Mechanised Proof of the Time Invariance Thesis for the Weak Call-By-Value λ-Calculus. Yannick Foster, Fabian Kunze, Gert Smolka, Maximilian Wuttke. ITP 2021. Subdirectory `TM/L`. https://drops.dagstuhl.de/opus/volltexte/2021/13914/
 - Synthetic Undecidability of MSELL via FRACTRAN. Dominique Larchey-Wendling. FSCD 2021. File [`ILL/IMSELL.v`](theories/ILL/IMSELL.v). Also documents 
  the undecidability proof for 2-counters Minsky machines [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v) via FRACTRAN. https://github.com/uds-psl/coq-library-undecidability/releases/tag/FSCD-2021/ 
 - The Undecidability of System F Typability and Type Checking for Reductionists. Andrej Dudenhefner. LICS 2021. Subdirectory `SystemF`. https://ieeexplore.ieee.org/document/9470520
 - Trakhtenbrot's Theorem in Coq - A Constructive Approach to Finite Model Theory. Dominik Kirst and Dominique Larchey-Wendling. IJCAR 2020. Subdirectory `TRAKTHENBROT`. https://www.ps.uni-saarland.de/extras/fol-trakh/
 - Undecidability of Semi-Unification on a Napkin. Andrej Dudenhefner. FSCD 2020. Subdirectory `SemiUnification`. https://www.ps.uni-saarland.de/Publications/documents/Dudenhefner_2020_Semi-unification.pdf
+- Mechanized Undecidability Results for Propositional Calculi. TYPES 2020. Subdirectory `HilbertCalculi`. https://types2020.di.unito.it/abstracts/BookOfAbstractsTYPES2020.pdf#page=94
 - Undecidability of Higher-Order Unification Formalised in Coq. Simon Spies and Yannick Forster. Technical report. Subdirectory `HOU`. https://www.ps.uni-saarland.de/Publications/details/SpiesForster:2019:UndecidabilityHOU.html
 - Verified Programming of Turing Machines in Coq. Yannick Forster, Fabian Kunze, Maximilian Wuttke. Technical report. Subdirectory `TM`. https://github.com/uds-psl/tm-verification-framework/
 - Hilbert's Tenth Problem in Coq. Dominique Larchey-Wendling and Yannick Forster. FSCD '19. Subdirectory `H10`. https://uds-psl.github.io/H10
@@ -221,3 +227,5 @@ We have [guidelines for the directory structure of projects](https://github.com/
 - Maximilian Wuttke
 
 Parts of the Coq Library of Undecidability Proofs reuse generic code initially developed as a library for the lecture ["Introduction to Computational Logics"](https://courses.ps.uni-saarland.de/icl_16/) at [Saarland University](https://www.uni-saarland.de/nc/en/home.html), which was written by a subset of the above contributors, Sigurd Schneider, and Jan Christian Menz.
+
+[^1]: Minsky, Marvin Lee. Computation. Englewood Cliffs: Prentice-Hall, 1967.

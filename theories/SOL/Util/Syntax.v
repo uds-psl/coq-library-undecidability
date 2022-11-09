@@ -621,7 +621,7 @@ End EqDec.
 
 Require Import List.
 Require Import Undecidability.Shared.ListAutomation.
-Import ListNotations ListAutomationNotations.
+Import ListNotations ListAutomationNotations ListAutomationHints.
 
 Section Enumerability.
 
@@ -726,13 +726,13 @@ Section Enumerability.
     intros t. induction t.
     - exists (S n); cbn. auto.
     - apply vec_forall_cml in IH as [m H]. 2: exact L_term_cml.
-      exists (S (m + n + ar)); cbn. in_app 3. eapply in_concat_iff. eexists. split.
-      2: in_collect (n, ar). 2,3: apply L_nat_correct; lia.
+      exists (S (m + n + ar)); cbn. in_app 3. eapply in_concat. eexists. split.
+      1: in_collect (n, ar). 1,2: apply L_nat_correct; lia.
       in_collect v. rewrite <- vecs_from_correct in H |-*. eapply Forall_ext.
       2: apply H. cbn. intros...
     - apply vec_forall_cml in IH as [m H]. 2: exact L_term_cml.
       destruct (el_T f) as [m' H']. exists (S (m + m')); cbn.
-      in_app 4. eapply in_concat_iff. eexists. split. 2: in_collect f...
+      in_app 4. eapply in_concat. eexists. split. 1: in_collect f...
       in_collect v. rewrite <- vecs_from_correct in H |-*. eapply Forall_ext.
       2: apply H. cbn. intros...
   Qed.
@@ -745,12 +745,12 @@ Section Enumerability.
     - rename t into v. destruct (@vec_forall_cml term L_term _ v) as [m H]; eauto.
       + clear p. induction v. easy. split. apply enum_term. apply IHv.
       + destruct p; cbn.
-        * exists (S (m + n + ar)); cbn. in_app 2. eapply in_concat_iff.
-          eexists. split. 2: in_collect (n, ar). 2,3: apply L_nat_correct; lia.
+        * exists (S (m + n + ar)); cbn. in_app 2. eapply in_concat.
+          eexists. split. 1: in_collect (n, ar). 1,2: apply L_nat_correct; lia.
           in_collect v. rewrite <- vecs_from_correct in H |-*. eapply Forall_ext.
           2: apply H. cbn. intros...
         * destruct (el_T P) as [m']. exists (S (m + m')); cbn. in_app 3.
-          eapply in_concat_iff. eexists. split. 2: in_collect P...
+          eapply in_concat. eexists. split. 1: in_collect P...
           in_collect v. rewrite <- vecs_from_correct in H |-*. eapply Forall_ext.
           2: apply H. cbn. intros...
     - destruct (el_T b) as [m], IHphi1 as [m1], IHphi2 as [m2]. 

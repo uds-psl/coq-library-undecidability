@@ -193,13 +193,13 @@ Section trivial_phase_semantics.
       apply IH in H3.
       destruct H3 as (c & d & H4 & H5 & H6).
       exists (vec_plus a c), d; split.
-      * subst; apply vec_plus_assoc.
+      * subst; apply vec_add_assoc.
       * split; auto.
         exists a, c; auto.
     + destruct Hx as (y & d & H1 & H2 & H3).
       destruct H2 as (a & g & H2 & H4 & H5).
       exists a, (vec_plus g d); split.
-      * subst; symmetry; apply vec_plus_assoc.
+      * subst; symmetry; apply vec_add_assoc.
       * split; auto.
         apply IH.
         exists g, d; auto.
@@ -256,7 +256,7 @@ Section trivial_phase_semantics.
       exists a, b; repeat split; auto.
     + intros x (a & b & H1 & H2 & c & d & H3 & H4 & H5).
       exists c, (vec_plus a d); split.
-      * subst; rewrite (vec_plus_comm c), vec_plus_assoc, (vec_plus_comm c); auto.
+      * subst; rewrite (vec_add_comm c), vec_add_assoc, (vec_add_comm c); auto.
       * split; auto.
         exists a, d; auto.
   Qed.
@@ -285,10 +285,10 @@ Section trivial_phase_semantics.
   Proof.
     split.
     * intros H x Hx.
-      rewrite <- vec_zero_plus, vec_plus_comm.
+      rewrite <- vec_zero_plus, vec_add_comm.
       apply (H x); trivial.
     * intros H x Hx.
-      rewrite vec_plus_comm, vec_zero_plus; auto.
+      rewrite vec_add_comm, vec_zero_plus; auto.
   Qed.
 
   Theorem ill_tps_sound Γ A : Γ ⊢ A -> [< Γ |- A >] vec_zero.
@@ -317,7 +317,7 @@ Section trivial_phase_semantics.
                    ]; unfold ill_sequent_tps in * |- *.
 
     + intros x; simpl; intros (a & b & H1 & H2 & H3); subst; eq goal H2.
-      f_equal; do 2 rewrite vec_plus_comm, vec_zero_plus; auto.
+      f_equal; do 2 rewrite vec_add_comm, vec_zero_plus; auto.
 
     (* Cut Rule *)
  
@@ -327,7 +327,7 @@ Section trivial_phase_semantics.
       destruct Hx as (a & b & G1 & G2 & G3); subst.
       exists a, b; split; auto.
       split; auto.
-      rewrite <- vec_zero_plus, vec_plus_comm.
+      rewrite <- vec_zero_plus, vec_add_comm.
       apply IH1; auto.
 
     + revert IH2; apply ill_perm_tps; auto.
@@ -339,11 +339,11 @@ Section trivial_phase_semantics.
       simpl in H4.
       apply IH1, H4 in H6.
       exists (vec_plus y g), d; repeat split; auto.
-      * subst; apply vec_plus_assoc.
+      * subst; apply vec_add_assoc.
       * eq goal H6; f_equal; rew vec.
 
     + simpl; intros y Hy a Ha.
-      rewrite vec_plus_assoc.
+      rewrite vec_add_assoc.
       apply IH1.
       exists a, y; repeat split; auto; lia.
 
@@ -386,7 +386,7 @@ Section trivial_phase_semantics.
       apply IH1.
       destruct Hx as (c & g & ? & (a & b & ? & H2 & H3) & H4); subst.
       exists a, (vec_plus b g); split; auto.
-      * rewrite vec_plus_assoc; trivial.
+      * rewrite vec_add_assoc; trivial.
       * split; auto; exists b, g; auto.
 
     (* ⊗ right *)
@@ -395,8 +395,8 @@ Section trivial_phase_semantics.
       apply ill_tps_app in Hx.
       destruct Hx as (a & b & ? & H3 & H4); subst.
       exists a, b; split.
-      * rewrite vec_plus_comm, vec_zero_plus; auto.
-      * split; rewrite <- vec_zero_plus, vec_plus_comm.
+      * rewrite vec_add_comm, vec_zero_plus; auto.
+      * split; rewrite <- vec_zero_plus, vec_add_comm.
         - apply IH1; auto.
         - apply IH2; auto.
 

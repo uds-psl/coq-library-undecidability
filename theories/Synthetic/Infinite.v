@@ -4,7 +4,7 @@ From Undecidability Require Import Shared.ListAutomation Shared.Dec.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts MoreEnumerabilityFacts.
 Require Import Arith ConstructiveEpsilon.
 
-Import ListAutomationNotations.
+Import ListAutomationNotations ListAutomationHints.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 

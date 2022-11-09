@@ -11,6 +11,7 @@ PCP/Reductions/HaltTM_1_to_PCP.v
 PCP/PCP_undec.v
 
 MinskyMachines/MM2.v            
+MinskyMachines/MM2_dec.v
 MinskyMachines/MM2_undec.v
 
 FRACTRAN/FRACTRAN.v
@@ -45,6 +46,9 @@ TM/SBTM.v
 TM/SBTM_enum.v
 TM/SBTM_undec.v
 
+TM/UTM.v
+TM/UTM_undec.v
+
 TM/PCTM.v
 TM/PCTM/pctm_defs.v
 TM/PCTM/pctm_sbtm.v
@@ -62,8 +66,6 @@ MinskyMachines/MM_undec.v
 Shared/Dec.v
 Shared/ListAutomation.v
 Shared/embed_nat.v
-Shared/FinTypeEquiv.v
-Shared/FinTypeForallExists.v
 
 Synthetic/Definitions.v
 Synthetic/InformativeDefinitions.v
@@ -136,18 +138,10 @@ Shared/Libs/PSL/Prelim.v
 Shared/Libs/PSL/EqDecDef.v
 Shared/Libs/PSL/EqDec.v
 Shared/Libs/PSL/Numbers.v
-Shared/Libs/PSL/Bijection.v
 Shared/Libs/PSL/Retracts.v
 Shared/Libs/PSL/Inhabited.v
-Shared/Libs/PSL/FCI.v
 
 Shared/Libs/PSL/Lists/BaseLists.v
-Shared/Libs/PSL/Lists/Cardinality.v
-Shared/Libs/PSL/Lists/Dupfree.v
-Shared/Libs/PSL/Lists/Filter.v
-Shared/Libs/PSL/Lists/Position.v
-Shared/Libs/PSL/Lists/Power.v
-Shared/Libs/PSL/Lists/Removal.v
 
 Shared/Libs/PSL/Vectors/Fin.v
 Shared/Libs/PSL/Vectors/Vectors.v
@@ -161,11 +155,10 @@ Shared/Libs/PSL/FiniteTypes/FinTypesDef.v
 Shared/Libs/PSL/FiniteTypes/FinTypes.v
 Shared/Libs/PSL/FiniteTypes/BasicFinTypes.v
 Shared/Libs/PSL/FiniteTypes/CompoundFinTypes.v
-Shared/Libs/PSL/FiniteTypes/FiniteFunction.v
-Shared/Libs/PSL/FiniteTypes/Cardinality.v
 Shared/Libs/PSL/FiniteTypes/DepPairs.v
-Shared/Libs/PSL/FiniteTypes/Arbitrary.v
 Shared/Libs/PSL/FiniteTypes/VectorFin.v
+
+Shared/deterministic_simulation.v
 
 TM/L/Alphabets.v
 TM/L/CaseCom.v
@@ -213,11 +206,7 @@ StringRewriting/Util/Definitions.v
 StringRewriting/Util/List_facts.v
 StringRewriting/Reductions/SR_to_PCSnf.v
 StringRewriting/Reductions/HaltTM_1_to_SR.v
-StringRewriting/Reductions/CM2_HALT_to_SSTS01/SR2ab.v
-StringRewriting/Reductions/CM2_HALT_to_SSTS01/SR2ab_facts.v
-StringRewriting/Reductions/CM2_HALT_to_SSTS01/CM2_HALT_to_SR2ab.v
-StringRewriting/Reductions/CM2_HALT_to_SSTS01/SR2ab_to_SSTS01.v
-StringRewriting/Reductions/CM2_HALT_to_SSTS01.v
+StringRewriting/Reductions/MM2_ZERO_HALTING_to_SSTS01.v
 StringRewriting/Reductions/SBTM_HALT_to_SR.v
 StringRewriting/Reductions/SBTM_HALT_to_TSR.v
 
@@ -298,6 +287,7 @@ MinskyMachines/ndMM2_undec.v
 
 MinskyMachines/Util/MM_sss.v
 MinskyMachines/Util/MM_computable.v
+MinskyMachines/Util/MM2_facts.v
 
 MinskyMachines/Reductions/BSM_MM.v
 MinskyMachines/Reductions/BSM_to_MMA_HALTING.v
@@ -315,9 +305,14 @@ MinskyMachines/Reductions/KrivineMclosed_HALT_to_MMA_HALTING.v
 MinskyMachines/Reductions/MMA3_to_MMA2_HALTING.v
 MinskyMachines/Reductions/SBTM_to_MMA2_HALTING.v
 MinskyMachines/Reductions/BSM_computable_to_MM_computable.v
+MinskyMachines/Reductions/MM2_HALTING_to_MM2_ZERO_HALTING.v
 
 MinskyMachines/Deciders/MPM2_HALT_dec.v
 MinskyMachines/Deciders/MM_2_HALTING_dec.v
+MinskyMachines/Deciders/MM2_REV_dec.v
+MinskyMachines/Deciders/MM2_REV_HALT_dec.v
+MinskyMachines/Deciders/MM2_UBOUNDED_dec.v
+MinskyMachines/Deciders/MM2_UMORTAL_dec.v
 
 MinskyMachines/MM/mm_defs.v         
 MinskyMachines/MM/mm_utils.v        
@@ -505,12 +500,8 @@ TM/Single/StepTM.v
 TM/Reductions/L_to_mTM.v
 TM/Reductions/HaltL_to_HaltTM_5.v
 TM/Reductions/L_computable_to_TM_computable.v
-
 TM/Reductions/Arbitrary_to_Binary.v
-
-TM/Univ/LookupAssociativeListTM.v
-TM/Univ/LowLevel.v
-TM/Univ/Univ.v
+TM/Reductions/KrivineMclosed_HALT_to_HaltUTM.v
 
 TM/PrettyBounds/MaxList.v
 TM/PrettyBounds/SizeBounds.v
@@ -596,7 +587,6 @@ L/Functions/Eval.v
 L/Functions/LoopSum.v
 L/Functions/UnboundIteration.v
 L/Functions/FinTypeLookup.v
-L/Functions/EnumInt.v
 L/Functions/Ackermann.v
 
 L/TM/TMEncoding.v
@@ -629,7 +619,6 @@ L/AbstractMachines/FlatPro/UnfoldClos.v
 L/Computability/Acceptability.v
 L/Computability/Computability.v
 L/Computability/Decidability.v
-L/Computability/Enum.v
 L/Computability/Fixpoints.v
 L/Computability/MuRec.v
 L/Computability/Partial.v
@@ -764,23 +753,8 @@ TRAKHTENBROT/red_dec.v
 TRAKHTENBROT/red_enum.v
 TRAKHTENBROT/red_undec.v
 
-CounterMachines/CM2.v
-
-CounterMachines/Util/Facts.v
-CounterMachines/Util/Nat_facts.v
 CounterMachines/Util/CM1_facts.v
-CounterMachines/Util/CM2_facts.v
-CounterMachines/Util/MM2_facts.v
-CounterMachines/Reductions/CM2_HALT_to_CM1_HALT.v
-CounterMachines/Reductions/MM2_HALTING_to_CM2_HALT.v
 CounterMachines/Reductions/MM2_HALTING_to_CM1_HALT.v
-CounterMachines/Deciders/CM2_REV_dec.v
-CounterMachines/Deciders/CM2_REV_HALT_dec.v
-CounterMachines/Deciders/CM2_UBOUNDED_dec.v
-CounterMachines/Deciders/CM2_UMORTAL_dec.v
-
-CounterMachines/CM2_dec.v
-CounterMachines/CM2_undec.v
 
 StackMachines/SMN.v
 StackMachines/SMN_undec.v

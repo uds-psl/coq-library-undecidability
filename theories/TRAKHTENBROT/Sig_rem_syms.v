@@ -21,6 +21,7 @@ From Undecidability.TRAKHTENBROT
 Import fol_notations.
 
 Require Import Undecidability.Shared.ListAutomation.
+Import ListAutomationHints.
 
 Set Implicit Arguments.
 

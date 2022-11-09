@@ -145,8 +145,8 @@ Proof.
   { unfold Add_Loop. TM_Correct. eapply RealiseIn_Realise. apply Add_Step_Sem. }
   {
     apply WhileInduction; intros; intros a b sa sb HEncA HEncB; cbn in *; destruct_unit.
-    - modpon HLastStep. destruct b; auto; modpon HLastStep. auto.
-    - modpon HStar. destruct b; auto. destruct HStar as (HStar1&HStar2).
+    - modpon HLastStep. destruct b; [|easy]. modpon HLastStep. auto.
+    - modpon HStar. destruct b; [easy|]. destruct HStar as (HStar1&HStar2).
       modpon HLastStep. split; auto. contains_ext. f_equal. lia.
   }
 Qed.
@@ -259,11 +259,11 @@ Proof.
         *)
     - exists 9. repeat split.
       + lia.
-      + intros o tmid H. cbn in H. modpon H;[]. destruct o; auto.
+      + intros o tmid H. cbn in H. modpon H;[]. now destruct o; auto.
     - exists 9. repeat split.
       + lia.
       + intros o tmid H. cbn in H. modpon H. cbn -[plus mult] in *.
-        destruct o as [ () | ]; auto. destruct H.
+        destruct o as [ () | ]; [easy|]. destruct H.
         exists (9 + b * 10). repeat split.
         * do 2 eexists. repeat split; eauto. lia.
         * lia.
@@ -486,9 +486,9 @@ Proof.
   }
   {
     eapply WhileInduction; intros; intros c m' n sm sn sc s3 s4 HEncM' HEncN HEncC HInt3 HInt4; TMSimp.
-    - modpon HLastStep. destruct m' as [ | m']; auto. modpon HLastStep. auto.
+    - modpon HLastStep. destruct m' as [ | m']; [|easy]. modpon HLastStep. auto.
     - modpon HStar.
-      destruct m' as [ | m']; auto. destruct HStar as (HStar1&HStar2&HStar3&HStar4&HStar5).
+      destruct m' as [ | m']; [easy|]. destruct HStar as (HStar1&HStar2&HStar3&HStar4&HStar5).
       modpon HLastStep.
       rewrite Nat.add_assoc in *. replace (n + m' * n + c) with (m' * n + n + c) by lia.
       repeat split; auto. contains_ext. f_equal. now rewrite Nat.mul_succ_l.
@@ -624,7 +624,7 @@ Proof.
     destruct m' as [ | m']; cbn.
     - exists 5, 0. cbn in *; repeat split; eauto.
       intros tmid y (HComp&HInj). TMSimp.
-      modpon HComp. destruct y; auto.
+      modpon HComp. now destruct y; auto.
     - exists 5, (162 + 33 * c + 39 * n); cbn in *; repeat split; eauto.
       intros tmid y (HComp&HInj). TMSimp.
       modpon HComp. cbn in *. destruct y; auto.
@@ -675,7 +675,7 @@ Proof.
       - do 3 eexists. repeat split; eauto. cbn. unfold Mult_Step_steps. destruct m'; lia.
       - intros o tmid H1.
         modpon H1.
-        destruct o as [ () | ]; auto. destruct H1 as (HComp1&HComp2&HComp3&HComp4&HComp5).
+        destruct o as [ () | ]; [easy|]. destruct H1 as (HComp1&HComp2&HComp3&HComp4&HComp5).
         cbn. eexists. repeat split.
         + do 3 eexists. repeat split; eauto.
         + cbn. rewrite <- Hk. subst. clear_all. unfold Mult_Step_steps. lia.

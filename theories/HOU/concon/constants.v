@@ -3,13 +3,13 @@ From Undecidability.HOU Require Import calculus.calculus.
 From Undecidability.HOU Require Import
         unification.higher_order_unification unification.nth_order_unification
         concon.conservativity_constants concon.conservativity.
-Import ListNotations ListInstances ArsInstances.
+Import ListNotations ListAutomationInstances ArsInstances.
 
 #[local] Fact ge_plus_l n m : n + m >= n.
-Proof. apply le_plus_l. Qed.
+Proof. apply Nat.le_add_r. Qed.
 
 #[local] Fact ge_plus_r n m : m + n >= n.
-Proof. apply le_plus_r. Qed.
+Proof. apply Nat.le_add_l. Qed.
 
 #[local] Hint Resolve ge_plus_l ge_plus_r : core.
 
@@ -348,8 +348,8 @@ Section RemoveConstants.
       + intros ? ?; unfold funcomp.
         unfold enc_var. rewrite idSubst_exp; trivial.
         intros y; cbn.
-        destruct (le_lt_dec (length C) y). 
-        rewrite it_up_ren_ge, le_plus_minus_r, sapp_ge_in; simplify; trivial.
+        destruct (le_lt_dec (length C) y).
+        rewrite it_up_ren_ge, (Nat.add_comm (| C |)), (Nat.add_comm (| C |)), Nat.sub_add, sapp_ge_in; simplify; trivial.
         erewrite it_up_ren_lt, nth_error_sapp; trivial.
         erewrite map_nth_error; eauto using nth_nats.
       + unfold enc_const; intros c; destruct (R' c) eqn: ?; cbn; trivial.
