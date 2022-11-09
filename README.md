@@ -139,16 +139,16 @@ opam update
 opam pin add coq-library-undecidability.dev+8.16 "https://github.com/uds-psl/coq-library-undecidability.git#coq-8.16"
 ```
 
-### Manual installation (TENTATIVE)
+### Manual installation
 
 You need `Coq 8.16` built on OCAML `>= 4.09.1`, and the Template-Coq (part of [MetaCoq](https://metacoq.github.io/)) package for Coq. If you are using opam 2 you can use the following commands to install the dependencies on a new switch:
 
 ```
 opam switch create coq-library-undecidability --packages=ocaml-variants.4.14.0+options,ocaml-option-flambda
 eval $(opam env)
-opam repo add coq-core-dev https://coq.inria.fr/opam/core-dev
-opam install coq.8.16.dev
-opam pin add -k git coq-equations.1.3+8.16 "https://github.com/mattam82/Coq-Equations.git#8.16"
+opam repo add coq-released https://coq.inria.fr/opam/released
+opam update
+opam install . --deps-only
 ```
 
 #### Building the undecidability library
