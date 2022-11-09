@@ -163,19 +163,29 @@ Section vector.
     + repeat rewrite vec_change_neq; auto.
   Qed.
 
+  Section vec_eq_dec_pos.
+
+    Fixpoint vec_eq_dec_pos n (u v : vec n) { struct u } :
+         (forall p, { vec_pos u p = vec_pos v p } + { vec_pos u p <> vec_pos v p })
+      -> { u = v } + { u <> v }.
+    Proof.
+      destruct u as [ | x n u ].
+      + rewrite (vec_0_nil v); left; reflexivity.
+      + rewrite (vec_head_tail v); generalize (vec_head v) (vec_tail v); intros y w H.
+        destruct (H pos0) as [ G1 | G1 ]; simpl vec_pos in G1; subst.
+        2:{ right; contradict G1; apply vec_cons_inv in G1; tauto. }
+        destruct (vec_eq_dec_pos _ u w) as [ G2 | G2 ]; subst.
+        * intros p; apply (H (pos_nxt p)).
+        * left; reflexivity.
+        * right; contradict G2; apply vec_cons_inv in G2; tauto.
+    Qed.
+
+  End vec_eq_dec_pos.
+
   Variable eq_X_dec : forall x y : X, { x = y } + { x <> y }.
 
-  Fixpoint vec_eq_dec n (u v : vec n) : { u = v } + { u <> v }.
-  Proof using eq_X_dec.
-    destruct u as [ | x n u ].
-    + left.
-      rewrite vec_0_nil; trivial.
-    + destruct (eq_X_dec x (vec_head v)) as [ E1 | D ].
-      * destruct (vec_eq_dec _ u (vec_tail v)) as [ E2 | D ].
-        - left; subst; rewrite <- vec_head_tail; auto.
-        - right; contradict D; subst; rewrite <- D; auto.
-      * right; contradict D; subst; auto.
-  Defined.
+  Fact vec_eq_dec n (u v : vec n) : { u = v } + { u <> v }.
+  Proof using eq_X_dec. apply vec_eq_dec_pos; auto. Qed.
   
   Fixpoint vec_list n (v : vec n) := 
     match v with  
@@ -346,6 +356,22 @@ Proof.
   + simpl vec_pos at 3; rewrite vec_pos_set.
     simpl pos_both.
     destruct (pos_both n m p); auto.
+Qed.
+
+Fact vec_change_app_left X n m v w i x :
+  vec_change (@vec_app X n m v w) (pos_left m i) x = vec_app (vec_change v i x) w.
+Proof.
+  revert v. induction i as [|?? IH].
+  - intros v. rewrite (Vector.eta v), vec_app_cons. simpl. now rewrite vec_app_cons. 
+  - intros v. rewrite (Vector.eta v), vec_app_cons. simpl. now rewrite vec_app_cons, IH.
+Qed.
+
+Fact vec_change_app_right X n m v w i x :
+  vec_change (@vec_app X n m v w) (pos_right _ i) x = vec_app v (vec_change w i x).
+Proof.
+  induction v as [|??? IH].
+  - now rewrite !vec_app_nil.
+  - now rewrite !vec_app_cons, <- IH.
 Qed.
 
 Section vec_map_def.

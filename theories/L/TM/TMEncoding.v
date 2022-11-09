@@ -5,7 +5,6 @@ From Undecidability.L Require Import Functions.EqBool.
 From Undecidability.TM.Util Require Import VectorPrelim TM_facts.
 
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.
-From Undecidability.TM Require PrettyBounds.SizeBounds.
 
 
 Import L_Notations.
@@ -44,45 +43,17 @@ Qed.
 
 
 #[global]
-Instance eqbComp_bool : eqbCompT move.
+Instance eqbComp_bool : eqbComp move.
 Proof.
-  evar (c:nat). exists c. unfold move_eqb.
-  unfold enc;cbn.
+  constructor. unfold move_eqb.
   extract.
-  solverec.
-  [c]:exact 3.
-  all:unfold c;try lia.
 Qed.
-
-(*
-Definition move_decode (s : term) : option (move) :=
-  match s with
-  | lam (lam (lam n)) =>
-    match n with
-      2 => Some TM.L 
-    | 1 => Some TM.R
-    | 0 => Some TM.N
-    | _ => None
-    end
-  | _ => None
-  end.
-
-Instance decode_move: decodable move.
-Proof.
-  exists move_decode.
-  all:unfold enc at 1. all:cbn.
-  -destruct x;reflexivity.
-  -destruct t eqn:eq. all:cbn.
-   all:repeat let eq := fresh in destruct _ eqn:eq. all:try congruence.
-   all:intros ? [= <-]. all:reflexivity.
-Defined. (* because instance *) *)
 
 (* *** Encoding Tapes *)
 Section reg_tapes.
   Variable sig : Type.
   Context `{reg_sig : encodable sig}.
 
-  
   Implicit Type (t : TM.tape sig).
   Import GenEncode.
   MetaCoq Run (tmGenEncode "tape_enc" (TM.tape sig)).
@@ -93,20 +64,19 @@ Section reg_tapes.
 
   (*Internalize constructors **)
 
-  Global Instance term_leftof : computableTime' (@leftof sig) (fun _ _ => (1, fun _ _ => (1,tt))).
+  Global Instance term_leftof : computable (@leftof sig).
   Proof.
     extract constructor.
-    solverec.
   Qed.
 
-  Global Instance term_rightof : computableTime' (@rightof sig) (fun _ _ => (1, fun _ _ => (1,tt))).
+  Global Instance term_rightof : computable (@rightof sig).
   Proof.
-    extract constructor. solverec.
+    extract constructor.
   Qed.
 
-  Global Instance term_midtape : computableTime' (@midtape sig) (fun _ _ => (1, fun _ _ => (1,fun _ _ => (1,tt)))).
+  Global Instance term_midtape : computable (@midtape sig).
   Proof.
-    extract constructor. solverec.
+    extract constructor.
   Qed.
   
 End reg_tapes.
@@ -124,29 +94,29 @@ Section fix_sig.
     eapply (registerAs mconfigAsPair).
   Defined.
 
-  Global Instance term_mconfigAsPair (B : finType) `{encodable B} n: computableTime' (@mconfigAsPair B n) (fun _ _ => (1,tt)).
+  Global Instance term_mconfigAsPair (B : finType) `{encodable B} n: computable (@mconfigAsPair B n).
   Proof.
-    apply cast_computableTime.
+    apply cast_computable.
   Qed.
 
-  Global Instance term_cstate (B : finType) `{encodable B} n: computableTime' (@cstate sig B n) (fun _ _ => (7,tt)).
+  Global Instance term_cstate (B : finType) `{encodable B} n: computable (@cstate sig B n).
   Proof.
-    apply computableTimeExt with (x:=fun x => fst (mconfigAsPair x)).
-    2:{extract. solverec. }
+    apply computableExt with (x:=fun x => fst (mconfigAsPair x)).
+    2:{extract. }
     intros [];reflexivity.
   Qed.
 
-  Global Instance term_ctapes (B : finType) `{encodable B} n: computableTime' (@ctapes sig B n) (fun _ _ => (7,tt)).
+  Global Instance term_ctapes (B : finType) `{encodable B} n: computable (@ctapes sig B n).
   Proof.
-    apply computableTimeExt with (x:=fun x => snd (mconfigAsPair x)).
-    2:{extract. solverec. }
+    apply computableExt with (x:=fun x => snd (mconfigAsPair x)).
+    2:{extract. }
     intros [];reflexivity.
   Qed.
 
-  Global Instance encodable_mk_mconfig (B : finType) `{encodable B} n: computableTime' (@mk_mconfig sig B n) (fun _ _ => (1,fun _ _ => (3,tt))).
+  Global Instance encodable_mk_mconfig (B : finType) `{encodable B} n: computable (@mk_mconfig sig B n).
   Proof.
     computable_casted_result.
-    extract. solverec.
+    extract.
   Qed.
 End fix_sig.
 

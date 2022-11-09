@@ -1,4 +1,5 @@
 From Undecidability.TM Require Import Single.StepTM Code.CodeTM TM.
+Require Import Undecidability.TM.Code.Code.
 Require Import Undecidability.Synthetic.Definitions.
 
 Set Default Goal Selector "!".

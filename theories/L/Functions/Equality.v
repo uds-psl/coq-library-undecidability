@@ -31,12 +31,8 @@ Proof.
 Qed.
 
 Global
-Instance eqbComp_nat : eqbCompT term.
+Instance eqbComp_nat : eqbComp term.
 Proof.
-  evar (c:nat). exists c. unfold term_eqb.
-  extract. unfold eqb,eqbTime. cbn - ["+"].
-  [c]:exact (5 + c__eqbComp nat).
-  all:unfold c. set (c__eqbComp nat). 
-  solverec. all: set (f:=enc (X:=term)); unfold enc in f;subst f;cbn [size encodable_term_enc].
-  all:try nia. 
+  constructor. unfold term_eqb.
+  extract.
 Qed.

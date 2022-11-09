@@ -183,26 +183,26 @@ Arguments ReadChar_Rel sig x y /.
 
 (* ** Tactic Support *)
 
-Ltac smpl_TM_Mono :=
-  once lazymatch goal with
-  | [ |- DoAct _ ⊨ _] => eapply RealiseIn_Realise; eapply DoAct_Sem
-  | [ |- DoAct _ ⊨c(_) _] => eapply DoAct_Sem
-  | [ |- projT1 (DoAct _) ↓ _] => eapply RealiseIn_TerminatesIn; eapply DoAct_Sem
-  | [ |- Write _ ⊨ _] => eapply RealiseIn_Realise; eapply Write_Sem
-  | [ |- Write _ ⊨c(_) _] => eapply Write_Sem
-  | [ |- projT1 (Write _) ↓ _] => eapply RealiseIn_TerminatesIn; eapply Write_Sem
-  | [ |- Move _ ⊨ _] => eapply RealiseIn_Realise; eapply Move_Sem
-  | [ |- Move _ ⊨c(_) _] => eapply Move_Sem
-  | [ |- projT1 (Move _) ↓ _] => eapply RealiseIn_TerminatesIn; eapply Move_Sem
-  | [ |- WriteMove _ _ ⊨ _] => eapply RealiseIn_Realise; eapply WriteMove_Sem
-  | [ |- WriteMove _ _ ⊨c(_) _] => eapply WriteMove_Sem
-  | [ |- projT1 (WriteMove _ _) ↓ _] => eapply RealiseIn_TerminatesIn; eapply WriteMove_Sem
-  | [ |- CaseChar _ ⊨ _] => eapply RealiseIn_Realise; eapply CaseChar_Sem
-  | [ |- CaseChar _ ⊨c(_) _] => eapply CaseChar_Sem
-  | [ |- projT1 (CaseChar _) ↓ _] => eapply RealiseIn_TerminatesIn; eapply CaseChar_Sem
-  | [ |- ReadChar ⊨ _] => eapply RealiseIn_Realise; eapply ReadChar_Sem
-  | [ |- ReadChar ⊨c(_) _] => eapply ReadChar_Sem
-  | [ |- projT1 (ReadChar) ↓ _] => eapply RealiseIn_TerminatesIn; eapply ReadChar_Sem
-  end.
+#[export] Hint Extern 1 (DoAct _ ⊨ _) => eapply RealiseIn_Realise; eapply DoAct_Sem : TMdb.
+#[export] Hint Extern 1 (DoAct _ ⊨c(_) _) => eapply DoAct_Sem : TMdb.
+#[export] Hint Extern 1 (projT1 (DoAct _) ↓ _) => eapply RealiseIn_TerminatesIn; eapply DoAct_Sem : TMdb.
 
-Smpl Add smpl_TM_Mono : TM_Correct.
+#[export] Hint Extern 1 (Write _ ⊨ _) => eapply RealiseIn_Realise; eapply Write_Sem : TMdb.
+#[export] Hint Extern 1 (Write _ ⊨c(_) _) => eapply Write_Sem : TMdb.
+#[export] Hint Extern 1 (projT1 (Write _) ↓ _) => eapply RealiseIn_TerminatesIn; eapply Write_Sem : TMdb.
+
+#[export] Hint Extern 1 (Move _ ⊨ _) => eapply RealiseIn_Realise; eapply Move_Sem : TMdb.
+#[export] Hint Extern 1 (Move _ ⊨c(_) _) => eapply Move_Sem : TMdb.
+#[export] Hint Extern 1 (projT1 (Move _) ↓ _) => eapply RealiseIn_TerminatesIn; eapply Move_Sem : TMdb.
+
+#[export] Hint Extern 1 (WriteMove _ _ ⊨ _) => eapply RealiseIn_Realise; eapply WriteMove_Sem : TMdb.
+#[export] Hint Extern 1 (WriteMove _ _ ⊨c(_) _) => eapply WriteMove_Sem : TMdb.
+#[export] Hint Extern 1 (projT1 (WriteMove _ _) ↓ _) => eapply RealiseIn_TerminatesIn; eapply WriteMove_Sem : TMdb.
+
+#[export] Hint Extern 1 (CaseChar _ ⊨ _) => eapply RealiseIn_Realise; eapply CaseChar_Sem : TMdb.
+#[export] Hint Extern 1 (CaseChar _ ⊨c(_) _) => eapply CaseChar_Sem : TMdb.
+#[export] Hint Extern 1 (projT1 (CaseChar _) ↓ _) => eapply RealiseIn_TerminatesIn; eapply CaseChar_Sem : TMdb.
+
+#[export] Hint Extern 1 (ReadChar ⊨ _) => eapply RealiseIn_Realise; eapply ReadChar_Sem : TMdb.
+#[export] Hint Extern 1 (ReadChar ⊨c(_) _) => eapply ReadChar_Sem : TMdb.
+#[export] Hint Extern 1 (projT1 (ReadChar) ↓ _) => eapply RealiseIn_TerminatesIn; eapply ReadChar_Sem : TMdb.

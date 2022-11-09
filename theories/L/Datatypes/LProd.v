@@ -22,19 +22,19 @@ Section Fix_XY.
   Proof. register_inj. Qed. 
   
   (* now we must register the constructors*)
-  Global Instance term_pair : computableTime' (@pair X Y) (fun _ _ => (1,fun _ _ => (1,tt))).
+  Global Instance term_pair : computable (@pair X Y).
   Proof.
-    extract constructor. solverec. 
+    extract constructor.
   Qed.
 
-  Global Instance term_fst : computableTime' (@fst X Y) (fun _ _ => (5,tt)).
+  Global Instance term_fst : computable (@fst X Y).
   Proof.
-    extract. solverec.
+    extract.
   Qed.
 
-  Global Instance term_snd : computableTime' (@snd X Y) (fun _ _ => (5,tt)).
+  Global Instance term_snd : computable (@snd X Y).
   Proof.
-    extract. solverec.
+    extract.
   Qed.
 
   Definition prod_eqb f g (a b: X*Y):=
@@ -59,49 +59,14 @@ Section Fix_XY.
   Qed.
 
   
-  Global Instance eqbComp_Prod `{eqbCompT X (R:=intX)} `{eqbCompT Y (R:=intY)}:
-    eqbCompT (X*Y).
+  Global Instance eqbComp_Prod `{eqbComp X (R:=intX)} `{eqbComp Y (R:=intY)}:
+    eqbComp (X*Y).
   Proof.
-    evar (c:nat). exists c. unfold prod_eqb. 
-    unfold enc;cbn.
+    constructor. unfold prod_eqb.
     change (eqb0) with (eqb (X:=X)).
     change (eqb1) with (eqb (X:=Y)).
-    extract. unfold eqb,eqbTime. fold @enc.
-    recRel_prettify2. easy.
-    [c]:exact (c__eqbComp X + c__eqbComp Y + 6).
-    all:unfold c. 
-    cbn [size]. nia.
+    extract.
   Qed.
-
-
-  (*
-  Global Instance term_prod_eqb :
-    computableTime' prod_eqb
-                     (fun _ eqT1 =>
-                        (1,fun _ eqT2 =>
-                             (1,fun x _ =>
-                                  (1,fun y _ =>
-                                       (let '(k1,eqT1') := (eqT1 (fst x) tt) in
-                                                             k1 +fst (eqT1' (fst y) tt)
-                                       + (let '(k2,eqT2') := (eqT2 (snd x) tt) in
-                                           k2 +fst (eqT2' (snd y) tt)) + 14, tt))))).
-  Proof.
-    extract. solverec. 
-  Qed.
-
-  Global Instance term_prod_eqb_notime :
-    computable prod_eqb.
-  Proof.
-    extract. 
-  Qed. *)
-
-  
-  Lemma size_prod (w:X*Y):
-    size (enc w) = size (enc (fst w)) + size (enc (snd w)) + 4.
-  Proof.
-    destruct w. unfold enc at 1. now cbn.
-  Qed.
-
   
 End Fix_XY.
 

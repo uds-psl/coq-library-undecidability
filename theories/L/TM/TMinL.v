@@ -32,7 +32,7 @@ Section loopM.
       + exists (ext x). split. eauto. Lproc.
     - destruct H as (v & ? & ?). edestruct mu_sound as (k & ? & ? & _).
       + eapply term_test.
-      + intros. eexists. now Lsimpl_old.
+      + intros. eexists. now Lsimpl'.
       + eassumption.
       + eauto.
       + subst.

@@ -26,36 +26,13 @@ Section loopM.
   Existing Instance eqb_state.
   Import Vector.
   
-  Local Definition c__trans :=
-       (length ( elem (state M) ) * 4 + (n * (4 * length ( elem sig ) + 10) + 4) + 4) *
-       c__eqbComp (finType_CS (state M * VectorDef.t (option sig) n)).
-  Definition transTime := (| funTable (trans (m:=M)) |) * (c__trans + 24) + 4 + 9.
   (* *** Computability of transition relation *)
-  Global Instance term_trans : computableTime' (trans (m:=M)) (fun _ _ => (transTime,tt)).
+  Global Instance term_trans : computable (trans (m:=M)).
   Proof.
     pose (t:= (funTable (trans (m:=M)))).
-    apply computableTimeExt with (x:= (fun c => lookup c t (start M,Vector.const (None , N) _ ) )).
+    apply computableExt with (x:= (fun c => lookup c t (start M,Vector.const (None , N) _ ) )).
     2:{ remember t as lock__t .
-         extract. solverec. subst lock__t .
-        rewrite lookupTime_leq.
-                                        setoid_rewrite size_prod;cbn [fst snd].
-         unfold reg_state;rewrite (size_finType_le a).
-         
-         rewrite enc_vector_eq. evar (c__elem' : nat).
-         evar (c__elem : nat). 
-         rewrite size_list,sumn_le_bound with (c:=c__elem).
-         2:{
-           intros ? (?&<-&?)%in_map_iff.
-           rewrite LOptions.size_option.
-           [c__elem]: exact( c__elem' + 10). subst c__elem.
-           destruct x. 2: { unfold c__listsizeCons. lia. } 
-           unfold reg_sig;rewrite (size_finType_le e).
-           ring_simplify.
-           [c__elem']: exact (4 * (| elem sig |)). subst c__elem'. unfold c__listsizeCons. lia.
-         }
-         rewrite map_length, Vector.length_to_list.
-         unfold c__elem',transTime,c__trans,t,c__elem. reflexivity.
-    }
+         extract. }
     
     cbn -[t] ;intro. subst t.  setoid_rewrite lookup_funTable. reflexivity.
   Qed.
@@ -64,54 +41,36 @@ Section loopM.
     let (news, actions) := trans (cstate c, current_chars (ctapes c)) in
     mk_mconfig news (doAct_multi (ctapes c) actions).
 
-  Global Instance term_doAct_multi: computableTime' (doAct_multi (n:=n) (sig:=sig)) (fun _ _ => (1,fun _ _ =>(n * 108 + 123,tt))).
+  Global Instance term_doAct_multi: computable (doAct_multi (n:=n) (sig:=sig)).
   Proof.
     extract.
-    solverec.
-    rewrite time_map2_leq with (k:=90).
-    2:now solverec.
-    solverec. now rewrite Vector.length_to_list.
   Qed.
 
 
-  Global Instance term_step' : computableTime' (step (M:=M)) (fun _ _ => (n* 130+ transTime + 172,tt)).
+  Global Instance term_step' : computable (step (M:=M)).
   Proof.
     extract.
-    solverec.
   Qed.
 
-  Local Definition cHalt := ((| elem (state M) |) * 4 * c__eqbComp (state M) + 24).
-
-  Definition haltTime := length (funTable (halt (m:=M))) * cHalt + 12.
-
-  Global Instance term_halt : computableTime' (halt (m:=M)) (fun _ _ => (haltTime,tt)).
+  Global Instance term_halt : computable (halt (m:=M)).
   Proof.
     pose (t:= (funTable (halt (m:=M)))).
-    apply computableTimeExt with (x:= fun c => lookup c t false).
-    2:{extract.
-       solverec.
-       rewrite lookupTime_leq.
-       unfold reg_state at 1;rewrite size_finType_le.
-       unfold haltTime. subst t. unfold cHalt. nia.
-    }
+    apply computableExt with (x:= fun c => lookup c t false).
+    2:{ extract. }
     cbn;intro. subst t. setoid_rewrite lookup_funTable. reflexivity.
   Qed.
 
-  Global Instance term_haltConf : computableTime' (haltConf (M:=M)) (fun _ _ => (haltTime+8,tt)).
+  Global Instance term_haltConf : computable (haltConf (M:=M)).
   Proof.
     extract.
-    solverec.
   Qed.
 
   (* *** Computability of step-ndexed interpreter *)
   Global Instance term_loopM :
-  let c1 := (haltTime + n*130 + transTime + 85 + 108) in
-    let c2 := 15 + haltTime in
-    computableTime' (loopM (M:=M)) (fun _ _ => (5,fun k _ => (c1 * k + c2,tt))).
+    computable (loopM (M:=M)).
   Proof.
     unfold loopM. (* as loop is already an encodable instance, this here is a bit out of the scope. Therefore, we unfold manually here. *)
-    extract.
-    solverec. 
+    extract. 
   Qed.
 
   Instance term_test cfg :

@@ -50,15 +50,3 @@ Proof.
   Qed.
 
 Arguments lcomp_comp _{_} _ {_} _ _.
-
-(*
-Lemma ldec_dec P u: decides u P -> forall s, dec(P s).
-Proof.
-  intros H s. specialize (H s). 
-  assert (exists (b:bool), u (enc s) == enc b). destruct H as [? [H' _]]. exists x. assumption.
-  eapply lcomp_comp in H0. destruct H0 as [[|] H0].
-  -left. destruct H as [b [eq R]]. rewrite eq in H0. apply enc_extinj in H0. now subst.
-  -right. destruct H as [b [eq R]]. rewrite eq in H0. apply enc_extinj in H0. now subst.
-  -exact bool_enc_inv_correct.
-Qed.
-*)

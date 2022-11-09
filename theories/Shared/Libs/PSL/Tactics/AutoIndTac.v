@@ -25,8 +25,3 @@ Ltac clear_all :=
            [H : _ |- _] =>  clear H
          end.
 
-(* this is a standard tactic *)
-Ltac clear_trivial_eqs :=
-  repeat (progress (match goal with
-              | [ H : @eq _ ?x ?x |- _ ] => clear H
-            end)).

@@ -1,4 +1,4 @@
-From Undecidability.L Require Import ComputableTactics Lproc mixedTactics Tactics.Computable ComputableTime Lrewrite.
+From Undecidability.L Require Import ComputableTactics Lproc Tactics.Computable Lrewrite.
 
 Import L_Notations.
 

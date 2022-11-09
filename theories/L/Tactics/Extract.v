@@ -1,11 +1,23 @@
-From Undecidability.L Require Import Util.L_facts Prelim.StringBase. 
+Require Import Ascii String.
+From Undecidability.L Require Import Util.L_facts. 
 From MetaCoq Require Import Template.All Template.Checker.
 Require Import Undecidability.Shared.Libs.PSL.Base. 
 From MetaCoq Require Import bytestring.
 
+
 Open Scope bs.
 
 Import MCMonadNotation.
+
+Fixpoint name_after_dot' (s : String.string) (r : String.string) :=
+  match s with
+  | EmptyString => r
+  | String "#" xs => name_after_dot' xs xs (* see Coq_name in a section *)
+  | String "." xs => name_after_dot' xs xs
+  | String _ xs => name_after_dot' xs r
+  end.
+
+Definition name_after_dot s := name_after_dot' s s.
 
 Unset Universe Minimization ToSet.
 

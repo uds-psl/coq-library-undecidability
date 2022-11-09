@@ -67,7 +67,7 @@ Proof with eauto; try now intuition.
       intros [w [Hw lw]]. 
       assert (forall t, pi vs t <-> pi t2 t). {
         intros t. eapply converges_proper.
-        assert (closed w). eapply (equiv_lambda lw) in Hw. eapply closed_star. exact Hw. Lproc. subst vs. Lsimpl_old. rewrite Hw. now Lsimpl. 
+        assert (closed w). eapply (equiv_lambda lw) in Hw. eapply closed_star. exact Hw. Lproc. subst vs. Lsimpl. rewrite Hw. now Lsimpl. 
       }
       eapply nMt2. eapply M_cl_equiv; eassumption.
     - intros [npi_s_s cls_s]; intuition.
@@ -75,7 +75,7 @@ Proof with eauto; try now intuition.
         intros t; split; intros H'.
         - exfalso. destruct H' as [w [Hw lw]]. inv lw. eapply Omega_diverges. rewrite <- Hw. symmetry. clear Hw. now redStep.
         - exfalso. eapply npi_s_s.
-          assert (A: converges (lam ( t2 (enc t)) (s (enc s)))). revert H'. eapply converges_proper. symmetry. unfold vs. now Lsimpl_old.
+          assert (A: converges (lam ( t2 (enc t)) (s (enc s)))). revert H'. eapply converges_proper. symmetry. unfold vs. now Lsimpl.
           eapply app_converges in A. firstorder.
       }
                                                        subst vs.
@@ -126,7 +126,7 @@ Proof.
       intros [w [Hw lw]]. 
       assert (forall t, pi t1 t <-> pi vs t). {
         intros t. symmetry. assert (closed w). eapply closed_star. eapply equiv_lambda;eauto. Lproc.  eapply converges_proper.
-        transitivity (lam ( t1 (enc t)) (s (enc s))). unfold vs. now Lsimpl_old. rewrite Hw. now Lsimpl.
+        transitivity (lam ( t1 (enc t)) (s (enc s))). unfold vs. now Lsimpl. rewrite Hw. now Lsimpl.
       }
       eapply Mvs. eapply M_cl_equiv;try subst vs; try Lproc; try eassumption.
     - intros [npi_s_s cls_s]; intuition.
@@ -134,7 +134,7 @@ Proof.
         intros t; split; intros A.
         - exfalso. destruct A as [w [Hw lw]]. inv lw. eapply Omega_diverges. rewrite <- Hw. symmetry. clear Hw. now LsimplRed.
         - exfalso. eapply npi_s_s.
-          assert (B: converges (lam ( t1 (enc t)) (s (enc s)))). revert A. eapply converges_proper. symmetry. unfold vs. Lsimpl_old.
+          assert (B: converges (lam ( t1 (enc t)) (s (enc s)))). revert A. eapply converges_proper. symmetry. unfold vs. now Lsimpl.
           eapply app_converges in B. firstorder.
       }
       eapply nMLO.

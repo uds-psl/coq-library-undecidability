@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import Arith Lia List Bool Eqdep_dec .
+Require Import Arith Lia List Bool Eqdep_dec.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import utils_tac utils_nat utils_list finite pos vec.
@@ -107,7 +107,10 @@ Section Recursive_algorithms.
  
     (* Injectivity is not a given for dependently typed constructors but it holds
        when the dependent parameter is from a set (ie a Type with decidable equality *)
-  
+
+    Local Fact eq_nat_pirr (n : nat) (e : n = n) : e = eq_refl.
+    Proof. apply UIP_dec, eq_nat_dec. Qed.    
+
     Let nat_dep_inj (P : nat -> Type) n x y : existT P n x = existT P n y -> x = y.
     Proof. apply inj_pair2_eq_dec, eq_nat_dec. Qed.
     
@@ -147,6 +150,53 @@ Section Recursive_algorithms.
   End recalg_inj.
 
 End Recursive_algorithms.
+
+Section ra_eq_dec.
+
+  Hint Resolve ra_cst_inj ra_proj_inj ra_min_inj eq_nat_dec pos_eq_dec vec_eq_dec_pos : core.
+
+  Ltac solve :=
+    let e := fresh in
+    try ( (intros e; exfalso; lia) 
+       || (now intros e; inversion e; subst; try rewrite (eq_nat_pirr e); right)
+       || (intros e; rewrite (eq_nat_pirr e); simpl; auto; right; easy)).
+
+  Ltac eqdec a b C :=
+    assert ({ a = b } + { a <> b }) as [ | C ]; 
+      [  
+      | subst 
+      | right; contradict C
+      ]; auto.
+
+  Local Lemma ra_eq_dec_rec ka (a : recalg ka) kb (b : recalg kb) (e : ka = kb) : 
+      { eq_rect ka recalg a kb e = b } + { eq_rect ka recalg a kb e <> b }.
+  Proof.
+    revert kb b e.
+    induction a as [ na | | | ka ia | ka ia fa ga Hfa Hga | ka fa ga Hfa Hga | ka fa Hfa ];
+      intros ? [ nb | | | kb ib | kb ib fb gb | kb fb gb | kb fb ]; solve.
+    + intros e; rewrite (eq_nat_pirr e); simpl; eqdec na nb C.
+    + intros e; revert e ib; intros [] ib; simpl; eqdec ia ib C.
+    + intros e; subst ib; simpl.
+      eqdec ka kb C.
+      2: now apply ra_comp_inj in C as [].
+      specialize (fun b => Hfa _ b eq_refl); simpl in Hfa.
+      specialize (fun p b => Hga p _ b eq_refl); simpl in Hga.
+      eqdec fa fb C; [ eqdec ga gb C | ].
+      all: apply ra_comp_inj in C as (e & ? & ?); rewrite (eq_nat_pirr e) in *; auto.
+    + intros e; inversion e; subst; rewrite (eq_nat_pirr e); simpl; clear e.
+      specialize (fun b => Hfa _ b eq_refl); simpl in Hfa.
+      specialize (fun b => Hga _ b eq_refl); simpl in Hga.
+      eqdec fa fb C; [ eqdec ga gb C | ].
+      all: apply ra_rec_inj in C; tauto.
+    + intros <-; simpl.
+      specialize (fun b => Hfa _ b eq_refl); simpl in Hfa.
+      eqdec fa fb C.
+  Qed.
+
+  Theorem ra_eq_dec k (a : recalg k) (b : recalg k) : { a = b } + { a <> b }.
+  Proof. exact (ra_eq_dec_rec a b eq_refl). Qed.
+
+End ra_eq_dec.
 
 Definition functional X Y (f : X -> Y -> Prop) := forall x y1 y2, f x y1 -> f x y2 -> y1 = y2.
 Definition total X Y (f : X -> Y -> Prop) := forall x, exists y, f x y.
