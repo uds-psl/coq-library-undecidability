@@ -19,11 +19,28 @@ Import ListNotations.
 Require Undecidability.StringRewriting.SSTS.
 Require Undecidability.MinskyMachines.MM2.
 Require Undecidability.MinskyMachines.Util.MM2_facts.
-Require Undecidability.StringRewriting.Util.List_facts.
 
 Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
+
+(* auxiliary list facts *)
+Module Facts.
+Lemma Forall_repeatI {X : Type} {P : X -> Prop} {x n} : 
+  P x -> Forall P (repeat x n).
+Proof.
+  elim: n; first by constructor.
+  move=> ? IH ?. constructor; [done | by apply: IH].
+Qed.
+
+Lemma In_appl {X : Type} {x: X} {l1 l2: list X} : In x l1 -> In x (l1 ++ l2).
+Proof. move=> ?. apply: in_or_app. by left. Qed.
+
+Lemma In_appr {X : Type} {x: X} {l1 l2: list X} : In x l2 -> In x (l1 ++ l2).
+Proof. move=> ?. apply: in_or_app. by right. Qed.
+End Facts.
+
+Import Facts.
 
 (* Auxiliary, richer rewriting system to encode mm2 computation *)
 Module SR2ab.
@@ -64,7 +81,7 @@ Proof. move=> /multi_step_appI => /(_ u []). by rewrite ?app_nil_r. Qed.
 Lemma multi_step_apprI {srs v s t} : multi_step srs s t -> multi_step srs (s ++ v) (t ++ v).
 Proof. by move=> /multi_step_appI => /(_ [] v). Qed.
 
-Import MM2 List_facts MM2_facts.
+Import MM2 MM2_facts.
 
 Local Arguments rt_trans {A R x y z}.
 Local Arguments in_combine_l {A B l l' x y}.

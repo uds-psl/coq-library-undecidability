@@ -182,7 +182,6 @@ StringRewriting/SSTS.v
 StringRewriting/SSTS_undec.v
 
 StringRewriting/Util/Definitions.v
-StringRewriting/Util/List_facts.v
 StringRewriting/Reductions/SR_to_PCSnf.v
 StringRewriting/Reductions/HaltTM_1_to_SR.v
 StringRewriting/Reductions/MM2_ZERO_HALTING_to_SSTS01.v
