@@ -1,6 +1,8 @@
 From Undecidability Require Export TM.Util.TM_facts.
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.DepPairs EqdepFacts.
 
+Set Default Goal Selector "!".
+
 Section StateWhile.
 
   Variable n : nat.
@@ -166,10 +168,15 @@ Section StateWhile.
     apply loop_split with (h := @lifth l) in HLoop as (k1&c2&k2&HLoop1&HLoop2&Hk).
     - apply loop_unlift with (f := step (projT1 (pM l))) (h := haltConf (M := projT1 (pM l))) in HLoop1 as (c2'&HLoop1&->).
       + exists c2'. destruct (projT2 (pM l) (cstate c2')) as [l1|l2] eqn:E.
-        * exists k1. eapply StateWhile_split_repeat in HLoop2 as (k2'&HLoop2&->). exists k2'. repeat split. all: eauto.
-          -- lia.
+        * exists k1. eapply StateWhile_split_repeat in HLoop2 as (k2'&HLoop2&->).
+          -- exists k2'. repeat split. all: eauto. lia.
           -- now apply loop_fulfills in HLoop1.
-        * split. eapply loop_monotone. apply HLoop1. lia. eapply StateWhile_split_break; eauto. now apply loop_fulfills in HLoop1.
+          -- easy.
+        * split.
+          -- eapply loop_monotone.
+             ++ apply HLoop1.
+             ++ lia.
+          -- eapply StateWhile_split_break; eauto. now apply loop_fulfills in HLoop1.
       + apply lifth_comp'.
       + apply step_comp.
     - apply lifth_comp.

@@ -1,5 +1,7 @@
 From Undecidability.TM Require Import Util.TM_facts.
 
+Set Default Goal Selector "!".
+
 (* * Basic 1-Tape Machines *)
 
 
@@ -76,7 +78,7 @@ Section DoAct_Derived.
     eapply RealiseIn_monotone.
     - apply DoAct_Sem.
     - reflexivity.
-    - hnf. firstorder.
+    - easy.
   Qed.
 
   Definition Move : pTM sig unit 1 := DoAct (None, D).
@@ -90,7 +92,7 @@ Section DoAct_Derived.
     eapply RealiseIn_monotone.
     - apply DoAct_Sem.
     - reflexivity.
-    - hnf. firstorder.
+    - easy.
   Qed.
 
   Definition WriteMove : pTM sig unit 1 := DoAct (Some c, D).
@@ -104,7 +106,7 @@ Section DoAct_Derived.
     eapply RealiseIn_monotone.
     - apply DoAct_Sem.
     - reflexivity.
-    - hnf. firstorder.
+    - easy.
   Qed.
 
 End DoAct_Derived.
@@ -145,8 +147,9 @@ Section CaseChar.
 
   Definition CaseChar_Sem : CaseChar ⊨c(1) CaseChar_Rel.
   Proof.
-    intros t. destruct_tapes. cbn. unfold initc; cbn. cbv [step]; cbn. unfold current_chars; cbn.
-    eexists (mk_mconfig _ _); cbv [step]; cbn. split. eauto. cbn. auto.
+    intros t. destruct_tapes. cbn. unfold initc; cbn.
+    unfold current_chars.
+    now eexists (mk_mconfig _ _).
   Qed.
 
 End CaseChar.
@@ -171,7 +174,7 @@ Section ReadChar.
     eapply RealiseIn_monotone.
     - apply CaseChar_Sem.
     - reflexivity.
-    - intros tin (yout, tout) (->&->). hnf. split; auto.
+    - now intros tin (yout, tout) (->&->).
   Qed.
 
 End ReadChar.

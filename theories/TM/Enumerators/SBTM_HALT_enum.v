@@ -4,6 +4,8 @@ From Undecidability.Synthetic Require ListEnumerabilityFacts.
 Require Import Undecidability.TM.SBTM.
 Import SBTMNotations.
 
+Set Default Goal Selector "!".
+
 (* semi-decider for SBTM_HALT *)
 Lemma SBTM_HALT_semi_decision : { f : { M : SBTM & config M } -> nat -> bool | semi_decider f SBTM_HALT }.
 Proof.

@@ -1,11 +1,31 @@
-Require Export Undecidability.TM.Code.CodeTM.
+
+From Undecidability.TM Require Export Util.Prelim Util.TM_facts.
 Require Export Undecidability.TM.Compound.TMTac.
 Require Import Undecidability.TM.Code.Code.
 Require Export Undecidability.TM.Basic.Mono Undecidability.TM.Compound.Multi.
 (* the above imports sidestep the import of ProgrammingTools below to avoid the dependency on Hoare *)
 (*From Undecidability.TM Require Import ProgrammingTools.*)
 
-From Undecidability Require Import TM.Util.VectorPrelim.
+Set Default Goal Selector "!".
+
+(* We add these three symbols the alphabets of every machine. [START] is the first symbol of the encoding and [STOP] is always the right-most symbol. [UNKNOWN] is always ignored (it serves as the default symbol for the alphabet-lift, see [ChangeAlphabet]). *)
+Inductive boundary : Type :=
+| START   : boundary
+| STOP    : boundary
+| UNKNOWN : boundary.
+
+(* Declare discreteness of [boundary] *)
+#[global]
+Instance boundary_eq : eq_dec boundary.
+Proof. unfold dec. decide equality. Defined. (* because definition *)
+
+(* Declare finiteness of [boundary] *)
+#[global]
+Instance boundary_fin : finTypeC (EqType boundary).
+Proof. split with (enum := [START; STOP; UNKNOWN]). cbn. intros []; cbn; reflexivity. Defined. (* because definition *)
+
+(* Because every machine is defined on an alphabet [Σ^+], the notation adds the discreteness and finiteness constructors, to cast [Σ^+ : finType]. *)
+Notation "sig '^+'" := (FinType (EqType (boundary + sig) % type)) (at level 0) : type_scope.
 
 Inductive sigTape (sig : Type) : Type :=
 | LeftBlank (marked : bool)
@@ -52,14 +72,8 @@ Definition encode_tape (sig : Type) (t : tape sig) : list (sigTape sig) :=
   | rightof l ls => LeftBlank false :: map UnmarkedSymbol (rev ls) ++ [UnmarkedSymbol l; RightBlank true]
   end.
 
-#[global]
-Instance Encode_tape (sig : Type) : codable (sigTape sig) (tape sig) :=
-  {|
-    encode := @encode_tape sig;
-  |}.
-
 Definition encode_tapes (sig : Type) (n : nat) (t : tapes sig n) :=
-  encode_list (@Encode_tape sig) (vector_to_list t).
+  encode_list (@encode_tape sig) (Vector.to_list t).
 
 Arguments encode_tapes {sig n}.
 

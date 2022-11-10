@@ -1,6 +1,8 @@
 From Undecidability Require Import TM.Util.TM_facts.
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.DepPairs EqdepFacts.
 
+Set Default Goal Selector "!".
+
 (* * Switch Combinator *)
 
 Section Switch.

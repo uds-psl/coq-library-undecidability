@@ -1,5 +1,7 @@
-Require Import Undecidability.Shared.Libs.PSL.Base Undecidability.Shared.Libs.PSL.FiniteTypes Undecidability.TM.Util.Prelim.
+Require Import Undecidability.Shared.Libs.PSL.Base.
 Require Import Undecidability.Shared.Libs.PSL.Vectors.Vectors.
+
+Set Default Goal Selector "!".
 
 (* * Relations *)
 
@@ -87,31 +89,8 @@ y = p /\ R x z).
 Notation "R '||_' f" := (rfix R f) (at level 30, format "R '||_' f").
 Arguments rfix { X Y Z } ( R p ) x y /.
 
-
 (* ** Relations over Vectors *)
 Export VectorNotations2.
-Section Fix_X2.
-  Variable X Y Z : Type.
-  Variable n : nat.
-
-  Local Notation "'V' Z" := (Vector.t Z n) (at level 10).
-
-  Definition Eq_in (f : Fin.t n -> Prop) : Rel (V X) (V X) :=
-    fun vx vy => forall i : Fin.t n, f i -> vy[@i] = vx[@i].
-
-  Global Instance Eq_in_equivalence (f : Fin.t n -> Prop) :
-    Equivalence (@Eq_in f).
-  Proof.
-    econstructor.
-    - econstructor.
-    - hnf. intros. hnf in *. intros. rewrite <- H; eauto.
-    - hnf. intros. hnf in *. intros. rewrite <- H, <- H0; eauto.
-  Qed.
-
-End Fix_X2.
-
-Arguments Eq_in { X n } P x y / : rename.
-
 
 (* ** Reflexive transitive closure and relational power *)
 Section Star_Pow.
@@ -130,7 +109,7 @@ Section Star_Pow.
   Proof. induction 1; eauto using star. Qed.
 
   Global Instance star_preorder : PreOrder star.
-  Proof. constructor. constructor. apply star_trans. Qed.
+  Proof. constructor; [constructor|apply star_trans]. Qed.
 
   Lemma pow_plus k1 k2 x y z :
     pow k1 x y -> pow k2 y z -> pow (k1 + k2) x z.

@@ -3,12 +3,13 @@ Set Default Goal Selector "!".
 Require Import
   Undecidability.StackMachines.BSM Undecidability.StackMachines.Util.BSM_computable
   Undecidability.TM.TM Undecidability.TM.Util.TM_facts Undecidability.TM.Util.TM_computable.
-From Undecidability.TM Require Import Single.StepTM Code.CodeTM TM mTM_to_TM Arbitrary_to_Binary HaltTM_1_to_HaltKOSBTM HaltKOSBTM_to_HaltBSM.
+From Undecidability.TM Require Import Single.StepTM TM mTM_to_TM Arbitrary_to_Binary HaltTM_1_to_HaltKOSBTM HaltKOSBTM_to_HaltBSM.
 From Undecidability.Shared.Libs.DLW Require Import vec pos sss subcode.
 From Undecidability Require Import bsm_utils bsm_defs.
 Require Import Undecidability.TM.Code.Code.
 From Undecidability Require Import BSM_computable_to_MM_computable.
 From Undecidability.Shared.Libs.PSL Require FinTypes.
+From Undecidability.TM Require Import Single.EncodeTapes.
 
 Notation "v @[ t ]" := (Vector.nth v t) (at level 50).
 

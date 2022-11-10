@@ -4,10 +4,10 @@ From Undecidability Require Import TM.Combinators.Combinators.
 From Undecidability Require Import TM.Compound.TMTac.
 From Undecidability Require Import TM.Compound.Multi.
 
-From Undecidability Require Import ArithPrelim.
-
 From Coq Require Import FunInd.
 From Coq Require Import Recdef.
+
+Set Default Goal Selector "!".
 
 (* * Move to a symbol and translate read symbols *)
 
@@ -66,7 +66,8 @@ Section MoveToSymbol.
   Proof.
     eapply RealiseIn_monotone.
     {
-      unfold MoveToSymbol_Step. eapply Switch_RealiseIn. eapply ReadChar_Sem. cbn.
+      unfold MoveToSymbol_Step. eapply Switch_RealiseIn. { eapply ReadChar_Sem. }
+      cbn.
       instantiate (2 := fun o : option sig => match o with Some x => if f x then _ else _ | None => _ end).
       intros [ | ]; cbn.
       - destruct (f e). 
@@ -79,7 +80,9 @@ Section MoveToSymbol.
     }
     {
       unfold MoveToSymbol_Step_Rel, MoveToSymbol_Step_Fun. intros tin (yout, tout) H.
-      TMCrush idtac; TMSolve 6.
+      TMSimp.
+      destruct (current _); [|now TMSimp].
+      destruct (f _); now TMSimp.
     }
   Qed.
 
@@ -263,7 +266,7 @@ Section MoveToSymbol.
     eapply Realise_monotone.
     - eapply Mirror_Realise. eapply MoveToSymbol_Realise.
     - intros tin (y&tout) H. hnf in *. destruct_tapes; cbn in *. rewrite mirror_tapes_nth in H. cbn in H.
-      symmetry in H. apply MoveToSymbol_mirror in H as ->. TMCrush simpl_tape in *; TMSolve 6.
+      symmetry in H. apply MoveToSymbol_mirror in H as ->. reflexivity.
   Qed.
 
 
@@ -366,7 +369,8 @@ Section MoveToSymbol_Sem.
     all:cbn.
     all:erewrite (H c);[ |now eauto].
     - rewrite MoveToSymbol_Fun_equation;cbn. eauto. 
-    - rewrite IH. 2,3:now eauto. destruct (rev tr'); cbn. easy. now autorewrite with list;cbn. 
+    - rewrite IH. 2,3:now eauto. destruct (rev tr'); cbn. { easy. }
+      now autorewrite with list;cbn.
   Qed.
 
   Corollary MoveToSymbol_L_correct t str1 str2 x :
@@ -456,10 +460,12 @@ Section MoveToSymbol_Sem.
       2:{exfalso. destruct Hcur as [? H']. now discriminate H'. }
       rewrite MoveToSymbol_steps_equation. rewrite Hcur'.
       rewrite Hhalt. 2:{destruct t;inv Hcur'. inv Ht. now trivial with list. }
-      setoid_rewrite IHtr.
-      +now cbn;nia.
-      +cbn. rewrite tape_local_move_right'. symmetry in Ht. erewrite tape_local_right;eauto.
-      +intros. eapply Hhalt. eauto with list.
+      apply Nat.add_le_mono_l.
+      etransitivity. 
+      { apply IHtr.
+        - cbn. rewrite tape_local_move_right'. symmetry in Ht. erewrite tape_local_right;eauto.
+        - intros. eapply Hhalt. eauto with list. }
+      cbn. nia.
   Qed.
 
   Corollary MoveToSymbol_steps_midtape_end tl c tr :

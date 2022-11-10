@@ -55,5 +55,3 @@ Inductive eval (M : KOSBTM) : state M -> tape -> state M -> tape -> Prop :=
 
 Definition HaltKOSBTM '( (M, t) : KOSBTM * tape) :=
   exists q' t', eval M (Fin.F1) t q' t'.
-
-Definition HaltKOSBTMu : { M : KOSBTM & {q : state M | forall c, trans M (q,c) = None /\ forall q', trans M (q',c) = None -> q' = q }} * tape -> Prop := fun '((existT _ M (exist _ q H)), t) => exists t', eval M Fin.F1 t q t'.

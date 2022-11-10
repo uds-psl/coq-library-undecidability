@@ -4,6 +4,8 @@ From Undecidability.TM Require Export TM Util.TM_facts.
 
 Import ListNotations Vector.VectorNotations.
 
+Set Default Goal Selector "!".
+
 Lemma TM_computable_iff {k} (R : Vector.t nat k -> nat -> Prop) :
   TM_computable R <->
   exists n : nat, exists Σ : finType, exists s b : Σ, s <> b /\ 

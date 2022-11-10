@@ -1,5 +1,7 @@
 From Undecidability.TM Require Import Util.TM_facts Switch.
 
+Set Default Goal Selector "!".
+
 Section If.
 
   Variable n : nat.
@@ -23,7 +25,9 @@ Section If.
     eapply Realise_monotone.
     - eapply (Switch_Realise (R1 := R1) (R2 := (fun b => if b then R2 else R3))); eauto.
       now intros [].
-    - hnf. intros H2 (f& t). intros ([ | ]& (y & H3&H3')). left. hnf. eauto. right. hnf. eauto.
+    - hnf. intros H2 (f& t). intros ([ | ]& (y & H3&H3')).
+      + left. hnf. eauto.
+      + right. hnf. eauto.
   Qed.
 
   Lemma If_TerminatesIn R1 T1 T2 T3 :
@@ -77,13 +81,20 @@ Section If.
   Proof.
     intros.
     eapply RealiseIn_monotone.
-    eapply Switch_RealiseIn; eauto.
-    - intros. cbn in f. destruct f.
-      + eapply RealiseIn_monotone. destruct pM2. eassumption. instantiate (1 := Nat.max k2 k3); firstorder.
-        lia. instantiate (1 := fun t => match t with true => R2 | _ => R3 end). reflexivity.
-      + eapply RealiseIn_monotone. destruct pM3. eassumption. firstorder. lia. reflexivity.
+    - eapply Switch_RealiseIn; eauto.
+      intros. cbn in f. destruct f.
+      + eapply RealiseIn_monotone.
+        * destruct pM2. eassumption.
+        * instantiate (1 := Nat.max k2 k3). lia.
+        * instantiate (1 := fun t => match t with true => R2 | _ => R3 end). reflexivity.
+      + eapply RealiseIn_monotone.
+        * destruct pM3. eassumption.
+        * lia.
+        * reflexivity.
     - lia.
-    - hnf. intros H2 (f& t). intros ([ | ]& (y & H3&H3')). left. hnf. eauto. right. hnf. eauto.
+    - hnf. intros H2 (f& t). intros ([ | ]& (y & H3&H3')).
+      + left. hnf. eauto.
+      + right. hnf. eauto.
   Qed.
 
 End If.

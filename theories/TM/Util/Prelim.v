@@ -12,6 +12,8 @@ Require Export Lia.
 
 Global Open Scope vector_scope.
 
+Set Default Goal Selector "!".
+
 Section Loop.
   Variable (A : Type) (f : A -> A) (p : A -> bool).
 
@@ -71,7 +73,7 @@ Section Loop.
       + inv HLoop. now apply loop_0.
       + destruct k2 as [ | k2']; cbn in *; rewrite E.
         * exfalso. lia.
-        * apply IH. assumption. lia.
+        * apply IH; [assumption|lia].
   Qed.
 
 End Loop.
@@ -189,55 +191,3 @@ Section Map.
   Definition map_snd : (Y -> Z) -> X * Y -> X * Z := fun f '(x,y) => (x, f y).
 
 End Map.
-
-
-
-(* Function composition *)
-
-(* Function composition in the standard mathematical way *)
-Definition funcomp {X Y Z : Type} (g : Y -> Z) (f : X -> Y) : X -> Z := fun x => g (f x).
-
-Arguments funcomp {X Y Z} (g f) x/.
-
-(*
-Eval cbn in funcomp id id.
-Eval cbn in funcomp id id 1.
-*)
-
-Notation "g >> f" := (funcomp f g) (at level 40).
-
-
-
-
-(* We often use the vernacular commands
-<<
-Local Arguments plus : simpl never.
-Local Arguments mult : simpl never.
->>
-to avoid unfolding [*] and [+] in running time polynoms. However, this can break proofs that use [Fin.R], since the [plus] in the type of [Fin.R] doesn't simplify with [cbn] any more. To work around this problem, we have a copy of [Fin.R] and [plus], that isn't affected by these commands. *)
-
-Fixpoint plus' (n m : nat) { struct n } : nat :=
-  match n with
-  | 0 => m
-  | S p => S (plus' p m)
-  end.
-
-Fixpoint FinR {m} n (p : Fin.t m) : Fin.t (plus' n m) :=
-  match n with
-  | 0 => p
-  | S n' => Fin.FS (FinR n' p)
-  end.
-
-
-
-(* Folding for options *)
-Definition fold_opt (X Y : Type) : (X -> Y) -> Y -> option X -> Y :=
-  fun f def o => match o with
-              | Some o' => f o'
-              | None => def
-              end.
-
-
-Lemma map_opt_fold (X Y : Type) (f : X -> Y) (x : option X) :
-  map_opt f x = fold_opt (fun x => Some (f x)) None x.
-Proof. intros. destruct x; cbn; reflexivity. Qed.

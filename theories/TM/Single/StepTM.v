@@ -1,16 +1,13 @@
 (* From Undecidability Require Import Combinators.Combinators Multi Basic.Mono TMTac. *)
-Require Export Undecidability.TM.Code.CodeTM.
 Require Export Undecidability.TM.Compound.TMTac Undecidability.TM.Compound.MoveToSymbol.
 Require Export Undecidability.TM.Basic.Mono Undecidability.TM.Compound.Multi.
 Require Import Undecidability.TM.Combinators.Combinators.
 Require Import Undecidability.TM.Code.Code.
 (* the above imports sidestep the import of ProgrammingTools below to avoid the dependency on Hoare *)
 (*From Undecidability.TM Require Import ProgrammingTools.*)
-From Undecidability Require Import ArithPrelim.
-From Undecidability Require Import TM.Compound.Shift.
-From Undecidability Require Import TM.Util.VectorPrelim.
 
-From Undecidability Require Import EncodeTapes TM.Util.VectorPrelim.
+From Undecidability Require Import TM.Compound.Shift.
+From Undecidability Require Import EncodeTapes.
 Require Import FunInd.
 
 Local Set Printing Coercions.
@@ -34,17 +31,16 @@ Proof.
   - intros _. auto.
 Qed.
 
+#[local] Notation vector_to_list := Vector.to_list.
+
+Lemma vector_to_list_eta (X : Type) (n : nat) (v : Vector.t X (S n)) :
+  Vector.hd v :: vector_to_list (Vector.tl v) = vector_to_list v.
+Proof. destruct_vector. cbn. reflexivity. Qed.
+
 Section Fin.
 
   Global Coercion fin_to_nat (n : nat) (i : Fin.t n) : nat := proj1_sig (Fin.to_nat i).
   Global Set Printing Coercions.
-
-  Lemma fin_to_nat_lt (n : nat) (i : Fin.t n) : fin_to_nat i < n.
-  Proof. unfold fin_to_nat. destruct (Fin.to_nat i). cbn. auto. Qed.
-
-  Lemma fin_to_nat_O (n : nat) :
-    fin_to_nat (@Fin.F1 n) = 0.
-  Proof. reflexivity. Qed.
 
   Lemma fin_to_nat_S (n : nat) (i : Fin.t n) :
     fin_to_nat (Fin.FS i) = S (fin_to_nat i).
@@ -68,14 +64,6 @@ Section Fin.
     rewrite fin_to_nat_S in H. inv H. now apply fin_is_0 in H1 as ->.
   Qed.
 
-  Lemma fin_is_2 (n : nat) (i : Fin.t (S (S (S n)))) :
-    fin_to_nat i = 1 -> i = Fin1.
-  Proof.
-    intros H. pose proof fin_destruct_S i as [ (i'&->) | ->]; cbn in *; auto.
-    rewrite fin_to_nat_S in H. inv H. now apply fin_is_0 in H1 as ->.
-  Qed.
-      
-
   Fixpoint finMax (n : nat) {struct n} : n <> 0 -> Fin.t n.
   Proof.
     destruct n as [ | n'].
@@ -90,30 +78,6 @@ Section Fin.
     apply finMax. apply Nat.neq_succ_0.
   Defined. (* because definition *)
 
-  Lemma finMax_ext (n : nat) (H1 H2 : n <> 0) : finMax H1 = finMax H2.
-  Proof.
-    induction n as [ | n' IH].
-    - congruence.
-    - cbn. decide (n' = 0) as [H | H]; f_equal.
-  Qed.
-
-  Lemma finMax_val (n : nat) (H : n <> 0) : fin_to_nat (finMax H) = n - 1.
-  Proof.
-    unfold fin_to_nat. induction n as [ | n' IH ].
-    - congruence.
-    - cbn. decide (n' = 0) as [ -> | H']; cbn.
-      + reflexivity.
-      + replace (n' - 0) with n' by lia.
-        specialize IH with (H := H').
-        destruct (Fin.to_nat (finMax H')) as [k ?]; cbn in *. lia.
-  Qed.
-
-  (* Arguments finMax (n) H : clear implicits. *)
-
-  (* Compute finMax (ltac:(congruence) : 1 <> 0). *)
-  (* Compute finMax (ltac:(congruence) : 10 <> 0). *)
-  (* Compute finMax' 99. *)
-
   Definition finMin (n : nat) : n <> 0 -> Fin.t n.
   Proof.
     refine (match n as n' return n' <> 0 -> Fin.t n' with
@@ -121,23 +85,6 @@ Section Fin.
             | S n' => fun _ => Fin.F1
             end); auto.
   Defined. (* because definition *)
-
-  Lemma finMin_O (n : nat) (H : S n <> 0) : finMin H = Fin.F1.
-  Proof. cbn. reflexivity. Qed.
-
-  Lemma finMin_ext (n : nat) (H1 H2 : n <> 0) : finMin H1 = finMin H2.
-  Proof.
-    destruct n.
-    - congruence.
-    - auto.
-  Qed.
-
-  Lemma finMin_val (n : nat) (H : n <> 0) : fin_to_nat (finMin H) = 0.
-  Proof.
-    unfold fin_to_nat. destruct n as [ | n'].
-    - congruence.
-    - cbn. reflexivity.
-  Qed.
 
   Lemma finSucc_help (i : Fin.t 1) : i = Fin0.
   Proof. now destruct_fin i. Qed.
@@ -178,14 +125,6 @@ Section Fin.
         * apply Some. apply Fin.FS. apply rec.
         * apply None.
   Defined. (* because definition *)
-
-  (* Compute eq_refl : @finSucc_opt 1 Fin0 = None. *)
-  (* Compute eq_refl : @finSucc_opt 2 Fin0 = Some Fin1. *)
-  (* Compute eq_refl : @finSucc_opt 2 Fin1 = None. *)
-  (* Compute eq_refl : @finSucc_opt 3 Fin1 = Some Fin2. *)
-  (* Compute eq_refl : @finSucc_opt 3 Fin0 = Some Fin1. *)
-  (* Compute eq_refl : @finSucc_opt 8 Fin7 = None. *)
-  (* Compute eq_refl : @finSucc_opt 9 Fin7 = Some Fin8. *)
 
   Lemma finSucc_opt_Some (n : nat) (i : Fin.t n) :
     S (fin_to_nat i) < n ->
@@ -231,9 +170,6 @@ Section Fin.
       now rewrite fin_to_nat_S, IHi.
   Qed.
 
-
-
-
   Definition finMin_opt (n : nat) : option (Fin.t n).
   Proof.
     destruct n.
@@ -252,20 +188,6 @@ Section Fin.
   Lemma finMin_opt_Some_val (n : nat) i :
     finMin_opt n = Some i -> fin_to_nat i = 0.
   Proof. destruct n; cbn; intros H; inv H; auto. Qed.
-
-  Lemma finSucc_correct (n : nat) (i : Fin.t n) (H1 : n <> 0) (H2 : i <> finMax H1) :
-    fin_to_nat (finSucc H2) = S (fin_to_nat i).
-  Proof.
-     revert i H1 H2. induction n as [ | n' IH]; intros; cbn in *.
-    - congruence.
-    - decide (n' = 0) as [-> | HDec]; cbn.
-      + exfalso. apply H2. apply finSucc_help.
-      + pose proof fin_destruct_S i as [ (i'&->) | -> ]; cbn -[Fin.to_nat]; swap 1 2.
-        * change (S (proj1_sig (Fin.to_nat Fin0))) with 1.
-          rewrite fin_to_nat_S. f_equal. rewrite finMin_val. reflexivity.
-        * rewrite !fin_to_nat_S. f_equal. now rewrite IH.
-  Qed.
-
 
 End Fin.
 
@@ -321,11 +243,6 @@ Proof.
     f_equal. apply IH.
 Qed.
 
-Lemma destruct_tapes1 (sig : Type) (t : tapes sig 1) :
-  exists t', t = [| t' |].
-Proof. destruct_tapes. eauto. Qed.
-
-
 Section BookKeepingForRead.
 
   Variable sig : Type.
@@ -374,7 +291,7 @@ Section BookKeepingForRead.
       + rewrite fin_to_nat_S in *. destruct tps; cbn in *; inv H. destruct H0 as [H0 H0']. split; auto.
       + destruct tps; cbn in *; inv H. split; auto. apply knowsFirstSymbols_nil.
   Qed.
-        
+
   Lemma insertKnownSymbols_correct (n : nat) (readSymbols : Vector.t (option sig) n) (i : Fin.t n) tps1 tps2 :
     length tps1 = fin_to_nat i ->
     length tps1 + length tps2 = n ->
@@ -394,26 +311,6 @@ Section BookKeepingForRead.
         apply insertKnownSymbol_correct; auto.
   Qed.
 
-
-  (*
-  H : knowsFirstSymbols
-        (insertKnownSymbols (current tp ::: Vector.const None n) Fin0
-           (map (current (sig:=sig)) (tp :: vector_to_list T))) ([] ++ tp :: vector_to_list T)
-  ============================
-  insertKnownSymbols (current tp ::: Vector.const None n) Fin0 (vector_to_list (current_chars T)) =
-  current_chars (tp ::: T)
-*)
-
-  Lemma knowsFirstSymbols_all n (tps : list (tape sig)) (symbols : Vector.t (option sig) n) :
-    length tps = n ->
-    knowsFirstSymbols symbols tps ->
-    vector_to_list symbols = map (@current _) tps.
-  Proof.
-    revert tps. induction symbols; cbn; intros.
-    - destruct tps; cbn in *; auto.
-    - destruct tps; cbn in *; inv H. destruct H0 as [ <- ?]. f_equal. auto.
-  Qed.
-
   Lemma knowsFirstSymbols_all' n (T : tapes sig n) (symbols : Vector.t (option sig) n) :
     knowsFirstSymbols symbols (vector_to_list T) ->
     symbols = current_chars T.
@@ -422,8 +319,6 @@ Section BookKeepingForRead.
     - destruct_vector. reflexivity.
     - destruct_vector. unfold current_chars. cbn in *. destruct H as [ <- H]. f_equal. auto.
   Qed.
-
-
 
   Lemma insertKnownSymbols_correct_cons n (T : tapes sig (S n)) (min minSucc : Fin.t (S n)) :
     fin_to_nat min = 0 ->
@@ -486,46 +381,46 @@ Section ToSingleTape.
   Section GoToCurrent.
 
     Definition atStart (t : tape sigSim) (tps : list (tape sig)) : Prop :=
-      t = midtape nil (inl START) (map inr (encode_list _ tps) ++ [inl STOP]).
+      t = midtape nil (inl START) (map inr (encode_list (@encode_tape sig) tps) ++ [inl STOP]).
 
     Definition atCons (t : tape sigSim) (tps1 tps2 : list (tape sig)) (tp : tape sig) : Prop :=
-      t = midtape (map inr (rev (removelast (encode_list _ tps1))) ++ [inl START])
+      t = midtape (map inr (rev (removelast (encode_list (@encode_tape sig) tps1))) ++ [inl START])
                   (inr (sigList_cons))
-                  (map inr (map sigList_X (encode_tape tp)) ++ map inr (encode_list _ tps2) ++ [inl STOP]).
+                  (map inr (map sigList_X (encode_tape tp)) ++ map inr (encode_list (@encode_tape sig) tps2) ++ [inl STOP]).
 
     Definition atNil (t : tape sigSim) (tps : list (tape sig)) : Prop :=
-      t = midtape (map inr (rev (removelast (encode_list _ tps))) ++ [inl START]) (inr (sigList_nil)) [inl STOP].
+      t = midtape (map inr (rev (removelast (encode_list (@encode_tape sig) tps))) ++ [inl START]) (inr (sigList_nil)) [inl STOP].
 
 
     Definition atCons_current_niltape (t : tape sigSim) (tps1 tps2 : list (tape sig)) : Prop :=
       t = midtape
-            (inr (sigList_cons) :: map inr (rev (removelast (encode_list _ tps1))) ++ [inl START])
+            (inr (sigList_cons) :: map inr (rev (removelast (encode_list (@encode_tape sig) tps1))) ++ [inl START])
             (inr (sigList_X NilBlank))
-            (map inr (encode_list _ tps2) ++ [inl STOP]).
+            (map inr (encode_list (@encode_tape sig) tps2) ++ [inl STOP]).
 
     Definition atCons_current_leftof (t : tape sigSim) (tps1 tps2 : list (tape sig)) (r : sig) (rs : list sig) :=
       t = midtape
-            (inr (sigList_cons) :: map inr (rev (removelast (encode_list _ tps1))) ++ [inl START])
+            (inr (sigList_cons) :: map inr (rev (removelast (encode_list (@encode_tape sig) tps1))) ++ [inl START])
             (inr (sigList_X (LeftBlank true)))
             (inr (sigList_X (UnmarkedSymbol r)) ::
                  map (fun s => inr (sigList_X (UnmarkedSymbol s))) rs ++ inr (sigList_X (RightBlank false)) ::
-                 map inr (encode_list _ tps2) ++ [inl STOP]).
+                 map inr (encode_list (@encode_tape sig) tps2) ++ [inl STOP]).
 
     Definition atCons_current_midtape (t : tape sigSim) (tps1 tps2 : list (tape sig)) (ls : list sig) (m : sig) (rs : list sig) :=
       t = midtape
             (map (fun s => inr (sigList_X (UnmarkedSymbol s))) ls ++ (* [ls] is reversed twice *)
-                 inr (sigList_X (LeftBlank false)) :: inr (sigList_cons) :: map inr (rev (removelast (encode_list _ tps1))) ++ [inl START])
+                 inr (sigList_X (LeftBlank false)) :: inr (sigList_cons) :: map inr (rev (removelast (encode_list (@encode_tape sig) tps1))) ++ [inl START])
             (inr (sigList_X (MarkedSymbol m)))
             (map (fun s => inr (sigList_X (UnmarkedSymbol s))) rs ++ inr (sigList_X (RightBlank false)) ::
-                 map inr (encode_list _ tps2) ++ [inl STOP]).
+                 map inr (encode_list (@encode_tape sig) tps2) ++ [inl STOP]).
 
     Definition atCons_current_rightof (t : tape sigSim) (tps1 tps2 : list (tape sig)) (l :sig) (ls : list sig) :=
       t = midtape
             (inr (sigList_X (UnmarkedSymbol l)) ::
                  map (fun s => inr (sigList_X (UnmarkedSymbol s))) ls ++ (* [ls] is reversed twice *)
-                 inr (sigList_X (LeftBlank false)) :: inr (sigList_cons) :: map inr (rev (removelast (encode_list _ tps1))) ++ [inl START])
+                 inr (sigList_X (LeftBlank false)) :: inr (sigList_cons) :: map inr (rev (removelast (encode_list (@encode_tape sig) tps1))) ++ [inl START])
             (inr (sigList_X (RightBlank true)))
-            (map inr (encode_list _ tps2) ++ [inl STOP]).
+            (map inr (encode_list (@encode_tape sig) tps2) ++ [inl STOP]).
 
     Definition atCons_current (t : tape sigSim) (tps1 tps2 : list (tape sig)) (tp : tape sig) :=
       match tp with
@@ -614,36 +509,39 @@ Section ToSingleTape.
         intros tin (yout, tout) H. intros tps1 tps2 tp HCons. unfold atCons in *. TMSimp.
         destruct tp as [ | r rs | l ls | ls m rs]; cbn in *; TMSimp.
         - (* tp = niltape *)
-          do 2 ( rewrite MoveToSymbol_Fun_equation in *; cbn in * ). TMSimp.
-          split; eauto. hnf. reflexivity.
+          do 2 ( rewrite MoveToSymbol_Fun_equation in *; cbn in * ).
+          easy.
         - (* tp = leftof r rs *) 
           do 2 ( rewrite MoveToSymbol_Fun_equation in *; cbn in * ). TMSimp.
-          split; auto. hnf. cbn. f_equal. rewrite !List.map_map, !map_app, <- !app_assoc, !List.map_map. cbn. reflexivity.
+          split; [|reflexivity].
+          hnf. cbn. f_equal. rewrite !List.map_map, !map_app, <- !app_assoc, !List.map_map.
+          reflexivity.
         - (* tp = rightof l ls *)
           replace (inr (sigList_X (LeftBlank false)) ::
                        map inr (map sigList_X (map UnmarkedSymbol (rev ls) ++ [UnmarkedSymbol l; RightBlank true])) ++
-                       map inr (encode_list (Encode_tape (eqType_X (type sig))) tps2) ++ [inl STOP]) with
+                       map inr (encode_list (@encode_tape (eqType_X (type sig))) tps2) ++ [inl STOP]) with
               ((inr (sigList_X (LeftBlank false)) :: map inr (map sigList_X (map UnmarkedSymbol (rev ls) ++ [UnmarkedSymbol l])))
-                 ++ inr (sigList_X (RightBlank true)) :: (map inr (encode_list (Encode_tape (eqType_X (type sig))) tps2) ++ [inl STOP]))
+                 ++ inr (sigList_X (RightBlank true)) :: (map inr (encode_list (@encode_tape (eqType_X (type sig))) tps2) ++ [inl STOP]))
             by (now simpl_list; cbn; rewrite <- !app_assoc).
           rewrite MoveToSymbol_correct_midtape; cbn; auto.
-          + cbn in *. TMSimp. split; auto. hnf. f_equal.
-            rewrite !map_id, !List.map_map. cbv [id].
-            rewrite !map_app; cbn. rewrite !List.map_map. rewrite rev_app_distr. cbn. rewrite !map_rev, rev_involutive, <- app_assoc. reflexivity.
+          + split; [|reflexivity]. hnf. f_equal.
+            rewrite !map_id, !List.map_map.
+            rewrite !map_app; cbn. rewrite !List.map_map. rewrite rev_app_distr. cbn.
+            rewrite !map_rev, rev_involutive, <- app_assoc. reflexivity.
           + rewrite !map_app, !List.map_map. cbn. intros ? [<- | [(?&<-&?)%in_map_iff | [<- | ?]] % in_app_iff ]; cbn; auto.
         - (* tp = midtape ls m rs *)
           replace (inr (sigList_X (LeftBlank false)) ::
-                       map inr (map sigList_X (map UnmarkedSymbol (rev ls) ++ MarkedSymbol m :: map UnmarkedSymbol rs ++ [RightBlank false])) ++ map inr (encode_list (Encode_tape (eqType_X (type sig))) tps2) ++ [inl STOP]) with
+                       map inr (map sigList_X (map UnmarkedSymbol (rev ls) ++ MarkedSymbol m :: map UnmarkedSymbol rs ++ [RightBlank false])) ++ map inr (encode_list (@encode_tape (eqType_X (type sig))) tps2) ++ [inl STOP]) with
               ((inr (sigList_X (LeftBlank false)) :: map inr (map sigList_X (map UnmarkedSymbol (rev ls))))
                  ++ inr (sigList_X (MarkedSymbol m)) ::
                  (map inr (map sigList_X (map UnmarkedSymbol rs ++ [RightBlank false])) ++
-                      map inr (encode_list (Encode_tape (eqType_X (type sig))) tps2) ++ [inl STOP])).
+                      map inr (encode_list (@encode_tape (eqType_X (type sig))) tps2) ++ [inl STOP])).
           rewrite MoveToSymbol_correct_midtape; cbn; auto.
-          + cbn in *. TMSimp. split; auto. hnf.
-            rewrite !map_id, !List.map_map. cbv [id].
-            rewrite !map_app; cbn. rewrite !List.map_map, <- !app_assoc. rewrite map_rev, rev_involutive. f_equal.
+          + split; [|reflexivity]. 
+            rewrite !map_id, !List.map_map.
+            rewrite !map_app; cbn. rewrite !List.map_map, <- !app_assoc. rewrite map_rev, rev_involutive. reflexivity.
           + rewrite !List.map_map. intros ? [ <- | (?&<-&?) % in_map_iff]; cbn; auto.
-          + simpl_list. cbn. f_equal. f_equal. f_equal. rewrite !map_app, <- !app_assoc. cbn. f_equal.
+          + simpl_list. cbn. f_equal. f_equal. f_equal. rewrite !map_app, <- !app_assoc. reflexivity.
       }
     Qed.
 
@@ -676,19 +574,19 @@ Section ToSingleTape.
           - (* [tp = rightof l ls] *)
             replace (inr (sigList_X (LeftBlank false)) ::
                          map inr (map sigList_X (map UnmarkedSymbol (rev ls) ++ [UnmarkedSymbol l; RightBlank true])) ++
-                         map inr (encode_list (Encode_tape (eqType_X (type sig))) tps2) ++ [inl STOP]) with
+                         map inr (encode_list (@encode_tape (eqType_X (type sig))) tps2) ++ [inl STOP]) with
                 ((inr (sigList_X (LeftBlank false)) :: map inr (map sigList_X (map UnmarkedSymbol (rev ls) ++ [UnmarkedSymbol l])))
-                   ++ inr (sigList_X (RightBlank true)) :: (map inr (encode_list (Encode_tape (eqType_X (type sig))) tps2) ++ [inl STOP]))
+                   ++ inr (sigList_X (RightBlank true)) :: (map inr (encode_list (@encode_tape (eqType_X (type sig))) tps2) ++ [inl STOP]))
               by (now simpl_list; cbn; rewrite <- !app_assoc).
             rewrite MoveToSymbol_steps_midtape; cbn; auto.
             simpl_list. cbn. rewrite Nat.mul_succ_r. cbn. lia.
           - (* tp = midtape ls m rs *)
             replace (inr (sigList_X (LeftBlank false)) ::
-                         map inr (map sigList_X (map UnmarkedSymbol (rev ls) ++ MarkedSymbol m :: map UnmarkedSymbol rs ++ [RightBlank false])) ++ map inr (encode_list (Encode_tape (eqType_X (type sig))) tps2) ++ [inl STOP]) with
+                         map inr (map sigList_X (map UnmarkedSymbol (rev ls) ++ MarkedSymbol m :: map UnmarkedSymbol rs ++ [RightBlank false])) ++ map inr (encode_list (@encode_tape (eqType_X (type sig))) tps2) ++ [inl STOP]) with
                 ((inr (sigList_X (LeftBlank false)) :: map inr (map sigList_X (map UnmarkedSymbol (rev ls))))
                    ++ inr (sigList_X (MarkedSymbol m)) ::
                    (map inr (map sigList_X (map UnmarkedSymbol rs ++ [RightBlank false])) ++
-                        map inr (encode_list (Encode_tape (eqType_X (type sig))) tps2) ++ [inl STOP])).
+                        map inr (encode_list (@encode_tape (eqType_X (type sig))) tps2) ++ [inl STOP])).
             rewrite MoveToSymbol_steps_midtape; cbn; auto.
             + simpl_list. cbn. lia.
             + simpl_list. cbn. f_equal. f_equal. f_equal. rewrite !map_app, <- !app_assoc. cbn. f_equal.
@@ -1304,37 +1202,8 @@ Section ToSingleTape.
       }
     Qed.
 
-
-    (*
-    Definition tape_size (tp : tape sig) : nat :=
-      match tp with
-      | niltape _ => 1
-      | rightof l ls => 3 + length ls
-      | leftof r rs => 3 + length rs
-      | midtape ls m rs => 3 + length ls + length rs
-      end.
-
-    Fixpoint tapes_size (tps : list (tape sig)) : nat :=
-      match tps with
-      | nil => 1
-      | tp :: tps' => 1 + tape_size tp + tapes_size tps'
-      end.
-
-    Lemma tape_size_length (tp : tape sig) :
-      tape_size tp = length (encode_tape tp).
-    Proof. destruct tp eqn:E; cbn; simpl_list; cbn; auto. all: try lia. simpl_list. cbn. lia. Qed.
-
-    Lemma tapes_size_length (tps : list (tape sig)) :
-      tapes_size tps = length (encode_list _ tps).
-    Proof.
-      induction tps as [ | tp tsp].
-      - cbn. reflexivity.
-      - cbn.  simpl_list. rewrite <- IHtsp. cbn. rewrite <- tape_size_length. lia.
-    Qed.
-    *)
-
     Definition MoveToStart_steps (tps : list (tape sig)) :=
-      8 + 4 * length (encode_list _ tps).
+      8 + 4 * length (encode_list (@encode_tape sig) tps).
     
     Definition MoveToStart_T : tRel sigSim 1 :=
       fun tin k => exists tps, atNil tin[@Fin0] tps /\ MoveToStart_steps tps <= k.
@@ -1425,53 +1294,55 @@ Section ToSingleTape.
     Proof.
       unfold DoWrite. destruct d as [ [ | | ] | ].
       { (* Some Lmove (leftof) *) eapply Realise_monotone. { now auto with nocore TMdb. }
-        intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons. unfold atCons_current in *. TMSimp.
-        destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir; TMSimp. simpl_tape.
+        intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
+        destruct tp as [ | r rs | l ls | ls m rs ]; [discriminate| |discriminate|discriminate].
+        unfold atCons_current in *. TMSimp. simpl_tape.
         unfold atCons_current_leftof in HCons. TMSimp.
         rewrite app_comm_cons. rewrite Shift_L_fun_correct_midtape; auto.
-        rewrite app_comm_cons'. rewrite MoveToSymbol_correct_midtape; cbn; auto.
-        - hnf. cbn. f_equal. f_equal. rewrite map_id, rev_app_distr; cbn; cbv [id].
+        rewrite app_comm_cons'. rewrite MoveToSymbol_correct_midtape; auto.
+        - hnf. cbn. f_equal. f_equal. rewrite map_id, rev_app_distr; cbn.
           rewrite rev_app_distr. cbn. rewrite rev_involutive. reflexivity.
-        - rewrite map_rev, rev_involutive.
-          intros ? [ [ (?&<-&?) % in_map_iff | [ <- | ] ] % in_app_iff | [ <- | ] ] % in_app_iff; cbn; auto.
+        - intros ?. cbn. rewrite map_rev, rev_involutive.
+          intros [ [ (?&<-&?) % in_map_iff | [ <- | ] ] % in_app_iff | [ <- | ] ] % in_app_iff; auto.
       }
       { (* Some Rmove (rightof) *) eapply Realise_monotone. { now auto with nocore TMdb. }
-        intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons. unfold atCons_current in *. TMSimp.
-        destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir; TMSimp. simpl_tape.
+        intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
+        destruct tp as [ | r rs | l ls | ls m rs ]; [discriminate|discriminate| |discriminate].
+        unfold atCons_current in *. TMSimp. simpl_tape.
         unfold atCons_current_rightof in HCons. TMSimp.
         rewrite Shift_fun_correct_midtape; auto.
         rewrite app_comm_cons'. rewrite MoveToSymbol_L_correct_midtape; cbn; auto.
-        - hnf. cbn. f_equal. f_equal. rewrite map_id, rev_app_distr; cbn. now rewrite rev_involutive.
-        - intros ? [ (?&<-&?) % in_rev % in_map_iff | [ <- | ] ] % in_app_iff; cbn; auto.
+        - hnf. f_equal. cbn. f_equal. rewrite map_id, rev_app_distr; cbn. now rewrite rev_involutive.
+        - intros ? [ (?&<-&?) % in_rev % in_map_iff | [ <- | ] ] % in_app_iff; auto.
       }
       { (* Some Nmove (midtape) *) eapply Realise_monotone. { now auto with nocore TMdb. }
-        intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons. unfold atCons_current in *. TMSimp.
-        destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir; TMSimp.
-        unfold atCons_current_midtape in HCons. TMSimp.
-        hnf. cbn. reflexivity.
+        intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
+        destruct tp as [ | r rs | l ls | ls m rs ]; [discriminate|discriminate|discriminate|].
+        unfold atCons_current in *.
+        cbn. unfold atCons_current_midtape in HCons. TMSimp.
+        reflexivity.
       }
       { (* None (niltape) *) eapply Realise_monotone. { now auto 7 with nocore TMdb. }
-        intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons. unfold atCons_current in *. TMSimp.
-        destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir; TMSimp.
-        unfold atCons_current_niltape in HCons. TMSimp.
-        simpl_tape. rewrite Shift_fun_correct_midtape; auto. cbn.
+        intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
+        destruct tp as [ | r rs | l ls | ls m rs ]; [|discriminate|discriminate|discriminate].
+        unfold atCons_current in *. unfold atCons_current_niltape in HCons. TMSimp.
+        rewrite Shift_fun_correct_midtape; auto.
         rewrite app_comm_cons'. rewrite MoveToSymbol_L_correct_midtape; cbn; auto.
         + rewrite app_comm_cons. rewrite Shift_L_fun_correct_midtape; auto; cbn.
           rewrite map_rev, rev_involutive, !map_id. rewrite MoveToSymbol_correct_midtape; cbn; auto.
-          * simpl_tape. rewrite !map_id. cbv [id]. cbn. rewrite !rev_app_distr. cbn.
-            hnf. cbn. rewrite <- !map_rev. rewrite !rev_involutive. reflexivity.
-          * intros ? [ (?&<-&?) % in_map_iff | [ <- | ] ] % in_app_iff; cbn; auto.
-        + intros ? [ (?&<-&?) % in_rev % in_map_iff | [ <- | ] ] % in_app_iff; cbn; auto.
+          * rewrite !map_id, !rev_app_distr.
+            hnf. rewrite <- !map_rev. rewrite !rev_involutive. reflexivity.
+          * intros ? [ (?&<-&?) % in_map_iff | [ <- | ] ] % in_app_iff; auto.
+        + intros ? [ (?&<-&?) % in_rev % in_map_iff | [ <- | ] ] % in_app_iff; auto.
       }
     Qed.
 
-
     Definition DoWrite_steps (d : option move) (tps1 tps2 : list (tape sig)) :=
       match d with
-      | Some Lmove => 37 + 8 * length (encode_list _ tps1)
-      | Some Rmove => 37 + 8 * length (encode_list _ tps2)
+      | Some Lmove => 37 + 8 * length (encode_list (@encode_tape sig) tps1)
+      | Some Rmove => 37 + 8 * length (encode_list (@encode_tape sig) tps2)
       | Some Nmove => 1
-      | None => 73 + 8 * length (encode_list _ tps1) + 8 * length (encode_list _ tps2)
+      | None => 73 + 8 * length (encode_list (@encode_tape sig) tps1) + 8 * length (encode_list (@encode_tape sig) tps2)
       end.
 
     Definition DoWrite_T (d : option move) : tRel sigSim 1 :=
@@ -1484,10 +1355,11 @@ Section ToSingleTape.
         intros tin k (tps1&tps2&tp&HDir&HCons&Hk). cbn in *.
         destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir.
         unfold atCons_current_leftof in HCons. TMSimp.
-        exists (16 + 4 * length (encode_list _ tps1)), (20 + 4 * length (encode_list _ tps1)). repeat split.
-        { rewrite Shift_steps_local. simpl_list; cbn. rewrite removelast_length. lia. }
+        exists (16 + 4 * length (encode_list (@encode_tape sig) tps1)), (20 + 4 * length (encode_list (@encode_tape sig) tps1)). repeat split.
+        { etransitivity. { apply Nat.add_le_mono_l, Nat.add_le_mono_l, Shift_steps_local. }
+          simpl_list; cbn. rewrite removelast_length. lia. }
         { lia. }
-        intros tmid [] ->. exists (16 + 4 * length (encode_list _ tps1)), 3. repeat split.
+        intros tmid [] ->. exists (16 + 4 * length (encode_list (@encode_tape sig) tps1)), 3. repeat split.
         { rewrite app_comm_cons. rewrite Shift_L_fun_correct_midtape; auto. rewrite app_comm_cons'. rewrite MoveToSymbol_steps_midtape; cbn; auto.
           simpl_list. rewrite removelast_length. cbn. lia. }
         { lia. }
@@ -1497,10 +1369,11 @@ Section ToSingleTape.
         intros tin k (tps1&tps2&tp&HDir&HCons&Hk). cbn in *.
         destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir.
         unfold atCons_current_rightof in HCons. TMSimp.
-        exists (16 + 4 * length (encode_list _ tps2)), (20 + 4 * length (encode_list _ tps2)). repeat split.
-        { rewrite Shift_steps_local. simpl_list; cbn. lia. }
+        exists (16 + 4 * length (encode_list (@encode_tape sig) tps2)), (20 + 4 * length (encode_list (@encode_tape sig) tps2)). repeat split.
+        { etransitivity. { apply Nat.add_le_mono_l, Shift_steps_local. }
+          simpl_list; cbn. lia. }
         { lia. }
-        intros tmid [] ->. exists (16 + 4 * length (encode_list _ tps2)), 3. repeat split.
+        intros tmid [] ->. exists (16 + 4 * length (encode_list (@encode_tape sig) tps2)), 3. repeat split.
         { rewrite app_comm_cons. rewrite Shift_fun_correct_midtape; auto. rewrite app_comm_cons'. rewrite MoveToSymbol_L_steps_midtape; cbn; auto.
           simpl_list. cbn. lia. }
         { lia. }
@@ -1514,16 +1387,18 @@ Section ToSingleTape.
         destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir.
         unfold atCons_current_niltape in HCons. TMSimp.
         rewrite Shift_fun_correct_midtape; auto. cbn.
-        exists (16 + 4 * length (encode_list _ tps2)), (56 + 8 * length (encode_list _ tps1) + 4 * length (encode_list _ tps2)). repeat split; try lia.
-        { rewrite Shift_steps_local. simpl_list. cbn. lia. }
-        intros tmid [] ->. exists (16 + 4 * length (encode_list _ tps2)), (39 + 8 * length (encode_list _ tps1)). repeat split; try lia.
+        exists (16 + 4 * length (encode_list (@encode_tape sig) tps2)), (56 + 8 * length (encode_list (@encode_tape sig) tps1) + 4 * length (encode_list (@encode_tape sig) tps2)). repeat split; try lia.
+        { etransitivity. { apply Nat.add_le_mono_l, Shift_steps_local. }
+          simpl_list. cbn. lia. }
+        intros tmid [] ->. exists (16 + 4 * length (encode_list (@encode_tape sig) tps2)), (39 + 8 * length (encode_list (@encode_tape sig) tps1)). repeat split; try lia.
         { rewrite app_comm_cons. rewrite app_comm_cons'. rewrite MoveToSymbol_L_steps_midtape; cbn; auto. simpl_list. cbn. lia. }
         intros tmid0 [] ->.
         rewrite app_comm_cons. rewrite app_comm_cons'. rewrite MoveToSymbol_L_correct_midtape; cbn; auto.
         2: { intros ? [ (?&<-&?) % in_rev % in_map_iff | [ <- | ] ] % in_app_iff; cbn; auto. }
-        exists (16 + 4 * length (encode_list _ tps1)), (22 + 4 * length (encode_list _ tps1)). repeat split; try lia.
-        { rewrite Shift_steps_local. simpl_list. cbn. rewrite removelast_length. lia. }
-        intros tmid1 [] ->. exists (16 + 4 * length (encode_list _ tps1)), (5). repeat split; try lia.
+        exists (16 + 4 * length (encode_list (@encode_tape sig) tps1)), (22 + 4 * length (encode_list (@encode_tape sig) tps1)). repeat split; try lia.
+        { etransitivity. { apply Nat.add_le_mono_l, Nat.add_le_mono_l, Shift_steps_local. }
+          simpl_list. cbn. rewrite removelast_length. lia. }
+        intros tmid1 [] ->. exists (16 + 4 * length (encode_list (@encode_tape sig) tps1)), (5). repeat split; try lia.
         { rewrite app_comm_cons. rewrite Shift_L_fun_correct_midtape; auto. rewrite MoveToSymbol_steps_midtape; cbn; auto.
           simpl_list. rewrite removelast_length. cbn. lia. }
         (* constant time *)
@@ -1580,7 +1455,7 @@ Section ToSingleTape.
         intros [[|[| |]]|].
         all: auto using le with nocore TMdb. }
       { reflexivity. }
-      { intros tin ([], tout) H. intros ls m rs Hmidtape. TMCrush; TMSolve 1. }
+      { intros tin ([], tout) H. intros ls m rs Hmidtape. TMSimp. reflexivity. }
     Qed.
 
     #[local] Hint Extern 1 (ToggleMarked ⊨c(_) _) => eapply ToggleMarked_Sem : TMdb.
@@ -2162,15 +2037,15 @@ Section ToSingleTape.
       { unfold Loop. now auto with nocore TMdb. }
       {
         apply StateWhileInduction; intros; intros T HEncT; TMSimp.
-        - modpon HLastStep. unfold haltConf in *; cbn in *. destruct (halt l) eqn:E.
-          + destruct HLastStep as [HLastStep HLastStep']; inv HLastStep'.
-            eexists; exists 0. cbn. unfold haltConf; cbn. rewrite E. repeat split; eauto.
-          + destruct (step _). destruct HLastStep as [_ ?]; congruence.
-        - modpon HStar. unfold haltConf in *; cbn in *. destruct (halt l) eqn:E.
-          + destruct HStar as [HStar HStar']; inv HStar'.
-          + destruct (step _) as [q' T'] eqn:E'. destruct HStar as [HStar HStar']; inv HStar'.
-            modpon HLastStep. destruct HLastStep as (c'&k&HLastStep&HLastStep'&->).
-            eexists. exists (S k). cbn. unfold haltConf in *; cbn in *. rewrite E, E'. repeat split; eauto.
+        - specialize (HLastStep _ HEncT). destruct (halt l) eqn:E.
+          + destruct HLastStep as [HLastStep [= HLastStep']].
+            eexists _, 0. cbn. unfold haltConf. cbn. rewrite E. repeat split; auto.
+          + destruct (step _). destruct HLastStep as [_ [= ?]].
+        - specialize (HStar _ HEncT). destruct (halt l) eqn:E.
+          + destruct HStar as [HStar [= HStar']].
+          + destruct (step _) as [q' T'] eqn:E'. destruct HStar as [HStar [= HStar']].
+            specialize (HLastStep _ HStar). destruct HLastStep as (c'&k&HLastStep&HLastStep'&->).
+            eexists _, (S k). cbn. unfold haltConf. cbn. rewrite E, E'. subst. repeat split; auto.
       }
     Qed.
 
@@ -2207,11 +2082,13 @@ Section ToSingleTape.
 
     Local Arguments doAct_multi : simpl never.
 
+
     Lemma Loop_Terminates q : projT1 (Loop q) ↓ Loop_T q.
     Proof.
       eapply TerminatesIn_monotone.
       { unfold Loop. now auto with nocore TMdb. }
-      { revert q. apply StateWhileCoInduction; intros q; intros. destruct HT as (T&kn&outc&HLoop&HEncT&Hk). rewrite Loop_steps_eq in Hk. unfold Step_T, Step_Rel.
+      { revert q. apply StateWhileCoInduction; intros q; intros. destruct HT as (T&kn&outc&HLoop&HEncT&Hk).
+        rewrite Loop_steps_eq in Hk. unfold Step_T, Step_Rel.
         destruct (halt q) eqn:E; cbn in *.
         - exists 0. split; auto. intros ymid tmid HStep. specialize HStep with (1 := HEncT) as (HStep&->). auto.
         - destruct kn as [ | kn']; cbn in *.
@@ -2259,8 +2136,8 @@ Section ToSingleTape.
       {
         intros tin (yout, tout) H. cbn in *.
         hnf in M_Realise.
-        intros T HEncT. specialize H with (1 := HEncT) as (c'&k&HLoop&HEncT'&->).
-        specialize M_Realise with (1 := HLoop). exists (ctapes c'). auto.
+        intros T HEncT. specialize (H _ HEncT) as (c'&k&HLoop&HEncT'&->).
+        specialize (M_Realise _ _ _ HLoop). exists (ctapes c'). auto.
       }
     Qed.
 
@@ -2276,7 +2153,9 @@ Section ToSingleTape.
     Proof.
       intros HTerm. eapply TerminatesIn_monotone.
       { apply ToSingleTape_Terminates. }
-      { intros tin k (T&kn&HEncT&HT&Hk). hnf. hnf in HTerm. specialize HTerm with (1 := HT) as (oconf&HLoop). do 3 eexists. repeat split; eauto. }
+      { intros tin k (T&kn&HEncT&HT&Hk). hnf. hnf in HTerm.
+        specialize (HTerm _ _ HT) as (oconf&HLoop).
+        do 3 eexists. repeat split; eauto. }
     Qed.
 
   End Loop.

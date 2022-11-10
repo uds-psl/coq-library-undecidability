@@ -5,6 +5,8 @@ From Undecidability Require Import TM.Combinators.Combinators.
 
 From Undecidability Require Import TM.Compound.TMTac.
 
+Set Default Goal Selector "!".
+
 (* * Simple compound multi-tape Machines *)
 
 

@@ -3,6 +3,8 @@ Require Import List.
 From Undecidability Require Import TMTac.
 From Coq Require Import List.
 
+Set Default Goal Selector "!".
+
 (* Useful for running time stuff *)
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
@@ -95,84 +97,6 @@ End Write_String.
 
 Arguments WriteString : simpl never.
 Arguments WriteString_Rel {sig} (D) (str) x y/.
-
-Lemma skipn_S (X : Type) (xs : list X) (n : nat) :
-  skipn (S n) xs = tl (skipn n xs).
-Proof.
-  revert xs. induction n as [ | n IH]; intros; cbn in *.
-  - destruct xs; auto.
-  - destruct xs; auto.
-Qed.
-
-(*
-Compute skipn 3 (tl [1;2;3;4;5;6;7]).
-Compute tl (skipn 3 [1;2;3;4;5;6;7]).
-*)
-
-Lemma skipn_tl (X : Type) (xs : list X) (n : nat) :
-  skipn n (tl xs) = tl (skipn n xs).
-Proof.
-  revert xs. induction n as [ | n IH]; intros; cbn in *.
-  - destruct xs; auto.
-  - destruct xs; cbn; auto.
-    replace (match xs with
-             | [] => []
-             | _ :: l => skipn n l
-             end)
-      with (skipn n (tl xs)); auto.
-    destruct xs; cbn; auto. apply skipn_nil.
-Qed.
-
-
-Lemma WriteString_L_local (sig : Type) (str : list sig) t :
-  str <> nil ->
-  tape_local (WriteString_Fun Lmove t str) = rev str ++ right t.
-Proof.
-  revert t. induction str as [ | s [ | s' str'] IH]; intros; cbn in *.
-  - tauto.
-  - reflexivity.
-  - rewrite IH. 2: congruence. simpl_tape. rewrite <- !app_assoc. reflexivity.
-Qed.
-
-(*
-Section Test.
-  Let t : tape nat := midtape [3;2;1] 4 [5;6;7].
-  Let str := [3;2;1].
-  Compute WriteString_Fun Lmove t str.
-  Compute (left t).
-  Compute (left (WriteString_Fun Lmove t str)).
-  Compute (skipn (length str - 1) (left t)).
-End Test.
-*)
-
-Lemma WriteString_L_left (sig : Type) (str : list sig) t :
-  left (WriteString_Fun Lmove t str) = skipn (pred (length str)) (left t).
-Proof.
-  revert t. induction str as [ | s [ | s' str'] IH]; intros; cbn -[skipn] in *.
-  - reflexivity.
-  - reflexivity.
-  - rewrite IH. simpl_tape. now rewrite skipn_S, skipn_tl.
-Qed.
-
-Lemma WriteString_L_right (sig : Type) (str : list sig) t :
-   right (WriteString_Fun Lmove t str) = tl (rev str) ++ right t.
-Proof.
-  revert t. induction str as [ | s [ | s' str'] IH]; intros; cbn in *.
-  - tauto.
-  - reflexivity.
-  - rewrite IH. simpl_tape. destruct (rev str'); [easy|].
-    cbn. now rewrite <- !app_assoc.
-Qed.
-
-Lemma WriteString_L_current (sig : Type) (str : list sig) t :
-   current (WriteString_Fun Lmove t str) = hd None (map Some (rev str ++ tape_local t)).
-Proof.
-  revert t. induction str as [ | s [ | s' str'] IH]; intros; cbn in *.
-  - now destruct t.
-  - reflexivity.
-  - rewrite IH. autorewrite with list. setoid_rewrite app_assoc at 1 2.
-    cbn. now destruct (map Some (rev str')); cbn.
-Qed.
 
 #[export] Hint Extern 1 (WriteString _ _ ⊨ _) => eapply RealiseIn_Realise; eapply WriteString_Sem : TMdb.
 #[export] Hint Extern 1 (WriteString _ _ ⊨c(_) _) => eapply WriteString_Sem : TMdb.
