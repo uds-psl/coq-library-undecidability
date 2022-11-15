@@ -1,44 +1,8 @@
-From Undecidability Require Import TM.Util.Prelim TM.Util.TM_facts.
-From Undecidability.TM Require Import CodeTM. (* for [simpl_not_in] *)
+From Undecidability Require Import TM.Util.TM_facts.
+
+Set Default Goal Selector "!".
 
 (* * Tactics that help verifying complex machines *)
-
-
-(* This tactic automatically solves/instantiates premises of a hypothesis. If the hypothesis is a conjunction, it is destructed. *)
-Ltac modpon' H :=
-  (*simpl_surject;*)
-  once lazymatch type of H with
-  | forall (i : Fin.t _), ?P => idtac
-  | forall (x : ?X), ?P =>
-    once lazymatch type of X with
-    | Prop =>
-      tryif spec_assert H by
-          ((*simpl_surject;*)
-           solve [ eauto
-                 (*| contains_ext
-                 | isVoid_mono*)
-                 ]
-          )
-      then idtac (* "solved premise of type" X *);
-           modpon' H
-      else (spec_assert H;
-            [ idtac (* "could not solve premise" X *) (* new goal for the user *)
-            | modpon' H (* continue after the user has proved the premise manually *)
-            ]
-           )
-    | _ =>
-      (* instantiate variable [x] with evar *)
-      let x' := fresh "x" in
-      evar (x' : X); specialize (H x'); subst x';
-      modpon' H
-    end
-  | ?X /\ ?Y =>
-    let H' := fresh H in
-    destruct H as [H H']; modpon' H; modpon' H'
-  | _ => idtac
-  end.
-
-Ltac modpon H := progress (modpon' H).
 
 Ltac destruct_param_tape_pair :=
   once lazymatch goal with
@@ -53,14 +17,6 @@ Ltac destruct_unit :=
          | [ x : unit |- _ ] => destruct x
          end.
 
-
-
-(* Rewrite [eq]-assumptions, but only in the goal. This is much faster than [TMSimp]. *)
-Ltac TMSimp_goal :=
-  repeat multimatch goal with
-         | [ H : ?X = _ |- _ ] => rewrite H
-         end.
-
 Fixpoint all_vec {X:Type} {n:nat}  {struct n}: (Vector.t X n -> Prop) -> Prop :=
   match n with
       0 => fun A => A (@Vector.nil _)
@@ -70,14 +26,18 @@ Fixpoint all_vec {X:Type} {n:nat}  {struct n}: (Vector.t X n -> Prop) -> Prop :=
 Lemma all_vec_correct {X:Type} {n:nat} (P : Vector.t X n -> Prop):
   all_vec P -> forall xs, P xs.
 Proof.  
-  revert P. induction n;cbn;intros. now apply Vector.case0.
-  intros. apply Vector.caseS'. intro. now eapply IHn.
-Qed.    
+  revert P. induction n;cbn;intros.
+  - now apply Vector.case0.
+  - intros. apply Vector.caseS'. intro. now eapply IHn.
+Qed.
+
 Lemma all_vec_correct2 {X:Type} {n:nat} (P : Vector.t X n -> Prop):
 (forall xs, P xs) -> all_vec P.
 Proof.  
-  revert P. induction n;cbn;intros. now apply Vector.case0. eauto.
-Qed.  
+  revert P. induction n;cbn;intros.
+  - now apply Vector.case0.
+  - eauto.
+Qed.
 
 Tactic Notation "vector_destruct" hyp(tin) :=
   let rec introT n :=
@@ -100,7 +60,15 @@ Tactic Notation "vector_destruct" hyp(tin) :=
 Lemma eq_nth_iff' X n (v w : Vector.t X n):
 (forall i : Fin.t n, v[@i] = w[@i]) -> v = w.
 Proof. intros. eapply Vector.eq_nth_iff. now intros ? ? ->. Qed.
-  
+
+Lemma list_cons_inj {X : Type} {x1 x2 : X} {l1 l2 : list X} :
+  x1 :: l1 = x2 :: l2 -> x1 = x2 /\ l1 = l2.
+Proof. intros H. now inversion H. Qed.
+
+Lemma Some_inj {X : Type} {x1 x2 : X} :
+  Some x1 = Some x2 -> x1 = x2.
+Proof. intros H. now inversion H. Qed.
+
 Ltac TMSimp1 T :=
   try destruct_param_tape_pair; destruct_unit;
   (*simpl_not_in;*)
@@ -121,10 +89,9 @@ Ltac TMSimp1 T :=
 
   | [ H : _ ::  _ = []  |- _ ] => discriminate H
   | [ H : [] = _ :: _ |- _ ] => discriminate H
-  | [ H : _ ::  _ = _ :: _ |- _ ] => inv H
+  | [ H : _ ::  _ = _ :: _ |- _ ] => apply list_cons_inj in H
 
-
-  | [ H : Some _ = Some _ |- _ ] => inv H
+  | [ H : Some _ = Some _ |- _ ] => apply Some_inj in H; subst
   | [ H : None   = Some _ |- _ ] => discriminate H
   | [ H : Some _ = None   |- _ ] => discriminate H
 
@@ -139,6 +106,8 @@ Ltac TMSimp1 T :=
       destruct H as (ymid&H)
     end
   | [ x : _ * _    |- _ ] => destruct x
+  | [ H : ?x = _ |- _ ] => is_var x;subst x
+  | [ H : _ = ?x |- _ ] => is_var x;symmetry in H;subst x
   end.
 
   Ltac TMSimp2 :=
@@ -158,50 +127,3 @@ Tactic Notation "TMSimp" tactic(T) :=
   repeat progress (repeat progress TMSimp1 T; repeat TMSimp2; unlock all).
 
 Tactic Notation "TMSimp" := TMSimp idtac.
-
-
-(* DO NOT USE THE FOLLOWING (deprecated) TACTICS, except in [TM.Compound]! *)
-
-Tactic Notation "TMBranche" :=
-  (
-    match goal with
-    | [ H : context [ match ?x with _ => _ end ] |- _ ] => let E := fresh "E" in destruct x eqn:E
-    | [   |- context [ match ?x with _ => _ end ]     ] => let E := fresh "E" in destruct x eqn:E
-    | [ H : _ \/ _ |- _] => destruct H
-    | [ IH : ?P -> ?Q |- _] =>
-      match type of P with
-      | Prop => spec_assert IH; [ clear IH | ]
-      end
-
-    | [ x : bool        |- _ ] => destruct x
-    | [ x : option _ |- _ ] => destruct x
-
-    | [   |- ex ?P    ] => eexists
-    | [ H : _ \/ _ |- _] => destruct H
-    end
-  ).
-
-Tactic Notation "TMSolve" int_or_var(k) :=
-  repeat progress first [
-           match goal with
-           | [ |- (_ ::: _) = (_ ::: _) ] => f_equal
-           | [ |- Some _ = Some _ ] => f_equal
-           | [ |- _ /\ _ ] => split
-           end
-           || congruence
-           || eauto k
-         ].
-
-Tactic Notation "TMCrush" tactic(T) :=
-  repeat progress
-         (
-           TMSimp T;
-           try TMBranche
-         ).
-
-Tactic Notation "TMCrush" :=
-  repeat progress
-         (
-           TMSimp;
-           try TMBranche
-         ).

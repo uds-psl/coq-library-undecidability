@@ -1,75 +1,8 @@
 From Undecidability Require Import TM.Util.Prelim.
 Require Import Coq.Lists.List.
 
-(* * Codable Class **)
+Set Default Goal Selector "!".
 
-
-(* Class of minimally codable types *)
-Class codable (sig: Type) (X: Type) := {
-  encode : X -> list sig;
-}.
-Arguments encode {sig} {X} {_}.
-
-(* either the type or the alphabet must be know at head: *)
-#[export] Hint Mode codable - ! : typeclass_instances.
-#[export] Hint Mode codable ! - : typeclass_instances.
-
-#[export] Hint Extern 4 (codable (FinType(EqType ?sigX)) ?X) => cbn : typeclass_instances.
-
-(* We often use the above coercion to write [cX x] instead of [encode x], because [encode x] can be ambigious, see [Encode_map] *)
-Coercion encode : codable >-> Funclass.
-
-Definition size (sig X : Type) (cX : codable sig X) (x : X) := length (cX x).
-Arguments size {sig X cX} x, {_ _} _ _ (*legacy with two arguments*).
-
-#[global]
-Instance Encode_unit : codable Empty_set unit :=
-  {|
-    encode x := nil
-  |}.
-
-#[global]
-Instance Encode_bool : codable bool bool:=
-  {|
-    encode x := [x]
-  |}.
-
-#[global]
-Instance Encode_Fin n : codable (Fin.t n) (Fin.t n):=
-  {|
-    encode i := [i]
-  |}.
-
-Section Encode_Finite.
-  Variable sig : finType.
-
-  (* This instance is not declared globally, because of overlaps *)
-  Local Instance Encode_Finite : codable sig sig :=
-    {|
-      encode x := [x];
-    |}.
-
-End Encode_Finite.
-
-
-(*
-(* [Encode_map] is no longer an instance for [codable] *)
-
-Section Encode_map.
-  Variable (X : Type).
-  Variable (sig tau : Type).
-  Hypothesis (cX : codable sig X).
-
-  Variable Retr_f : sig -> tau.
-  Variable inj : forall x1 x2, Retr_f x1 = Retr_f x2 -> x1 = x2.
-
-  Definition Encode_map : codable tau X :=
-    {|
-      encode x := map Retr_f (encode x);
-    |}.
-
-End Encode_map.
-*)
 Ltac build_eq_dec :=
   let x := fresh "x" in
   let y := fresh "y" in
@@ -87,7 +20,6 @@ Proof.
   - decide (x = a) as [-> | Hx]; auto. congruence.
 Qed.
 
-
 Lemma countMap_zero (X Y : eqType) (A : list X) (y : Y) (f : X -> Y) :
   (forall x, f x <> y) ->
   FinTypesDef.count (map f A) y = 0.
@@ -95,10 +27,6 @@ Proof.
   revert y. induction A as [ | a A IH]; intros; cbn in *; auto.
   decide (y = f a) as [-> | ?]; auto. now contradiction (H a).
 Qed.
-
-(* Compute Encode_pair Encode_bool (Encode_sum Encode_unit Encode_bool) (true, inl tt). *)
-
-(* Check _ : codable (sigPair bool (sigSum Empty_set bool)) unit. *)
 
 Section Encode_list.
 
@@ -110,15 +38,8 @@ Section Encode_list.
 
   Arguments sigList_nil {sigX}. Arguments sigList_cons {sigX}. Arguments sigList_X {sigX}.
 
-  (*
-  Global Instance Retract_sigList_X (sig tau : Type) (retr : Retract sig tau) : Retract sig (sigList tau).
-  Proof. build_simple_retract. Defined. (* because definition *)
-*)
-
   Global Instance sigList_dec sigX (decX : eq_dec sigX) :
     eq_dec (sigList sigX) := ltac:(build_eq_dec).
-
- 
 
   Global Instance sigList_fin (sigX : finType) : finTypeC (EqType (sigList sigX)).
   Proof.
@@ -131,7 +52,7 @@ Section Encode_list.
   Qed.
 
   Variable sigX: Type.
-  Variable (X : Type) (cX : codable sigX X).
+  Variable (X : Type) (encode : X -> list sigX).
 
   Fixpoint encode_list (xs : list X) : list (sigList sigX) :=
     match xs with
@@ -139,19 +60,14 @@ Section Encode_list.
     | x :: xs' => sigList_cons :: (map sigList_X (encode x)) ++ encode_list xs'
     end.
 
-  Global Instance Encode_list : codable (sigList sigX) (list X) :=
-    {|
-      encode := encode_list;
-    |}.
-
   Lemma encode_list_app (xs ys : list X) :
     encode_list (xs ++ ys) = removelast (encode_list xs) ++ encode_list ys.
   Proof.
     revert ys. induction xs; intros; cbn in *; f_equal.
     rewrite IHxs. rewrite app_assoc, app_comm_cons; f_equal.
-    destruct (map (fun x : sigX => sigList_X x) (cX a)) eqn:E; cbn.
+    destruct (map (fun x : sigX => sigList_X x) (encode a)) eqn:E; cbn.
     - destruct xs; cbn; auto.
-    - f_equal. destruct (cX a) eqn:E2; cbn in E. congruence.
+    - f_equal. destruct (encode a) eqn:E2; cbn in E. { congruence. }
       rewrite removelast_app.
       + destruct (l ++ encode_list xs) eqn:E3; cbn; auto.
         apply app_eq_nil in E3 as (E3&E3'). destruct xs; inv E3'.
@@ -168,8 +84,8 @@ Section Encode_list.
     induction xs.
     - reflexivity.
     - cbn [encode_list].
-      change (sigList_cons :: map sigList_X (cX a) ++ encode_list xs) with
-        ((sigList_cons :: map sigList_X (cX a)) ++ encode_list xs).
+      change (sigList_cons :: map sigList_X (encode a) ++ encode_list xs) with
+        ((sigList_cons :: map sigList_X (encode a)) ++ encode_list xs).
       rewrite removelast_app by apply encode_list_neq_nil.
       rewrite <- app_assoc. f_equal. auto.
   Qed.
@@ -179,10 +95,3 @@ End Encode_list.
 Arguments sigList_nil {sigX}. Arguments sigList_cons {sigX}. Arguments sigList_X {sigX}.
 
 #[export] Hint Extern 4 (finTypeC (EqType (sigList _))) => eapply sigList_fin : typeclass_instances.
-(* Check FinType(EqType (sigList bool)). *)
-
-
-(* Compute Encode_list Encode_bool (nil). *)
-(* This cannot reduce to [sigList_cons :: sigList_X true :: Encode_list _] *)
-(* Eval cbn in Encode_list Encode_bool (true :: _). *)
-(* Compute Encode_list Encode_bool (true :: false :: nil). *)

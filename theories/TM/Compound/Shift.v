@@ -7,6 +7,8 @@ From Undecidability Require Import TM.Compound.Multi.
 From Coq Require Import FunInd.
 From Coq Require Import Recdef.
 
+Set Default Goal Selector "!".
+
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
 
@@ -48,7 +50,9 @@ Section Shift.
         + apply WriteMove_Sem.
         + apply Write_Sem. }
     { reflexivity. }
-    {intros tin (yout, tout) H. TMSimp. TMCrush; TMSolve 1. }
+    { intros tin (yout, tout) H. TMSimp.
+      destruct (current _); [|now TMSimp].
+      destruct (f _); now TMSimp. }
   Qed.
 
 
@@ -153,12 +157,13 @@ Section Shift.
       - intros ?s. eapply RealiseIn_TerminatesIn. apply Shift_Step_Sem.
     }
     {
-      revert s. apply StateWhileCoInduction; intros s; intros. exists 3. split. reflexivity.
+      revert s. apply StateWhileCoInduction; intros s; intros. exists 3.
+      split; [reflexivity|].
       intros [ s' | [] ]; intros; cbn in *.
       - destruct (current tin[@Fin0]) eqn:E.
         + destruct (f e) eqn:Ee; destruct H as [H H']; inv H'.
           destruct tin[@Fin0] eqn:E'; cbn in *; inv E. rewrite Ee in HT. rename l into ls, l0 into rs.
-          TMSimp. simpl_tape. eexists. split. reflexivity. lia.
+          TMSimp. simpl_tape. eexists. split; [reflexivity|]. lia.
         + destruct H. congruence.
       - destruct (current tin[@Fin0]) eqn:E.
         + destruct (f e) eqn:Ee; destruct H as [H H']; inv H'.

@@ -1,5 +1,7 @@
 From Undecidability.TM Require Import Util.TM_facts Switch.
 
+Set Default Goal Selector "!".
+
 Section Composition.
   
   Variable n : nat.
@@ -21,8 +23,8 @@ Section Composition.
   Proof.
     intros.
     eapply Realise_monotone.
-    eapply (Switch_Realise (R1 := R1) (R2 := (fun _ => R2))); eauto.
-    firstorder.
+    - eapply (Switch_Realise (R1 := R1) (R2 := (fun _ => R2))); eauto.
+    - easy.
   Qed.
 
   Lemma Seq_TerminatesIn R1 T1 T2 :
@@ -60,11 +62,11 @@ Section Composition.
   Proof.
     intros H1 H2.
     eapply RealiseIn_monotone.
-    eapply (Switch_RealiseIn).
-    - eapply H1.
-    - intros f.  eapply H2.
+    - eapply (Switch_RealiseIn).
+      + eapply H1.
+      + intros f. eapply H2.
     - lia.
-    - firstorder.
+    - easy.
   Qed.
 
 End Composition.

@@ -2,6 +2,8 @@ From Undecidability Require Import TM.SBTM.
 Require Import PeanoNat Lia List ssreflect ssrbool ssrfun.
 Import ListNotations SBTMNotations.
 
+Set Default Goal Selector "!".
+
 Lemma oiter_None {X : Type} (f : X -> option X) k : Nat.iter k (obind f) None = None.
 Proof. elim: k; [done | by move=> /= ? ->]. Qed.
 

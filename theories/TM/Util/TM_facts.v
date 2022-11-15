@@ -6,6 +6,8 @@ From Undecidability.TM.Util Require Export Prelim Relations.
 Require Import Undecidability.Shared.Libs.PSL.Vectors.Vectors.
 Require Export Undecidability.TM.TM.
 
+Set Default Goal Selector "!".
+
 Section Fix_Sigma.
 
   Variable sig : Type.
@@ -540,9 +542,16 @@ Section MapTape.
   Proof using g.
     destruct 1 eqn:E1.
     - apply niltape.
-    - apply leftof.  apply (g t). apply (List.map g l).
-    - apply rightof. apply (g t). apply (List.map g l).
-    - apply midtape. apply (List.map g l). apply (g t). apply (List.map g l0).
+    - apply leftof.
+      + apply (g t).
+      + apply (List.map g l).
+    - apply rightof.
+      + apply (g t).
+      + apply (List.map g l).
+    - apply midtape.
+      + apply (List.map g l).
+      + apply (g t).
+      + apply (List.map g l0).
   Defined. (* because definition *)
 
   Definition mapTapes {n : nat} : Vector.t (tape tau) n -> Vector.t (tape sig) n := Vector.map mapTape.
@@ -568,39 +577,6 @@ Section MapTape.
   Lemma mapTape_move_right t :
     tape_move_right (mapTape t) = mapTape (tape_move_right t).
   Proof. destruct t; cbn; auto. destruct l0; cbn; auto. Qed.
-
-  Lemma mapTape_inv_niltap t :
-    mapTape t = niltape _ ->
-    t = niltape _.
-  Proof. intros. destruct t; inv H. repeat econstructor. Qed.
-
-  Lemma mapTape_inv_rightof t l ls :
-    mapTape t = rightof l ls ->
-    exists l' ls', t = rightof l' ls' /\
-              l = g l' /\
-              ls = map g ls'.
-  Proof. intros. destruct t; inv H. repeat econstructor. Qed.
-
-  Lemma mapTape_inv_leftof t r rs :
-    mapTape t = leftof r rs ->
-    exists r' rs', t = leftof r' rs' /\
-              r = g r' /\
-              rs = map g rs'.
-  Proof. intros. destruct t; inv H. repeat econstructor. Qed.
-
-  Lemma mapTape_inv_midtape t ls m rs :
-    mapTape t = midtape ls m rs ->
-    exists ls' m' rs', t = midtape ls' m' rs' /\
-                  ls = map g ls' /\
-                  m = g m' /\
-                  rs = map g rs'.
-  Proof. intros. destruct t; inv H. repeat econstructor. Qed.
-
-  (*
-  Lemma mapTapes_nth {n : nat} (ts : tapes tau n) (k : Fin.t n) :
-    (mapTapes ts)[@k] = mapTape (ts[@k]).
-  Proof. unfold mapTapes. eapply VectorSpec.nth_map; eauto. Qed.
-   *)
 
 End MapTape.
 
@@ -698,20 +674,6 @@ Section MatchTapes.
     right (tape_write t s) = right t.
   Proof. destruct s; auto. Qed.
 
-
-  Lemma tape_write_current_Some (t : tape sig) s :
-    current (tape_write t (Some s)) = Some s.
-  Proof. auto. Qed.
-
-
-  Lemma tape_write_current_None (t : tape sig) :
-    current (tape_write t None) = current t.
-  Proof. auto. Qed.
-
-  Lemma tape_write_current (t : tape sig) s :
-    current (tape_write t s) = fold_opt (@Some _) (current t) s.
-  Proof. destruct s; auto. Qed.
-
 End MatchTapes.
 
 Global Hint Rewrite tape_left_move_left' : tape.
@@ -728,7 +690,7 @@ Global Hint Rewrite tape_right_move_right' : tape.
 Global Hint Rewrite tape_local_move_right' : tape.
 Global Hint Rewrite mirror_tape_move_right' : tape.
 
-Global Hint Rewrite tape_move_niltape tape_write_left tape_write_right tape_write_current_Some tape_write_current_None tape_write_current : tape.
+Global Hint Rewrite tape_move_niltape tape_write_left tape_write_right : tape.
 
 
 
@@ -830,33 +792,30 @@ Section Semantics.
     - intuition.
   Qed.
 
-  Lemma RealiseIn_monotone' n (F : Type) (pM : pTM F n) (R : pRel sig F n) k k' :
-    pM ⊨c(k') R -> k' <= k -> pM ⊨c(k) R.
-  Proof.
-    intros H1 H2. eapply RealiseIn_monotone. eapply H1. assumption. firstorder.
-  Qed.
-
   Lemma RealiseIn_split n (F : Type) (pM : pTM F n) R1 R2 (k : nat) :
     pM ⊨c(k) R1 /\ pM ⊨c(k) R2 <-> pM ⊨c(k) R1 ∩ R2.
   Proof.
-    split; swap 1 2; [ intros H | intros (H1&H2)]; repeat intros ?. hnf; firstorder eauto.
-    specialize (H1 input) as (outc &H1&H1'). specialize (H2 input) as (outc2&H2&H2').
-    pose proof loop_injective H1 H2 as <-. exists outc. split; hnf; eauto.
+    split; swap 1 2; [ intros H | intros (H1&H2)].
+    - firstorder eauto.
+    - repeat intros ?. specialize (H1 input) as (outc &H1&H1').
+      specialize (H2 input) as (outc2&H2&H2').
+      pose proof loop_injective H1 H2 as <-.
+      exists outc. split; hnf; eauto.
   Qed.
   
   Lemma Realise_total n (F : Type) (pM : { M : TM n & state M -> F }) R k :
     pM ⊨ R /\ projT1 pM ↓ (fun _ i => k <= i) <-> pM ⊨c(k) R.
   Proof.
     split.
-    - intros (HR & Ht) t. edestruct (Ht t k). cbn; lia. eauto.
+    - intros (HR & Ht) t. edestruct (Ht t k); [reflexivity|eauto].
     - intros H.
       split.
       + intros t i cout Hc.
         destruct (H t) as (? & ? & ?).
         replace cout with x.
-        eassumption.
-        unfold loopM in *.
-        eapply loop_injective; eauto.
+        * eassumption.
+        * unfold loopM in *.
+          eapply loop_injective; eauto.
       + intros t i Hi.
         edestruct (H t) as (? & ? & ?). 
         exists x. eapply loop_monotone; eauto.
@@ -920,8 +879,6 @@ Section Semantics.
 
 End Semantics.
 
-
-
 (* Notation for parametrised Turing machines *)
 Notation "'(' M ';' labelling ')'" := (existT (fun x => state x -> _) M labelling).
 
@@ -929,8 +886,6 @@ Notation "'(' M ';' labelling ')'" := (existT (fun x => state x -> _) M labellin
 Notation "M '⊨' R" := (Realise M R) (no associativity, at level 60, format "M  '⊨'  R").
 Notation "M '⊨c(' k ')' R" := (RealiseIn M R k) (no associativity, at level 45, format "M  '⊨c(' k ')'  R").
 Notation "M '↓' t" := (TerminatesIn M t) (no associativity, at level 60, format "M  '↓'  t").
-
-
 
 (* [inhabitedC] instances for state and labels *)
 
@@ -947,25 +902,6 @@ Proof. constructor. apply (projT2 pM). apply default. Qed.
 #[export] Hint Extern 4 => once lazymatch goal with
                 | [ pM : pTM ?sig ?F ?n |- inhabitedC ?F ] => apply (inhabited_pTM_lab pM)
                 end : typeclass_instances.
-
-Section Test_def.
-  Variable (n : nat) (sig : finType) (F : Type).
-  Variable (pM : pTM sig F n).
-  Goal let _ := default : state (projT1 pM) in True. Proof. exact I. Qed.  
-  Goal let _ :=  default : F in True. Proof. exact I. Qed.  
-End Test_def.
-
-
-
-
-(* Auxiliary function to actually execute a machine *)
-Definition execTM (sig : finType) (n : nat) (M : TM sig n) (tapes : tapes sig n) (k : nat) :=
-  option_map (@ctapes _ _ _) (loopM (initc M tapes) k).
-
-Definition execTM_p (sig : finType) (n : nat) (F : Type) (pM : { M : TM sig n & state M -> F }) (tapes : tapes sig n) (k : nat) :=
-  option_map (fun x => (ctapes x, projT2 pM (cstate x))) (loopM (initc (projT1 pM) tapes) k ).
-
-
 
 (* ** Automation of the generation of relations *)
 (* Alternative to the the smpl-based tactic databases *)

@@ -18,6 +18,7 @@ From Undecidability.Shared.Libs.DLW
 From Undecidability.TM 
   Require Import SBTM PCTM pctm_sbtm.
 
+Set Default Goal Selector "!".
 Set Implicit Arguments.
 
 Theorem reduction : SBTM_HALT ⪯ PCTM_HALT.
@@ -30,5 +31,3 @@ Proof.
     exists (0,t'); split; auto; left; auto.
   + apply sbtm2pctm_complete.
 Qed.
-
-

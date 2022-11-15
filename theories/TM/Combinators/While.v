@@ -1,6 +1,8 @@
 From Undecidability Require Import TM.Util.TM_facts.
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.DepPairs EqdepFacts.
 
+Set Default Goal Selector "!".
+
 Section While.
 
   Variable n : nat.
@@ -97,7 +99,7 @@ Section While.
     intros HLoop HHalt HRepeat. unfold haltConf in HHalt.
     destruct k as [ | k']; cbn in *.
     - rewrite HHalt, HRepeat in HLoop. cbn in HLoop. inv HLoop.
-    - rewrite HHalt, HRepeat in HLoop. cbn in HLoop. exists k'. split. reflexivity.
+    - rewrite HHalt, HRepeat in HLoop. cbn in HLoop. exists k'. split; [reflexivity|].
       now rewrite While_trans_repeat in HLoop by auto.
   Qed.
 
@@ -297,7 +299,7 @@ Section OtherWhileRel.
     unfold While_Rel'. split.
     {
       apply WhileInduction; intros; cbn in *.
-      - eexists. split. constructor. exists yout. auto.
+      - eexists. split. { constructor. } now exists yout.
       - destruct HLastStep as (y&IH1&?&<-&IH2); cbn in *.
         eexists. split; eauto. econstructor; eauto.
     }

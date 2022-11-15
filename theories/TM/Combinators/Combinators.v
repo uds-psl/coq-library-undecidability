@@ -3,6 +3,8 @@
 (* * Export Modules for Combinators *)
 From Undecidability.TM.Combinators Require Export Switch If SequentialComposition StateWhile While Mirror.
 
+Set Default Goal Selector "!".
+
 (* ** Simple Combinators *)
 
 (* Simple operator to change the labelling function *)
@@ -22,18 +24,18 @@ Section Relabel.
     intros HRel.
     intros tin k outc HLoop.
     hnf in HRel. specialize HRel with (1 := HLoop).
-    hnf. exists (projT2 pM (cstate outc)). hnf. cbn. auto.
+    hnf. now exists (projT2 pM (cstate outc)).
   Qed.
 
   Lemma Relabel_RealiseIn R k :
     pM ⊨c(k) R ->
     Relabel ⊨c(k) ⋃_y (R |_ y) ||_(p y).
-  Proof. firstorder. Qed.
+  Proof. firstorder easy. Qed.
 
   Lemma Relabel_Terminates T :
     projT1 pM ↓ T ->
     projT1 Relabel ↓ T.
-  Proof. firstorder. Qed.
+  Proof. firstorder easy. Qed.
 
 End Relabel.
 
@@ -54,23 +56,23 @@ Section Return.
   Lemma Return_Realise R :
     pM ⊨ R ->
     Return ⊨ (⋃_f (R |_ f)) ||_ p.
-  Proof. intros. intros tin k outc HLoop. hnf. split; hnf; eauto. exists (projT2 pM (cstate outc)). hnf. eauto. Qed.
+  Proof.
+    intros. intros tin k outc HLoop. hnf.
+    split; [easy|]. exists (projT2 pM (cstate outc)). hnf. eauto. Qed.
 
   Lemma Return_RealiseIn R k :
     pM ⊨c(k) R ->
     Return ⊨c(k) (⋃_f (R |_ f)) ||_ p.
-  Proof. firstorder. Qed.
+  Proof. firstorder easy. Qed.
 
   Lemma Return_Terminates T :
     projT1 pM ↓ T ->
     projT1 Return ↓ T.
-  Proof. firstorder. Qed.
+  Proof. firstorder easy. Qed.
 
 End Return.
 
 Arguments Return : simpl never.
-
-Export Set Warnings "-unused-intro-pattern".
 
 #[export] Hint Extern 1 (Switch _ _ ⊨ _) => eapply Switch_Realise : TMdb.
 #[export] Hint Extern 1 (Switch _ _ ⊨c(_) _) => eapply Switch_RealiseIn : TMdb.

@@ -1,5 +1,7 @@
-From Undecidability.TM Require Import Single.StepTM Code.CodeTM TM.
+From Undecidability.TM Require Import Single.StepTM TM.
 Require Import Undecidability.TM.Code.Code.
+From Undecidability.TM Require Import Util.Prelim Util.TM_facts.
+From Undecidability.TM Require Import Single.EncodeTapes.
 Require Import Undecidability.Synthetic.Definitions.
 
 Set Default Goal Selector "!".

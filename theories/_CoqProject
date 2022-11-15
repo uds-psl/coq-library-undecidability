@@ -409,8 +409,6 @@ H10/Reductions/H10_to_H10p.v
 
 TM/Util/Prelim.v
 TM/Util/Relations.v
-TM/Util/ArithPrelim.v
-TM/Util/VectorPrelim.v
 TM/Util/SBTM_facts.v
 TM/Util/TM_computable.v
 
@@ -433,7 +431,6 @@ TM/Compound/MoveToSymbol.v
 TM/Compound/Shift.v
 
 TM/Code/Code.v
-TM/Code/CodeTM.v
 
 TM/Single/EncodeTapes.v
 TM/Single/StepTM.v
@@ -776,7 +773,6 @@ H10/Util/Diophantine.v
 L/Reductions/PCPb_to_HaltL.v
 
 TM/KOSBTM/HaltKOSBTM_to_HaltBSM.v
-TM/KOSBTM/HaltKOSBTM_to_HaltKOSBTMu.v
 TM/KOSBTM/HaltTM_1_to_HaltKOSBTM.v
 TM/KOSBTM/KOSBTM.v
 

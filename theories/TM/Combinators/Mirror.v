@@ -1,5 +1,7 @@
 From Undecidability Require Import TM.Util.Prelim TM.Util.TM_facts.
 
+Set Default Goal Selector "!".
+
 (* * Mirror Operator *)
 
 Section Mirror.
@@ -10,17 +12,6 @@ Section Mirror.
 
   Definition mirror_acts : Vector.t (option sig * move) n -> Vector.t (option sig * move) n :=
     Vector.map mirror_act.
-
-  Lemma mirror_act_involution a : mirror_act (mirror_act a) = a.
-  Proof. destruct a. cbn. rewrite mirror_move_involution. reflexivity. Qed.
-
-  Lemma mirror_acts_involution acts :
-    mirror_acts (mirror_acts acts) = acts.
-  Proof.
-    unfold mirror_acts. apply Vector.eq_nth_iff. intros ? ? ->.
-    erewrite !Vector.nth_map; eauto. apply mirror_act_involution.
-  Qed.
-
 
   Variable F : finType.
   Variable pM : pTM sig F n.
