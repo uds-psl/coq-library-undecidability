@@ -30,16 +30,6 @@ Section BasicLemmas.
   Lemma incl_trans A B C: A ⊆ B -> B ⊆ C -> A ⊆ C.
   Proof. firstorder. Qed.
 
-  Lemma strict_incl_trans A B C: A ⊊ B -> B ⊊ C -> A ⊊ C.
-  Proof. firstorder. Qed.
-
-  Lemma strict_incl_incl_trans A B C: A ⊊ B -> B ⊆ C -> A ⊊ C.
-  Proof. firstorder. Qed.
-
-  Lemma incl_strict_incl_trans A B C: A ⊆ B -> B ⊊ C -> A ⊊ C.
-  Proof. firstorder. Qed.
-
-
   Lemma seteq_refl A: A === A.
   Proof. firstorder. Qed.
 
@@ -53,9 +43,6 @@ Section BasicLemmas.
   #[local] Instance incl_preorder: PreOrder (@incl X). 
   Proof. firstorder. Qed.
 
-  #[local] Instance strict_incl_transitive: Transitive (@strict_incl X).
-  Proof. firstorder. Qed.
-
   #[local] Instance seteq_preorder: PreOrder (@seteq X).
   Proof. firstorder. Qed.
 
@@ -64,19 +51,12 @@ Section BasicLemmas.
 
   Hint Resolve incl_refl seteq_refl : listdb.
 
-
-
-
-
- 
-
-
   (* ∈ *)
   Lemma in_ind e (P: list X -> Prop):
     (forall A, P (e :: A)) -> (forall a A, P A -> P (a :: A)) -> forall A, e ∈ A -> P A.
   Proof.
     intros BH IH; induction A; cbn;
-      intuition; subst; intuition.
+      intuition idtac; subst; intuition (auto with listdb).
   Qed.
 
   #[local] Instance proper_in_incl: Proper (eq ++> incl ==> Basics.impl) (@In X).
@@ -118,10 +98,10 @@ Section BasicLemmas.
   Proof. split; unfold incl; firstorder; congruence. Qed.
 
   Lemma incl_cons_build a A B: a ∈ B -> A ⊆ B -> a :: A ⊆ B.
-  Proof. intuition. Qed.
+  Proof. auto with datatypes. Qed.
 
   Lemma incl_cons_project_l a A B: a :: A ⊆ B -> a ∈ B.
-  Proof. intuition. Qed.
+  Proof. auto with datatypes. Qed.
 
   Lemma incl_cons_project_r a A B: a :: A ⊆ B -> A ⊆ B.
   Proof. firstorder. Qed.
@@ -135,10 +115,10 @@ Section BasicLemmas.
 
 
   Lemma incl_distr_left A B C: A ⊆ B -> A ⊆ B ++ C.
-  Proof. intuition. Qed.
+  Proof. auto with datatypes. Qed.
 
   Lemma incl_distr_right A B C: A ⊆ C -> A ⊆ B ++ C. 
-  Proof. intuition.  Qed.
+  Proof. auto with datatypes.  Qed.
 
   Lemma incl_app_project_left A B C: A ++ B ⊆ C -> A ⊆ C.
   Proof. intros H x Hx. eapply H, in_app_iff. eauto. Qed.
@@ -147,7 +127,7 @@ Section BasicLemmas.
   Proof. intros H x Hx. eapply H, in_app_iff. eauto. Qed.
 
   Lemma incl_app_build A B C: A ⊆ C -> B ⊆ C -> A ++ B ⊆ C.
-  Proof. intros; eapply incl_app; intuition. Qed.
+  Proof. intros; eapply incl_app; auto with datatypes. Qed.
 
 
   #[local] Instance incl_cons_proper: Proper (eq ++> incl ++> incl) (@cons X).
@@ -156,32 +136,11 @@ Section BasicLemmas.
   #[local] Instance seteq_cons_proper: Proper (eq ++> seteq ++> seteq) (@cons X).
   Proof. intros ??-> ???; firstorder. Qed.
 
- 
-  
   Hint Resolve incl_seteq seteq_incl_left seteq_incl_right incl_nil
        incl_cons incl_cons_build incl_cons_project_l incl_cons_project_r
        incl_cons_drop incl_filter
        incl_distr_left incl_distr_right incl_app_project_left
        incl_app_project_right incl_app_build : listdb.
-
-
-  (* ⊊ *)
-  Lemma strict_incl_incl A B: A ⊊ B -> A ⊆ B.
-  Proof. firstorder. Qed.
-
-  Lemma incl_strict_incl x A B: x ∈ A -> ~ x ∈ B -> A ⊆ B -> A ⊊ B.
-  Proof. firstorder. Qed.
-
-  Lemma strict_incl_eq A B: A ⊊ B -> ~ A === B.
-  Proof. firstorder. Qed.
-
-  Lemma strict_incl_project A B: A ⊊ B -> exists x, x ∈ B /\ ~ x ∈ A.
-  Proof. firstorder. Qed.
-
-  #[local] Instance strict_incl_incl_subrel:
-    subrelation (@strict_incl X) (@incl X).
-  Proof. firstorder. Qed.
-
 
   Section WellFoundedStrictInclusion.
 
@@ -200,7 +159,7 @@ Section BasicLemmas.
       eapply NoDup_incl_length in H3 as H4; [| eapply NoDup_nodup].
       eapply Nat.lt_eq_cases in H4 as []; eauto; exfalso.
       eapply NoDup_length_incl in H3. 
-      rewrite !nodup_seteq in H3; intuition.
+      rewrite !nodup_seteq in H3; intuition (auto with datatypes).
       eapply NoDup_nodup. lia.
     Qed.
     
@@ -234,7 +193,7 @@ Section BasicLemmas.
   (* rev *)
   Lemma rev_seteq A: rev A === A.
   Proof.
-    induction A; cbn; autorewrite with listdb; intuition.
+    induction A; cbn; autorewrite with listdb; intuition (auto with datatypes listdb).
   Qed.
 
   #[local] Instance proper_incl_seteq: Proper (@seteq X ++> @seteq X ++> iff) incl.
@@ -262,7 +221,7 @@ Section BasicLemmas.
     (forall x, x ∈ A -> g x = x) -> map g A = A.
   Proof.
     intros. induction A; cbn in *; eauto.
-    rewrite H; intuition.
+    rewrite H; intuition idtac.
     rewrite IHA; firstorder.
   Qed.
 
@@ -294,26 +253,15 @@ Section BasicLemmas.
   Hint Rewrite map_id map_rev map_nil map_cons map_app map_length : listdb.
   Hint Resolve in_map : listdb.
 
-
-
-
-
   (* length *)
   Hint Rewrite app_length map_length rev_length : listdb.
-
-
-
-  (* filter *)
-  Lemma filter_length p A: length (filter p A) <= length A.
-  Proof. induction A; cbn; [ constructor | ]; destruct (p a); cbn; lia. Qed.
-
 
   #[local] Instance filter_incl_proper: Proper (eq ++> incl ++> incl) (@filter X).
   Proof.
     intros ?? ->  A B H2; induction A; cbn; eauto with listdb.
     destruct y eqn: H1; eauto with listdb. 
     eapply incl_cons_build; eauto with listdb.
-    eapply filter_In; intuition. 
+    eapply filter_In; intuition (auto with datatypes). 
   Qed.
 
   #[local] Instance filter_seqteq_proper: Proper (eq ++> seteq ++> seteq) (@filter X).
@@ -352,7 +300,6 @@ Ltac lauto  := eauto with listdb.
 
 Module ListAutomationInstances.
 #[export] Existing Instance incl_preorder.
-#[export] Existing Instance strict_incl_transitive.
 #[export] Existing Instance seteq_preorder.
 #[export] Existing Instance seteq_equivalence.
 #[export] Existing Instance proper_in_incl.
@@ -361,7 +308,6 @@ Module ListAutomationInstances.
 #[export] Existing Instance incl_seteq_proper.
 #[export] Existing Instance incl_cons_proper.
 #[export] Existing Instance seteq_cons_proper.
-#[export] Existing Instance strict_incl_incl_subrel.
 #[export] Existing Instance proper_app_incl.
 #[export] Existing Instance proper_app_seteq.
 #[export] Existing Instance proper_incl_seteq.

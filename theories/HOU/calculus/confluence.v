@@ -21,7 +21,7 @@ Section Confluence.
   Hint Constructors par : core.
 
   Lemma refl_par: forall s, s ≫ s.
-  Proof. induction s; eauto. Qed.
+  Proof. induction s; auto. Qed.
 
   Hint Immediate refl_par : core. 
 
@@ -33,21 +33,22 @@ Section Confluence.
   Lemma ren_compatible_par s s' delta:
     s ≫ s' -> ren delta s ≫ ren delta s'.
   Proof.
-    induction 1 in delta |-*; cbn; eauto; subst.
-    econstructor; eauto. now asimpl. 
+    induction 1 in delta |-*; cbn; auto; subst.
+    econstructor; auto. now asimpl. 
   Qed.
 
   Lemma subst_compatible_par s s' sigma sigma':
     s ≫ s' -> (forall x, sigma x ≫ sigma' x) -> (sigma • s) ≫ (sigma'• s').
   Proof.
-    induction 1 in sigma, sigma' |-*; cbn; eauto.
+    induction 1 in sigma, sigma' |-*; cbn; trivial.
     - intros; econstructor; eapply IHpar.
       intros []; cbn; eauto using ren_compatible_par. 
     - intros; econstructor.
-      eapply IHpar1 with (sigma' := up sigma'); eauto.
+      eapply IHpar1 with (sigma' := up sigma'); auto.
       intros []; cbn; eauto using ren_compatible_par. 
-      eapply IHpar2; eauto. 
-      subst; now asimpl. 
+      eapply IHpar2; auto. 
+      subst; now asimpl.
+    - auto. 
   Qed.
 
   Global Instance par_lam_proper: Proper (star par ++> star par) lam.
@@ -69,10 +70,10 @@ Section Confluence.
 
   Global Instance sandwich_steps: subrelation par (star step).
   Proof.
-    intros ??; induction 1; eauto.
-    - rewrite IHpar; eauto.
-    - rewrite IHpar1, IHpar2, stepBeta; eauto.
-    - rewrite IHpar1, IHpar2; eauto. 
+    intros ??; induction 1; trivial.
+    - rewrite IHpar; auto.
+    - rewrite IHpar1, IHpar2, stepBeta; auto.
+    - rewrite IHpar1, IHpar2; auto. 
   Qed.
 
 
@@ -89,10 +90,11 @@ Section Confluence.
 
   Lemma tak_fun_rho: tak_fun par rho.
   Proof. 
-    intros s t H; induction H; cbn; eauto.
-    - subst u; eapply subst_compatible_par; eauto.
-      intros []; cbn; eauto.
-    - destruct s; eauto.
+    intros s t H; induction H; cbn; trivial.
+    - auto.
+    - subst u; eapply subst_compatible_par; auto.
+      intros []; cbn; auto.
+    - destruct s; auto.
       inv H; inv IHpar1.
       econstructor; eauto.
   Qed.

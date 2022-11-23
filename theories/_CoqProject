@@ -535,7 +535,6 @@ HOU/std/lists/misc.v
 HOU/std/lists/advanced.v
 HOU/std/countability.v
 HOU/std/retracts.v
-HOU/std/enumerable.v
 HOU/std/reductions.v
 HOU/std/ars/basic.v
 HOU/std/ars/confluence.v
@@ -565,7 +564,6 @@ HOU/calculus/calculus.v
 HOU/unification/higher_order_unification.v
 HOU/unification/systemunification.v
 HOU/unification/nth_order_unification.v
-HOU/unification/enumerability.v
 HOU/unification/unification.v
 
 HOU/third_order/pcp.v
@@ -586,7 +584,6 @@ HOU/concon/conservativity.v
 HOU/concon/conservativity_consequences.v
 HOU/concon/constants.v
 HOU/concon/constants_consequences.v
-HOU/concon/enumerability.v
 
 FOLP/Util/axioms.v
 FOLP/Util/unscoped.v

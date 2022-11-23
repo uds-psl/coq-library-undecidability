@@ -23,7 +23,7 @@ Section Nth.
     m < length L -> exists a, nth L m = Some a.
   Proof.
     intros H % nth_error_Some.
-    destruct nth; intuition. now (exists z).
+    destruct nth; intuition idtac. now (exists z).
   Qed.
 
   Lemma nth_error_Some_lt Z m a (L: list Z):
@@ -46,8 +46,8 @@ Section Nats.
 
   Lemma nats_lt: forall k i, i ∈ nats k -> i < k.
   Proof.
-    induction k; cbn; intuition. lia.
-    eapply in_map_iff in H0. destruct H0; intuition; subst.
+    induction k; cbn; intuition idtac. lia.
+    eapply in_map_iff in H0. destruct H0; intuition idtac; subst.
     specialize (IHk x H1); lia.
   Qed.
 
@@ -204,7 +204,7 @@ Section Repeated.
   Proof.
     induction A in n |-*; destruct n; cbn; eauto; try discriminate.
     injection 2. rewrite IHA; eauto.
-    intros. erewrite <-H; intuition.
+    intros. erewrite <-H; intuition easy.
   Qed.
 
   Lemma repeated_incl x n A:
@@ -241,13 +241,13 @@ Section Repeated.
     B = repeat x (length B).
   Proof.
     induction n in A, B |-*.
-    - cbn; destruct A, B; try discriminate. intuition.
+    - cbn; destruct A, B; try discriminate. intuition easy.
     - destruct A; cbn; try discriminate.
       + destruct B; try discriminate. 
-        injection 1. intuition. cbn; now rewrite <-H0, repeated_length.
+        injection 1. intuition idtac. cbn; now rewrite <-H0, repeated_length.
         subst. cbn; now rewrite repeated_length.
       + injection 1; intros; edestruct IHn; eauto. 
-        intuition. f_equal; eauto. 
+        intuition auto. f_equal; eauto. 
   Qed.         
 
 End Repeated.
@@ -281,7 +281,7 @@ Section Select.
     induction I; cbn.
     - reflexivity.
     - destruct nth eqn: H; eauto.
-      eapply nth_error_In in H; cbn in H; intuition.
+      eapply nth_error_In in H; cbn in H; intuition easy.
   Qed.
 
   Lemma select_S I (x: X) A:
@@ -316,9 +316,9 @@ Section Select.
 
   Lemma select_incl I A: select I A ⊆ A.
   Proof.
-    induction I; cbn; intuition.
-    destruct nth eqn: H1; intuition.
-    eapply nth_error_In in H1. intuition.
+    induction I; cbn; intuition (try easy).
+    destruct nth eqn: H1; intuition idtac.
+    eapply nth_error_In in H1. intuition (auto with datatypes).
   Qed.
 
   Lemma incl_select A B: A ⊆ B -> exists I, I ⊆ nats (length B) /\ select I B = A.
@@ -374,20 +374,13 @@ Section Find.
   Lemma find_in x A:
     x ∈ A -> exists n, find x A = Some n.
   Proof.
-    induction A; cbn; intuition.  
-    - exists 0. destruct (x == a); subst; intuition.
+    induction A; cbn; intuition idtac.  
+    - exists 0. destruct (x == a); subst; intuition easy.
     - destruct (x == a).
-      + subst; exists 0; intuition.
-      + destruct H as [m]; exists (S m); intuition.
+      + subst; exists 0; intuition easy.
+      + destruct H as [m]; exists (S m); intuition idtac.
         rewrite H; reflexivity.
   Qed.
-
-  Lemma find_Some_nth x A n:
-    nth A n = Some x -> exists k, find x A = Some k. 
-  Proof.
-    now intros ? % nth_error_In % find_in. 
-  Qed.
-      
 
   Lemma find_not_in x A:
     find x A = None -> ~ x ∈ A.
@@ -395,34 +388,7 @@ Section Find.
     intros H [n H'] % find_in; rewrite H in H'; discriminate.
   Qed.
 
-
-  Lemma find_map f A n x:
-    find x A = Some n -> exists m, find (f x) (map f A) = Some m.
-  Proof.
-    induction A in n |-*; cbn; try discriminate.
-    destruct eq_dec; intuition; subst.
-    - exists 0; destruct eq_dec; intuition.
-    - destruct (find x A); try discriminate.
-      edestruct IHA as [m]; eauto.
-      destruct eq_dec; eauto.
-      exists (S m). now rewrite H0.
-  Qed.
-
-
-
-
 End Find.
-
-Lemma find_map_inv X Y {D1: Dis X} {D2: Dis Y} y (f: X -> Y) (A: list X) (n: nat):
-  find y (map f A) = Some n -> exists x, f x = y /\ find x A = Some n.
-Proof.
-  induction A in y, n  |-*; cbn; intuition; try discriminate.
-  destruct eq_dec.
-  + injection H as ?; subst; exists a; intuition. destruct eq_dec; intuition.
-  + destruct find eqn: H1; try discriminate. injection H as ?; subst.
-    eapply IHA in H1 as []; intuition; subst.
-    exists x. intuition; destruct eq_dec; cbn; try congruence. now rewrite H1.
-Qed.
 
 Section Remove.
 
@@ -431,18 +397,18 @@ Section Remove.
   Lemma remove_remain  (x y: X) A:
     x ∈ A -> x <> y -> x ∈ remove eq_dec y A.
   Proof.
-    induction A; cbn; intuition; subst.
-    - destruct (y == x); subst; intuition.
-    - destruct (y == a); subst; intuition.
+    induction A; cbn; intuition idtac; subst.
+    - destruct (y == x); subst; intuition (auto with datatypes).
+    - destruct (y == a); subst; intuition (auto with datatypes).
   Qed.
 
 
   Lemma remove_prev (x y: X) (A: list X):
     y ∈ remove eq_dec x A -> y ∈ A.
   Proof.
-    induction A; intuition.
-    cbn in H. destruct (x == a); subst; intuition.
-    cbn in *; intuition.
+    induction A; intuition idtac.
+    cbn in H. destruct (x == a); subst; intuition (auto with datatypes).
+    cbn in *; intuition easy.
   Qed.
 
 End Remove.
@@ -453,23 +419,17 @@ Section FlatMap.
   Variable (X Y: Type).
   Implicit Types (A B: list X) (f: X -> list Y).
 
-  Lemma flat_map_app f A B:
-    flat_map f (A ++ B) = flat_map f A ++ flat_map f B.
-  Proof.
-    induction A; cbn; eauto; now rewrite IHA, app_assoc.
-  Qed.
-
   Lemma flat_map_incl (f: X -> list Y) A B:
     A ⊆ B -> flat_map f A ⊆ flat_map f B.
   Proof.
     intros H x [y []] % in_flat_map.
-    eapply in_flat_map; exists y; intuition.
+    eapply in_flat_map; exists y; intuition auto.
   Qed.
 
   Lemma flat_map_in_incl f a A:
     a ∈ A -> f a ⊆ flat_map f A.
   Proof.
-    revert A; eapply in_ind; cbn; intuition.
+    revert A; eapply in_ind; cbn; intuition (auto with datatypes).
   Qed.
 
 End FlatMap.

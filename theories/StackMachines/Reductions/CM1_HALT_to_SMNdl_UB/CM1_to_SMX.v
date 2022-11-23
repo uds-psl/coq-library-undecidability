@@ -531,13 +531,9 @@ Section Reduction.
     apply: reachable_n_mon'; first by lia.
     
     rewrite ?app_norm. have ? := igotos_capped Hi.
+    do 5 f_equal; [lia ..|].
     have Hcn : c - (n + 1) + (n + 1) = c by lia.
-    have -> : (c - (n + 1)) mod (n + 1) = c mod (n + 1).
-    {
-      rewrite -[in RHS]Hcn Nat.add_mod; first by lia.
-      rewrite Nat.mod_same; first by lia. by rewrite ?nat_norm Nat.mod_mod; first by lia.
-    }
-    by do 5 f_equal; lia.
+    by rewrite -[in RHS]Hcn add_mod mod_same Nat.add_0_r mod_mod.
   Qed.
 
   (* goto 1 and switch to X/Y depending on c mod (n+1) *)

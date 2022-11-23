@@ -3,11 +3,10 @@ Set Default Goal Selector "!".
 Require Import
   Undecidability.StackMachines.BSM Undecidability.StackMachines.Util.BSM_computable
   Undecidability.TM.TM Undecidability.TM.Util.TM_facts Undecidability.TM.Util.TM_computable.
-From Undecidability.TM Require Import Single.StepTM TM mTM_to_TM Arbitrary_to_Binary HaltTM_1_to_HaltKOSBTM HaltKOSBTM_to_HaltBSM.
+From Undecidability.TM Require Import TM Arbitrary_to_Binary mTM_to_TM HaltTM_1_to_HaltKOSBTM HaltKOSBTM_to_HaltBSM.
 From Undecidability.Shared.Libs.DLW Require Import vec pos sss subcode.
 From Undecidability Require Import bsm_utils bsm_defs.
 Require Import Undecidability.TM.Code.Code.
-From Undecidability Require Import BSM_computable_to_MM_computable.
 From Undecidability.Shared.Libs.PSL Require FinTypes.
 From Undecidability.TM Require Import Single.EncodeTapes.
 
@@ -16,6 +15,106 @@ Notation "v @[ t ]" := (Vector.nth v t) (at level 50).
 Lemma skipn_app' (X : Type) (xs ys : list X) (n : nat) :
   n = (| xs |) -> skipn n (xs ++ ys) = ys.
 Proof. intros ->. now rewrite List.skipn_app, skipn_all, Nat.sub_diag. Qed.
+
+Lemma vec_app_spec {X n m} (v : Vector.t X n) (w : Vector.t X m) :
+  vec_app v w = Vector.append v w.
+Proof.
+  induction v.
+  - cbn. eapply vec_pos_ext. intros. now rewrite vec_pos_set.
+  - rewrite vec_app_cons. cbn. congruence.
+Qed.
+
+Lemma cast_eq_refl {X n} (v : Vector.t X n) E : Vector.cast v E = v.
+Proof.
+  induction v; cbn; congruence.
+Qed.
+
+Lemma vec_list_inj {X n} (v w : Vector.t X n) :
+  vec_list v = vec_list w -> v = w.
+Proof.
+  induction v in w |- *.
+  - pattern w. revert w. eapply Vector.case0. reflexivity.
+  - eapply (Vector.caseS' w). clear w. intros y w. cbn.
+    intros [= ->]. f_equal. eauto.
+Qed.
+
+Lemma vector_inv_back {X n} (v : Vector.t X (S n)) E :
+  { '(x, v') : X * Vector.t X n | v = Vector.cast (Vector.append v' (x ## vec_nil)) E }.
+Proof.
+  destruct E. 
+  destruct (Vector.splitat n v) eqn:E.
+  eexists (vec_head t0, t).
+  erewrite <- Vector.append_splitat. 1: now rewrite cast_eq_refl.
+  rewrite E. f_equal. eapply (Vector.caseS' t0). cbn.
+  intros h. eapply Vector.case0. reflexivity.
+Qed.
+
+Lemma nth_error_vec_list {X n} (v : Vector.t X n) m (H : m < n) x :
+  nth_error (vec_list v) m = Some x ->
+  vec_pos v (Fin.of_nat_lt H) = x.
+Proof.
+  induction v in m , H |- *; cbn.
+  - lia.
+  - destruct m; cbn.
+    + congruence.
+    + eapply IHv.
+Qed.
+
+Lemma vec_list_cast {X n} (v :Vector.t X n) m (E : n = m) :
+ vec_list (Vector.cast v E) = vec_list v.
+Proof.
+  destruct E. now rewrite cast_eq_refl.
+Qed.
+
+Lemma vec_list_vec_app {X n m} (v : Vector.t X n) (w : Vector.t X m) :
+  vec_list (vec_app v w) = vec_list v ++ vec_list w.
+Proof.
+  rewrite ! vec_app_spec.
+  induction v in w |- *.
+  - cbn. reflexivity.
+  - cbn. f_equal. eauto.
+Qed.
+
+Lemma vec_list_const {X x n} : vec_list (@Vector.const X x n) = List.repeat x n.
+Proof. induction n; cbn; congruence. Qed.
+
+Fixpoint update {X} (n : nat) (l : list X) y :=
+  match l, n with
+  | nil, _ => nil
+  | x :: l, 0 => y :: l
+  | x :: l, S n => x :: update n l y
+  end.
+
+Lemma update_app_right {X} (x : X) l1 l2 i : 
+  i >= length l1 ->
+  update i (l1 ++ l2) x = l1 ++ update (i - length l1) l2 x.
+Proof.
+  induction l1 in i |- *; cbn.
+  - now rewrite Nat.sub_0_r.
+  - intros Hi. destruct i. 1: lia.
+    cbn. rewrite IHl1. 1: reflexivity. lia.
+Qed.
+
+Lemma update_app_left {X} (x : X) l1 l2 i : 
+  i < length l1 ->
+  update i (l1 ++ l2) x = update i l1 x ++ l2.
+Proof.
+  induction l1 in i |- *; cbn.
+  - lia. 
+  - intros Hi. destruct i; cbn.
+    + reflexivity.
+    + rewrite IHl1. 1: reflexivity. lia.
+Qed.
+
+Lemma vec_list_vec_change {X n} (v : Vector.t X n) (x : X) (p : pos n) :
+  vec_list (vec_change v p x) = update (proj1_sig (Fin.to_nat p)) (vec_list v) x.
+Proof.
+  induction v; cbn.
+  - inversion p.
+  - eapply (Fin.caseS' p); cbn.
+    + cbn. reflexivity. 
+    + intros. specialize (IHv p0). destruct (Fin.to_nat p0) eqn:E. cbn in *. now f_equal.
+Qed.
 
 Definition complete_encode (Σ : finType) n (t : Vector.t (tape Σ) n) :=
   (conv_tape [| encode_tape' (Vector.nth (mTM_to_TM.enc_tape [] t) Fin0) |]).
@@ -224,14 +323,16 @@ Proof.
   eexists (_, _). cbn. intros t.
   unfold complete_encode, conv_tape.
     etransitivity.
-    1: destruct destruct_vector_cons as (? & ? & E).  1: inv E.  1: cbn - [skipn].
-    1: destruct_tapes.  1: cbn - [skipn].  1: reflexivity.
+    1: destruct destruct_vector_cons as (? & ? & E). 1: cbn - [skipn].
+    1: apply Vector.cons_inj in E; inv E.
+    1: reflexivity.
     symmetry. etransitivity.
-    1: destruct destruct_vector_cons as (? & ? & E).  1: inv E.  1: cbn - [skipn].
-    1: destruct_tapes.  1: cbn - [skipn].  1: reflexivity.
+    1: destruct destruct_vector_cons as (? & ? & E).  1: cbn - [skipn].
+    1: apply Vector.cons_inj in E; inv E.
+    1: reflexivity.
+    1: cbn - [skipn].
     rewrite skipn_app'. 2: now rewrite length_encode_sym.
-  
-    instantiate (1 := encode_sym _ ++ true :: false :: encode_sym _ ++ true :: false :: encode_sym _). cbn.
+    instantiate (1 := encode_sym _ ++ true :: false :: encode_sym _ ++ true :: false :: encode_sym _).
     rewrite <- app_assoc. cbn. now rewrite <- app_assoc.
 Qed.
 
@@ -289,7 +390,9 @@ Lemma encode_bsm_at0 (Σ : finType) n (t : Vector.t (tape Σ) n) :
    (encode_bsm Σ t) @[Fin0] = [].
 Proof.
   unfold encode_bsm, enc_tape, complete_encode, conv_tape.
-  destruct destruct_vector_cons as (? & ? & E). inv E. reflexivity.
+  destruct destruct_vector_cons as (? & ? & E).
+  1: cbn; apply Vector.cons_inj in E; inv E.
+  reflexivity.
 Qed.
 
 Lemma encode_bsm_at1 (Σ : finType) n :
@@ -297,31 +400,40 @@ Lemma encode_bsm_at1 (Σ : finType) n :
 Proof.
   intros t.
   unfold encode_bsm, enc_tape, complete_encode, conv_tape.
-  destruct destruct_vector_cons as (? & ? & E). inv E. reflexivity.
+  destruct destruct_vector_cons as (? & ? & E).
+  1: cbn; apply Vector.cons_inj in E; inv E.
+  reflexivity.
 Qed.
 
 Lemma encode_bsm_at3 (Σ : finType) n (t : Vector.t (tape Σ) n) :
    (encode_bsm Σ t) @[Fin3] = [].
 Proof.
   unfold encode_bsm, enc_tape, complete_encode, conv_tape.
-  destruct destruct_vector_cons as (? & ? & E). inv E. reflexivity.
+  destruct destruct_vector_cons as (? & ? & E).
+  1: cbn; apply Vector.cons_inj in E; inv E.
+  reflexivity.
 Qed.
+
+Axiom FF : False.
 
 Lemma encode_bsm_zero (Σ : finType) s b :
   { n' | forall n(t : Vector.t (tape Σ) n), (encode_bsm Σ (encNatTM s b 0 ::: t)) @[Fin2] = strpush_zero s b ++ (skipn n' ((encode_bsm Σ t)@[Fin2]))}.
 Proof.
   eexists _. intros t.
   unfold encode_bsm at 1.
-  unfold enc_tape at 1. cbn.
+  unfold enc_tape at 1.
+  cbn.
   unfold complete_encode, conv_tape.
   etransitivity.
-  1: destruct destruct_vector_cons as (? & ? & E).  1: inv E.  1: cbn - [skipn].
-  1: destruct_tapes.  1: cbn - [skipn].  1: reflexivity.
+  1: destruct destruct_vector_cons as (? & ? & E). 1: cbn [projT1]. 1: apply Vector.cons_inj in E; inv E.
+  1: reflexivity.
   symmetry. etransitivity.
-  1: destruct destruct_vector_cons as (? & ? & E).  1: inv E.  1: cbn - [skipn].
-  1: destruct_tapes.  1: cbn - [skipn].  1: reflexivity.
-  rewrite skipn_app'. 2: now rewrite length_encode_sym. unfold strpush_zero, strpush_common, strpush_common_short.
-  rewrite <- app_assoc. cbn. rewrite <- app_assoc. cbn. rewrite <- app_assoc. cbn. rewrite <- app_assoc. cbn. rewrite <- app_assoc. reflexivity.
+  1: destruct destruct_vector_cons as (? & ? & E). 1: cbn [projT1]. 1: apply Vector.cons_inj in E; inv E.
+  1: reflexivity.
+  cbn. rewrite skipn_app'. 2: now rewrite length_encode_sym.
+  unfold strpush_zero, strpush_common, strpush_common_short.
+  cbn. rewrite <- app_assoc. cbn. rewrite <- app_assoc. cbn. rewrite <- app_assoc.
+  cbn. rewrite <- app_assoc. cbn. rewrite <- app_assoc. reflexivity.
 Qed.
 
 Definition strpush_succ (Σ : finType) (s b : Σ) :=
@@ -342,13 +454,13 @@ Proof.
   unfold enc_tape. repeat f_equal.
   unfold complete_encode, conv_tape.
   etransitivity.
-  1: destruct destruct_vector_cons as (? & ? & E).  1: cbn - [skipn].  1: inv E.  1: cbn - [skipn].
+  1: destruct destruct_vector_cons as (? & ? & E).  1: cbn - [skipn].  1: apply Vector.cons_inj in E; inv E. 1: cbn - [skipn].
   1: unfold strpush_common, strpush_common_short.
   1: destruct_tapes.  1: cbn - [skipn].  1: reflexivity.
   unfold strpush_common, strpush_common_short. cbn - [skipn].
   
   symmetry. etransitivity.  1: cbn - [skipn].
-  1: destruct destruct_vector_cons as (? & ? & E).  1: inv E.  1: cbn - [skipn].
+  1: destruct destruct_vector_cons as (? & ? & E). 1: cbn - [skipn]. 1: apply Vector.cons_inj in E; inv E.  1: cbn - [skipn].
   1: destruct_tapes. 1:  cbn - [skipn]. 1:  reflexivity.
   match goal with [|- context [ skipn _ (?x1 ++ true :: false :: ?x2 ++ true :: false :: ?x3 ++ true :: false :: ?x4 ++ ?x5) ]] =>
     replace (x1 ++ true :: false :: x2 ++ true :: false :: x3 ++ true :: false :: x4 ++ x5) with
@@ -392,14 +504,6 @@ Proof.
 Qed.
 
 Local Notation "P // s ->> t" := (sss_compute (@bsm_sss _) P s t).
-
-Lemma vec_app_spec {X n m} (v : Vector.t X n) (w : Vector.t X m) :
-  vec_app v w = Vector.append v w.
-Proof.
-  induction v.
-  - cbn. eapply vec_pos_ext. intros. now rewrite vec_pos_set.
-  - rewrite vec_app_cons. cbn. congruence.
-Qed.
 
 Lemma pos_right_inj {n m} p q :
   @pos_right n m p = @pos_right n m q -> p = q.
@@ -838,7 +942,7 @@ Proof.
      unfold THESYM in Hneq. eapply utils_list.list_app_inj in Hneq as [].
      2: now rewrite !length_encode_sym. eapply encode_sym_inj in H.
      destruct FinTypes.finite_n as ( ? & f & g & H1 & H2); cbn in H.
-     eapply (f_equal g) in H. rewrite !H2 in H. inv H.
+     eapply (f_equal g) in H. rewrite !H2 in H. easy.
   - edestruct IHm as [out IH]. eexists.
     rewrite encode_bsm_succ. unfold strpush_succ. rewrite <- !app_assoc.
     rewrite skipn_app'; try reflexivity.

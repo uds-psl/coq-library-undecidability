@@ -1,14 +1,8 @@
-(* From Undecidability Require Import Combinators.Combinators Multi Basic.Mono TMTac. *)
-Require Export Undecidability.TM.Compound.TMTac Undecidability.TM.Compound.MoveToSymbol.
-Require Export Undecidability.TM.Basic.Mono Undecidability.TM.Compound.Multi.
+Require Import Undecidability.TM.Basic.Mono.
 Require Import Undecidability.TM.Combinators.Combinators.
 Require Import Undecidability.TM.Code.Code.
-(* the above imports sidestep the import of ProgrammingTools below to avoid the dependency on Hoare *)
-(*From Undecidability.TM Require Import ProgrammingTools.*)
-
-From Undecidability Require Import TM.Compound.Shift.
-From Undecidability Require Import EncodeTapes.
-Require Import FunInd.
+Require Import Undecidability.TM.Single.EncodeTapes.
+From Undecidability.TM.Compound Require Import TMTac MoveToSymbol Multi Shift.
 
 Local Set Printing Coercions.
 
@@ -935,7 +929,7 @@ Section ToSingleTape.
         { (* cons case *) unfold ReadCurrentSymbols_Step_steps_cons in Hk.
           exists (IsCons_steps), (2 + GoToCurrent_steps tp + ReadCurrent_steps + GoToNext_steps tp). repeat split; try lia.
           intros tmid ymid (HIsCons_cons&HIsCons_nil). specialize HIsCons_cons with (1 := HCons) as (HIsCons&->).
-          exists (GoToCurrent_steps tp), (1 + ReadCurrent_steps + GoToNext_steps tp). repeat split; try lia. hnf; eauto.
+          exists (GoToCurrent_steps tp), (1 + ReadCurrent_steps + GoToNext_steps tp). (repeat split); [hnf; eauto|lia|].
           intros tmid0 ymid0 HGoToCurrent. cbn in HGoToCurrent. specialize HGoToCurrent with (1 := HIsCons) as (HGoToCurrent&->).
           exists (ReadCurrent_steps), (GoToNext_steps tp). repeat split; try lia.
           intros tmid1 ymid1 HReadCurrent. cbn in HReadCurrent. specialize HReadCurrent with (1 := HGoToCurrent) as (HReadCurrent&->). hnf. eauto.
@@ -1451,7 +1445,7 @@ Section ToSingleTape.
     Proof.
       eapply RealiseIn_monotone.
       { unfold ToggleMarked.
-        eapply (Switch_RealiseIn (k2 := 1) (R2 := option_sigSim_sigList_X)); [now eauto with nocore TMdb|].
+        eapply (Switch_RealiseIn (k2 := 1) (R2 := option_sigSim_sigList_X)); [now auto with nocore TMdb|].
         intros [[|[| |]]|].
         all: auto using le with nocore TMdb. }
       { reflexivity. }
@@ -1820,7 +1814,7 @@ Section ToSingleTape.
             destruct tps2 as [ | tp' tps2']; cbn in *.
             - destruct HStep_cons as (?&?); congruence.
             - destruct HStep_cons as [HStep_cons HStep_cons']. destruct (finSucc_opt i) as [ iSucc | ] eqn:Ei; auto. inv HStep_cons'. rename iSucc into i'.
-              eexists. split; eauto.
+              eexists. split; [| now eauto].
               { hnf. left. exists (tps1 ++ [doAct tp acts[@i]]), tps2', tp'. simpl_list. cbn. apply Nat.eqb_eq in HL1. apply Nat.eqb_eq in HL2.
                 apply finSucc_opt_Some' in Ei. repeat split; auto; apply Nat.eqb_eq; lia. }
           }
@@ -1972,7 +1966,7 @@ Section ToSingleTape.
           { apply Nat.eqb_eq. apply Vector.length_to_list. }
           specialize HMoveToStart2 with (1 := HDoActions).
           split.
-          - eapply atStart_contains; eauto. now rewrite map_vect_list_length, Vector.length_to_list.
+          - eapply atStart_contains; [|eassumption|]. now rewrite map_vect_list_length, Vector.length_to_list.
             rewrite E'. cbn. now rewrite map_vect_list_eq.
           - rewrite E'. cbn. reflexivity.
         }
@@ -2101,7 +2095,7 @@ Section ToSingleTape.
             { unfold step. cbn. rewrite E2. reflexivity. }
             rewrite Hstep in HStep. destruct HStep as (HStep&->).
             exists (Loop_steps q' (doAct_multi T acts) kn'). repeat split; auto.
-            hnf. do 3 eexists. repeat split. 2: eauto. rewrite <- Hstep. eauto. eauto.
+            hnf. do 3 eexists. repeat split. 2: eauto. rewrite <- Hstep. all: now eauto.
       }
     Qed.
 

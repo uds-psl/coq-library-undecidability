@@ -7,7 +7,7 @@ Set Implicit Arguments.
 Require Import Morphisms FinFun.
 From Undecidability.HOU Require Import std.tactics std.misc std.ars.basic.
 Import ArsInstances.
-#[export] Hint Constructors star multiple counted : core.
+#[export] Hint Constructors star : core.
 
 Section Confluence.
 
@@ -126,7 +126,6 @@ Section Confluence.
 
  
 End Confluence.
-
 
 Section Takahashi.
   Variables (X: Type)  (R: X -> X -> Prop).

@@ -59,9 +59,9 @@ Section Constants.
         unfold funcomp in H1; now rewrite consts_ren in H1.
       - cbn; simplify; intuition idtac.
         + specialize (IHs1 _ H0); intuition idtac.
-          destruct H as [y]; right; exists y; intuition.
+          destruct H as [y]; right; exists y; intuition (auto with datatypes).
         + specialize (IHs2 _ H0); intuition idtac.
-          destruct H as [y]; right; exists y; intuition.
+          destruct H as [y]; right; exists y; intuition (auto with datatypes).
     Qed.
 
 
@@ -93,7 +93,7 @@ Section Constants.
     Lemma consts_Lam k s:
       consts (Lambda k s) === consts s.
     Proof.
-      induction k; cbn; intuition.
+      induction k; cbn; intuition easy.
     Qed.
 
     Lemma consts_AppL S t:

@@ -35,18 +35,6 @@ Section Evaluator.
     - rewrite IH. apply red_fun_fp, H.
   Qed.
 
-  Fact red_fun_normal x y :
-    evaluates R x y <-> Normal R y /\ exists n, it n rho x = y.
-  Proof using red.
-    destruct red as [H1 H2]. split.
-    - intros [H3 H4]. split. exact H4.
-      apply H2. hnf. auto.
-    - intros [H3 [n <-]]. split; [|exact H3].
-      clear H2 H3. induction n as [|n IH]; cbn.
-      + reflexivity.
-      + rewrite IH at 1. apply H1.
-  Qed.
-
   Variable (delta: Dec1 (Normal R)). 
 
   Fixpoint E n x : option X :=
@@ -174,13 +162,6 @@ Section EvaluatorTakahashi.
     - exists t. eapply E_correct; eauto using red_fun_rho.
     - exfalso. destruct H. discriminate.
   Qed.
-
-  Lemma E_correct_tak (s t: X) :
-    (exists n, E rho D n s = Some t) <-> evaluates R s t.
-  Proof using H1 H2 S tf refl.
-    split; intros; eapply E_correct; eauto; eapply red_fun_rho.
-  Qed.
-    
 
   Lemma compute_evaluation (s: X):
     (exists t, evaluates R s t) -> { t | evaluates R s t }.

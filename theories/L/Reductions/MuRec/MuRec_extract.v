@@ -1,4 +1,4 @@
-From Undecidability.L.Datatypes Require Import LNat Lists LOptions LSum.
+From Undecidability.L.Datatypes Require Import LNat LOptions LSum List.List_nat.
 Require Import Undecidability.L.Tactics.GenEncode.
 
 Inductive reccode :=

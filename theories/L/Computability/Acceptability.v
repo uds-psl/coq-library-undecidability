@@ -12,7 +12,7 @@ Definition lacc (P : term -> Prop) :=
 
 Goal forall s1 s2 t, s1 == s2 -> (pi s1 t <-> pi s2 t).
 Proof. 
-  intros s1 s2 t H; intuition; unfold pi; [now rewrite <- H | now rewrite H].
+  intros s1 s2 t H; (intuition idtac); unfold pi; [now rewrite <- H | now rewrite H].
 Qed.
 
 (* * L-acceptable predicates are closed under conjunction and disjunction *)

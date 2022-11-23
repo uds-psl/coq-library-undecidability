@@ -7,6 +7,8 @@ From Undecidability.HOU.unification Require Import systemunification nth_order_u
 
 Tactic Notation "simplify" := Undecidability.HOU.std.tactics.simplify.  
 
+#[local] Notation "[ s | p ∈ A ]" := (map (fun p => s) A) (p pattern).
+
 (* * First-Order Unification *)
 
 (* ** Singlepoint Substitution *)
@@ -31,7 +33,7 @@ Section Update.
   Proof.
     intros (y & ? & ?) % vars_varof % varof_subst.
     unfold update in *; destruct eq_dec; subst; split; eauto using varof_vars.
-    all: exfalso; inv H0; intuition.
+    all: now exfalso; inv H0.
   Qed.
   
   
@@ -46,7 +48,7 @@ Section Update.
   Lemma singlepoint_subst_Vars'_variable x s E:
     x ∈ Vars' (update x s var •₊₊ E) -> x ∈ vars s /\ x ∈ Vars' E.
   Proof.
-    induction E as [|[u v]]; [cbn; intuition|]; simplify.
+    induction E as [|[u v]]; [easy|]; simplify.
     cbn; simplify;
       intros [[H % singlepoint_subst_vars_variable | H % singlepoint_subst_vars_variable] | H].
     all:tauto.
@@ -56,8 +58,8 @@ Section Update.
   Lemma update_irrelevant x s t sigma:
     ~ x ∈ vars t -> update x s sigma • t = sigma • t.
   Proof.
-    intros H; eapply subst_extensional; intros y.  
-    unfold update; destruct eq_dec; subst; intuition.
+    intros H; eapply subst_extensional; intros y.
+    unfold update; destruct eq_dec; now subst.
   Qed.
 
 
@@ -105,8 +107,8 @@ Section LambdaFreeness.
     simplify in H1. eapply lambda_free_AppR.
     - destruct s; cbn in i; intuition econstructor.
     - eapply AppR_ordertyping_inv in H0 as H4; destruct H4 as [L H4].
-      intuition. assert (ord' L <= 1).
-      + destruct s; cbn in i. 3-4:intuition.
+      intuition idtac. assert (ord' L <= 1).
+      + destruct s; cbn in i. 3-4:easy.
         * inv H3. simplify in H6. lia. 
         * inv H3. rewrite H6 in H7.
           simplify in H7. lia.
@@ -131,7 +133,7 @@ Section LambdaFreeness.
   Lemma lambda_free_not_lam s:
     lambda_free s -> ~ isLam s.
   Proof.
-    destruct 1; cbn; intuition.
+    now destruct 1.
   Qed.
 
 
@@ -140,7 +142,7 @@ Section LambdaFreeness.
   Proof.
     induction 1; cbn; eauto using lambda_free.
     intros; econstructor; eauto;
-      [eapply IHlambda_free1 | eapply IHlambda_free2]; intuition.
+      [eapply IHlambda_free1 | eapply IHlambda_free2]; intuition (auto with datatypes).
   Qed.
   
   Lemma lambda_free_subst_eqs sigma E:
@@ -148,8 +150,8 @@ Section LambdaFreeness.
   Proof.
     intros H; induction E as [| [s t]]; cbn; eauto; simplify; cbn in *.
     intros (H1 & H2 & H3). split; [|split]. 
-    1 - 2: eapply lambda_free_substitution; eauto; intros; eapply H; intuition.
-    eapply IHE; eauto; intuition; eapply H; intuition.
+    1 - 2: eapply lambda_free_substitution; eauto; intros; eapply H; intuition (auto with datatypes).
+    eapply IHE; eauto; intuition (auto with datatypes); now eapply H.
   Qed.
   
   Lemma lambda_free_normal s:
@@ -157,7 +159,7 @@ Section LambdaFreeness.
   Proof.
     induction 1; [ eauto.. |].
     eapply normal_app_intro; eauto.
-    inv H; intuition.
+    now inv H.
   Qed.
 
 End LambdaFreeness.
@@ -266,7 +268,7 @@ Section Unification.
     Proof.
       intros H IH; induction E as [| [s t]]; cbn; try discriminate.
       destruct decomp eqn: EQ1; [destruct decomp' eqn: EQ2 |]; try discriminate.
-      all: intros _.  eapply IH; intuition. eapply H; intuition.
+      all: intros _.  eapply IH; intuition easy. now eapply H.
     Qed.
 
     Ltac decomp_ind :=
@@ -311,7 +313,7 @@ Section Unification.
         eapply lambda_free_normal in H9 as H9'; eapply lambda_free_not_lam in H9 as H9''.
         eapply head_atom in H10' as H10'''; eauto. eapply head_atom in H9' as H9'''; eauto.
         destruct (head_decompose s1) as [S1].  destruct (head_decompose t1) as [T1].
-        destruct (head s1); cbn in *;[  | | now intuition..];[| destruct (head t1)]; cbn in *. 4,5:now intuition.
+        destruct (head s1); cbn in *;[  | | easy..];[| destruct (head t1)]; cbn in *. 4,5: easy.
         1: subst s1; eapply AppR_ordertyping_inv in H8 as (L & ? & V); inv V.
         2: subst t1; eapply AppR_ordertyping_inv in H6 as (L & ? & V); inv V.
         1: rewrite ord_Arr in H8; eapply Nat.max_lub_r, ord_arr_one in H8 as [].
@@ -322,7 +324,7 @@ Section Unification.
         inv H4. inv H6. rewrite H7 in H8. 
         change (A0 → A) with (Arr [A0] A) in H8. change (A1 → A) with (Arr [A1] A) in H8.
         rewrite <-!Arr_app in H8. eapply Arr_left_injective in H8.
-        eapply app_injective_right in H8. 2:now intuition. intuition congruence. 
+        eapply app_injective_right in H8. 2: easy. intuition congruence. 
     Qed.
 
 
@@ -330,7 +332,7 @@ Section Unification.
       decomp s t = Some E ->  lambda_free s -> lambda_free t -> all_terms (@lambda_free X) E.
     Proof.
       decomp_ind; intros; eauto; simplify; cbn; eauto using all_terms_nil.
-      inv H4; inv H5; intuition. 
+      inv H4; inv H5; intuition easy. 
     Qed.
 
 
@@ -342,7 +344,7 @@ Section Unification.
            Gamma ⊢₊₊(1) E : L -> exists L,  Gamma ⊢₊₊(1) E' : L.
     Proof.
       decomp_ind; eauto.  
-      intros s t E E1 E2 H H' IH L LF T. inv T. simplify in LF; intuition.
+      intros s t E E1 E2 H H' IH L LF T. inv T. simplify in LF; intuition idtac.
       eapply decomp_typing in H as [L1]; eauto.
       edestruct IH as [L2]; eauto. 
       exists (L1 ++ L2). eapply ordertyping_combine; unfold left_side, right_side; simplify.
@@ -355,7 +357,7 @@ Section Unification.
     Lemma decomp'_lambda_free E E':
       decomp' E = Some E' ->  all_terms (@lambda_free X) E -> all_terms (@lambda_free X) E'.
     Proof.
-      decomp_ind; intros; eauto; simplify in *; intuition.  
+      decomp_ind; intros; eauto; simplify in *; intuition idtac.  
       eapply decomp_lambda_free in H; firstorder.
     Qed.
 
@@ -440,7 +442,7 @@ Section Unification.
         split.
         + rewrite singlepoint_subst_Vars'. cbn in H. lauto.
         + exists x. split. cbn in H; lauto. intros ? % singlepoint_subst_Vars'_variable.
-          intuition. }
+          easy. }
       - left. exists (update x (sigma • s) sigma).
         econstructor; eauto. 
       - right; intros [σ H']; inv H'; [congruence|].
@@ -463,7 +465,7 @@ Section Unification.
     Lemma Unifies_cons sigma e E:
       Unifies sigma (e :: E) <-> unifies sigma (fst e) (snd e) /\ Unifies sigma E.
     Proof.
-      unfold Unifies; cbn in *; intuition (subst; intuition).
+      unfold Unifies; cbn in *; intuition (subst; auto).
     Qed.
     
     Lemma Unifies_nil sigma: Unifies sigma nil.
@@ -476,7 +478,7 @@ Section Unification.
     Lemma Unifies_app sigma E1 E2:
       Unifies sigma (E1 ++ E2) <-> Unifies sigma E1 /\ Unifies sigma E2.
     Proof.
-      induction E1; cbn; simplify; intuition.
+      induction E1; cbn; simplify; intuition easy.
     Qed.
 
     Hint Rewrite Unifies_app : simplify.
@@ -503,12 +505,12 @@ Section Unification.
     
     Lemma equi_unifiable_refl s: [(s, s)] ≈ nil.
     Proof.
-      intros ?; simplify; cbn; intuition. 
+      intros ?; simplify; cbn; intuition (auto with relations).
     Qed.
     
     Lemma equi_unifiable_comm s t: [(s, t)] ≈ [(t, s)].
     Proof.
-      intros ?; simplify; cbn; intuition.
+      intros ?; simplify; cbn; intuition (auto with relations).
     Qed.
 
     Lemma equi_unifiable_decompose_app s1 s2 t1 t2:
@@ -545,7 +547,7 @@ Section Unification.
     Lemma equi_unifiable_decomp s t E:
       decomp s t = Some E -> [(s,t)] ≈ E.
     Proof.
-      decomp_ind; eauto with equi_unifiable. intuition. intros.
+      decomp_ind; eauto with equi_unifiable. easy. intros.
       now rewrite <-H1, <-H3, equi_unifiable_decompose_app. 
     Qed.
 
@@ -553,7 +555,7 @@ Section Unification.
     Lemma equi_unifiable_decomp' E E':
       decomp' E = Some E' -> E ≈ E'.
     Proof.
-      decomp_ind; intuition.
+      decomp_ind; intuition (auto with relations).
       now rewrite <-H1, <-equi_unifiable_decomp with (E := E1); eauto. 
     Qed. 
 
@@ -586,21 +588,21 @@ Section Unification.
       E ↦ sigma -> Unifies sigma E.
     Proof.
       induction 1.
-      - eapply equi_unifiable_decomp' in H. eapply H; intuition.
+      - eapply equi_unifiable_decomp' in H. eapply H; easy.
       - eapply equi_unifiable_decomp' in H. eapply H.
         eapply equi_unifiable_cons.
         eapply Unifies_cons; cbn; intuition idtac.
         + unfold unifies; cbn.
-          unfold update at 1; destruct eq_dec. 2:intuition.
+          unfold update at 1; destruct eq_dec. 2:easy.
           symmetry; erewrite subst_extensional; eauto.
           intros y ?. unfold update.
-          destruct eq_dec; eauto; subst; intuition.
+          destruct eq_dec; eauto; subst; easy.
         + intros [s' t'] ?; eapply IHunify in H4 as H4';
             unfold unifies in *; cbn in *.
           mapinj; destruct x0 as [u v]; injection H5 as <- <-.
           rewrite update_irrelevant. symmetry. rewrite update_irrelevant. symmetry.
           now rewrite H4'.
-          all: intros ? % singlepoint_subst_vars_variable; intuition.
+          all: intros ? % singlepoint_subst_vars_variable; easy.
     Qed.
 
     
@@ -608,9 +610,9 @@ Section Unification.
       E ↦ sigma -> free' sigma.
     Proof.
       induction 1.
-      - split; intuition. now destruct H1 as [[= ->]|[]].
+      - split; intuition trivial. now destruct H1 as [[= ->]|[]].
       - destruct IHunify; split; intros y; intros.
-        + unfold update, bound in *; destruct eq_dec; subst; intuition.
+        + unfold update, bound in *; destruct eq_dec; subst; intuition auto.
         + unfold update in H7; destruct eq_dec; subst; eauto.
           eapply vars_subst in H7 as [y'].
           destruct H7; eauto. 
@@ -703,8 +705,8 @@ Section Unification.
       induction s in tau |-*; cbn; simplify; trivial.  
       - rewrite IHs. f_equal. f_equal. clear IHs.  generalize (vars s) as A.
         induction A as [|[] ?]; cbn; eauto.
-        + destruct eq_dec; rewrite IHA; intuition.
-        + destruct eq_dec; rewrite IHA. intuition. lia. cbn.
+        + destruct eq_dec; rewrite IHA; easy.
+        + destruct eq_dec; rewrite IHA. lia. cbn.
           unfold funcomp at 1; now rewrite size_ren. 
       - rewrite IHs1, IHs2; lia.
     Qed.
@@ -729,7 +731,7 @@ Section Unification.
       eapply F1 in H as H'. rewrite H' in H2.
       destruct s; try discriminate; cbn in H2.
       destruct (isFree f) as [L|L]; eauto.
-      - eapply F2 with (y := x) in L; eauto; rewrite <-H2; cbn; intuition. 
+      - eapply F2 with (y := x) in L; eauto; rewrite <-H2; cbn; auto. 
       - exfalso; eapply H1; left; eapply F1 in L; congruence.
     Qed.
     
@@ -789,12 +791,12 @@ Section Unification.
             (rewrite singlepoint_subst_Vars'; eapply incl_cons_project_r; eauto).
         destruct (IH (update x s var •₊₊ E') x) as [tau]; trivial.
         + eapply H9; firstorder.
-        + intros ? % singlepoint_subst_Vars'_variable; intuition. 
+        + intros ? % singlepoint_subst_Vars'_variable; easy. 
         + rewrite equi_unifiable_cons in U'.
-          eapply U' in U; simplify in U; intuition. 
+          eapply U' in U; simplify in U; easy. 
         + eapply decomp'_lambda_free in DE; eauto; simplify in DE; eauto.
           eapply lambda_free_subst_eqs; intuition idtac; eauto.
-          unfold update; destruct eq_dec; intuition; eauto using lambda_free.
+          unfold update; destruct eq_dec; (intuition auto); eauto using lambda_free.
         + exists (update x (tau • s) tau); econstructor; eauto.
       - eapply decomp'_none_not_unifiable in DE; intuition eauto.
         exfalso; eauto.
@@ -835,12 +837,12 @@ Section Retyping.
   Proof.
     intros H; induction A; cbn [retype_type].
     - cbn; lia.
-    - destruct dec2; simplify; intuition. 
+    - destruct dec2; simplify; intuition (auto with arith). 
   Qed.
 
   Lemma retype_type_id n A: ord A <= S n -> retype_type n A = A.
   Proof.
-    induction A; cbn [retype_type]; simplify; intuition.
+    induction A; cbn [retype_type]; simplify; intuition idtac.
     destruct dec2; [congruence | lia].
   Qed.
 
@@ -860,22 +862,22 @@ Section Retyping.
     unfold retype_ctx; rewrite <-map_rev, <-map_app; fold (retype_ctx n (rev L ++ Gamma)).
     eapply AppR_ordertyping_inv in H0 as (L' & ? &  ?).
     assert (ord' L' <= n).
-    - destruct s; destruct i; inv H2; simplify in H4. intuition.
-      rewrite H4 in H5; simplify in H5; intuition.
+    - destruct s; destruct i; inv H2; simplify in H4. now intuition auto.
+      rewrite H4 in H5; simplify in H5; intuition (auto with arith).
     - eapply AppR_ordertyping with (L := retype_ctx n L').
       + clear H2.
         induction H0; eauto.
-        econstructor. all: cbn in H3; simplify in H3. 2:intuition.
-        destruct dec2; intuition.
+        econstructor. all: cbn in H3; simplify in H3. 2:intuition (auto with datatypes).
+        destruct dec2; intuition trivial.
         erewrite <-retype_type_id; [| transitivity n; eauto].
-        eapply H; cbn; intuition.
+        eapply H; cbn; auto.
       + unfold retype_ctx at 2;
           rewrite <-map_rev; fold (retype_ctx n (rev L')).
         rewrite <-retype_Arr. destruct s; destruct i.
         all: inv H2; rewrite retype_type_id. 2-4:eauto.
         econstructor; eauto.
         unfold retype_ctx; erewrite map_nth_error; eauto.
-        destruct dec2; intuition.
+        destruct dec2; easy.
   Qed.
 
   Instance retype n (I: orduni n X) : orduni n X.
@@ -941,12 +943,12 @@ Section FirstOrderDecidable.
     intros. rewrite !subst_extensional
               with (sigma := sigma)
                    (tau := fun x => if x el (vars s ++ vars t) then sigma x else var x).
-    2 - 3: intros; edestruct dec_in as [D|D]; simplify in D; intuition.
-    eapply equiv_unique_normal_forms. intuition.
+    2 - 3: intros; edestruct dec_in as [D|D]; simplify in D; intuition easy.
+    eapply equiv_unique_normal_forms. easy.
     1: rewrite !subst_extensional
       with (tau := sigma)
            (sigma := fun x => if x el (vars s ++ vars t) then sigma x else var x); eauto. 
-    1 - 2: intros; edestruct dec_in as [D|D]; simplify in D; intuition.
+    1 - 2: intros; edestruct dec_in as [D|D]; simplify in D; intuition easy.
     all: eapply normal_subst; eauto 2; intros x; destruct dec_in; eauto 2.
     all: simplify in i; destruct i as [V|V]; eapply vars_ordertyping in V as V'; eauto 2.
     all: destruct V' as (B & V1 & V2).
@@ -974,14 +976,14 @@ Section FirstOrderDecidable.
     1 - 2: rewrite Nat.sub_add;
       eauto; asimpl; rewrite subst_extensional with (tau := var); [now asimpl|].
     1 - 2: intros y ? % H3; unfold free in *; eauto; unfold funcomp; f_equal; lia.
-    1 - 2: rewrite it_up_lt; eauto; symmetry; eapply H2; unfold bound, free; intuition; lia.
+    1 - 2: rewrite it_up_lt; eauto; symmetry; eapply H2; unfold bound, free; lia.
   Qed.
 
 
   Lemma it_up_free' k (sigma: fin -> exp X): free' (free k) (it k up sigma).
   Proof.
     unfold free; split; intros x; unfold bound.
-    - intros ?; rewrite it_up_lt; intuition. lia.
+    - intros ?; rewrite it_up_lt; intuition idtac. lia.
     - intros ? y. rewrite it_up_ge; eauto. 
       intros [z [->]] % vars_varof % varof_ren; eauto.
   Qed.
@@ -1018,7 +1020,7 @@ Section FirstOrderDecidable.
       exists Gamma. exists (decr (length L) sigma). intuition idtac.
       * specialize decr_typing with (L := rev L) as H9; simplify in H9; eauto. 
       * eapply decr_unifies; eauto.
-        specialize (unify_unifiable H' (AppR s T, AppR t T0)); cbn; intuition.
+        specialize (unify_unifiable H' (AppR s T, AppR t T0)); cbn; auto.
       * eapply lambda_free_normal. pose proof (free := fun (k: nat) (x: nat) => x >= k).
         eapply decr_lambda_free; intros; eapply LF.
     + intros (Delta & sigma & E1 & E2 & E3).  asimpl in E2. 
@@ -1033,7 +1035,7 @@ Section FirstOrderDecidable.
     + intros (Delta & sigma & ? & ? & ?).
       assert (|L| < |L'| \/ |L'| < |L|) as [LT|LT] by lia.
       2: symmetry in H3.
-      all: eapply Arr_inversion in H3 as [L'']. 2,4:intuition. all:intuition idtac;subst.
+      all: eapply Arr_inversion in H3 as [L'']. 2,4:intuition auto. all:intuition idtac;subst.
       all: simplify in H5; asimpl in H5; rewrite <-Lambda_plus in H5.
       all: eapply Lambda_injective in H5; destruct L''; [ simplify in LT; try lia; cbn in H5 | ].
       1: destruct T; destruct s; cbn in H5; try discriminate; [| destruct i].

@@ -196,7 +196,7 @@ Section FreeVariables.
   Global Instance dec_varof: Dec2 (varof). 
   Proof.
     intros x s; eapply iff_dec with (P := x ∈ vars s);
-      intuition; eauto.  
+      intuition idtac; auto with typeclass_instances.  
   Qed.
 
   Lemma subst_extensional sigma tau s:

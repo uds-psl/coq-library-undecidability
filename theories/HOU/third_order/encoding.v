@@ -41,11 +41,11 @@ Section Encoding.
       Gamma ⊢(3) enc w : alpha → alpha.
     Proof.      
       intros.
-      econstructor; (eauto 2). inv H; inv H0.
-      eapply AppL_ordertyping_repeated;eauto.
+      econstructor; trivial. inv H; inv H0.
+      eapply AppL_ordertyping_repeated; auto.
       eapply orderlisttyping_preservation_under_renaming.
       eapply repeated_ordertyping; simplify.
-      intros; mapinj. eapply encb_typing. all: eauto. 
+      intros; mapinj. eapply encb_typing. all: eauto 2. 
       intros ??; cbn; (eauto 2).
     Qed.
     
@@ -54,7 +54,7 @@ Section Encoding.
       (Gamma ⊢(3) @var X v : alpha → alpha) ->
       Gamma ⊢₊(3) Enc W : repeat (alpha → alpha) (length W).
     Proof.
-      intros. eapply repeated_ordertyping; simplify; (eauto 2).
+      intros. eapply repeated_ordertyping; simplify; trivial.
       intros; mapinj. eapply enc_typing; (eauto 2).
     Qed.
   End Typing.
@@ -75,7 +75,8 @@ Section Encoding.
 
     Lemma enc_cons b w s: enc (b :: w) s ≡ encb b (enc w s).
     Proof.
-      unfold enc. eapply equiv_join; rewrite stepBeta; asimpl;  eauto.
+      unfold enc. eapply equiv_join. { now rewrite stepBeta. }
+      rewrite stepBeta; [|reflexivity]. asimpl.
       rewrite map_map, map_id_list. rewrite map_map, map_id_list. eauto.
       all: intros; now asimpl.
     Qed.
@@ -85,7 +86,7 @@ Section Encoding.
     Lemma enc_app w1 w2 s:
       enc (w1 ++ w2) s ≡ enc w1 (enc w2 s).
     Proof.
-      induction w1; cbn; simplify; (eauto 2).
+      induction w1; cbn; simplify; [auto..|].
       now rewrite IHw1. 
     Qed.
 
@@ -94,7 +95,7 @@ Section Encoding.
     Lemma enc_concat W s:
       AppL (Enc W) s ≡ enc (concat W) s.
     Proof.
-      induction W; cbn; simplify; (eauto 2).
+      induction W; cbn; simplify; [auto..|].
       now rewrite IHW. 
     Qed.
   End Reduction.
@@ -118,7 +119,7 @@ Section Encoding.
     Proof.
       unfold enc.
       intros H1 H2. cbn. f_equal.
-      asimpl. f_equal. rewrite map_id_list; (eauto 2).
+      asimpl. f_equal. rewrite map_id_list; [auto..|].
       intros x ?; mapinj; mapinj. asimpl.
       rewrite <-compComp_exp, encb_subst_id; (eauto 2).
     Qed.
@@ -141,7 +142,7 @@ Section Encoding.
     Lemma encb_eq a b:
       encb a ≡ encb b -> a = b.
     Proof using u u_neq_v.
-      intros H % equiv_head_equal; cbn in *; (eauto 2).
+      intros H % equiv_head_equal; cbn in *; trivial.
       injection H; destruct a, b; intros; (eauto 1); exfalso; eapply u_neq_v; (eauto 2).
     Qed.
 
@@ -150,10 +151,10 @@ Section Encoding.
       enc w1 s ≡ enc w2 t -> nostring s -> nostring t ->
       w1 = w2 /\ s ≡ t.
     Proof using u_neq_v.
-      simplify. intros. induction w1 in w2, H |-*; destruct w2; cbn in *; (eauto 2).
-      - simplify in H; intuition. 
-      - simplify in H. destruct b; firstorder. 
-      - simplify in H; symmetry in H; destruct a; firstorder. 
+      simplify. intros. induction w1 in w2, H |-*; destruct w2; cbn in *; (auto 2).
+      - simplify in H; intuition easy. 
+      - simplify in H. destruct b; firstorder easy. 
+      - simplify in H; symmetry in H; destruct a; firstorder easy. 
       - simplify in H; Injection H.
         eapply IHw1 in H3 as [-> ->].
         now rewrite encb_eq with (a := a) (b := b).
@@ -172,16 +173,16 @@ Section Encoding.
     Lemma end_head_var:
       exists (h: nat) T s', s = AppR (var h) T /\ nth S h = Some s'.
     Proof using x v u_neq_v t sigma N H1 EQ.
-      eapply normal_nf in N as N'. inv N'. destruct k; cbn in *; (eauto 5); [|Discriminate].
+      eapply normal_nf in N as N'. inv N'. destruct k; cbn in *; (auto 5); [|Discriminate].
       destruct (s0); cbn in H; intuition idtac; clear H.
-      - assert(f < |S| \/ f >= |S|) as [] by lia; (eauto 5).
-        eapply nth_error_lt_Some in H as H2; destruct H2; (eauto 5).
+      - assert(f < |S| \/ f >= |S|) as [] by lia; auto.
+        eapply nth_error_lt_Some in H as H2; destruct H2. now eauto.
         asimpl in EQ; rewrite sapp_ge_in in EQ; (eauto 2).
         specialize (H1 (f - |S|)). intuition.
         eapply equiv_head_equal in EQ; cbn; simplify; (eauto 3). simplify in EQ; cbn in EQ; (eauto 1).
         destruct (sigma (f - (|S|))); cbn in *; intuition.
-      - eauto. asimpl in EQ.
-        eapply equiv_head_equal in EQ; cbn; simplify in *; (eauto 2).
+      - asimpl in EQ.
+        eapply equiv_head_equal in EQ; cbn; simplify in *; [|auto..].
         cbn in EQ; discriminate.
     Qed.
 
@@ -200,7 +201,7 @@ Section Encoding.
       + exists h'. exists t1. intuition. now eapply nth_error_Some_lt in H0.
       + eapply AppR_ordertyping_inv in H4.
         destruct H4 as [L]; intuition.
-        inv H3. rewrite nth_error_app1, nth_error_repeated in H5; simplify in *; (eauto 2).
+        inv H3. rewrite nth_error_app1, nth_error_repeated in H5; simplify in *.
         inv H2. inv H8. cbn in H5; injection H5 as ?.
         rewrite !Arr_app in H; cbn in H. eapply (f_equal arity) in H.
         rewrite arity_Arr in H; cbn in H. lia.
@@ -216,14 +217,14 @@ Section Encoding.
     { '(I, u) | I ⊆ nats n /\ s = AppL (map var I) u /\ forall x v, u = var x v -> ~ x < n }.
   Proof.
     destruct (@AppL_largest _ (fun s => match s with var x => x < n | _ => False end) s)
-      as (S & t & H2 & H3 & H4). intros []; intuition; now right.
+      as (S & t & H2 & H3 & H4). intros []; (intuition (auto with typeclass_instances)); now right.
     subst. induction S.
-    - exists (nil, t). cbn; intuition. eapply H4; (eauto 2).
+    - exists (nil, t). cbn; intuition (auto with listdb). eapply H4; (eauto 2).
     - edestruct IHS as [[I s'] (H1 & H3 & H5)].
-      intros; eapply H2; intuition.
-      specialize (H2 a); mp H2; lauto; destruct a; intuition.
+      intros; eapply H2; intuition (auto with datatypes).
+      specialize (H2 a); mp H2; destruct a; intuition (auto with datatypes).
       exists (f :: I, s'); cbn; intuition try congruence.
-      eapply lt_nats in H2; lauto.
+      eapply lt_nats in H2. auto with listdb.
   Qed.
 
 
@@ -253,7 +254,7 @@ Section Encoding.
         intros; subst; (eauto 2).
       }
       replace s with (ren mv s).
-      2: { asimpl; erewrite subst_extensional with (tau := var); asimpl; (eauto 2).
+      2: { asimpl; erewrite subst_extensional with (tau := var); asimpl; (auto 2).
         intros; unfold funcomp, mv; destruct eq_dec; subst; [exfalso; eapply Vu; eauto|].
         destruct eq_dec; subst; [exfalso; eapply Vv; eauto|eauto].
       }
@@ -264,29 +265,29 @@ Section Encoding.
       destruct (Nat.lt_total n (|L|)) as [?|[?|?]].
       - exfalso. eapply (f_equal arity) in H1; simplify in H1; lia.
       - destruct (AppL_decomposition (AppR a T) n) as [[I v''] (H2&H3&H4)].
-        exists I. intuition. exists (Enc W .+ mv >> var • v'').
+        exists I. intuition idtac. exists (Enc W .+ mv >> var • v'').
         split.
         + rewrite E.
-          rewrite Lambda_ren, AppR_Lambda'; simplify; try congruence.
-          rewrite it_up_var_sapp, H3, AppL_subst, select_variables_subst; simplify; (eauto 2).
+          rewrite Lambda_ren, AppR_Lambda'; simplify; [|congruence].
+          rewrite it_up_var_sapp, H3, AppL_subst, select_variables_subst; simplify; (auto 2).
           all: rewrite ?H5; (eauto 2). 
-        + eapply Arr_inversion in H1 as [[] [H1 H6]]; simplify; try lia.
-          2: discriminate. cbn in H1, H6. simplify in H1. subst.
+        + eapply Arr_inversion in H1 as [[] [H1 H6]]; simplify; [|discriminate|lia].
+          cbn in H1, H6. simplify in H1. subst.
           rewrite H3 in H0; eapply AppL_ordertyping_inv in H0 as (?&?&?&?).
           split; intros EQ; eapply end_is_var_typed in EQ  as (? & ? & ? & ?).
           1, 6: eapply H4; simplify in H6; (eauto 1);
-            rewrite <-H5; (eauto 2). 3, 7: eauto.
+            rewrite <-H5; easy. 3, 7: eauto.
           1, 4: intros; unfold funcomp; intuition eauto.
           1, 3: rewrite H3 in N; eapply normal_AppL_right, normal_Lambda, N.
           all: simplify; rewrite H1 in H0; simplify in H0; rewrite <-H5 in H0; (eauto 2).
-      - remember mv as delta. exists nil; intuition; cbn; simplify. eexists. rewrite E. intuition eauto.
+      - remember mv as delta. exists nil; intuition (auto with listdb); cbn; simplify. eexists. rewrite E. intuition eauto.
         edestruct (@list_decompose_alt (length L) _ W) as (W1&W2&?&?);
-          subst; (eauto 2).
-        simplify. rewrite !AppR_app, !Lambda_ren. split; rewrite !AppR_Lambda'; simplify; (eauto 2).
+          subst; (auto 2).
+        simplify. rewrite !AppR_app, !Lambda_ren. split; rewrite !AppR_Lambda'; simplify; (auto 2).
         all: rewrite !it_up_var_sapp; simplify; (eauto 1); rewrite AppR_subst.
         all: intros EQ.
         all: destruct a as [y| d | |]; cbn in isA;
-          intuition; [destruct (le_lt_dec (length W2) y)|].
+          (intuition idtac); [destruct (le_lt_dec (length W2) y)|].
         all: revert EQ.
         (* a constant *)
         3, 6: cbn; intros EQ' % equiv_head_equal; cbn; simplify; cbn; auto 1.
@@ -299,14 +300,14 @@ Section Encoding.
         all: eapply AppR_ordertyping_inv in H0 as [? [_ T2]]; intuition idtac; inv T2.
         all: symmetry in H1; eapply Arr_inversion in H1 as H6; simplify; try lia.
         all: destruct H6 as (?&?&?); eapply repeated_app_inv in H0.
-        all: intuition; subst; rewrite H0 in *; simplify in H4; simplify in H3; rewrite H4 in l.  
+        all: intuition idtac; subst; rewrite H0 in *; simplify in H4; simplify in H3; rewrite H4 in l.  
         all: eapply id in H3 as HH;
-          rewrite nth_error_app1, nth_error_repeated in HH; simplify; (eauto 2).
+          rewrite nth_error_app1, nth_error_repeated in HH; simplify; (auto 2).
         all: injection HH as HH; destruct x0; simplify in H6; simplify in H3.
         all: simplify in H; try lia; cbn in H8; injection H8 as ->. 
         all: eapply (f_equal ord) in HH; simplify in HH.
         all: symmetry in HH; eapply Nat.eq_le_incl in HH; simplify in HH.
-        all: intuition; cbn [ord'] in H9.
+        all: intuition idtac; cbn [ord'] in H9.
         all: cbn [add] in H9; rewrite Nat.succ_max_distr in H9.
         all: eapply Nat.max_lub_l in H9; cbn in H9; lia.
     Qed.
@@ -334,11 +335,11 @@ Section ReductionEncodings.
     eapply AppL_ordertyping_repeated.
     eapply repeated_ordertyping; simplify; (eauto 1).
     intros; mapinj.  
-    econstructor; simplify; cbn; (eauto 4).
+    econstructor; simplify; cbn; [auto|].
     rewrite nth_error_app1; simplify; (eauto 1).
     eapply nth_error_repeated; (eauto 1).
     1 - 2: eapply nats_lt, H, H2.
-    econstructor; simplify; (eauto 2).  
+    econstructor; simplify; (auto 2).  
     rewrite nth_error_app2; simplify; (eauto 1).
   Qed.
   

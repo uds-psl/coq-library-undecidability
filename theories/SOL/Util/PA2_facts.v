@@ -347,7 +347,7 @@ Section EmbedSignature.
       | 0 => env_contains_PA2 ⟨get_indi rho, f .: get_func rho, get_pred rho⟩ ⟨get_indi rho', f .: get_func rho', get_pred rho'⟩ (S xO) xS xA xEq
       | 1 => env_contains_PA2 ⟨get_indi rho, f .: get_func rho, get_pred rho⟩ ⟨get_indi rho', f .: get_func rho', get_pred rho'⟩ xO (S xS) xA xEq
       | 2 => env_contains_PA2 ⟨get_indi rho, f .: get_func rho, get_pred rho⟩ ⟨get_indi rho', f .: get_func rho', get_pred rho'⟩ xO xS (S xA) xEq
-      | ar => env_contains_PA2 ⟨get_indi rho, f .: get_func rho, get_pred rho⟩ ⟨get_indi rho', f .: get_func rho', get_pred rho'⟩ xO xS xA xEq
+      | _ => env_contains_PA2 ⟨get_indi rho, f .: get_func rho, get_pred rho⟩ ⟨get_indi rho', f .: get_func rho', get_pred rho'⟩ xO xS xA xEq
     end.
   Proof.
     intros E. unfold econs, econs_func, econs_ar. destruct ar as [|[|[]]];

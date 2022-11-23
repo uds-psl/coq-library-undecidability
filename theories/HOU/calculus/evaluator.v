@@ -11,21 +11,6 @@ Section Evaluator.
   Context {X: Const}.
 
   (* ** Step Indexed Interpreter *)
-  Definition xi := evaluator.E (@rho X) _.
-
-  Lemma xi_correct s t:
-    s ▷ t <-> exists n, xi n s = Some t.
-  Proof.
-    split; intros ?; eapply E_correct_tak; try eapply tak_fun_rho.
-    all: eauto using sandwich_step, sandwich_steps.
-    all: typeclasses eauto. 
-  Qed.
-
-  Lemma xi_monotone n  m s t:
-    n <= m -> xi n s = Some t -> xi m s = Some t.
-  Proof.
-    intros ??; eapply E_monotone; eauto.
-  Qed.
 
   Lemma compute_evaluation_step (s: exp X):
     (exists t, s ▷ t) -> { t | s ▷ t }.

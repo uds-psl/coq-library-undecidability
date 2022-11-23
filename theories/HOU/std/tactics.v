@@ -17,15 +17,6 @@ Ltac invp R :=
   end.
 
 
-Ltac exdestruct := 
-    match goal with
-    | [ H: ex ?P     |- _] => destruct H
-    | [ H: ex2 ?P ?Q |- _] => destruct H
-    | [ H: sig ?P    |- _] => destruct H
-    | [ H: sigT ?P   |- _] => destruct H
-    end.
-
-
 (* _Modus Ponens_ - applies to implications,
     will generate a subgoal for the premise of H and then specialize H with the result *)
 Ltac mp H :=

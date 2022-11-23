@@ -204,7 +204,7 @@ Section SystemUnification.
     - intros x H. eapply varof_vars; econstructor; eapply vars_varof.
       rewrite AppR_vars; simplify; right.
       eapply in_flat_map in H as [y]; eapply in_flat_map; exists (ren shift y).
-      intuition. now eapply ren_vars.
+      intuition (auto with listdb). now eapply ren_vars.
   Qed.
 
   Hint Resolve linearize_terms_typing : core.

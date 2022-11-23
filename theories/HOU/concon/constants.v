@@ -36,7 +36,7 @@ Section Retracts.
     Lemma re_ren f delta: re f >> ren delta = re (f >> delta).
     Proof.
       fext; intros x; unfold funcomp, re.
-      destruct tight; eauto. now rewrite inhab_ren.
+      destruct tight; auto. now rewrite inhab_ren.
     Qed.
 
     Lemma subst_consts_inject_forward sigma s:
@@ -46,7 +46,7 @@ Section Retracts.
       induction s in sigma |-*; cbn in *; intuition.
       - f_equal. rewrite inj_ren.
         rewrite IHs. f_equal.
-        fext; intros []; cbn; eauto.
+        fext; intros []; cbn; auto.
         rewrite <-inj_ren with (delta := shift) at 1. 
         unfold funcomp at 2. now rewrite ren_subst_consts_commute.
       - now rewrite IHs1, IHs2.
@@ -61,8 +61,8 @@ Section Retracts.
       - unfold funcomp. unfold re. unfold tight. rewrite retr.
         destruct (I c == I c); intuition. 
       - f_equal.
-        rewrite subst_consts_up, inj_ren, re_ren; eauto. 
-      - rewrite IHs1, IHs2; eauto.
+        rewrite subst_consts_up, inj_ren, re_ren; auto. 
+      - rewrite IHs1, IHs2; auto.
     Qed.
 
 
@@ -70,7 +70,7 @@ Section Retracts.
        Delta ⊩(n) sigma : Gamma ->
        Delta ⊩(n) sigma >> subst_consts inj : Gamma.
     Proof using consts_agree.
-      intros ????. eapply ordertyping_preservation_consts; eauto.
+      intros ????. eapply ordertyping_preservation_consts; auto.
       intros ??; unfold inj.
       rewrite consts_agree.
       econstructor; rewrite <-consts_agree.
@@ -84,7 +84,7 @@ Section Retracts.
       Delta ⊩(n) sigma >> subst_consts (re f) : Gamma.
     Proof using consts_agree.
       intros L T Sub x A H; unfold funcomp.
-      eapply ordertyping_preservation_consts; eauto.
+      eapply ordertyping_preservation_consts; auto.
       intros y H'. 
       unfold re. destruct (tight RE y) eqn: EQr.
       - eapply tight_is_tight in EQr. subst. rewrite <-consts_agree.
@@ -104,13 +104,13 @@ Section Retracts.
       eapply ordertyping_preservation_consts. eapply H1₀.
       intros x H1. unfold inj. rewrite consts_agree.
       econstructor. rewrite <-consts_agree.
-      eapply typing_constants. eapply H1₀. eauto.  
+      eapply typing_constants. eapply H1₀. auto.  
     Qed.
     Next Obligation.
       eapply ordertyping_preservation_consts. eapply H2₀.
       intros x H1. unfold inj. rewrite consts_agree.
       econstructor. rewrite <-consts_agree.
-      eapply typing_constants. eapply H2₀. eauto.  
+      eapply typing_constants. eapply H2₀. auto.  
     Qed.
 
 
@@ -136,13 +136,13 @@ Section Retracts.
                   end).
       exists (Delta ++ target' (map (ctype Y) C)).
       exists (sigma >> subst_consts (re f)). split.
-      - eapply re_typing; eauto. 
-        intros ???. eapply weakening_ordertyping_app; eauto.
+      - eapply re_typing; auto. 
+        intros ???. eapply weakening_ordertyping_app; auto.
         intros x y H1 H2. eapply Consts_consts with (S := map sigma (nats (| Gamma₀ |))) in H2;
-                            eauto using in_map, lt_nats.
+                            auto using in_map, lt_nats.
         unfold f, C. eapply find_in in H2 as [? H3]; rewrite H3.
-        rewrite nth_error_app2; simplify; eauto.
-        unfold target'; erewrite map_map, map_nth_error; simplify; eauto.
+        rewrite nth_error_app2; simplify; auto.
+        unfold target'; erewrite map_map, map_nth_error; simplify; auto.
         now eapply find_Some.
       - unfold s₀, t₀ in EQ; cbn in EQ.
         now rewrite <-!subst_consts_inject_backwards, EQ. 
@@ -154,7 +154,7 @@ Section Retracts.
     Proof using re inj consts_agree RE.
       intros H; exists unification_retract.
       intros I; split;
-        eauto using unification_retract_forward, unification_retract_backward.
+        auto using unification_retract_forward, unification_retract_backward.
     Qed.
 
 End Retracts.
@@ -225,12 +225,12 @@ Section RemoveConstants.
           * rewrite select_nats.
             rewrite firstn_app; simplify.
             rewrite <-firstn_all; cbn; now simplify.
-          * eauto.  
+          * auto.  
         + econstructor; simplify; [split;[trivial|]|].  
           eapply vars_ordertyping_nth with (n := n) (Gamma := Gamma)
             in H1; eauto. 
           unfold enc_ctx;
-            erewrite nth_error_app2, map_nth_error; simplify; now eauto.
+            erewrite nth_error_app2, map_nth_error; simplify; now auto.
       - intros x H'. unfold enc_const.
         eapply consts_subst_in in H' as [].
         destruct (R' x) eqn: EQ.
@@ -243,7 +243,7 @@ Section RemoveConstants.
             now eapply ord'_in, in_map, H. 
             rewrite nth_error_app1; simplify;
               eauto using nth_error_Some_lt.
-            erewrite map_nth_error; now eauto.
+            erewrite map_nth_error; now auto.
           * exfalso. 
             eapply find_not_in in H1; intuition. 
         + unfold enc_var in H0. destruct H0. intuition.
@@ -260,8 +260,8 @@ Section RemoveConstants.
   Proof using consts_agree O.
     intros H; unfold inv_term.
     eapply AppR_ordertyping with (L := map (ctype X) C).
-    eapply const_ordertyping_list. rewrite O; eauto. 
-    eapply ordertyping_preservation_consts; [eauto|].
+    eapply const_ordertyping_list. rewrite O; auto. 
+    eapply ordertyping_preservation_consts; [auto|].
     intros y ?; rewrite consts_agree.
     econstructor. rewrite <-consts_agree.
     eapply typing_constants; eauto.
@@ -285,7 +285,7 @@ Section RemoveConstants.
      Delta ⊩(n) inv_subst C sigma : Gamma.
   Proof using consts_agree O.
     intros ????. eapply inv_term_typing, H.
-    unfold enc_ctx; erewrite map_nth_error; eauto.  
+    unfold enc_ctx; erewrite map_nth_error; auto.  
   Qed.
 
   (* maybe a setoid bug *)
@@ -311,7 +311,7 @@ Section RemoveConstants.
   Proof using n RE C.
     induction s in sigma, zeta, tau, kappa, theta |-*.
     - cbn; intros; eapply H; now econstructor.
-    - cbn; intros; eapply H0; eauto.
+    - cbn; intros; eapply H0; auto.
     - cbn -[vars]; intros.
       rewrite IHs with (kappa := kappa >> ren shift) (theta := up theta); [easy|..].
       + intros []; cbn; [easy|].
@@ -320,12 +320,12 @@ Section RemoveConstants.
         unfold funcomp at 2. rewrite ren_subst_consts_commute.
         unfold up. asimpl.
         erewrite <-compSubstSubst_exp; try reflexivity.
-        intros; eapply subst_steps, H. eauto. 
+        intros; eapply subst_steps, H. auto. 
       + intros x. unfold funcomp.
         asimpl. erewrite <-compSubstSubst_exp; try reflexivity.
-        intros; eapply subst_steps, H0; eauto.
+        intros; eapply subst_steps, H0; auto.
     - intros; cbn; rewrite IHs1, IHs2; try reflexivity.
-      1, 3: intros; eapply H; eauto.   
+      1, 3: intros; eapply H; auto.   
       all: intros; eapply H0; cbn; simplify; intuition.
   Qed.
 
@@ -351,13 +351,13 @@ Section RemoveConstants.
         destruct (le_lt_dec (length C) y).
         rewrite it_up_ren_ge, (Nat.add_comm (| C |)), (Nat.add_comm (| C |)), Nat.sub_add, sapp_ge_in; simplify; trivial.
         erewrite it_up_ren_lt, nth_error_sapp; trivial.
-        erewrite map_nth_error; eauto using nth_nats.
+        erewrite map_nth_error; auto using nth_nats.
       + unfold enc_const; intros c; destruct (R' c) eqn: ?; cbn; trivial.
         intros [m H'] % H1 % find_in; trivial; rewrite H'.
         eapply find_Some, nth_error_Some_lt in H'.
         cbn; unfold funcomp; erewrite it_up_ren_lt, nth_error_sapp; trivial.
-        erewrite map_nth_error; eauto using nth_nats.
-      + intros ? ?; mapinj; mapinj; cbn; rewrite it_up_lt; eauto using nats_lt. 
+        erewrite map_nth_error; auto using nth_nats.
+      + intros ? ?; mapinj; mapinj; cbn; rewrite it_up_lt; auto using nats_lt. 
     - unfold enc_const; intros c; destruct (R' c) eqn: ?; cbn; trivial.
       intros [m H'] % H2 % find_in; trivial; rewrite H'.
       eapply find_Some, nth_error_Some_lt in H'.
@@ -380,7 +380,7 @@ Section RemoveConstants.
     erewrite subst_consts_subst with (kappa := enc_const C) (theta := theta).
     - rewrite subst_consts_comp. 
       rewrite subst_consts_subst with (kappa := const) (theta := inv_subst C sigma) .
-      rewrite subst_consts_ident; eauto.
+      rewrite subst_consts_ident; auto.
       + intros x V. unfold theta, inv_subst.
         rewrite subst_consts_AppR, subst_consts_comp.
         rewrite map_id_list.
@@ -392,17 +392,17 @@ Section RemoveConstants.
         rewrite ren_subst_consts_commute. unfold inv_term. asimpl.
         eapply refl_star. f_equal.
         * eapply idSubst_exp. intros y; unfold funcomp.
-          erewrite sapp_ge_in; simplify; eauto.  
+          erewrite sapp_ge_in; simplify; auto.  
         * clear theta V. eapply list_pointwise_eq.
           intros m; rewrite !nth_error_map_option.
           destruct (le_lt_dec (length C) m) as [H1|H1].
           -- edestruct nth_error_None as [_ ->].
              edestruct nth_error_None as [_ ->].
-             all: cbn; simplify; eauto. 
+             all: cbn; simplify; auto. 
           -- rewrite nth_nats; trivial; cbn.
              destruct (nth_error_lt_Some _ m C) as [c H3]; trivial.
              rewrite H3; cbn. erewrite nth_error_sapp; trivial.
-             erewrite map_nth_error; eauto.
+             erewrite map_nth_error; auto.
       + intros ??. unfold funcomp.
         unfold enc_const.
         destruct (R' x) eqn: ?. cbn.
@@ -411,7 +411,7 @@ Section RemoveConstants.
         eapply find_in in H0 as [m H0]; rewrite H0.
         cbn. erewrite nth_error_sapp; trivial.
         erewrite map_nth_error; trivial.
-        eapply find_Some; eauto.
+        eapply find_Some; auto.
     - intros; unfold enc_var, theta.
       rewrite subst_consts_AppR; cbn.
       rewrite AppR_subst; cbn; rewrite it_up_ge; trivial; simplify.
@@ -420,13 +420,13 @@ Section RemoveConstants.
       eapply refl_star. f_equal.
       rewrite map_id_list; trivial.
       intros ??; mapinj; mapinj; cbn.
-      rewrite it_up_lt; eauto using nats_lt. 
+      rewrite it_up_lt; auto using nats_lt. 
     - intros. unfold enc_const. destruct (R' x) eqn: ?. cbn.
       eapply tight_is_tight in Heqo; now subst.
       eapply H in H0; trivial. 
       eapply find_in in H0 as [m H0]; rewrite H0.
        eapply find_Some, nth_error_Some_lt in H0.
-      cbn; erewrite it_up_lt; eauto.
+      cbn; erewrite it_up_lt; auto.
   Qed.
 
   Lemma enc_inv_motivation s:
@@ -434,7 +434,7 @@ Section RemoveConstants.
     inv_term C (enc_term C s) >* (fun x => AppR (var x) (map const C)) • s.
   Proof using n.
     intros H. replace (enc_term C s) with (var • enc_term C s) by now asimpl.
-    rewrite enc_term_app; eauto.
+    rewrite enc_term_app; auto.
   Qed.
    
   
@@ -458,12 +458,12 @@ Section RemoveConstants.
   Next Obligation.
     eapply remove_constants_ordertyping; trivial using H1₀.
     cbn; simplify; intuition.
-    eapply filter_In; destruct eq_dec; intuition. 
+    eapply filter_In; destruct eq_dec; intuition (auto with datatypes). 
   Qed.
   Next Obligation.
     eapply remove_constants_ordertyping; trivial using H2₀.
     cbn; simplify; intuition.
-    eapply filter_In; destruct eq_dec; intuition. 
+    eapply filter_In; destruct eq_dec; intuition (auto with datatypes). 
   Qed.
 
   
@@ -487,7 +487,7 @@ Section RemoveConstants.
       cbn in Cs; simplify in Cs. 
       rewrite !enc_subst_term_reduce; trivial; intuition trivial.
       now rewrite E.
-      all: eapply filter_In; destruct eq_dec; cbn; intuition.
+      all: eapply filter_In; destruct eq_dec; cbn; intuition (auto with datatypes).
       all: rewrite app_nil_r; eauto.
   Qed.
 
@@ -498,10 +498,10 @@ Section RemoveConstants.
   Proof.
     pose (C := iConsts I).
     destruct I as [Gamma s t A H1 H2]; intros (Delta & sigma & T & EQ).
-    exists Delta. exists (inv_subst C sigma). split; [eauto using inv_subst_typing|].
+    exists Delta. exists (inv_subst C sigma). split; [auto using inv_subst_typing|].
     rewrite <-!enc_term_app. cbn [s₀ t₀ remove_constants] in EQ.
-    unfold C; now rewrite EQ. 1,3: eauto. 
-    all: intros; eapply filter_In; cbn; intuition; destruct eq_dec; intuition.
+    unfold C; now rewrite EQ. 1,3: auto. 
+    all: intros; eapply filter_In; cbn; (intuition (auto with datatypes)); destruct eq_dec; intuition (auto with datatypes).
   Qed.
 
 
