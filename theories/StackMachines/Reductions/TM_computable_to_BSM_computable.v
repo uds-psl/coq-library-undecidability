@@ -320,20 +320,10 @@ Arguments encode_bsm {_ _} _, _ {_} _.
 Lemma encode_bsm_nil (Σ : finType) n   :
   { '(str2, n') | forall (t : Vector.t (tape Σ) n), (encode_bsm Σ (niltape ::: t))@[Fin2] =  str2 ++ (skipn n' ((encode_bsm Σ t)@[Fin2]))}.
 Proof.
-  eexists (_, _). cbn. intros t.
-  unfold complete_encode, conv_tape.
-    etransitivity.
-    1: destruct destruct_vector_cons as (? & ? & E). 1: cbn - [skipn].
-    1: apply Vector.cons_inj in E; inv E.
-    1: reflexivity.
-    symmetry. etransitivity.
-    1: destruct destruct_vector_cons as (? & ? & E).  1: cbn - [skipn].
-    1: apply Vector.cons_inj in E; inv E.
-    1: reflexivity.
-    1: cbn - [skipn].
-    rewrite skipn_app'. 2: now rewrite length_encode_sym.
-    instantiate (1 := encode_sym _ ++ true :: false :: encode_sym _ ++ true :: false :: encode_sym _).
-    rewrite <- app_assoc. cbn. now rewrite <- app_assoc.
+  eexists (_, _). intros t. cbn.
+  rewrite skipn_app'. 2: now rewrite length_encode_sym.
+  instantiate (1 := encode_sym _ ++ true :: false :: encode_sym _ ++ true :: false :: encode_sym _).
+  rewrite <- app_assoc. cbn. now rewrite <- app_assoc.
 Qed.
 
 Definition strpush_common_short (Σ : finType) (s b : Σ) :=
@@ -389,9 +379,6 @@ Definition strpush_zero (Σ : finType) (s b : Σ) :=
 Lemma encode_bsm_at0 (Σ : finType) n (t : Vector.t (tape Σ) n) :
    (encode_bsm Σ t) @[Fin0] = [].
 Proof.
-  unfold encode_bsm, enc_tape, complete_encode, conv_tape.
-  destruct destruct_vector_cons as (? & ? & E).
-  1: cbn; apply Vector.cons_inj in E; inv E.
   reflexivity.
 Qed.
 
@@ -399,37 +386,19 @@ Lemma encode_bsm_at1 (Σ : finType) n :
    forall (t : Vector.t (tape Σ) n), (encode_bsm Σ t) @[Fin1] = [false].
 Proof.
   intros t.
-  unfold encode_bsm, enc_tape, complete_encode, conv_tape.
-  destruct destruct_vector_cons as (? & ? & E).
-  1: cbn; apply Vector.cons_inj in E; inv E.
   reflexivity.
 Qed.
 
 Lemma encode_bsm_at3 (Σ : finType) n (t : Vector.t (tape Σ) n) :
    (encode_bsm Σ t) @[Fin3] = [].
 Proof.
-  unfold encode_bsm, enc_tape, complete_encode, conv_tape.
-  destruct destruct_vector_cons as (? & ? & E).
-  1: cbn; apply Vector.cons_inj in E; inv E.
   reflexivity.
 Qed.
-
-Axiom FF : False.
 
 Lemma encode_bsm_zero (Σ : finType) s b :
   { n' | forall n(t : Vector.t (tape Σ) n), (encode_bsm Σ (encNatTM s b 0 ::: t)) @[Fin2] = strpush_zero s b ++ (skipn n' ((encode_bsm Σ t)@[Fin2]))}.
 Proof.
-  eexists _. intros t.
-  unfold encode_bsm at 1.
-  unfold enc_tape at 1.
-  cbn.
-  unfold complete_encode, conv_tape.
-  etransitivity.
-  1: destruct destruct_vector_cons as (? & ? & E). 1: cbn [projT1]. 1: apply Vector.cons_inj in E; inv E.
-  1: reflexivity.
-  symmetry. etransitivity.
-  1: destruct destruct_vector_cons as (? & ? & E). 1: cbn [projT1]. 1: apply Vector.cons_inj in E; inv E.
-  1: reflexivity.
+  eexists _. intros ? t.
   cbn. rewrite skipn_app'. 2: now rewrite length_encode_sym.
   unfold strpush_zero, strpush_common, strpush_common_short.
   cbn. rewrite <- app_assoc. cbn. rewrite <- app_assoc. cbn. rewrite <- app_assoc.
@@ -450,18 +419,7 @@ strpush_common s b ++
 Lemma encode_bsm_succ (Σ : finType) n m s b (t : Vector.t (tape Σ) n) :
       (encode_bsm Σ (encNatTM s b (S m) ::: t)) @[Fin2] = strpush_succ s b ++ (skipn (length (strpush_common_short s b)) ((encode_bsm Σ (encNatTM s b m ::: t))@[Fin2])).
 Proof.
-  unfold encode_bsm.
-  unfold enc_tape. repeat f_equal.
-  unfold complete_encode, conv_tape.
-  etransitivity.
-  1: destruct destruct_vector_cons as (? & ? & E).  1: cbn - [skipn].  1: apply Vector.cons_inj in E; inv E. 1: cbn - [skipn].
-  1: unfold strpush_common, strpush_common_short.
-  1: destruct_tapes.  1: cbn - [skipn].  1: reflexivity.
-  unfold strpush_common, strpush_common_short. cbn - [skipn].
-  
-  symmetry. etransitivity.  1: cbn - [skipn].
-  1: destruct destruct_vector_cons as (? & ? & E). 1: cbn - [skipn]. 1: apply Vector.cons_inj in E; inv E.  1: cbn - [skipn].
-  1: destruct_tapes. 1:  cbn - [skipn]. 1:  reflexivity.
+  cbn - [skipn].
   match goal with [|- context [ skipn _ (?x1 ++ true :: false :: ?x2 ++ true :: false :: ?x3 ++ true :: false :: ?x4 ++ ?x5) ]] =>
     replace (x1 ++ true :: false :: x2 ++ true :: false :: x3 ++ true :: false :: x4 ++ x5) with
             ((x1 ++ true :: false :: x2 ++ true :: false :: x3 ++ true :: false :: x4) ++ x5)
