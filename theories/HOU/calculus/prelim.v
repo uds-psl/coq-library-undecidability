@@ -82,22 +82,22 @@ Lemma it_up_ren_spec n delta x:
   it n up_ren delta x = if dec2 lt x n then x else n + delta (x - n).
 Proof.
   induction n in x, delta |-*; cbn.
-  - destruct dec2; intuition. lia.
-  - destruct x; cbn; destruct dec2; intuition. lia.
+  - destruct dec2; intuition idtac; rewrite ?Nat.sub_0_r; lia.
+  - destruct x; cbn; destruct dec2; intuition idtac. lia.
     all: unfold funcomp; erewrite IHn.
-    all: destruct dec2; intuition; lia.
+    all: destruct dec2; intuition idtac; lia.
 Qed.
 
 Lemma it_up_ren_lt n delta x:
   x < n -> it n up_ren delta x = x.
 Proof.
-  intros; rewrite it_up_ren_spec; destruct dec2; intuition. 
+  intros; rewrite it_up_ren_spec; destruct dec2; intuition easy. 
 Qed.
 
 Lemma it_up_ren_ge n delta x:
   x >= n -> it n up_ren delta x = n + delta (x - n).
 Proof.
-  intros; rewrite it_up_ren_spec; destruct dec2; intuition; lia.
+  intros; rewrite it_up_ren_spec; destruct dec2; intuition idtac; lia.
 Qed.
 
 Lemma it_up_spec X n (sigma: fin -> @exp X) x:
@@ -106,21 +106,21 @@ Lemma it_up_spec X n (sigma: fin -> @exp X) x:
 Proof.
   induction n in x, sigma |-*; cbn.
   - asimpl; destruct dec2; [lia|]; now destruct x. 
-  - destruct x; cbn; destruct dec2; intuition; [lia| |].
+  - destruct x; cbn; destruct dec2; (intuition idtac); [lia| |].
     all: unfold funcomp; erewrite IHn.
-    all: destruct dec2; intuition; try lia; now asimpl.
+    all: destruct dec2; intuition idtac; try lia; now asimpl.
 Qed.
 
 Lemma it_up_lt X n (sigma: fin -> @exp X) x:
   x < n -> it n up_exp_exp sigma x = var_exp x.
 Proof.
-  intros; rewrite it_up_spec; destruct dec2; intuition. 
+  intros; rewrite it_up_spec; destruct dec2; intuition easy. 
 Qed.
 
 Lemma it_up_ge X n (sigma: fin -> @exp X) x:
   x >= n -> it n up_exp_exp sigma x = ren_exp (plus n) (sigma (x - n)).
 Proof.
-  intros; rewrite it_up_spec; destruct dec2; intuition; lia.
+  intros; rewrite it_up_spec; destruct dec2; intuition idtac; lia.
 Qed.
 
 Lemma it_up_var_sapp X A n delta e:

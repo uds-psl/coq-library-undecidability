@@ -187,29 +187,6 @@ Section Equivalence.
 
   End DisjointnessProperties.
 
-
-  (* ** Huet Definition *)
-  Section HuetDefinition.
-    Variable (s t v1 v2: exp X).
-    Hypothesis (E1: s ▷ v1) (E2: t ▷ v2).
-
-
-    Lemma equiv_huet_forward:
-      s ≡ t ->  v1 = v2.
-    Proof using E1 E2.
-      destruct E1 as [H1 N1], E2 as [H2 N2].
-      intros H; eapply equiv_unique_normal_forms; trivial.
-      now rewrite <-H1, <-H2.
-    Qed.
-
-    Lemma equiv_huet_backward:
-      v1 = v2 -> s ≡ t.
-    Proof using E1 E2.
-      intros; subst; destruct E1, E2; eapply equiv_join; eauto. 
-    Qed.
-  End HuetDefinition.
-
-
 End Equivalence.
 
 Notation "s ≡ t" := (equiv step s t) (at level 70).  

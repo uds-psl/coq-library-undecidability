@@ -140,7 +140,7 @@ Section Conservativity.
           eapply in_map, lt_nats, nth_error_Some_lt; eauto.
       - rewrite !subst_const_comm_id. now rewrite EQ.
         all: eapply subst_consts_ident; intros x;
-          rewrite Consts_consts with (S := [s; t]); intuition.
+          rewrite Consts_consts with (S := [s; t]); intuition (auto with datatypes).
         all: now unfold zeta, C0; eapply find_in in H as [? ->].
       - eapply consts_in_subst_consts in H as [d []].
         unfold zeta in *. destruct find eqn: H1.
@@ -168,19 +168,19 @@ Section Conservativity.
     Proof.
       induction 2; [eauto|eauto| |].
       - simplify; intros; econstructor; eapply IHtyping; intuition trivial.
-        eauto using normal_lam_elim. cbn; simplify; intuition.
+        eauto using normal_lam_elim. cbn; simplify; intuition (auto with arith).
       - intros; enough (ord A <= n).
         + econstructor; [eapply IHtyping1 | eapply IHtyping2].
-          1, 5: intros; eapply H; cbn; intuition.
+          1, 5: intros; eapply H; cbn; intuition (auto with datatypes).
           1, 4: eauto using normal_app_r, normal_app_l.
           2, 4: eauto.
-          1, 2: simplify; eauto; intuition.
+          1, 2: simplify; eauto; intuition (auto with arith).
         + eapply head_atom in H0; [|easy]. cbn in H0.
           destruct (head_decompose s) as [T].
           rewrite H3 in H0_.
           eapply AppR_typing_inv in H0_ as (? & ? & ?).
           enough (ord (Arr (rev x) (A → B)) <= S n)
-            as H6 by (simplify in H6; intuition).
+            as H6 by (simplify in H6; intuition (auto with arith)).
           destruct (head s); cbn in H0; eauto.
           all: inv H5.
           eapply ord'_elements in H2; eauto.
@@ -240,7 +240,7 @@ Section Conservativity.
     split; unfold Consts; intros ? [x] % in_flat_map; eapply in_flat_map.
     all: intuition; try mapinj. eexists; split; [eassumption|].
     now rewrite consts_ren in H1.
-    exists (ren shift x); intuition. now rewrite consts_ren.
+    exists (ren shift x); intuition (auto with listdb). now rewrite consts_ren.
   Qed.
 
 

@@ -848,7 +848,7 @@ Lemma HaltTM_Σ_to_HaltTM_bool_correct : HaltsTM M ts <-> HaltsTM M' ts'.
 Proof.
   unfold M', ts'. split.
   - intros (q' & t' & [n H] % TM_eval_iff).
-    edestruct @Sim_Terminates with (M := (existT _ M (fun _ : state M => tt))) (T := fun tin k => tin = ts /\ k >= n).
+    destruct (Sim_Terminates (M := (existT _ M (fun _ : state M => tt))) (T := fun tin k => tin = ts /\ k >= n)).
     + intros tin k [-> Hk]. cbn. exists (mk_mconfig q' t').  eapply @loop_monotone.
       { exact H. } eapply Hk.
     + destruct H0 as [k H0]. cbn in H0. edestruct H0 as [[] H1].
@@ -867,6 +867,7 @@ Proof.
       specialize (H t eq_refl) as [t'_sig [[q'_ H1] H2]]. cbn in H1. 
       cbn in H2. subst. exists q'_, [|t'_sig|]. eassumption. 
     + intros tin k [q'_ tout] Hter. cbn in *. exists q'_. eapply TM_eval_iff. exists k. exact Hter.
+    
 Qed.
 
 End HaltTM_Σ_to_HaltTM_bool.

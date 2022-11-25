@@ -43,7 +43,7 @@ Section Multiplication.
 
   Lemma T_subst m sigma: sigma • (T m) = T m.
   Proof.
-    unfold T; cbn; asimpl. rewrite !map_id_list; eauto.
+    unfold T; cbn; asimpl. rewrite !map_id_list; trivial.
     rewrite tab_map_nats.
     intros; mapinj. unfold t; cbn; now asimpl.
   Qed.
@@ -63,7 +63,7 @@ Section Multiplication.
     unfold T. eapply equiv_join.
     cbn. do 3 (dostep; cbn). unfold beta. rewrite rinstInst_exp, !compComp_exp. reflexivity.
     eapply refl_star. eapply ext_exp.
-    intros [|[|[]]]; cbn; eauto. now asimpl.
+    intros [|[|[]]]; cbn; trivial. now asimpl.
   Qed.
 
   Lemma G_right_subst m: (T m) Nil (enc n A) (Succ B) ≡ τ • lin (tab t m) r.
@@ -72,7 +72,7 @@ Section Multiplication.
     unfold T. eapply equiv_join.
     cbn. do 3 (dostep; cbn). unfold beta. rewrite rinstInst_exp, !compComp_exp. reflexivity.
     eapply refl_star. eapply ext_exp.
-    intros [|[|[]]]; cbn; eauto. now asimpl.
+    intros [|[|[]]]; cbn; trivial. now asimpl.
   Qed.
   End G_subst.
 
@@ -95,7 +95,7 @@ Section Multiplication.
   Lemma G_left_reduce m p q:
     (T m) (⟨ enc p A, enc q B⟩ ::: Nil) A B ≡ lin (tab t m) (⟨ enc p A, enc q B⟩ ::: Nil).
   Proof.
-    rewrite G_left_subst. asimpl. rewrite map_id_list; eauto.
+    rewrite G_left_subst. asimpl. rewrite map_id_list; [auto|].
    rewrite tab_map_nats.
    intros; mapinj. unfold t; cbn; now asimpl.
   Qed.
@@ -135,35 +135,35 @@ Section Multiplication.
     assert (normal (ren delta u)) as N' by (subst; eapply normal_ren; eauto).
     do 2 apply equiv_lam_elim in EQ.
     destruct u as [| | u' | ]; unfold funcomp; cbn in EQ.
-    4: eapply head_atom in N'; eauto.
+    4: eapply head_atom in N'; auto.
     1, 2, 4: Injection EQ; Injection H; Discriminate.
-    rewrite stepBeta in EQ; eauto.  asimpl in EQ.
-    rewrite stepBeta in EQ; eauto.  asimpl in EQ.
+    rewrite stepBeta in EQ; trivial. asimpl in EQ.
+    rewrite stepBeta in EQ; trivial. asimpl in EQ.
     destruct u' as  [[]| | u' | ]; cbn in EQ.
     1 - 3: Injection EQ; Injection H; Discriminate.
-    - do 2 (rewrite stepBeta in EQ; eauto; asimpl in EQ; cbn in EQ).
+    - do 2 (rewrite stepBeta in EQ; trivial; asimpl in EQ; cbn in EQ).
       destruct u' as [[|[]] | | u' | u1 u2 ]; cbn in EQ.
       1 - 4: Injection EQ; unfold funcomp in *; Discriminate.
-      + exists u'. intuition. do 2 (rewrite stepBeta in EQ; eauto; asimpl in EQ; cbn in EQ).
+      + exists u'. intuition idtac. do 2 (rewrite stepBeta in EQ; trivial; asimpl in EQ; cbn in EQ).
         repeat eapply normal_lam_elim in Nu.
-        eapply equiv_unique_normal_forms; [eauto | eauto |idtac..]. subst delta; exact EQ.
-        2: eapply normal_app_intro; cbn; intuition.
-        2: repeat eapply normal_app_intro; eauto.
+        eapply equiv_unique_normal_forms; [trivial | trivial |..]. subst delta; exact EQ.
+        2: eapply normal_app_intro; cbn; intuition idtac.
+        2: repeat eapply normal_app_intro; auto.
         all: eapply normal_subst; try eassumption.
-        all: intros [|[|[]]]; cbn; eauto 2.
-        all: unfold funcomp, Nil; (repeat eapply normal_app_intro); eauto 2.
-        destruct n; simplify; eauto.
+        all: intros [|[|[]]]; cbn; auto 2.
+        all: unfold funcomp, Nil; (repeat eapply normal_app_intro); auto.
+        destruct n; simplify; auto.
       + exfalso. repeat eapply normal_lam_elim in Nu.
-        eapply head_atom in Nu as H'; eauto.
+        eapply head_atom in Nu as H'; [|auto].
         eapply atom_head_lifting
           with (sigma := A .: g (g (enc p A) (enc m B)) (id Nil) .: delta >> var) in H' as H4.
-        2: intros [|[]]; cbn; eauto.
+        2: intros [|[]]; cbn; auto.
         cbn in H4. Injection EQ. Injection H.
         destruct u1 as [[|[]]|[]| |]; cbn in H1; try Injection EQ; try Discriminate.
     - eapply normal_lam_elim in Nu.
-      eapply head_atom in Nu; eauto.
+      eapply head_atom in Nu; auto.
       eapply atom_head_lifting with (sigma := g (g (enc p A) (enc m B)) Nil .: delta >> var) in Nu; cbn in Nu.
-      2: intros []; cbn; eauto.
+      2: intros []; cbn; trivial.
       Injection EQ. Injection H. Discriminate.
   Qed.
 
@@ -176,14 +176,14 @@ Section Multiplication.
       σ p q • s' = A -> s' = A.
     Proof.
       intros H4. destruct s'; try discriminate. cbn in H4.
-      destruct f as [|[|[]]]; cbn in H4; try discriminate; eauto.
+      destruct f as [|[|[]]]; cbn in H4; try discriminate; auto.
     Qed.
 
     Lemma subst_var_b s':
       σ p q • s' = B -> s' = B.
     Proof.
       intros H4. destruct s'; try discriminate. cbn in H4.
-      destruct f as [|[|[]]]; cbn in H4; try discriminate; eauto.
+      destruct f as [|[|[]]]; cbn in H4; try discriminate; auto.
     Qed.
 
 
@@ -191,7 +191,7 @@ Section Multiplication.
       σ p q • e = enc k u -> exists e', e = enc k e' /\ σ p q  • e' = u.
     Proof using τ n.
       induction k in e |-*; cbn.
-      - intros; eexists; intuition; eauto.
+      - intros; eexists; (intuition auto).
       - intros. simplify in *.
         destruct e as [ [| [| []]] | | | e1 e3 ]; try discriminate.
         destruct e1 as [ [| [| []]] | | | e1 e2 ]; try discriminate.
@@ -199,8 +199,8 @@ Section Multiplication.
         destruct e2 as [ [| [| []]] | [[]|] | | ]; try discriminate.
         simplify in H.
         injection H as H.
-        destruct (IHk _ H) as [e']; intuition; subst.
-        exists e'. simplify. intuition.
+        destruct (IHk _ H) as [e']; (intuition idtac); subst.
+        exists e'. simplify. easy.
     Qed.
 
     Lemma subst_t e k:
@@ -214,8 +214,8 @@ Section Multiplication.
       destruct e1 as [ [| [| []]] | [] | | ]; try discriminate.
       cbn -[add] in *. f_equal; injection H as H H'.
       asimpl in H. asimpl in H'. cbn in H, H'. unfold funcomp in H, H'.
-      eapply subst_enc in H as [? []]; eauto.
-      eapply subst_enc in H' as [? []]; eauto. subst.
+      eapply subst_enc in H as [? []]; auto.
+      eapply subst_enc in H' as [? []]; auto. subst.
       eapply subst_var_a in H0. eapply subst_var_b in H2.
       now subst.
     Qed.
@@ -228,13 +228,13 @@ Section Multiplication.
       σ p q • u = t k ::: (τ • u) ->
       u = r \/ (exists u', u = t k ::: u').
     Proof.
-      intros EQ. destruct u as [| | | t1 t3]; try discriminate; eauto.
+      intros EQ. destruct u as [| | | t1 t3]; try discriminate; auto.
       - cbn in *. asimpl in EQ.
         destruct f as [|[|[]]]; try discriminate. now left.
-      - destruct t1 as [[|[|[]]]| | | t1 t2]; cbn in *; try discriminate; eauto.
-        destruct t1 as [[|[|[]]]| [] | |]; cbn in *; try discriminate; eauto.
+      - destruct t1 as [[|[|[]]]| | | t1 t2]; cbn in *; try discriminate; auto.
+        destruct t1 as [[|[|[]]]| [] | |]; cbn in *; try discriminate; auto.
         injection EQ as EQ1 EQ2. intros. asimpl in EQ1.
-        eapply subst_t in EQ1; subst; eauto.
+        eapply subst_t in EQ1; subst; auto.
         right. now (exists t3).
     Qed.
 
@@ -270,7 +270,7 @@ Section Multiplication.
 
   Lemma G_backward_exists m p M: normal M -> Grel m p M -> exists l, M = T l.
   Proof.
-    intros N [M' [-> [l ->] % steps_u]] % multiplication_lambdas; eauto.
+    intros N [M' [-> [l ->] % steps_u]] % multiplication_lambdas; auto.
     exists l; erewrite tab_ext; now eauto.
   Qed.
 
@@ -279,15 +279,16 @@ Section Multiplication.
     unfold Grel. rewrite <-G_forward.
     rewrite !T_ren. rewrite !G_left_reduce.
     intros H % equiv_lam_elim % equiv_lam_elim.
-    eapply equiv_unique_normal_forms in H; [|eauto| |].
-    eapply lin_injective in H as [_ H]; eauto.
+    eapply equiv_unique_normal_forms in H; [|auto| |].
+    eapply lin_injective in H as [_ H]; auto.
     eapply Cons_injective in H as [[H1 H2] % Pair_injective _].
-    eapply eq_equiv, enc_injective in H1; eauto.
-    eapply eq_equiv, enc_injective in H2; eauto.
+    eapply eq_equiv, enc_injective in H1; auto.
+    eapply eq_equiv, enc_injective in H2; auto.
     intuition; subst; lia.
     all:  eapply lin_normal.
     1, 3: rewrite tab_map_nats; intros; mapinj; unfold t; cbn.
-    all: repeat eapply normal_app_intro; eauto.
+    all: repeat eapply normal_app_intro; auto.
+    all: now unfold Nil.
   Qed.
 
 
@@ -296,7 +297,7 @@ Section Multiplication.
     intros N. split.
     - intros [<- ->]. apply G_forward.
     - intros H. specialize (G_backward_exists N H) as [l ->].
-      eapply G_backward_equations in H; intuition.
+      eapply G_backward_equations in H; intuition auto.
   Qed.
 
 

@@ -231,7 +231,7 @@ Proof.
   intros (d & [c_d] & H_d) (f & [c_f] & H_f).
   edestruct L_enumerable_recognisable with (p := p) (d := fun x y => d (x,y)) (f := f); eauto.
   - extract.
-  - intros. specialize (H_d (x,y)). destruct (d (x,y)); intuition.
+  - intros. specialize (H_d (x,y)). destruct (d (x,y)); intuition (auto with bool).
   - now exists (fun x0 => L.app x (enc x0)). 
 Qed.  
 

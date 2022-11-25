@@ -99,7 +99,7 @@ Section TermsExtension.
     Proof.
       induction N in L |-*; cbn; intuition.  
       - destruct L; try discriminate; intuition.
-      - specialize (H a) as H'; mp H'; intuition; domin H'.
+      - specialize (H a) as H'; mp H'; (intuition (auto with datatypes)); domin H'.
         rewrite H' in H0. subst. econstructor.
         all: cbn in H1; simplify in H1; intuition.
         eapply IHN; (eauto 1); lauto.

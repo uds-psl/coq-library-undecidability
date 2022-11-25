@@ -1,6 +1,5 @@
 From Undecidability.TM Require Import Single.StepTM TM.
 Require Import Undecidability.TM.Code.Code.
-From Undecidability.TM Require Import Util.Prelim Util.TM_facts.
 From Undecidability.TM Require Import Single.EncodeTapes.
 Require Import Undecidability.Synthetic.Definitions.
 
@@ -12,8 +11,7 @@ Proof.
   unshelve eexists.
   - intros [Sig M t].
     exists (n, Sig); eassumption.
-  - intros [Sig M t]. cbn.
-    firstorder.
+  - intros [Sig M t]. easy.
 Qed.
 
 Lemma mk_pTM n (sig : finType) (m : TM sig n) : pTM sig unit n.
@@ -58,29 +56,28 @@ Proof.
     { intros ? ? []. subst. eauto. }
     eapply (ToSingleTape_Terminates' (pM := mk_pTM M)) in H0.
     specialize (H0 (enc_tape [] t)).
-    edestruct H0 as [[q'' t''] H1].
-    * exists t, k. repeat split; eauto.
+    destruct (H0 (Loop_steps (start (projT1 (mk_pTM M))) t k)) as [[q'' t''] H1].
+    * now exists t, k.
     * pose proof (H2 := ToSingleTape_Realise' (pM := mk_pTM M)).
       specialize (H2 (fun t '(f,t') => exists outc k, loopM (initc M t) k = Some outc /\ ctapes outc = t')).
       edestruct H2 as (t''' & [[q''' t''''] (k' & HH & <-)] & H3).
-      + intros ? ? ? ?. exists outc, k0. eauto.
+      + intros ? ? ? ?. now exists outc, k0.
       + eapply H1.
-      + firstorder easy.
+      + reflexivity.
       + eexists q'', _. unfold initc in H1.
         etransitivity. { eapply H1. }
-        repeat f_equal. 
+        repeat apply f_equal. 
         eapply loop_injective in HH. 2: exact H. inv HH.
         unfold contains_tapes in H3. cbn in H3.
-        destruct_tapes. cbn in *.
-        subst. clear. unfold enc_tape. reflexivity.
+        destruct_tapes. cbn in H3. subst. reflexivity.
   - intros t. intros (q & t' & [k H] % TM_eval_iff).
     pose proof (ToSingleTape_Realise' (pM := mk_pTM M)).
     specialize (H0 (fun t '(f,t') => exists outc k, loopM (initc M t) k = Some outc /\ ctapes outc = t')).
     edestruct H0.
-    * intros ? ? ? ?. exists outc, k0. eauto.
+    * intros ? ? ? ?. now exists outc, k0.
     * eapply H.
-    * firstorder easy.
-    * intuition. destruct H2 as (? & ? & ? & ?). subst.
+    * reflexivity.
+    * intuition idtac. destruct H2 as (? & ? & ? & ?). subst.
       destruct x0 as [q'' t''].
       exists q'', t''. eapply TM_eval_iff. now exists x1.
 Qed.

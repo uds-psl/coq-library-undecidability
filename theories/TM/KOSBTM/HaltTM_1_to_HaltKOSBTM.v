@@ -4,8 +4,6 @@ Require Undecidability.TM.Util.TM_facts.
 Import VectorNotations2.
 Local Open Scope vector.
 
-Notation vector_hd v := (projT1 (destruct_vector_cons v)).  
-
 Section red.
 
     Variable M : TM.TM (finType_CS bool) 1.
@@ -25,12 +23,12 @@ Section red.
         fun '(q, o) => Fin.caseS' q (fun _ => _) (Some (conv_state (TM.start M), None, KOSBTM.Nmove)) 
            (fun q => if TM.halt (g q) then None
                                       else let '(q', vec) := TM.trans M (g q, [| o |]) in
-                                           let '(w, m) := vector_hd vec in
+                                           let '(w, m) := Vector.hd vec in
                                            Some (conv_state q', w, conv_move m)
            ).
 
     Definition conv_tape (t : Vector.t (TM.tape bool) 1) : KOSBTM.tape := 
-    let t := vector_hd t in
+    let t := Vector.hd t in
     match TM.current t with
     | Some c => (TM.Util.TM_facts.left t, Some c, TM.Util.TM_facts.right t)
     | None => (TM.Util.TM_facts.left t, None, TM.Util.TM_facts.right t)
@@ -38,26 +36,20 @@ Section red.
 
     Lemma current_red t : KOSBTM.curr (conv_tape [| t |]) = TM.current t.
     Proof.
-      unfold conv_tape. cbn. destruct (destruct_vector_cons [| t |]) as (? & ? & E); cbn in *. inv E. clear H1.
-      unfold TM.current.
-      destruct x eqn:E; reflexivity.
+      destruct t; reflexivity.
     Qed.
 
     Lemma wr_red w t : KOSBTM.wr w (conv_tape [| t |]) = conv_tape [| TM.wr w t |].
     Proof.
       unfold conv_tape. cbn.
-      destruct (destruct_vector_cons [| t |]) as (? & ? & E); cbn in *. inv E. clear H1.
-      destruct (destruct_vector_cons [| _ |]) as (? & ? & E); cbn in *. inv E. clear H1.
-      destruct x eqn:E1, w eqn:E2; cbn; reflexivity.
+      destruct t, w; reflexivity.
     Qed.
 
     Lemma mv_red m t : KOSBTM.mv (conv_move m) (conv_tape [| t |]) = conv_tape [| TM.mv m t |].
     Proof.
       unfold conv_tape. cbn.
-      destruct (destruct_vector_cons [| t |]) as (? & ? & E); cbn in *. inv E. clear H1.
-      destruct (destruct_vector_cons [| _ |]) as (? & ? & E); cbn in *. inv E. clear H1.
-      destruct x eqn:E1, m eqn:E2; cbn; try reflexivity.
-      all: destruct l, l0; try reflexivity.
+      destruct t, m; try reflexivity.
+      all: destruct l, l0; reflexivity.
     Qed.
 
     Lemma red_correct1 q q' t t' :
@@ -69,7 +61,7 @@ Section red.
           rewrite <- current_red in H0.
           destruct TM.trans eqn:E. inv H0. destruct h0 as (w, m).
           eapply KOSBTM.eval_step with (q' := conv_state q') (w := w) (m := conv_move m). cbn. rewrite Hg, H, E.
-          destruct destruct_vector_cons as (? & ? & ?), x; cbn. inv e. reflexivity.
+          reflexivity.
           now rewrite wr_red, mv_red.
     Qed.
 
@@ -92,7 +84,7 @@ Section red.
             -- intros ? ? ?. destruct TM.halt eqn:E.
                ++ unfold conv_state in H.
                   eapply Fin.FS_inj in H as ->. now rewrite Hg in E.
-               ++ destruct TM.trans, destruct_vector_cons, x; inv H0.
+               ++ now destruct TM.trans, Vector.hd.
         + unfold KOSBTM.trans, trans in H. revert H.
           generalize (eq_refl (conv_state q)).
           pattern (conv_state q) at 1 3.
@@ -103,16 +95,18 @@ Section red.
             destruct TM.halt eqn:E.
             -- intros [=].
             -- TM_facts.destruct_tapes.
-               destruct TM.trans eqn:Et, destruct_vector_cons as (? & ? & ?), x; cbn. intros [=]; subst.
+               destruct TM.trans eqn:Et.
+               destruct (Vector.hd _) eqn:E't.
+               intros [=]; subst.
                rewrite current_red in Et.
-               cbn. edestruct IHeval as (q' & t'_ & -> & -> & H); eauto.
-               ++ rewrite wr_red, mv_red. destruct_vector; cbn. reflexivity.
-               ++ repeat esplit. cbn in *. econstructor. eauto. eauto. cbn. destruct_vector. eassumption.
+               cbn. edestruct IHeval as (q''' & t''' & ? & ? & ?).
+               ++ reflexivity.
+               ++ rewrite wr_red, mv_red. reflexivity.
+               ++ destruct_vector. cbn in *. subst. repeat esplit; [eassumption..|]. econstructor; eassumption.
     Qed.
 
 End red.
 
-Require Undecidability.TM.TM Undecidability.TM.KOSBTM.KOSBTM.
 Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Synthetic.ReducibilityFacts.
 Require Undecidability.TM.Reductions.Arbitrary_to_Binary.

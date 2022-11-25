@@ -28,7 +28,7 @@ Section OrderTyping.
 
     Lemma ord_1 A: 1 <= ord A.
     Proof.
-      induction A; cbn [ord]; eauto.
+      induction A; cbn [ord]; trivial.
       transitivity (S (ord A1)); eauto using Nat.max_lub_l.
     Qed.
 
@@ -53,15 +53,15 @@ Section OrderTyping.
 
     Lemma ord'_app Gamma Gamma': ord' (Gamma ++ Gamma') = max (ord' Gamma) (ord' Gamma').
     Proof.
-      induction Gamma; cbn; eauto.
+      induction Gamma; cbn; trivial.
       now rewrite IHGamma,  Nat.max_assoc.
     Qed.
 
     Lemma ord'_rev L:
       ord' (rev L) = ord' L.
     Proof.
-      induction L; cbn; rewrite ?ord'_app; eauto.
-      simplify; cbn; eauto.
+      induction L; cbn; rewrite ?ord'_app; trivial.
+      simplify; cbn; trivial.
       rewrite IHL.
       simplify. eapply Nat.max_comm.
     Qed.
@@ -69,13 +69,13 @@ Section OrderTyping.
 
     Lemma ord'_in A Gamma: A ∈ Gamma -> ord A <= ord' Gamma.
     Proof.
-      induction Gamma; cbn in *; intuition; subst; eauto; lia.
+      induction Gamma; cbn in *; intuition idtac; subst; auto; lia.
     Qed.
     
     Lemma ord'_elements n Gamma: (forall A, A ∈ Gamma -> ord A <= n) <-> ord' Gamma <= n.
     Proof.
-      induction Gamma; cbn; intuition; subst; eauto.
-      all: simplify in *; intuition.
+      induction Gamma; cbn; intuition idtac; subst; trivial.
+      all: simplify in *; intuition auto using Nat.le_0_l.
     Qed.
     
     Lemma ord'_cons n Gamma A:
@@ -87,11 +87,11 @@ Section OrderTyping.
     Lemma order_head Gamma s A B:
       Gamma ⊢ s : A -> Gamma ⊢ (head s) : B -> isAtom (head s) -> ord A <= ord B.
     Proof.
-      induction 1; eauto; cbn.
+      induction 1; trivial; cbn.
       - intros H1 _; inv H1. rewrite H in H2; injection H2 as ->; eauto.
       - intros H1; inv H1; eauto.
-      - cbn in *; intuition.
-      - intros; rewrite <-IHtyping1; eauto.
+      - easy.
+      - intros; rewrite <-IHtyping1; trivial.
         rewrite ord_arr; eauto.
     Qed.
 
@@ -173,7 +173,7 @@ Section OrderTyping.
     x ∈ vars s -> Gamma ⊢(n) s : A -> nth Gamma x = Some B -> ord B <= n.
   Proof.
     intros; edestruct vars_ordertyping; eauto.
-    intuition; congruence.
+    intuition congruence.
   Qed.
   
     
@@ -221,9 +221,9 @@ Section OrderTyping.
       (forall x A, nth Gamma x = Some A -> x ∈ vars s -> nth Delta (delta x) = Some A) ->
       Delta ⊢( n) ren delta s : A.
     Proof.
-      induction s in delta, Gamma, Delta, A  |-*; cbn -[vars]; intros; inv H; eauto.
+      induction s in delta, Gamma, Delta, A  |-*; cbn -[vars]; intros; inv H; auto.
       - econstructor. eapply IHs; eauto.
-        intros [] ? ?; cbn -[vars] in *; intuition.
+        intros [] ? ?; cbn -[vars] in *; intuition auto.
       - econstructor; [eapply IHs1|eapply IHs2]; eauto.
     Qed.
 
@@ -239,14 +239,14 @@ Section OrderTyping.
       (forall i A, i ∈ vars s -> nth Gamma i = Some A -> Delta ⊢(n) sigma i : A) ->
       Delta ⊢(n) sigma • s : A.
     Proof.
-      induction 1 in sigma, Delta |-*; intros H'; cbn [subst_exp]; subst; eauto.
-      - econstructor; eauto; eapply IHordertyping.
-        intros [|m]; cbn; eauto.
-        + intros ? H1; injection 1 as <-; econstructor; cbn; eauto.
-          eapply vars_ordertyping in H1 as []; eauto.  intuition. 
+      induction 1 in sigma, Delta |-*; intros H'; cbn [subst_exp]; subst; auto.
+      - econstructor; auto; eapply IHordertyping.
+        intros [|m]; cbn; trivial.
+        + intros ? H1; injection 1 as <-; econstructor; cbn; trivial.
+          eapply vars_ordertyping in H1 as []; eauto.  intuition idtac. 
           now injection H1 as ->. 
         + intros D H1 H2; unfold funcomp.
-          eapply ordertyping_preservation_under_renaming; eauto. 
+          eapply ordertyping_preservation_under_renaming; auto. 
           now intros i.
       - econstructor; [eapply IHordertyping1 | eapply IHordertyping2].
         all: intros; eapply H'; eauto. 
@@ -265,10 +265,10 @@ Section OrderTyping.
     Proof.
       induction 1 in n, Gamma, A |-*; intros H1; invp @ordertyping; eauto. 
       inv H3. eapply ordertyping_weak_preservation_under_substitution; eauto. 
-      intros []; cbn; eauto.
+      intros []; cbn; trivial.
       intros ? _; now injection 1 as ->.
       intros D H6 H7. eapply vars_ordertyping in H6 as [B]; eauto.
-      intuition. econstructor; intuition.
+      intuition. econstructor; intuition idtac.
       cbn in H0; rewrite H0 in H7; now injection H7 as ->. 
     Qed.
 
@@ -289,7 +289,7 @@ Section OrderTyping.
     intros H; replace s with (ren id s) by now asimpl.
     eapply ordertyping_preservation_under_renaming; eauto.
     intros i B H'; unfold id.
-    rewrite nth_error_app1; eauto.
+    rewrite nth_error_app1; trivial.
     eapply nth_error_Some_lt; eauto.
   Qed.
 

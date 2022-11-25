@@ -189,7 +189,7 @@ Functional Scheme rCompSeval'_ind := Induction for rCompSeval' Sort Prop.
 
 Lemma rCompSeval_sound n phi s l:
   Proc phi -> let (k,t) := rCompSeval n (l,s) in k >= l /\ denoteComp phi s >[(k-l)] denoteComp phi t.
-Proof with (repeat inv_validComp;repeat (eassumption || constructor || intuition|| subst ; eauto using star || rewrite Nat.sub_diag in * || rewrite Nat.sub_0_r in *||cbn in * )).
+Proof with (repeat inv_validComp;repeat (eassumption || constructor || intuition idtac || lia || subst ; eauto using star || rewrite Nat.sub_diag in * || rewrite Nat.sub_0_r in *||cbn in * )).
   intros. unfold rCompSeval.
   pose (p:= (l,s)).
   change (let (k, t) := fst (rCompSeval' n p) in k >= fst p /\denoteComp phi  (snd p) >[(k-(fst p))] denoteComp phi t).

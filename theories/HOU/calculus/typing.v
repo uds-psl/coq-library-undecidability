@@ -101,7 +101,7 @@ Section Typing.
     - now domin H. 
     - specialize (IHtyping _ H2).
       eapply dom_lt_iff in IHtyping. 
-      cbn in *; intuition. 
+      cbn in *. assert (x < length Gamma) by lia. auto.
   Qed.
 
 End Typing.

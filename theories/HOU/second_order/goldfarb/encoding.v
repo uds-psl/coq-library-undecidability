@@ -23,10 +23,10 @@ Notation g := (@const ag None).
 Notation a := (@const ag (Some None)).
 
 Lemma typing_a Gamma: Gamma ⊢(2) a : alpha.
-Proof. econstructor; cbn; eauto. Qed.
+Proof. econstructor; cbn; auto. Qed.
 
 Lemma typing_g Gamma: Gamma ⊢(2) g : alpha → alpha → alpha.
-Proof. econstructor; cbn; eauto. Qed.
+Proof. econstructor; cbn; auto. Qed.
 
 #[export] Hint Resolve typing_a typing_g : core.
 
@@ -57,7 +57,7 @@ Section Linearization.
     (Gamma ⊢(2) t : alpha) ->
     Gamma ⊢(2) lin S t : alpha.
   Proof.
-    intros ? ?. induction S as [|s S IH]; simplify;  [eauto|]. inv H.
+    intros ? ?. induction S as [|s S IH]; simplify;  [auto|]. inv H.
     econstructor; cbn; eauto.
   Qed.
 
@@ -76,29 +76,16 @@ Section Linearization.
   Lemma lin_injective S T s t:
     length S = length T -> lin S s = lin T t -> S = T /\ s = t.
   Proof.
-    induction S in T |-*; destruct T; try discriminate; simplify in *; eauto.
+    induction S in T |-*; destruct T; try discriminate; simplify in *; auto.
     intros; edestruct IHS.
     all: injection H as H; eauto.
     all: injection H0; intuition; subst; intuition.
   Qed.
 
-  Lemma largest_lin s:
-    exists S t, s = lin S t /\ forall s' t', t <> g s' t'.
-  Proof.
-    edestruct (AppL_largest s (P := fun (s: exp ag) => match s with app (const None) s => True | _ => False end))
-      as (S & t & H1 & H2 & H3).
-    intros [| | | [| [] | | ]]. 1 - 8: firstorder. subst.
-    enough (exists S', S = map (app g) S') as [S' ->].
-    exists S'. exists t. intuition. eapply H3; cbn; eauto; cbn; eauto.
-    clear H3. induction S. now (exists nil).
-    specialize (H1 a) as H2; mp H2; intuition; destruct a as [| | | [| [] | | ]]; intuition.
-    edestruct IHS as [S']; intros. eapply H1; intuition. subst. now (exists (a1 :: S')).
-  Qed.
-
   Lemma lin_normal S t:
     (forall s, s ∈ S -> normal s) -> normal t -> normal (lin S t).
   Proof.
-    intros; induction S; cbn; [eauto|].
+    intros; induction S; cbn; [auto|].
     repeat apply normal_app_intro; eauto.
   Qed.
 
@@ -156,8 +143,8 @@ Section Encoding.
     normal s -> normal (enc n s).
   Proof.
     intros; induction n; simplify.
-    - eauto.
-    - eapply normal_app_intro; [|eapply normal_app_intro|]; eauto.
+    - auto.
+    - eapply normal_app_intro; [|eapply normal_app_intro|]; auto.
   Qed.
 
   Hint Resolve enc_normal : core.
@@ -170,7 +157,7 @@ Section Encoding.
     - intuition. destruct s, t; cbn in *;  intuition; try Discriminate; Injection H1; congruence.
     - destruct s; cbn in *; intuition; Discriminate.
     - destruct t; cbn in *; intuition; Discriminate.
-    - Injection H1. eapply IHn in H3; eauto.
+    - Injection H1. eapply IHn in H3; auto.
       intuition.
   Qed.
 
@@ -180,10 +167,10 @@ Section Encoding.
     Gamma ⊢(2) enc n s : alpha.
   Proof.
     intros; unfold enc.
-    eapply lin_typing; eauto.
-    eapply repeated_ordertyping; [|eauto].
+    eapply lin_typing; auto.
+    eapply repeated_ordertyping; [|auto].
     intros ? <- % repeated_in.
-    econstructor; eauto.
+    econstructor; auto.
   Qed.
 
   Global Instance enc_equiv: Proper (Logic.eq ++> equiv step ++> equiv step) enc.
@@ -216,25 +203,25 @@ Section Encoding.
     forall s, normal s -> { n | s a ≡ enc n a } + ({ n | s a ≡ enc n a  } -> False).
   Proof.
     intros s N. specialize (@red_fun_rho _ (@step ag) (@par ag) rho) as f.
-    do 4 mp f; try typeclasses eauto; eauto.
+    do 4 mp f; try typeclasses eauto; auto.
     assert (s a ▷ rho (s a)).
     - eapply id in f as g. destruct g as [H1 H2].
-      split; [eauto|]. destruct s; cbn.
-      + eapply normal_app_intro; eauto.
-      + eapply normal_app_intro; eauto.
+      split; [auto|]. destruct s; cbn.
+      + eapply normal_app_intro; auto.
+      + eapply normal_app_intro; auto.
       + eapply normal_subst.
-        1 - 2: intros []; cbn; eauto.
-        enough (rho s = s) as -> by eauto using normal_lam_elim.
+        1 - 2: intros []; cbn; auto.
+        enough (rho s = s) as -> by auto using normal_lam_elim.
         eapply red_fun_fp; eauto using normal_lam_elim.
-      + eapply head_atom in N as isA; [|eauto].
+      + eapply head_atom in N as isA; [|auto].
         assert (rho s1 = s1) as -> by (eapply red_fun_fp; eauto using normal_app_l, normal_app_r).
         assert (rho s2 = s2) as -> by (eapply red_fun_fp; eauto using normal_app_l, normal_app_r).
         destruct s1; cbn in isA; intuition.
     - destruct (dec_enc_eq (rho (s a))) as [[n H1]|H1].
-      + left. exists n. rewrite H1 in H. eapply equiv_join. rewrite H. all: eauto.
+      + left. exists n. rewrite H1 in H. eapply equiv_join. rewrite H. all: auto.
       + right. intros [n H2]. eapply H1. exists n.
-        eapply equiv_unique_normal_forms; eauto. 2: eapply H. rewrite <-H2.
-        symmetry. eapply equiv_join. rewrite H. all: eauto.
+        eapply equiv_unique_normal_forms; auto. 2: eapply H. rewrite <-H2.
+        symmetry. eapply equiv_join. rewrite H. all: auto.
   Qed.
 
 
@@ -261,7 +248,7 @@ Proof.
     2, 3: dostep; asimpl; reflexivity.
     eapply normal_lam_elim in H.
     enough (exists n : nat, forall t delta, t .: delta >> var • s ≡ enc n t) as [n H'] by
-          (exists n; intros t delta'; asimpl; rewrite stepBeta; asimpl; eauto).
+          (exists n; intros t delta'; asimpl; rewrite stepBeta; asimpl; auto).
     induction s as [[] | | |]; unfold funcomp in EQ; cbn in EQ.
     + now (exists 0).
     + Discriminate.
@@ -269,7 +256,7 @@ Proof.
     + Discriminate.
     + eapply head_atom in H as H'; cbn; intuition.
       eapply equiv_app_elim in EQ as [EQ1 EQ2]; cbn; intuition.
-      2: eapply atom_head_lifting; eauto; intros []; cbn; intuition.
+      2: eapply atom_head_lifting; auto; intros []; cbn; intuition.
       enough (s1 = g a).
       * subst. cbn in EQ2.
         eapply IHs2 in EQ2. 2: eauto using normal_app_r.
@@ -278,14 +265,14 @@ Proof.
       * destruct s1 as [[] | | | t1 t2]; simplify in EQ1; cbn in *.
         1 - 4: try Injection EQ1; Discriminate.
         assert (isAtom (head (g a (var 1) .: delta >> var  • t1)))
-          by (eapply atom_head_lifting; eauto; intros []; cbn; intuition).
+          by (eapply atom_head_lifting; auto; intros []; cbn; intuition).
         Injection EQ1.
         assert (isAtom (head t2)).
         { eapply head_atom. eauto using normal_app_r, normal_app_l.
           intros ?; destruct t2; cbn in H2; intuition; Discriminate.
         }
         assert (isAtom (head (g a (var 1) .: delta >> var • t2)))
-          by (eapply atom_head_lifting; eauto; intros []; cbn; intuition).
+          by (eapply atom_head_lifting; auto; intros []; cbn; intuition).
         destruct t1; cbn in *; try Discriminate.
         destruct f; cbn in *; Discriminate.
         destruct t2; cbn in *; try Discriminate.
@@ -294,12 +281,12 @@ Proof.
         Injection H2; subst.
         reflexivity.
   - eapply normal_ren with (delta := delta) in H.
-    eapply head_atom in H; eauto. cbn in EQ.
+    eapply head_atom in H; auto. cbn in EQ.
     Injection EQ. Injection H0.
     unshelve eapply ren_equiv_proper in H2;
-      [exact (pred >> pred)|exact (pred >> pred)|eauto..]; asimpl in H2.
+      [exact (pred >> pred)|exact (pred >> pred)|auto..]; asimpl in H2.
     unshelve eapply ren_equiv_proper in H3;
-      [exact (pred >> pred)|exact (pred >> pred)|eauto..]; asimpl in H3.
+      [exact (pred >> pred)|exact (pred >> pred)|auto..]; asimpl in H3.
     exists 1. intros t delta'; simplify. subst delta. asimpl in H3. asimpl in H2.
     now rewrite H2, H3.
 Qed.
@@ -369,7 +356,7 @@ Section Variables.
   Lemma Gs_in x y z E: (x *ₑ y =ₑ z) ∈ E -> G x y z ∈ Gs E.
   Proof.
     intros; eapply in_flat_map.
-    exists (x *ₑ y =ₑ z). intuition.
+    exists (x *ₑ y =ₑ z). intuition (auto with datatypes).
   Qed.
 
 
@@ -485,7 +472,7 @@ Section Typing.
     nth Gamma__deq (F x) = Some A -> A = alpha → alpha.
   Proof.
     intros H. eapply nth_error_Some_lt in H as H'.
-    unfold Gamma__deq in *. rewrite tab_nth in H; simplify in *; eauto.
+    unfold Gamma__deq in *. rewrite tab_nth in H; simplify in *; auto.
     destruct partition_F_G as [[]| [[[]] ?]]. congruence.
     exfalso; eapply disjoint_F_G; eauto.
   Qed.
@@ -494,7 +481,7 @@ Section Typing.
     nth Gamma__deq (G x y z) = Some A -> A = alpha → alpha → alpha → alpha.
   Proof.
     intros H. eapply nth_error_Some_lt in H as H'.
-    unfold Gamma__deq in *; simplify in *. rewrite tab_nth in H; simplify in *; eauto.
+    unfold Gamma__deq in *; simplify in *. rewrite tab_nth in H; simplify in *; auto.
     destruct partition_F_G as [[]| [[[]] ?]].
     exfalso; eapply disjoint_F_G; eauto. congruence.
   Qed.
@@ -512,10 +499,10 @@ Section Typing.
   Lemma ord_Gamma__deq: ord' Gamma__deq <= 2.
   Proof.
     unfold Gamma__deq; remember (S (Sum _  + Sum _)) as n. clear Heqn.
-    induction n; cbn; simplify; cbn; eauto.
+    induction n; cbn; simplify; cbn; auto.
     rewrite IHn; simplify.
     destruct (partition_F_G).
-    all: cbn [ord' ord alpha]; eauto.
+    all: cbn [ord' ord alpha]; auto.
   Qed.
 
 
@@ -525,7 +512,7 @@ Section Typing.
   Proof.
     intros H.
     econstructor.
-    cbn; eauto.
+    cbn; auto.
     now eapply Gamma__deq_nth_F, Fs_in.
   Qed.
 
@@ -535,7 +522,7 @@ Section Typing.
   Proof.
     intros H.
     econstructor.
-    cbn; eauto.
+    cbn; auto.
     now eapply Gamma__deq_nth_G, Gs_in.
   Qed.
 
@@ -547,8 +534,8 @@ Section Typing.
              eapply ordertyping_preservation_under_renaming with (delta := add n) (s := var x)
            | [|- _ ⊢(2) var (G _ _ _) : _ ]=> eapply typing_G
            | [|- _ ⊢(2) var (F _) : _ ]=> eapply typing_F
-           | [|- _ ⊢(2) var ?n : _] => now (econstructor; cbn; eauto)
-           | [|- _ ⊢(2) const _ : _] => eauto
+           | [|- _ ⊢(2) var ?n : _] => now (econstructor; cbn; auto)
+           | [|- _ ⊢(2) const _ : _] => auto
            | [|- _ ⊢(2) enc _ _ : _] => eapply enc_typing
            | [|- _ ⊢(2) _ : _] => econstructor
            | [|- _ ⊫ add _ : _] => now intros ??
@@ -559,7 +546,7 @@ Section Typing.
     x ∈ Vars__de E -> Gamma__deq ⊢₂(2) varEQ x : alpha → alpha → alpha.
   Proof.
     intros; unfold varEQ; split; cbn [fst snd].
-    all: autotype; eauto.
+    all: autotype; auto.
   Qed.
 
 
@@ -578,14 +565,14 @@ Section Typing.
   Lemma typing_mul x y z:
     x *ₑ y =ₑ z ∈ E ->  Gamma__deq ⊢₂(2) mulEQ x y z : alpha → alpha → alpha.
   Proof.
-    intros; unfold mulEQ; split; cbn [fst snd]; autotype; eauto.
+    intros; unfold mulEQ; split; cbn [fst snd]; autotype; auto.
   Qed.
 
   Lemma typing_equations q e:
     e ∈ E -> q ∈ eqs e -> Gamma__deq ⊢₂(2) q : alpha → alpha → alpha.
   Proof.
     intros H H1; destruct e; cbn in H1; intuition; subst;
-      eauto using typing_const, typing_add, typing_mul.
+      auto using typing_const, typing_add, typing_mul.
     all: eapply typing_var_eq; autotype.
   Qed.
 End Typing.
@@ -601,7 +588,7 @@ Global Program Instance H10_to_SOU (E: list deq): ordsysuni ag 2 :=
   }.
 Next Obligation.
   eapply ordertyping_combine; eapply repeated_ordertyping;
-    unfold left_side, right_side; simplify; eauto 1.
+    unfold left_side, right_side; simplify; auto 1.
   all: intros ? ?; mapinj; eapply in_flat_map in H1 as []; intuition.
   all: eapply typing_equations; eauto.
 Qed.

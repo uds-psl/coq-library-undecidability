@@ -75,7 +75,7 @@ Section Evaluation.
     intros ρ1 ρ2 Heq s ? <-. induction s in ρ1, ρ2, Heq |- *; cbn.
     - now rewrite (Heq n).
     - now rewrite IHs1, IHs2.
-    - eapply All_ext. intros d. eapply IHs. intros []; cbn; intuition.
+    - eapply All_ext. intros d. eapply IHs. intros []; cbn; intuition easy.
   Qed.
 
   Lemma eval_ren ξ s ρ :

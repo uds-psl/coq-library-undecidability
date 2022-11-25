@@ -11,7 +11,7 @@
     Halting of one counter machines (CM1_HALT)
 *)
 
-Require Import List PeanoNat Lia Relations.Relation_Operators Relations.Operators_Properties.
+Require Import ZArith List PeanoNat Lia Relations.Relation_Operators Relations.Operators_Properties.
 Import ListNotations.
 
 Require Import Undecidability.MinskyMachines.MM2.
@@ -37,32 +37,44 @@ Proof.
   congr Some. lia.
 Qed.
 
+Lemma mul_mod (a b n : nat) :
+  (a * b) mod n = (a mod n * (b mod n)) mod n.
+Proof.
+  move: n => [|n].
+  - reflexivity.
+  - apply: Nat2Z.inj. rewrite !(Nat2Z.inj_mod, Nat2Z.inj_mul).
+    by apply: Z.mul_mod.
+Qed.
+
+Lemma div_exact (a b : nat) : a = b * (a / b) <-> a mod b = 0.
+Proof.
+  rewrite [X in X = _](Nat.div_mod_eq a b). lia.
+Qed.
+
 Lemma pow_3_mod_2 (n: nat) : 3 ^ n mod 2 = 1.
 Proof.
-  elim: n; first by (cbv; lia).
-  move=> n IH. rewrite Nat.pow_succ_r' Nat.mul_mod ?IH; first by lia.
-  by cbv; lia.
+  elim: n; first done.
+  move=> n IH. by rewrite Nat.pow_succ_r' mul_mod ?IH.
 Qed.
 
 Lemma pow_5_mod_2 (n: nat) : 5 ^ n mod 2 = 1.
 Proof.
-  elim: n; first by (cbv; lia).
-  move=> n IH. rewrite Nat.pow_succ_r' Nat.mul_mod ?IH; first by lia.
-  by cbv; lia.
+  elim: n; first done.
+  move=> n IH. by rewrite Nat.pow_succ_r' mul_mod ?IH.
 Qed.
 
 Lemma pow_2_mod_3 (n: nat) : 2 ^ n mod 3 = 1 \/ 2 ^ n mod 3 = 2.
 Proof.
-  elim: n; first by (cbv; lia).
-  move=> n IH. rewrite Nat.pow_succ_r' Nat.mul_mod; first by lia.
-  move: IH => [->|->]; cbv; by lia.
+  elim: n; first by (cbn; lia).
+  move=> n IH. rewrite Nat.pow_succ_r' mul_mod.
+  move: IH => [->|->]; cbn; by lia.
 Qed.
 
 Lemma pow_5_mod_3 (n: nat) : 5 ^ n mod 3 = 1 \/ 5 ^ n mod 3 = 2.
 Proof.
-  elim: n; first by (cbv; lia).
-  move=> n IH. rewrite Nat.pow_succ_r' Nat.mul_mod; first by lia.
-  move: IH => [->|->]; cbv; by lia.
+  elim: n; first by (cbn; lia).
+  move=> n IH. rewrite Nat.pow_succ_r' mul_mod.
+  move: IH => [->|->]; cbn; by lia.
 Qed.
 
 End Facts.
@@ -180,30 +192,31 @@ Section MM2_CM1.
   Lemma κ_mod2 {a b c: nat} : κ a b c mod 2 = if a is 0 then 1 else 0.
   Proof.
     rewrite /κ.
-    rewrite [(_ * 5^_) mod 2]Nat.mul_mod; first by lia.
-    rewrite [(_ * 3^_) mod 2]Nat.mul_mod; first by lia.
+    rewrite [(_ * 5^_) mod 2]mul_mod.
+    rewrite [(_ * 3^_) mod 2]mul_mod.
     rewrite pow_3_mod_2 pow_5_mod_2.
     move: a => [|a]; first done.
     have -> : 2 ^ S a = 2 * 2 ^ a by move=> /=; lia.
-    by rewrite [(2 * _) mod 2]Nat.mul_mod; first by lia.
+    by rewrite [(2 * _) mod 2]mul_mod.
   Qed.
 
   Lemma κ_mod3 {a b c: nat} : 
     κ a b c mod 3 = if b is 0 then (S (locked (κ a b c) mod 3 - 1)) else 0.
   Proof.
     rewrite /κ -lock.
-    rewrite [(_ * 5^_) mod 3]Nat.mul_mod; first by lia.
-    rewrite [(_ * 3^_) mod 3]Nat.mul_mod; first by lia.
+    rewrite [(_ * 5^_) mod 3]mul_mod.
+    rewrite [(_ * 3^_) mod 3]mul_mod.
     move: b => [|b].
     { by case: (pow_2_mod_3 a); case: (pow_5_mod_3 c); move=> -> ->. }
     have -> : 3 ^ S b = 3 * 3 ^ b by move=> /=; lia.
-    rewrite [(3 * _) mod 3]Nat.mul_mod; first by lia.
-    by rewrite ?((@Nat.mod_same 3 ltac:(lia)), (@Nat.mod_0_l 3 ltac:(lia)), Nat.mul_0_r).
+    replace (((3 * 3 ^ b) mod 3)) with 0.
+    - by rewrite Nat.mul_0_r.
+    - by rewrite mul_mod.
   Qed.
 
   Lemma κ_mod4 {a b c: nat} : κ (2+a) b c mod 4 = 0.
   Proof.
-    apply /Nat.div_exact; first by lia.
+    apply /div_exact.
     have -> : κ (2+a) b c = (κ a b c) * 4 by (rewrite /κ /=; lia).
     by rewrite /κ Nat.div_mul /=; lia.
   Qed.

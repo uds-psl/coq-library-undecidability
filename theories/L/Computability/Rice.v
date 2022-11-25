@@ -12,7 +12,7 @@ Lemma self_div : ~ lacc self_diverging.
 Proof.
   intros H.
   destruct H as [u [[cls_u lam_u] H]].
-  unfold self_diverging in H. specialize (H u). intuition. 
+  unfold self_diverging in H. specialize (H u). intuition auto. 
 Qed.
 
 Lemma self_div_comb : ~ lacc self_diverging_comb.
@@ -59,8 +59,7 @@ Proof with eauto; try now intuition.
   }
 
   transitivity (M vs /\ proc s).
-  split; intros [? ?]; intuition; try (now rewrite Hu).  (* apply Hu;tauto. *)
-  
+  split; intros [? ?]; intuition auto; try (now apply Hu).
   {
     split.
     - intros [Mvs cls_s]; intuition.
@@ -70,13 +69,13 @@ Proof with eauto; try now intuition.
         assert (closed w). eapply (equiv_lambda lw) in Hw. eapply closed_star. exact Hw. Lproc. subst vs. Lsimpl. rewrite Hw. now Lsimpl. 
       }
       eapply nMt2. eapply M_cl_equiv; eassumption.
-    - intros [npi_s_s cls_s]; intuition.
+    - intros [npi_s_s cls_s]. split; [|assumption].
       assert (forall t, pi (lam Omega) t <-> pi vs t). {
         intros t; split; intros H'.
         - exfalso. destruct H' as [w [Hw lw]]. inv lw. eapply Omega_diverges. rewrite <- Hw. symmetry. clear Hw. now redStep.
         - exfalso. eapply npi_s_s.
           assert (A: converges (lam ( t2 (enc t)) (s (enc s)))). revert H'. eapply converges_proper. symmetry. unfold vs. now Lsimpl.
-          eapply app_converges in A. firstorder.
+          eapply app_converges in A. easy.
       }
                                                        subst vs.
       eapply M_cl_equiv; try Lproc;try eassumption.
@@ -104,7 +103,7 @@ Proof.
   symmetry.
   transitivity (pi v s /\ proc s). 
   {
-    unfold v'. rewrite acc_conj_correct;try Lproc. intuition ; now apply Hc. }
+    unfold v'. rewrite acc_conj_correct;try Lproc. intuition idtac; now apply Hc. }
 
   unfold self_diverging_comb, conj.
 
@@ -117,25 +116,25 @@ Proof.
 
   transitivity (~ M vs /\ proc s).
   {
-    split; intros [? ?]; try (rewrite Hu); intuition; firstorder. 
+    split; intros [? ?]; try (rewrite Hu); intuition idtac. now apply Hu.
   }
   
   {
     split.
-    - intros [Mvs cls_s]; intuition.
+    - intros [Mvs cls_s]; intuition idtac.
       intros [w [Hw lw]]. 
       assert (forall t, pi t1 t <-> pi vs t). {
         intros t. symmetry. assert (closed w). eapply closed_star. eapply equiv_lambda;eauto. Lproc.  eapply converges_proper.
         transitivity (lam ( t1 (enc t)) (s (enc s))). unfold vs. now Lsimpl. rewrite Hw. now Lsimpl.
       }
       eapply Mvs. eapply M_cl_equiv;try subst vs; try Lproc; try eassumption.
-    - intros [npi_s_s cls_s]; intuition.
+    - intros [npi_s_s cls_s]; intuition idtac.
       assert (forall t, pi (lam Omega) t <-> pi vs t). {
         intros t; split; intros A.
         - exfalso. destruct A as [w [Hw lw]]. inv lw. eapply Omega_diverges. rewrite <- Hw. symmetry. clear Hw. now LsimplRed.
         - exfalso. eapply npi_s_s.
           assert (B: converges (lam ( t1 (enc t)) (s (enc s)))). revert A. eapply converges_proper. symmetry. unfold vs. now Lsimpl.
-          eapply app_converges in B. firstorder.
+          eapply app_converges in B. firstorder easy.
       }
       eapply nMLO.
       eapply M_cl_equiv; try (symmetry); eauto. Lproc.
@@ -166,7 +165,7 @@ Goal ~ ldec (fun s => proc s /\ forall t, pi s t).
 Proof.
   eapply Rice.
   - firstorder.
-  - intuition;now apply H1.
+  - intuition idtac;now apply H1.
   - exists (lam Omega). split. Lproc. intros [_ A]. eapply lamOmega; eauto. 
   - exists (lam I). repeat split;try Lproc. intros t; eexists; split; [|eexists;reflexivity]. now Lsimpl.
 Unshelve. repeat econstructor. 
