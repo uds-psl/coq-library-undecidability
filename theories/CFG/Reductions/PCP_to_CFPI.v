@@ -9,10 +9,12 @@ Require Import Undecidability.PCP.Util.Facts.
 Import PCPListNotation.
 Require Import Undecidability.PCP.Util.PCP_facts.
 Require Import Undecidability.Synthetic.Definitions.
-Require Import Undecidability.Shared.ListAutomation.
-Import ListAutomationHints.
 
 Set Default Goal Selector "!".
+
+Local Hint Rewrite <- app_assoc : list.
+Local Hint Rewrite rev_app_distr : list.
+Local Hint Resolve in_eq in_or_app incl_nil_l : core.
 
 (* * PCP to CFPI *)
 Section PCP_CFPI.

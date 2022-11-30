@@ -4,8 +4,11 @@ Import ListNotations.
 Require Import Undecidability.StringRewriting.PCSnf.
 Require Import Undecidability.StringRewriting.SR.
 Require Import Undecidability.StringRewriting.Util.Definitions.
-Require Import Undecidability.Shared.ListAutomation.
-Import ListAutomationInstances ListAutomationHints.
+
+Local Hint Rewrite <- app_assoc : list.
+Local Hint Resolve in_eq in_nil in_cons in_or_app : core.
+Local Hint Resolve incl_refl incl_tl incl_cons incl_appl incl_appr incl_app incl_nil_l : core.
+Local Hint Resolve app_incl_l app_incl_r : core.
 
 Lemma derv_trans X R x y z :
     @derv X R x y -> derv R y z -> derv R x z.
@@ -37,7 +40,7 @@ Section fix_R.
         econstructor. constructor. eapply in_app_iff. right. eapply in_map_iff. eauto.
         simpl_list.
         replace (v ++ a :: u) with ((v ++ [a]) ++ u) by now simpl_list.
-        eapply IHu. eauto.
+        eapply IHu. eapply incl_cons_inv. eassumption.
     Qed. 
 
     Lemma correct1 x y :
@@ -50,7 +53,8 @@ Section fix_R.
         eapply derv_trans. 1: eapply copy; eauto.
         simpl_list. econstructor. { econstructor. eapply in_app_iff. eauto. }
         simpl_list. eapply derv_trans. 1: eapply copy; eauto.
-        simpl_list. econstructor. { econstructor. eapply in_app_iff. eauto. }
+        simpl_list. econstructor. { econstructor. eapply in_app_iff. right.
+        apply in_map_iff. eauto. }
         eapply IHrewt; [ | eauto]. eapply incl_app; [ eauto | ]. eapply incl_app; [ | eauto ].
         unfold Σ. eauto.
     Qed.
@@ -87,14 +91,14 @@ Section fix_R.
             replace (x1 ++ v ++ x1_) with ((x1 ++ v) ++ x1_) by now simpl_list.
             eapply IHderv.
             -- eapply incl_app. eauto. unfold Σ. eauto.
-            -- etransitivity; eauto.
+            -- eauto.
             -- eauto.
             -- eauto.
             -- now simpl_list.
             -- now simpl_list.
           * eapply use_fresh. eapply incl_app. unfold Σ. eauto. eapply list_prefix_inv'' in H1 as [<- <-].
             2: eapply use_fresh; eauto. 2: eapply use_fresh; eauto.
-            etransitivity; eauto.
+            eauto.
           * eapply use_fresh. eauto.
         + inversion Ha; subst; clear Ha. destruct H2 as [<- | H2].
           * eapply list_prefix_inv with (x := []) in H1 as [<- <-]; [ | firstorder | now eapply use_fresh].
@@ -111,14 +115,14 @@ Section fix_R.
             -- replace (x1 ++ [a] ++ x1_) with ((x1 ++ [a]) ++ x1_) by now simpl_list.
                eapply IHderv.
                ++ eapply incl_app. eauto. eauto.
-               ++ etransitivity; eauto.
+               ++ eauto.
                ++ eauto.
                ++ eauto.
                ++ now simpl_list.
                ++ now simpl_list.
             -- eapply use_fresh. eapply incl_app. eauto. eapply list_prefix_inv'' in H1 as [<- <-].
                2: eapply use_fresh; eauto. 2: eapply use_fresh; eauto.
-               etransitivity; eauto.
+               eauto.
             -- eapply use_fresh. eauto.
     Qed.
 

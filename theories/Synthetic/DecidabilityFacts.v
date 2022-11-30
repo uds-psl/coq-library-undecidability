@@ -115,39 +115,38 @@ Qed.
 
 Lemma discrete_bool : discrete bool.
 Proof.
-  eapply discrete_iff. econstructor. exact _.
+  eapply discrete_iff. econstructor. unfold dec. decide equality.
 Qed.
 
 Lemma discrete_nat : discrete nat.
 Proof.
-  eapply discrete_iff. econstructor. exact _.
-Qed.
-
-Lemma discrete_nat_nat : discrete (nat * nat).
-Proof.
-  eapply discrete_iff. econstructor. exact _.
+  eapply discrete_iff. econstructor. unfold dec. decide equality.
 Qed.
 
 Lemma discrete_prod X Y : discrete X -> discrete Y -> discrete (X * Y).
 Proof.
   intros [d1] % discrete_iff [d2] % discrete_iff.
-  eapply discrete_iff. econstructor. exact _.
+  eapply discrete_iff. econstructor. unfold dec. decide equality.
+  all: solve [apply d1|apply d2].
 Qed.
 
 Lemma discrete_sum X Y : discrete X -> discrete Y -> discrete (X + Y).
 Proof.
   intros [d1] % discrete_iff [d2] % discrete_iff.
-  eapply discrete_iff. econstructor. exact _.
+  eapply discrete_iff. econstructor. unfold dec. decide equality.
+  all: solve [apply d1|apply d2].
 Qed.
 
 Lemma discrete_option X : discrete X -> discrete (option X).
 Proof.
   intros [d1] % discrete_iff. eapply discrete_iff.
-  econstructor. exact _.
+  econstructor. unfold dec. decide equality.
+  apply d1.
 Qed.
 
 Lemma discrete_list X : discrete X -> discrete (list X).
 Proof.
   intros [d1] % discrete_iff. eapply discrete_iff.
-  econstructor. exact _.
+  econstructor. unfold dec. decide equality.
+  apply d1.
 Qed.

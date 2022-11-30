@@ -108,7 +108,7 @@ Section Star_Pow.
   Lemma star_trans : transitive _ star.
   Proof. induction 1; eauto using star. Qed.
 
-  Global Instance star_preorder : PreOrder star.
+  #[export] Instance star_preorder : PreOrder star.
   Proof. constructor; [constructor|apply star_trans]. Qed.
 
   Lemma pow_plus k1 k2 x y z :

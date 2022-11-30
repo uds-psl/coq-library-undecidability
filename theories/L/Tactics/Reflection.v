@@ -103,7 +103,7 @@ Definition rComp_ind_deep
            (IHClos : forall (s : rTerm) (A : list rComp),
                (forall a, a el A -> P a) -> P (rCompClos s A)) : forall x, P x.
 Proof.
-  apply rComp_ind_deep' with (Pl:=fun A => (forall a, a el A -> P a));auto.
+  apply rComp_ind_deep' with (Pl:=fun A => (forall a, a el A -> P a)); [auto..|easy|].
   -intros. inv H1;auto.
 Qed.
 
@@ -125,7 +125,8 @@ Lemma map_ext' : forall (A B : Type) (f g : A -> B) (l:list A),
 Proof.
   intros. induction l.
   -reflexivity.
-  -simpl. rewrite H;auto with list.  f_equal. apply IHl. intros. apply H. auto with list.
+  -simpl. rewrite H;auto using in_eq, in_cons. f_equal. apply IHl. intros. apply H.
+   auto using in_eq, in_cons.
 Qed.
 
 Lemma denoteTerm_correct phi s: Proc phi -> deClos (denoteComp phi s) = denoteTerm phi (rDeClos s).

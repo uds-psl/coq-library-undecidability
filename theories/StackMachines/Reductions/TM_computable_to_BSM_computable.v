@@ -11,6 +11,7 @@ From Undecidability.Shared.Libs.PSL Require FinTypes.
 From Undecidability.TM Require Import Single.EncodeTapes.
 
 Notation "v @[ t ]" := (Vector.nth v t) (at level 50).
+Local Hint Rewrite map_app  : list.
 
 Lemma skipn_app' (X : Type) (xs ys : list X) (n : nat) :
   n = (| xs |) -> skipn n (xs ++ ys) = ys.
@@ -22,6 +23,12 @@ Proof.
   induction v.
   - cbn. eapply vec_pos_ext. intros. now rewrite vec_pos_set.
   - rewrite vec_app_cons. cbn. congruence.
+Qed.
+
+Lemma Vector_map_app {X Y k1 k2} (v1 : Vector.t X k1) (v2 : Vector.t X k2) (f : X -> Y) :
+  Vector.map f (Vector.append v1 v2)%vector = Vector.append (Vector.map f v1) (Vector.map f v2).
+Proof.
+  induction v1; cbn; congruence.
 Qed.
 
 Lemma cast_eq_refl {X n} (v : Vector.t X n) E : Vector.cast v E = v.

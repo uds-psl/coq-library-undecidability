@@ -16,8 +16,8 @@ Qed.
 
 #[global]
 Instance finType_depPair (F : finType) (a : F -> finType) : finTypeC (EqType( {f : F & a f} )).
-Proof. 
-  exists (undup (concat (map (fun f => map (fun x => existT a _ x) (elem (a f))) (elem F)))).
+Proof.
+  exists (nodup (@eqType_dec _) (concat (map (fun f => map (fun x => existT a _ x) (elem (a f))) (elem F)))).
   intros H. hnf in H. apply dupfreeCount. now apply NoDup_nodup.
   apply nodup_In. apply in_concat.
   exists ((fun f : F => map (fun x : a f => existT (fun x0 : F => a x0) f x) (elem (a f))) (projT1 H)).

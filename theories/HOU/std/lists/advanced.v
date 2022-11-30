@@ -86,7 +86,7 @@ Section Nats.
   Qed.
 
 End Nats.
-Global Hint Rewrite length_nats : listdb.
+#[export] Hint Rewrite length_nats : listdb.
 
 
 
@@ -157,7 +157,7 @@ Section Tabulate.
 
 
 End Tabulate.
-Global Hint Rewrite tab_length tab_id_nats : listdb. 
+#[export] Hint Rewrite tab_length tab_id_nats : listdb. 
 
 
 
@@ -253,7 +253,7 @@ Section Repeated.
 End Repeated.
 
 
-Global Hint Rewrite  repeated_length repeated_map repeated_plus repeated_rev: listdb.
+#[export] Hint Rewrite  repeated_length repeated_map repeated_plus repeated_rev: listdb.
 
 
 

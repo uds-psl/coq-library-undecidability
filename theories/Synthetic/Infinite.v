@@ -1,12 +1,14 @@
 (* * Infinite Data Types *)
 
-From Undecidability Require Import Shared.ListAutomation Shared.Dec.
-From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts MoreEnumerabilityFacts.
-Require Import Arith ConstructiveEpsilon.
+From Undecidability Require Import Shared.Dec.
+From Undecidability.Synthetic Require Import ListEnumerabilityFacts.
+Require Import List PeanoNat ConstructiveEpsilon Lia.
+Import ListNotations.
 
-Import ListAutomationNotations ListAutomationHints.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
+
+#[local] Notation "x 'el' L" := (In x L) (at level 70).
 
 Definition mu (p : nat -> Prop) :
   (forall x, dec (p x)) -> ex p -> sig p.
@@ -83,10 +85,11 @@ Section Inf.
     Qed.
 
     Lemma sub_dec (A B : list X) :
-      (A <<= B) + {x | x el A /\ ~ x el B}.
+      (incl A B) + {x | x el A /\ ~ x el B}.
     Proof using HX.
-      revert B. induction A; intros B; cbn; auto.
+      revert B. induction A; intros B; cbn; [left; apply incl_nil_l|].
       destruct (IHA B); decide (a el B); auto.
+      - left. now apply incl_cons.
       - right. exists a. split; auto.
       - destruct s as (x&H1&H2). right.
         exists x. split; auto.
@@ -111,7 +114,7 @@ Section Inf.
   Instance el_dec :
     forall (A : list X) x, dec (x el A).
   Proof using HX.
-    intros A x. induction A; cbn; auto.
+    intros A x. induction A; cbn; exact _.
   Qed.
 
   Definition dummy : X.
@@ -190,7 +193,7 @@ Section Inf.
   Lemma F_el n :
     F n el LL (S n).
   Proof.
-    cbn. apply in_app_iff. now right.
+    cbn. apply in_app_iff. right. now left.
   Qed.
 
   Lemma F_lt n m :
@@ -250,8 +253,8 @@ Section Inf.
   Lemma LL_F x n :
     x el LL n -> exists m, F m = x.
   Proof.
-    induction n; cbn; auto.
-    intros [H|[H|H]] % in_app_iff; auto.
+    induction n; cbn; [easy|].
+    intros [H|[H|H]] % in_app_iff; [auto| |easy].
     now exists n.
   Qed.
 

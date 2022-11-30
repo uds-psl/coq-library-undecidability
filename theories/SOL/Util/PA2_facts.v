@@ -2,7 +2,7 @@
 
 Require Import PeanoNat Lia Vector.
 From Undecidability.SOL Require Import SOL PA2.
-From Undecidability.Shared.Libs.PSL Require Import Vectors VectorForall.
+From Undecidability.Shared.Libs.PSL Require Import Vectors.
 From Undecidability.SOL.Util Require Import Syntax Subst Tarski.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 Require Import Undecidability.Shared.Dec.
@@ -57,6 +57,8 @@ Proof.
   - apply enumT_quantop.
 Qed.
 
+#[local] Hint Extern 0 (PA2 _) => unfold PA2, PA2_L; cbn; tauto : core.
+
 Lemma PA2_enumerable :
   enumerable PA2.
 Proof.
@@ -65,8 +67,9 @@ Proof.
     now exists 0. now exists 1. now exists 2. now exists 3. now exists 4.
     now exists 5. now exists 6. now exists 7. now exists 8. easy.
   - intros [n H]. assert (forall x y : form, Some x = Some y -> x = y) as Some_inj by congruence.
-    do 9 try destruct n as [|n]; try apply Some_inj in H as <-. 1-9: firstorder.
-    destruct n; cbn in H; congruence.
+    do 9 try destruct n as [|n]; try apply Some_inj in H as <-.
+    1-9: easy.
+    now destruct n.
 Qed.
 
 Lemma PA2_closed :
@@ -87,7 +90,7 @@ Proof.
   - intros H1 M rho H2. apply H1. intros psi H3. repeat destruct H3 as [<-|H3]; intros rho'. 
     apply (H2 ax_eq_refl). 2: apply (H2 ax_eq_symm). 3: apply (H2 ax_zero_succ). 4: apply (H2 ax_succ_inj). 
     5: apply (H2 ax_add_zero). 6: apply (H2 ax_add_rec). 7: apply (H2 ax_mul_zero). 8: apply (H2 ax_mul_rec). 
-    9: apply (H2 ax_ind). 10: easy. all: clear; firstorder. 
+    9: apply (H2 ax_ind). all: easy.
 Qed.
 
 
@@ -109,19 +112,19 @@ Section Model.
 
   Lemma eq_reflexive x :
     x i== x.
-  Proof using M_correct. revert x. apply (M_correct ax_eq_refl ltac:(firstorder) (empty_PA2_env _)). Qed.
+  Proof using M_correct. revert x. apply (M_correct ax_eq_refl ltac:(easy) (empty_PA2_env _)). Qed.
 
   Lemma eq_symm x y :
     x i== y -> y i== x.
-  Proof using M_correct. apply (M_correct ax_eq_symm ltac:(firstorder) (empty_PA2_env _)). Qed.
+  Proof using M_correct. apply (M_correct ax_eq_symm ltac:(easy) (empty_PA2_env _)). Qed.
 
   Lemma zero_succ' x :
     izero i== iσ x -> False.
-  Proof using M_correct. apply (M_correct ax_zero_succ ltac:(firstorder) (empty_PA2_env _)). Qed.
+  Proof using M_correct. apply (M_correct ax_zero_succ ltac:(easy) (empty_PA2_env _)). Qed.
 
   Lemma succ_inj' x y :
     iσ x i== iσ y -> x i== y.
-  Proof using M_correct. apply (M_correct ax_succ_inj ltac:(firstorder) (empty_PA2_env _)). Qed.
+  Proof using M_correct. apply (M_correct ax_succ_inj ltac:(easy) (empty_PA2_env _)). Qed.
 
   (* Simplify induction axiom by removing the vector *)
   Lemma induction (P : M_domain M -> Prop) :
@@ -129,7 +132,7 @@ Section Model.
   Proof using M_correct.
     pose (P' := fun v : vec _ 1 => P (Vector.hd v)).
     change (P' ([izero]) -> (forall x, P' ([x]) -> P' ([iσ x])) -> forall x, P' ([x])).
-    apply (M_correct ax_ind ltac:(firstorder) (empty_PA2_env _)).
+    apply (M_correct ax_ind ltac:(easy) (empty_PA2_env _)).
   Qed.
 
   Lemma case_analysis x :
@@ -164,19 +167,19 @@ Section Model.
 
   Lemma add_zero x :
     izero i⊕ x = x.
-  Proof using M_correct. apply eq_sem, (M_correct ax_add_zero ltac:(firstorder) (empty_PA2_env _)). Qed.
+  Proof using M_correct. apply eq_sem, (M_correct ax_add_zero ltac:(easy) (empty_PA2_env _)). Qed.
 
   Lemma add_rec x y :
     iσ x i⊕ y = iσ (x i⊕ y).
-  Proof using M_correct. apply eq_sem, (M_correct ax_add_rec ltac:(firstorder) (empty_PA2_env _)). Qed.
+  Proof using M_correct. apply eq_sem, (M_correct ax_add_rec ltac:(easy) (empty_PA2_env _)). Qed.
 
   Lemma mul_zero x :
     izero i⊗ x = izero.
-  Proof using M_correct. apply eq_sem, (M_correct ax_mul_zero ltac:(firstorder) (empty_PA2_env _)). Qed.
+  Proof using M_correct. apply eq_sem, (M_correct ax_mul_zero ltac:(easy) (empty_PA2_env _)). Qed.
 
   Lemma mul_rec x y :
     iσ x i⊗ y = y i⊕ (x i⊗ y).
-  Proof using M_correct. apply eq_sem, (M_correct ax_mul_rec ltac:(firstorder) (empty_PA2_env _)). Qed.
+  Proof using M_correct. apply eq_sem, (M_correct ax_mul_rec ltac:(easy) (empty_PA2_env _)). Qed.
 
 
   (* Convert from nat to this model *)

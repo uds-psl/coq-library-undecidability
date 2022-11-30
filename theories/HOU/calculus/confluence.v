@@ -25,7 +25,7 @@ Section Confluence.
 
   Hint Immediate refl_par : core. 
 
-  Global Instance refl_par_inst: Reflexive par.
+  #[export] Instance refl_par_inst: Reflexive par.
   Proof.
     intros ?; eapply refl_par. 
   Qed.
@@ -51,31 +51,28 @@ Section Confluence.
     - auto. 
   Qed.
 
-  Global Instance par_lam_proper: Proper (star par ++> star par) lam.
+  #[export] Instance par_lam_proper: Proper (star par ++> star par) lam.
   Proof.
     intros s s' H; induction H; eauto.
   Qed.
   
-  Global Instance par_app_proper: Proper (star par ++> star par ++> star par) app.
+  #[export] Instance par_app_proper: Proper (star par ++> star par ++> star par) app.
   Proof.
     intros s s' H; induction H; intros t t' H'; induction H'; eauto.
   Qed.
 
-
-
-  Global Instance sandwich_step: subrelation step par.
+  #[export] Instance sandwich_step: subrelation step par.
   Proof.
     intros ??; induction 1; eauto.
   Qed.
 
-  Global Instance sandwich_steps: subrelation par (star step).
+  #[export] Instance sandwich_steps: subrelation par (star step).
   Proof.
     intros ??; induction 1; trivial.
     - rewrite IHpar; auto.
     - rewrite IHpar1, IHpar2, stepBeta; auto.
     - rewrite IHpar1, IHpar2; auto. 
   Qed.
-
 
   Fixpoint rho (e: exp X) :=
     match e with

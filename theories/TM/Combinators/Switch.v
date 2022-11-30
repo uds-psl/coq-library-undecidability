@@ -102,8 +102,7 @@ Section Switch.
     halt_liftL c = false -> halt (cstate c) = false.
   Proof.
     intros H. cbn. unfold Switch_halt.
-    destruct c as [q t]; cbn.
-    destruct q; cbn in *; auto.
+    destruct c as [q t]. now destruct q.
   Qed.
 
   (* The "nop" transition jumps from a halting configuration of [M1] to the initial configuration of the corresponding case-machine. *)

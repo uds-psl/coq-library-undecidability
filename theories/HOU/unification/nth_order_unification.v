@@ -112,13 +112,13 @@ Section NthOrderSystemUnification.
 
 
   Hint Resolve linearize_terms_ordertyping : core.
-    Global Instance orduni_ordsysuni n (I: orduni n X): ordsysuni n.
+    #[export] Instance orduni_ordsysuni n (I: orduni n X): ordsysuni n.
     Proof.
       refine {| Gamma₀' := Gamma₀; E₀' := [(s₀, t₀)]; L₀' := [A₀]; H₀' := _; |}.
       abstract (eauto).
     Defined.
 
-    Global Instance ordsysuni_orduni {n} (I: ordsysuni n): ord' L₀' < n -> orduni n X.
+    #[export] Instance ordsysuni_orduni {n} (I: ordsysuni n): ord' L₀' < n -> orduni n X.
     Proof. 
       intro H.
       refine {|

@@ -34,7 +34,7 @@ Proof.
 Qed.
 
 
-#[global]
+#[export]
 Instance eqb_move:
   eqbClass move_eqb.
 Proof.
@@ -42,7 +42,7 @@ Proof.
 Qed.
 
 
-#[global]
+#[export]
 Instance eqbComp_bool : eqbComp move.
 Proof.
   constructor. unfold move_eqb.
@@ -59,22 +59,22 @@ Section reg_tapes.
   MetaCoq Run (tmGenEncode "tape_enc" (TM.tape sig)).
   Hint Resolve tape_enc_correct : Lrewrite.
 
-  Global Instance encInj_tape_enc {H : encInj reg_sig} : encInj (encodable_tape_enc).
+  #[export] Instance encInj_tape_enc {H : encInj reg_sig} : encInj (encodable_tape_enc).
   Proof. register_inj. Qed. 
 
   (*Internalize constructors **)
 
-  Global Instance term_leftof : computable (@leftof sig).
+  #[export] Instance term_leftof : computable (@leftof sig).
   Proof.
     extract constructor.
   Qed.
 
-  Global Instance term_rightof : computable (@rightof sig).
+  #[export] Instance term_rightof : computable (@rightof sig).
   Proof.
     extract constructor.
   Qed.
 
-  Global Instance term_midtape : computable (@midtape sig).
+  #[export] Instance term_midtape : computable (@midtape sig).
   Proof.
     extract constructor.
   Qed.
@@ -89,31 +89,31 @@ Section fix_sig.
 
   Definition mconfigAsPair {B : finType} {n} (c:mconfig sig B n):= let (x,y) := c in (x,y).
 
-  Global Instance encodable_mconfig (B : finType) `{encodable B} n: encodable (mconfig sig B n).
+  #[export] Instance encodable_mconfig (B : finType) `{encodable B} n: encodable (mconfig sig B n).
   Proof using reg_sig.
     eapply (registerAs mconfigAsPair).
   Defined.
 
-  Global Instance term_mconfigAsPair (B : finType) `{encodable B} n: computable (@mconfigAsPair B n).
+  #[export] Instance term_mconfigAsPair (B : finType) `{encodable B} n: computable (@mconfigAsPair B n).
   Proof.
     apply cast_computable.
   Qed.
 
-  Global Instance term_cstate (B : finType) `{encodable B} n: computable (@cstate sig B n).
+  #[export] Instance term_cstate (B : finType) `{encodable B} n: computable (@cstate sig B n).
   Proof.
     apply computableExt with (x:=fun x => fst (mconfigAsPair x)).
     2:{extract. }
     intros [];reflexivity.
   Qed.
 
-  Global Instance term_ctapes (B : finType) `{encodable B} n: computable (@ctapes sig B n).
+  #[export] Instance term_ctapes (B : finType) `{encodable B} n: computable (@ctapes sig B n).
   Proof.
     apply computableExt with (x:=fun x => snd (mconfigAsPair x)).
     2:{extract. }
     intros [];reflexivity.
   Qed.
 
-  Global Instance encodable_mk_mconfig (B : finType) `{encodable B} n: computable (@mk_mconfig sig B n).
+  #[export] Instance encodable_mk_mconfig (B : finType) `{encodable B} n: computable (@mk_mconfig sig B n).
   Proof.
     computable_casted_result.
     extract.

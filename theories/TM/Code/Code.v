@@ -38,10 +38,10 @@ Section Encode_list.
 
   Arguments sigList_nil {sigX}. Arguments sigList_cons {sigX}. Arguments sigList_X {sigX}.
 
-  Global Instance sigList_dec sigX (decX : eq_dec sigX) :
+  #[export] Instance sigList_dec sigX (decX : eq_dec sigX) :
     eq_dec (sigList sigX) := ltac:(build_eq_dec).
 
-  Global Instance sigList_fin (sigX : finType) : finTypeC (EqType (sigList sigX)).
+  #[export] Instance sigList_fin (sigX : finType) : finTypeC (EqType (sigList sigX)).
   Proof.
     split with (enum := sigList_nil :: sigList_cons :: map sigList_X enum).
     intros [x| | ]; cbn; f_equal.

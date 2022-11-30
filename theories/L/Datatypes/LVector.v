@@ -90,7 +90,7 @@ From Undecidability.L Require Import Functions.EqBool.
 Global Instance eqbVector  X eqbx `{eqbClass (X:=X) eqbx} n:
   eqbClass (VectorEq.eqb eqbx (n:=n) (m:=n)).
 Proof.
-  intros ? ?. eapply vector_eqb_spec. all:eauto using eqb_spec.
+  intros ? ?. apply iff_reflect. symmetry. apply Vector.eqb_eq. symmetry. apply reflect_iff. eauto.
 Qed.
 
 Global Instance eqbComp_List X `{encodable X} `{eqbComp X (R:=_)} n:

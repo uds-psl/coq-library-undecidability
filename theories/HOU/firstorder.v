@@ -2,7 +2,7 @@ Set Implicit Arguments.
 
 Require Import List Lia Arith Init.Wf Morphisms Program.Program.
 From Undecidability.HOU Require Import concon.conservativity calculus.calculus.
-Import ListNotations ListAutomationInstances.
+Import ListNotations.
 From Undecidability.HOU.unification Require Import systemunification nth_order_unification.
 
 Tactic Notation "simplify" := Undecidability.HOU.std.tactics.simplify.  
@@ -457,7 +457,7 @@ Section Unification.
     Definition unifies sigma s t := sigma • s = sigma • t.
     Definition Unifies sigma E := forall e, e ∈ E -> unifies sigma (fst e) (snd e).
     
-    Global Instance unifies_equiv sigma: Equivalence (unifies sigma).
+    #[export] Instance unifies_equiv sigma: Equivalence (unifies sigma).
     Proof.
       constructor; unfold unifies; congruence.
     Qed.
@@ -489,7 +489,7 @@ Section Unification.
     Notation "E1 ≈ E2" := (equi_unifiable E1 E2) (at level 80).
 
 
-    Global Instance equi_unifiable_equivalence: Equivalence equi_unifiable.
+    #[export] Instance equi_unifiable_equivalence: Equivalence equi_unifiable.
     Proof.
       econstructor; [firstorder.. |].
       intros E1 E2 E3 H1 H2 sigma; unfold equi_unifiable in *.

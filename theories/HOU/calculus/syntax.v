@@ -62,17 +62,17 @@ Ltac atom :=
 
 Section DiscreteTypes.
 
-  Global Instance Const_dis (C: Const) : Dis C.
+  #[export] Instance Const_dis (C: Const) : Dis C.
   Proof.
     eapply const_dis.
   Qed.
 
-  Global Instance exp_dis X: Dis (exp X).
+  #[export] Instance exp_dis X: Dis (exp X).
   Proof.
     intros ??; unfold Dec; decide equality. decide equality. eapply const_dis.
   Qed.
 
-  Global Instance type_dis: Dis type.
+  #[export] Instance type_dis: Dis type.
   Proof.
     intros ??; unfold Dec; decide equality; decide equality.
   Qed. 
@@ -193,7 +193,7 @@ Section FreeVariables.
 
   Hint Resolve varof_vars vars_varof : core.
 
-  Global Instance dec_varof: Dec2 (varof). 
+  #[export] Instance dec_varof: Dec2 (varof). 
   Proof.
     intros x s; eapply iff_dec with (P := x ∈ vars s);
       intuition idtac; auto with typeclass_instances.  

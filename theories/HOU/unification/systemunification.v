@@ -1,7 +1,7 @@
 Set Implicit Arguments.
 Require Import List Lia.
 From Undecidability.HOU Require Import std.std calculus.calculus unification.higher_order_unification.
-Import ListNotations ListAutomationInstances ArsInstances.
+Import ListNotations ArsInstances.
 
 (* * System Unification *)
 Section SystemUnification.
@@ -211,11 +211,11 @@ Section SystemUnification.
 
   Section Interreducible.
 
-  Global Program Instance uni_sysuni (I: uni X): sysuni :=
+  #[export] Program Instance uni_sysuni (I: uni X): sysuni :=
      { Gammaᵤ' := Gammaᵤ; Eᵤ' := [(sᵤ, tᵤ)]; Lᵤ' := [Aᵤ]; Hᵤ' := _; }.
 
 
-   Global Program Instance sysuni_uni (I: sysuni): uni X :=
+   #[export] Program Instance sysuni_uni (I: sysuni): uni X :=
        {
          Gammaᵤ := Gammaᵤ';
          sᵤ := linearize_terms (left_side Eᵤ');
@@ -259,7 +259,7 @@ Notation "sigma •₊₊ E" := (map (subst_eq sigma) E) (at level 69, right ass
 Notation  "Gamma ⊢₊₊ E : L" := (eqs_typing Gamma E L) (at level 80, E at level 99).
 Notation "Gamma ⊢₂ e : A" := (eq_typing Gamma e A) (at level 80, e at level 99).
 
-Global Hint Rewrite all_terms_cons_iff all_terms_app Vars'_app Vars'_cons: simplify.
+#[export] Hint Rewrite all_terms_cons_iff all_terms_app Vars'_app Vars'_cons: simplify.
 #[export] Hint Resolve all_terms_nil : core.
 
 (* ** Normalisation *)

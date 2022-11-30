@@ -1,19 +1,7 @@
-#[export] Hint Extern 4 => exact _ : core.  (* makes auto use type class inference *)
-
 (* ** Boolean propositions and decisions *)
 
 Coercion is_true : bool >-> Sortclass.
 
-Ltac simpl_congruence :=
-  match goal with
-  | [ H: False |- _ ] => destruct H
-  | [ H : 0 = S _ |- _] => congruence
-  | [ H : S _ = 0 |- _] => congruence
-  | [ H : true = false |- _] => congruence
-  | [ H : false = true |- _] => congruence
-  end.
-
-#[export] Hint Extern 1 => simpl_congruence : core.
 
 (* ** Inversion *)
 
@@ -43,8 +31,6 @@ Tactic Notation "destruct" "*" "eqn" ":" ident(E) :=
 Tactic Notation "destruct" "*" "eqn" ":" "_" := destruct * eqn:E.
 
 Tactic Notation "intros" "***" := repeat (intros ?).
-
-Ltac fstep N := unfold N; fold N.
 
 (* ** Assumption Locking *)
 
@@ -80,33 +66,6 @@ Tactic Notation "is_unlocked" ident(H) :=
   | Lock _  => fail "locked"
   | _ => idtac
   end.
-
-
-(*
-Goal True.
-  do 2 pose proof I.
-  lock H.
-  lock H0.
-  unlock H0.
-  do 2 pose proof I.
-  lock H0; lock H1.
-  unlock all.
-
-  is_unlocked H.
-  Fail is_locked H.
-
-  lock H.
-  is_locked H.
-  Fail is_unlocked H.
-
-  Show Proof. (* Locking and unlocking is not represented in the proof term. *)
-Abort.
-*)
-
-
-
-(* ** Modus ponens *)
-
 
 (* Prove the non-dependent hypothesis of a hypothesis that is a implication and specialize it *)
 Tactic Notation "spec_assert" hyp(H) :=
@@ -154,5 +113,3 @@ Ltac print_goal_cbn :=
   end.
 
 Ltac print_type e := first [ let x := type of e in idtac x | idtac "Untyped:" e ].
-
-From Undecidability.Shared.Libs.PSL Require Export AutoIndTac.

@@ -9,10 +9,13 @@ Require Import Undecidability.StringRewriting.SR.
 Require Import Undecidability.StringRewriting.Util.Definitions.
 
 Require Import Undecidability.Synthetic.Definitions.
-Require Import Undecidability.Shared.ListAutomation.
-Import ListAutomationHints.
 
 Import RuleNotation.
+
+#[local] Hint Rewrite <- app_assoc : list.
+#[local] Hint Resolve in_eq in_nil in_cons in_or_app : core.
+#[local] Hint Resolve incl_refl incl_appl incl_appr incl_nil_l : core.
+#[local] Hint Resolve app_incl_l app_incl_R cons_incl : core.
 
 Set Default Goal Selector "!".
 
@@ -64,7 +67,8 @@ Section SR_to_MPCP.
     induction x1.
     - firstorder.
     - intros. intros [] [].
-      + inv H0.  unfold P. eauto 15.
+      + inv H0.  unfold P. do 3 (apply in_app_iff; right).
+        apply in_map_iff. eauto.
       + eapply IHx1; firstorder.
   Qed.
 
@@ -84,7 +88,7 @@ Section SR_to_MPCP.
       exists (cards x1 ++ [(u / v)] ++ cards y1 ++ [ [#] / [#] ] ++ A). split.
       + repeat (eapply incl_app); try assumption; unfold P.
         * eapply cards_subset. eapply app_incl_l. eassumption.
-        * eapply incl_appr. eapply incl_appl. now apply ListAutomation.incl_sing.
+        * eapply incl_appr. eapply incl_appl. now apply incl_sing.
         * eapply cards_subset. eapply app_incl_R. eapply app_incl_R. eassumption.
         * eauto.
       + simpl_list. cbn. rewrite H1. now simpl_list. 
@@ -129,7 +133,7 @@ Section SR_to_MPCP.
           eapply IHA. 
           ** eapply cons_incl. eassumption.
           ** eapply cons_incl. eassumption.
-          ** eapply incl_app. { eassumption. } now eapply ListAutomation.incl_sing.
+          ** eapply incl_app. { eassumption. } now eapply incl_sing.
           ** simpl_list. eassumption.
   Qed.
 

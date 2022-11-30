@@ -9,14 +9,14 @@ Class retract (X Y: Type) :=
   }.
 
 
-#[global]
+#[export]
 Instance retract_refl X: retract X X.
 Proof.
   exists (@id X) Some. reflexivity.
 Qed.
 
 
-#[global]
+#[export]
 Instance retract_trans X Y Z:
   retract X Y -> retract Y Z -> retract X Z.
 Proof.
@@ -27,7 +27,7 @@ Qed.
 
 
 
-#[global]
+#[export]
 Instance retract_False X: retract False X.
 Proof.
   exists (fun f: False => match f with end) (fun _ => None). intros [].
@@ -55,7 +55,7 @@ Section Properties.
 
   Context {D: Dis Y}. 
 
-  Global Instance dis_retract: Dis X.
+  #[export] Instance dis_retract: Dis X.
   Proof using r Y D.
     intros x y. destruct (I x == I y) as [H|H].
     - left; eapply (f_equal R) in H; rewrite !retr in H.

@@ -3,8 +3,6 @@ From Undecidability.TM Require Export Util.Prelim Util.TM_facts.
 Require Export Undecidability.TM.Compound.TMTac.
 Require Import Undecidability.TM.Code.Code.
 Require Export Undecidability.TM.Basic.Mono Undecidability.TM.Compound.Multi.
-(* the above imports sidestep the import of ProgrammingTools below to avoid the dependency on Hoare *)
-(*From Undecidability.TM Require Import ProgrammingTools.*)
 
 Set Default Goal Selector "!".
 
@@ -36,7 +34,7 @@ Inductive sigTape (sig : Type) : Type :=
 
 #[global]
 Instance sigTape_eq (sig : Type) : eq_dec sig -> eq_dec (sigTape sig).
-Proof. intros. hnf. decide equality; now apply Dec; auto. Defined. (* because definition *)
+Proof. intros. hnf. decide equality; now apply Dec; exact _. Defined. (* because definition *)
 
 Arguments LeftBlank {sig} marked.
 Arguments RightBlank {sig} marked.

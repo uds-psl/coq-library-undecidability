@@ -3,7 +3,7 @@ From Undecidability.HOU Require Import calculus.calculus.
 From Undecidability.HOU Require Import
         unification.higher_order_unification unification.nth_order_unification
         concon.conservativity_constants concon.conservativity.
-Import ListNotations ListAutomationInstances ArsInstances.
+Import ListNotations ArsInstances.
 
 #[local] Fact ge_plus_l n m : n + m >= n.
 Proof. apply Nat.le_add_r. Qed.
@@ -290,14 +290,14 @@ Section RemoveConstants.
 
   (* maybe a setoid bug *)
   #[local] Unset Default Proof Using.
-  Global Instance enc_proper:
+  #[export] Instance enc_proper:
     Proper (equiv (@step X) ++> equiv (@step Y)) (enc_term C).
   Proof.
     intros ?? H; unfold enc_term; now rewrite H.
   Qed.
   #[local] Set Default Proof Using "Type".
 
-  Global Instance inv_proper:
+  #[export] Instance inv_proper:
     Proper (equiv (@step Y) ++> equiv (@step X)) (inv_term C).
   Proof.
     intros ?? H; unfold inv_term; now rewrite H.

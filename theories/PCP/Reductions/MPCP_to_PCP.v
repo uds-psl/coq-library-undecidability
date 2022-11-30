@@ -5,10 +5,10 @@ Require Import Undecidability.PCP.PCP.
 Require Import Undecidability.PCP.Util.Facts.
 Import PCPListNotation.
 Require Import Undecidability.PCP.Util.PCP_facts.
-
 Require Import Undecidability.Synthetic.Definitions.
-Require Import Undecidability.Shared.ListAutomation.
-Import ListAutomationHints.
+
+Local Hint Rewrite <- app_assoc : list.
+Local Hint Resolve in_eq in_nil in_cons in_or_app : core.
 
 Set Default Goal Selector "!".
 
@@ -22,7 +22,7 @@ Section MPCP_PCP.
 
   Definition Sigma := sym (x0/y0 :: R).
   Definition R_Sigma : sym R <<= Sigma.
-  Proof. unfold Sigma. cbn. eauto. Qed.
+  Proof. unfold Sigma. cbn. do 2 apply incl_appr. apply incl_refl. Qed.
 
   Definition dollar := fresh Sigma.
   Notation "$" := dollar.
@@ -158,7 +158,8 @@ Section MPCP_PCP.
       destruct (is_cons x' || is_cons y') eqn:E.
       + exists ( (#_L x' / #_R y') :: B). split.
         * intros ? [ <- | ]; [ | eauto].
-          unfold P. rewrite in_app_iff, in_map_iff. right. exists (x', y'). eauto.
+          unfold P. rewrite in_app_iff, in_map_iff. right. exists (x', y'). split; [easy|].
+          eapply filter_In. eauto.
         * eassumption. 
       + exists B. rewrite orb_false_iff, <- !not_true_iff_false, !is_cons_true_iff in E. destruct E.
         destruct x', y'; firstorder congruence.
@@ -189,7 +190,7 @@ Section MPCP_PCP.
         rewrite <- hash_L_app, <- hash_R_app in H5. eapply IHB in H5 as (A & ? & ?).
         * exists (x' / y' :: A). intuition; try inv H7; intuition;
           cbn; now autorewrite with list in *. 
-        * eauto.
+        * eapply incl_cons_inv. eassumption.
         * eapply incl_app. { eauto. }
           intros ? ?. destruct H3. { inv H3. eauto. } eapply R_Sigma, sym_word_l; eauto.
         * eapply incl_app. { eauto. }

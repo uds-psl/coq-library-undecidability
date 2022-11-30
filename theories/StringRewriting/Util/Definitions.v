@@ -105,6 +105,12 @@ Qed.
 
 #[export] Hint Resolve sym_word_l sym_word_R : core.
 
+Lemma app_incl_l {X : Type} {A B C : list X} : incl (A ++ B) C -> incl A C.
+Proof. now intros [? ?]%incl_app_inv. Qed.
+
+Lemma app_incl_r {X : Type} {A B C : list X} : incl (A ++ B) C -> incl B C.
+Proof. now intros [? ?]%incl_app_inv. Qed.
+
 (* *** Fresh symbols *)
 
 Fixpoint fresh (l : list nat) :=

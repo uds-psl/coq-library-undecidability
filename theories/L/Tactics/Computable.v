@@ -23,8 +23,8 @@ Inductive TT : Type -> Type :=
   : TT (t1 -> t2).
 
 Existing Class TT.
-Global Existing Instance TyB.
-Global Existing Instance TyArr.
+#[export] Existing Instance TyB.
+#[export] Existing Instance TyArr.
   
 Arguments TyB _ {_}.
 Arguments TyArr {_} {_} _ _.

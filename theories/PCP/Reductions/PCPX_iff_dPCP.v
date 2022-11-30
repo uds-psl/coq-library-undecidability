@@ -4,10 +4,9 @@ Import ListNotations.
 Require Import Undecidability.PCP.PCP.
 Require Import Undecidability.PCP.Util.Facts.
 Import PCPListNotation.
-
-Require Import Undecidability.Shared.ListAutomation.
-Import ListAutomationHints.
 Require Import Undecidability.Synthetic.Definitions.
+
+#[local] Hint Resolve in_eq incl_cons cons_incl incl_sing : core.
 
 Set Default Goal Selector "!".
 

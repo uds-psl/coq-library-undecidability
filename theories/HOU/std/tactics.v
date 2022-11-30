@@ -41,7 +41,7 @@ Proof.
   now rewrite Nat.add_comm, Nat.add_sub.
 Qed.
 
-Global Hint Rewrite
+#[export] Hint Rewrite
      Nat.sub_0_l Nat.sub_0_r Nat.sub_diag
      Nat.add_sub add_sub' Nat.sub_succ
      Nat.add_0_l Nat.add_0_r : simplify. 

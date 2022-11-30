@@ -9,6 +9,8 @@ From Coq Require Import Recdef.
 
 Set Default Goal Selector "!".
 
+#[local] Hint Resolve in_eq in_cons : list.
+
 (* * Move to a symbol and translate read symbols *)
 
 
@@ -370,7 +372,7 @@ Section MoveToSymbol_Sem.
     all:erewrite (H c);[ |now eauto].
     - rewrite MoveToSymbol_Fun_equation;cbn. eauto. 
     - rewrite IH. 2,3:now eauto. destruct (rev tr'); cbn. { easy. }
-      now autorewrite with list;cbn.
+      now rewrite map_app, <- app_assoc.
   Qed.
 
   Corollary MoveToSymbol_L_correct t str1 str2 x :

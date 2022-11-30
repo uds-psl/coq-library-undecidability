@@ -588,4 +588,4 @@ Section Minsky_Machine_utils.
   
 End Minsky_Machine_utils.
 
-Global Hint Rewrite mm_push_Zero_length mm_push_One_length mm_pop_length : length_db.
+#[export] Hint Rewrite mm_push_Zero_length mm_push_One_length mm_pop_length : length_db.

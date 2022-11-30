@@ -10,7 +10,7 @@ Require Export Undecidability.Shared.Libs.PSL.Vectors.Vectors.
 
 Require Export Lia.
 
-Global Open Scope vector_scope.
+#[local] Open Scope vector_scope.
 
 Set Default Goal Selector "!".
 
@@ -145,7 +145,7 @@ Section LoopMerge.
       loop f h' a2 k2 = Some a3 /\
       k1 + k2 <= k.
   Proof using halt_comp.
-    revert a1 a3. revert k; refine (size_recursion id _); intros k IH. intros a1 a3 HLoop. cbv [id] in *.
+    revert a1 a3. revert k; refine (@size_induction _ id _ _); intros k IH. intros a1 a3 HLoop. cbv [id] in *.
     destruct k as [ | k']; cbn in *.
     - destruct (h' a1) eqn:E; inv HLoop.
       exists 0, a3, 0. cbn. rewrite E.

@@ -7,9 +7,7 @@ Require Import Undecidability.PCP.PCP.
 Require Import Undecidability.PCP.Util.Facts.
 Import PCPListNotation.
 Require Import Undecidability.PCP.Util.PCP_facts.
-Require Import Undecidability.Shared.ListAutomation.
 Require Import Undecidability.Synthetic.Definitions.
-Import ListAutomationHints.
 
 Set Default Goal Selector "!".
 
@@ -28,7 +26,7 @@ Section PCP_CFPP.
   Proof.
     induction A as [ | (x & y) ]; unfold gamma in *; cbn.
     - reflexivity.
-    - rewrite IHA.  now simpl_list.
+    - rewrite IHA. now rewrite rev_app_distr, <- !app_assoc.
   Qed.
 
   Definition palin {X} (A : list X) := A = rev A.
@@ -38,9 +36,12 @@ Section PCP_CFPP.
     tau1 A = tau2 A <-> palin (sigma a (gamma A)).
   Proof.
     rewrite sigma_gamma. unfold palin.
-    simpl_list. intuition.
-    - now rewrite H0.
-    - eapply list_prefix_inv in H0; firstorder using tau1_sym, tau2_sym.
+    rewrite !rev_app_distr, rev_involutive, <- app_assoc.
+    intros Ha. split.
+    - now intros ->.
+    - intros H'. eapply list_prefix_inv in H'; intuition idtac; apply Ha.
+      + now apply tau1_sym.
+      + now apply tau2_sym.
   Qed.
 
   Lemma gamma_invol A :

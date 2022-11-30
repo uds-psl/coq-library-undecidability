@@ -1,8 +1,7 @@
 (* * Notations for [Fin.t] *)
 (* Author: Maximilian Wuttke *)
 
-
-From Undecidability.Shared.Libs.PSL Require Import Fin.
+Require Vector.
 
 Notation "'Fin0'"  := (Fin.F1).
 Notation "'Fin1'"  := (Fin.FS Fin0).

@@ -117,7 +117,7 @@ Proof using Hcmp.
       eapply Eval_converges in Hc as [o' [Hc Hl]]. rewrite Hc. 
       enough (o = o'). subst. now econstructor; eauto. eapply eval_unique.
       eapply Heval. eapply Hrev. rewrite Hc. split; eauto. reflexivity.
-  - cbn -[apply_to tabulate many_vars]. rewrite !apply_to_cons. specialize (IHv (s (enc h))). rewrite <- IHv.
+  - cbn -[apply_to many_vars]. rewrite !apply_to_cons. specialize (IHv (s (enc h))). rewrite <- IHv.
     + unfold apply_encs_to. cbn -[many_vars]. rewrite many_vars_S. cbn. eapply equiv_eval_equiv. etransitivity. eapply apply_to_equiv'. eapply beta_red. Lproc. reflexivity.
       rewrite subst_many_lam. cbn [subst]. replace (n + 0) with n by lia.
       rewrite He. assert (closed (ext nat_unenc)) as H2 by Lproc. unfold closed in H2. rewrite H2. clear H2. cbn.

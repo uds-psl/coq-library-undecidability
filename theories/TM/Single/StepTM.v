@@ -11,6 +11,35 @@ Local Arguments Vector.to_list {A n} (!v).
 
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
+Local Hint Rewrite map_app rev_app_distr : list.
+
+#[local] Hint Extern 4 => 
+match goal with
+|[ H: ?x el nil |- _ ] => destruct H
+end : core.
+
+Lemma fin_destruct_S (n : nat) (i : Fin.t (S n)) :
+  { i' | i = Fin.FS i' } + { i = Fin.F1 }.
+Proof.
+  refine (match i in (Fin.t n')
+          with
+          | Fin.F1 => _
+          | Fin.FS i' => _
+          end); eauto.
+Qed.
+
+Lemma fin_destruct_O (i : Fin.t 0) : Empty_set.
+Proof. refine (match i with end). Qed.
+
+Ltac destruct_fin i :=
+  lazymatch type of i with
+  | Fin.t (S ?n) =>
+    let i' := fresh i in
+    destruct (fin_destruct_S i) as [ (i'&->) | -> ];
+    [ destruct_fin i' | idtac]
+  | Fin.t O => destruct (fin_destruct_O i)
+  | Fin.t _ => idtac
+  end.
 
 Lemma app_comm_cons' (A : Type) (x y : list A) (a : A) :
   x ++ a :: y = (x ++ [a]) ++ y.
@@ -33,8 +62,7 @@ Proof. destruct_vector. cbn. reflexivity. Qed.
 
 Section Fin.
 
-  Global Coercion fin_to_nat (n : nat) (i : Fin.t n) : nat := proj1_sig (Fin.to_nat i).
-  Global Set Printing Coercions.
+  #[local] Coercion fin_to_nat (n : nat) (i : Fin.t n) : nat := proj1_sig (Fin.to_nat i).
 
   Lemma fin_to_nat_S (n : nat) (i : Fin.t n) :
     fin_to_nat (Fin.FS i) = S (fin_to_nat i).
@@ -54,7 +82,7 @@ Section Fin.
   Lemma fin_is_1 (n : nat) (i : Fin.t (S (S n))) :
     fin_to_nat i = 1 -> i = Fin1.
   Proof.
-    intros H. pose proof fin_destruct_S i as [ (i'&->) | ->]; cbn in *; auto.
+    intros H. pose proof fin_destruct_S i as [ (i'&->) | ->]; cbn in *; [|easy].
     rewrite fin_to_nat_S in H. inv H. now apply fin_is_0 in H1 as ->.
   Qed.
 
@@ -82,7 +110,6 @@ Section Fin.
 
   Lemma finSucc_help (i : Fin.t 1) : i = Fin0.
   Proof. now destruct_fin i. Qed.
-
 
   Lemma finSucc_help' (n : nat) (i1 i2 : Fin.t n) :
     Fin.FS i1 <> Fin.FS i2 -> i1 <> i2.
@@ -886,8 +913,8 @@ Section ToSingleTape.
             specialize HGotoCurrent with (1 := HIsCons_cons) as (HGotoCurrent&->).
             specialize HReadCurrent with (1 := HGotoCurrent) as (HReadCurrent&->).
             specialize HGoToNext with (1 := HReadCurrent).
-            destruct ymid1, tps2 as [ | tp' tps2']; auto.
-            { (* tps = tp' :: tps' *) split; auto.
+            destruct ymid1, tps2 as [ | tp' tps2']; try easy.
+            { (* tps = tp' :: tps' *) split. auto.
               destruct (finSucc_opt i) as [i'| ] eqn:Ei.
               - reflexivity.
               - exfalso. apply finSucc_opt_None' in Ei. apply Nat.eqb_eq in HL1. apply Nat.eqb_eq in HL2. cbn in *. lia.
@@ -981,7 +1008,7 @@ Section ToSingleTape.
               apply Nat.eqb_eq in HL1; apply Nat.eqb_eq in HL2. *)
               destruct (finSucc_opt i) as [i'| ]; auto.
             - destruct HLastStepCons as [ HLastStepCons HLastStepCons'].
-              destruct (finSucc_opt i) as [i' | ]; auto. congruence.
+              destruct (finSucc_opt i) as [i' | ]; [congruence|easy].
           }
           { specialize HLastStepNil with (1 := HNil). destruct HLastStepNil as [H1 H2]. inv H2. split; auto. }
         }
@@ -994,7 +1021,7 @@ Section ToSingleTape.
             destruct tps2 as [ | tp' tps2']; cbn in *.
             - destruct HStar_cons as [HStar1 HStar2]. inv HStar2.
             - destruct HStar_cons as [HStar1 HStar2].
-              destruct (finSucc_opt i) as [i' | ] eqn:E; auto. inv HStar2.
+              destruct (finSucc_opt i) as [i' | ] eqn:E; [|easy]. inv HStar2.
               specialize HLastStep_cons with (3 := HStar1).
               apply Nat.eqb_eq in HL1. apply Nat.eqb_eq in HL2. 
               spec_assert HLastStep_cons.
@@ -1003,7 +1030,7 @@ Section ToSingleTape.
               { simpl_list; cbn. apply Nat.eqb_eq. apply finSucc_opt_Some' in E. lia. }
               spec_assert HLastStep_cons as [HLastStep_cons ->].
               { cbn. apply insertKnownSymbol_correct; auto. }
-              cbn in *. rewrite <- app_assoc in HLastStep_cons. split; auto.
+              cbn in *. rewrite <- app_assoc in HLastStep_cons. split; now auto.
           }
           { specialize HStar_nil with (1 := HNil) as [HStar1 HStar2]; inv HStar2. }
         }
@@ -1089,9 +1116,7 @@ Section ToSingleTape.
         eapply Realise_monotone.
         { now auto with TMdb. }
         { intros tin (yout, tout) H. intros T HEncT. unfold contains_tapes in *. TMSimp.
-          clear_except E. apply finMin_opt_None in E as ->. destruct_tapes. cbn.
-          split; cbn; auto. hnf. reflexivity.
-        }
+          apply finMin_opt_None in E as ->. now destruct_tapes. }
       }
       {
         eapply Realise_monotone.
@@ -1103,7 +1128,7 @@ Section ToSingleTape.
           specialize (HLoop_cons nil (Vector.hd T') (vector_to_list (Vector.tl T'))). cbn in *.
           rewrite E_val in HLoop_cons. subst. specialize HLoop_cons with (1 := eq_refl). spec_assert HLoop_cons.
           { rewrite Vector.length_to_list. apply Nat.eqb_eq. reflexivity. } spec_assert HLoop_cons.
-          { hnf. cbn. clear_all. destruct_tapes. cbn. f_equal. simpl_list. now rewrite vector_cast_refl. }
+          { hnf. cbn. clear. destruct_tapes. cbn. f_equal. simpl_list. now rewrite vector_cast_refl. }
           spec_assert HLoop_cons as [HLoop_cons1 ->] by (cbn; tauto).
           rewrite vector_to_list_eta in HLoop_cons1. subst T'. rewrite vector_cast_refl in *. split; auto. 
           destruct (finSucc_opt min) as [minSucc | ] eqn:E2.
@@ -1137,12 +1162,12 @@ Section ToSingleTape.
           pose proof finMin_opt_Some E as (n'&E'). pose proof finMin_opt_Some_val E as E_val.
           pose (T' := Vector.cast T E').
           exists 1, (ReadCurrentSymbols_Loop_steps_cons (vector_to_list (Vector.tl T')) (Vector.hd T')). repeat split; try lia.
-          { rewrite <- Hk. clear_all. subst n T'. rewrite !vector_cast_refl. destruct_tapes. cbn. reflexivity. }
+          { rewrite <- Hk. clear. subst n T'. rewrite !vector_cast_refl. destruct_tapes. cbn. reflexivity. }
           {
             intros tmid [] HMove. cbn in HMove. hnf. left. exists (nil), (vector_to_list (Vector.tl T')), (Vector.hd T'). cbn. rewrite E_val. cbn. repeat split; auto.
             - rewrite Vector.length_to_list. apply Nat.eqb_eq. lia.
             - apply knowsFirstSymbols_nil.
-            - rewrite HMove. hnf in HEncT. cbn in *. rewrite HEncT. clear_all. subst n T'. cbn. rewrite !vector_cast_refl.
+            - rewrite HMove. hnf in HEncT. cbn in *. rewrite HEncT. clear. subst n T'. cbn. rewrite !vector_cast_refl.
               destruct_tapes. cbn. hnf. f_equal. now rewrite !map_app, !List.map_map, <- !app_assoc.
           }
         }
@@ -1150,7 +1175,7 @@ Section ToSingleTape.
       { eapply TerminatesIn_monotone.
         { now auto with nocore TMdb. }
         {
-          intros tin k (T&HEnc&Hk). rewrite <- Hk. apply finMin_opt_None in E. clear_except E. subst. destruct_tapes. cbn. unfold ReadCurrentSymbols_Loop_steps_nil, ReadCurrentSymbols_Step_steps_nil. lia.
+          intros tin k (T&HEnc&Hk). rewrite <- Hk. apply finMin_opt_None in E. revert E. clear. intros E. subst. destruct_tapes. cbn. unfold ReadCurrentSymbols_Loop_steps_nil, ReadCurrentSymbols_Step_steps_nil. lia.
         }
       }
     Qed.
@@ -1184,7 +1209,7 @@ Section ToSingleTape.
       eapply Realise_monotone.
       { unfold MoveToStart. now auto with nocore TMdb. }
       {
-        intros tin (yout, tout) H. intros tps HNil. unfold atNil, atStart in *. TMSimp. clear_all.
+        intros tin (yout, tout) H. intros tps HNil. unfold atNil, atStart in *. TMSimp. clear.
         rewrite MoveToSymbol_L_correct_midtape; cbn; auto.
         - rewrite !map_id; cbv [id]. rewrite map_rev, rev_involutive.
           f_equal.
@@ -1656,7 +1681,7 @@ Section ToSingleTape.
           apply Nat.eqb_eq in HL1; apply Nat.eqb_eq in HL2.
           specialize HDoAct with (1 := eq_refl) (2 := HGoToCurrent1).
           specialize HDoActs_Step with (1 := HDoAct).
-          destruct tps2 as [ | tp' tps2']; (destruct ymid0; auto).
+          destruct tps2 as [ | tp' tps2']; (destruct ymid0; auto; try easy).
           - split; auto. cbn in *.
             unshelve epose proof @finSucc_opt_None n i _ as ->. lia. reflexivity.
           - split; auto. cbn in *.
@@ -1760,7 +1785,7 @@ Section ToSingleTape.
             do 2 spec_assert HCaseCons1 by now rewrite map_vect_list_length.
             destruct tps2 as [ | tp' tps2'].
             - destruct HCaseCons1 as [ _ ? ]. inv H.
-            - destruct HCaseCons1 as [ HCaseCons1 ? ]. destruct (finSucc_opt i) as [ i' | ] eqn:E; auto. inv H.
+            - destruct HCaseCons1 as [ HCaseCons1 ? ]. destruct (finSucc_opt i) as [ i' | ] eqn:E; [|easy]. inv H.
               apply Nat.eqb_eq in HL1; apply Nat.eqb_eq in HL2; cbn in *.
               rewrite <- map_vect_list_app in HCaseCons1 by lia.
               specialize HCaseCons2 with (3 := HCaseCons1).
@@ -1813,7 +1838,7 @@ Section ToSingleTape.
           { (* continue case *) specialize HStep_cons with (1 := HL1) (2 := HL2) (3 := HCons).
             destruct tps2 as [ | tp' tps2']; cbn in *.
             - destruct HStep_cons as (?&?); congruence.
-            - destruct HStep_cons as [HStep_cons HStep_cons']. destruct (finSucc_opt i) as [ iSucc | ] eqn:Ei; auto. inv HStep_cons'. rename iSucc into i'.
+            - destruct HStep_cons as [HStep_cons HStep_cons']. destruct (finSucc_opt i) as [ iSucc | ] eqn:Ei; [|easy]. inv HStep_cons'. rename iSucc into i'.
               eexists. split; [| now eauto].
               { hnf. left. exists (tps1 ++ [doAct tp acts[@i]]), tps2', tp'. simpl_list. cbn. apply Nat.eqb_eq in HL1. apply Nat.eqb_eq in HL2.
                 apply finSucc_opt_Some' in Ei. repeat split; auto; apply Nat.eqb_eq; lia. }
@@ -1821,7 +1846,7 @@ Section ToSingleTape.
           { (* false break case *) specialize HStep_cons with (1 := HL1) (2 := HL2) (3 := HCons).
             destruct tps2 as [ | tp' tps2']; cbn in *.
             - destruct HStep_cons as (HStep_cons&_). auto.
-            - destruct HStep_cons as (?&?). destruct (finSucc_opt i); auto; congruence.
+            - destruct HStep_cons as (?&?). destruct (finSucc_opt i); easy.
           }
         }
         { (* nil case *) exists (DoActions_Step_steps_nil). repeat split.

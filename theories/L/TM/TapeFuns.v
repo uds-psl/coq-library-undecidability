@@ -9,69 +9,69 @@ Section fix_sig.
 
   Section reg_tapes.
 
-    Global Instance term_tape_move_left' : computable (@tape_move_left' sig).
+    #[export] Instance term_tape_move_left' : computable (@tape_move_left' sig).
     Proof.
       extract.
     Qed.
 
-    Global Instance term_tape_move_left : computable (@tape_move_left sig).
+    #[export] Instance term_tape_move_left : computable (@tape_move_left sig).
     Proof.
       extract.
     Qed.
 
-    Global Instance term_tape_move_right' : computable (@tape_move_right' sig).
+    #[export] Instance term_tape_move_right' : computable (@tape_move_right' sig).
     Proof.
       extract.
     Qed.
 
-    Global Instance term_tape_move_right : computable (@tape_move_right sig).
+    #[export] Instance term_tape_move_right : computable (@tape_move_right sig).
     Proof.
       extract.
     Qed.
 
-    Global Instance term_tape_move : computable (@tape_move sig).
+    #[export] Instance term_tape_move : computable (@tape_move sig).
     Proof.
       extract.
     Qed.
 
-    Global Instance term_left : computable (@left sig).
+    #[export] Instance term_left : computable (@left sig).
     Proof.
       extract.
     Qed.
 
-    Global Instance term_right : computable (@right sig).
+    #[export] Instance term_right : computable (@right sig).
     Proof.
       extract.
     Qed.
 
-    Global Instance term_tape_write : computable (@tape_write sig).
+    #[export] Instance term_tape_write : computable (@tape_write sig).
     Proof.
       extract.
     Qed.
 
-    Global Instance term_tapeToList:  computable (@tapeToList sig).  
+    #[export] Instance term_tapeToList:  computable (@tapeToList sig).  
     Proof.
     extract.
     Qed.
 
-    Global Instance term_sizeOfTape: computable (@sizeOfTape sig).
+    #[export] Instance term_sizeOfTape: computable (@sizeOfTape sig).
     Proof.
       extract.
     Qed.
 
     Import Nat.
 
-    Global Instance term_current: computable ((current (Σ:=sig))).
+    #[export] Instance term_current: computable ((current (Σ:=sig))).
     Proof.
       extract.
     Qed.
 
-    Global Instance term_current_chars n: computable (current_chars (sig:=sig) (n:=n)).
+    #[export] Instance term_current_chars n: computable (current_chars (sig:=sig) (n:=n)).
     Proof.
       extract.
     Qed.
 
-    Global Instance term_doAct: computable (doAct (sig:=sig)).
+    #[export] Instance term_doAct: computable (doAct (sig:=sig)).
     Proof.
       extract.
     Qed.
@@ -80,7 +80,7 @@ Section fix_sig.
   End reg_tapes.
 End fix_sig.
 
-Global
+#[export]
 Instance term_loop A `{encodable A} :
   computable (@loop A).
 Proof.

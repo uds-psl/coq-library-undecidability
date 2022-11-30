@@ -14,7 +14,7 @@ Section Equivalence.
   (* ** Compatibility Properties *)
   Section CompatibilityProperties.
     
-    Global Instance equiv_lam_proper:
+    #[export] Instance equiv_lam_proper:
       Proper (equiv step ++> equiv step) (@lam X).
     Proof.
       intros ? ? (v & H1 & H2) % church_rosser; trivial. 
@@ -22,7 +22,7 @@ Section Equivalence.
     Qed.
 
 
-    Global Instance equiv_app_proper:
+    #[export] Instance equiv_app_proper:
       Proper (equiv step ++> equiv step ++> equiv step) (@app X).
     Proof.
       intros ? ? (v & H1 & H2) % church_rosser ? ? (v' & H3 & H4) % church_rosser; trivial.
@@ -37,7 +37,7 @@ Section Equivalence.
       all: eapply equiv_star, ren_steps; eauto.
     Qed.
 
-    Global Instance ren_equiv_proper:
+    #[export] Instance ren_equiv_proper:
       Proper (eq ++> equiv step ++> equiv step) (@ren X).
     Proof.
       intros ? zeta -> s t H; now eapply ren_equiv.
@@ -51,7 +51,7 @@ Section Equivalence.
       all: eapply equiv_star, subst_steps; eauto.
     Qed.
 
-    Global Instance subst_equiv_proper:
+    #[export] Instance subst_equiv_proper:
       Proper (eq ++> equiv step ++> equiv step) (@subst_exp X).
     Proof.
       intros ? zeta -> s t H; now eapply subst_equiv.

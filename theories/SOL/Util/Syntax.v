@@ -1,18 +1,86 @@
 Require Import Undecidability.SOL.SOL.
 Require Import Undecidability.Shared.Dec.
-From Undecidability.Shared.Libs.PSL Require Import Vectors VectorForall.
+From Undecidability.Shared.Libs.PSL Require Import Vectors.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 Require Import EqdepFacts Eqdep_dec.
 
 Unset Implicit Arguments.
 
-#[global]
+Module VectorForall.
+Import Vector.
+
+Definition Forall {X} (p : X -> Prop) := fix Forall {n} (v : t X n) :=
+  match v with
+  | nil _ => True
+  | cons _ x _ v => p x /\ Forall v
+  end.
+
+Definition Forall2 {X Y} (p : X -> Y -> Prop) := fix Forall2 {n} (v1 : t X n) (v2 : t Y n) :=
+  match v1 in Vector.t _ n return t Y n -> Prop with
+  | nil _ => fun _ => True
+  | cons _ x _ v1 => fun v2 => p x (hd v2) /\ Forall2 v1 (tl v2)
+  end v2.
+
+  
+Lemma Forall2_Forall {X Y Z n} (p : Y -> Z -> Prop) (f1 : X -> Y) (f2 : X -> Z) v :
+  @Forall2 Y Z p n (map f1 v) (map f2 v) <-> @Forall X (fun x => p (f1 x) (f2 x)) n v.
+Proof.
+  induction v; firstorder.
+Qed.
+
+Lemma Forall_ext {X n} (p q : X -> Prop) (v : t X n) :
+  (forall x, p x -> q x) -> Forall p v -> Forall q v.
+Proof.
+  induction v; firstorder.
+Qed.
+
+Lemma Forall_ext_Forall {X n} (p q : X -> Prop) (v : t X n) :
+  Forall (fun x => p x -> q x) v -> Forall p v -> Forall q v.
+Proof.
+  induction v; firstorder.
+Qed.
+
+Lemma Forall_ext_in {X n} (p q : X -> Prop) (v : t X n) :
+  (forall x, In x v -> p x -> q x) -> Forall p v -> Forall q v.
+Proof.
+  intros H1 H2. induction v; cbn. easy. split. apply H1. constructor.
+  apply H2. apply IHv. intros x H3. apply H1. now constructor. apply H2.
+Qed.
+
+Lemma Forall_in {X n} (p : X -> Prop) (v : t X n) :
+  Forall p v <-> forall x, In x v -> p x.
+Proof.
+  induction v. easy. split.
+  - intros H1 x.
+    assert (HIn : forall {n: nat} (x : X) (xs : Vector.t X n), In x xs ->
+      match xs with | Vector.nil _ => False | cons _ y _ ys => y = x \/ In x ys end).
+    { now intros ??? []; [left|right]. }
+    intros ?%HIn. firstorder (now subst).
+  - intros H. split. apply H. constructor. apply IHv. intros x H1. apply H. now constructor.
+Qed.
+
+Lemma Forall_map {X Y n} (p : Y -> Prop) (f : X -> Y) (v : t X n) :
+  Forall p (map f v) <-> Forall (fun x => p (f x)) v.
+Proof.
+  induction v; firstorder.
+Qed.
+
+Lemma map_ext_forall {X Y n} (f g : X -> Y) (v : t X n):
+  Forall (fun x => f x = g x) v -> map f v = map g v.
+Proof.
+  induction v; cbn. reflexivity. intros. f_equal; firstorder.
+Qed.
+
+End VectorForall.
+Export VectorForall.
+
+#[export]
 Instance eqdec_full_logic_sym : eq_dec full_logic_sym.
 Proof.
   intros x y. unfold dec. decide equality.
 Qed.
 
-#[global]
+#[export]
 Instance eqdec_full_logic_quant : eq_dec full_logic_quant.
 Proof.
   intros x y. unfold dec. decide equality.
@@ -20,7 +88,7 @@ Qed.
 
 Definition L_binop (n : nat) := List.cons Conj (List.cons Impl (List.cons Disj List.nil)).
 
-#[global]
+#[export]
 Instance enum_binop :
   list_enumerator__T L_binop binop.
 Proof.
@@ -29,7 +97,7 @@ Qed.
 
 Definition L_quantop (n : nat) := List.cons All (List.cons Ex List.nil).
 
-#[global]
+#[export]
 Instance enum_quantop :
   list_enumerator__T L_quantop quantop.
 Proof.
@@ -340,7 +408,7 @@ Section EqDec.
       right. now intros [=]%eq_sigT_iff_eq_dep.
   Qed.
 
-  #[global]
+  #[export]
   Instance function_eq_dec ar :
     eq_dec (function ar).
   Proof using syms_eq_dec.
@@ -349,7 +417,7 @@ Section EqDec.
     - right. now intros H%function_eq_dep.
   Qed.
 
-  #[global]
+  #[export]
   Instance predicate_eq_dec ar :
     eq_dec (predicate ar).
   Proof using preds_eq_dec.
@@ -358,7 +426,7 @@ Section EqDec.
     - right. now intros H%predicate_eq_dep.
   Qed.
 
-  #[global]
+  #[export]
   Instance term_eq_dec :
     eq_dec term.
   Proof using syms_eq_dec.
@@ -380,7 +448,7 @@ Section EqDec.
         apply inj_pair2_eq_dec in H1. exact H1. decide equality.
   Qed.
 
-  #[global]
+  #[export]
   Instance form_eq_dec :
     eq_dec form.
   Proof using syms_eq_dec quantop_eq_dec preds_eq_dec binop_eq_dec.
@@ -415,13 +483,28 @@ Section EqDec.
 End EqDec.
 
 
-
 (* *** Enumerability *)
 
 
 Require Import List.
-Require Import Undecidability.Shared.ListAutomation.
-Import ListNotations ListAutomationNotations ListAutomationHints.
+Import ListNotations.
+
+#[local] Notation "x 'el' L" := (In x L) (at level 70).
+#[local] Notation "[ s | p ∈ A ]" := (map (fun p => s) A) (p pattern).
+
+Ltac in_app n :=
+  (match goal with
+  | [ |- In _ (_ ++ _) ] => 
+    match n with
+    | 0 => idtac
+    | 1 => eapply in_app_iff; left
+    | S ?n => eapply in_app_iff; right; in_app n
+    end
+  | [ |- In _ (_ :: _) ] => match n with 0 => idtac | 1 => left | S ?n => right; in_app n end
+  end) || (repeat (try right; eapply in_app_iff; right)).
+
+Ltac in_collect a :=
+  eapply in_map_iff; exists a; split; [ eauto | match goal with [ |- In _ (filter _ _) ] =>  eapply filter_In; split; [ try (rewrite !in_prod_iff; repeat split) ] | _ => try (rewrite !in_prod_iff; repeat split) end ].
 
 Section Enumerability.
 
@@ -444,7 +527,7 @@ Section Enumerability.
   Fixpoint vecs_from {X} (A : list X) (n : nat) : list (vec X n) :=
     match n with
     | 0 => [Vector.nil X]
-    | S n => [ Vector.cons X x _ v | (x, v) ∈ (A × vecs_from A n) ]
+    | S n => [ Vector.cons X x _ v | (x, v) ∈ (list_prod A (vecs_from A n)) ]
     end.
 
   Fixpoint L_nat n : list nat := match n with
@@ -455,19 +538,19 @@ Section Enumerability.
   Fixpoint L_term n : list term := match n with
     | 0 => []
     | S n => L_term n ++ var_indi n :: 
-                   concat [[ func (@var_func _ x ar) v | v ∈ vecs_from (L_term n) ar ] | (x, ar) ∈ (L_nat n × L_nat n) ]
+                   concat [[ func (@var_func _ x ar) v | v ∈ vecs_from (L_term n) ar ] | (x, ar) ∈ (list_prod (L_nat n) (L_nat n)) ]
                 ++ concat [[ func (@sym _ f) v | v ∈ vecs_from (L_term n) (ar_syms f) ] | f ∈ L_T n]
   end.
 
   Fixpoint L_form n : list form := match n with
     | 0 => [fal]
     | S n => L_form n
-                ++ concat [[ atom (var_pred x ar) v | v ∈ vecs_from (L_term n) ar ] | (x, ar) ∈ (L_nat n × L_nat n) ]
+                ++ concat [[ atom (var_pred x ar) v | v ∈ vecs_from (L_term n) ar ] | (x, ar) ∈ (list_prod (L_nat n) (L_nat n)) ]
                 ++ concat [[ atom (pred P) v | v ∈ vecs_from (L_term n) (ar_preds P) ] | P ∈ L_T n]
-                ++ concat ([ [ bin op phi psi | (phi, psi) ∈ (L_form n × L_form n) ] | op ∈ L_T n])
+                ++ concat ([ [ bin op phi psi | (phi, psi) ∈ (list_prod (L_form n) (L_form n)) ] | op ∈ L_T n])
                 ++ concat ([ [ quant_indi op phi | phi ∈ L_form n ] | op ∈ L_T n])
-                ++ concat ([ [ quant_func op ar phi | phi ∈ L_form n ] | (op, ar) ∈ (L_T n × L_nat n)])
-                ++ concat ([ [ quant_pred op ar phi | phi ∈ L_form n ] | (op, ar) ∈ (L_T n × L_nat n)])
+                ++ concat ([ [ quant_func op ar phi | phi ∈ L_form n ] | (op, ar) ∈ (list_prod (L_T n) (L_nat n))])
+                ++ concat ([ [ quant_pred op ar phi | phi ∈ L_form n ] | (op, ar) ∈ (list_prod (L_T n) (L_nat n))])
   end.
 
   Lemma L_nat_correct n m :
@@ -479,7 +562,7 @@ Section Enumerability.
   Qed.
 
   Lemma list_prod_in X Y (x : X * Y) A B :
-      x el (A × B) -> exists a b, x = (a , b) /\ a el A /\ b el B.
+      x el (list_prod A B) -> exists a b, x = (a , b) /\ a el A /\ b el B.
   Proof.
     induction A; cbn.
     - intros [].
@@ -524,7 +607,7 @@ Section Enumerability.
     list_enumerator__T L_term term.
   Proof with eapply cum_ge'; eauto; lia.
     intros t. induction t.
-    - exists (S n); cbn. auto.
+    - exists (S n); cbn. apply in_or_app. right. now left.
     - apply vec_forall_cml in IH as [m H]. 2: exact L_term_cml.
       exists (S (m + n + ar)); cbn. in_app 3. eapply in_concat. eexists. split.
       1: in_collect (n, ar). 1,2: apply L_nat_correct; lia.
@@ -588,16 +671,6 @@ Section Enumerability'.
     apply enum_enumT in enumerable_binop as [Lb HLb].
     apply enum_enumT in enumerable_quantop as [Lq HLq].
     eexists. apply enum_form.
-  Qed.
-
-  Lemma enumerable_decidable X (p : X -> Prop) :
-    enumerable__T X -> decidable p -> enumerable p.
-  Proof.
-    intros [f Hf] [g Hg].
-    exists (fun n => match f n with Some x => if g x then Some x else None | None => None end).
-    intros x. split.
-    - intros H%Hg. destruct (Hf x) as [n H1]. exists n. now rewrite H1, H.
-    - intros [n H]. destruct f. destruct g eqn:H1. apply Hg. all: congruence.
   Qed.
 
 End Enumerability'.

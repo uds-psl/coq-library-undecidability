@@ -91,8 +91,8 @@ Section Linearization.
 
 
 End Linearization.
-Global Hint Rewrite lin_ren lin_subst : asimpl.
-Global Hint Rewrite lin_nil lin_cons lin_app : simplify.
+#[export] Hint Rewrite lin_ren lin_subst : asimpl.
+#[export] Hint Rewrite lin_nil lin_cons lin_app : simplify.
 
 
 Section Encoding.
@@ -173,7 +173,7 @@ Section Encoding.
     econstructor; auto.
   Qed.
 
-  Global Instance enc_equiv: Proper (Logic.eq ++> equiv step ++> equiv step) enc.
+  #[export] Instance enc_equiv: Proper (Logic.eq ++> equiv step ++> equiv step) enc.
   Proof.
     intros ?? -> ??; unfold enc, lin; now intros ->.
   Qed.
@@ -228,8 +228,8 @@ Section Encoding.
 End Encoding.
 
 #[export] Hint Resolve enc_normal : core.
-Global Hint Rewrite enc_zero enc_succ enc_app enc_succ_out: simplify.
-Global Hint Rewrite enc_ren enc_subst: asimpl.
+#[export] Hint Rewrite enc_zero enc_succ enc_app enc_succ_out: simplify.
+#[export] Hint Rewrite enc_ren enc_subst: asimpl.
 
 
 Arguments enc : simpl never.
@@ -579,7 +579,7 @@ End Typing.
 
 
 (* ** Reduction Function *)
-Global Program Instance H10_to_SOU (E: list deq): ordsysuni ag 2 :=
+#[export] Program Instance H10_to_SOU (E: list deq): ordsysuni ag 2 :=
   {
     Gamma₀' := Gamma__deq E;
     E₀' := Eqs E;

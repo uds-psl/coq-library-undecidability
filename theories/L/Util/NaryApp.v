@@ -37,6 +37,12 @@ Proof.
   - eapply IHv. now rewrite H.
 Qed.
 
+Fixpoint tabulate {X : Type} (n : nat) (f : Fin.t n -> X) {struct n} : Vector.t X n :=
+  match n as m return ((Fin.t m -> X) -> t X m) with
+  | 0 => fun _ => []
+  | S m => fun f => f Fin.F1 :: @tabulate _ m (fun i => f (Fin.FS i))
+  end f.
+
 Definition many_vars k := (tabulate (n := k) (fun i => k - S (proj1_sig (Fin.to_nat i)))).
 
 Lemma tabulate_ext {X} k f1 f2 :
@@ -100,14 +106,5 @@ Proof.
   induction v in n, s |- *.
   - reflexivity.
   - cbn. intros H. rewrite H. now eapply IHv.
-Qed.
-
-Lemma many_var_in a k : Vector.In a (many_vars k) -> a < k.
-Proof.
-  induction k.
-  - inversion 1.
-  - intros Ha. rewrite many_vars_S in Ha. inv Ha.
-    + lia.
-    + transitivity k. 2:lia. eapply IHk. eapply Eqdep_dec.inj_pair2_eq_dec in H2. subst. eauto. eapply nat_eq_dec.
 Qed.
       

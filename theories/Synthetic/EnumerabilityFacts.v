@@ -1,6 +1,7 @@
 From Undecidability.Synthetic Require Import DecidabilityFacts SemiDecidabilityFacts.
 Require Cantor.
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.
+Require Import List Lia.
 
 Local Notation "'if!' x 'is' p 'then' a 'else' b" := (match x with p => a | _ => b end) (at level 0, p pattern).
 
@@ -66,27 +67,99 @@ Proof.
   - intros [c Hc]. exists c. intros x. split; eauto.
 Qed.
 
+(* enumerability of rosetrees *)
+Module RoseTree.
+Opaque Cantor.of_nat Cantor.to_nat.
+
+Inductive t : Type := mk : list t -> t.
+
+Section Auxiliary.
+
+Let to_nat' f' := fix f (rs : list t) : nat :=
+  match rs with x :: rs => S (Cantor.to_nat ((f' x), f rs)) | _ => 0 end.
+
+Fixpoint to_nat (r : t) : nat :=
+  match r with mk rs => to_nat' to_nat rs end.
+
+Let of_nat' := fix f (i : nat) (n : nat) : list t :=
+  match i with
+  | 0 => nil
+  | S i =>
+      match n with
+      | 0 => nil
+      | S n => let '(x, m) := Cantor.of_nat n in (mk (f i x)) :: (f i m)
+      end
+  end.
+
+Definition of_nat (n : nat) : t :=
+  mk (of_nat' n n).
+
+#[local] Arguments of_nat /.
+
+Lemma cancel_of_to (r : t) : of_nat (to_nat r) = r.
+Proof.
+  destruct r as [rs]. cbn.
+  enough (H : forall m rs, to_nat' to_nat rs <= m -> of_nat' m (to_nat' to_nat rs) = rs) by now rewrite H.
+  intros m. clear rs. induction m as [|m IH].
+  { intros [|? ?]; [reflexivity|cbn; lia]. }
+  intros [|[rs] r's]; [reflexivity|].
+  cbn. rewrite Cantor.cancel_of_to. intros E.
+  assert (H' := Cantor.to_nat_non_decreasing (to_nat' to_nat rs) (to_nat' to_nat r's)).
+  now rewrite !IH by lia.
+Qed.
+
+Lemma cancel_to_of (n : nat) : to_nat (of_nat n) = n.
+Proof.
+  enough (H : forall m n, n <= m -> to_nat' to_nat (of_nat' m n) = n) by now apply H.
+  intros m. clear n. induction m as [|m IH].
+  { now intros [|?] ?; [|lia]. }
+  intros [|n] ?; [reflexivity|]. cbn.
+  destruct (Cantor.of_nat n) as [n1 n2] eqn:E.
+  apply (f_equal Cantor.to_nat) in E.
+  rewrite Cantor.cancel_to_of in E.
+  assert (Hn := Cantor.to_nat_non_decreasing n1 n2).
+  cbn. rewrite !IH, <- E; lia.
+Qed.
+
+End Auxiliary.
+
+Lemma to_enumerator__T {X} (f : t -> option X) :
+  (forall x, exists r, f r = Some x) -> enumerator__T (fun n => f (of_nat n)) X.
+Proof.
+  intros Hf x. destruct (Hf x) as [r Hr].
+  exists (to_nat r). now rewrite cancel_of_to.
+Qed.
+
+Lemma to_enumerable_T X :
+  (exists (f : t -> option X), forall x, exists r, f r = Some x) -> enumerable__T X.
+Proof.
+  intros [f Hf]. eexists. apply to_enumerator__T. eassumption.
+Qed.
+
+End RoseTree.
+
+
 (* Type enumerability facts  *)
 
 Definition nat_enum (n : nat) := Some n.
 Lemma enumerator__T_nat :
   enumerator__T nat_enum nat.
 Proof.
-  intros n. cbv. eauto.
+  intros n. now eexists.
 Qed.
 
 Definition unit_enum (n : nat) := Some tt.
 Lemma enumerator__T_unit :
   enumerator__T unit_enum unit.
 Proof.
-  intros []. cbv. now exists 0.
+  intros []. now exists 0.
 Qed. 
 
 Definition bool_enum (n : nat) := Some (if! n is 0 then true else false).
 Lemma enumerator__T_bool :
   enumerator__T bool_enum bool.
 Proof.
-  intros []. cbv.
+  intros [].
   - now exists 0.
   - now exists 1.
 Qed.
@@ -102,6 +175,25 @@ Proof.
   destruct (H1 x) as [n1 Hn1], (H2 y) as [n2 Hn2].
   exists (Cantor.to_nat (n1, n2)). unfold prod_enum.
   now rewrite Cantor.cancel_of_to, Hn1, Hn2.
+Qed.
+
+Definition sum_enum {X Y} (f1 : nat -> option X) (f2 : nat -> option Y) n : option (X + Y) :=
+  match Cantor.of_nat n with
+  | (0, m) => option_map inl (f1 m)
+  | (1, m) => option_map inr (f2 m)
+  | _ => None
+  end.
+Lemma enumerator__T_sum {X Y} f1 f2 :
+  enumerator__T f1 X -> enumerator__T f2 Y ->
+  enumerator__T (sum_enum f1 f2) (X + Y).
+Proof.
+  intros H1 H2 [x|y].
+  - destruct (H1 x) as [m Hm].
+    exists (Cantor.to_nat (0, m)). unfold sum_enum.
+    now rewrite Cantor.cancel_of_to, Hm.
+  - destruct (H2 y) as [m Hm].
+    exists (Cantor.to_nat (1, m)). unfold sum_enum.
+    now rewrite Cantor.cancel_of_to, Hm.
 Qed.
 
 Definition option_enum {X} (f : nat -> option X) n :=
@@ -163,8 +255,6 @@ Proof.
   unfold sigT2_enum.
   now rewrite !Cantor.cancel_of_to, Hnx, HnP, HnQ.
 Qed.
-
-Require Import List.
 
 Definition finType_enum {X: finType} (n : nat) : option X :=
   nth_error (@enum _ (class X)) n.
@@ -236,13 +326,14 @@ Proof.
 Qed.
 #[export] Hint Resolve enumerator_enumerable : core.
 
-#[global] Existing Instance enumerator__T_prod.
-#[global] Existing Instance enumerator__T_option.
-#[global] Existing Instance enumerator__T_bool.
-#[global] Existing Instance enumerator__T_nat.
-#[global] Existing Instance enumerator__T_sigT.
-#[global] Existing Instance enumerator__T_sigT2.
-#[global] Existing Instance enumerator__T_finType.
-#[global] Existing Instance enumerator__T_finType.
-#[global] Existing Instance enumerator__T_Fin.
-#[global] Existing Instance enumerator__T_Vector.
+#[export] Existing Instance enumerator__T_prod.
+#[export] Existing Instance enumerator__T_sum.
+#[export] Existing Instance enumerator__T_option.
+#[export] Existing Instance enumerator__T_bool.
+#[export] Existing Instance enumerator__T_nat.
+#[export] Existing Instance enumerator__T_sigT.
+#[export] Existing Instance enumerator__T_sigT2.
+#[export] Existing Instance enumerator__T_finType.
+#[export] Existing Instance enumerator__T_finType.
+#[export] Existing Instance enumerator__T_Fin.
+#[export] Existing Instance enumerator__T_Vector.

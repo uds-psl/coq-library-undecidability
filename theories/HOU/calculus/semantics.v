@@ -29,10 +29,10 @@ Section Semantics.
   (* ** Compatibility Properties *)
   Section CompatibilityProperties.
 
-    Global Instance lam_proper: Proper (star step ++> star step) lam.
+    #[export] Instance lam_proper: Proper (star step ++> star step) lam.
     Proof. induction 1; eauto. Qed.
     
-    Global Instance app_proper: Proper (star step ++> star step ++> star step) app.
+    #[export] Instance app_proper: Proper (star step ++> star step ++> star step) app.
     Proof.
       intros x x' H1 y y' H2; induction H1; induction H2; eauto. 
     Qed.
@@ -50,13 +50,13 @@ Section Semantics.
       induction 1; eauto using ren_step. 
     Qed.
 
-    Global Instance ren_step_proper:
+    #[export] Instance ren_step_proper:
       Proper (eq ++> step ++> step) (@ren X).
     Proof.
       intros ? zeta -> s t H; now eapply ren_step.
     Qed.
 
-    Global Instance ren_steps_proper:
+    #[export] Instance ren_steps_proper:
       Proper (eq ++> star step ++> star step) (@ren X).
     Proof.
       intros ? zeta -> s t H; now eapply ren_steps.
@@ -75,13 +75,13 @@ Section Semantics.
       induction 1; eauto using subst_step. 
     Qed.
 
-    Global Instance subst_step_proper:
+    #[export] Instance subst_step_proper:
       Proper (eq ++> step ++> step) (@subst_exp X).
     Proof.
       intros ? zeta -> s t H; now eapply subst_step.
     Qed.
 
-    Global Instance subst_steps_proper:
+    #[export] Instance subst_steps_proper:
       Proper (eq ++> star step ++> star step) (@subst_exp X).
     Proof.
       intros ? zeta -> s t H; now eapply subst_steps.
@@ -150,7 +150,7 @@ Section Semantics.
         intros _; eapply N; eauto.
     Qed.
 
-    Global Instance dec_normal: Dec1 (normal).
+    #[export] Instance dec_normal: Dec1 (normal).
     Proof.
       intros s; unfold Dec; induction s; intuition.
       all: try solve [right; contradict b; eauto].

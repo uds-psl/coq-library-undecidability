@@ -316,7 +316,7 @@ Section Encoding.
   
 End Encoding.
 
-Global Hint Rewrite @enc_app @enc_nil: simplify. 
+#[export] Hint Rewrite @enc_app @enc_nil: simplify. 
 Notation Enc u v := (map (enc u v)).
 
 
