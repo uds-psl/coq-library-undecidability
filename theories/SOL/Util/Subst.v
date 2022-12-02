@@ -1,14 +1,14 @@
 (* ** Substitutions *)
 
 Require Import Arith Lia Vector.
-From Undecidability.Shared.Libs.PSL Require Import Vectors VectorForall.
+From Undecidability.Shared.Libs.PSL Require Import Vectors.
 From Undecidability.SOL.Util Require Import Syntax.
 Require Import Undecidability.SOL.SOL.
 
 (* We can reuse the Econs type class to extend the `.:` notation to substitutions. *)
-#[global] Instance econs_subst_indi `{funcs_signature} : Econs _ _ := econs_indi term.
-#[global] Instance econs_subst_func `{funcs_signature} ar : Econs _ _ := econs_ar ar function.
-#[global] Instance econs_subst_pred `{preds_signature} ar : Econs _ _ := econs_ar ar predicate.
+#[export] Instance econs_subst_indi `{funcs_signature} : Econs _ _ := econs_indi term.
+#[export] Instance econs_subst_func `{funcs_signature} ar : Econs _ _ := econs_ar ar function.
+#[export] Instance econs_subst_pred `{preds_signature} ar : Econs _ _ := econs_ar ar predicate.
 
 
 
@@ -17,17 +17,17 @@ Require Import Undecidability.SOL.SOL.
 Class IdSubst X := ids : nat -> X.
 Class Shift X := shift : X.
 
-#[global] Instance var_indi' `{funcs_signature} : IdSubst term := var_indi.
-#[global] Instance var_func' `{funcs_signature} : IdSubst (forall ar, function ar) := var_func.
-#[global] Instance var_pred' `{preds_signature} : IdSubst (forall ar, predicate ar) := var_pred.
+#[export] Instance var_indi' `{funcs_signature} : IdSubst term := var_indi.
+#[export] Instance var_func' `{funcs_signature} : IdSubst (forall ar, function ar) := var_func.
+#[export] Instance var_pred' `{preds_signature} : IdSubst (forall ar, predicate ar) := var_pred.
 
-#[global] Instance shift_i `{funcs_signature} : Shift (nat -> term) := 
+#[export] Instance shift_i `{funcs_signature} : Shift (nat -> term) := 
   fun n => var_indi (S n).
 
-#[global] Instance shift_f `{funcs_signature} : Shift (nat -> nat -> forall ar, function ar) := 
+#[export] Instance shift_f `{funcs_signature} : Shift (nat -> nat -> forall ar, function ar) := 
   fun ar n ar' => if Nat.eq_dec ar ar' then @var_func _ (S n) ar' else @var_func _ n ar'.
 
-#[global] Instance shift_p `{preds_signature} : Shift (nat -> nat -> forall ar, predicate ar) :=
+#[export] Instance shift_p `{preds_signature} : Shift (nat -> nat -> forall ar, predicate ar) :=
   fun ar n ar' => if Nat.eq_dec ar ar' then @var_pred _ (S n) ar' else @var_pred _ n ar'.
 
 
@@ -42,22 +42,22 @@ Local Notation "X [ σ ]f" := (subst_f σ X) (at level 7, left associativity, fo
 Local Notation "X [ σ ]p" := (subst_p σ X) (at level 7, left associativity, format "X '/' [ σ ]p").
 
 
-#[global] Instance subst_function `{funcs_signature} {ar} : Subst_f (function ar) := fun σf f => match f with
+#[export] Instance subst_function `{funcs_signature} {ar} : Subst_f (function ar) := fun σf f => match f with
   | var_func f => σf f ar
   | f => f
 end.
 
-#[global] Instance subst_term_i `{funcs_signature} : Subst_i term := fix subst_term_i σi t := match t with
+#[export] Instance subst_term_i `{funcs_signature} : Subst_i term := fix subst_term_i σi t := match t with
   | var_indi x => σi x
   | func f v => func f (Vector.map (subst_term_i σi) v)
 end.
 
-#[global] Instance subst_term_f `{funcs_signature} : Subst_f term := fix subst_term_f σf t := match t with
+#[export] Instance subst_term_f `{funcs_signature} : Subst_f term := fix subst_term_f σf t := match t with
   | var_indi x => var_indi x
   | func f v => func (subst_function σf f) (Vector.map (subst_term_f σf) v)
 end.
 
-#[global] Instance subst_predicate `{preds_signature} {ar} : Subst_p (predicate ar) := fun σp P => match P with
+#[export] Instance subst_predicate `{preds_signature} {ar} : Subst_p (predicate ar) := fun σp P => match P with
   | var_pred P => σp P ar
   | P => P
 end.
@@ -66,7 +66,7 @@ Definition up_i `{funcs_signature} (σi : nat -> term) := econs (var_indi 0) (fu
 Definition up_f `{funcs_signature} (σf : nat -> forall ar, function ar) ar := econs (@var_func _ 0 ar) (fun x ar' => (σf x ar')[shift ar]f).
 Definition up_p `{preds_signature} (σp : nat -> forall ar, predicate ar) ar := econs (@var_pred _ 0 ar) (fun x ar' => (σp x ar')[shift ar]p).
 
-#[global] Instance subst_form_i `{funcs_signature, preds_signature, operators} : Subst_i form := fix subst_form_i σi phi := match phi with
+#[export] Instance subst_form_i `{funcs_signature, preds_signature, operators} : Subst_i form := fix subst_form_i σi phi := match phi with
   | fal => fal
   | atom P v => atom P (Vector.map (subst_term_i σi) v)
   | bin op phi psi => bin op (subst_form_i σi phi) (subst_form_i σi psi)
@@ -75,7 +75,7 @@ Definition up_p `{preds_signature} (σp : nat -> forall ar, predicate ar) ar := 
   | quant_pred op ar phi => quant_pred op ar (subst_form_i σi phi)
 end.
 
-#[global] Instance subst_form_f `{funcs_signature, preds_signature, operators} : Subst_f form := fix subst_form_f σf phi := match phi with
+#[export] Instance subst_form_f `{funcs_signature, preds_signature, operators} : Subst_f form := fix subst_form_f σf phi := match phi with
   | fal => fal
   | atom P v => atom P (Vector.map (subst_term_f σf) v)
   | bin op phi psi => bin op (subst_form_f σf phi) (subst_form_f σf psi)
@@ -84,7 +84,7 @@ end.
   | quant_pred op ar phi => quant_pred op ar (subst_form_f σf phi)
 end.
 
-#[global] Instance subst_form_p `{funcs_signature, preds_signature, operators} : Subst_p form := fix subst_form_p σp phi := match phi with
+#[export] Instance subst_form_p `{funcs_signature, preds_signature, operators} : Subst_p form := fix subst_form_p σp phi := match phi with
   | fal => fal
   | atom P v => atom (subst_predicate σp P) v
   | bin op phi psi => bin op (subst_form_p σp phi) (subst_form_p σp psi)

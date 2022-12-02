@@ -5,9 +5,9 @@ Require Import Undecidability.PCP.PCP.
 Require Import Undecidability.PCP.Util.Facts.
 Import PCPListNotation.
 Require Import Undecidability.PCP.Util.PCP_facts.
-Require Import Undecidability.Shared.ListAutomation.
-Import ListAutomationHints.
 Require Import Undecidability.Synthetic.Definitions.
+
+#[local] Hint Resolve cons_incl : core.
 
 Set Default Goal Selector "!".
 
@@ -20,7 +20,7 @@ Proof.
   intros H. induction A as [ | (x,y) ].
   - reflexivity.
   - cbn. assert ((x, y) el P) as [n E] % (el_pos card_eq) by firstorder.
-    rewrite E. cbn. unfold f in IHA. rewrite IHA; eauto. 
+    rewrite E. cbn. unfold f in IHA. rewrite IHA; [|now eauto]. 
     now erewrite pos_nth; eauto.
 Qed.
 

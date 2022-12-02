@@ -23,7 +23,6 @@ Section BasicLemmas.
   Implicit Type A B C : list X.
   Implicit Type a b c : X. 
 
-
   Lemma incl_refl A: A ⊆ A.
   Proof. firstorder. Qed.
 
@@ -39,14 +38,10 @@ Section BasicLemmas.
   Lemma seteq_sym A B: A === B -> B === A.
   Proof. firstorder. Qed.
 
-  
   #[local] Instance incl_preorder: PreOrder (@incl X). 
   Proof. firstorder. Qed.
 
   #[local] Instance seteq_preorder: PreOrder (@seteq X).
-  Proof. firstorder. Qed.
-
-  #[local] Instance seteq_equivalence: Equivalence (@seteq X).
   Proof. firstorder. Qed.
 
   Hint Resolve incl_refl seteq_refl : listdb.
@@ -69,15 +64,11 @@ Section BasicLemmas.
     intros ?? -> ???. firstorder.
   Qed.
 
-
   (* ⊆ *)
-  #[local] Instance subrel_incl_seteq: subrelation seteq (@incl X).
-  Proof. intros ??; firstorder. Qed.
 
   #[local] Instance incl_seteq_proper: Proper (seteq ++> seteq ++> iff) (@incl X).
   Proof. firstorder. Qed.
 
-  
   Lemma incl_app A B C: A ++ B ⊆ C <-> A ⊆ C /\ B ⊆ C.
   Proof. induction A; firstorder. Qed.
 
@@ -129,13 +120,6 @@ Section BasicLemmas.
   Lemma incl_app_build A B C: A ⊆ C -> B ⊆ C -> A ++ B ⊆ C.
   Proof. intros; eapply incl_app; auto with datatypes. Qed.
 
-
-  #[local] Instance incl_cons_proper: Proper (eq ++> incl ++> incl) (@cons X).
-  Proof. intros ??-> ???; firstorder. Qed.
-
-  #[local] Instance seteq_cons_proper: Proper (eq ++> seteq ++> seteq) (@cons X).
-  Proof. intros ??-> ???; firstorder. Qed.
-
   Hint Resolve incl_seteq seteq_incl_left seteq_incl_right incl_nil
        incl_cons incl_cons_build incl_cons_project_l incl_cons_project_r
        incl_cons_drop incl_filter
@@ -186,35 +170,11 @@ Section BasicLemmas.
     split; intros ?; autorewrite with listdb; firstorder.
   Qed.
 
-
-
-
-
   (* rev *)
   Lemma rev_seteq A: rev A === A.
   Proof.
     induction A; cbn; autorewrite with listdb; intuition (auto with datatypes listdb).
   Qed.
-
-  #[local] Instance proper_incl_seteq: Proper (@seteq X ++> @seteq X ++> iff) incl.
-  Proof.
-    intros ??????; firstorder.
-  Qed.
-
-  #[local] Instance proper_rev_incl: Proper (incl ++> incl) (@rev X).
-  Proof.
-    intros A B H. now rewrite rev_seteq, H, rev_seteq. 
-  Qed.
-  
-  
-  #[local] Instance proper_rev_seteq: Proper (seteq ++> seteq) (@rev X).
-  Proof.
-    intros A B [H1 H2]; split; eapply proper_rev_incl; eauto.  
-  Qed.
-
-  Hint Rewrite rev_seteq rev_involutive rev_length rev_app_distr : listdb.  
-
-
 
   (* map *)
   Lemma map_id_list (g: X -> X) A:
@@ -235,40 +195,6 @@ Section BasicLemmas.
     reflexivity.
   Qed.
 
-  #[local] Instance map_incl_proper : Proper (eq ++> incl ++> incl) (@map Y X).
-  Proof.
-    intros ?? -> A B H.
-    induction A; cbn; eauto with listdb.
-    eapply incl_cons_build; firstorder. 
-    eapply in_map; firstorder.
-  Qed.      
-
-  #[local] Instance map_seteq_proper : Proper (eq ++> seteq ++> seteq) (@map Y X).
-  Proof.
-    intros ?? -> A B [H1 H2]; split; apply map_incl_proper; firstorder. 
-  Qed.      
-
-
-
-  Hint Rewrite map_id map_rev map_nil map_cons map_app map_length : listdb.
-  Hint Resolve in_map : listdb.
-
-  (* length *)
-  Hint Rewrite app_length map_length rev_length : listdb.
-
-  #[local] Instance filter_incl_proper: Proper (eq ++> incl ++> incl) (@filter X).
-  Proof.
-    intros ?? ->  A B H2; induction A; cbn; eauto with listdb.
-    destruct y eqn: H1; eauto with listdb. 
-    eapply incl_cons_build; eauto with listdb.
-    eapply filter_In; intuition (auto with datatypes). 
-  Qed.
-
-  #[local] Instance filter_seqteq_proper: Proper (eq ++> seteq ++> seteq) (@filter X).
-  Proof.
-    intros f g -> A B [H2 H3]; split; apply filter_incl_proper; firstorder. 
-  Qed.
-   
 End BasicLemmas.
 
 #[export] Hint Resolve incl_refl seteq_refl : listdb.
@@ -277,20 +203,18 @@ End BasicLemmas.
      incl_cons_drop incl_filter
      incl_distr_left incl_distr_right incl_app_project_left
      incl_app_project_right incl_app_build : listdb.
-     #[export]Hint Rewrite -> in_app_iff : listdb.
-#[export]Hint Rewrite <- app_comm_cons : listdb.
-#[export]Hint Rewrite app_nil_l app_nil_r : listdb.
-#[export]Hint Rewrite rev_seteq rev_involutive rev_length rev_app_distr : listdb.
-#[export]Hint Rewrite map_id map_rev map_nil map_cons map_app : listdb.
+#[export] Hint Rewrite -> in_app_iff : listdb.
+#[export] Hint Rewrite <- app_comm_cons : listdb.
+#[export] Hint Rewrite app_nil_l app_nil_r : listdb.
+#[export] Hint Rewrite rev_seteq rev_involutive rev_length rev_app_distr : listdb.
+#[export] Hint Rewrite map_id map_rev map_nil map_cons map_app : listdb.
 #[export] Hint Resolve in_map : listdb.
-#[export]Hint Rewrite app_length map_length rev_length : listdb.
+#[export] Hint Rewrite app_length map_length rev_length : listdb.
 
 #[export] Hint Extern 4 => 
   match goal with
   |[ H: ?x ∈ nil |- _ ] => destruct H
   end : core.
-
-
 
 Ltac lsimpl := autorewrite with listdb. 
 Tactic Notation "lsimpl" "in" hyp_list(H) := autorewrite with listdb in H. 
@@ -298,23 +222,9 @@ Tactic Notation "lsimpl" "in" "*" := autorewrite with listdb in *.
 
 Ltac lauto  := eauto with listdb. 
 
-Module ListAutomationInstances.
 #[export] Existing Instance incl_preorder.
 #[export] Existing Instance seteq_preorder.
-#[export] Existing Instance seteq_equivalence.
 #[export] Existing Instance proper_in_incl.
 #[export] Existing Instance in_seteq_proper.
-#[export] Existing Instance subrel_incl_seteq.
-#[export] Existing Instance incl_seteq_proper.
-#[export] Existing Instance incl_cons_proper.
-#[export] Existing Instance seteq_cons_proper.
 #[export] Existing Instance proper_app_incl.
 #[export] Existing Instance proper_app_seteq.
-#[export] Existing Instance proper_incl_seteq.
-#[export] Existing Instance proper_rev_incl.
-#[export] Existing Instance proper_rev_seteq.
-#[export] Existing Instance map_incl_proper.
-#[export] Existing Instance map_seteq_proper.
-#[export] Existing Instance filter_incl_proper.
-#[export] Existing Instance filter_seqteq_proper.
-End ListAutomationInstances.

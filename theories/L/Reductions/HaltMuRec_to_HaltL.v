@@ -256,7 +256,7 @@ Qed.
 Lemma erase_correct k min (f : recalg k) v n c  :
   (ra_bs_c min c f v n <-> eval c min (erase f) (vec_list v) = Some (inl n)).
 Proof.
-  revert all except c.
+  revert k min f v n.
   pattern c. eapply lt_wf_ind. intros.
   destruct f; cbn. 
   - split.

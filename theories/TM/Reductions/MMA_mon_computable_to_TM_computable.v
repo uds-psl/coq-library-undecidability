@@ -22,6 +22,7 @@ From Undecidability.Shared.Libs.DLW
 
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.
 From Undecidability.Shared.Libs.PSL Require Import CompoundFinTypes.
+Require Import Undecidability.Shared.Libs.PSL.EqDec.
 
 From Undecidability Require Shared.deterministic_simulation.
 Module Sim := deterministic_simulation.

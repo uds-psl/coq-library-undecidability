@@ -28,8 +28,7 @@ Structure finType : Type :=
     }.
 
 Arguments FinType type {class}.
-#[global]
-Existing Instance class | 0.
+#[global] Existing Instance class | 0.
 
 
 (* This is a hack to work-around a problem with a class of hacks *)

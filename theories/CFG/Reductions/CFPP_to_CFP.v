@@ -8,18 +8,19 @@ Require Import Undecidability.CFG.Util.Facts.
 (* bad design : this file has nothing to do with PCP *)
 Require Import Undecidability.PCP.PCP.
 Require Import Undecidability.PCP.Util.PCP_facts.
-Require Import Undecidability.Shared.ListAutomation.
-Import ListAutomationHints.
 Require Import Undecidability.Synthetic.Definitions.
 
 Set Default Goal Selector "!".
+
+Local Hint Resolve in_eq in_nil in_cons in_or_app : core.
+Local Hint Resolve incl_refl incl_tl incl_cons incl_appl incl_appr incl_app incl_nil_l : core.
 
 Local Notation "x 'el' A" := (In x A) (at level 70).
 Local Notation "A <<= B" := (incl A B) (at level 70).
 
 (* * PCP to CFPP *)
-Local Hint Rewrite concat_app map_app map_map : list.
-Local Hint Rewrite <- map_rev : list.
+Local Hint Rewrite concat_app map_app map_map rev_app_distr : list.
+Local Hint Rewrite <- app_assoc map_rev : list.
 
 Local Hint Constructors rew_cfg : core.
 Local Hint Constructors rewt : core.
@@ -37,7 +38,7 @@ Lemma sigma_eq  s A :
 Proof.
   induction A  as [ | [u v] ].
   - reflexivity.
-  - cbn. rewrite IHA. now simpl_list. 
+  - cbn. rewrite IHA. rewrite <- !app_assoc. now simpl_list.
 Qed.
 
 Lemma tau2_gamma s A :
@@ -77,7 +78,7 @@ Section CFGs.
     intro. rewrite nil_app_nil, (nil_app_nil [a]). now econstructor.
   Qed.
   
-  Global Instance rewtTrans R :
+  #[export] Instance rewtTrans R :
     PreOrder (rewt R).
   Proof.
     split.
@@ -85,21 +86,21 @@ Section CFGs.
     - induction 2; eauto.
   Qed.
 
-  Global Instance rewrite_proper R :
+  #[export] Instance rewrite_proper R :
     Proper (rewt R ==> rewt R ==> rewt R) (@app sig).
   Proof.
     intros x1 y1 H1 x2 y2 H2.
     induction H1.
     - induction H2.
       + reflexivity.
-      + rewrite IHrewt. inv H. eapply rewtRule.
+      + rewrite IHrewt. inversion H; subst. eapply rewtRule.
         * replace (x1 ++ x ++ [a] ++ y0) with ( (x1 ++ x) ++ [a] ++ y0) by now autorewrite with list.
           eauto.
         * replace (x1 ++ x ++ v ++ y0) with ( (x1 ++ x) ++ v ++ y0) by now autorewrite with list. eauto.
-    - rewrite IHrewt. inv H. autorewrite with list. eauto.
+    - rewrite IHrewt. inversion H. subst. autorewrite with list. eauto.
   Qed.
 
-  Global Instance subrel R :
+  #[export] Instance subrel R :
     subrelation (rew_cfg R) (rewt R).
   Proof.
     intros x y H. econstructor.
@@ -113,7 +114,7 @@ Section CFGs.
     split.
     - intros H s y A B. apply H. destruct (@in_split _ _ _ A) as (l1 & l2 & ->).
       exists (l1 ++ y ++ l2). change (s :: l2) with ([s] ++ l2). now econstructor.
-    - intros H1 [y H2]. inv H2. eapply (H1 _ v); eauto.
+    - intros H1 [y H2]. inversion H2. subst. eapply (H1 _ v); eauto.
   Qed.
 
   Definition sym_G (G : cfg) :=
@@ -125,13 +126,13 @@ Section CFGs.
     intros. induction H0.
     - eauto.
     - destruct H1. destruct R. cbn in *.
-      pose (app_incl_l IHrewt).
+      pose (incl_app_inv _ _ IHrewt) as HH.
       eapply incl_app.
-      { eapply app_incl_l. eassumption. }
+      { apply HH. }
       eapply incl_app.
       + unfold sym_G. intros ? ?.
         right. eapply in_flat_map. exists (a, v). eauto.
-      + eapply cons_incl. eapply app_incl_R. eassumption.
+      + eapply incl_cons_inv, HH.
   Qed.
   
 End CFGs.
@@ -151,8 +152,8 @@ Section Post_CFG.
   Proof.
     unfold terminal.
     enough ((exists y0, rew_cfg G y y0) <-> S el y). { firstorder. } split.
-    - intros [y0 ?]. inv H. cbn in H0.
-      destruct H0 as [ | [ [[] []] % in_map_iff | [[] []] % in_map_iff ] % in_app_iff]; inv H; eauto.
+    - intros [y0 ?]. inversion H. subst. clear H. cbn in H0.
+      destruct H0 as [ | [ [[] []] % in_map_iff | [[] []] % in_map_iff ] % in_app_iff]; inversion H; subst; eauto.
     - intros (u' & v' & ?) % List.in_split.
       subst. exists (u' ++ [S] ++ v'). econstructor. cbn. eauto.
   Qed.
@@ -162,7 +163,7 @@ Section Post_CFG.
   Proof.
     induction 1.
     - cbn. now rewrite Nat.eqb_refl.
-    - inv H0. destruct H1 as [ | [ [[] []] % in_map_iff | [[] []] % in_map_iff ] % in_app_iff]; inv H0.
+    - inversion H0. subst. clear H0. destruct H1 as [ | [ [[] []] % in_map_iff | [[] []] % in_map_iff ] % in_app_iff]; inversion H0; subst.
       + eauto.
       + unfold Sigma. simpl_list. rewrite <- !countSplit in *. cbn in *.
         rewrite Nat.eqb_refl in *.
@@ -192,7 +193,7 @@ Section Post_CFG.
   Proof.
     induction A.
     - cbn. eauto.
-    - intros.  assert (A <<= R) by eauto. eapply IHA in H0.
+    - intros H.  assert (A <<= R) by (eapply incl_cons_inv; eassumption). eapply IHA in H0.
       destruct a0 as [u v]. destruct H0.
       + subst. right. erewrite rewrite_sing with (x := u ++ [a] ++ v). { reflexivity. }
         right. eapply in_app_iff. right. eapply in_map_iff. exists (u,v); eauto.
@@ -206,9 +207,10 @@ Section Post_CFG.
   Proof.
     intros. induction H.
     - cbn.  exists [], S. eauto.
-    - inv H0. destruct H1 as [ | [(? & ? & ?) % in_map_iff | (? & ? & ?) % in_map_iff] % in_app_iff]; inv H0.
+    - inversion H0. subst. clear H0.
+      destruct H1 as [ | [(? & ? & ?) % in_map_iff | (? & ? & ?) % in_map_iff] % in_app_iff]; inversion H0; subst.
       + eassumption.
-      + destruct x0 as [u' v']. inv H3.
+      + destruct x0 as [u' v']. inversion H3. subst.
         destruct IHrewt as (A & m & HA & IHA & Hm).
         exists (A ++ [(u', v')]), S. repeat split.
         * eauto.
@@ -225,7 +227,7 @@ Section Post_CFG.
           eapply rewt_count in H. rewrite <- !countSplit in H. cbn in H.
           rewrite Nat.eqb_refl in H. eapply notInZero. lia.
         * eauto.
-      + destruct x0 as [u' v']. inv H3.
+      + destruct x0 as [u' v']. inversion H3. subst.
         destruct IHrewt as (A & m & HA & IHA & Hm).
         exists (A ++ [(u', v')]), a. repeat split.
         * eauto.

@@ -122,7 +122,7 @@ Section StateWhile.
   
   Lemma lifth_comp l (c : mconfig sig (state (StateWhileTM l)) n) :
     lifth c = false -> haltConf c = false.
-  Proof. destruct c as ((l'&q)&t). cbn. decide (l=l') as [->| _]; intros H; auto. unfold StateWhile_halt. cbn. now rewrite H. Qed.
+  Proof. destruct c as ((l'&q)&t). cbn. decide (l=l') as [->| _]; intros H; [|easy]. unfold StateWhile_halt. cbn. now rewrite H. Qed.
 
   
   Lemma lifth_comp' l (c : mconfig sig (state (projT1 (pM l))) n) :

@@ -1,12 +1,10 @@
 Set Default Goal Selector "!".
 
-From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts.
+From Undecidability.Synthetic Require Import Definitions EnumerabilityFacts ListEnumerabilityFacts.
 From Undecidability Require Export PCP.PCP.
-From Undecidability.Shared Require Import ListAutomation.
-Require Import Lia Arith.
-Import ListAutomationNotations.
+Require Import Lia.
 
-From Undecidability.L Require Import LProd List_eqb LBool LNat LOptions Lists List_basics List_extra List_fold.
+From Undecidability.L Require Import LProd LBool LNat LOptions Lists.
 
 Definition blist_eqb :=
   list_eqb Bool.eqb.
@@ -41,19 +39,19 @@ Proof.
   extract.
 Qed.
 
-From Undecidability Require Import embed_nat.
+From Coq Require Cantor.
 
-Definition of_list_enum {X} (f : nat -> list X) := (fun n : nat => let (n0, m) := unembed n in nth_error (f n0) m).
+Definition of_list_enum {X} (f : nat -> list X) := (fun n : nat => let (n0, m) := Cantor.of_nat n in nth_error (f n0) m).
 
 Definition unembed' := (fix F (k : nat) := 
   match k with 0 => (0,0) | S n => match fst (F n) with 0 => (S (snd (F n)), 0) | S x => (x, S (snd (F n))) end end).
 
-#[export] Instance unembed_computable : computable unembed.
+#[export] Instance unembed_computable : computable Cantor.of_nat.
 Proof.
   eapply computableExt with (x := unembed'). 2:extract.
-  intros n. cbn. induction n; cbn.
+  intros n. cbn. induction n.
   - reflexivity.
-  - fold (unembed n). rewrite IHn. now destruct (unembed n).
+  - simpl. rewrite IHn. now destruct (Cantor.of_nat n).
 Qed.
 
 #[export] Instance computable_of_list_enum {X} `{encodable X} :
@@ -113,7 +111,6 @@ Qed.
   computable (@prod_enum X Y).
 Proof.
   unfold prod_enum.
-  change Cantor.of_nat with unembed.
   extract.
 Qed.
 
@@ -128,7 +125,7 @@ Qed.
 Lemma stack_enum_spec :
   enumerator__T stack_enum (PCP.stack bool).
 Proof.
-  eauto.
+  exact _.
 Qed.
 
 From Undecidability Require Import PCP.

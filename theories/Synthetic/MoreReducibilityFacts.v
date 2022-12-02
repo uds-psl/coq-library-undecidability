@@ -5,6 +5,8 @@ Require Import List.
 Import ListNotations.
 From Undecidability.Shared Require Import Dec.
 
+#[local] Coercion dec2bool P (d: dec P) := if d then true else false.
+
 Set Implicit Arguments.
 
 Section enum_red.

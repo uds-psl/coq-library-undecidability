@@ -1,7 +1,7 @@
 From Undecidability.L.Datatypes Require Import LNat Lists LProd LFinType LVector .
 From Undecidability.L Require Import Functions.FinTypeLookup Functions.EqBool.
 
-From Undecidability.L Require Import TM.TapeFuns.
+From Undecidability.L Require Import TM.TapeFuns TM.TMEncoding.
 
 From Undecidability.TM Require Import TM_facts.
 
@@ -27,7 +27,7 @@ Section loopM.
   Import Vector.
   
   (* *** Computability of transition relation *)
-  Global Instance term_trans : computable (trans (m:=M)).
+  #[export] Instance term_trans : computable (trans (m:=M)).
   Proof.
     pose (t:= (funTable (trans (m:=M)))).
     apply computableExt with (x:= (fun c => lookup c t (start M,Vector.const (None , N) _ ) )).
@@ -41,18 +41,18 @@ Section loopM.
     let (news, actions) := trans (cstate c, current_chars (ctapes c)) in
     mk_mconfig news (doAct_multi (ctapes c) actions).
 
-  Global Instance term_doAct_multi: computable (doAct_multi (n:=n) (sig:=sig)).
+  #[export] Instance term_doAct_multi: computable (doAct_multi (n:=n) (sig:=sig)).
   Proof.
     extract.
   Qed.
 
 
-  Global Instance term_step' : computable (step (M:=M)).
+  #[export] Instance term_step' : computable (step (M:=M)).
   Proof.
     extract.
   Qed.
 
-  Global Instance term_halt : computable (halt (m:=M)).
+  #[export] Instance term_halt : computable (halt (m:=M)).
   Proof.
     pose (t:= (funTable (halt (m:=M)))).
     apply computableExt with (x:= fun c => lookup c t false).
@@ -60,13 +60,13 @@ Section loopM.
     cbn;intro. subst t. setoid_rewrite lookup_funTable. reflexivity.
   Qed.
 
-  Global Instance term_haltConf : computable (haltConf (M:=M)).
+  #[export] Instance term_haltConf : computable (haltConf (M:=M)).
   Proof.
     extract.
   Qed.
 
   (* *** Computability of step-ndexed interpreter *)
-  Global Instance term_loopM :
+  #[export] Instance term_loopM :
     computable (loopM (M:=M)).
   Proof.
     unfold loopM. (* as loop is already an encodable instance, this here is a bit out of the scope. Therefore, we unfold manually here. *)

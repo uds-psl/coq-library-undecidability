@@ -4,13 +4,13 @@ From Undecidability.Shared Require Import Dec.
 Require Import List.
 Import ListNotations.
 
+#[local] Coercion dec2bool P (d: dec P) := if d then true else false.
+
 Lemma enumerable_enum {X} {p : X -> Prop} :
   enumerable p <-> list_enumerable p.
 Proof.
   split. eapply enumerable_list_enumerable. eapply list_enumerable_enumerable.
 Qed.
-
-
 
 Lemma enumerable_disj X (p q : X -> Prop) :
   enumerable p -> enumerable q -> enumerable (fun x => p x \/ q x).

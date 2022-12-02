@@ -4,7 +4,7 @@ Import ListNotations.
 From Undecidability.HOU Require Import std.std.
 From Undecidability.HOU.calculus Require Import 
   prelim terms syntax semantics equivalence typing order confluence. 
-Import ListAutomationInstances ArsInstances.
+Import ArsInstances.
 (* * Terms Extension *)
 
 Notation "sigma •₊ A" := (map (subst_exp sigma) A) (at level 69).
@@ -189,13 +189,13 @@ Section TermsExtension.
         eapply equiv_anti_ren; (eauto 2).
     Qed.
 
-    Global Instance list_ren_proper delta:
+    #[export] Instance list_ren_proper delta:
       Proper (equiv (lstep step) ++> equiv (lstep (@step X))) (map (ren delta)).
     Proof.
       intros ??; now eapply list_equiv_ren.
     Qed.
 
-    Global Instance list_subst_proper sigma:
+    #[export] Instance list_subst_proper sigma:
       Proper (equiv (lstep step) ++> equiv (lstep (@step X))) (map (subst_exp sigma)).
     Proof.
       intros ??; now eapply list_equiv_subst.
@@ -412,47 +412,47 @@ Section TermsExtension.
   (* ** Compatibility Properties *)
   Section ListOperatorsCompatibilityProperties.
 
-    Global Instance Lambda_step_proper k:
+    #[export] Instance Lambda_step_proper k:
       Proper (step ++> step) (Lambda k).
     Proof.
       induction k; cbn; intros ??; (eauto 3).
     Qed.
 
-    Global Instance AppR_step_proper:
+    #[export] Instance AppR_step_proper:
       Proper (step ++> eq ++> step) AppR.
     Proof.
       intros s t ? ? A ->.
       induction A in s, t, H |-*; cbn; (eauto 3).
     Qed.
 
-    Global Instance AppR_lstep_proper:
+    #[export] Instance AppR_lstep_proper:
       Proper (eq ++> lstep step ++> step) AppR.
     Proof.
       intros ? ? -> ? ? H.
       induction H in y |-*; cbn; (eauto 2).
     Qed. 
 
-    Global Instance AppL_step_proper:
+    #[export] Instance AppL_step_proper:
       Proper (eq ++> step ++> step) AppL.
     Proof.
       intros ? A -> s t H.
       induction A in s, t, H |-*; cbn; (eauto 3).
     Qed.
 
-    Global Instance AppL_lstep_proper:
+    #[export] Instance AppL_lstep_proper:
       Proper (lstep step ++> eq ++> step) AppL.
     Proof.
       intros ? ? H ? t ->.
       induction H in t |-*; cbn; (eauto 2).
     Qed. 
 
-    Global Instance Lambda_steps_proper k:
+    #[export] Instance Lambda_steps_proper k:
       Proper (star step ++> star step) (Lambda k).
     Proof.
       induction 1; (eauto 1); now rewrite H.
     Qed.
 
-    Global Instance AppL_proper:
+    #[export] Instance AppL_proper:
       Proper (star (lstep step) ++> star step ++> star step) AppL.
     Proof.
       intros ? ?. induction 1.
@@ -463,7 +463,7 @@ Section TermsExtension.
         now rewrite IHstar. 
     Qed.
 
-    Global Instance AppR_proper:
+    #[export] Instance AppR_proper:
       Proper (star step ++> star (lstep step) ++> star step) AppR.
     Proof.
       intros ? ?. induction 1.
@@ -474,14 +474,14 @@ Section TermsExtension.
         now rewrite IHstar. 
     Qed.
 
-    Global Instance Lambda_equiv_proper n:
+    #[export] Instance Lambda_equiv_proper n:
       Proper (equiv step ++> equiv step) (Lambda n).
     Proof.
       intros ? ? ?; induction n; cbn; (eauto 2).
       now rewrite IHn. 
     Qed.
 
-    Global Instance equiv_AppL_proper:
+    #[export] Instance equiv_AppL_proper:
       Proper (equiv (lstep step) ++> equiv step ++> equiv step) AppL.
     Proof.
       intros ? ? (? & H1 & H2) % church_rosser ? ? (? & H3 & H4) % church_rosser;
@@ -489,7 +489,7 @@ Section TermsExtension.
       now rewrite H1, H2, H3, H4. 
     Qed.  
 
-    Global Instance equiv_AppR_proper:
+    #[export] Instance equiv_AppR_proper:
       Proper (equiv step ++> equiv (lstep step) ++> equiv step) AppR.
     Proof.
       intros ? ? (? & H1 & H2) % church_rosser ? ? (? & H3 & H4) % church_rosser; (eauto 2).
@@ -816,17 +816,17 @@ End TermsExtension.
 
 #[export] Hint Constructors listtyping : core. 
 #[export] Hint Constructors orderlisttyping : core. 
-Global Hint Rewrite ord'_app ord_Arr ord_repeated : simplify.
-Global Hint Rewrite ord_Arr : simplify.
+#[export] Hint Rewrite ord'_app ord_Arr ord_repeated : simplify.
+#[export] Hint Rewrite ord_Arr : simplify.
 #[export] Hint Resolve 
      normal_Lambda normal_AppR_left normal_AppR_right : core.
-Global Hint Rewrite @Lambda_ren @Lambda_subst @AppL_ren @AppL_subst @AppR_ren @AppR_subst : asimpl.
+#[export] Hint Rewrite @Lambda_ren @Lambda_subst @AppL_ren @AppL_subst @AppR_ren @AppR_subst : asimpl.
 
-Global Hint Rewrite @AppR_head : simplify.
+#[export] Hint Rewrite @AppR_head : simplify.
   
 
-Global Hint Rewrite target_Arr target_ord: simplify.
-Global Hint Rewrite arity_Arr : simplify.
+#[export] Hint Rewrite target_Arr target_ord: simplify.
+#[export] Hint Rewrite arity_Arr : simplify.
 
 Notation "S >₊ T" := (lstep step S T) (at level 60).
 Notation "S >₊* T" := (star (lstep step) S T) (at level 60).

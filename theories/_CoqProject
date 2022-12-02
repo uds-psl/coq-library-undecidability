@@ -65,7 +65,6 @@ MinskyMachines/MM_undec.v
 
 Shared/Dec.v
 Shared/ListAutomation.v
-Shared/embed_nat.v
 
 Synthetic/Definitions.v
 Synthetic/InformativeDefinitions.v
@@ -133,7 +132,6 @@ Shared/Libs/DLW/Code/compiler_correction.v
 Shared/Libs/PSL/Base.v
 
 Shared/Libs/PSL/Tactics/Tactics.v
-Shared/Libs/PSL/Tactics/AutoIndTac.v
 Shared/Libs/PSL/Prelim.v
 Shared/Libs/PSL/EqDecDef.v
 Shared/Libs/PSL/EqDec.v
@@ -141,11 +139,8 @@ Shared/Libs/PSL/Numbers.v
 Shared/Libs/PSL/Inhabited.v
 
 Shared/Libs/PSL/Lists/BaseLists.v
-
-Shared/Libs/PSL/Vectors/Fin.v
 Shared/Libs/PSL/Vectors/Vectors.v
 Shared/Libs/PSL/Vectors/FinNotation.v
-Shared/Libs/PSL/Vectors/VectorForall.v
 
 Shared/Libs/PSL/FiniteTypes.v
 Shared/Libs/PSL/FiniteTypes/BasicDefinitions.v

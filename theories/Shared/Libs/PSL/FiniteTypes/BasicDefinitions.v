@@ -72,10 +72,10 @@ Proof.
 Qed.
 
 (*  Dupfree Lists containing every x countain x exactly once *)
-Lemma dupfreeCount (X: eqType) (x:X) (A: list X) : dupfree A -> x el A -> count A x = 1.
+Lemma dupfreeCount (X: eqType) (x:X) (A: list X) : NoDup A -> x el A -> count A x = 1.
 Proof.
   intros D E. induction D.
-  -  contradiction E.
+  - contradiction E.
   - cbn. dec.
     + f_equal. subst x0. now apply notInZero.
     + destruct E as [E | E]; [> congruence | auto].

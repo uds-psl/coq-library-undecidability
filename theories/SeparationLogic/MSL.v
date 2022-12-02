@@ -1,5 +1,6 @@
-From Undecidability Require Import Shared.ListAutomation.
-Import ListAutomationNotations.
+Require Import List.
+
+#[local] Notation "x 'el' L" := (In x L) (at level 70).
 
 (** Minimal separation logic **)
 

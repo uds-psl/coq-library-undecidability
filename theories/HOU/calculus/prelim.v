@@ -171,7 +171,7 @@ Proof. unfold dom; now simplify. Qed.
 Lemma dom_map X Y (A: list X) (f: X -> Y): dom (map f A) = dom A.
 Proof. unfold dom; now simplify. Qed.
 
-Global Hint Rewrite dom_length dom_map: simplify.
+#[export] Hint Rewrite dom_length dom_map: simplify.
 
 Lemma dom_in X x (A: list X):
   x ∈ dom A -> exists y, nth A x = Some y.
@@ -203,9 +203,9 @@ Ltac domin H :=
 #[export] Hint Resolve Nat.max_lub : core. 
 #[export] Hint Resolve Nat.le_succ_diag_r Nat.lt_le_incl : core. 
 
-Global Hint Rewrite Nat.max_lub_iff Nat.max_0_r Nat.max_0_l: simplify.
-Global Hint Rewrite Nat.mul_0_r Nat.mul_succ_r Nat.mul_0_l Nat.mul_succ_l: simplify.
-Global Hint Rewrite Nat.add_succ_r : simplify.
+#[export] Hint Rewrite Nat.max_lub_iff Nat.max_0_r Nat.max_0_l: simplify.
+#[export] Hint Rewrite Nat.mul_0_r Nat.mul_succ_r Nat.mul_0_l Nat.mul_succ_l: simplify.
+#[export] Hint Rewrite Nat.add_succ_r : simplify.
 
 
 Arguments exp : clear implicits.  

@@ -1,7 +1,7 @@
 Set Implicit Arguments.
 Require Import Morphisms Lia List.
 From Undecidability.HOU Require Import calculus.calculus.
-Import ListNotations ListAutomationInstances ArsInstances.
+Import ListNotations ArsInstances.
 
 (* * Conservativity *)
 
@@ -184,7 +184,7 @@ Section Constants.
     Qed.
 
 
-    Global Instance step_subst_consts X Y:
+    #[export] Instance step_subst_consts X Y:
       Proper (Logic.eq ++> step ++> step) (@subst_consts X Y).
     Proof.
       intros ? zeta -> s t H; induction H in zeta |-*; cbn; [|eauto..].
@@ -195,14 +195,14 @@ Section Constants.
     Qed.
 
 
-    Global Instance steps_subst_consts X Y:
+    #[export] Instance steps_subst_consts X Y:
       Proper (Logic.eq ++> star step ++> star step) (@subst_consts X Y).
     Proof.
       intros ? zeta -> s t H; induction H in zeta |-*; cbn; trivial; rewrite H; eauto.
     Qed.
 
 
-    Global Instance equiv_subst_consts X Y:
+    #[export] Instance equiv_subst_consts X Y:
       Proper (Logic.eq ++> equiv step ++> equiv step) (@subst_consts X Y).
     Proof.
       intros ? zeta -> s t [v [H1 H2]] % church_rosser; trivial;

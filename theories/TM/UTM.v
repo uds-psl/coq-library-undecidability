@@ -4,6 +4,7 @@ From Coq Require Import Vector.
 Import VectorNotations.
 
 From Undecidability Require Import TM Shared.Libs.PSL.FiniteTypes.FinTypesDef.
+Require Import Undecidability.Shared.Libs.PSL.EqDec.
 
 From Undecidability Require
   MinskyMachines.Reductions.KrivineMclosed_HALT_to_MMA_HALTING

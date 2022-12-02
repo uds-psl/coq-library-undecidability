@@ -27,6 +27,7 @@ From Undecidability.Shared.Libs.DLW
   Require Import Vec.pos Vec.vec Code.sss Code.subcode.
 
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.
+Require Import Undecidability.Shared.Libs.PSL.EqDec.
 
 Require Import List Vector Lia PeanoNat Compare_dec.
 Import ListNotations.

@@ -7,10 +7,7 @@ Module ListAutomationNotations.
   Notation "x 'el' L" := (In x L) (at level 70).
   Notation "A '<<=' B" := (incl A B) (at level 70).
   Notation "( A × B × .. × C )" := (list_prod .. (list_prod A B) .. C) (at level 0, left associativity).
-  Notation "[ s | p ∈ A ',' P ]" :=
-    (map (fun p => s) (filter (fun p => Dec P) A)) (p pattern).
-  Notation "[ s | p ∈ A ]" :=
-    (map (fun p => s) A) (p pattern).
+  Notation "[ s | p ∈ A ]" := (map (fun p => s) A) (p pattern).
 
 End ListAutomationNotations.
 
@@ -33,8 +30,7 @@ Ltac in_collect a :=
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
-Lemma incl_nil X (A : list X) : nil <<= A.
-Proof. intros x []. Qed.
+Module ListAutomationFacts.
 
 Lemma app_incl_l X (A B C : list X) : A ++ B <<= C -> A <<= C.
 Proof. now intros [? ?]%incl_app_inv. Qed.
@@ -48,46 +44,39 @@ Proof. now intros [_ ?]%incl_cons_inv. Qed.
 Lemma incl_sing X (a : X) A : a el A -> [a] <<= A.
 Proof. now intros ? ? [-> | [] ]. Qed.
 
+End ListAutomationFacts.
+Import ListAutomationFacts.
+
 Module ListAutomationHints.
 
 #[export] Hint Extern 4 =>
   match goal with
-  |[ H: ?x el nil |- _ ] => destruct H
+  |[ H: In _ nil |- _ ] => destruct H
   end : core.
 
 #[export] Hint Extern 4 =>
   match goal with
   |[ H: False |- _ ] => destruct H
-  |[ H: true=false |- _ ] => discriminate H
-  |[ H: false=true |- _ ] => discriminate H
   end : core.
 
 #[export] Hint Rewrite <- app_assoc : list.
 #[export] Hint Rewrite rev_app_distr map_app prod_length : list.
 #[export] Hint Resolve in_eq in_nil in_cons in_or_app : core.
-#[export] Hint Resolve incl_refl incl_tl incl_cons incl_appl incl_appr incl_app incl_nil : core.
+#[export] Hint Resolve incl_refl incl_tl incl_cons incl_appl incl_appr incl_app incl_nil_l : core.
 #[export] Hint Resolve app_incl_l app_incl_R cons_incl incl_sing : core.
-#[export] Hint Extern 4 (_ el map _ _) => eapply in_map_iff : core.
-#[export] Hint Extern 4 (_ el filter _ _) => eapply filter_In : core.
 
 End ListAutomationHints.
 
-Import ListAutomationHints.
-
-#[local] Instance incl_preorder X : 
+Module ListAutomationInstances.
+#[export] Instance incl_preorder X : 
   PreOrder (@incl X).
 Proof. constructor; hnf; [apply incl_refl|apply incl_tran]. Qed.
 
-#[local] Instance cons_incl_proper X x : 
+#[export] Instance cons_incl_proper X x : 
   Proper (@incl X ==> @incl X) (@cons X x).
-Proof. hnf. auto. Qed.
+Proof. intros l1 l2 H. auto using incl_cons, in_eq, incl_tl. Qed.
 
-#[local] Instance in_incl_proper X x : 
+#[export] Instance in_incl_proper X x : 
   Proper (@incl X ==> Basics.impl) (@In X x).
-Proof. intros A B D. hnf. auto. Qed.
-
-Module ListAutomationInstances.
-#[export] Existing Instance incl_preorder.
-#[export] Existing Instance cons_incl_proper.
-#[export] Existing Instance in_incl_proper.
+Proof. intros A B D ?. now apply D. Qed.
 End ListAutomationInstances.

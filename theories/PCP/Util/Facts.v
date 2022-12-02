@@ -203,3 +203,6 @@ Lemma app_incl_R X (A B C : list X) :
 Proof.
   intros H x Hx. eapply H. eapply in_app_iff. now right.
 Qed.
+
+Lemma incl_sing X (a : X) A : a el A -> [a] <<= A.
+Proof. now intros ? ? [-> | [] ]. Qed.

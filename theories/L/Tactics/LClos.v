@@ -71,8 +71,8 @@ Definition Comp_ind_deep
            (IHClos : forall (s : term) (A : list Comp),
                        (forall a, a el A -> P a) -> P (CompClos s A)) : forall x, P x.
 Proof.
-  apply Comp_ind_deep' with (Pl:=fun A => (forall a, a el A -> P a));auto.
-  intros. inv H1;auto. 
+  apply Comp_ind_deep' with (Pl:=fun A => (forall a, a el A -> P a)); [auto..|easy|].
+  intros.  inv H1;auto. 
 Qed.
 
 (*

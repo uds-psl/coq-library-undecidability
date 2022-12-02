@@ -1,6 +1,9 @@
 From Undecidability Require Import SeparationLogic.MSL.
-From Undecidability Require Import Shared.ListAutomation.
-Import ListAutomationNotations.
+
+Require Import List.
+Import ListNotations.
+
+#[local] Notation "x 'el' L" := (In x L) (at level 70).
 
 (** Separation logic **)
 
@@ -25,7 +28,7 @@ Definition disjoint (h h' : heap) :=
   ~ exists l p p', (l, p) el h /\ (l, p') el h'.
 
 Definition equiv (h h' : heap) :=
-  h <<= h' /\ h' <<= h.
+  incl h h' /\ incl h' h.
 
 Fixpoint sp_sat (s : stack) (h : heap) (P : sp_form) :=
   match P with

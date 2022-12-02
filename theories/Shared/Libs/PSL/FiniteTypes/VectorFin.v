@@ -3,21 +3,23 @@ From Undecidability.Shared.Libs.PSL Require Import FiniteTypes.FinTypes.
 From Undecidability.Shared.Libs.PSL Require Import Vectors.Vectors.
 Import VectorNotations2.
 
-Import VecToListCoercion.
 Open Scope vector_scope.
+
+Fixpoint all_fins (n : nat) : list (Fin.t n) :=
+  match n with
+  | 0 => nil
+  | S n => Fin.F1 :: map Fin.FS (all_fins n)
+  end.
 
 #[global]
 Instance Fin_finTypeC n : finTypeC (EqType (Fin.t n)).
 Proof.
-  constructor 1 with (enum := tabulate (fun i : Fin.t n => i)).
+  constructor 1 with (enum := all_fins n).
   cbn. intros x. eapply dupfreeCount.
-  - clear x. induction n as [|n IH].
-    + constructor.
-    + simpl. rewrite Vector.to_list_cons, <- Vector_map_tabulate, Vector.to_list_map.
-      constructor.
-      * now intros [? [? ?]]%in_map_iff.
-      * apply (FinFun.Injective_map_NoDup Fin.FS_inj IH).
-  - eapply Vector.to_list_In. apply in_tabulate. now eexists.
+  - clear x. induction n as [|n IH]; simpl; constructor.
+    + now intros [? [? ?]]%in_map_iff.
+    + apply (FinFun.Injective_map_NoDup (@Fin.FS_inj n) IH).
+  - now induction x; [left|right; apply in_map].
 Defined.
 
 (* Function that produces a list of all Vectors of length n over A *)
@@ -30,7 +32,7 @@ Fixpoint Vector_pow {X: Type} (A: list X) n {struct n} : list (Vector.t X n) :=
 #[global]
 Instance Vector_finTypeC (A:finType) n: finTypeC (EqType (Vector.t A n)).
 Proof.
-  exists (undup ((Vector_pow (elem A) n))). cbn in *.
+  exists (nodup (@eqType_dec _) ((Vector_pow (elem A) n))). cbn in *.
   intros v. eapply dupfreeCount.
   - eapply NoDup_nodup.
   - apply nodup_In. induction v; cbn.

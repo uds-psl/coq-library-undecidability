@@ -62,7 +62,7 @@ Proof.
   intros. repeat decide equality.
 Qed.
 
-Global Hint Rewrite (@tau1_app nat) (@tau2_app nat) (@tau1_cards nat) (@tau2_cards nat) : list.
+#[export] Hint Rewrite (@tau1_app nat) (@tau2_app nat) (@tau1_cards nat) (@tau2_cards nat) : list.
 
 Implicit Types a b : nat.
 Implicit Types x y z : string nat.
@@ -145,7 +145,9 @@ Qed.
 Coercion sing (n : nat) := [n].
 
 From Undecidability.Synthetic Require Import EnumerabilityFacts ListEnumerabilityFacts.
-From Undecidability.Shared Require Import ListAutomation.
+Require Import Undecidability.Shared.Dec.
+
+#[local] Hint Extern 4 => exact _ : core.
 
 Lemma stack_enum :
   enumerable__T (stack bool).

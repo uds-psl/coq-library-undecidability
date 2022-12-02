@@ -98,7 +98,7 @@ Qed.
 (*   extract. *)
 (* Qed. *)
 
-Require Import Undecidability.Shared.embed_nat Nat.
+From Coq Require Cantor.
 
 (* Instance term_nat_rec {X : Set} `{encodable X} : computable (@nat_rec (fun _ => X)). *)
 (* Proof. *)
@@ -131,16 +131,16 @@ Proof.
 Qed.
 
 #[global]
-Instance term_embed_nat : computable embed.
+Instance term_embed_nat : computable Cantor.to_nat.
 Proof.
   change (computable (fun '(x, y) => y + F' (y + x))).
   extract.
 Qed.
 
 #[global]
-Instance term_unembed_nat : computable unembed.
+Instance term_unembed_nat : computable Cantor.of_nat.
 Proof.
-  unfold unembed.
+  unfold Cantor.of_nat.
   change (computable F'').
   exact term_F''.
 Qed.
@@ -205,12 +205,12 @@ Proof.
   intros ?. rewrite <- He. eapply Hf.
 Qed.
 
-Definition F1 {X} (T : nat -> list X) :=  (fun n => let (n, m) := unembed n in nth_error (T n) m).
+Definition F1 {X} (T : nat -> list X) :=  (fun n => let (n, m) := Cantor.of_nat n in nth_error (T n) m).
 
 #[global]
 Instance term_F1 {X} {H : encodable X} :  @computable ((nat -> list X) -> nat -> option X) ((! nat ~> ! list X) ~> ! nat ~> ! option X) (@F1 X).
 Proof.
-  extract.  
+  extract.
 Qed.
 
 Lemma L_enumerable_enum {X} `{encodable X} (p : X -> Prop) :

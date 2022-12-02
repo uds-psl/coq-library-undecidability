@@ -3,15 +3,14 @@ From Undecidability.FOL.Util Require Import Syntax_facts FullTarski_facts sig_bi
 Export Undecidability.FOL.Util.Syntax.FullSyntax.
 From Undecidability.SeparationLogic Require Import MSL.
 
-From Undecidability Require Import Shared.ListAutomation.
-Import ListAutomationNotations ListAutomationInstances ListAutomationHints.
-
 From Undecidability.Shared Require Import Dec.
 Require Import Undecidability.Synthetic.DecidabilityFacts.
+Require Import List.
 
 Set Default Goal Selector "!".
 
-
+#[local] Notation "x 'el' L" := (In x L) (at level 70).
+#[local] Notation "[ s | p ∈ A ]" := (map (fun p => s) A) (p pattern).
 
 (** encoding function following Cacagno, Yang, O'Hearn (2001) **)
 
@@ -259,7 +258,7 @@ Section Backwards.
     decidable (fun v => i_atom (interp:=model h) (P:=tt) v).
   Proof.
     apply decidable_iff. constructor. intros v. cbn.
-    apply pairlist_dec; eauto.
+    apply pairlist_dec; exact _.
   Qed.
 
 End Backwards. 
@@ -305,7 +304,7 @@ Section Forwards.
 
   Definition interp2heap : heap :=
     [(enc_point d, (None, None)) | d ∈ LD]
-      ++ [(enc_pair d e, (Some (enc_point d), Some (enc_point e))) | (d, e) ∈ filter f (LD × LD)].
+      ++ [(enc_pair d e, (Some (enc_point d), Some (enc_point e))) | (d, e) ∈ filter f (list_prod LD LD)].
 
   Definition env2stack (rho : nat -> D) : stack :=
     fun n => Some (enc_point (rho n)).
@@ -488,17 +487,18 @@ Proof.
 Qed.
 
 Lemma discrete_nodup X (L : list X) :
-  eq_dec X -> { L' | NoDup L' /\ L <<= L' }.
+  eq_dec X -> { L' | NoDup L' /\ incl L L' }.
 Proof.
   intros d. induction L.
-  - exists nil. split; auto. apply NoDup_nil.
+  - exists nil. split; [|easy]. apply NoDup_nil.
   - destruct IHL as (L' & H1 & H2). decide (a el L') as [H|H].
     + exists L'. split; trivial. intros b. cbn. firstorder congruence.
-    + exists (cons a L'). split; try now apply NoDup_cons. auto.
+    + exists (cons a L'). split; try now apply NoDup_cons.
+    auto using incl_cons, in_eq, incl_tl.
 Qed.
 
 Theorem reduction' phi :
-  FV phi <<= nil -> FSATd phi <-> MSLSAT (encode' phi).
+  incl (FV phi) nil -> FSATd phi <-> MSLSAT (encode' phi).
 Proof.
   intros HV. split.
   - intros (D & M & rho & [L HL] & [H2] % discrete_iff & [f H3] & H4).
@@ -515,7 +515,7 @@ Proof.
     + apply dom_listable.
     + apply dom_discrete.
     + apply model_dec.
-    + apply reduction_backwards; trivial. setoid_rewrite HV. intros x [].
+    + apply reduction_backwards; trivial. intros x Hx. destruct (HV x Hx).
 Qed.
 
 Lemma bounded_FV_term t n :
@@ -525,17 +525,17 @@ Proof.
 Qed.
 
 Lemma bounded_FV phi n :
-  bounded n phi -> FV phi <<= seq 0 n.
+  bounded n phi -> incl (FV phi) (seq 0 n).
 Proof.
   induction 1; cbn.
   - intros x [t [<- Ht]] % in_map_iff.
     apply to_list_in', H, bounded_FV_term in Ht.
     apply in_seq. lia.
-  - auto.
+  - auto using incl_app.
   - intros x [t [<- Ht]] % in_map_iff. apply filter_In in Ht as [H1 H2].
     destruct t; try discriminate. apply IHbounded, in_seq in H1.
     cbn. apply in_seq. lia.
-  - auto.
+  - apply incl_nil_l.
 Qed.
 
 Theorem reduction :

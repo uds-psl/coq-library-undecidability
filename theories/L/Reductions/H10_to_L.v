@@ -5,8 +5,16 @@ From Undecidability.Synthetic Require Export DecidabilityFacts EnumerabilityFact
 From Undecidability.L.Datatypes Require Import LNat Lists LProd.
 From Undecidability.L Require Import Tactics.LTactics Computability.MuRec Computability.Synthetic Tactics.GenEncode.
 From Undecidability.Shared.Libs.DLW.Vec Require Import pos.
-Require Import Undecidability.Shared.ListAutomation.
-Import ListAutomationNotations ListAutomationHints.
+
+Local Ltac in_app n :=
+  (match goal with
+  | [ |- In _ (_ ++ _) ] => 
+    match n with
+    | 0 => idtac
+    | 1 => eapply in_app_iff; left
+    | S ?n => eapply in_app_iff; right; in_app n
+    end
+  end) || (repeat (try right; eapply in_app_iff; right)).
 
 Require Import Nat Datatypes.
 
@@ -21,13 +29,13 @@ Inductive poly : Set :=
 MetaCoq Run (tmGenEncode "enc_poly" poly).
 #[export] Hint Resolve enc_poly_correct : Lrewrite.
 
-#[global]
+#[export]
 Instance term_poly_cnst: computable poly_cnst. Proof. extract constructor. Qed.
-#[global]
+#[export]
 Instance term_poly_var : computable poly_var. Proof. extract constructor. Qed.
-#[global]
+#[export]
 Instance term_poly_add : computable poly_add. Proof. extract constructor. Qed.
-#[global]
+#[export]
 Instance term_poly_mul : computable poly_mul. Proof. extract constructor. Qed.
 
 Fixpoint eval (p : poly) (L : list nat) :=
@@ -37,15 +45,15 @@ Fixpoint eval (p : poly) (L : list nat) :=
   | poly_add p1 p2 => eval p1 L + eval p2 L
   | poly_mul p1 p2 => eval p1 L * eval p2 L
   end.
-#[global]
+#[export]
 Instance term_eval : computable eval. Proof. extract. Qed.
 
 Definition poly_add' '(x,y) : poly  := poly_add x y.
-#[global]
+#[export]
 Instance term_poly_add' : computable poly_add'. Proof. extract. Qed.
 
 Definition poly_mul' '(x,y) : poly := poly_mul x y.
-#[global]
+#[export]
 Instance term_poly_mul' : computable poly_mul'. Proof. extract. Qed.
 
 Fixpoint L_poly n : list (poly) :=
@@ -57,22 +65,24 @@ Fixpoint L_poly n : list (poly) :=
                                    ++ map poly_mul' (list_prod (L_poly n) (L_poly n))
   end.
   
-#[global]
+#[export]
 Instance term_L_poly : computable L_poly. Proof. extract. Qed.
 
-#[global]
+#[export]
 Instance enum_poly :
   list_enumerator__T L_poly poly.
 Proof.
   intros p. induction p.
   + destruct (el_T n) as [m].
-    exists (1 + m). cbn. in_app 2. in_collect n. exact H.
+    exists (1 + m). cbn. in_app 2. apply in_map_iff. eauto.
   + destruct (el_T n) as [m].
-    exists (1 + m). cbn. in_app 3. eauto.
+    exists (1 + m). cbn. in_app 3. apply in_map_iff. eauto.
   + destruct IHp1 as [m1]. destruct IHp2 as [m2].
-    exists (1 + m1 + m2). cbn. in_app 4. in_collect (p1, p2); eapply cum_ge'; eauto; lia.
+    exists (1 + m1 + m2). cbn. in_app 4. apply in_map_iff. exists (p1, p2). split; [reflexivity|].
+    apply in_prod_iff. split; eapply cum_ge'; eauto; lia.
   + destruct IHp1 as [m1]. destruct IHp2 as [m2].
-    exists (1 + m1 + m2). cbn. in_app 5. in_collect (p1, p2); eapply cum_ge'; eauto; lia.
+    exists (1 + m1 + m2). cbn. in_app 5. apply in_map_iff. exists (p1, p2). split; [reflexivity|].
+    apply in_prod_iff. split; eapply cum_ge'; eauto; lia.
 Defined. (* because instance *)
 
 Fixpoint conv n (p : dio_single.dio_polynomial (pos n) (pos 0)) : poly.
@@ -149,7 +159,7 @@ Qed.
 
 Definition test_eq := (fun '(p1,p2,L) => Nat.eqb (eval p1 L) (eval p2 L)).
 
-#[global]
+#[export]
 Instance term_test_eq : computable test_eq.
 Proof.
   extract.
@@ -157,7 +167,7 @@ Qed.
 
 Definition cons' : nat * list nat -> list nat := fun '(n, L) => n :: L.
 
-#[global]
+#[export]
 Instance term_cons' : computable cons'.
 Proof.
   extract.
@@ -165,13 +175,13 @@ Qed.
 
 Definition T_list_nat := @L_list nat opt_to_list.
 
-#[global]
+#[export]
 Instance computable_cumul {X} `{encodable X} : computable (@cumul X).
 Proof.
   extract.
 Qed.
 
-#[global]
+#[export]
 Instance term_T_list : computable T_list_nat.
 Proof.
   unfold T_list_nat, L_list.
@@ -179,7 +189,7 @@ Proof.
     (fix T_list (n : nat) : list (list nat) :=
        match n with
        | 0 => [[]]
-       | S n0 => (T_list n0 ++ map cons' (L_nat n0 × T_list n0))%list
+       | S n0 => (T_list n0 ++ map cons' (list_prod (L_nat n0) (T_list n0)))%list
        end)).
   extract.
 Qed.
@@ -207,7 +217,7 @@ Proof.
     + eapply in_app_iff in H as [|].
       * eauto.
       * eapply filter_In in H as []. unfold test_eq in H0.
-        destruct (Nat.eqb_spec (eval p1 L) (eval p2 L)); eauto.
+        destruct (Nat.eqb_spec (eval p1 L) (eval p2 L)); easy.
 Qed.
 
 Fixpoint poly_eqb p1 p2 :=
@@ -230,7 +240,7 @@ Proof.
   - destruct (IHp1_1 p2_1), (IHp1_2 p2_2); cbn; econstructor; congruence.
 Qed.
 
-#[global]
+#[export]
 Instance term_poly_beq : computable poly_eqb.
 Proof.
   extract.

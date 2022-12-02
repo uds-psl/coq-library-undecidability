@@ -45,7 +45,7 @@ Proof.
 Qed.
 
 Lemma getPosition_nth (X:eqType) k (d :X) xs:
-  dupfree xs ->
+  NoDup xs ->
   k < length xs ->
   getPosition xs (nth k xs d) = k.
 Proof.
@@ -71,7 +71,7 @@ Qed.
 Lemma injective_index (A: finType) (x1 x2 : A) : index x1 = index x2 -> x1 = x2.
 Proof.
   destruct (elem A) eqn:E.
-  - hnf. intros. assert (x1 el elem A) by eauto using elem_spec. rewrite E in H0. auto.
+  - hnf. intros. assert (x1 el elem A) by eauto using elem_spec. now rewrite E in H0.
   - clear E. intros E.
     apply (f_equal (fun y => nth y (elem A) e)) in E.
     now rewrite !index_nth in E.

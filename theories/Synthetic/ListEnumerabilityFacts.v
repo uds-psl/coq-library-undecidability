@@ -231,50 +231,6 @@ Qed.
 
 Require Import Undecidability.Shared.Dec.
 
-Lemma enumerable_conj X (p q : X -> Prop) :
-  discrete X -> enumerable p -> enumerable q -> enumerable (fun x => p x /\ q x).
-Proof.
-  intros [] % discrete_iff [Lp] % enumerable_list_enumerable [Lq] % enumerable_list_enumerable.
-  eapply list_enumerable_enumerable.
-  exists (fix f n := match n with 0 => [] | S n => f n ++ (filter (fun x => Dec (In x (cumul Lq n))) (cumul Lp n)) end).
-  intros. split.
-  + intros []. eapply (cumul_spec H) in H1 as [m1]. eapply (cumul_spec H0) in H2 as [m2].
-    exists (1 + m1 + m2). cbn. apply in_or_app. right.
-    apply filter_In. split.
-    * eapply cum_ge'; eauto; lia.
-    * eapply Dec_auto. eapply cum_ge'; eauto; lia.
-  + intros [m]. induction m.
-    * inversion H1.
-    * apply in_app_iff in H1. destruct H1 as [?|H1]; [now auto|].
-      apply filter_In in H1. destruct H1 as [? H1].
-      split. 
-      ** eapply (list_enumerator_to_cumul H). eauto.
-      ** destruct (Dec _) in H1; [|easy].
-         eapply (list_enumerator_to_cumul H0). eauto.
-Qed.
-
-Lemma projection X Y (p : X * Y -> Prop) :
-  enumerable p -> enumerable (fun x => exists y, p (x,y)).
-Proof.
-  intros [f].
-  exists (fun n => match f n with Some (x, y) => Some x | None => None end).
-  intros; split.
-  - intros [y ?]. eapply H in H0 as [n]. exists n. now rewrite H0.
-  - intros [n ?]. destruct (f n) as [ [] | ] eqn:E; inv H0.
-    exists y. eapply H. eauto.
-Qed.
-
-Lemma projection' X Y (p : X * Y -> Prop) :
-  enumerable p -> enumerable (fun y => exists x, p (x,y)).
-Proof.
-  intros [f].
-  exists (fun n => match f n with Some (x, y) => Some y | None => None end).
-  intros y; split.
-  - intros [x ?]. eapply H in H0 as [n]. exists n. now rewrite H0.
-  - intros [n ?]. destruct (f n) as [ [] | ] eqn:E; inv H0.
-    exists x. eapply H. eauto.
-Qed.
-
 (* Typeclasses  *)
 
 Definition L_T {X : Type} {f : nat -> list X} {H : list_enumerator__T f X} : nat -> list X.

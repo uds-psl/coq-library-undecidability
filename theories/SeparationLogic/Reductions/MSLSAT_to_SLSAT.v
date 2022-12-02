@@ -1,6 +1,6 @@
 From Undecidability.SeparationLogic Require Import MSL SL.
-From Undecidability Require Import Shared.ListAutomation.
-Import ListAutomationNotations ListAutomationHints.
+Require Import List.
+Import ListNotations.
 
 Set Default Goal Selector "!".
 
@@ -24,7 +24,7 @@ Proof.
       exists [(l, (sp_eval s s1, sp_eval s s2))], (h1 ++ h2). split.
       * unfold equiv, incl. repeat setoid_rewrite in_app_iff. cbn. firstorder.
       * split; trivial. exists l. split; trivial.
-    + intros (h1 & h2 & H1 & [l[H2 ->]] & _). exists l. split; trivial. apply H1, in_app_iff. now left.
+    + intros (h1 & h2 & H1 & [l[H2 ->]] & _). exists l. split; trivial. apply H1, in_app_iff. left. now left.
   - tauto.
   - rewrite IHP1, IHP2. tauto.
   - rewrite IHP1, IHP2. tauto.
