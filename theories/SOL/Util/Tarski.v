@@ -38,7 +38,6 @@ Notation "( M , rho ) ⊨ phi" := (ent' M rho phi) (at level 0).
 #[export] Instance ent'_form' `{funcs_signature, preds_signature} : Ent' form :=
   fun M rho phi => @sat _ _ (M_domain M) (M_interp M) rho phi.
 
-
 Section Environment.
 
   Variable domain : Type.
@@ -84,8 +83,6 @@ Section Environment.
 End Environment.
 
 Notation "rho1 ≡ rho2" := (env_equiv _ rho1 rho2) (at level 30).
-
-
 
 Section SatExt.
 
@@ -151,8 +148,6 @@ Section SatExt.
 
 End SatExt.
 
-
-
 Section BoundedSat.
 
   Context {Σ_funcs : funcs_signature}.
@@ -192,22 +187,22 @@ Section BoundedSat.
       + rewrite H3. reflexivity. cbn. lia.
       + reflexivity.
     - specialize (IHphi1 rho sigma). specialize (IHphi2 rho sigma).
-      destruct b; cbn; setoid_rewrite IHphi1; try setoid_rewrite IHphi2; try reflexivity; clear IHphi1 IHphi2; firstorder.
+      destruct b; cbn; setoid_rewrite IHphi1; try setoid_rewrite IHphi2; try reflexivity; clear IHphi1 IHphi2. all: firstorder.
     - destruct q; split.
-      + intros H d. eapply IHphi. 4: apply (H d). intros []. all: firstorder.
-      + intros H d. eapply IHphi. 4: apply (H d). intros []. all: firstorder.
-      + intros [d H]. exists d. eapply IHphi. 4: apply H. intros []. all: firstorder.
-      + intros [d H]. exists d. eapply IHphi. 4: apply H. intros []. all: firstorder.
+      + intros H d. eapply IHphi; clear IHphi. 4: apply (H d). intros []. all: firstorder.
+      + intros H d. eapply IHphi; clear IHphi. 4: apply (H d). intros []. all: firstorder.
+      + intros [d H]. exists d. eapply IHphi; clear IHphi. 4: apply H. intros []. all: firstorder.
+      + intros [d H]. exists d. eapply IHphi; clear IHphi. 4: apply H. intros []. all: firstorder.
     - destruct q; split.
-      + intros H f. eapply IHphi. 4: eapply (H f); trivial. 2: intros [] ar H4; cbn; destruct Nat.eq_dec as [->|]. all: firstorder.
-      + intros H f. eapply IHphi. 4: eapply (H f); trivial. 2: intros [] ar H4; cbn; destruct Nat.eq_dec as [->|]. all: firstorder.
-      + intros [f H]. exists f. eapply IHphi. 4: eapply H; trivial. 2: intros [] ar H4; cbn; destruct Nat.eq_dec as [->|]. all: firstorder.
-      + intros [f H]. exists f. eapply IHphi. 4: eapply H; trivial. 2: intros [] ar H4; cbn; destruct Nat.eq_dec as [->|]. all: firstorder.
+      + intros H f. eapply IHphi; clear IHphi. 4: eapply (H f); trivial. 2: intros [] ar H4; cbn; destruct Nat.eq_dec as [->|]. all: firstorder.
+      + intros H f. eapply IHphi; clear IHphi. 4: eapply (H f); trivial. 2: intros [] ar H4; cbn; destruct Nat.eq_dec as [->|]. all: firstorder.
+      + intros [f H]. exists f. eapply IHphi; clear IHphi. 4: eapply H; trivial. 2: intros [] ar H4; cbn; destruct Nat.eq_dec as [->|]. all: firstorder.
+      + intros [f H]. exists f. eapply IHphi; clear IHphi. 4: eapply H; trivial. 2: intros [] ar H4; cbn; destruct Nat.eq_dec as [->|]. all: firstorder.
     - destruct q; split.
-      + intros H P. eapply IHphi. 4: eapply (H P); trivial. 3: intros [] ar H4; cbn; destruct Nat.eq_dec as [->|]. all: firstorder.
-      + intros H P. eapply IHphi. 4: eapply (H P); trivial. 3: intros [] ar H4; cbn; destruct Nat.eq_dec as [->|]. all: firstorder.
-      + intros [P H]. exists P. eapply IHphi. 4: eapply H; trivial. 3: intros [] ar H4; cbn; destruct Nat.eq_dec as [->|]. all: firstorder.
-      + intros [P H]. exists P. eapply IHphi. 4: eapply H; trivial. 3: intros [] ar H4; cbn; destruct Nat.eq_dec as [->|]. all: firstorder.
+      + intros H P. eapply IHphi; clear IHphi. 4: eapply (H P); trivial. 3: intros [] ar H4; cbn; destruct Nat.eq_dec as [->|]. all: firstorder.
+      + intros H P. eapply IHphi; clear IHphi. 4: eapply (H P); trivial. 3: intros [] ar H4; cbn; destruct Nat.eq_dec as [->|]. all: firstorder.
+      + intros [P H]. exists P. eapply IHphi; clear IHphi. 4: eapply H; trivial. 3: intros [] ar H4; cbn; destruct Nat.eq_dec as [->|]. all: firstorder.
+      + intros [P H]. exists P. eapply IHphi; clear IHphi. 4: eapply H; trivial. 3: intros [] ar H4; cbn; destruct Nat.eq_dec as [->|]. all: firstorder.
   Qed.
 
   Lemma sat_ext_closed phi rho sigma :
@@ -241,9 +236,6 @@ Section BoundedSat.
 
 End BoundedSat.
 
-
-
-
 Section Subst.
 
   Context {Σ_funcs : funcs_signature}.
@@ -260,7 +252,7 @@ Section Subst.
       destruct n. destruct Nat.eq_dec; try easy. now destruct Nat.eq_dec.
     - reflexivity.
   Qed.
-
+  
   Lemma eval_predicate_subst_cons_shift_p (rho : env domain) ar (P : predicate ar) ar' (Q : vec domain ar' -> Prop) :
     eval_predicate rho P = eval_predicate ⟨ get_indi rho, get_func rho, Q .: get_pred rho ⟩ (P[↑ ar']p).
   Proof.
@@ -301,28 +293,28 @@ Section Subst.
     - destruct p; cbn; erewrite map_map, map_ext; try reflexivity;
       induction t; firstorder using eval_comp_i.
     - specialize (IHphi1 rho σ); specialize (IHphi2 rho σ).
-      destruct b; cbn; firstorder.
+      destruct b; cbn; intuition easy.
     - destruct q.
       + setoid_rewrite IHphi. split; intros H d; eapply sat_ext.
-        2, 4: apply (H d). all: intros []; split; try easy;
+        2, 4: apply (H d). all: clear; intros []; split; try easy;
         cbn; erewrite eval_comp_i; now destruct rho.
       + setoid_rewrite IHphi. split; intros [d H]; exists d; eapply sat_ext.
-        2, 4: apply H. all: intros []; split; try easy;
+        2, 4: apply H. all: clear; intros []; split; try easy;
         cbn; erewrite eval_comp_i; now destruct rho.
     - destruct q.
       + setoid_rewrite IHphi; split; intros H f; eapply sat_ext.
-        2, 4: apply (H f). all: split; try easy. 2: symmetry.
+        2, 4: apply (H f). all: clear; split; try easy. 2: symmetry.
         all: apply eval_subst_cons_shift_f.
       + setoid_rewrite IHphi; split; intros [f H]; exists f; eapply sat_ext.
-        2, 4: apply H. all: split; try easy. 2: symmetry.
+        2, 4: apply H. all: clear; split; try easy. 2: symmetry.
         all: apply eval_subst_cons_shift_f.
     - destruct q.
       + setoid_rewrite IHphi; split; intros H P; eapply sat_ext.
-        2, 4: apply (H P). all: split; try easy; now apply eval_ext.
+        2, 4: apply (H P). all: clear; split; try easy; now apply eval_ext.
       + setoid_rewrite IHphi; split; intros [P H]; exists P; eapply sat_ext.
-        2, 4: apply H. all: split; try easy; now apply eval_ext.
+        2, 4: apply H. all: clear; split; try easy; now apply eval_ext.
   Qed.
-
+  
   Lemma sat_comp_f rho σ phi :
     sat rho (phi[σ]f) <-> sat ⟨get_indi rho, σ >>> eval_function rho, get_pred rho⟩ phi.
   Proof.
@@ -331,7 +323,7 @@ Section Subst.
     - destruct p; cbn; erewrite map_map, map_ext; try reflexivity;
       induction t; firstorder using eval_comp_f.
     - specialize (IHphi1 rho σ); specialize (IHphi2 rho σ).
-      destruct b; cbn; firstorder.
+      destruct b; cbn; intuition easy.
     - destruct q.
       + setoid_rewrite IHphi. split; intros H d; eapply sat_ext.
         2, 4: apply (H d). all: easy.
@@ -339,22 +331,22 @@ Section Subst.
         2, 4: apply H. all: easy.
     - destruct q.
       + setoid_rewrite IHphi; split; intros H f; eapply sat_ext.
-        2, 4: apply (H f). 
-        all: intros []; repeat split; try easy; cbn; destruct Nat.eq_dec as [->|]; cbn.
+        2, 4: apply (H f).
+        all: clear; intros []; repeat split; try easy; cbn; destruct Nat.eq_dec as [->|]; cbn.
         1, 5: destruct Nat.eq_dec; try easy; rewrite Eqdep_dec.UIP_dec with (p1 := e) (p2 := eq_refl); try easy; decide equality.
         1-3: now rewrite eval_function_subst_cons_shift_f with (g := f).
         all: now rewrite <- eval_function_subst_cons_shift_f with (g := f).
       + setoid_rewrite IHphi; split; intros [f H]; exists f; eapply sat_ext.
         2, 4: apply H.
-        all: intros []; repeat split; try easy; cbn; destruct Nat.eq_dec as [->|]; cbn.
+        all: clear; intros []; repeat split; try easy; cbn; destruct Nat.eq_dec as [->|]; cbn.
         1, 5: destruct Nat.eq_dec; try easy; rewrite Eqdep_dec.UIP_dec with (p1 := e) (p2 := eq_refl); try easy; decide equality.
         1-3: now rewrite eval_function_subst_cons_shift_f with (g := f).
         all: now rewrite <- eval_function_subst_cons_shift_f with (g := f).
     - destruct q.
       + setoid_rewrite IHphi; split; intros H P; eapply sat_ext.
-        2, 4: apply (H P). all: intros; split; try easy; now apply eval_ext.
+        2, 4: apply (H P). all: clear; intros; split; try easy; now apply eval_ext.
       + setoid_rewrite IHphi; split; intros [P H]; exists P; eapply sat_ext.
-        2, 4: apply H. all: intros; split; try easy; now apply eval_ext.
+        2, 4: apply H. all: clear; intros; split; try easy; now apply eval_ext.
   Qed.
 
   Lemma sat_comp_p rho σ phi :
@@ -366,7 +358,7 @@ Section Subst.
       enough (map (eval rho) v = map (eval ⟨get_indi rho, get_func rho, σ >>> eval_predicate rho⟩) v) as -> by reflexivity;
       apply map_ext_forall; induction v; firstorder; now apply eval_ext.
     - specialize (IHphi1 rho σ); specialize (IHphi2 rho σ).
-      destruct b; cbn; firstorder.
+      destruct b; cbn; intuition easy.
     - destruct q.
       + setoid_rewrite IHphi. split; intros H d; eapply sat_ext.
         2, 4: apply (H d). all: easy.
@@ -380,13 +372,13 @@ Section Subst.
     - destruct q.
       + setoid_rewrite IHphi; split; intros H P; eapply sat_ext.
         2, 4: apply (H P). 
-        all: intros []; split; try easy; split; try easy; cbn; destruct Nat.eq_dec as [->|]; cbn.
+        all: clear; intros []; split; try easy; split; try easy; cbn; destruct Nat.eq_dec as [->|]; cbn.
         1, 5: destruct Nat.eq_dec; try easy; rewrite Eqdep_dec.UIP_dec with (p1 := e) (p2 := eq_refl); try easy; decide equality.
         1-3: now rewrite eval_predicate_subst_cons_shift_p with (Q := P).
         all: now rewrite <- eval_predicate_subst_cons_shift_p with (Q := P).
       + setoid_rewrite IHphi; split; intros [P H]; exists P; eapply sat_ext.
-        2, 4: apply H. 
-        all: intros []; split; try easy; split; try easy; cbn; destruct Nat.eq_dec as [->|]; cbn.
+        2, 4: apply H.
+        all: clear; intros []; split; try easy; split; try easy; cbn; destruct Nat.eq_dec as [->|]; cbn.
         1, 5: destruct Nat.eq_dec; try easy; rewrite Eqdep_dec.UIP_dec with (p1 := e) (p2 := eq_refl); try easy; decide equality.
         1-3: now rewrite eval_predicate_subst_cons_shift_p with (Q := P).
         all: now rewrite <- eval_predicate_subst_cons_shift_p with (Q := P).
