@@ -308,35 +308,41 @@ Section EmbedSignature.
     | quant_pred op ar phi => quant_pred op ar (embed_form xO xS xA xEq phi)
   end.
 
-  Definition pred n := match n with 0 => 0 | S n => n end.
+  Definition insert {X : Type} (i : nat) (f : nat -> X) (x : X) (n : nat) :=
+    match Compare_dec.lt_eq_lt_dec n i with inleft (left _) => f n | inleft (right _) => x | inright _ => f (Nat.pred n) end.
+
+  Lemma insert_0_S {X : Type} i (f : nat -> X) x : insert (S i) f x 0 = f 0.
+  Proof. reflexivity. Qed.
+
+  Lemma insert_S_S {X : Type} n i (f : nat -> X) x : insert (S i) f x (S n) = insert i (fun n => f (S n)) x n.
+  Proof.
+    unfold insert.
+    destruct (Compare_dec.lt_eq_lt_dec _ _) as [[|]|]; destruct (Compare_dec.lt_eq_lt_dec _ _) as [[|]|].
+    all: destruct n as [|?]; trivial; lia.
+  Qed.
+ 
+  Lemma insert_ext' {X : Type} n i f f' (x : X) : (forall n, f n = f' n) -> insert i f x n = insert i f' x n.
+  Proof.
+    intro Hf. unfold insert. now destruct (Compare_dec.lt_eq_lt_dec n i) as [[?|?]|?].
+  Qed.
 
   (* Predicate that states that rho' contains the PA2 signature inserted at
       positions xO, xS, xA and xEq, and matches up with rho. *)
   Definition env_contains_PA2 (rho rho' : env D) xO xS xA xEq :=
     (forall n, get_indi rho n = get_indi rho' n) /\
     (forall n ar, get_func rho' n ar = match ar with 
-        | 0 => match Compare_dec.lt_eq_lt_dec n xO with inleft (left _) => get_func rho n 0 | inleft (right _) => @i_f _ _ D I Zero | inright _ => get_func rho (pred n) 0 end
-        | 1 => match Compare_dec.lt_eq_lt_dec n xS with inleft (left _) => get_func rho n 1 | inleft (right _) => @i_f _ _ D I Succ | inright _ => get_func rho (pred n) 1 end
-        | 2 => if Nat.eq_dec n xA then @i_f _ _ D I Plus else match Compare_dec.lt_eq_lt_dec n (S xA) with inleft (left _) => get_func rho n 2 | inleft (right _) => @i_f _ _ D I Mult | inright _ => get_func rho (pred (pred n)) 2 end
+        | 0 => insert xO (fun n => get_func rho n 0) (@i_f _ _ D I Zero) n
+        | 1 => insert xS (fun n => get_func rho n 1) (@i_f _ _ D I Succ) n
+        | 2 => insert xA (insert xA (fun n => get_func rho n 2) (@i_f _ _ D I Mult)) (@i_f _ _ D I Plus) n
         | ar => get_func rho n ar
       end) /\
     (forall n ar, get_pred rho' n ar = match ar with
-        | 2 => match Compare_dec.lt_eq_lt_dec n xEq with inleft (left _) => get_pred rho n 2 | inleft (right _) => @i_P _ _ D I Eq | inright _ => get_pred rho (pred n) 2 end
+        | 2 => insert xEq (fun n => get_pred rho n 2) (@i_P _ _ D I Eq) n
         | ar => get_pred rho n ar
       end).
 
   Local Arguments Nat.eq_dec : simpl never.
   Local Arguments Compare_dec.lt_eq_lt_dec : simpl never.
-
-  Ltac solve_env E :=
-    try destruct Compare_dec.lt_eq_lt_dec as [[|]|]; try lia;
-    try destruct Nat.eq_dec; try lia; cbn; try rewrite E;
-    try destruct Compare_dec.lt_eq_lt_dec as [[|]|]; try lia;
-    try destruct Nat.eq_dec; try lia;
-    try destruct Compare_dec.lt_eq_lt_dec as [[|]|]; try lia;
-    try destruct Nat.eq_dec; try lia; cbn; try rewrite E;
-    try destruct Compare_dec.lt_eq_lt_dec as [[|]|]; try lia;
-    try destruct Nat.eq_dec; try lia.
 
   Lemma env_contains_PA2_scons_i rho rho' xO xS xA xEq d :
     env_contains_PA2 rho rho' xO xS xA xEq -> env_contains_PA2 ⟨d .: get_indi rho, get_func rho, get_pred rho⟩ ⟨d .: get_indi rho', get_func rho', get_pred rho'⟩ xO xS xA xEq.
@@ -353,9 +359,12 @@ Section EmbedSignature.
       | _ => env_contains_PA2 ⟨get_indi rho, f .: get_func rho, get_pred rho⟩ ⟨get_indi rho', f .: get_func rho', get_pred rho'⟩ xO xS xA xEq
     end.
   Proof.
-    intros E. unfold econs, econs_func, econs_ar. destruct ar as [|[|[]]];
-    split; try apply E; split; try apply E; destruct E as [_ [E2 _]];
-    intros [|[|[]]] [|[|[]]]; solve_env E2; reflexivity.
+    intros E. unfold econs, econs_func, econs_ar.
+    destruct ar as [|[|[]]]; split; try apply E; split; try apply E; destruct E as [_ [E2 _]];
+    intros [|[|[]]] [|[|[]]]; rewrite ?insert_0_S, ?insert_S_S.
+    all: cbn; destruct Nat.eq_dec; try easy.
+    all: etransitivity; [apply E2|try reflexivity].
+    all: apply insert_ext'; intros ?; now rewrite insert_S_S.
   Qed.
 
   Lemma env_contains_PA2_scons_p {rho rho' xO xS xA xEq ar} (P : vec D ar -> Prop) :
@@ -365,9 +374,13 @@ Section EmbedSignature.
       | _ => env_contains_PA2 ⟨get_indi rho, get_func rho, P .: get_pred rho⟩ ⟨get_indi rho', get_func rho', P .: get_pred rho'⟩ xO xS xA xEq
     end.
   Proof.
-    intros E. unfold econs, econs_func, econs_ar. destruct ar as [|[|[]]];
+    intros E. unfold econs, econs_func, econs_ar.
+    destruct ar as [|[|[]]];
     split; try apply E; split; try apply E; destruct E as [_ [_ E3]];
-    intros [|[|[]]] [|[|[]]]; solve_env E3; reflexivity.
+    intros [|[|[]]] [|[|[]]]; rewrite ?insert_0_S, ?insert_S_S.
+    all: cbn; destruct Nat.eq_dec; try easy.
+    all: etransitivity; [apply E3|try reflexivity].
+    all: apply insert_ext'; intros ?; now rewrite insert_S_S.
   Qed.
 
   Lemma embed_term_correct rho rho' xO xS xA xEq t :
@@ -375,13 +388,17 @@ Section EmbedSignature.
   Proof.
     intros E. induction t; cbn.
     - apply E.
-    - destruct E as [_ [E2 _]]. apply map_ext_forall in IH. destruct ar as [|[|[]]];
-      try destruct Compare_dec.le_lt_dec; cbn; rewrite E2;
-      try destruct Compare_dec.lt_eq_lt_dec as [[|]|]; try lia;
-      try destruct Nat.eq_dec; try lia; now rewrite map_map, IH.
-    - destruct E as [_ [E2 _]]. apply map_ext_forall in IH. destruct f; cbn in *; 
+    - destruct E as [_ [E2 _]]. apply map_ext_forall in IH.
+      unfold insert in *.
+      destruct ar as [|[|[]]]; cbn.
+      all: try destruct Compare_dec.le_lt_dec; cbn; rewrite E2; cbn.
+      all: try destruct Compare_dec.lt_eq_lt_dec as [[|]|]; try lia;
+      try destruct Compare_dec.lt_eq_lt_dec as [[|]|]; try lia; now rewrite map_map, IH.
+    - destruct E as [_ [E2 _]]. apply map_ext_forall in IH.
+      unfold insert in *. destruct f; cbn in *; 
       rewrite E2; destruct Compare_dec.lt_eq_lt_dec as [[|]|]; try lia;
-      try destruct Nat.eq_dec; try lia; now rewrite map_map, IH.
+      try destruct Compare_dec.lt_eq_lt_dec as [[|]|]; try lia.
+      all: now rewrite map_map, IH.
   Qed.
 
   Lemma embed_form_correct rho rho' xO xS xA xEq phi :
@@ -393,11 +410,12 @@ Section EmbedSignature.
       { clear p. induction v. reflexivity. cbn; f_equal. 
         apply (embed_term_correct _ _ _ _ _ _ _ E). apply IHv. }
       destruct E as [_ [_ E3]]. destruct p; cbn.
-      + destruct ar as [|[|[]]];
+      + unfold insert in *.
+        destruct ar as [|[|[]]];
         try destruct Compare_dec.le_lt_dec; cbn; rewrite E3;
         try destruct Compare_dec.lt_eq_lt_dec as [[|]|]; try lia;
         now rewrite map_map, Hv'.
-      + destruct P; cbn in *. rewrite E3.
+      + unfold insert in *. destruct P; cbn in *. rewrite E3.
         destruct Compare_dec.lt_eq_lt_dec as [[|]|]; try lia.
         now rewrite map_map, Hv'.
     - specialize (IHphi1 rho rho' xO xS xA xEq E);
@@ -415,8 +433,6 @@ Section EmbedSignature.
   Qed.
 
 End EmbedSignature.
-
-
 
 (* Now we can translate satisfiability and validity for arbitrary models
     over arbitrary signatures to PA2 models. *)
