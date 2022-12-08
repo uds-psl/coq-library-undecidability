@@ -78,3 +78,9 @@ Instance term_isSome {T} `{encodable T} : computable (@isSome T).
 Proof.
   extract.
 Qed.
+
+#[global]
+Instance term_option_map {A B} `{encodable A} `{encodable B} : computable (@option_map A B).
+Proof.
+  extract.
+Qed.
