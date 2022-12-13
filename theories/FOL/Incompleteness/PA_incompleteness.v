@@ -180,7 +180,7 @@ Section Arithmetic.
       enumerable T -> complete T -> computational_explosion.
     Proof.
       intros HE HC. apply H10p_undec.
-      apply (@complete_reduction _ _ enum_PA_syms _ enum_PA_preds _ T HE) with embed.
+      apply (@complete_reduction PA_funcs_signature PA_preds_signature enumerable_PA_funcs _ enumerable_PA_preds _ T HE) with embed.
       - now apply std_T_consistent.
       - apply HC.
       - now apply reduction_theorem.

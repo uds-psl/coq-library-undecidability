@@ -106,3 +106,30 @@ Section FA_models.
 End FA_models.
 
 Arguments iμ {_ _} _.
+
+
+Section PA_to_Q.
+
+  Variable D : Type.
+  Variable I : interp D.
+  Notation "⊨ phi" := (forall rho, rho ⊨ phi) (at level 21).
+  Variable axioms : forall ax, PAeq ax -> ⊨ ax.
+
+  Lemma sat_Qeq : (forall ax, List.In ax Qeq -> ⊨ ax).
+  Proof using axioms.
+    intros x [<- |[<- |[<- |[<- |[<- |[<- |[<- |[<- |[<- |[<- |[<- |[<- |[<- |[]]]]]]]]]]]]]].
+    1-10: apply axioms; apply PAeq_FA; cbn; eauto 15; fail.
+    - apply axioms. apply PAeq_discr.
+    - apply axioms. apply PAeq_inj.
+    - intros ρ d. unfold ax_cases. evar (phi : form).
+      specialize (axioms (PAeq_induction phi)) as Hax. cbn in Hax. apply Hax.
+      + cbn. left. specialize (@axioms (∀ $0 == $0)). unshelve eapply axioms. 1:easy.
+        apply PAeq_FA; cbn; eauto 15.
+      + intros dd _. cbn. right. exists dd.
+        specialize (@axioms (∀ $0 == $0)). unshelve eapply axioms. 1:easy.
+        apply PAeq_FA; cbn; eauto 15.
+  Qed.
+
+End PA_to_Q.
+
+

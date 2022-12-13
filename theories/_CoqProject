@@ -790,6 +790,10 @@ SOL/PA2_undec.v
 
 
 FOL/Syntax/Core.v
+FOL/Syntax/Subst.v
+FOL/Syntax/Bounded.v
+FOL/Syntax/DiscreteEnumerable.v
+FOL/Syntax/SyntacticOps.v
 FOL/Syntax/Facts.v
 FOL/Syntax/BinSig.v
 FOL/Syntax/Theories.v
@@ -951,3 +955,15 @@ FOL/Tennenbaum/Church.v
 FOL/Tennenbaum/Formulas.v
 FOL/Tennenbaum/Coding.v
 FOL/Tennenbaum/Diagonal.v
+
+FOL/Tennenbaum2/SyntheticInType.v
+FOL/Tennenbaum2/NumberUtils.v
+FOL/Tennenbaum2/MoreDecidabilityFacts.v
+FOL/Tennenbaum2/Peano.v
+FOL/Tennenbaum2/Formulas.v
+FOL/Tennenbaum2/Church.v
+FOL/Tennenbaum2/CantorPairing.v
+FOL/Tennenbaum2/Coding.v
+FOL/Tennenbaum2/Tennenbaum_diagonal.v
+FOL/Tennenbaum2/Tennenbaum_insep.v
+FOL/Tennenbaum2/Variants.v

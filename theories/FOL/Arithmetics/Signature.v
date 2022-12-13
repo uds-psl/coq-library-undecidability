@@ -2,7 +2,7 @@
 (* ** Signature *)
 
 Require Import Undecidability.FOL.FullSyntax.
-From Undecidability.Synthetic Require Import EnumerabilityFacts.
+From Undecidability.Synthetic Require Import EnumerabilityFacts ListEnumerabilityFacts.
 Import Vector.VectorNotations.
 Require Import List.
 
@@ -23,8 +23,14 @@ match f with
  | Mult => 2
  end.
 
+Definition PA_funcs_eq (x y:PA_funcs) : {x=y} + {x<>y}.
+Proof. decide equality. Defined.
+
 Inductive PA_preds : Type :=
   Eq : PA_preds.
+
+Definition PA_preds_eq (x y:PA_preds) : {x=y} + {x<>y}.
+Proof. decide equality. Defined.
 
 Definition PA_preds_ar (P : PA_preds) :=
 match P with
@@ -40,24 +46,33 @@ Instance PA_funcs_signature : funcs_signature :=
 Instance PA_preds_signature : preds_signature :=
 {| preds := PA_preds ; ar_preds := PA_preds_ar |}.
 
-
-Lemma enumerable_PA_funcs : enumerable__T PA_funcs.
-Proof.
-  cbn. exists (fun k => match k with
+Definition enum_PA_funcs : nat -> option PA_funcs := (fun k => match k with
     | 0 => Some Zero
     | 1 => Some Succ
     | 2 => Some Plus
     | _ => Some Mult
     end).
+Lemma enumerator_PA_funcs : enumerator__T enum_PA_funcs PA_funcs.
+Proof.
   intros [].
   + now exists 0.
   + now exists 1.
   + now exists 2.
   + now exists 3.
 Qed.
+Lemma enumerable_PA_funcs : enumerable__T PA_funcs.
+Proof.
+  cbn. exists enum_PA_funcs. apply enumerator_PA_funcs.
+Qed.
+
+Definition enum_PA_preds : nat -> option PA_preds := (fun k => Some Eq).
+Lemma enumerator_PA_preds : enumerator__T enum_PA_preds PA_preds.
+Proof.
+  intros []. now exists 0.
+Qed.
 Lemma enumerable_PA_preds : enumerable__T PA_preds.
 Proof.
-  exists (fun _ => Some Eq). intros []. now exists 0.
+  exists enum_PA_preds. apply enumerator_PA_preds.
 Qed.
 
 

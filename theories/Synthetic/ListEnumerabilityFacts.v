@@ -99,6 +99,13 @@ Section enumerator_list_enumerator.
 
 End enumerator_list_enumerator.
 
+Lemma enumerator_list_enumerator {X} {p : X -> Prop} {T} :
+  enumerator T p -> list_enumerator (fun n =>  match T n with Some x => [x] | None => [] end) p.
+Proof.
+  unfold enumerator.
+  intros H x. rewrite H. apply enumerator_to_list_enumerator.
+Qed.
+
 Lemma list_enumerator_enumerator {X} {p : X -> Prop} {T} :
   list_enumerator T p -> enumerator (fun n => let (n, m) := Cantor.of_nat n in
     nth_error (T n) m) p.
