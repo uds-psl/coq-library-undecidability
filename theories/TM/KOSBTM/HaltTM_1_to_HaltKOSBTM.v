@@ -57,12 +57,12 @@ Section red.
     Proof.
       induction 1.
         + eapply KOSBTM.eval_halt. cbn. now rewrite Hg, H.
-        + TM_facts.destruct_tapes. cbn in *.
+        + rewrite (destruct_vector_single t), (destruct_vector_single a) in *. cbn in *.
           rewrite <- current_red in H0.
-          destruct TM.trans eqn:E. inv H0. destruct h0 as (w, m).
-          eapply KOSBTM.eval_step with (q' := conv_state q') (w := w) (m := conv_move m). cbn. rewrite Hg, H, E.
-          reflexivity.
-          now rewrite wr_red, mv_red.
+          destruct TM.trans eqn:E. inv H0. destruct (Vector.hd a) as (w, m).
+          eapply KOSBTM.eval_step with (q' := conv_state q') (w := w) (m := conv_move m).
+          * cbn. rewrite Hg, H, E. reflexivity.
+          * now rewrite wr_red, mv_red.
     Qed.
 
     Lemma red_correct2 q t q'_ t'_ :
@@ -94,15 +94,17 @@ Section red.
             rewrite Hg.
             destruct TM.halt eqn:E.
             -- intros [=].
-            -- TM_facts.destruct_tapes.
-               destruct TM.trans eqn:Et.
-               destruct (Vector.hd _) eqn:E't.
+            -- rewrite (destruct_vector_single t) in *.
+               destruct TM.trans as [? to] eqn:Et.
+               cbn in *. destruct (Vector.hd to) eqn:E't.
                intros [=]; subst.
                rewrite current_red in Et.
-               cbn. edestruct IHeval as (q''' & t''' & ? & ? & ?).
+               edestruct IHeval as (q''' & t''' & ? & ? & ?).
                ++ reflexivity.
                ++ rewrite wr_red, mv_red. reflexivity.
-               ++ destruct_vector. cbn in *. subst. repeat esplit; [eassumption..|]. econstructor; eassumption.
+               ++ rewrite (destruct_vector_single t), (destruct_vector_single t''') in *.
+                  cbn in *. subst. repeat esplit; [eassumption..|]. econstructor; [eassumption..|].
+                  now rewrite (destruct_vector_single to), E't.
     Qed.
 
 End red.

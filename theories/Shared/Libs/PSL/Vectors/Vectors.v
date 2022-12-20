@@ -21,32 +21,9 @@ End VectorNotations2.
 
 Import VectorNotations2.
 
-Lemma destruct_vector_nil (X : Type) :
-  forall v : Vector.t X 0, v = [| |].
-Proof.
-  now apply case0.
-Qed.
-
-Lemma destruct_vector_cons (X : Type) (n : nat) :
-  forall v : Vector.t X (S n), { h : X & { v' : Vector.t X n | v = h ::: v' }}.
-Proof.
-  revert n. apply caseS. eauto.
-Qed.
-
-(* Destruct a vector of known size *)
-Ltac destruct_vector :=
-  repeat match goal with
-         | [ v : Vector.t ?X 0 |- _ ] =>
-           let H  := fresh "Hvect" in
-           pose proof (@destruct_vector_nil X v) as H;
-           subst v
-         | [ v : Vector.t ?X (S ?n) |- _ ] =>
-           let h  := fresh "h" in
-           let v' := fresh "v'" in
-           let H  := fresh "Hvect" in
-           pose proof (@destruct_vector_cons X n v) as (h&v'&H);
-           subst v; rename v' into v
-         end.
+Lemma destruct_vector_single {X : Type} (v : Vector.t X 1) :
+  v = [| Vector.hd v |].
+Proof. rewrite (Vector.eta v). generalize (Vector.tl v). now apply Vector.case0. Qed.
 
 #[global] Instance Vector_eq_dec n A: eq_dec A -> eq_dec (Vector.t A n).
 Proof.

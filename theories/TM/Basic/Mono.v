@@ -52,7 +52,7 @@ Section DoAct.
     Mk_R_p (ignoreParam (fun t t' => t' = doAct t act)).
 
   Lemma DoAct_Sem : DoAct ⊨c(1) DoAct_Rel.
-  Proof. intros t. destruct_tapes. cbn. unfold initc; cbn. eexists (mk_mconfig _ _); cbn; eauto. Qed.
+  Proof. intros t. rewrite (destruct_tape t). cbn. eexists (mk_mconfig _ _); eauto. Qed.
 
 End DoAct.
 
@@ -147,7 +147,7 @@ Section CaseChar.
 
   Definition CaseChar_Sem : CaseChar ⊨c(1) CaseChar_Rel.
   Proof.
-    intros t. destruct_tapes. cbn. unfold initc; cbn.
+    intros t. rewrite (destruct_tape t). cbn.
     unfold current_chars.
     now eexists (mk_mconfig _ _).
   Qed.

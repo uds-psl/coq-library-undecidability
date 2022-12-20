@@ -267,7 +267,8 @@ Section MoveToSymbol.
   Proof.
     eapply Realise_monotone.
     - eapply Mirror_Realise. eapply MoveToSymbol_Realise.
-    - intros tin (y&tout) H. hnf in *. destruct_tapes; cbn in *. rewrite mirror_tapes_nth in H. cbn in H.
+    - intros tin (y&tout) H. hnf in *.
+      rewrite (destruct_tape tin) in *. cbn in *. rewrite mirror_tapes_nth in H. cbn in H.
       symmetry in H. apply MoveToSymbol_mirror in H as ->. reflexivity.
   Qed.
 
@@ -294,7 +295,9 @@ Section MoveToSymbol.
   Proof.
     eapply TerminatesIn_monotone.
     - eapply Mirror_Terminates. eapply MoveToSymbol_Terminates.
-    - cbn. intros tin k Hk. destruct_tapes; cbn. rewrite <- Hk. unfold mirror_tapes. rewrite MoveToSymbol_steps_mirror. cbn. auto.
+    - cbn. intros tin k Hk.
+      rewrite (destruct_tape tin) in *. cbn in *. rewrite <- Hk.
+      unfold mirror_tapes. rewrite MoveToSymbol_steps_mirror. constructor.
   Qed.
 
 End MoveToSymbol.

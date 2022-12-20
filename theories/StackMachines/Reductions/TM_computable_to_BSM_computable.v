@@ -1001,8 +1001,8 @@ Proof.
   destruct (@POSTP_spec k n Σ s b (length (PREP ++ Mbsm))) as [POSTP HPOSTP].
   eapply BSM_computable_iff.
   eexists. exists 0. exists (PREP ++ Mbsm ++ POSTP). split.
-  - intros v m (q & t & Heval & Hhd)% HM1. eapply Hf in Heval.
-    cbn in t. destruct_tapes. cbn in Hhd. subst.
+  - intros v m (q & t & Heval & Hhd)% HM1. rewrite (Vector.eta t), Hhd in Heval.
+    eapply Hf in Heval.
     eapply BSM_sss.eval_iff in Heval.
     setoid_rewrite BSM_sss.eval_iff. fold plus.
     edestruct (HPOSTP) as [out HPOSTP'].
