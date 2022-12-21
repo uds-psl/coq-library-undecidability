@@ -58,7 +58,7 @@ Qed.
 
 Lemma vector_to_list_eta (X : Type) (n : nat) (v : Vector.t X (S n)) :
   Vector.hd v :: vector_to_list (Vector.tl v) = vector_to_list v.
-Proof. destruct_vector. cbn. reflexivity. Qed.
+Proof. rewrite (Vector.eta v). reflexivity. Qed.
 
 Section Fin.
 
@@ -259,9 +259,8 @@ Lemma map_vect_list_eq (X Y : Type) (n1 : nat) (f : X -> Y -> X) (vs : Vector.t 
   map_vect_list f vs (vector_to_list xs) = vector_to_list (Vector.map2 f xs vs).
 Proof.
   revert xs. induction vs as [ | v n1 vs IH]; intros; cbn in *.
-  - destruct_vector. reflexivity.
-  - pose proof destruct_vector_cons xs as (x'&xs'&->). cbn.
-    f_equal. apply IH.
+  - revert xs. apply Vector.case0. reflexivity.
+  - apply (Vector.caseS' xs). intros. cbn. f_equal. apply IH.
 Qed.
 
 Section BookKeepingForRead.
@@ -282,8 +281,8 @@ Section BookKeepingForRead.
     knowsFirstSymbols readSymbols nil.
   Proof.
     destruct n.
-    - destruct_vector. cbn. tauto.
-    - destruct_vector. cbn. tauto.
+    - revert readSymbols. apply Vector.case0. cbn. tauto.
+    - rewrite (Vector.eta _). constructor.
   Qed.
 
   Definition insertKnownSymbol {n : nat} (readSymbols : Vector.t (option sig) n) (i : Fin.t n) (s : option sig) : Vector.t (option sig) n :=
@@ -337,8 +336,8 @@ Section BookKeepingForRead.
     symbols = current_chars T.
   Proof.
     induction T as [ | tp n T IH]; intros; cbn in *.
-    - destruct_vector. reflexivity.
-    - destruct_vector. unfold current_chars. cbn in *. destruct H as [ <- H]. f_equal. auto.
+    - clear H. revert symbols. apply Vector.case0. reflexivity.
+    - rewrite (Vector.eta symbols) in *. unfold current_chars. cbn in *. destruct H as [ <- H]. f_equal. auto.
   Qed.
 
   Lemma insertKnownSymbols_correct_cons n (T : tapes sig (S n)) (min minSucc : Fin.t (S n)) :
@@ -358,7 +357,7 @@ Section BookKeepingForRead.
       destruct n as [ | n'].
       + destruct_fin minSucc; auto. lia.
       + assert (minSucc = Fin.FS Fin.F1) as -> by now apply fin_is_1.
-        destruct_tapes. cbn. auto.
+        cbn. rewrite (Vector.eta T), (Vector.eta (Vector.tl T)) in *. auto.
   Qed.
       
     
@@ -1116,7 +1115,7 @@ Section ToSingleTape.
         eapply Realise_monotone.
         { now auto with TMdb. }
         { intros tin (yout, tout) H. intros T HEncT. unfold contains_tapes in *. TMSimp.
-          apply finMin_opt_None in E as ->. now destruct_tapes. }
+          apply finMin_opt_None in E as ->. revert T. now apply Vector.case0. }
       }
       {
         eapply Realise_monotone.
@@ -1128,7 +1127,7 @@ Section ToSingleTape.
           specialize (HLoop_cons nil (Vector.hd T') (vector_to_list (Vector.tl T'))). cbn in *.
           rewrite E_val in HLoop_cons. subst. specialize HLoop_cons with (1 := eq_refl). spec_assert HLoop_cons.
           { rewrite Vector.length_to_list. apply Nat.eqb_eq. reflexivity. } spec_assert HLoop_cons.
-          { hnf. cbn. clear. destruct_tapes. cbn. f_equal. simpl_list. now rewrite vector_cast_refl. }
+          { hnf. cbn. clear. subst T'. rewrite (Vector.eta T). cbn. f_equal. simpl_list. now rewrite vector_cast_refl. }
           spec_assert HLoop_cons as [HLoop_cons1 ->] by (cbn; tauto).
           rewrite vector_to_list_eta in HLoop_cons1. subst T'. rewrite vector_cast_refl in *. split; auto. 
           destruct (finSucc_opt min) as [minSucc | ] eqn:E2.
@@ -1137,7 +1136,7 @@ Section ToSingleTape.
           - apply finSucc_opt_None' in E2.
             apply Nat.succ_inj in E2. assert (n' = 0) as -> by lia. cbn.
             compute [insertKnownSymbol]. destruct_fin min. cbn.
-            destruct_tapes. cbn. unfold current_chars. cbn. reflexivity.
+            rewrite (destruct_tape T). reflexivity.
         }
       }
     Qed.
@@ -1162,20 +1161,21 @@ Section ToSingleTape.
           pose proof finMin_opt_Some E as (n'&E'). pose proof finMin_opt_Some_val E as E_val.
           pose (T' := Vector.cast T E').
           exists 1, (ReadCurrentSymbols_Loop_steps_cons (vector_to_list (Vector.tl T')) (Vector.hd T')). repeat split; try lia.
-          { rewrite <- Hk. clear. subst n T'. rewrite !vector_cast_refl. destruct_tapes. cbn. reflexivity. }
+          { rewrite <- Hk. clear. subst n T'. rewrite !vector_cast_refl. rewrite (Vector.eta T). reflexivity. }
           {
             intros tmid [] HMove. cbn in HMove. hnf. left. exists (nil), (vector_to_list (Vector.tl T')), (Vector.hd T'). cbn. rewrite E_val. cbn. repeat split; auto.
             - rewrite Vector.length_to_list. apply Nat.eqb_eq. lia.
             - apply knowsFirstSymbols_nil.
             - rewrite HMove. hnf in HEncT. cbn in *. rewrite HEncT. clear. subst n T'. cbn. rewrite !vector_cast_refl.
-              destruct_tapes. cbn. hnf. f_equal. now rewrite !map_app, !List.map_map, <- !app_assoc.
+              rewrite (Vector.eta T). cbn. hnf. f_equal. now rewrite !map_app, !List.map_map, <- !app_assoc.
           }
         }
       }
       { eapply TerminatesIn_monotone.
         { now auto with nocore TMdb. }
         {
-          intros tin k (T&HEnc&Hk). rewrite <- Hk. apply finMin_opt_None in E. revert E. clear. intros E. subst. destruct_tapes. cbn. unfold ReadCurrentSymbols_Loop_steps_nil, ReadCurrentSymbols_Step_steps_nil. lia.
+          intros tin k (T&HEnc&Hk). rewrite <- Hk. apply finMin_opt_None in E. revert E. clear.
+          intros E. revert T. subst. apply Vector.case0. apply Nat.le_add_r.
         }
       }
     Qed.
@@ -1906,7 +1906,7 @@ Section ToSingleTape.
           specialize (HLoop_Nil nil tps tp).
           spec_assert HLoop_Nil by now rewrite E. spec_assert HLoop_Nil by auto. spec_assert HLoop_Nil.
           { cbn. unfold atStart in HStart. TMSimp. hnf. f_equal. now rewrite map_app, <- app_assoc. }
-          destruct_vector. cbn. auto.
+          rewrite (Vector.eta acts) in *. assumption.
         }
       }
     Qed.

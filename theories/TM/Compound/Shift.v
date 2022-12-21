@@ -230,7 +230,9 @@ Section Shift.
     { unfold Shift_L. apply Mirror_Realise, Shift_Realise. }
     {
       intros tin ([], tout) H. hnf in H; hnf.
-      destruct_tapes; cbn in *. now apply Shift_fun_mirror in H.
+      rewrite (destruct_tape tin) in *.
+      rewrite (destruct_tape tout) in *.
+      now apply Shift_fun_mirror in H.
     }
   Qed.
 

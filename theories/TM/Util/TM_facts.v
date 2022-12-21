@@ -192,7 +192,10 @@ End Fix_Sigma.
 
 
 (* Tactic to destruct a vector of tapes of known size *)
-Ltac destruct_tapes := unfold tapes in *; destruct_vector.
+Lemma destruct_tape {X : Type} (ts : tapes X 1) : ts = [| Vector.hd ts |].
+Proof.
+  unfold tapes in *. rewrite (Vector.eta ts). generalize (Vector.tl ts). now apply Vector.case0.
+Qed.
 
 (* Simplification Database for tapes and vectors *)
 Create HintDb tape.

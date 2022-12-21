@@ -69,7 +69,8 @@ Proof.
         repeat apply f_equal. 
         eapply loop_injective in HH. 2: exact H. inv HH.
         unfold contains_tapes in H3. cbn in H3.
-        destruct_tapes. cbn in H3. subst. reflexivity.
+        rewrite (destruct_tape t'') in *.
+        cbn in *. rewrite H3. reflexivity.
   - intros t. intros (q & t' & [k H] % TM_eval_iff).
     pose proof (ToSingleTape_Realise' (pM := mk_pTM M)).
     specialize (H0 (fun t '(f,t') => exists outc k, loopM (initc M t) k = Some outc /\ ctapes outc = t')).
