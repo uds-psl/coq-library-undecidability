@@ -2,7 +2,7 @@ From Undecidability.FOL Require Import FullSyntax.
 From Undecidability.FOL.Arithmetics Require Import Signature PA DeductionFacts.
 From Undecidability.FOL.Syntax Require Import Theories.
 From Undecidability.Shared Require Import ListAutomation.
-From Undecidability.FOL.Tennenbaum2 Require Import NumberUtils Formulas SyntheticInType Peano.
+From Undecidability.FOL.Tennenbaum Require Import NumberUtils Formulas SyntheticInType Peano.
 
 (* Require Import FOL Tarski Deduction Peano Formulas NumberTheory Synthetic DecidabilityFacts. *)
 Require Import Lia.

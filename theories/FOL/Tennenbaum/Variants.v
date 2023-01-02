@@ -3,7 +3,7 @@ From Undecidability.FOL.Arithmetics Require Import Signature PA DeductionFacts.
 From Undecidability.FOL.Syntax Require Import Theories.
 From Undecidability.Shared Require Import ListAutomation.
 From Undecidability.Synthetic Require Import ListEnumerabilityFacts.
-From Undecidability.FOL.Tennenbaum2 Require Import MoreDecidabilityFacts Church Coding NumberUtils Formulas SyntheticInType Peano CantorPairing Tennenbaum_diagonal Tennenbaum_insep.
+From Undecidability.FOL.Tennenbaum Require Import MoreDecidabilityFacts Church Coding NumberUtils Formulas SyntheticInType Peano CantorPairing Tennenbaum_diagonal Tennenbaum_insep.
 
 Require Import Lia.
 Import Vector.VectorNotations.
@@ -184,7 +184,7 @@ Qed.
 Print Assumptions Tennenbaum_insep.
 
 
-Theorem Tennenbaum2 :
+Theorem Tennenbaum :
   MP ->
   Discrete D ->
   (forall d, ~~Dec (Div_nat d)) <-> (forall e, std e).
@@ -196,7 +196,7 @@ Proof.
   - intros ??. eapply DN, Dec_Div_nat_std; eauto.
 Qed.
 
-Print Assumptions Tennenbaum2.
+Print Assumptions Tennenbaum.
 
 (*
 (** ** Makholm's Variant *)
@@ -263,12 +263,12 @@ End T.
 
 Definition PA_model D I := forall ax, PA ax -> forall rho, @sat _ _ D (extensional_model I) _ rho ax.
 
-Theorem Tennenbaum2 {Δ1 : Delta1} D (I : interp D) :
+Theorem Tennenbaum {Δ1 : Delta1} D (I : interp D) :
  CT_Q -> MP ->
  PA_model I -> Discrete D ->
  (forall d, ~~Dec(T.Div_nat I d)) <-> (forall e, std e).
 Proof.
-  intros; now apply T.Tennenbaum2.
+  intros; now apply T.Tennenbaum.
 Qed.
 (*
 

@@ -2,7 +2,7 @@ From Undecidability.FOL Require Import FullSyntax.
 From Undecidability.FOL.Arithmetics Require Import Signature PA DeductionFacts.
 From Undecidability.FOL.Syntax Require Import Theories.
 From Undecidability.Shared Require Import ListAutomation.
-From Undecidability.FOL.Tennenbaum2 Require Import MoreDecidabilityFacts Church Coding NumberUtils Formulas SyntheticInType Peano CantorPairing.
+From Undecidability.FOL.Tennenbaum Require Import MoreDecidabilityFacts Church Coding NumberUtils Formulas SyntheticInType Peano CantorPairing.
 
 (* Require Import FOL Peano Tarski Deduction CantorPairing NumberTheory Synthetic DecidabilityFacts Formulas Coding Church. *)
 Require Import Lia.

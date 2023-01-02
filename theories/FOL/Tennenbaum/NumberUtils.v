@@ -1,6 +1,6 @@
 Require Import Arith Lia Nat.
 From Undecidability.Synthetic Require Import DecidabilityFacts.
-From Undecidability.FOL.Tennenbaum2 Require Import SyntheticInType MoreDecidabilityFacts.
+From Undecidability.FOL.Tennenbaum Require Import SyntheticInType MoreDecidabilityFacts.
 Notation dec_eq_nat := Nat.eq_dec.
 
 Definition iffT (x y : Type) := prod (x->y) (y->x).

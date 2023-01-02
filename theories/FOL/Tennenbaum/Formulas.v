@@ -1,7 +1,7 @@
 From Undecidability.FOL Require Import FullSyntax.
 From Undecidability.FOL.Arithmetics Require Import Signature PA NatModel DeductionFacts.
 From Undecidability.FOL.Syntax Require Import Theories.
-From Undecidability.FOL.Tennenbaum2 Require Import NumberUtils SyntheticInType NumberUtils Peano.
+From Undecidability.FOL.Tennenbaum Require Import NumberUtils SyntheticInType NumberUtils Peano.
 From Undecidability.Shared Require Import ListAutomation.
 Require Import List Lia.
 Import Vector.VectorNotations.
