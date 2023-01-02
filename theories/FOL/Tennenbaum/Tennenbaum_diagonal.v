@@ -184,6 +184,7 @@ Section Model.
       The double negation can actually also be eliminated, and this
       is done in Variants.v, where the needed lemmas are shown.    
    *)
+
   Theorem Tennenbaum_diagonal :
     CT_Q -> MP -> Enumerable D -> Discrete D -> ~~ forall e, std e.
   Proof.
