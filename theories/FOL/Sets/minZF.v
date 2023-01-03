@@ -1,9 +1,7 @@
 (* * ZF set theory without Skolem function symbols *)
 (* ** Axiomatisations using membership and equality *)
 
-Require Export Undecidability.FOL.Syntax.Core.
-Require Export Undecidability.FOL.Semantics.Tarski.FullFacts.
-Require Export Undecidability.FOL.Deduction.FullNDFacts.
+Require Export Undecidability.FOL.FullSyntax.
 Require Export Undecidability.FOL.Sets.Signatures.
 Require Export Undecidability.FOL.Sets.ZF.
 Import Vector.VectorNotations.

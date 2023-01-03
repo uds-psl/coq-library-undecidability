@@ -1,13 +1,10 @@
 (* * ZF set theory with Skolem function symbols *)
 (* ** Axiomatisations *)
 
-Require Export Undecidability.FOL.Syntax.Core.
-Require Export Undecidability.FOL.Semantics.Tarski.FullFacts.
-Require Export Undecidability.FOL.Deduction.FullNDFacts.
+Require Export Undecidability.FOL.FullSyntax.
 Require Export Undecidability.FOL.Sets.Signatures.
 Import Vector.VectorNotations.
 Require Import List.
-
 
 Declare Scope syn.
 Open Scope syn.

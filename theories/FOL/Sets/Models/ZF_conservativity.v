@@ -6,7 +6,7 @@ From Undecidability.FOL
 From Undecidability.FOL.Sets
      Require Import ZF minZF.
 
-From Undecidability.FOL.Undecidability.Reductions
+From Undecidability.FOL.Reductions
      Require Import PCPb_to_ZF PCPb_to_minZF PCPb_to_ZFD.
 
 From Undecidability Require Import Shared.ListAutomation.

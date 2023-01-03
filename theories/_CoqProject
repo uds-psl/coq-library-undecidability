@@ -1,4 +1,5 @@
 -Q . Undecidability
+-docroot .
 
 -arg -w -arg -notation-overridden
 COQDOCFLAGS = "--charset utf-8 -s --with-header ../website/resources/header.html --with-footer ../website/resources/footer.html --index indexpage"
@@ -821,9 +822,6 @@ FOL/Semantics/Kripke/FragmentCore.v
 FOL/Semantics/Kripke/FragmentToTarski.v
 FOL/Semantics/Kripke/FragmentSoundness.v
 
-FOL/Semantics/Heyting/Heyting.v
-FOL/Semantics/Heyting/Soundness.v
-
 FOL/Arithmetics/Signature.v
 FOL/Arithmetics/FA.v
 FOL/Arithmetics/Robinson.v
@@ -848,108 +846,62 @@ FOL/Sets/Models/ZF_model.v
 FOL/Sets/Models/HF_model.v
 FOL/Sets/Models/ZF_conservativity.v
 
-FOL/Utils/FriedmanTranslation.v
-FOL/Utils/FriedmanTranslationFragment.v
-FOL/Utils/PrenexNormalForm.v
-
 FOL/FullSyntax.v
 FOL/FragmentSyntax.v
 
-FOL/Deduction/FullSequent.v
-FOL/Deduction/FullSequentFacts.v
-FOL/Completeness/TarskiConstructions.v
-FOL/Completeness/Consistency.v
-FOL/Completeness/EnumerationUtils.v
-FOL/Completeness/TarskiCompleteness.v
-FOL/Completeness/KripkeCompleteness.v
-FOL/Completeness/HeytingMacNeille.v
-FOL/Completeness/HeytingCompleteness.v
 
-FOL/Deduction/FragmentSequent.v
-FOL/Deduction/FragmentSequentFacts.v
 
-FOL/Undecidability/Reductions/PCPb_to_FST.v
-FOL/Undecidability/Reductions/PCPb_to_FSTD.v
-FOL/Undecidability/Reductions/PCPb_to_HF.v
-FOL/Undecidability/Reductions/PCPb_to_HFD.v
-FOL/Undecidability/Reductions/PCPb_to_ZF.v
-FOL/Undecidability/Reductions/PCPb_to_ZFD.v
-FOL/Undecidability/Reductions/PCPb_to_minZF.v
-FOL/Undecidability/Reductions/PCPb_to_ZFeq.v
-FOL/Undecidability/Reductions/PCPb_to_minZFeq.v
-FOL/Undecidability/Reductions/ZF_to_HF.v
-FOL/Undecidability/Reductions/ZF_to_FST.v
-FOL/Undecidability/Reductions/PCPb_to_binZF.v
-FOL/Undecidability/Reductions/binZF_to_binFST.v
 
-FOL/Undecidability/Reductions/FSATd_to_FSATdc.v
-FOL/Undecidability/Reductions/TRAKHTENBROT_to_FSAT.v
-FOL/Undecidability/Reductions/PCPb_to_FSAT.v
-FOL/Undecidability/Reductions/PCPb_to_FOL.v
-FOL/Undecidability/Reductions/PCPb_to_FOL_class.v
-FOL/Undecidability/Reductions/PCPb_to_FOL_intu.v
-FOL/Undecidability/Reductions/H10p_to_FA.v
-FOL/Undecidability/Reductions/H10UPC_to_FOL.v
-FOL/Undecidability/Reductions/H10UPC_to_FOL_full_fragment.v
-FOL/Undecidability/Reductions/H10UPC_to_FSAT.v
-FOL/Undecidability/Reductions/H10UPC_to_FOL_minimal.v
-FOL/Undecidability/Reductions/H10UPC_to_FOL_constructions.v
-FOL/Undecidability/Reductions/H10UPC_to_FOL_friedman.v
 
-FOL/Undecidability/FOL.v
-FOL/Undecidability/FOL_undec.v
-FOL/Undecidability/binFOL_undec.v
-FOL/Undecidability/minFOL_undec.v
-FOL/Undecidability/FSAT_undec.v
-FOL/Undecidability/FSAT_direct_undec.v
-FOL/Undecidability/PA_undec.v
-FOL/Undecidability/ZF_undec.v
-FOL/Undecidability/minZF_undec.v
-FOL/Undecidability/binZF_undec.v
-FOL/Undecidability/FST_undec.v
-FOL/Undecidability/binFST_undec.v
-FOL/Undecidability/FSAT.v
 
-FOL/Incompleteness/Abstract.v
-FOL/Incompleteness/Axiomatisations.v
-FOL/Incompleteness/PA_incompleteness.v
-FOL/Incompleteness/utils.v
-FOL/Incompleteness/epf.v
-FOL/Incompleteness/epf_mu.v
-FOL/Incompleteness/formal_systems.v
-FOL/Incompleteness/abstract_incompleteness.v
-FOL/Incompleteness/fol_utils.v
-FOL/Incompleteness/qdec.v
-FOL/Incompleteness/sigma1.v
-FOL/Incompleteness/bin_qdec.v
-FOL/Incompleteness/weak_strong.v
-FOL/Incompleteness/ctq.v
-FOL/Incompleteness/fol_incompleteness.v
 
-FOL/Reification/GeneralReflection.v
-FOL/Reification/DemoPA.v
-FOL/Reification/DemoPAExtensional.v
 
-FOL/Proofmode/StringToIdent.v
-FOL/Proofmode/Hoas.v
-FOL/Proofmode/Theories.v
-FOL/Proofmode/ProofMode.v
-FOL/Proofmode/DemoPA.v
-FOL/Proofmode/DemoZF.v
-FOL/Proofmode/DemoMinZF.v
 
-FOL/ArithmeticalHierarchy/ArithmeticalHierarchySyntactic.v
-FOL/ArithmeticalHierarchy/ArithmeticalHierarchySemantic.v
-FOL/ArithmeticalHierarchy/ArithmeticalHierarchyEquiv.v
 
-FOL/Tennenbaum/SyntheticInType.v
-FOL/Tennenbaum/NumberUtils.v
-FOL/Tennenbaum/MoreDecidabilityFacts.v
-FOL/Tennenbaum/Peano.v
-FOL/Tennenbaum/Formulas.v
-FOL/Tennenbaum/Church.v
-FOL/Tennenbaum/CantorPairing.v
-FOL/Tennenbaum/Coding.v
-FOL/Tennenbaum/Tennenbaum_diagonal.v
-FOL/Tennenbaum/Tennenbaum_insep.v
-FOL/Tennenbaum/Variants.v
+
+
+FOL/Reductions/PCPb_to_FST.v
+FOL/Reductions/PCPb_to_FSTD.v
+FOL/Reductions/PCPb_to_HF.v
+FOL/Reductions/PCPb_to_HFD.v
+FOL/Reductions/PCPb_to_ZF.v
+FOL/Reductions/PCPb_to_ZFD.v
+FOL/Reductions/PCPb_to_minZF.v
+FOL/Reductions/PCPb_to_ZFeq.v
+FOL/Reductions/PCPb_to_minZFeq.v
+FOL/Reductions/ZF_to_HF.v
+FOL/Reductions/ZF_to_FST.v
+FOL/Reductions/PCPb_to_binZF.v
+FOL/Reductions/binZF_to_binFST.v
+
+FOL/Reductions/FSATd_to_FSATdc.v
+FOL/Reductions/TRAKHTENBROT_to_FSAT.v
+FOL/Reductions/PCPb_to_FSAT.v
+FOL/Reductions/PCPb_to_FOL.v
+FOL/Reductions/PCPb_to_FOL_class.v
+FOL/Reductions/PCPb_to_FOL_intu.v
+FOL/Reductions/H10p_to_FA.v
+FOL/Reductions/H10UPC_to_FOL_full_fragment.v
+FOL/Reductions/H10UPC_to_FSAT.v
+FOL/Reductions/H10UPC_to_FOL_constructions.v
+
+FOL/Reductions/H10UPC_to_FOL.v
+FOL/Reductions/H10UPC_to_FOL_minimal.v
+FOL/Reductions/H10UPC_to_FOL_friedman.v
+
+FOL/Utils/FriedmanTranslation.v
+FOL/Utils/FriedmanTranslationFragment.v
+
+FOL/FOL.v
+FOL/FOL_undec.v
+FOL/binFOL_undec.v
+FOL/minFOL_undec.v
+FOL/FSAT_undec.v
+FOL/FSAT_direct_undec.v
+FOL/PA_undec.v
+FOL/ZF_undec.v
+FOL/minZF_undec.v
+FOL/binZF_undec.v
+FOL/FST_undec.v
+FOL/binFST_undec.v
+FOL/FSAT.v

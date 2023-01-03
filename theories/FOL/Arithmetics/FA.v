@@ -1,8 +1,6 @@
 (* * Peano Arithmetic *)
 (* ** Axioms of PA, excluding induction *)
-Require Export Undecidability.FOL.Syntax.Core.
 Require Export Undecidability.FOL.Arithmetics.Signature.
-Require Import Undecidability.FOL.Syntax.Facts.
 Import Vector.VectorNotations.
 Require Import List.
 Import FullSyntax.

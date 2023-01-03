@@ -1,7 +1,7 @@
 (* ** Construction of standard models *)
 From Undecidability.FOL Require Import Syntax.Facts Semantics.Tarski.FullFacts.
 From Undecidability.FOL.Sets Require Import ZF binZF.
-From Undecidability.FOL Require Import Undecidability.Reductions.PCPb_to_ZF.
+From Undecidability.FOL Require Import Reductions.PCPb_to_ZF.
 From Undecidability.FOL.Sets.Models Require Import Aczel Aczel_CE Aczel_TD.
 
 Set Default Proof Using "Type".

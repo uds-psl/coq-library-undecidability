@@ -9,6 +9,9 @@ Require Import Arith Lia List.
 #[global]
 Create HintDb contains_theory.
 
+Declare Scope theory.
+Open Scope theory.
+
 Section Theory.
   (* **** Theories *)
   Context {Σ_funcs : funcs_signature}.
@@ -22,9 +25,9 @@ Section Theory.
   Definition subset_T (T1 T2 : theory) := forall (phi : form), contains phi T1 -> contains phi T2.
   Definition list_T A : theory := fun phi => phi el A.
 
-  Infix "⊏" := contains_L (at level 20).
-  Infix "⊑" := subset_T (at level 20).
-  Infix "∈" := contains (at level 70).
+  Infix "⊏" := contains_L (at level 20) : theory.
+  Infix "⊑" := subset_T (at level 20) : theory.
+  Infix "∈" := contains (at level 70) : theory.
 
   Hint Unfold contains : contains_theory.
   Hint Unfold contains_L : contains_theory.
@@ -131,10 +134,10 @@ Section TheoryMap.
 End TheoryMap.
 #[global] Hint Constructors Vector_In2 : contains_theory.
 
-Infix "⊏" := contains_L (at level 20).
-Infix "⊑" := subset_T (at level 20).
-Infix "∈" := contains (at level 70).
-Infix "⋄" := extend (at level 20).
+Infix "⊏" := contains_L (at level 20) : theory.
+Infix "⊑" := subset_T (at level 20) : theory.
+Infix "∈" := contains (at level 70) : theory.
+Infix "⋄" := extend (at level 20) : theory.
 
 #[global] Hint Resolve contains_nil contains_cons contains_cons2 contains_app : contains_theory.
 #[global] Hint Resolve contains_extend1 contains_extend2 contains_extend3 : contains_theory.

@@ -1,9 +1,7 @@
 (* * Finite Set Theory with Adjunction Operation *)
 (* ** Axiomatisations *)
 
-Require Export Undecidability.FOL.Syntax.Core.
-Require Export Undecidability.FOL.Semantics.Tarski.FullFacts.
-Require Export Undecidability.FOL.Deduction.FullNDFacts.
+Require Export Undecidability.FOL.FullSyntax.
 Require Export Undecidability.FOL.Sets.Signatures.
 Import Vector.VectorNotations.
 Require Import List.
