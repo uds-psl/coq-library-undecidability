@@ -1,11 +1,10 @@
-From Undecidability.FOL.Incompleteness Require Import utils Axiomatisations.
+From FOL.Incompleteness Require Import utils Axiomatisations.
 
 From Undecidability.Synthetic Require Import Definitions EnumerabilityFacts.
 
-From Undecidability.FOL Require Import FullSyntax.
-From Undecidability.FOL.Arithmetics Require Import PA NatModel TarskiFacts DeductionFacts.
+From FOL Require Import FullSyntax Arithmetics.
 
-From Undecidability.FOL.Proofmode Require Import Theories ProofMode.
+From FOL.Proofmode Require Import Theories ProofMode.
 Require Import String List.
 Open Scope string_scope.
 

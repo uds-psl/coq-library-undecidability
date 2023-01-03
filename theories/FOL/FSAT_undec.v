@@ -2,7 +2,7 @@ From Undecidability.TRAKHTENBROT Require Import bpcp red_undec fo_sig.
 From Undecidability.Synthetic Require Import Undecidability ReducibilityFacts.
 From Undecidability.FOL.Syntax Require Import Core.
 From Undecidability.FOL.Semantics.FiniteTarski Require Fragment Full DoubleNegation.
-From Undecidability.FOL Require Import Reductions.FSATd_to_FSATdc Reductions.TRAKHTENBROT_to_FSAT.
+From Undecidability.FOL Require Import FSAT Reductions.FSATd_to_FSATdc Reductions.TRAKHTENBROT_to_FSAT.
 
 Section Full.
   Import Full.

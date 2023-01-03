@@ -54,5 +54,3 @@ Section decidable.
 End decidable.
 
 
-#[global]
-Existing Instance falsity_on.

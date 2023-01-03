@@ -1,10 +1,9 @@
 From Undecidability.Synthetic Require Import DecidabilityFacts EnumerabilityFacts ReducibilityFacts.
 From Undecidability.Shared Require Import Dec embed_nat.
 
-From Undecidability.FOL Require Import FullSyntax.
-From Undecidability.FOL.Arithmetics Require Import PA NatModel TarskiFacts DeductionFacts.
-From Undecidability.FOL.Proofmode Require Import Theories ProofMode.
-From Undecidability.FOL.Incompleteness Require Import fol_utils qdec sigma1.
+From FOL Require Import FullSyntax Arithmetics.
+From FOL.Proofmode Require Import Theories ProofMode.
+From FOL.Incompleteness Require Import fol_utils qdec sigma1.
 
 
 Require Import String List.
@@ -38,7 +37,7 @@ Section value_disjoint.
     Proof.
       rewrite φ1_syn.
       split.
-      - intros H. apply Σ1_soundness with (rho := ρ) in H.
+      - intros H. apply Σ1_soundness with (p := ρ) in H.
         + assumption.
         + constructor. apply Σ1_subst. now constructor.
         + constructor. eapply subst_bounded_max; last eassumption.

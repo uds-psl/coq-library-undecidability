@@ -1,8 +1,6 @@
-From Undecidability.FOL Require Import FullSyntax.
-From Undecidability.FOL.Arithmetics Require Import Signature Robinson NatModel.
-
-From Undecidability.FOL.Incompleteness Require Import utils fol_utils qdec.
-From Undecidability.FOL.Proofmode Require Import Theories ProofMode.
+From FOL Require Import FullSyntax Arithmetics.
+From FOL.Proofmode Require Import Theories ProofMode.
+From FOL.Incompleteness Require Import utils fol_utils qdec.
 
 Require Import Lia.
 Require Import String.

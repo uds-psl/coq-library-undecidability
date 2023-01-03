@@ -1,9 +1,9 @@
 (* Order of imports: import proofmode after utils after robinson *)
-From Undecidability.FOL Require Import FullSyntax Utils.FriedmanTranslation.
-From Undecidability.FOL.Arithmetics Require Import Signature FA Robinson NatModel.
 
-From Undecidability.FOL.Incompleteness Require Import fol_utils qdec.
-From Undecidability.FOL.Proofmode Require Import Theories ProofMode.
+From FOL Require Import FullSyntax Arithmetics.
+
+From FOL.Incompleteness Require Import fol_utils qdec.
+From FOL.Proofmode Require Import Theories ProofMode.
 
 Require Import Lia.
 Require Import String.
@@ -273,7 +273,7 @@ Section Sigma1completeness.
       { intros _. solve_bounds. }
       all: rewrite bounded_0_subst in H1; try eassumption.
       contradict Hnat.
-      apply Σ1_soundness with (rho := fun _ => 0) in H1.
+      apply Σ1_soundness with (p := fun _ => 0) in H1.
       + cbn in H1. contradict H1. apply H1.
       + constructor. apply Qdec_impl.
         * assumption.
@@ -285,7 +285,7 @@ Section Sigma1completeness.
   (* # <a id="Sigma1_witness" /> #*)
   Theorem Σ1_witness φ : Σ1 φ -> bounded 1 φ -> Qeq ⊢ ∃φ -> exists x, Qeq ⊢ φ[(num x)..].
   Proof.
-    intros Hb HΣ Hφ. eapply Σ1_soundness with (rho := fun _ => 0) in Hφ as [x Hx].
+    intros Hb HΣ Hφ. eapply Σ1_soundness with (p := fun _ => 0) in Hφ as [x Hx].
     exists x. eapply Σ1_completeness.
     - now apply Σ1_subst.
     - eapply subst_bounded_max; last eassumption.

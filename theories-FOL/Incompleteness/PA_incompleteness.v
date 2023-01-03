@@ -1,11 +1,8 @@
-Require Import Undecidability.FOL.Utils.FriedmanTranslation.
-Require Import Undecidability.FOL.Incompleteness.Axiomatisations.
+From FOL Require Import FullSyntax Arithmetics.
+Require Import FOL.Incompleteness.Axiomatisations.
 Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
-Require Import Undecidability.FOL.FullSyntax.
-Require Import Undecidability.FOL.Arithmetics.Problems.
-Require Import Undecidability.FOL.Arithmetics.NatModel.
 From Undecidability.Synthetic Require Import Definitions EnumerabilityFacts.
-From Undecidability.FOL.Undecidability.Reductions Require Import H10p_to_FA.
+From Undecidability.FOL.Reductions Require Import H10p_to_FA.
 From Undecidability.H10 Require Import H10p H10p_undec.
 Require Import List Lia.
 Section Arithmetic.

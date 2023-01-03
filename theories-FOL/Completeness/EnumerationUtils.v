@@ -1,6 +1,6 @@
 (* Enumeration Utils for Tarski Completeness *)
 
-From Undecidability.FOL Require FragmentSyntax.
+From FOL Require Import FragmentSyntax Theories.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts MPFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 From Undecidability Require Import Shared.ListAutomation Shared.Dec.
 From Undecidability Require Import Shared.Libs.PSL.Vectors.Vectors Shared.Libs.PSL.Vectors.VectorForall.

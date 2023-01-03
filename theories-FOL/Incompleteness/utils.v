@@ -15,7 +15,7 @@ Local Unset Strict Implicit.
 
 Ltac first s := only 1: s.
 Ltac last s := cycle -1; only 1: (s + fail).
-
+Derive Signature for t.
 
 (* Utilities for vectors *)
 Lemma vec_0_nil X (v : Vector.t X 0) : v = [].

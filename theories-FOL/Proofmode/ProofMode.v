@@ -1,9 +1,9 @@
-Require Import Undecidability.FOL.Proofmode.StringToIdent.
+Require Import FOL.Proofmode.StringToIdent.
 From Equations Require Import Equations.
 Require Import Equations.Type.DepElim.
 From Undecidability.Shared Require Import Dec ListAutomation.
-From Undecidability.FOL Require Import Syntax.Facts Semantics.Tarski.FullFacts Deduction.FullNDFacts.
-From Undecidability.FOL.Proofmode Require Import Theories.
+From FOL Require Import FullSyntax.
+From FOL.Proofmode Require Import Theories.
 
 Require Import List Lia String.
 Import ListNotations.
@@ -868,7 +868,6 @@ Ltac hypname_from_pattern C id :=
  * Nonetheless I split up the intro tactic into ident and hyp intro. 
  * I use tactic notation at the end to also support intro with a 'real' 
  * Coq ident instead of a string. *)
-Require Import Undecidability.FOL.Proofmode.StringToIdent.
 Ltac varname_from_pat pat :=
   match pat with 
   | patId "?" => fresh "x"

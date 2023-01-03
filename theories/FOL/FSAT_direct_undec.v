@@ -3,7 +3,7 @@
 From Undecidability.PCP Require Import PCP_undec.
 From Undecidability.Synthetic Require Import Undecidability ReducibilityFacts.
 From Undecidability.FOL.Semantics.FiniteTarski Require Fragment Full DoubleNegation.
-From Undecidability.FOL Require Import Reductions.FSATd_to_FSATdc Reductions.PCPb_to_FSAT.
+From Undecidability.FOL Require Import FSAT Reductions.FSATd_to_FSATdc Reductions.PCPb_to_FSAT.
 
 Section Full.
   Import Full.

@@ -1,7 +1,5 @@
-From Undecidability.FOL Require Import FullSyntax.
-From Undecidability.FOL.Arithmetics Require Import Signature PA DeductionFacts.
-From Undecidability.FOL.Syntax Require Import Theories.
-From Undecidability.FOL.Tennenbaum Require Import NumberUtils SyntheticInType.
+From FOL Require Import FullSyntax Arithmetics Theories.
+From FOL.Tennenbaum Require Import NumberUtils SyntheticInType.
 From Undecidability.Shared Require Import ListAutomation.
 Require Import List Lia.
 Import Vector.VectorNotations.
@@ -51,12 +49,12 @@ Section Models.
   Existing Instance I' | 0.
 
 
-  Notation "x 'i=' y"  := (@i_atom PA_funcs_signature PA_preds_signature D I Eq ([x ; y])) (at level 80).
-  Notation "'iσ' x" := (@i_func PA_funcs_signature PA_preds_signature D I Succ ([x])) (at level 60).
-  Notation "x 'i⊕' y" := (@i_func PA_funcs_signature PA_preds_signature D I Plus ([x ; y])) (at level 62).
-  Notation "x 'i⊗' y" := (@i_func PA_funcs_signature PA_preds_signature D I Mult ([x ; y])) (at level 61).
+  Notation "x 'i=' y"  := (@i_atom PA_funcs_signature PA_preds_signature D I Eq ([x ; y])) (at level 40).
+  Notation "'iσ' x" := (@i_func PA_funcs_signature PA_preds_signature D I Succ ([x])) (at level 37).
+  Notation "x 'i⊕' y" := (@i_func PA_funcs_signature PA_preds_signature D I Plus ([x ; y])) (at level 39).
+  Notation "x 'i⊗' y" := (@i_func PA_funcs_signature PA_preds_signature D I Mult ([x ; y])) (at level 38).
   Notation "'i0'" := (i_func (Σ_funcs:=PA_funcs_signature) (f:=Zero) []) (at level 2) : PA_Notation.
-  Notation "x 'i⧀' y" := (exists d : D, y = iσ (x i⊕ d) ) (at level 80).
+  Notation "x 'i⧀' y" := (exists d : D, y = iσ (x i⊕ d) ) (at level 40).
 
 
 
@@ -1226,12 +1224,12 @@ Section stdModel.
 
   Variable axioms : forall ax, PAeq ax -> ⊨ ax.
 
-  Notation "x 'i=' y"  := (@i_atom PA_funcs_signature PA_preds_signature D I Eq ([x ; y])) (at level 80).
-  Notation "'iσ' x" := (@i_func PA_funcs_signature PA_preds_signature D I Succ ([x])) (at level 60).
-  Notation "x 'i⊕' y" := (@i_func PA_funcs_signature PA_preds_signature D I Plus ([x ; y])) (at level 62).
-  Notation "x 'i⊗' y" := (@i_func PA_funcs_signature PA_preds_signature D I Mult ([x ; y])) (at level 61).
+  Notation "x 'i=' y"  := (@i_atom PA_funcs_signature PA_preds_signature D I Eq ([x ; y])) (at level 40).
+  Notation "'iσ' x" := (@i_func PA_funcs_signature PA_preds_signature D I Succ ([x])) (at level 37).
+  Notation "x 'i⊕' y" := (@i_func PA_funcs_signature PA_preds_signature D I Plus ([x ; y])) (at level 39).
+  Notation "x 'i⊗' y" := (@i_func PA_funcs_signature PA_preds_signature D I Mult ([x ; y])) (at level 38).
   Notation "'i0'" := (i_func (Σ_funcs:=PA_funcs_signature) (f:=Zero) []) (at level 2) : PA_Notation.
-  Notation "x 'i⧀' y" := (exists d : D, y = iσ (x i⊕ d) ) (at level 80).
+  Notation "x 'i⧀' y" := (exists d : D, y = iσ (x i⊕ d) ) (at level 40).
 
   Definition nat_hom (f : nat -> D) := 
     f 0 = @inu D I 0

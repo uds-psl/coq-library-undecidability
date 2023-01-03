@@ -150,7 +150,7 @@ End Abstract.
 
 (* ** Instantiation to first-order logic *)
 
-From Undecidability.FOL Require Import FullSyntax Incompleteness.Axiomatisations.
+From FOL Require Import FullSyntax Incompleteness.Axiomatisations.
 
 Lemma reduction_equiv X Y (P P' : X -> Prop) (Q Q' : Y -> Prop) f :
   (forall x, P x <-> P' x) -> (forall y, Q y <-> Q' y) -> reduction f P Q -> reduction f P' Q'.

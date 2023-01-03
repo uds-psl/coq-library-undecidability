@@ -3,12 +3,8 @@
 From Undecidability Require Import Shared.ListAutomation.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 Import ListAutomationNotations.
-From Undecidability Require Import FOL.Syntax.Facts.
-From Undecidability Require Import FOL.Syntax.Theories.
-From Undecidability.FOL.Deduction Require Export FragmentSequent FragmentNDFacts.
-From Undecidability.FOL.Semantics.Kripke Require Import FragmentCore FragmentSoundness.
-Import FragmentSyntax.
-Export FragmentSyntax.
+From FOL Require Import FragmentSyntax Theories.
+From FOL.Deduction Require Export FragmentSequent.
 
 Section Gentzen.
 

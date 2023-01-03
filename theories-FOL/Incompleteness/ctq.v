@@ -1,11 +1,10 @@
 From Undecidability.Shared Require Import embed_nat Dec.
 From Undecidability.Synthetic Require Import Definitions EnumerabilityFacts.
 
-From Undecidability.FOL Require Import FullSyntax Axiomatisations.
-From Undecidability.FOL.Arithmetics Require Import Signature Robinson NatModel.
+From FOL Require Import FullSyntax Arithmetics.
+From FOL.Proofmode Require Import Theories ProofMode.
 
-From Undecidability.FOL.Incompleteness Require Import utils fol_utils qdec bin_qdec sigma1 epf epf_mu.
-From Undecidability.FOL.Proofmode Require Import Theories ProofMode.
+From FOL.Incompleteness Require Import Axiomatisations utils fol_utils qdec bin_qdec sigma1 epf epf_mu.
 
 Require Import Lia String List.
 Import ListNotations.
@@ -58,7 +57,7 @@ Section ctq_epf.
 
   Lemma Q_num_inj x y : Qeq ⊢ num x == num y -> x = y.
   Proof. 
-    intros H. apply Σ1_soundness with (rho := fun _ => 0) in H.
+    intros H. apply Σ1_soundness with (p := fun _ => 0) in H.
     - cbn in H. now erewrite !nat_eval_num in H.
     - constructor. apply Qdec_eq.
     - solve_bounds; apply num_bound.
@@ -328,7 +327,7 @@ Section ctq.
     { eapply subst_bounded_max; last apply ψ_bounded.
       intros [|[|[|n]]] Hn; solve_bounds; apply num_bound. }
     intros ρ.
-    pose proof H as [k Hk]%wrepr%Σ1_witness; first apply Σ1_soundness with (rho := ρ) in Hk; first last.
+    pose proof H as [k Hk]%wrepr%Σ1_witness; first apply Σ1_soundness with (p := ρ) in Hk; first last.
     { eapply subst_bounded_max; last eassumption.
       intros [|[|[|[|n]]]] Hn; solve_bounds; apply num_bound. }
     { apply Σ1_subst. now constructor. }

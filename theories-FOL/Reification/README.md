@@ -21,7 +21,7 @@ make FOL/Reification/DemoPAExtensional.vo
 
 ## Usage
 
-You have to include `GeneralReflection.v` (e.g. using `Require Import Undecidability.FOL.Reification.GeneralReflection.`).
+You have to include `GeneralReflection.v` (e.g. using `Require Import FOL.Reification.GeneralReflection.`).
 
 The main tactic you will want to use is `represent`. It can be invoked on goals like `representableP n P`.
 

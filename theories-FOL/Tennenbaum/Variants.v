@@ -1,9 +1,7 @@
-From Undecidability.FOL Require Import FullSyntax.
-From Undecidability.FOL.Arithmetics Require Import Signature PA DeductionFacts.
-From Undecidability.FOL.Syntax Require Import Theories.
+From FOL Require Import FullSyntax Arithmetics Theories.
 From Undecidability.Shared Require Import ListAutomation.
 From Undecidability.Synthetic Require Import ListEnumerabilityFacts.
-From Undecidability.FOL.Tennenbaum Require Import MoreDecidabilityFacts Church Coding NumberUtils Formulas SyntheticInType Peano CantorPairing Tennenbaum_diagonal Tennenbaum_insep.
+From FOL.Tennenbaum Require Import MoreDecidabilityFacts Church Coding NumberUtils Formulas SyntheticInType Peano CantorPairing Tennenbaum_diagonal Tennenbaum_insep.
 
 Require Import Lia.
 Import Vector.VectorNotations.
@@ -40,11 +38,13 @@ Variable axioms : forall ax, PA ax -> ⊨ ax.
 Hypothesis ct : CT_Q.
 Hypothesis delta1_definite : forall phi, delta1 phi -> Q ⊢I phi ∨ ¬ phi.
 (* Definition obj_Insep := exists α β, def_obj_Insep α β. *)
-  Notation "x 'i=' y"  := (@i_atom PA_funcs_signature PA_preds_signature D I Eq ([x ; y])) (at level 80).
-  Notation "'iσ' x" := (@i_func PA_funcs_signature PA_preds_signature D I Succ ([x])) (at level 60).
-  Notation "x 'i⊕' y" := (@i_func PA_funcs_signature PA_preds_signature D I Plus ([x ; y])) (at level 62).
-  Notation "x 'i⊗' y" := (@i_func PA_funcs_signature PA_preds_signature D I Mult ([x ; y])) (at level 61).
-  Notation "'i0'" := (i_func (Σ_funcs:=PA_funcs_signature) (f:=Zero) []) (at level 2) : PA_Notation.
+
+Notation "x 'i=' y"  := (@i_atom PA_funcs_signature PA_preds_signature D I Eq ([x ; y])) (at level 40).
+Notation "'iσ' x" := (@i_func PA_funcs_signature PA_preds_signature D I Succ ([x])) (at level 37).
+Notation "x 'i⊕' y" := (@i_func PA_funcs_signature PA_preds_signature D I Plus ([x ; y])) (at level 39).
+Notation "x 'i⊗' y" := (@i_func PA_funcs_signature PA_preds_signature D I Mult ([x ; y])) (at level 38).
+Notation "'i0'" := (i_func (Σ_funcs:=PA_funcs_signature) (f:=Zero) []) (at level 2) : PA_Notation.
+Notation "x 'i⧀' y" := (exists d : D, y = iσ (x i⊕ d) ) (at level 40).
 
 Definition div e d := exists k : D, e i⊗ k = d.
 Definition div_num n (d : D) := exists e, inu n i⊗ e = d.

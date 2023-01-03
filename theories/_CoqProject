@@ -1,4 +1,4 @@
--Q . Undecidability
+-Q ../theories Undecidability
 -docroot .
 
 -arg -w -arg -notation-overridden
@@ -905,3 +905,74 @@ FOL/binZF_undec.v
 FOL/FST_undec.v
 FOL/binFST_undec.v
 FOL/FSAT.v
+
+
+-Q ../theories-FOL/ FOL
+../theories-FOL/FullSyntax.v
+../theories-FOL/FragmentSyntax.v
+../theories-FOL/Arithmetics.v
+../theories-FOL/Theories.v
+
+../theories-FOL/Semantics/Heyting/Heyting.v
+../theories-FOL/Semantics/Heyting/Soundness.v
+
+../theories-FOL/Deduction/FragmentSequent.v
+../theories-FOL/Deduction/FragmentSequentFacts.v
+../theories-FOL/Deduction/FullSequent.v
+../theories-FOL/Deduction/FullSequentFacts.v
+
+../theories-FOL/Utils/PrenexNormalForm.v
+
+
+../theories-FOL/ArithmeticalHierarchy/ArithmeticalHierarchySyntactic.v
+../theories-FOL/ArithmeticalHierarchy/ArithmeticalHierarchySemantic.v
+../theories-FOL/ArithmeticalHierarchy/ArithmeticalHierarchyEquiv.v
+
+../theories-FOL/Completeness/TarskiConstructions.v
+../theories-FOL/Completeness/Consistency.v
+../theories-FOL/Completeness/EnumerationUtils.v
+../theories-FOL/Completeness/TarskiCompleteness.v
+../theories-FOL/Completeness/KripkeCompleteness.v
+../theories-FOL/Completeness/HeytingMacNeille.v
+../theories-FOL/Completeness/HeytingCompleteness.v
+
+../theories-FOL/Reification/GeneralReflection.v
+../theories-FOL/Reification/DemoPA.v
+../theories-FOL/Reification/DemoPAExtensional.v
+
+../theories-FOL/Proofmode/StringToIdent.v
+../theories-FOL/Proofmode/Hoas.v
+../theories-FOL/Proofmode/Theories.v
+../theories-FOL/Proofmode/ProofMode.v
+../theories-FOL/Proofmode/DemoPA.v
+../theories-FOL/Proofmode/DemoZF.v
+../theories-FOL/Proofmode/DemoMinZF.v
+
+../theories-FOL/Incompleteness/Abstract.v
+../theories-FOL/Incompleteness/Axiomatisations.v
+../theories-FOL/Incompleteness/PA_incompleteness.v
+../theories-FOL/Incompleteness/utils.v
+../theories-FOL/Incompleteness/epf.v
+../theories-FOL/Incompleteness/epf_mu.v
+../theories-FOL/Incompleteness/formal_systems.v
+../theories-FOL/Incompleteness/abstract_incompleteness.v
+../theories-FOL/Incompleteness/fol_utils.v
+../theories-FOL/Incompleteness/qdec.v
+../theories-FOL/Incompleteness/sigma1.v
+../theories-FOL/Incompleteness/bin_qdec.v
+../theories-FOL/Incompleteness/weak_strong.v
+../theories-FOL/Incompleteness/ctq.v
+../theories-FOL/Incompleteness/fol_incompleteness.v
+
+
+../theories-FOL/Tennenbaum/SyntheticInType.v
+../theories-FOL/Tennenbaum/NumberUtils.v
+../theories-FOL/Tennenbaum/MoreDecidabilityFacts.v
+../theories-FOL/Tennenbaum/Peano.v
+../theories-FOL/Tennenbaum/Formulas.v
+../theories-FOL/Tennenbaum/Church.v
+../theories-FOL/Tennenbaum/CantorPairing.v
+../theories-FOL/Tennenbaum/Coding.v
+../theories-FOL/Tennenbaum/Tennenbaum_diagonal.v
+../theories-FOL/Tennenbaum/Tennenbaum_insep.v
+../theories-FOL/Tennenbaum/Variants.v

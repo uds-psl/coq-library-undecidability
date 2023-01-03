@@ -4,7 +4,7 @@ Set Implicit Arguments.
 Unset Strict Implicit.
 Require Export Setoid Morphisms.
 Require Export Coq.Program.Basics.
-From Undecidability.FOL Require Import FullSyntax
+From FOL Require Import FullSyntax.
 From FOL Require Import Heyting.Heyting.
 
 

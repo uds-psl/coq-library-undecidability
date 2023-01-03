@@ -42,7 +42,8 @@ Set Mangle Names.
 #[local] Existing Instance full_operators.
 
 Import FullSyntax.
-
+#[global]
+Existing Instance falsity_on.
 
 
 

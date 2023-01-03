@@ -1,8 +1,4 @@
-Require Import Undecidability.FOL.Syntax.Facts.
-Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
-Require Import Undecidability.FOL.Reification.GeneralReflection.
-Require Import Undecidability.FOL.Arithmetics.PA.
-Require Import Undecidability.FOL.Arithmetics.Problems.
+Require Import FOL.Reification.GeneralReflection FOL.Arithmetics FOL.FullSyntax.
 Import MetaCoq.Template.Ast MetaCoq.Template.TemplateMonad.Core.
 Import Vector.VectorNotations.
 Require Import String List.
@@ -17,16 +13,11 @@ Section ReificationExample.
   Context {D_ext : extensional I}. (* Furthermore, we assume that a i= b -> a = b, i.e. equality is extensional*)
   Context {D_fulfills : forall f rho, PAeq f -> rho ⊨ f}.
 
-  Notation "'iO'" := (@i_func _ _ D' I Zero ([])) (at level 1) : PA_Notation.
-  Notation "'iS' x" := (@i_func _ _ D' I Succ ([x])) (at level 37) : PA_Notation.
-  Notation "x 'i⊕' y" := (@i_func _ _ D' I Plus ([x ; y]) ) (at level 39) : PA_Notation.
-  Notation "x 'i⊗' y" := (@i_func _ _ D' I Mult ([x ; y]) ) (at level 38) : PA_Notation.
-  Notation "x 'i=' y" := (@i_atom _ _ D' I Eq ([x ; y]) ) (at level 40) : PA_Notation.
   Open Scope string_scope.
 
 
 
-  Fixpoint inum n := match n with 0 => iO | S n => iS (inum n) end.
+  Fixpoint inum n := match n with 0 => iO | S n => iσ (inum n) end.
 
   Instance PA_reflector : tarski_reflector := buildDefaultTarski 
                         (iO) (* we need a point in D *)
@@ -77,7 +68,7 @@ Section ReificationExample.
   (* We can now use = in our terms, and automatically find the proper representative. This also works for num *)
 
   (* PA induction lemma: like the usual one for nat, but P has to be representable as a first-order term *)
-  Lemma PA_induction (P:D -> Prop): representableP 1 P -> P iO -> (forall d:D, P d -> P (iS d)) -> forall d:D, P d.
+  Lemma PA_induction (P:D -> Prop): representableP 1 P -> P iO -> (forall d:D, P d -> P (iσ d)) -> forall d:D, P d.
   Proof.
   intros [phi [rho Prf]] H0 HS d.
   pose (@D_fulfills _ rho (PAeq_induction phi)) as Hind.
@@ -86,12 +77,12 @@ Section ReificationExample.
   - rewrite sat_comp. erewrite (@sat_ext _ _ _ _ _ _ (iO .: rho)).
     + rewrite <- Prf. apply H0.
     + now intros [|n].
-  - intros d' IH. rewrite sat_comp. erewrite (@sat_ext _ _ _ _ _ _ (iS d' .: rho)).
+  - intros d' IH. rewrite sat_comp. erewrite (@sat_ext _ _ _ _ _ _ (iσ d' .: rho)).
     + rewrite <- Prf. apply HS. rewrite Prf. apply IH.
     + now intros [|n].
   Qed.
   
-  Lemma discriminate (x:D) : x = iO \/ exists y, x = iS y.
+  Lemma discriminate (x:D) : x = iO \/ exists y, x = iσ y.
   Proof.
   generalize x. apply PA_induction.
   - represent.
@@ -100,7 +91,7 @@ Section ReificationExample.
     now exists d.
   Qed.
 
-  Lemma add_succ_l a b : (iS a) i⊕ b = iS (a i⊕ b).
+  Lemma add_succ_l a b : (iσ a) i⊕ b = iσ (a i⊕ b).
   Proof.
   rewrite <- D_ext.
   specialize (@D_fulfills ax_add_rec emptyEnv). cbn in D_fulfills.
@@ -125,7 +116,7 @@ Section ReificationExample.
     rewrite add_succ_l. now rewrite IH.
   Qed. 
 
-  Lemma add_succ_r a b : a i⊕ (iS b) = iS (a i⊕ b).
+  Lemma add_succ_r a b : a i⊕ (iσ b) = iσ (a i⊕ b).
   Proof.
   elim a using PA_induction.
   - represent.
@@ -156,7 +147,7 @@ Section ReificationExample.
   apply (@D_fulfills ax_mult_zero (fun _ => iO)). apply PAeq_FA. do 8 right. now left.
   Qed.
 
-  Lemma mul_succ_l a b : iS a i⊗ b = b i⊕ a i⊗ b.
+  Lemma mul_succ_l a b : iσ a i⊗ b = b i⊕ a i⊗ b.
   Proof.
   rewrite <- D_ext.
   apply (@D_fulfills ax_mult_rec (fun _ => iO)). apply PAeq_FA. do 9 right. now left.
@@ -170,7 +161,7 @@ Section ReificationExample.
   - intros d IH. now rewrite mul_succ_l, add_zero_l, IH.
   Qed.
 
-  Lemma mul_succ_r a b : a i⊗ iS b = a i⊕ a i⊗ b.
+  Lemma mul_succ_r a b : a i⊗ iσ b = a i⊕ a i⊗ b.
   Proof.
   elim a using PA_induction.
   - represent. 
@@ -189,7 +180,7 @@ Section ReificationExample.
   - intros a' IH. now rewrite mul_succ_l, mul_succ_r.
   Qed.
 
-  Definition test : representableP 0 (inum 5 = iS (iS (iS (iS (iS iO))))).
+  Definition test : representableP 0 (inum 5 = iσ (iσ (iσ (iσ (iσ iO))))).
   Proof. represent. Defined.
   Definition proj1 {X:Type} {Y:X->Type} (H:{x:X&Y x}) : X := match H with existT x y => x end.
   (* Eval cbn in (proj1 test). *)

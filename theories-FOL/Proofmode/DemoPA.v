@@ -1,10 +1,9 @@
 From Equations Require Import Equations.
 Require Equations.Type.DepElim.
-From Undecidability.FOL Require Import Syntax.Core Deduction.FullND Semantics.Tarski.FullCore Arithmetics.PA.
+From FOL.Proofmode Require Import Theories ProofMode.
+From FOL Require Import FullSyntax Arithmetics.
 
-From Undecidability.FOL.Proofmode Require Import Theories ProofMode.
-
-Require Undecidability.FOL.Proofmode.Hoas.
+Require FOL.Proofmode.Hoas.
 Require Import String List.
 
 Import ListNotations.

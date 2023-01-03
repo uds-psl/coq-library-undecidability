@@ -1,7 +1,9 @@
 (* * First-Order Logic *)
 
 From Undecidability.FOL Require Import FullSyntax.
- 
+
+#[global]
+Existing Instance falsity_on.
 (* ** Syntax as defined in Util/Syntax.v 
 
  Inductive term  : Type :=

@@ -5,7 +5,8 @@ Require Import Vector Lia.
 Set Default Goal Selector "!".
 
 Section Signature.
-
+  #[local]
+  Existing Instance falsity_on.
   Context {Σ_funcs : funcs_signature}.
   Context {Σ_preds : preds_signature}.
 

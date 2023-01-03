@@ -10,7 +10,7 @@ Require Import Undecidability.L.Reductions.MuRec.MuRec_extract.
 From Undecidability.H10 Require Import DPRM.
 Require Import Undecidability.Synthetic.EnumerabilityFacts.
 From Coq.Logic Require Import ConstructiveEpsilon.
-From Undecidability.FOL.Incompleteness Require Import utils epf fol_utils qdec sigma1.
+From FOL.Incompleteness Require Import utils epf fol_utils qdec sigma1.
 
 Import ListNotations.
 
@@ -107,8 +107,7 @@ End mu.
 
 
 (* Imports down here to avoid clashes between list and substitution notation *)
-From Undecidability.FOL Require Import FullSyntax.
-From Undecidability.FOL.Arithmetics Require Import Signature Robinson NatModel.
+From FOL Require Import FullSyntax Arithmetics.
 
 Section fol.
   Existing Instance PA_funcs_signature.

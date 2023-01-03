@@ -1,7 +1,9 @@
+From FOL Require Import FullSyntax.
 From MetaCoq.Template Require Import utils All Pretty Checker.
 Require Import List String Lia.
-From Undecidability.FOL Require Import Syntax.Facts Semantics.Tarski.FullFacts.
 
+(* Both metacoq and FOL have terms. *)
+Notation term := Core.term.
 (* * Reification
       Please read the PDF file giving a detailed description.
       

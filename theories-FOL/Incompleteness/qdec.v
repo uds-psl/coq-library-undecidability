@@ -1,9 +1,8 @@
 (* Order of imports: import proofmode after utils after robinson *)
-From Undecidability.FOL Require Import FullSyntax.
-From Undecidability.FOL.Arithmetics Require Import Signature FA Robinson.
+From FOL Require Import FullSyntax Arithmetics.
 
-From Undecidability.FOL.Incompleteness Require Import utils fol_utils.
-From Undecidability.FOL.Proofmode Require Import Theories ProofMode.
+From FOL.Incompleteness Require Import utils fol_utils.
+From FOL.Proofmode Require Import Theories ProofMode.
 
 Require Import Lia.
 Require Import String.

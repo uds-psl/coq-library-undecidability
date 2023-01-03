@@ -1,11 +1,10 @@
 (* ** Equivalence of Both Definitions *)
 
-From Undecidability.FOL.Syntax Require Import Core.
-From Undecidability.FOL.Semantics.Tarski Require Import FullCore.
+From FOL Require Import FullSyntax.
 Require Import Lia Vector Fin List.
 Import Vector.VectorNotations.
-From Undecidability.FOL.Utils Require Import PrenexNormalForm.
-From Undecidability.FOL.ArithmeticalHierarchy Require Import ArithmeticalHierarchySyntactic ArithmeticalHierarchySemantic.
+From FOL.Utils Require Import PrenexNormalForm.
+From FOL.ArithmeticalHierarchy Require Import ArithmeticalHierarchySyntactic ArithmeticalHierarchySemantic.
 
 Require Import PeanoNat (* Nat.eqb *) Bool.
 

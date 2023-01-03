@@ -2,9 +2,7 @@
 
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
-From Undecidability Require Import FOL.Syntax.Core.
-Import FullSyntax.
-Export FullSyntax.
+From FOL Require Import FullSyntax.
 
 
 Local Set Implicit Arguments.

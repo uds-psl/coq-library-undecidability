@@ -1,6 +1,6 @@
 Require Import Arith Lia Nat.
 From Undecidability.Synthetic Require Import DecidabilityFacts.
-From Undecidability.FOL.Tennenbaum Require Import SyntheticInType CantorPairing.
+From FOL.Tennenbaum Require Import SyntheticInType CantorPairing.
 (** * Decidability of bounded quantifiers. *)
 
 

@@ -1,6 +1,6 @@
 (** ** Abstract Incompleteness *)
 
-From Undecidability.FOL.Incompleteness Require Import utils formal_systems epf.
+From FOL.Incompleteness Require Import utils formal_systems epf.
 
 From Undecidability.Synthetic Require Import Definitions.
 

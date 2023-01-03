@@ -1,11 +1,10 @@
 (* * Arithmetical Hierarchy *)
 (* ** Arithmetical Hierarchy in First-Order Arithmetic *)
 
-From Undecidability.FOL.Syntax Require Import Core.
-From Undecidability.FOL.Semantics.Tarski Require Import FullCore.
+From FOL Require Import FullSyntax.
 Require Import Lia Vector Fin List.
 Import Vector.VectorNotations.
-From Undecidability.FOL.Utils Require Import PrenexNormalForm.
+From FOL.Utils Require Import PrenexNormalForm.
 Require Import Eqdep_dec.
 
 From Equations Require Import Equations.

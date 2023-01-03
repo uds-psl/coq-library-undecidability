@@ -1,8 +1,9 @@
 (* * Natural Deduction *)
 
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
-From Undecidability Require Import FOL.Syntax.Facts.
-From Undecidability Require Export FOL.Deduction.FullSequent.
+
+From FOL Require Import FullSyntax Theories.
+From FOL.Deduction Require Export FullSequent.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 Local Set Implicit Arguments.

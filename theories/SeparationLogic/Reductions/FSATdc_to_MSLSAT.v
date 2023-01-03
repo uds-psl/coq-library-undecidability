@@ -11,7 +11,8 @@ Require Import Undecidability.Synthetic.DecidabilityFacts.
 Set Default Goal Selector "!".
 Set Default Proof Using "Type".
 
-
+#[local]
+Existing Instance falsity_on.
 
 (* encoding function following Cacagno, Yang, O'Hearn (2001) **)
 

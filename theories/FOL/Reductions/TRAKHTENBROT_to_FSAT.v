@@ -14,6 +14,8 @@ Set Default Proof Using "Type".
 Definition term' := @fo_term Empty_set (fun f => match f with end).
 Definition form' := fol_form (Σrel 2).
 
+#[local]
+Existing Instance falsity_on.
 Definition translate_term (t : term') : term :=
   match t with
   | in_var n => $n

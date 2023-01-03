@@ -7,9 +7,9 @@ Set Default Proof Using "Type".
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
-Notation "x 'i=' y" := (i_atom (P:=Eq) [x ; y]) (at level 30) : PA_Notation.
+Notation "x 'i=' y" := (i_atom (P:=Eq) [x ; y]) (at level 40) : PA_Notation.
 Notation "'iO'" := (i_func (Σ_funcs:=PA_funcs_signature) (f:=Zero) []) (at level 2) : PA_Notation.
-Notation "'iσ' d" := (i_func (f:=Succ) [d]) (at level 37) : PA_Notation.
+Notation "'iσ' d" := (i_func (Σ_funcs:=PA_funcs_signature) (f:=Succ) [d]) (at level 37) : PA_Notation.
 Notation "x 'i⊕' y" := (i_func (f:=Plus) [x ; y]) (at level 39) : PA_Notation.
 Notation "x 'i⊗' y" := (i_func (f:=Mult) [x ; y]) (at level 38) : PA_Notation.
 

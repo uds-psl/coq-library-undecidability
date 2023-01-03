@@ -1,6 +1,6 @@
 (* * Summary File *)
 
-From Undecidability.FOL Require Import FullSyntax.
+From FOL Require Import FullSyntax.
 From Undecidability.Synthetic Require Import Definitions Undecidability MPFacts.
 From Undecidability.Synthetic Require Import DecidabilityFacts EnumerabilityFacts ReducibilityFacts.
 From Undecidability.Synthetic Require Import ListEnumerabilityFacts MoreEnumerabilityFacts.
@@ -344,8 +344,8 @@ End FixSignature.
 
 (* *** Theorem 26 : H10 reduces to Q', Q, and PA *)
 
-From Undecidability.FOL.Arithmetics Require Import PA DeductionFacts TarskiFacts NatModel.
-From Undecidability.FOL.Undecidability.Reductions Require Import H10p_to_FA.
+From FOL Require Import Arithmetics.
+From Undecidability.FOL.Reductions Require Import H10p_to_FA.
 From Undecidability.H10 Require Import H10p H10p_undec.
 
 #[local]
@@ -511,7 +511,7 @@ Qed.
 
 (* *** Theorem 43 : PCP reduces to Z', Z, and ZF, assuming standard models *)
 
-From Undecidability.FOL.Undecidability.Reductions Require Import PCPb_to_ZFeq PCPb_to_ZF PCPb_to_ZFD.
+From Undecidability.FOL.Reductions Require Import PCPb_to_ZFeq PCPb_to_ZF PCPb_to_ZFD.
 From Undecidability.FOL.Sets Require Import Models.Aczel_CE Models.ZF_model ZF.
 From Undecidability.PCP Require Import PCP PCP_undec.
 

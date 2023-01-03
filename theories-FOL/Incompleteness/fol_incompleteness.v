@@ -3,11 +3,10 @@
 From Undecidability.Shared Require Import embed_nat Dec.
 From Undecidability.Synthetic Require Import Definitions EnumerabilityFacts.
 
-From Undecidability.FOL Require Import FullSyntax Axiomatisations.
-From Undecidability.FOL.Arithmetics Require Import Signature Robinson NatModel.
+From FOL Require Import FullSyntax Arithmetics.
 
-From Undecidability.FOL.Incompleteness Require Import utils fol_utils qdec bin_qdec sigma1 epf epf_mu formal_systems abstract_incompleteness ctq.
-From Undecidability.FOL.Proofmode Require Import Theories ProofMode.
+From FOL.Incompleteness Require Import Axiomatisations utils fol_utils qdec bin_qdec sigma1 epf epf_mu formal_systems abstract_incompleteness ctq.
+From FOL.Proofmode Require Import Theories ProofMode.
 
 Require Import Lia String List.
 Import ListNotations.

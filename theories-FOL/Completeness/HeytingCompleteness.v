@@ -1,7 +1,7 @@
 From Equations Require Import Equations.
 From Coq Require Import Arith Lia List Program.Equality.
-From Undecidability.FOL Require Import FullSyntax.
-From FOL Require Import Heyting.Heyting Completeness.HeytingMacNeille.
+From FOL Require Import FullSyntax.
+From FOL Require Import Semantics.Heyting.Heyting Completeness.HeytingMacNeille.
 Import ListNotations.
 
 Section Lindenbaum.

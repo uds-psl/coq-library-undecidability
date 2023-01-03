@@ -1,7 +1,7 @@
 (** * Incompleteness *)
 (** ** Church's Thesis *)
 
-From Undecidability.FOL.Incompleteness Require Import utils.
+From FOL.Incompleteness Require Import utils.
 
 From Undecidability.Synthetic Require Import Definitions EnumerabilityFacts.
 

@@ -1,6 +1,6 @@
 From Equations Require Import Equations.
 From Undecidability.Shared Require Import Dec ListAutomation.
-From Undecidability.FOL Require Import Syntax.Facts Semantics.Tarski.FullFacts Deduction.FullNDFacts.
+From FOL Require Import FullSyntax.
 
 Require Import List Arith.PeanoNat Eqdep_dec.
 

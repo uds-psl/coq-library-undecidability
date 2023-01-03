@@ -1,7 +1,5 @@
 (* * Prenex Normal Form *)
-From Undecidability.FOL.Syntax Require Import Core Facts Asimpl.
-From Undecidability.FOL.Semantics.Tarski Require Import FullCore FullFacts.
-From Undecidability.FOL.Arithmetics Require Import Signature.
+From FOL Require Import FullSyntax Arithmetics.
 Require Import Lia Vector List.
 Import Vector.VectorNotations.
 Import List.ListNotations.

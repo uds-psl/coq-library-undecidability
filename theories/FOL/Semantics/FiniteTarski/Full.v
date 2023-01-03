@@ -54,6 +54,3 @@ Section decidable.
   Qed.
 End decidable.
 
-
-#[global]
-Existing Instance falsity_on.

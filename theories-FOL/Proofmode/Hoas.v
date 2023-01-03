@@ -1,4 +1,4 @@
-From Undecidability.FOL Require Import Syntax.Core Tarski.FullCore.
+From FOL Require Import FullSyntax.
 Require Import Vector.
 
 Local Notation vec := Vector.t.

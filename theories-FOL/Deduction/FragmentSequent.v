@@ -3,10 +3,7 @@
 From Undecidability Require Import Shared.ListAutomation.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 Import ListAutomationNotations.
-From Undecidability Require Import FOL.Syntax.Facts.
-From Undecidability Require Import FOL.Syntax.Theories.
-Import FragmentSyntax.
-Export FragmentSyntax.
+From FOL Require Import FragmentSyntax Theories.
 
 Local Unset Implicit Arguments.
 Section Gentzen.
