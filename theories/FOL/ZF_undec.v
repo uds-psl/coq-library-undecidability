@@ -10,7 +10,7 @@ From Undecidability.FOL.Sets.Models
 From Undecidability.FOL.Reductions
      Require Import ZF_to_HF PCPb_to_HF PCPb_to_HFD PCPb_to_ZFeq PCPb_to_ZF PCPb_to_ZFD.
 
-Require Import Undecidability.FOL.Sets.ZF.
+Require Import Undecidability.FOL.Sets.ZF Undecidability.FOL.ZF.
 
 From Undecidability.PCP
      Require Import PCP PCP_undec Util.PCP_facts Reductions.PCPb_iff_dPCPb.

@@ -5,6 +5,7 @@ From Undecidability.FOL
 
 From Undecidability.FOL.Sets
      Require Import ZF.
+Require Import Undecidability.FOL.ZF.
 
 Require Import Lia.
 

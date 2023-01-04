@@ -2,6 +2,7 @@ Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Und
 Require Import Undecidability.PCP.PCP_undec.
 From Undecidability.FOL Require Import binZF_undec FOL.
 From Undecidability.FOL.Sets Require Import binZF.
+Require Import Undecidability.FOL.ZF.
 Require Import Undecidability.FOL.Syntax.Core.
 Require Import Undecidability.FOL.Syntax.BinSig.
 Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.

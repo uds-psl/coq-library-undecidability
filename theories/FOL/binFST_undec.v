@@ -5,6 +5,7 @@ From Undecidability.FOL
      Require Import Sets.binFST
                     Sets.binZF
                     Sets.Models.FST_model.
+Require Import Undecidability.FOL.FST.
 
 
 From Undecidability.FOL

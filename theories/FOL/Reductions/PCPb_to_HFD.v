@@ -1,5 +1,6 @@
 (* ** Reduction from PCP to deductive entailment in finite ZF *)
 
+Require Import Undecidability.FOL.ZF.
 Require Import Undecidability.FOL.Syntax.Facts.
 Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
 Require Import Undecidability.FOL.Sets.ZF.

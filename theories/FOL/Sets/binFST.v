@@ -1,6 +1,6 @@
 (* ** Axiomatisation of finite set theory just using membership *)
 
-Require Export Undecidability.FOL.FullSyntax.
+Require Export Undecidability.FOL.Utils.FullSyntax.
 Require Export Undecidability.FOL.Sets.Signatures.
 Import Vector.VectorNotations.
 Require Import List.
@@ -58,14 +58,5 @@ Definition ax_adj' :=
 Definition binFST :=
   ax_ext' :: ax_eq_elem' :: ax_eset' :: ax_adj' :: nil.
 
-
-
-(* ** Problems *)
-
-Definition entailment_binFST phi :=
-  forall D (M : @interp sig_empty _ D) (rho : nat -> D), (forall psi, In psi binFST -> rho ⊨ psi) -> rho ⊨ phi.
-
-Definition deduction_binFST phi :=
-  binFST ⊢I phi.
 
 

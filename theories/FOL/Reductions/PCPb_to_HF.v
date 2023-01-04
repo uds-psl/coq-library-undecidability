@@ -1,8 +1,10 @@
 (* ** Reduction from PCP to semantic entailment in finite ZF *)
 
+Require Import Undecidability.FOL.ZF.
 Require Import Undecidability.FOL.Syntax.Facts.
 Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
 Require Import Undecidability.FOL.Sets.ZF.
+Require Undecidability.FOL.Sets.Models.HF_model.
 Require Import Lia.
 
 From Undecidability.PCP Require Import PCP Util.PCP_facts Reductions.PCPb_iff_dPCPb.
@@ -128,31 +130,8 @@ Proof.
 Qed.
   
 
+Import HF_model.
 
-
-(* ** ZF-Models *)
-
-Declare Scope sem.
-Open Scope sem.
-
-Arguments Vector.nil {_}, _.
-Arguments Vector.cons {_} _ {_} _, _ _ _ _.
-
-Notation "x ∈ y" := (@i_atom _ _ _ _ elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : sem.
-Notation "x ≡ y" := (@i_atom _ _ _ _ equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : sem.
-Notation "x ⊆ y" := (forall z, z ∈ x -> z ∈ y) (at level 34) : sem.
-
-Notation "∅" := (@i_func ZF_func_sig ZF_pred_sig _ _ eset Vector.nil) : sem.
-Notation "{ x ; y }" := (@i_func ZF_func_sig _ _ _ pair (Vector.cons x (Vector.cons y Vector.nil))) (at level 31) : sem.
-Notation "⋃ x" := (@i_func ZF_func_sig _ _ _ union (Vector.cons x Vector.nil)) (at level 32) : sem.
-Notation "'PP' x" := (@i_func ZF_func_sig _ _ _ power (Vector.cons x Vector.nil)) (at level 31) : sem.
-
-Notation "x ∪ y" := (⋃ {x; y}) (at level 32) : sem.
-Notation "'σ' x" := (x ∪ {x; x}) (at level 32) : sem.
-
-
-
-(* ** Internal axioms *)
 
 Section ZF.
 
@@ -161,259 +140,20 @@ Section ZF.
 
   Hypothesis M_ZF : forall rho, rho ⊫ HF.
   Hypothesis VIEQ : extensional M.
-  
-  Lemma M_ext x y :
-    x ⊆ y -> y ⊆ x -> x = y.
-  Proof.
-    rewrite <- VIEQ. apply (@M_ZF (fun _ => ∅) ax_ext). cbn; tauto.
-  Qed.
 
-  Lemma M_eset x :
-    ~ x ∈ ∅.
-  Proof.
-    refine (@M_ZF (fun _ => ∅) ax_eset _ x). cbn; tauto.
-  Qed.
-
-  Lemma M_pair x y z :
-    x ∈ {y; z} <-> x = y \/ x = z.
-  Proof.
-    rewrite <- !VIEQ. apply (@M_ZF (fun _ => ∅) ax_pair). cbn; tauto.
-  Qed.
-
-  Lemma M_union x y :
-    x ∈ ⋃ y <-> exists z, z ∈ y /\ x ∈ z.
-  Proof.
-    apply (@M_ZF (fun _ => ∅) ax_union). cbn; tauto.
-  Qed.
-
-  Definition M_is_rep R x y :=
-    forall v, v ∈ y <-> exists u, u ∈ x /\ R u v.
-
-
-
-  (* ** Basic HF *)
-
-  Definition M_sing x :=
-    {x; x}.
-
-  Definition M_opair x y := ({{x; x}; {x; y}}).
-
-  Lemma binunion_el x y z :
-    x ∈ y ∪ z <-> x ∈ y \/ x ∈ z.
-  Proof.
-    split.
-    - intros [u [H1 H2]] % M_union.
-      apply M_pair in H1 as [->| ->]; auto.
-    - intros [H|H].
-      + apply M_union. exists y. rewrite M_pair. auto.
-      + apply M_union. exists z. rewrite M_pair. auto.
-  Qed.
-
-  Lemma sing_el x y :
-    x ∈ M_sing y <-> x = y.
-  Proof.
-    split.
-    - now intros [H|H] % M_pair.
-    - intros ->. apply M_pair. now left.
-  Qed.
-
-  Lemma M_pair1 x y :
-    x ∈ {x; y}.
-  Proof.
-    apply M_pair. now left.
-  Qed.
-
-  Lemma M_pair2 x y :
-    y ∈ {x; y}.
-  Proof.
-    apply M_pair. now right.
-  Qed.
-
-  Lemma sing_pair x y z :
-    {x; x} = {y; z} -> x = y /\ x = z.
-  Proof.
-    intros He. split.
-    - assert (H : y ∈ {y; z}) by apply M_pair1.
-      rewrite <- He in H. apply M_pair in H. intuition.
-    - assert (H : z ∈ {y; z}) by apply M_pair2.
-      rewrite <- He in H. apply M_pair in H. intuition.
-  Qed.
-
-  Lemma opair_inj1 x x' y y' :
-    M_opair x y = M_opair x' y' -> x = x'.
-  Proof.
-    intros He. assert (H : {x; x} ∈ M_opair x y) by apply M_pair1.
-    rewrite He in H. apply M_pair in H as [H|H]; apply (sing_pair H).
-  Qed.
-
-  Lemma opair_inj2 x x' y y' :
-    M_opair x y = M_opair x' y' -> y = y'.
-  Proof.
-    intros He. assert (y = x' \/ y = y') as [->| ->]; trivial.
-    - assert (H : {x; y} ∈ M_opair x y) by apply M_pair2.
-      rewrite He in H. apply M_pair in H as [H|H].
-      + symmetry in H. apply sing_pair in H. intuition.
-      + assert (H' : y ∈ {x; y}) by apply M_pair2.
-        rewrite H in H'. now apply M_pair in H'.
-    - assert (x = x') as -> by now apply opair_inj1 in He.
-      assert (H : {x'; y'} ∈ M_opair x' y') by apply M_pair2.
-      rewrite <- He in H. apply M_pair in H as [H|H]; apply (sing_pair (eq_sym H)).
-  Qed.     
-
-  Lemma opair_inj x x' y y' :
-    M_opair x y = M_opair x' y' -> x = x' /\ y = y'.
-  Proof.
-    intros H. split.
-    - eapply opair_inj1; eassumption.
-    - eapply opair_inj2; eassumption.
-  Qed.
-
-  Lemma sigma_el x y :
-    x ∈ σ y <-> x ∈ y \/ x = y.
-  Proof.
-    split.
-    - intros [H|H] % binunion_el; auto.
-      apply sing_el in H. now right.
-    - intros [H| ->]; apply binunion_el; auto.
-      right. now apply sing_el.
-  Qed.
-
-  Lemma sigma_eq x :
-    x ∈ σ x.
-  Proof.
-    apply sigma_el. now right.
-  Qed.
-
-  Lemma sigma_sub x :
-    x ⊆ σ x.
-  Proof.
-    intros y H. apply sigma_el. now left.
-  Qed.
-
-  Lemma binunion_eset x :
-    x = ∅ ∪ x.
-  Proof.
-    apply M_ext.
-    - intros y H. apply binunion_el. now right.
-    - intros y [H|H] % binunion_el.
-      + now apply M_eset in H.
-      + assumption.
-  Qed.
-
-  Lemma pair_com x y :
-    {x; y} = {y; x}.
-  Proof.
-    apply M_ext; intros z [->| ->] % M_pair; apply M_pair; auto.
-  Qed.
-
-  Lemma binunion_com x y :
-    x ∪ y = y ∪ x.
-  Proof.
-    now rewrite pair_com.
-  Qed.
-
-  Lemma binunionl a x y :
-    a ∈ x -> a ∈ x ∪ y.
-  Proof.
-    intros H. apply binunion_el. now left.
-  Qed.
-
-  Lemma binunionr a x y :
-    a ∈ y -> a ∈ x ∪ y.
-  Proof.
-    intros H. apply binunion_el. now right.
-  Qed.
-
-  Hint Resolve binunionl binunionr : core.
-
-  Lemma binunion_assoc x y z :
-    (x ∪ y) ∪ z = x ∪ (y ∪ z).
-  Proof.
-    apply M_ext; intros a [H|H] % binunion_el; eauto.
-    - apply binunion_el in H as [H|H]; eauto.
-    - apply binunion_el in H as [H|H]; eauto.
-  Qed.
-
-  
-  
-  (* ** Numerals *)
-
-  Fixpoint numeral n :=
-    match n with 
-    | O => ∅
-    | S n => σ (numeral n)
-    end.
-
-  Definition trans x :=
-    forall y, y ∈ x -> y ⊆ x.
-
-  Lemma numeral_trans n :
-    trans (numeral n).
-  Proof.
-    induction n; cbn.
-    - intros x H. now apply M_eset in H.
-    - intros x [H| ->] % sigma_el; try apply sigma_sub.
-      apply IHn in H. intuition eauto using sigma_sub.
-  Qed.
-
-  Lemma numeral_wf n :
-    ~ numeral n ∈ numeral n.
-  Proof.
-    induction n.
-    - apply M_eset.
-    - intros [H|H] % sigma_el; fold numeral in *.
-      + apply IHn. eapply numeral_trans; eauto. apply sigma_eq.
-      + assert (numeral n ∈ numeral (S n)) by apply sigma_eq.
-        now rewrite H in H0.
-  Qed.
-
-  Lemma numeral_lt k l :
-    k < l -> numeral k ∈ numeral l.
-  Proof.
-    induction 1; cbn; apply sigma_el; auto.
-  Qed.
-
-  Lemma numeral_inj k l :
-    numeral k = numeral l -> k = l.
-  Proof.
-    intros Hk. assert (k = l \/ k < l \/ l < k) as [H|[H|H]] by lia; trivial.
-    all: apply numeral_lt in H; rewrite Hk in H; now apply numeral_wf in H.
-  Qed.
-
-  Definition htrans x :=
-    trans x /\ forall y, y ∈ x -> trans y.
-
-  Lemma numeral_numeral n x :
-    x ∈ numeral n -> exists k, x = numeral k.
-  Proof.
-    intros H. induction n; cbn in *.
-    - now apply M_eset in H.
-    - apply sigma_el in H as [H|H].
-      + apply IHn, H.
-      + exists n. apply H.
-  Qed.
-
-  Lemma numeral_htrans n :
-    htrans (numeral n).
-  Proof.
-    split; try apply numeral_trans.
-    intros y [k ->] % numeral_numeral. apply numeral_trans.
-  Qed.
-
-  Lemma numeral_trans_sub x n :
-    (forall x y, (x ∈ y) + (~ x ∈ y)) -> x ⊆ numeral n -> trans x -> sig (fun n => x = numeral n).
-  Proof.
-    intros d. induction n; cbn.
-    - intros H _. exists 0. cbn. apply M_ext; trivial. intros y [] % M_eset.
-    - intros Hn Hx. destruct (d (numeral n) x) as [H|H].
-      + exists (S n). cbn. apply M_ext; trivial.
-        intros y [Hy| ->] % sigma_el; trivial.
-        now apply (Hx (numeral n)).
-      + apply IHn; trivial. intros y Hy.
-        specialize (Hn y Hy). apply sigma_el in Hn as [Hn| ->]; tauto.
-  Qed.
-
-
+  Notation binunion_el := (@binunion_el _ _ M_ZF VIEQ).
+  Notation sing_el := (@sing_el _ _ M_ZF VIEQ).
+  Notation M_pair := (@M_pair _ _ M_ZF VIEQ).
+  Notation opair_inj := (@opair_inj _ _ M_ZF VIEQ).
+  Notation binunion_com := (@binunion_com _ _ M_ZF VIEQ).
+  Notation binunion_assoc := (@binunion_assoc _ _ M_ZF VIEQ).
+  Notation sigma_el := (@sigma_el _ _ M_ZF VIEQ).
+  Notation sigma_eq := (@sigma_eq _ _ M_ZF VIEQ).
+  Notation numeral_inj := (@numeral_inj _ _ M_ZF VIEQ).
+  Notation M_ext := (@M_ext _ _ M_ZF VIEQ).
+  Notation M_eset := (@M_eset _ _ M_ZF).
+  Notation numeral_htrans := (@numeral_htrans _ _ M_ZF VIEQ).
+  Notation binunion_eset := (@binunion_eset _ _ M_ZF VIEQ).
 
   (* ** Encodings *)
 
@@ -602,9 +342,9 @@ Section ZF.
     - intros [H1|H1 % sing_el] % binunion_el [H2|H2 % sing_el] % binunion_el.
       + now apply (IHn k x y).
       + exfalso. apply enc_derivations_bound in H1.
-        destruct (opair_inj H2) as [-> _]. now apply (@numeral_wf (S n)).
+        destruct (opair_inj H2) as [-> _]. now apply (@numeral_wf _ _ M_ZF VIEQ (S n)).
       + exfalso. apply enc_derivations_bound in H2.
-        destruct (opair_inj H1) as [-> _]. now apply (@numeral_wf (S n)).
+        destruct (opair_inj H1) as [-> _]. now apply (@numeral_wf _ _ M_ZF VIEQ (S n)).
       + rewrite <- H2 in H1. now apply opair_inj in H1.
   Qed.
 
@@ -790,11 +530,8 @@ Section ZF.
   Definition M_function f :=
     forall x y y', M_opair x y ∈ f -> M_opair x y' ∈ f -> y = y'.
 
-  Definition standard :=
-    forall x, htrans x -> exists n, x ≡ numeral n.
-
   Lemma M_solutions_el B f k X p :
-    standard -> htrans k -> M_function f -> M_solutions B f k -> M_opair k X ∈ f
+    standard M -> htrans k -> M_function f -> M_solutions B f k -> M_opair k X ∈ f
     -> p ∈ X -> exists u v, p = M_enc_card u v /\ derivable B u v.
   Proof.
     intros HS HO Hf Hk HX Hp. destruct (HS k HO) as [n -> % VIEQ].
@@ -804,7 +541,7 @@ Section ZF.
   Qed.
 
   Theorem PCP_HF2 B rho :
-    standard -> rho ⊨ solvable B -> exists s, derivable B s s.
+    standard M -> rho ⊨ solvable B -> exists s, derivable B s s.
   Proof.
     intros VIN (n & f & s & X & [[[[H1 H2] H3] H4] H5]).
     assert (H1' : htrans n) by apply H1. clear H1.
@@ -826,7 +563,6 @@ End ZF.
 
 (* ** Reduction Theorem *)
 
-Arguments standard {_} _.
 
 Theorem PCP_HF B :
   (exists V (M : interp V), extensional M /\ standard M /\ forall rho, rho ⊫ HF)

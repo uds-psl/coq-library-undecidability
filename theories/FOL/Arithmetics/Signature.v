@@ -1,7 +1,7 @@
 (* * Peano Arithmetic *)
 (* ** Signature *)
 
-Require Export Undecidability.FOL.FullSyntax.
+Require Export Undecidability.FOL.Utils.FullSyntax.
 From Undecidability.Synthetic Require Import EnumerabilityFacts ListEnumerabilityFacts.
 Import Vector.VectorNotations.
 Require Import List.

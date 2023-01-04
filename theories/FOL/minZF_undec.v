@@ -4,6 +4,7 @@ Require Import Undecidability.FOL.Sets.minZF.
 Require Import Undecidability.FOL.Sets.Models.ZF_model.
 Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
 Require Import Undecidability.FOL.Semantics.Tarski.FullSoundness.
+Require Import Undecidability.FOL.ZF.
 
 From Undecidability.FOL.Reductions Require Import PCPb_to_ZFeq PCPb_to_minZFeq PCPb_to_ZF PCPb_to_ZFD PCPb_to_binZF PCPb_to_minZF.
 

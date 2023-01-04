@@ -1,1 +1,1 @@
-From Undecidability.FOL Require Export FragmentSyntax Utils.FriedmanTranslationFragment.
+From Undecidability.FOL Require Export Utils.FragmentSyntax Utils.FriedmanTranslationFragment.

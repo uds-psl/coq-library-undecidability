@@ -1,5 +1,6 @@
 (* ** Variant allowing intensional models *)
 
+Require Import Undecidability.FOL.ZF.
 Require Import Undecidability.FOL.Syntax.Facts.
 Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
 From Undecidability.FOL.Sets Require Import minZF ZF.

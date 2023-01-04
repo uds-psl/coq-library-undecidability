@@ -4,6 +4,7 @@ Require Import Undecidability.FOL.Syntax.Facts.
 Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
 Require Import Undecidability.FOL.Deduction.FullNDFacts.
 Require Import Undecidability.FOL.Sets.FST.
+Require Import Undecidability.FOL.FST.
 Require Import Undecidability.FOL.Reductions.PCPb_to_FST.
 
 From Undecidability.PCP Require Import PCP Util.PCP_facts Reductions.PCPb_iff_dPCPb.

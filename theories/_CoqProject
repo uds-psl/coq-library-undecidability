@@ -826,7 +826,6 @@ FOL/Arithmetics/Signature.v
 FOL/Arithmetics/FA.v
 FOL/Arithmetics/Robinson.v
 FOL/Arithmetics/PA.v
-FOL/Arithmetics/Problems.v
 FOL/Arithmetics/TarskiFacts.v
 FOL/Arithmetics/DeductionFacts.v
 FOL/Arithmetics/NatModel.v
@@ -846,8 +845,8 @@ FOL/Sets/Models/ZF_model.v
 FOL/Sets/Models/HF_model.v
 FOL/Sets/Models/ZF_conservativity.v
 
-FOL/FullSyntax.v
-FOL/FragmentSyntax.v
+FOL/Utils/FullSyntax.v
+FOL/Utils/FragmentSyntax.v
 
 
 
@@ -906,12 +905,18 @@ FOL/FST_undec.v
 FOL/binFST_undec.v
 FOL/FSAT.v
 
+FOL/PA.v
+FOL/ZF.v
+FOL/FST.v
+
 
 -Q ../theories-FOL/ FOL
 ../theories-FOL/FullSyntax.v
 ../theories-FOL/FragmentSyntax.v
 ../theories-FOL/Arithmetics.v
 ../theories-FOL/Theories.v
+../theories-FOL/Sets.v
+../theories-FOL/FiniteSets.v
 
 ../theories-FOL/Semantics/Heyting/Heyting.v
 ../theories-FOL/Semantics/Heyting/Soundness.v

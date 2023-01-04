@@ -1,1 +1,1 @@
-From Undecidability.FOL Require Export FullSyntax Utils.FriedmanTranslation.
+From Undecidability.FOL Require Export Utils.FullSyntax Utils.FriedmanTranslation.

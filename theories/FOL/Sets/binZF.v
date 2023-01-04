@@ -1,6 +1,6 @@
 (* ** Axiomatisation just using membership *)
 
-Require Export Undecidability.FOL.FullSyntax.
+Require Export Undecidability.FOL.Utils.FullSyntax.
 Require Export Undecidability.FOL.Sets.Signatures.
 Import Vector.VectorNotations.
 Require Import List.
@@ -92,16 +92,5 @@ Definition binZF :=
 
 
 
-(* ** Problems *)
-
-(* Semantic entailment restricted to extensional models and core axioms (without sep and rep). *)
-
-Definition entailment_binZF phi :=
-  forall D (M : @interp sig_empty _ D) (rho : nat -> D), (forall psi, In psi binZF -> rho ⊨ psi) -> rho ⊨ phi.
-
-(* Deductive entailment restricted to intuitionistic rules and core axioms (without sep and rep). *)
-
-Definition deduction_binZF phi :=
-  binZF ⊢I phi.
 
 

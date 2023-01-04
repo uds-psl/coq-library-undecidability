@@ -1,7 +1,7 @@
 (* * ZF set theory without Skolem function symbols *)
 (* ** Axiomatisations using membership and equality *)
 
-Require Export Undecidability.FOL.FullSyntax.
+Require Export Undecidability.FOL.Utils.FullSyntax.
 Require Export Undecidability.FOL.Sets.Signatures.
 Require Export Undecidability.FOL.Sets.ZF.
 Import Vector.VectorNotations.
@@ -139,44 +139,4 @@ Inductive minZFeq : form -> Prop :=
 | minZFeq_base phi : In phi minZFeq' -> minZFeq phi
 | minZFeq_sep phi : minZFeq (ax_sep' phi)
 | minZFeq_rep phi : minZFeq (ax_rep' phi).
-
-
-
-(* ** Problems *)
-
-(* Semantic entailment restricted to core axioms (without sep and rep) with equality axioms. *)
-
-Definition entailment_minZFeq' phi :=
-  forall D (M : interp D) (rho : nat -> D), (forall sigma psi, In psi minZFeq' -> sigma ⊨ psi) -> rho ⊨ phi.
-
-(* Semantic entailment restricted to extensional models and core axioms (without sep and rep). *)
-
-Definition entailment_minZF' phi :=
-  forall D (M : @interp sig_empty _ D) (rho : nat -> D), extensional M -> (forall sigma psi, In psi minZF' -> sigma ⊨ psi) -> rho ⊨ phi.
-
-(* Semantic entailment for Z restricted to extensional models. *)
-
-Definition entailment_minZ phi :=
-  forall D (M : @interp sig_empty _ D) (rho : nat -> D), extensional M -> (forall sigma psi, minZ psi -> sigma ⊨ psi) -> rho ⊨ phi.
-
-(* Semantic entailment for ZF restricted to extensional models. *)
-
-Definition entailment_minZF phi :=
-  forall D (M : @interp sig_empty _ D) (rho : nat -> D), extensional M -> (forall sigma psi, minZF psi -> sigma ⊨ psi) -> rho ⊨ phi.
-
-(* Deductive entailment restricted to intuitionistic rules and core axioms (without sep and rep). *)
-
-Definition deduction_minZF' phi :=
-  minZFeq' ⊢I phi.
-
-(* Deductive entailment for Z restricted to intuitionistic rules. *)
-
-Definition deduction_minZ phi :=
-  minZeq ⊢TI phi.
-
-(* Deductive entailment for ZF restricted to intuitionistic rules. *)
-
-Definition deduction_minZF phi :=
-  minZFeq ⊢TI phi.
-
 

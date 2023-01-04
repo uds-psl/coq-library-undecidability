@@ -6,7 +6,8 @@ From Undecidability.FOL
                     Semantics.Tarski.FullFacts
                     Semantics.Tarski.FullSoundness
                     Deduction.FullNDFacts
-                    Sets.Models.FST_model.
+                    Sets.Models.FST_model
+                    FST.
 
 
 From Undecidability.FOL.Reductions

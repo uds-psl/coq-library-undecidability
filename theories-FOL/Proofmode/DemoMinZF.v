@@ -3,8 +3,8 @@ Require Equations.Type.DepElim.
 From Undecidability.Shared Require Import Dec.
 From FOL Require Import FullSyntax.
 From FOL.Proofmode Require Import Theories ProofMode.
-From Undecidability.FOL Require Import Sets.minZF.
-From Undecidability.FOL Require Import Sets.Signatures Reductions.PCPb_to_ZF Reductions.PCPb_to_minZF.
+From FOL Require Import Sets.
+Import minZF.
 Require Import String List.
 
 Import ListNotations.
@@ -12,6 +12,7 @@ Open Scope string_scope.
 
 
 (* Some proofs from Reductions.PCPb_to_minZF done with the Proof Mode *)
+From Undecidability.FOL Require Import Reductions.PCPb_to_minZF.
 
 Section MinZF.
 
@@ -45,7 +46,6 @@ Next Obligation.
     + intros H2. feapply ax_trans'. apply H1. feapply ax_trans'. apply H2.
       fapply ax_sym'. apply H1.
 Qed.
-
 
 
 Lemma prv_to_min_refl :

@@ -1,7 +1,7 @@
 (* * Finite Set Theory with Adjunction Operation *)
 (* ** Axiomatisations *)
 
-Require Export Undecidability.FOL.FullSyntax.
+Require Export Undecidability.FOL.Utils.FullSyntax.
 Require Export Undecidability.FOL.Sets.Signatures.
 Import Vector.VectorNotations.
 Require Import List.
@@ -74,25 +74,4 @@ Inductive FSTIeq : form -> Prop :=
 | FSTeq_base phi : In phi FSTeq -> FSTIeq phi
 | FSTeq_ind phi : FSTIeq (ax_ind phi).
 
-
-
-(* ** Problems *)
-
-Notation extensional M :=
-  (forall x y, @i_atom _ ZFSignature.ZF_pred_sig _ M equal ([x; y]) <-> x = y).
-
-Definition entailment_FST phi :=
-  forall D (M : interp D) (rho : nat -> D), extensional M -> (forall sigma psi, In psi FST -> sigma ⊨ psi) -> rho ⊨ phi.
-
-Definition entailment_FSTeq phi :=
-  forall D (M : interp D) (rho : nat -> D), (forall sigma psi, In psi FSTeq -> sigma ⊨ psi) -> rho ⊨ phi.
-
-Definition entailment_FSTI phi :=
-  forall D (M : interp D) (rho : nat -> D), extensional M -> (forall sigma psi, FSTI psi -> sigma ⊨ psi) -> rho ⊨ phi.
-
-Definition deduction_FST phi :=
-  FSTeq ⊢I phi.
-
-Definition deduction_FSTI phi :=
-  FSTIeq ⊢TI phi.
 

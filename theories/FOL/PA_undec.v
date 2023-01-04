@@ -1,7 +1,7 @@
 (** ** Peano Arithmetic *)
 
 Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
-Require Import Undecidability.FOL.Arithmetics.Problems.
+Require Import Undecidability.FOL.PA.
 From Undecidability.FOL Require Import Syntax.Facts Semantics.Tarski.FullFacts Deduction.FullNDFacts Semantics.Tarski.FullSoundness.
 From Undecidability.H10 Require Import H10p_undec.
 From Undecidability.FOL.Reductions Require Import H10p_to_FA.

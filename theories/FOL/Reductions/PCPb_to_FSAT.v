@@ -4,7 +4,7 @@ Require Import Lia Arith.
 Require Import Undecidability.PCP.PCP.
 Require Import Undecidability.PCP.Util.PCP_facts.
 Require Import Undecidability.Synthetic.DecidabilityFacts.
-From Undecidability Require Import FOL.FullSyntax.
+From Undecidability Require Import FOL.Utils.FullSyntax.
 From Undecidability Require FOL.Semantics.FiniteTarski.Fragment.
 From Undecidability Require Import FOL.FSAT.
 Require Import Undecidability.Shared.ListAutomation.

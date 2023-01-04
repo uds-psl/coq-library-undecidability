@@ -4,9 +4,10 @@ Require Import Undecidability.FOL.Syntax.Facts.
 Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
 Require Import Undecidability.FOL.Semantics.Tarski.FullSoundness.
 Require Import Undecidability.FOL.Deduction.FullNDFacts.
-From Undecidability.FOL.Sets Require Import binFST binZF.
 Require Import Undecidability.FOL.Reductions.PCPb_to_binZF.
-
+Require Import Undecidability.FOL.ZF.
+Require Import Undecidability.FOL.FST.
+From Undecidability.FOL.Sets Require Import  Models.FST_model Models.ZF_model binFST binZF.
 Require Import Lia.
 
 From Undecidability Require Import Shared.ListAutomation.
@@ -19,6 +20,7 @@ Local Hint Constructors prv : core.
 
 Definition ZF_to_FST phi :=
   ax_pair' → ax_union' → ax_power' → ax_om' → phi.
+Close Scope syn.
 
 Lemma bZF_elem { p : peirce } T x x' y y' :
   binZF <<= T -> T ⊢ x ≡' x' -> T ⊢ y ≡' y' -> T ⊢ x ∈' y -> T ⊢ x' ∈' y'.
@@ -63,7 +65,7 @@ Proof.
     eapply DE. eapply IE. apply H. eapply CE1. auto.
     + apply DI1. eapply bZF_elem. auto 7.
       * apply bZF_refl. auto 7.
-      * apply Ctx. left. unfold eq'. cbn. subsimpl. reflexivity.
+      * apply Ctx. left. unfold eq'. cbn. unfold binZF.eq'. cbn. subsimpl. reflexivity.
       * eapply CE2. auto.
     + apply DI2. clear H. assert6 H. apply (AllE b) in H. cbn in H. subsimpl_in H.
       apply CE1 in H. eapply DE. eapply IE; try apply H.

@@ -2,7 +2,9 @@
 
 Require Import Undecidability.FOL.Syntax.Facts.
 Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
+Require Import Undecidability.FOL.FST.
 Require Import Undecidability.FOL.Sets.FST.
+Require Undecidability.FOL.Sets.Models.FST_model.
 Require Import Lia.
 
 From Undecidability.PCP Require Import PCP Util.PCP_facts Reductions.PCPb_iff_dPCPb.
@@ -137,30 +139,8 @@ Proof.
 Qed.
   
 
-
-
-(* ** ZF-Models *)
-
-Declare Scope sem.
-Open Scope sem.
-
-Arguments Vector.nil {_}, _.
-Arguments Vector.cons {_} _ {_} _, _ _ _ _.
-
-Notation "x ∈ y" := (@i_atom _ _ _ _ elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : sem.
-Notation "x ≡ y" := (@i_atom _ _ _ _ equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : sem.
-Notation "x ⊆ y" := (forall z, z ∈ x -> z ∈ y) (at level 34) : sem.
-
-Notation "∅" := (@i_func FST_func_sig ZFSignature.ZF_pred_sig _ _ eset Vector.nil) : sem.
-Notation "x ::: y " := (@i_func FST_func_sig _ _ _ adj (Vector.cons x (Vector.cons y Vector.nil))) (at level 31) : sem.
-
-Notation "{ x ; y }" := (x ::: (y ::: ∅)) (at level 31) : sem.
-Notation "'σ' x" := (x ::: x) (at level 32) : sem.
-
-
-
-(* ** Internal axioms *)
-
+Import FST_model.
+Export FST_model.
 Section FST.
 
   Context { V : Type }.
@@ -168,206 +148,16 @@ Section FST.
 
   Hypothesis M_FST : forall rho, rho ⊫ FST.
   Hypothesis VIEQ : extensional M.
-  
-  Lemma M_ext x y :
-    x ⊆ y -> y ⊆ x -> x = y.
-  Proof.
-    rewrite <- VIEQ. apply (@M_FST (fun _ => ∅) ax_ext). cbn; tauto.
-  Qed.
-
-  Lemma M_eset x :
-    ~ x ∈ ∅.
-  Proof.
-    refine (@M_FST (fun _ => ∅) ax_eset _ x). cbn; tauto.
-  Qed.
-
-  Lemma M_adj x y z :
-    x ∈ y ::: z <-> x = y \/ x ∈ z.
-  Proof.
-    rewrite <- VIEQ. apply (@M_FST (fun _ => ∅) ax_adj). cbn; tauto.
-  Qed.
-
-  Lemma M_pair x y z :
-    x ∈ {y; z} <-> x = y \/ x = z.
-  Proof.
-    rewrite M_adj. rewrite M_adj. intuition. now apply M_eset in H.
-  Qed.
-
-  Definition M_is_rep R x y :=
-    forall v, v ∈ y <-> exists u, u ∈ x /\ R u v.
-
-
-
-  (* ** Basic HF *)
-
-  Definition M_sing x :=
-    {x; x}.
-
-  Definition M_opair x y := ({{x; x}; {x; y}}).
-
-  Lemma sing_el x y :
-    x ∈ M_sing y <-> x = y.
-  Proof.
-    split.
-    - now intros [H|H] % M_pair.
-    - intros ->. apply M_pair. now left.
-  Qed.
-
-  Lemma M_pair1 x y :
-    x ∈ {x; y}.
-  Proof.
-    apply M_pair. now left.
-  Qed.
-
-  Lemma M_pair2 x y :
-    y ∈ {x; y}.
-  Proof.
-    apply M_pair. now right.
-  Qed.
-
-  Lemma sing_pair x y z :
-    {x; x} = {y; z} -> x = y /\ x = z.
-  Proof.
-    intros He. split.
-    - assert (H : y ∈ {y; z}) by apply M_pair1.
-      rewrite <- He in H. apply M_pair in H. intuition.
-    - assert (H : z ∈ {y; z}) by apply M_pair2.
-      rewrite <- He in H. apply M_pair in H. intuition.
-  Qed.
-
-  Lemma opair_inj1 x x' y y' :
-    M_opair x y = M_opair x' y' -> x = x'.
-  Proof.
-    intros He. assert (H : {x; x} ∈ M_opair x y) by apply M_pair1.
-    rewrite He in H. apply M_pair in H as [H|H]; apply (sing_pair H).
-  Qed.
-
-  Lemma opair_inj2 x x' y y' :
-    M_opair x y = M_opair x' y' -> y = y'.
-  Proof.
-    intros He. assert (y = x' \/ y = y') as [->| ->]; trivial.
-    - assert (H : {x; y} ∈ M_opair x y) by apply M_pair2.
-      rewrite He in H. apply M_pair in H as [H|H].
-      + symmetry in H. apply sing_pair in H. intuition.
-      + assert (H' : y ∈ {x; y}) by apply M_pair2.
-        rewrite H in H'. now apply M_pair in H'.
-    - assert (x = x') as -> by now apply opair_inj1 in He.
-      assert (H : {x'; y'} ∈ M_opair x' y') by apply M_pair2.
-      rewrite <- He in H. apply M_pair in H as [H|H]; apply (sing_pair (eq_sym H)).
-  Qed.     
-
-  Lemma opair_inj x x' y y' :
-    M_opair x y = M_opair x' y' -> x = x' /\ y = y'.
-  Proof.
-    intros H. split.
-    - eapply opair_inj1; eassumption.
-    - eapply opair_inj2; eassumption.
-  Qed.
-
-  Lemma sigma_el x y :
-    x ∈ σ y <-> x ∈ y \/ x = y.
-  Proof.
-    rewrite M_adj. tauto.
-  Qed.
-
-  Lemma sigma_eq x :
-    x ∈ σ x.
-  Proof.
-    apply sigma_el. now right.
-  Qed.
-
-  Lemma sigma_sub x :
-    x ⊆ σ x.
-  Proof.
-    intros y H. apply sigma_el. now left.
-  Qed.
-
-  Lemma pair_com x y :
-    {x; y} = {y; x}.
-  Proof.
-    apply M_ext; intros z [->| ->] % M_pair; apply M_pair; auto.
-  Qed.
-
-  
-  
-  (* ** Numerals *)
-
-  Fixpoint numeral n :=
-    match n with 
-    | O => ∅
-    | S n => σ (numeral n)
-    end.
-
-  Definition trans x :=
-    forall y, y ∈ x -> y ⊆ x.
-
-  Lemma numeral_trans n :
-    trans (numeral n).
-  Proof.
-    induction n; cbn.
-    - intros x H. now apply M_eset in H.
-    - intros x [H| ->] % sigma_el; try apply sigma_sub.
-      apply IHn in H. intuition eauto using sigma_sub.
-  Qed.
-
-  Lemma numeral_wf n :
-    ~ numeral n ∈ numeral n.
-  Proof.
-    induction n.
-    - apply M_eset.
-    - intros [H|H] % sigma_el; fold numeral in *.
-      + apply IHn. eapply numeral_trans; eauto. apply sigma_eq.
-      + assert (numeral n ∈ numeral (S n)) by apply sigma_eq.
-        now rewrite H in H0.
-  Qed.
-
-  Lemma numeral_lt k l :
-    k < l -> numeral k ∈ numeral l.
-  Proof.
-    induction 1; cbn; apply sigma_el; auto.
-  Qed.
-
-  Lemma numeral_inj k l :
-    numeral k = numeral l -> k = l.
-  Proof.
-    intros Hk. assert (k = l \/ k < l \/ l < k) as [H|[H|H]] by lia; trivial.
-    all: apply numeral_lt in H; rewrite Hk in H; now apply numeral_wf in H.
-  Qed.
-
-  Definition htrans x :=
-    trans x /\ forall y, y ∈ x -> trans y.
-
-  Lemma numeral_numeral n x :
-    x ∈ numeral n -> exists k, x = numeral k.
-  Proof.
-    intros H. induction n; cbn in *.
-    - now apply M_eset in H.
-    - apply sigma_el in H as [H|H].
-      + apply IHn, H.
-      + exists n. apply H.
-  Qed.
-
-  Lemma numeral_htrans n :
-    htrans (numeral n).
-  Proof.
-    split; try apply numeral_trans.
-    intros y [k ->] % numeral_numeral. apply numeral_trans.
-  Qed.
-
-  Lemma numeral_trans_sub x n :
-    (forall x y, (x ∈ y) + (~ x ∈ y)) -> x ⊆ numeral n -> trans x -> sig (fun n => x = numeral n).
-  Proof.
-    intros d. induction n; cbn.
-    - intros H _. exists 0. cbn. apply M_ext; trivial. intros y [] % M_eset.
-    - intros Hn Hx. destruct (d (numeral n) x) as [H|H].
-      + exists (S n). cbn. apply M_ext; trivial.
-        intros y [Hy| ->] % sigma_el; trivial.
-        now apply (Hx (numeral n)).
-      + apply IHn; trivial. intros y Hy.
-        specialize (Hn y Hy). apply sigma_el in Hn as [Hn| ->]; tauto.
-  Qed.
-
-
+  Notation M_pair := (@M_pair _ _ M_FST VIEQ).
+  Notation opair_inj := (@opair_inj _ _ M_FST VIEQ).
+  Notation sigma_el := (@sigma_el _ _ M_FST VIEQ).
+  Notation sigma_eq := (@sigma_eq _ _ M_FST VIEQ).
+  Notation sing_el := (@sing_el _ _ M_FST VIEQ).
+  Notation numeral_inj := (@numeral_inj _ _ M_FST VIEQ).
+  Notation M_ext := (@M_ext _ _ M_FST VIEQ).
+  Notation M_adj := (@M_adj _ _ M_FST VIEQ).
+  Notation M_eset := (@M_eset _ _ M_FST).
+  Notation numeral_htrans := (@numeral_htrans _ _ M_FST VIEQ).
 
   (* ** Encodings *)
 
@@ -410,9 +200,9 @@ Section FST.
     M_enc_string s = M_enc_string t -> s = t.
   Proof.
     induction s in t|-*; destruct t as [|b t]; cbn; trivial.
-    - intros H. contradiction (M_eset (x:=M_sing (M_enc_bool b))).
+    - intros H. contradiction (@M_eset (M_sing (M_enc_bool b))).
       rewrite H. apply M_pair. now left.
-    - intros H. contradiction (M_eset (x:=M_sing (M_enc_bool a))).
+    - intros H. contradiction (@M_eset (M_sing (M_enc_bool a))).
       rewrite <- H. apply M_pair. now left.
     - intros [H1 H2] % opair_inj. apply IHs in H2 as ->.
       apply enc_bool_inj in H1 as ->. reflexivity.
@@ -544,9 +334,9 @@ Section FST.
     - intros [H1|H1] % M_adj [H2|H2] % M_adj.
       + rewrite <- H2 in H1. now apply opair_inj in H1.
       + exfalso. apply enc_derivations_bound in H2.
-        destruct (opair_inj H1) as [-> _]. now apply (@numeral_wf (S n)). 
+        destruct (opair_inj H1) as [-> _]. now apply (@numeral_wf _ _ M_FST VIEQ (S n)). 
       + exfalso. apply enc_derivations_bound in H1.
-        destruct (opair_inj H2) as [-> _]. now apply (@numeral_wf (S n)).
+        destruct (opair_inj H2) as [-> _]. now apply (@numeral_wf _ _ M_FST VIEQ (S n)).
       + now apply (IHn k x y).
   Qed.
 
@@ -756,9 +546,6 @@ Section FST.
 
   Definition M_function f :=
     forall x y y', M_opair x y ∈ f -> M_opair x y' ∈ f -> y = y'.
-
-  Definition standard :=
-    forall x, htrans x -> exists n, x ≡ numeral n.
 
   Lemma M_solutions_el B f k X p :
     standard -> htrans k -> M_function f -> M_solutions B f k -> M_opair k X ∈ f
