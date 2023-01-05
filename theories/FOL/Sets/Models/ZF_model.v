@@ -581,20 +581,6 @@ Section IM.
     - apply AomAx2.
   Qed.
 
-  (*
-  Lemma Acz_sep phi rho :
-    rho ⊨ ax_sep phi.
-  Proof.
-    intros x. cbn.
-    exists (Asep (fun y => (y .: rho) ⊨ phi) x).
-    intros y. rewrite AsepAx.
-    split; intros [H1 H2]; split; trivial.
-    - setoid_rewrite sat_comp. eapply sat_ext; try apply H2. now intros [].
-    - setoid_rewrite sat_comp in H2. eapply sat_ext; try apply H2. now intros [].
-    - intros s t. admit.
-  Admitted.
-  *)
-
 End IM.
 
 Lemma intensional_model :
