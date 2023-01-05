@@ -1,8 +1,12 @@
-Require Import Undecidability.Synthetic.Definitions.
-From Undecidability.FOL.Util Require Import Syntax Syntax_facts FullTarski FullTarski_facts FullDeduction_facts FullDeduction FA_facts.
+(* ** Reduction from H10 *)
+
+Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
+From Undecidability.FOL Require Import Syntax.Facts Deduction.FullNDFacts Semantics.Tarski.FullFacts Semantics.Tarski.FullSoundness.
 Require Import Undecidability.FOL.PA.
+From Undecidability.FOL.Arithmetics Require Import TarskiFacts DeductionFacts NatModel.
 From Undecidability.H10 Require Import H10p.
 Require Import List Lia.
+
 
 Fixpoint embed_poly p : term :=
     match p with
@@ -43,8 +47,8 @@ Proof.
   - cbn. now rewrite IHn.
 Qed.
 
-Lemma prv_poly sigma q Gamma :
-  incl FAeq Gamma -> Gamma ⊢I ( (embed_poly q)`[sigma >> num] == num (dp_eval_pfree sigma q) ).
+Lemma prv_poly {p : peirce} sigma q Gamma :
+  incl FAeq Gamma -> Gamma ⊢ ( (embed_poly q)`[sigma >> num] == num (dp_eval_pfree sigma q) ).
 Proof.
   intros H.
   induction q; cbn.
@@ -54,15 +58,15 @@ Proof.
   - now apply reflexivity.
   - destruct d; cbn.
     + eapply transitivity. assumption.
-      apply (eq_add _ _ H IHq1 IHq2).
+      apply (eq_add H IHq1 IHq2).
       now apply num_add_homomorphism.
     + eapply transitivity. assumption.
-      apply (eq_mult _ _ H IHq1 IHq2).
+      apply (eq_mult H IHq1 IHq2).
       now apply num_mult_homomorphism.
 Qed.
 
-Lemma problem_to_prv :
-  forall E sigma, H10p_sem E sigma -> FAeq ⊢I (embed_problem E)[sigma >> num].
+Lemma problem_to_prv {p : peirce} :
+  forall E sigma, H10p_sem E sigma -> FAeq ⊢ (embed_problem E)[sigma >> num].
 Proof.
   intros [a b] sigma HE. cbn -[FAeq].
   eapply transitivity; firstorder.
@@ -70,6 +74,15 @@ Proof.
   apply symmetry; firstorder.
   unfold H10p_sem in *. cbn in HE. rewrite HE.
   apply prv_poly; firstorder.
+Qed.
+
+Theorem H10p_to_FA_prv' {p : peirce} E :
+  H10p E -> FAeq ⊢ embed E.
+Proof.
+  intros [sigma HE].
+  eapply subst_exist_prv.
+  apply problem_to_prv, HE.
+  rewrite <-exists_close_form; apply embed_is_closed.
 Qed.
 
 
@@ -100,7 +113,16 @@ Section FA_ext_Model.
       intros [a b] sigma Hs. cbn -[sat].
       unfold H10p_sem in *. cbn -[FA] in *.
       apply ext_model. rewrite !eval_poly. congruence.
-    Qed.      
+    Qed.
+
+    Theorem H10p_to_FA_ext_model' E rho : H10p E -> rho ⊨ embed E.
+    Proof using ext_model FA_model.
+      intros [sigma HE].
+      eapply subst_exist_sat.
+      apply problem_to_ext_model.
+      - apply HE.
+      - rewrite <-exists_close_form; apply embed_is_closed. 
+    Qed.
     
 End FA_ext_Model.
 
@@ -119,7 +141,7 @@ Section FA_Model.
   
   Lemma problem_to_model E sigma : H10p_sem E sigma -> (sigma >> iμ) ⊨ embed_problem E.
   Proof using FA_model.
-    intros HE%problem_to_prv%soundness.
+    intros HE%(problem_to_prv (p:=intu))%soundness.
     specialize (HE D I).
     setoid_rewrite sat_comp in HE.
     eapply sat_ext. 2: apply HE.
@@ -128,9 +150,51 @@ Section FA_Model.
     now apply FA_model.
   Qed.
 
+  Definition standard :=
+    extensional I /\ exists f : D -> nat, (forall d, iμ (f d) = d) /\ (forall n, f (iμ n) = n).
+
+  Fact standard_embed_poly rho p f :
+    extensional I -> (forall d, iμ (f d) = d) -> eval rho (embed_poly p) = iμ (dp_eval_pfree (rho >> f) p).
+  Proof using FA_model.
+    intros HI Hf. induction p; try destruct d; cbn.
+    - apply eval_num.
+    - unfold funcomp. now rewrite Hf.
+    - rewrite IHp1, IHp2. rewrite add_hom; trivial. firstorder.
+    - rewrite IHp1, IHp2. rewrite mult_hom; trivial. firstorder.
+  Qed.
+  
+  Lemma standard_embed_problem' E rho f :
+    extensional I -> (forall d, iμ (f d) = d) -> (forall n, f (iμ n) = n) -> rho ⊨ embed_problem E -> H10p_sem E (rho >> f).
+  Proof using FA_model.
+    intros HI Hf1 Hf2 H. destruct E as [p q]. apply HI in H.
+    unfold H10p_sem. cbn. rewrite <- Hf2 at 1. setoid_rewrite <- Hf2 at 3.
+    f_equal. now rewrite <- !standard_embed_poly.
+  Qed.
+
+  Lemma standard_embed_problem E :
+    standard -> (exists rho, rho ⊨ embed_problem E) -> H10p E.
+  Proof using FA_model.
+    intros (HI & f & Hf1 & Hf2) [rho Hr]. exists (rho >> f). now apply standard_embed_problem'.
+  Qed.
+
+  Lemma standard_embed E rho :
+    standard -> rho ⊨ (embed E) -> H10p E.
+  Proof using FA_model.
+    intros HS H. apply standard_embed_problem; trivial. eapply subst_exist_sat2, H.
+  Qed.
   
 End FA_Model.
 
+Arguments standard _ _ : clear implicits.
+
+Lemma nat_standard :
+  standard nat interp_nat.
+Proof.
+  split; try reflexivity. exists (fun n => n).
+  setoid_rewrite <- (eval_num _ (fun n => n)).
+  setoid_rewrite nat_eval_num.
+  split; reflexivity.
+Qed.
 
 
 Fact nat_eval_poly (sigma : env nat) p :
@@ -144,6 +208,15 @@ Proof.
     + now rewrite IHp1, IHp2.
 Qed.
 
+Lemma nat_H10 E :
+  (forall rho, sat interp_nat rho (embed E)) -> H10p E.
+Proof.
+  destruct E as [a b]. unfold embed in *.
+  intros H. specialize (H (fun _ => 0)).
+  apply subst_exist_sat2 in H as [sigma H].
+  exists sigma. unfold H10p.H10p_sem. cbn.
+  rewrite <- !nat_eval_poly. apply H.
+Qed.
 
 Lemma nat_sat :
   forall E rho, sat interp_nat rho (embed_problem E) <-> H10p_sem E rho.
@@ -208,6 +281,28 @@ Proof.
 Qed.
 
 
+Theorem H10p_to_Q_sat E :
+  H10p E <-> valid_ctx Qeq (embed E).
+Proof.
+  split.
+  - intros [sigma HE].
+    intros D I rho H.
+    eapply subst_exist_sat.
+    apply problem_to_model.
+    + intros ρ' ax Hax. eapply sat_closed.
+      2: apply H.
+      repeat (destruct Hax as [<- | Hax]; cbn; repeat solve_bounds; auto).
+      1: inversion Hax.
+      firstorder.
+    + apply HE.
+    + rewrite <-exists_close_form; apply embed_is_closed.
+  - intros H.
+    specialize (H nat interp_nat id (nat_is_Q_model id)).
+    unfold embed in *. apply subst_exist_sat2 in H.
+    now apply nat_sat'.
+Qed.
+
+
 Theorem H10p_to_PA_sat E :
   H10p E <-> forall D (I : interp D) rho, (forall psi rho, PAeq psi -> rho ⊨ psi) -> rho ⊨ (embed E).
 Proof.
@@ -242,6 +337,19 @@ Proof.
 Qed.
 
 
+Theorem H10p_to_Q_prv E :
+  H10p E <-> Qeq ⊢I embed E.
+Proof.
+  split.
+  - intros.
+    apply Weak with FAeq.
+    now apply H10p_to_FA_prv.
+    firstorder.
+  - intros H%soundness.
+    now apply H10p_to_Q_sat.
+Qed.
+
+
 Theorem H10p_to_PA_prv E :
   H10p E <-> PAeq ⊢TI embed E.
 Proof.
@@ -252,7 +360,7 @@ Proof.
     now exists sigma.
   - intros H. apply nat_sat'.
     eapply subst_exist_sat2.
-    apply (tsoundness H interp_nat id).
+    eapply (tsoundness H (rho:=id)).
     intros. now apply nat_is_PAeq_model.
 Qed.
 
@@ -265,12 +373,18 @@ Proof.
   exists embed. intros E. apply H10p_to_FA_ext_sat.
 Qed.
 
-(* ** Reductions for the axiomatisations PAeq and FAeq, which include the axioms for equatlity. *)
+(* ** Reductions for the axiomatisations FAeq, Qeq and PAeq, which include the axioms for equatlity. *)
 
 Theorem H10_to_entailment_FA :
   H10p ⪯ entailment_FA.
 Proof.
   exists embed; intros E. apply H10p_to_FA_sat.
+Qed.
+
+Corollary H10_to_entailment_Q :
+  H10p ⪯ entailment_Q.
+Proof.
+  exists embed; intros E. apply H10p_to_Q_sat.
 Qed.
 
 Corollary H10_to_entailment_PA :
@@ -283,6 +397,12 @@ Theorem H10_to_deduction_FA :
   H10p ⪯ deduction_FA.
 Proof.
   exists embed; intros E. apply H10p_to_FA_prv.
+Qed.
+
+Theorem H10_to_deduction_Q :
+  H10p ⪯ deduction_Q.
+Proof.
+  exists embed; intros E. apply H10p_to_Q_prv.
 Qed.
 
 Corollary H10_to_deduction_PA :

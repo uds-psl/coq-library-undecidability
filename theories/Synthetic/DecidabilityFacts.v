@@ -49,6 +49,12 @@ Proof.
   - intros [d]. eapply dec_decidable' in d as [f]. now exists f.
 Qed.
 
+Lemma decidable_iff' X p :
+  {f | decider f p} -> (forall x : X, dec (p x)).
+Proof.
+  intros [f H]. intros x. specialize (H x). destruct (f x); firstorder congruence.
+Qed.
+
 (* Closure properties of decidability *)
 
 Lemma discrete_iff X :

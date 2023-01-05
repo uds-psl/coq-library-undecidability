@@ -1,15 +1,16 @@
-(* * Reduction to deductive ZF entailment *)
+(* ** Reduction from PCP to deductive entailment *)
 
-Require Import Undecidability.FOL.Util.Syntax.
-Require Import Undecidability.FOL.Util.FullTarski.
-Require Import Undecidability.FOL.Util.FullDeduction_facts.
 Require Import Undecidability.FOL.ZF.
+Require Import Undecidability.FOL.Syntax.Facts.
+Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
+Require Import Undecidability.FOL.Sets.ZF.
 Require Import Undecidability.FOL.Reductions.PCPb_to_ZF.
 
 From Undecidability.PCP Require Import PCP Util.PCP_facts Reductions.PCPb_iff_dPCPb.
 
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations ListAutomationHints.
+
 
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
@@ -52,7 +53,7 @@ Proof.
   induction n; cbn.
   - eapply CE1. apply Ctx. firstorder.
   - eapply IE; try apply IHn.
-    change (ZFeq' ⊢ ($0 ∈ ω ~> σ ($0) ∈ ω)[(tnumeral n)..]).
+    change (ZFeq' ⊢ ($0 ∈ ω → σ ($0) ∈ ω)[(tnumeral n)..]).
     apply AllE. eapply CE2. apply Ctx. firstorder.
 Qed.
 
@@ -219,7 +220,7 @@ Proof.
 Qed.
 
 Lemma ZF_bunion_inv' x y z :
-   ZFeq' ⊢ z ∈ x ∪ y ~> z ∈ x ∨ z ∈ y.
+   ZFeq' ⊢ z ∈ x ∪ y → z ∈ x ∨ z ∈ y.
 Proof.
   assert (TU : ZFeq' ⊢ ax_union) by (apply Ctx; firstorder). unfold ax_union in TU.
   eapply (AllE ({x; y})), (AllE z), CE1 in TU; cbn in TU; subsimpl_in TU.
@@ -358,7 +359,7 @@ Proof.
 Qed.
 
 Lemma bunion_use T x y z phi :
-  ZFeq' <<= T -> (x ∈ y :: T) ⊢ phi -> (x ≡ z :: T) ⊢ phi -> T ⊢ x ∈ y ∪ sing z ~> phi.
+  ZFeq' <<= T -> (x ∈ y :: T) ⊢ phi -> (x ≡ z :: T) ⊢ phi -> T ⊢ x ∈ y ∪ sing z → phi.
 Proof.
   intros HT H1 H2. apply II. eapply DE.
   - eapply ZF_bunion_inv; auto.
@@ -369,7 +370,7 @@ Proof.
 Qed.
 
 Lemma ZF_numeral_trans T n x y :
-  ZFeq' <<= T -> T ⊢ x ∈ tnumeral n ~> y ∈ x ~> y ∈ tnumeral n.
+  ZFeq' <<= T -> T ⊢ x ∈ tnumeral n → y ∈ x → y ∈ tnumeral n.
 Proof.
   intros HT. induction n; cbn.
   - apply II, Exp. eapply IE. apply ZF_eset'. all: auto.
@@ -446,7 +447,7 @@ Proof.
 Qed.
 
 Lemma enc_derivations_functional B n x y y' :
-  ZFeq' ⊢ opair x y ∈ enc_derivations B n ~> opair x y' ∈ enc_derivations B n ~> y ≡ y'.
+  ZFeq' ⊢ opair x y ∈ enc_derivations B n → opair x y' ∈ enc_derivations B n → y ≡ y'.
 Proof.
   induction n; cbn -[derivations].
   - repeat apply II. eapply opair_inj2. auto. eapply ZF_trans'. auto.
@@ -607,8 +608,8 @@ Proof.
 Qed.
 
 Lemma combinations_step B n (i x y : term) :
-  ZFeq' ⊢ i ∈ tnumeral n ~> opair i x ∈ enc_derivations B n
-     ~> combinations B x y ~> opair (σ i) y ∈ enc_derivations B n.
+  ZFeq' ⊢ i ∈ tnumeral n → opair i x ∈ enc_derivations B n
+     → combinations B x y → opair (σ i) y ∈ enc_derivations B n.
 Proof.
   induction n; cbn.
   - apply II. apply Exp.

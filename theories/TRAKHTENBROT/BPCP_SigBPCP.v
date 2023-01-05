@@ -14,7 +14,7 @@
 
 Require Import List Arith Bool Lia.
 
-From Undecidability.PCP Require Import PCP.
+From Undecidability.PCP Require Import PCP Util.PCP_facts.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.

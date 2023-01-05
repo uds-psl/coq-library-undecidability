@@ -2,8 +2,8 @@
 
 From Undecidability.DiophantineConstraints Require Import H10C.
 From Undecidability.DiophantineConstraints.Util Require Import H10UPC_facts.
-From Undecidability.FOL Require Import Util.Syntax Util.Kripke Util.Deduction Util.Tarski Util.Syntax_facts Util.sig_bin.
-From Undecidability.FOL.Reductions Require Import H10UPC_to_FOL_minimal.
+From Undecidability.FOL Require Import Syntax.Facts Deduction.FragmentNDFacts Semantics.Tarski.FragmentSoundness Semantics.Tarski.FragmentFacts Syntax.BinSig Semantics.Kripke.FragmentCore  Semantics.Kripke.FragmentSoundness Semantics.Kripke.FragmentToTarski.
+From Undecidability.FOL.Reductions Require Import H10UPC_to_FOL_minimal H10UPC_to_FOL_constructions.
 From Undecidability.Shared Require Import Dec.
 From Undecidability.Shared.Libs.PSL Require Import Numbers.
 From Undecidability.Synthetic Require Import Definitions.
@@ -12,7 +12,7 @@ From Coq Require Import Arith Lia List.
 
 (* ** Validity *)
 
-(**
+(*
 Idea: The relation (#&#35;#) has the following properties:#<ul>#
 #<li>#n ~ p: n is left component of p#</li>#
 #<li>#p ~ n: p is right component of p#</li>#
@@ -28,7 +28,7 @@ Set Default Goal Selector "!".
 
 Notation Pr t t' := (@atom _ sig_binary _ _ tt (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))).
 
-(** The validity reduction.
+(* The validity reduction.
     We assume a generic falsity flag and a list h10 for which we build a formula.
  *)
 Section validity.
@@ -36,31 +36,31 @@ Section validity.
   Context {ff : falsity_flag}. 
   Context {h10 : list h10upc}.
   (* All are placed in a context where $0 is the 0 constant and $1, $2 are arbitrary but fixed *)
-  (** We do a Friedman translation, where this represents falsity *)
+  (* We do a Friedman translation, where this represents falsity *)
   Definition wFalse t:= Pr $t $(S t).
-  (** We use a stronger version of falsity, which is <-> False in our standart model, to ease writing eliminators *)
+  (* We use a stronger version of falsity, which is <-> False in our standart model, to ease writing eliminators *)
   Definition sFalse := ∀ ∀ Pr $0 $1.
-  (** Friedman not *)
-  Definition Not k t := k --> wFalse t.
-  (** $k is a number *)
+  (* Friedman not *)
+  Definition Not k t := k → wFalse t.
+  (* $k is a number *)
   Definition N k := Pr $k $k.
-  (** $k is a pair *)
-  Definition P' k (_:nat):= (N k) --> sFalse.
-  (** If $k is a pair ($l,$r), where $l, $r are numbers, then c. *)
-  Definition P k l r t c := P' k t --> N l --> N r --> Pr $l $k --> Pr $k $r --> c.
-  (** if the pairs $pl = ($a,$b), $pr = ($c,$d) are in relation, then t *)
-  Definition rel pl pr a b c d tt t := P pl a b tt (P pr c d tt (Pr $pl $pr --> t)).
-  (** There exist (Friedman translated) pairs relating ($a,$b) to ($c,$d) *)
+  (* $k is a pair *)
+  Definition P' k (_:nat):= (N k) → sFalse.
+  (* If $k is a pair ($l,$r), where $l, $r are numbers, then c. *)
+  Definition P k l r t c := P' k t → N l → N r → Pr $l $k → Pr $k $r → c.
+  (* if the pairs $pl = ($a,$b), $pr = ($c,$d) are in relation, then t *)
+  Definition rel pl pr a b c d tt t := P pl a b tt (P pr c d tt (Pr $pl $pr → t)).
+  (* There exist (Friedman translated) pairs relating ($a,$b) to ($c,$d) *)
   Definition erel a b c d t := Not (∀ ∀ P 0 (2+a) (2+b) (2+t) 
                                         (P 1 (2+c) (2+d) (2+t) 
-                                         (Pr $0 $1 --> wFalse (2+t)))) t.
-  (** Axiom 1 - zero is a number *)
+                                         (Pr $0 $1 → wFalse (2+t)))) t.
+  (* Axiom 1 - zero is a number *)
   Definition F_zero := N 0.
-  (** Axiom 2 - we can build (left) successors: for each pair (a,0) we have a pair (S a, 0) *)
-  Definition F_succ_left := ∀ N 0 --> Not (∀ ∀ ∀ P 2 3 4 5
+  (* Axiom 2 - we can build (left) successors: for each pair (a,0) we have a pair (S a, 0) *)
+  Definition F_succ_left := ∀ N 0 → Not (∀ ∀ ∀ P 2 3 4 5
                                                  (P 0 1 4 5
-                                                  (Pr $2 $0 --> wFalse 5))) 2.
-  (** Axiom 3 - we can build right successors: (x,y)#(a,b) -> (x,S y)#(S a,S (b+y)) *)
+                                                  (Pr $2 $0 → wFalse 5))) 2.
+  (* Axiom 3 - we can build right successors: (x,y)#(a,b) -> (x,S y)#(S a,S (b+y)) *)
   Definition F_succ_right := ∀ ∀ ∀ ∀ ∀ ∀ ∀ ∀         (*8 pairs *)
                              ∀ ∀ ∀ ∀ ∀ ∀ ∀           (* 0 x 1 y 2 a 3 b 4 c 5 y' 6 a' 15 zero-const*)
                              rel 7 8 0 1 2 3 16      (* (x,y) # (a,b) *)
@@ -68,32 +68,32 @@ Section validity.
                             (rel 11 12 1 15 5 15 16  (* (y,0) # (y',0) *)
                             (rel 13 14 2 15 6 15 16  (* (a,0) # (a'0) *)
                             (erel 0 5 6 4 16))))     (* (x,y') # (a',c) *).
-  (** Generate n all quantifiers around i *)
+  (* Generate n all quantifiers around i *)
   Fixpoint emplace_forall (n:nat) (i:form) :=
           match n with 0 => i
         | S n => ∀ (emplace_forall n i) end.
-  (** Translate our formula, one relation at a time *) 
+  (* Translate our formula, one relation at a time *) 
   Definition translate_single (h:h10upc) nv := 
           match h with ((a,b),(c,d)) => 
             erel a b c d nv end.
-  (** Translate an entire instance of H10UPC, assuming a proper context *)
+  (* Translate an entire instance of H10UPC, assuming a proper context *)
   Fixpoint translate_rec (t:form) (nv:nat) (l:list h10upc) := 
           match l with nil => t
-                     | l::lr => translate_single l nv --> translate_rec t nv lr end.
-  (** Actually translate the instance of H10UPC, by creating a proper context *)
+                     | l::lr => translate_single l nv → translate_rec t nv lr end.
+  (* Actually translate the instance of H10UPC, by creating a proper context *)
   Definition translate_constraints (x:list h10upc) := 
     let nv := S (highest_var_list x)
-    in (emplace_forall nv (translate_rec (Pr $(S nv) $(2+nv)) (S nv) x)) --> Pr $1 $2.
+    in (emplace_forall nv (translate_rec (Pr $(S nv) $(2+nv)) (S nv) x)) → Pr $1 $2.
 
-  (** The actual reduction instance. If h10 is a yes-instance of H10UPC, this formula is valid and vice-versa
+  (* The actual reduction instance. If h10 is a yes-instance of H10UPC, this formula is valid and vice-versa
       The 3 variables are the zero constant and two arbitrary values which define the atomic predicate for 
       Friedman translation. *)
-  Definition F := ∀ ∀ ∀ F_zero --> F_succ_left --> F_succ_right --> translate_constraints h10.
+  Definition F := ∀ ∀ ∀ F_zero → F_succ_left → F_succ_right → translate_constraints h10.
 
   Section Transport.
-    (** The solution to cs *)
+    (* The solution to cs *)
     Context (φ: nat -> nat). 
-    (** Proof that it actually is a solution *)
+    (* Proof that it actually is a solution *)
     Context (Hφ : forall c, In c h10 -> h10upc_sem φ c). 
     Class model := {
       D : Type;
@@ -210,7 +210,7 @@ Section validity.
       + intros x. now rewrite Nat.sub_0_r.
       + easy.
     - intros H f. cbn. cbn in H. specialize (H (f n)). specialize (IH (f n .: r) H f). 
-      eapply (Tarski.sat_ext I (xi := (fun v : nat => if v <? n then f v else (f n .: r) (v - n))) i).
+      eapply (sat_ext I (xi := (fun v : nat => if v <? n then f v else (f n .: r) (v - n))) i).
       + intros x. destruct (Nat.eq_dec x n) as [Hxn|Hnxn].
         * destruct (Nat.leb_le x n) as [_ Hr]. specialize (Hr ltac:(lia)). rewrite Hr. 
           destruct (Nat.ltb_ge x n) as [_ Hr2]. specialize (Hr2 ltac:(lia)). rewrite Hr2.

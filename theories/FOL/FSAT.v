@@ -1,10 +1,12 @@
-From Undecidability.FOL.Util Require Import Syntax_facts FullTarski sig_bin.
-Require Import Undecidability.Synthetic.DecidabilityFacts.
-Require Import List.
- 
+(* * First-Order Logic *)
+
+From Undecidability.FOL Require Import FullSyntax.
+
+#[global]
+Existing Instance falsity_on.
 (* ** Syntax as defined in Util/Syntax.v 
 
-  Inductive term  : Type :=
+ Inductive term  : Type :=
   | var : nat -> term
   | func : forall (f : syms), vec term (ar_syms f) -> term.
 
@@ -17,35 +19,30 @@ Require Import List.
   | quant {b} : quantop -> form b -> form b.    
 *)
 
-(* ** List of decision problems concerning finite satisfiability *)
+
+(* ** Instantiation to for custom FSAT reduction *)
+
+Inductive syms_func :=
+  | f : bool -> syms_func
+  | e : syms_func
+  | dum : syms_func.
+
+Definition func_arity (f : syms_func) := match f with
+  | f _ => 1
+  | e => 0
+  | dum => 0 end.
 
 #[global]
-Existing Instance falsity_on.
+Instance sig_func : funcs_signature :=
+  {| syms := syms_func; ar_syms := func_arity |}.
 
-(* Definition of finiteness *)
+Inductive syms_pred := 
+  | P : syms_pred
+  | less : syms_pred
+  | equiv : syms_pred.
 
-Definition listable X :=
-  exists L, forall x : X, In x L.
+Definition pred_arty (p : syms_pred) := 2.
 
-(* Satisfiability in a finite and decidable model *)
-
-Definition FSAT (phi : form) :=
-  exists D (I : interp D) rho, listable D /\ decidable (fun v => i_atom (P:=tt) v) /\ rho ⊨ phi.
-
-(* Validity in a finite and decidable model *)
-
-Definition FVAL (phi : form) :=
-  forall D (I : interp D) rho, listable D /\ decidable (fun v => i_atom (P:=tt) v) -> rho ⊨ phi.
-
-
-(* Satisfiability in a discrete, finite, and decidable model *)
-
-Definition FSATd (phi : form) :=
-  exists D (I : interp D) rho, listable D /\ discrete D /\ decidable (fun v => i_atom (P:=tt) v) /\ rho ⊨ phi.
-
-(* Satisfiability in a discrete, finite, and decidable model restricted to closed formulas *)
-
-Definition cform := { phi | bounded 0 phi }.
-
-Definition FSATdc (phi : cform) :=
-  FSATd (proj1_sig phi).
+#[global]
+Instance sig_pred : preds_signature :=
+  {| preds := syms_pred; ar_preds := pred_arty |}.

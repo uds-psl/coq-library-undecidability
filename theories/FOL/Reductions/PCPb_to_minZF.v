@@ -1,11 +1,16 @@
-(* * Conservativity *)
+(* ** Translation from ZF over Skolem signature *)
 
-From Undecidability.FOL Require Import Util.FullTarski_facts Util.Syntax_facts Util.FullDeduction_facts.
-From Undecidability.FOL Require Import ZF Reductions.PCPb_to_ZF minZF.
+Require Import Undecidability.FOL.ZF.
+Require Import Undecidability.FOL.Syntax.Facts.
+Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
+From Undecidability.FOL.Sets Require Import minZF ZF.
+Require Import Undecidability.FOL.Sets.ZF.
+Require Import Undecidability.FOL.Reductions.PCPb_to_ZF.
 From Undecidability Require Import Shared.ListAutomation.
-Import ListAutomationNotations ListAutomationInstances ListAutomationHints.
+Import ListAutomationNotations ListAutomationHints ListAutomationInstances.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
+
 
 
 Local Notation vec := Vector.t.
@@ -13,6 +18,10 @@ Local Notation vec := Vector.t.
 Local Hint Constructors prv : core.
 
 (* ** Trivial embedding into rich signature *)
+
+
+#[local] Notation term' := (term sig_empty).
+#[local] Notation form' := (form sig_empty _ _ falsity_on).
 
 Definition embed_t (t : term') : term :=
   match t with
@@ -58,6 +67,9 @@ Fixpoint rm_const_fm {ff : falsity_flag} (phi : form) : form' :=
   | atom equal v => let v' := Vector.map rm_const_tm v in
                   ∃ (Vector.hd v') ∧ ∃ (Vector.hd (Vector.tl v'))[sshift 1] ∧ $1 ≡' $0
   end.
+
+Definition minsolvable S :=
+  rm_const_fm (solvable S).
 
 
 
@@ -294,14 +306,24 @@ Section Model.
           apply M_ext; trivial. all: intros y; rewrite sigma_el; trivial. all: rewrite <- !VIEQ; apply S1.
   Qed.
 
-  Lemma min_axioms :
-    (forall rho phi, ZF phi -> rho ⊨ phi) -> forall rho phi, minZF phi -> rho ⊨ phi.
-  Proof using VIEQ M_ZF.
+  Arguments subst_ext {_} {_} {_} {_} _ _ _.
+
+  Lemma min_axioms_Z :
+    (forall rho phi, Z phi -> rho ⊨ phi) -> forall rho phi, minZ phi -> rho ⊨ phi.
+  Proof using M_ZF VIEQ.
     intros H rho phi [].
     - now apply min_axioms'.
     - cbn. specialize (H rho (ax_sep (embed phi0))). cbn in H.
       setoid_rewrite (subst_ext _ _ (($0 .: (fun m : nat => S (S (S m))) >> var) >> embed_t)) in H; try now intros [].
-      rewrite <- embed_subst in H. setoid_rewrite min_embed in H. apply H. auto using ZF.
+      rewrite <- embed_subst in H. setoid_rewrite min_embed in H. apply H. auto using Z.
+  Qed.
+
+  Lemma min_axioms :
+    (forall rho phi, ZF phi -> rho ⊨ phi) -> forall rho phi, minZF phi -> rho ⊨ phi.
+  Proof using M_ZF VIEQ.
+    intros H rho phi [].
+    - now apply min_axioms'.
+    - apply min_axioms_Z; eauto using minZ. intros. apply H. destruct H0; eauto using ZF.
     - cbn. specialize (H rho (ax_rep (embed phi0))). cbn in H.
       setoid_rewrite (subst_ext _ _ (($2 .: $1 .: Nat.add 3 >> var) >> embed_t)) in H at 1; try now intros [|[]].
       setoid_rewrite (subst_ext _ _ (($2 .: $0 .: Nat.add 3 >> var) >> embed_t)) in H at 2; try now intros [|[]].
@@ -312,11 +334,25 @@ Section Model.
 
 End Model.
 
+Lemma ZF_to_minZF phi :
+  entailment_minZF' (rm_const_fm phi) -> entailment_ZF' phi.
+Proof.
+  intros H D M rho H1 H2. apply min_correct; trivial.
+  apply H; trivial. now apply min_axioms'.
+Qed.
+
 Lemma extensional_eq_min' V (M : @interp sig_empty _ V) rho :
   extensional M -> rho ⊫ minZF' -> rho ⊫ minZFeq'.
 Proof.
   intros H1 H2 phi [<-|[<-|[<-|[<-|H]]]]; try now apply H2.
   all: cbn; intros; rewrite !H1 in *; congruence.
+Qed.
+
+Lemma extensional_eq_min_Z V (M : @interp sig_empty _ V) rho :
+  extensional M -> (forall phi, minZ phi -> rho ⊨ phi) -> (forall phi, minZeq phi -> rho ⊨ phi).
+Proof.
+  intros H1 H2 phi []; try now apply H2; auto using minZ.
+  apply extensional_eq_min'; auto using minZ.
 Qed.
 
 Lemma extensional_eq_min V (M : @interp sig_empty _ V) rho :
@@ -390,11 +426,12 @@ Qed.
 
 (* ** Deductions in minimal axiomatisation *)
 
+
 Ltac prv_all' x :=
   apply AllI; edestruct (@nameless_equiv_all sig_empty) as [x ->]; cbn; subsimpl.
 
 Ltac use_exists' H x :=
-  apply (ExE _ H); edestruct (@nameless_equiv_ex sig_empty) as [x ->]; cbn; subsimpl.
+  apply (ExE H); edestruct (@nameless_equiv_ex sig_empty) as [x ->]; cbn; subsimpl.
 
 Lemma minZF_refl' { p : peirce } t :
   minZFeq' ⊢ t ≡' t.
@@ -426,7 +463,7 @@ Proof.
 Qed.
 
 Lemma minZF_elem' { p : peirce } x y u v :
-  minZFeq' ⊢ x ≡' u ~> y ≡' v ~> x ∈' y ~> u ∈' v.
+  minZFeq' ⊢ x ≡' u → y ≡' v → x ∈' y → u ∈' v.
 Proof.
   assert (minZFeq' ⊢ ax_eq_elem'). apply Ctx. firstorder.
   apply (AllE x) in H. cbn in H. apply (AllE y) in H. cbn in H.
@@ -470,7 +507,7 @@ Proof.
 Qed.
 
 Lemma impl_equiv { p : peirce } (phi psi phi' psi' : form') A :
-  (forall B, A <<= B -> B ⊢ phi <-> B ⊢ phi') -> (forall B, A <<= B -> B ⊢ psi <-> B ⊢ psi') -> (A ⊢ phi ~> psi) <-> (A ⊢ phi' ~> psi').
+  (forall B, A <<= B -> B ⊢ phi <-> B ⊢ phi') -> (forall B, A <<= B -> B ⊢ psi <-> B ⊢ psi') -> (A ⊢ phi → psi) <-> (A ⊢ phi' → psi').
 Proof.
   intros H1 H2. split; intros H; apply II.
   - apply H2; auto. eapply IE. apply (Weak H). auto. apply H1; auto.
@@ -488,8 +525,8 @@ Lemma ex_equiv { p : peirce } (phi psi : form') A :
   (forall B t, A <<= B -> B ⊢ phi[t..] <-> B ⊢ psi[t..]) -> (A ⊢ ∃ phi) <-> (A ⊢ ∃ psi).
 Proof.
   intros H1. split; intros H2.
-  - apply (ExE _ H2). edestruct (nameless_equiv_ex A) as [x ->]. apply ExI with x. apply H1; auto.
-  - apply (ExE _ H2). edestruct (nameless_equiv_ex A) as [x ->]. apply ExI with x. apply H1; auto.
+  - apply (ExE H2). edestruct (nameless_equiv_ex A) as [x ->]. apply ExI with x. apply H1; auto.
+  - apply (ExE H2). edestruct (nameless_equiv_ex A) as [x ->]. apply ExI with x. apply H1; auto.
 Qed.
 
 Lemma minZF_Leibniz { p : peirce } A (phi : form') x y :
@@ -521,7 +558,7 @@ Proof.
 Qed.
 
 Lemma iff_equiv { p : peirce } (phi psi phi' psi' : form') A :
-  (forall B, A <<= B -> B ⊢ phi <-> B ⊢ phi') -> (forall B, A <<= B -> B ⊢ psi <-> B ⊢ psi') -> (A ⊢ phi <~> psi) <-> (A ⊢ phi' <~> psi').
+  (forall B, A <<= B -> B ⊢ phi <-> B ⊢ phi') -> (forall B, A <<= B -> B ⊢ psi <-> B ⊢ psi') -> (A ⊢ phi ↔ psi) <-> (A ⊢ phi' ↔ psi').
 Proof.
   intros H1 H2. split; intros [H3 H4] % CE; apply CI; eapply impl_equiv.
   3,9: apply H3. 5,10: apply H4. all: firstorder.
@@ -540,7 +577,7 @@ Proof.
 Qed.
 
 Lemma use_ex_eq { p : peirce } A x phi psi :
-  minZFeq' <<= A -> A ⊢ phi[x..] ~> psi <-> A ⊢ (∃ $0 ≡' x`[↑] ∧ phi) ~> psi.
+  minZFeq' <<= A -> A ⊢ phi[x..] → psi <-> A ⊢ (∃ $0 ≡' x`[↑] ∧ phi) → psi.
 Proof.
   intros H. apply impl_equiv; try tauto. intros B HB. apply prv_ex_eq. now rewrite H.
 Qed.
@@ -554,13 +591,13 @@ Local Ltac simpl_ex_in H :=
 Lemma prv_to_min_refl { p : peirce } :
   minZFeq' ⊢ rm_const_fm ax_refl.
 Proof.
-  prv_all' x. repeat simpl_ex. apply minZF_refl'.
+  prv_all x. repeat simpl_ex. apply minZF_refl'.
 Qed.
 
 Lemma prv_to_min_sym { p : peirce } :
   minZFeq' ⊢ rm_const_fm ax_sym.
 Proof.
-  prv_all' x. prv_all' y. apply II. assert1 H. use_exists' H a. assert1 H'.
+  prv_all x. prv_all y. apply II. assert1 H. use_exists' H a. assert1 H'.
   apply CE2 in H'. use_exists' H' b. repeat simpl_ex. eapply minZF_trans; auto.
   - apply minZF_sym; auto. eapply CE1. auto.
   - eapply minZF_trans; auto. apply minZF_sym; auto. eapply CE2. auto. eapply CE1, Ctx. auto.
@@ -569,7 +606,7 @@ Qed.
 Lemma prv_to_min_trans { p : peirce } :
   minZFeq' ⊢ rm_const_fm ax_trans.
 Proof.
-  prv_all' x. prv_all' y. prv_all' z.
+  prv_all x. prv_all y. prv_all z.
   repeat simpl_ex. apply II. repeat simpl_ex. apply II.
   repeat simpl_ex. eapply minZF_trans; auto.
 Qed.
@@ -577,7 +614,7 @@ Qed.
 Lemma prv_to_min_elem { p : peirce } :
   minZFeq' ⊢ rm_const_fm ax_eq_elem.
 Proof.
-  prv_all' x. prv_all' y. prv_all' u. prv_all' v.
+  prv_all x. prv_all y. prv_all u. prv_all v.
   repeat simpl_ex. apply II. repeat simpl_ex. apply II. repeat simpl_ex. apply II.
   repeat simpl_ex. eapply minZF_elem; auto.
 Qed.
@@ -585,8 +622,8 @@ Qed.
 Lemma prv_to_min_ext { p : peirce } :
   minZFeq' ⊢ rm_const_fm ax_ext.
 Proof.
-  prv_all' x. prv_all' y. apply II. apply II.
-  repeat simpl_ex. apply minZF_ext; auto; prv_all' z; apply II.
+  prv_all x. prv_all y. apply II. apply II.
+  repeat simpl_ex. apply minZF_ext; auto; prv_all z; apply II.
   - assert3 H. apply (AllE z) in H. cbn in H. subsimpl_in H.
     repeat simpl_ex_in H. rewrite imps in H.
     repeat simpl_ex_in H. apply (Weak H). auto.
@@ -598,7 +635,7 @@ Qed.
 Lemma prv_to_min_eset { p : peirce } :
   minZFeq' ⊢ rm_const_fm ax_eset.
 Proof.
-  prv_all' x. simpl_ex. apply II.
+  prv_all x. simpl_ex. apply II.
   assert1 H. use_exists' H y. clear H. eapply IE. 2: eapply CE2, Ctx; auto 1.
   assert1 H. apply CE1 in H. apply (AllE x) in H. cbn in H. now subsimpl_in H.
 Qed.
@@ -606,7 +643,7 @@ Qed.
 Lemma prv_to_min_pair { p : peirce } :
   minZFeq' ⊢ rm_const_fm ax_pair.
 Proof.
-  prv_all' x. prv_all' y. prv_all' z. apply CI.
+  prv_all x. prv_all y. prv_all z. apply CI.
   - simpl_ex. apply II.
     assert1 H. use_exists' H u. clear H. assert1 H. apply CE in H as [H1 H2].
     repeat simpl_ex_in H1. apply (AllE z) in H1. cbn in H1. subsimpl_in H1.
@@ -625,7 +662,7 @@ Qed.
 Lemma prv_to_min_union { p : peirce } :
   minZFeq' ⊢ rm_const_fm ax_union.
 Proof.
-  prv_all' x. prv_all' y. apply CI.
+  prv_all x. prv_all y. apply CI.
   - simpl_ex. apply II.
     assert1 H. use_exists' H u. clear H. assert1 H. apply CE in H as [H1 H2].
     simpl_ex_in H1. apply (AllE y) in H1. cbn in H1. subsimpl_in H1.
@@ -646,11 +683,11 @@ Qed.
 Lemma prv_to_min_power { p : peirce } :
   minZFeq' ⊢ rm_const_fm ax_power.
 Proof.
-  prv_all' x. prv_all' y. apply CI.
+  prv_all x. prv_all y. apply CI.
   - simpl_ex. apply II.
     assert1 H. use_exists' H u. clear H. assert1 H. apply CE in H as [H1 H2].
     simpl_ex_in H1. apply (AllE y) in H1. cbn in H1. subsimpl_in H1.
-    apply CE1 in H1. apply (IE H1) in H2. prv_all' z.
+    apply CE1 in H1. apply (IE H1) in H2. prv_all z.
     repeat simpl_ex. apply II. repeat simpl_ex. apply imps.
     apply (AllE z) in H2. cbn in H2. now subsimpl_in H2.
   - assert (HP : minZFeq' ⊢ ax_power') by (apply Ctx; firstorder).
@@ -658,7 +695,7 @@ Proof.
     simpl_ex. apply (ExI u). cbn. subsimpl. apply CI.
     + simpl_ex. apply Ctx. auto.
     + assert2 H. apply (AllE y) in H. cbn in H. subsimpl_in H. apply CE2 in H. apply (IE H). clear H.
-      prv_all' z. apply II. assert2 H. apply (AllE z) in H. cbn in H. subsimpl_in H.
+      prv_all z. apply II. assert2 H. apply (AllE z) in H. cbn in H. subsimpl_in H.
       repeat simpl_ex_in H. rewrite imps in H. repeat simpl_ex_in H. apply (Weak H). auto 8.
 Qed.
 
@@ -670,12 +707,12 @@ Proof.
     apply (ExI x). cbn. assert1 H. apply CE in H as [H1 H2]. apply CI; trivial.
     change (∃ $0 ≡' ↑ n ∧ x`[↑] ∈' $0) with (∃ $0 ≡' $n`[↑] ∧ x`[↑] ∈' $0) in H2.
     now simpl_ex_in H2.
-  - apply CE2 in HI. prv_all' x. apply (AllE x) in HI. cbn in HI. simpl_ex_in HI.
+  - apply CE2 in HI. prv_all x. apply (AllE x) in HI. cbn in HI. simpl_ex_in HI.
     change (∃ $0 ≡' ↑ n ∧ x`[↑] ∈' $0) with (∃ $0 ≡' $n`[↑] ∧ x`[↑] ∈' $0) in HI.
     simpl_ex_in HI. rewrite imps in *. use_exists' HI y. clear HI.
     assert1 H. apply (ExI y). cbn. subsimpl. apply CI.
     + apply CE1 in H. use_exists' H a. clear H. assert1 H. apply CE in H as [H1 H2].
-      simpl_ex_in H1. prv_all' b. apply (AllE b) in H2. cbn in H2. subsimpl_in H2.
+      simpl_ex_in H1. prv_all b. apply (AllE b) in H2. cbn in H2. subsimpl_in H2.
       eapply iff_equiv; try apply H2; try tauto.
       intros B HB. clear H2. eapply Weak in H1; try apply HB. split; intros H2.
       * use_exists' H1 z. clear H1. assert1 H. apply CE in H as [H H'].
@@ -728,7 +765,7 @@ Local Arguments is_inductive : simpl never.
 Lemma is_eset_sub { p : peirce } A x y :
   minZFeq' <<= A -> A ⊢ is_eset x -> A ⊢ sub' x y.
 Proof.
-  intros HA HE. prv_all' z. apply II, Exp, IE with (($0 ∈' x`[↑])[z..]).
+  intros HA HE. prv_all z. apply II, Exp, IE with (($0 ∈' x`[↑])[z..]).
   - change ((z ∈' x :: A) ⊢ (¬ $0 ∈' x`[↑])[z..]). apply AllE, (Weak HE). auto.
   - cbn. subsimpl. auto.
 Qed.
@@ -752,7 +789,7 @@ Proof.
     rewrite is_inductive_subst in H. cbn in H. apply CE1 in H. use_exists' H e'. clear H.
     assert1 H. apply CE in H as [H1 H2]. eapply minZF_elem; auto; try eassumption.
     2: apply minZF_refl; auto. apply is_eset_unique; auto.
-  - prv_all' x. simpl_ex. rewrite up_sshift1, eq_sshift1, !is_om_subst. cbn.
+  - prv_all x. simpl_ex. rewrite up_sshift1, eq_sshift1, !is_om_subst. cbn.
     apply II. assert1 H. use_exists' H o. clear H. assert1 H. apply CE in H as [H1 H2].
     unfold is_om in H1 at 3. cbn in H1. apply CE1 in H1. unfold is_inductive in H1. cbn in H1. apply CE2 in H1.
     apply (AllE x) in H1. cbn in H1. subsimpl_in H1. apply (IE H1) in H2. use_exists' H2 y. clear H1 H2.
@@ -766,7 +803,7 @@ Proof.
       apply (ExI t). cbn. subsimpl. apply CI.
       * apply prv_ex_eq; auto 7. apply (ExI s). cbn. subsimpl. apply CI; auto.
         apply prv_ex_eq; auto 7. cbn. subsimpl. apply prv_ex_eq; auto 7. cbn. subsimpl. auto.
-      * prv_all' z. assert3 H. apply CE1, (AllE z) in H. cbn in H. subsimpl_in H.
+      * prv_all z. assert3 H. apply CE1, (AllE z) in H. cbn in H. subsimpl_in H.
         apply CE in H as [H1 H2]. apply CI; rewrite imps in *.
         -- clear H2. apply (DE H1); clear H1.
            ++ apply (ExI x). cbn. subsimpl. apply CI; auto. assert3 H. apply (AllE x) in H. cbn in H. subsimpl_in H.
@@ -781,8 +818,8 @@ Proof.
            assert3 H. apply (AllE a) in H. cbn in H. subsimpl_in H.
            apply CE1 in H. apply (IE H) in H1. clear H. apply (DE H1).
            ** apply DI1. eapply minZF_elem; auto 9. 2: apply (Weak H2); auto. apply minZF_refl. auto 9.
-           ** apply DI2. apply DE'. apply IE with (z ∈' s). eapply CE1 with (z ≡' x ∨ z ≡' x ~> z ∈' s). 
-              replace (z ∈' s <~> z ≡' x ∨ z ≡' x) with (($0 ∈' s`[↑] <~> $0 ≡' x`[↑] ∨ $0 ≡' x`[↑])[z..]).
+           ** apply DI2. apply DE'. apply IE with (z ∈' s). eapply CE1 with (z ≡' x ∨ z ≡' x → z ∈' s). 
+              replace (z ∈' s ↔ z ≡' x ∨ z ≡' x) with (($0 ∈' s`[↑] ↔ $0 ≡' x`[↑] ∨ $0 ≡' x`[↑])[z..]).
               2: cbn; now subsimpl. apply AllE. auto 7. eapply minZF_elem; auto 9.
               2: apply (Weak H2); auto. apply minZF_refl. auto 9.
     + apply (ExI o). cbn. subsimpl. rewrite !is_om_subst. cbn. apply CI; [eapply CE1 | eapply CE2]; auto.
@@ -794,8 +831,8 @@ Local Arguments is_om : simpl nomatch.
 Lemma prv_to_min_om2 { p : peirce } :
   minZFeq' ⊢ rm_const_fm ax_om2.
 Proof.
-  cbn. prv_all' x. destruct x as [n|[]]. cbn. rewrite rm_const_fm_subst, inductive_subst, !is_inductive_subst.
-  cbn. apply II. prv_all' m. cbn. rewrite !is_inductive_subst. cbn. simpl_ex.
+  cbn. prv_all x. destruct x as [n|[]]. cbn. rewrite rm_const_fm_subst, inductive_subst, !is_inductive_subst.
+  cbn. apply II. prv_all m. cbn. rewrite !is_inductive_subst. cbn. simpl_ex.
   rewrite !is_inductive_subst. cbn. apply II. simpl_ex.
   change (∃ $0 ≡' ↑ n ∧ m`[↑] ∈' $0) with (∃ $0 ≡' $n`[↑] ∧ m`[↑] ∈' $0).
   simpl_ex. assert1 H. use_exists' H k. clear H.
@@ -858,11 +895,11 @@ Section Deduction.
     minZFeq' <<= A -> A ⊢ (rm_const_tm t)[x..] -> A ⊢ (rm_const_tm t)[y..] -> A ⊢ sub' x y.
   Proof.
     intros HA. induction t in A, HA, x, y |- *; try destruct F; cbn -[is_inductive sub'].
-    - intros H1 H2. prv_all' z. apply II. eapply minZF_elem; auto; try apply minZF_refl; auto.
+    - intros H1 H2. prv_all z. apply II. eapply minZF_elem; auto; try apply minZF_refl; auto.
       eapply minZF_trans; auto. apply (Weak H1); auto. apply minZF_sym; auto. apply (Weak H2). auto.
-    - intros H _. prv_all' z. apply II. apply Exp. apply (AllE z) in H. cbn in H. subsimpl_in H.
+    - intros H _. prv_all z. apply II. apply Exp. apply (AllE z) in H. cbn in H. subsimpl_in H.
       eapply IE; try apply (Weak H); auto.
-    - rewrite (vec_inv2 v). cbn. rewrite !eq_sshift1. intros H1 H2. prv_all' a. apply II.
+    - rewrite (vec_inv2 v). cbn. rewrite !eq_sshift1. intros H1 H2. prv_all a. apply II.
       eapply Weak in H1. use_exists' H1 b. 2: auto. clear H1. assert1 H. apply CE in H as [H1 H3].
       eapply Weak in H3. use_exists' H3 c. 2: auto. clear H3. assert1 H. apply CE in H as [H3 H4].
       eapply Weak in H2. use_exists' H2 d. 2: auto. clear H2. assert1 H. apply CE in H as [H2 H5].
@@ -871,7 +908,7 @@ Section Deduction.
       (* making the goal a bit more readable, could be automated *)
       pose (B := ((rm_const_tm (Vector.hd v))[b..]
            ∧ (∃ (rm_const_tm (Vector.hd (Vector.tl v)))[sshift 2][up (up x..)][up b..]
-                ∧ (∀ $0 ∈' x`[↑]`[↑] <~> $0 ≡' b`[↑]`[↑] ∨ $0 ≡' ↑ 0)) :: a ∈' x :: A)).
+                ∧ (∀ $0 ∈' x`[↑]`[↑] ↔ $0 ≡' b`[↑]`[↑] ∨ $0 ≡' ↑ 0)) :: a ∈' x :: A)).
       fold B in H1, H2, H3, H4, H5, H6. fold B. rewrite !eq_sshift2, !eq_sshift1 in *.
 
       assert (HB : minZFeq' <<= B). { rewrite HA. unfold B. auto. }
@@ -885,7 +922,7 @@ Section Deduction.
         * eapply (IH _ (in_hd_tl v)); auto; eapply Weak. apply H3. auto. apply H5. auto.
         * eapply (IH _ (in_hd_tl v)); auto; eapply Weak. apply H5. auto. apply H3. auto.
     - rewrite (vec_inv1 v). cbn. rewrite !eq_sshift1 in *. intros H1 H2. 
-      prv_all' a. apply II. eapply Weak in H1. use_exists' H1 b. 2: auto.
+      prv_all a. apply II. eapply Weak in H1. use_exists' H1 b. 2: auto.
       eapply Weak in H2. use_exists' H2 c. 2: auto. clear H1 H2.
       assert1 H. apply CE in H as [H1 H2]. apply (AllE a) in H2. cbn in H2. subsimpl_in H2.
       eapply IE. eapply CE2, H2. clear H2.
@@ -895,13 +932,13 @@ Section Deduction.
       eapply (IH _ (in_hd v) _ b c) in H1; auto. apply (AllE d) in H1. cbn in H1. subsimpl_in H1.
       eapply Weak in H1. apply (IE H1). 2: auto. eapply CE1; auto.
     - rewrite (vec_inv1 v). cbn. rewrite !eq_sshift1. intros H1 H2.
-      prv_all' a. apply II. eapply Weak in H1. use_exists' H1 b. 2: auto.
+      prv_all a. apply II. eapply Weak in H1. use_exists' H1 b. 2: auto.
       eapply Weak in H2. use_exists' H2 c. 2: auto. clear H1 H2.
       assert1 H. apply CE in H as [H1 H2]. apply (AllE a) in H2. cbn in H2. subsimpl_in H2.
       eapply IE. eapply CE2, H2. clear H2.
       assert2 H. apply CE in H as [H2 H3]. apply (AllE a) in H3. cbn in H3. subsimpl_in H3.
       apply CE1 in H3. assert3 H4. apply (IE H3) in H4. clear H3.
-      prv_all' d. apply II. apply (IH _ (in_hd v) _ b c) in H1; auto. apply (AllE d) in H1. cbn in H1. subsimpl_in H1.
+      prv_all d. apply II. apply (IH _ (in_hd v) _ b c) in H1; auto. apply (AllE d) in H1. cbn in H1. subsimpl_in H1.
       eapply Weak in H1. apply (IE H1). 2: auto. apply (AllE d) in H4. cbn in H4. subsimpl_in H4.
       eapply Weak in H4. apply (IE H4). all: auto.
     - intros [H1 H2] % CE [H3 H4] % CE. apply (AllE y) in H2.
@@ -1008,13 +1045,13 @@ Section Deduction.
     - apply II. now apply (H0 (phi::A0)).
     - eapply IE; eauto.
     - apply AllI. erewrite map_app, ZF_subst', rm_const_shift_subst. apply H0. now rewrite map_app, ZF_subst.
-    - pose proof (rm_const_tm_prv t). eapply Weak in H1. apply (ExE _ H1). 2: auto.
+    - pose proof (rm_const_tm_prv t). eapply Weak in H1. apply (ExE H1). 2: auto.
       edestruct (nameless_equiv_ex ([rm_const_fm p | p ∈ A0] ++ minZFeq')) as [x ->]. specialize (H0 A0 eq_refl).
       apply (AllE x) in H0. apply rm_const_fm_swap with (x:=x); auto. apply (Weak H0). auto.
-    - pose proof (rm_const_tm_prv t). eapply Weak in H1. apply (ExE _ H1). 2: auto.
+    - pose proof (rm_const_tm_prv t). eapply Weak in H1. apply (ExE H1). 2: auto.
       edestruct (nameless_equiv_ex ([rm_const_fm p | p ∈ A0] ++ minZFeq')) as [x ->]. specialize (H0 A0 eq_refl).
       apply (ExI x). apply <- rm_const_fm_swap; auto. apply (Weak H0). auto.
-    - apply (ExE _ (H0 A0 eq_refl)). erewrite map_app, ZF_subst', rm_const_shift_subst, rm_const_fm_shift.
+    - apply (ExE (H0 A0 eq_refl)). erewrite map_app, ZF_subst', rm_const_shift_subst, rm_const_fm_shift.
       apply (H2 (phi::[p[↑] | p ∈ A0])). cbn. now rewrite map_app, ZF_subst.
     - apply Exp. eauto.
     - apply in_app_iff in H as [H|H].

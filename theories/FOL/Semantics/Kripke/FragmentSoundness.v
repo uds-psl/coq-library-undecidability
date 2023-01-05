@@ -1,0 +1,151 @@
+(** ** Kripke Soundness *)
+
+From Undecidability Require Import FOL.Semantics.Kripke.FragmentCore FOL.Deduction.FragmentND.
+From Undecidability Require Import Shared.ListAutomation.
+Import ListAutomationNotations ListAutomationHints.
+
+
+Local Set Implicit Arguments.
+Local Unset Strict Implicit.
+
+Local Notation vec := Vector.t.
+
+#[local] Ltac comp := repeat (progress (cbn in *; autounfold in *)).
+
+
+(* ** Soundness **)
+
+Section KSoundness.
+
+  Context {Σ_funcs : funcs_signature}.
+  Context {Σ_preds : preds_signature}.
+  Context {ff : falsity_flag}.
+
+  Ltac clean_ksoundness :=
+    match goal with
+    | [ H : ?x = ?x -> _ |- _ ] => specialize (H eq_refl)
+    | [ H : (?A -> ?B), H2 : (?A -> ?B) -> _ |- _] => specialize (H2 H)
+    end.
+
+  Lemma ksoundness A (phi : form) :
+    A ⊢I phi -> kvalid_ctx A phi.
+  Proof.
+    intros Hprv D M. remember intu as s. induction Hprv; subst; cbn; intros u rho HA.
+    all: repeat (clean_ksoundness + discriminate). all: (eauto || comp; eauto).
+    - intros v Hr Hpi. eapply IHHprv. intros ? []; subst; eauto using ksat_mon.
+    - eapply IHHprv1. 3: eapply IHHprv2. all: eauto. apply M.
+    - intros d. apply IHHprv. intros psi [psi' [<- Hp]] % in_map_iff. cbn. rewrite ksat_comp. apply HA, Hp.
+    - rewrite ksat_comp. eapply ksat_ext. 2: eapply (IHHprv u rho HA (eval rho t)). 
+      unfold funcomp. now intros [].
+    - now apply IHHprv in HA.
+  Qed.
+
+  Lemma ksoundness' (phi : form) :
+    [] ⊢I phi -> kvalid phi.
+  Proof.
+    intros H % ksoundness. intros D I u rho; now eapply H.
+  Qed.
+
+  Lemma ksoundnessT (T : form -> Prop) phi :
+    T ⊢TI phi -> kvalid_theo T phi.
+  Proof.
+    intros [A[H1 H2 % ksoundness]]. firstorder.
+  Qed.
+
+  Lemma ksoundness_bot {ff1 ff2 : falsity_flag} A  (psi : @form _ _ _ ff1) (phi : @form _ _ _ ff2) :
+    closed psi ->
+    (forall xi, kvalid (psi → xi)) ->
+    A ⊢I phi -> kvalid_ctx (map (fun x => x [psi/⊥]) A) (phi[psi/⊥]).
+  Proof.
+    intros Hclosed Hexpl Hprv D M. remember intu as s. revert psi Hexpl Hclosed. induction Hprv; intros newbot Hexp Hclosed; subst; cbn; intros u rho HA.
+    all: repeat (clean_ksoundness + discriminate). all: (eauto || comp; eauto).
+    - intros v Hr Hpi. eapply IHHprv. 1-2:easy. intros ? []; subst; eauto using ksat_mon.
+    - eapply IHHprv1. 1-2:easy. 3: eapply IHHprv2. all: eauto. apply M.
+    - intros d. apply IHHprv. 1-2: now rewrite subst_closed. intros xi [psi' [<- [psi'' [<- Hpsi'']]%in_map_iff]] % in_map_iff.
+      rewrite <- subst_falsity_comm. rewrite ksat_comp. apply HA, in_map, Hpsi''.
+    - erewrite <- (subst_closed _ Hclosed). rewrite <- subst_falsity_comm.
+      rewrite ksat_comp. eapply ksat_ext.
+      2: {specialize (IHHprv newbot Hexp Hclosed).
+          rewrite subst_closed in IHHprv. 2:easy.
+          now eapply (IHHprv u rho HA (eval rho t)). } 
+      unfold funcomp. now intros [].
+    - apply (Hexp (phi[newbot/⊥]) D M u rho). 1: apply M. apply IHHprv. 1-2:easy. apply HA.
+    - apply HA. now eapply in_map.
+  Qed.
+
+  Lemma ksoundness_bot_model {ff1 ff2 : falsity_flag} A  (psi : @form _ _ _ ff1) (phi : @form _ _ _ ff2) D (M : kmodel D):
+    closed psi ->
+    (ff2 = falsity_on -> forall u rho xi, rho ⊩(u,M) (psi → xi)) ->
+    A ⊢I phi -> 
+    forall u rho, 
+    (forall psi', psi' el (map (fun x => x [psi/⊥]) A) -> rho ⊩(u,M) psi') -> 
+    rho ⊩(u,M) (phi[psi/⊥]).
+  Proof.
+    intros Hclosed Hexpl Hprv. remember intu as s. revert psi Hexpl Hclosed. induction Hprv; intros newbot Hexp Hclosed; subst; cbn; intros u rho HA.
+    all: repeat (clean_ksoundness + discriminate). all: (eauto || comp; eauto).
+    - intros v Hr Hpi. eapply IHHprv. 1-2:easy. intros ? []; subst; eauto using ksat_mon.
+    - eapply IHHprv1. 1-2:easy. 3: eapply IHHprv2. all: eauto. apply M.
+    - intros d. apply IHHprv. 1-2: now rewrite subst_closed. intros xi [psi' [<- [psi'' [<- Hpsi'']]%in_map_iff]] % in_map_iff.
+      rewrite <- subst_falsity_comm. rewrite ksat_comp. apply HA, in_map, Hpsi''.
+    - erewrite <- (subst_closed _ Hclosed). rewrite <- subst_falsity_comm.
+      rewrite ksat_comp. eapply ksat_ext.
+      2: {specialize (IHHprv newbot Hexp Hclosed).
+          rewrite subst_closed in IHHprv. 2:easy.
+          now eapply (IHHprv u rho HA (eval rho t)). } 
+      unfold funcomp. now intros [].
+    - apply (Hexp u rho). 1: apply M. apply IHHprv. 1-2:easy. apply HA.
+    - now eapply HA, in_map.
+  Qed.
+
+  Lemma ksoundness'_bot {ff1 ff2 : falsity_flag} (psi : @form _ _ _ ff1) (phi : @form _ _ _ ff2) :
+    closed psi ->
+    (forall xi, kvalid (psi → xi)) ->
+    [] ⊢I phi -> kvalid (phi[psi/⊥]).
+  Proof.
+    intros Hcl Hexp H % (ksoundness_bot Hcl Hexp). intros D M u rho. now apply (H D M u rho).
+  Qed.
+
+End KSoundness.
+
+
+(* Proof that DNE is not derivable in intuitionistic ND *)
+
+Section DNE.
+
+  Context {Σ_funcs : funcs_signature}.
+  Context {Σ_preds : preds_signature}.
+
+  Variable P : Σ_preds.
+
+  Hypothesis preds_dec : forall P', (P' = P) + (P' <> P).
+
+  Instance imodel : kmodel unit.
+  Proof.
+    unshelve esplit.
+    - exact bool.
+    - exact (fun b b' => if b then True else if b' then False else True).
+    - exact (fun b P' v => if b then False else True).
+    - now intros [].
+    - now intros [] [] [].
+    - split.
+      + intros f v. exact tt.
+      + intros P' v. exact True.
+    - now intros [] [].
+  Defined.
+
+  Lemma imodel_dne (v : vec term (ar_preds P)) :
+    ~ ksat true (fun _ => tt) (¬¬(atom P v) → (atom P v)).
+  Proof.
+    cbn. intros H. apply (H true); trivial.
+    intros [] _; trivial. intros H'. now apply (H' false).
+  Qed.
+
+  Lemma iprv_dne (v : vec term (ar_preds P)) :
+    ~ [] ⊢I (¬¬(atom P v) → (atom P v)).
+  Proof.
+    intros H % ksoundness. apply (@imodel_dne v). apply H. intros phi [].
+  Qed.
+
+End DNE.
+
+

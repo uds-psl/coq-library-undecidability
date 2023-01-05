@@ -8,6 +8,8 @@ Module ListAutomationNotations.
   Notation "A '<<=' B" := (incl A B) (at level 70).
   Notation "( A × B × .. × C )" := (list_prod .. (list_prod A B) .. C) (at level 0, left associativity).
   Notation "[ s | p ∈ A ]" := (map (fun p => s) A) (p pattern).
+  Notation "[ s | p ∈ A ',' P  ]" := (map (fun p => s) (filter (fun p => if Dec P then true else false) A)) (p pattern).
+
 
 End ListAutomationNotations.
 
@@ -26,6 +28,17 @@ Ltac in_app n :=
 
 Ltac in_collect a :=
   eapply in_map_iff; exists a; split; [ eauto | match goal with [ |- In _ (filter _ _) ] =>  eapply filter_In; split; [ try (rewrite !in_prod_iff; repeat split) | eapply Dec_auto; repeat split; eauto ] | _ => try (rewrite !in_prod_iff; repeat split) end ].
+
+Ltac invert_list_in' := match goal with
+   [H : ?x el nil |- _] => exfalso; inversion H
+ | [HH : ?x el (_ ++ _) |- _] => apply in_app_iff in HH; destruct HH
+ | [HH : ?x el (?a :: ?b) |- _] => apply in_inv in HH; destruct HH; [try subst x|]
+ | [H : ?x el map ?f ?l |- _] => eapply in_map_iff in H; destruct H as (? & ? & ?); try subst x
+ | [H : ?x el concat ?l |- _] => eapply in_concat in H; destruct H as (? & ? & ?)
+ | [H : ?x el filter ?f ?l |- _] => eapply filter_In in H; destruct H as (? & ?)
+ | [H : ?x el list_prod ?A ?B |- _] => (try destruct x); eapply in_prod_iff in H; destruct H as (? & ?)
+ | [H : context [if Dec ?D then true else false] |- ?g] => destruct (Dec D); try congruence end.
+Ltac invert_list_in := repeat invert_list_in'.
 
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.

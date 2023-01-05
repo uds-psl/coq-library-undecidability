@@ -1,15 +1,18 @@
 (* * FOL Reductions *)
 Require Import Vector.
 From Undecidability.DiophantineConstraints Require Import H10C Util.H10UPC_facts.
-From Undecidability.FOL Require Import Util.Syntax Util.FullDeduction Util.FullTarski Util.Syntax Util.Syntax_facts Util.FullTarski_facts Util.sig_bin.
+From Undecidability.FOL Require Semantics.FiniteTarski.Fragment.
+From Undecidability.FOL Require Import Syntax.Facts Deduction.FullNDFacts 
+                Semantics.Tarski.FullSoundness Semantics.Tarski.FullFacts Syntax.BinSig
+                Semantics.FiniteTarski.Full.
 From Undecidability.Shared Require Import Dec.
 From Undecidability.Shared.Libs.PSL Require Import Numbers.
 From Undecidability.Shared.Libs.DLW.Wf Require Import wf_finite.
 From Coq Require Import Arith Lia List.
 
-From Undecidability.FOL Require Import FSAT DoubleNegation.
-From Undecidability.Synthetic Require Import Definitions.
-Require Import Undecidability.Synthetic.Definitions.
+From Undecidability.FOL.Semantics.FiniteTarski Require Import Full DoubleNegation.
+From Undecidability.Synthetic Require Import Definitions DecidabilityFacts.
+Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
 Require Import Datatypes.
 Require Import Relation_Definitions.
 Require Import Setoid.
@@ -17,7 +20,7 @@ Require Import Relation_Definitions.
 
 
 
-(**
+(*
 Idea: The relation (#&#35;#) has the following properties:#<ul>#
 #<li>#n ~ p: n is left component of p#</li>#
 #<li>#p ~ n: p is right component of p#</li>#
@@ -30,19 +33,25 @@ Idea: The relation (#&#35;#) has the following properties:#<ul>#
 Set Default Goal Selector "!".
 Set Mangle Names.
 
-(** Define our signature. No function, single binary relation *)
+(* Define our signature. No function, single binary relation *)
 
 
 #[local] Existing Instance sig_empty.
 #[local] Existing Instance sig_binary.
+#[local] Existing Instance full_operators.
+
+Import FullSyntax.
+#[global]
+Existing Instance falsity_on.
+
 
 
 Notation "t ## t'" := (@atom _ sig_binary _ _ tt (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))) (at level 30).
 Definition Pr t t' := t ## t'.
 
-(** Some utils we will need *)
+(* Some utils we will need *)
 Section Utils.
-  (** Dealing with vectors of length 2 *)
+  (* Dealing with vectors of length 2 *)
   Definition proj_vec2 D : t D 2 -> D*D.
   Proof.
     intros k. refine (match k with @Vector.nil _ => _ | @Vector.cons _ x n xr => _ end). 1:easy.
@@ -75,48 +84,47 @@ End Utils.
 
 Section Fsat. 
   Import FullSyntax.
-  Open Scope syn.
-  (** We again assume h10, an instance of H10UPC_SAT. We now define syntactic sugar: *)
+  (* We again assume h10, an instance of H10UPC_SAT. We now define syntactic sugar: *)
   Context {h10 : list h10upc}.
-  (** #&dollar;#k is a number *)
+  (* #&dollar;#k is a number *)
   Definition N a := $a ## $a. 
-  (** #&dollar;#a is less-equal than #&dollar;#b. Note that N is just a special case *)
+  (* #&dollar;#a is less-equal than #&dollar;#b. Note that N is just a special case *)
   Definition leq a b := N a ∧ N b ∧ $a ## $b.
-  (** #&dollar;#k is not a number *)
+  (* #&dollar;#k is not a number *)
   Definition P' a := ¬ N a.
-  (** #&dollar;#p is the pair (#&dollar;#a,#&dollar;#b) *)
+  (* #&dollar;#p is the pair (#&dollar;#a,#&dollar;#b) *)
   Definition P p a b := P' p ∧ N a ∧ N b ∧ $a ## $p ∧ $p ## $b.
-  (** #&dollar;#a and #&dollar;#b are first-order indistinguishable *)
-  Definition deq a b := ∀ ($0 ## $(S a) <~> $0 ## $(S b)) ∧ ( $(S a) ## $0 <~> $(S b) ## $0). 
-  (** $a is less than $b *)
+  (* #&dollar;#a and #&dollar;#b are first-order indistinguishable *)
+  Definition deq a b := ∀ ($0 ## $(S a) ↔ $0 ## $(S b)) ∧ ( $(S a) ## $0 ↔ $(S b) ## $0). 
+  (* $a is less than $b *)
   Definition less a b := leq a b ∧ ¬ (deq a b). 
-  (** (#&dollar;#a,#&dollar;#b)#&#35;#(#&dollar;#c,#&dollar;#d), that is, the pairs are related *)
+  (* (#&dollar;#a,#&dollar;#b)#&#35;#(#&dollar;#c,#&dollar;#d), that is, the pairs are related *)
   Definition rel a b c d := ∃∃ P 1 (2+a) (2+b) ∧ P 0 (2+c) (2+d) ∧ $1 ## $0.
-  (** (#&dollar;#l,z)#&#35;#(#&dollar;#r,z) -- i.e. l+1 = r*)
+  (* (#&dollar;#l,z)#&#35;#(#&dollar;#r,z) -- i.e. l+1 = r*)
   Definition succ l r z := rel l z r z.
 
-  (** Axiom 1: less is transitive *)
-  Definition aTrans := ∀∀∀ less 2 1 ~> less 1 0 ~> less 2 0.
-  (** Axiom 2: non-zero numbers have predecessors *)
-  Definition aPred z:= ∀ N 0 ~> (¬(deq (S z) 0) ~> ∃ succ 0 1 (2+z)).
-  (** Axiom 3: being successors implies there is no number inbetween *)
-  Definition aSucc z:= ∀∀ N 1 ~> N 0 ~> rel 1 (2+z) 0 (2+z) ~> 
-                        less 1 0 ∧ ∀ less 0 1 ~> leq 0 2.
-  (** Axiom 4: Strong axiom describing # relation on pairs (step) *)
-  Definition aDescr z := ∀∀∀∀ N 3 ~> N 2 ~> N 1 ~> N 0
-                           ~> (¬(deq (4+z) 2))
-                           ~> rel 3 2 1 0
-                       ~> ∃∃∃ succ 2 5 (7+z) ∧ succ 1 4 (7+z) ∧ rel 0 2 3 0 ∧ rel 6 2 1 0 ∧ less 0 3.
-  (** Axiom 5: Axiom describing # relation on pairs (tieback) *)
-  Definition aDescr2 z := ∀∀∀∀ N 3 ~> N 2 ~> N 1 ~> N 0 ~> rel 3 2 1 0 ~> deq 2 (4+z) ~> deq 0 (4+z).
-  (** This defines our reduction function *)
+  (* Axiom 1: less is transitive *)
+  Definition aTrans := ∀∀∀ less 2 1 → less 1 0 → less 2 0.
+  (* Axiom 2: non-zero numbers have predecessors *)
+  Definition aPred z:= ∀ N 0 → (¬(deq (S z) 0) → ∃ succ 0 1 (2+z)).
+  (* Axiom 3: being successors implies there is no number inbetween *)
+  Definition aSucc z:= ∀∀ N 1 → N 0 → rel 1 (2+z) 0 (2+z) → 
+                        less 1 0 ∧ ∀ less 0 1 → leq 0 2.
+  (* Axiom 4: Strong axiom describing # relation on pairs (step) *)
+  Definition aDescr z := ∀∀∀∀ N 3 → N 2 → N 1 → N 0
+                           → (¬(deq (4+z) 2))
+                           → rel 3 2 1 0
+                       → ∃∃∃ succ 2 5 (7+z) ∧ succ 1 4 (7+z) ∧ rel 0 2 3 0 ∧ rel 6 2 1 0 ∧ less 0 3.
+  (* Axiom 5: Axiom describing # relation on pairs (tieback) *)
+  Definition aDescr2 z := ∀∀∀∀ N 3 → N 2 → N 1 → N 0 → rel 3 2 1 0 → deq 2 (4+z) → deq 0 (4+z).
+  (* This defines our reduction function *)
   Definition emplace_exists (n:nat) (f:form) := it (fun k => ∃ k) n f.
   Definition translate_single (h:h10upc) m := match h with
      ((a,b),(c,d)) => rel a b c d
                     ∧ leq a m ∧ leq b m ∧ leq c m ∧ leq d m
   end.
   Fixpoint translate_list m (h10:list h10upc) := match h10 with
-     nil   => ⊥ ~> ⊥
+     nil   => ⊥ → ⊥
    | x::xr => translate_single x m ∧ translate_list m xr
   end.
   Definition F := ∃∃
@@ -124,18 +132,41 @@ Section Fsat.
     emplace_exists (S (highest_var_list h10))
     (translate_list (S (highest_var_list h10)) h10).
 
+  Section closedness.
+
+    Lemma emplace_exists_bounded n phi k : bounded (k+n) phi -> bounded n (emplace_exists k phi).
+    Proof.
+      induction k as [|k IH] in n,phi|-*; intros Hb.
+      - easy.
+      - cbn. eapply bounded_quant. apply IH. now rewrite Nat.add_succ_r.
+    Qed.
+
+    Lemma F_closed n : bounded n F.
+    Proof.
+      solve_bounds.
+      apply emplace_exists_bounded.
+      assert (forall k, k >= highest_var_list h10 ->
+        bounded (k + S (S (S n))) (translate_list (S k) h10)) as Hk.
+      2: apply Hk; lia. 
+      intros k Hk.
+      induction h10 as [|((xa &xb)& xc & xd) h10l IH] in Hk|-*.
+      - cbn. solve_bounds.
+      - cbn. cbn in Hk. solve_bounds.
+        apply IH. lia.
+    Qed.
+  End closedness.
+
   Section inverseTransport.   
-    (** We assume a finite model and extract a solution *)
-    Definition finite (T:Type) := {l:list T & forall (x:T), In x l}.
+    (* We assume a finite model and extract a solution *)
     Context (D:Type).
     Context (I:interp D).
     Context (rho : env D).
     Context (decP : forall a b, dec ((a .: b.: rho) ⊨ Pr $0 $1)).
-    Context (fini : finite D).
+    Context (fini : cListable D).
     
     Notation iPr t t' := (@i_atom sig_empty sig_binary D _ tt (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))).
     Notation "a # b" := (iPr a b) (at level 50).
-    (** First, we re-state our syntactic sugar and prove conversion helpers *)
+    (* First, we re-state our syntactic sugar and prove conversion helpers *)
     Definition iN a := a # a.
     Definition ileq a b := iN a /\ iN b /\ a # b.
     Definition iP' a := ~iN a.
@@ -164,41 +195,12 @@ Section Fsat.
     Notation "a <<= b" := (ileq a b) (at level 52).
     Instance decPr (d1 d2 :D) : dec (iPr d1 d2).
     Proof using decP. apply decP. Defined.
-    
-    (** Finite decidability is decidable *)
-    Lemma fin_dec (P:D->Prop) : (forall k, dec (P k)) -> dec (forall k, P k).
-    Proof using fini.
-    intros HPr. assert (forall (l:list D), dec (forall k0, In k0 l -> P k0)) as H.
-    - intros l. induction l as [|lx lr [IHt|IHf]].
-      + left. intros v [].
-      + destruct (HPr lx) as [Ht|Hf].
-        * left. intros h. intros [l|r]. 1:congruence. now apply IHt.
-        * right. intros Hc. apply Hf, Hc. now left.
-      + right. intros Hc. apply IHf. intros k Hk. apply Hc. now right.
-    - destruct fini as [l Hl]. destruct (H l) as [Ht|Hf].
-      + left. intros k. apply Ht, Hl.
-      + right. intros Hc. apply Hf. intros k Hk. apply Hc.
-    Defined.
-    
-    Lemma fin_dec_ex (P:D->Prop) : (forall k, dec (P k)) -> dec (exists k, P k).
-    Proof using fini.
-    intros HPr. assert (forall (l:list D), dec (exists k0, In k0 l /\ P k0)) as H.
-    - intros l. induction l as [|lx lr [IHt|IHf]].
-      + right. intros [v [[] _]].
-      + left. destruct IHt as [d [Hdl Hdr]]. exists d. split; firstorder.
-      + destruct (HPr lx) as [Ht|Hf].
-        * left. exists lx. split; firstorder.
-        * right. intros [v [[->|vlr] Pv]]. 1:easy.
-          apply IHf. exists v. now split.
-    - destruct fini as [l Hl]. destruct (H l) as [Ht|Hf].
-      + left. destruct Ht as [d [_ Pd]]. now exists d.
-      + right. intros [d Pd]. apply Hf. exists d. split. 2:easy. apply Hl.
-    Defined.
 
-    (** FOL indistinguishability is decidable and an equivalence relation *)
+    (* FOL indistinguishability is decidable and an equivalence relation *)
     Instance eqDec (d1 d2 : D) : dec (d1 == d2).
     Proof using fini decP.
-    apply fin_dec. intros k. apply and_dec; apply and_dec; apply impl_dec; apply decPr.
+    apply fin_dec. 1: apply fini.
+    intros k. apply and_dec; apply and_dec; apply impl_dec; apply decPr.
     Defined.
    
     Lemma dEqRefl (d:D) : d == d.
@@ -214,7 +216,7 @@ Section Fsat.
       transitivity proved by dEqTrans
     as eq_rel.
 
-    (** it also is a congruence relation for most other operators *)
+    (* it also is a congruence relation for most other operators *)
     Lemma rewrite_iPr (a b a' b' : D) : iPr a b -> a==a' -> b==b'-> iPr a' b'.
     Proof. clear fini. firstorder. Qed.
 
@@ -276,7 +278,7 @@ Section Fsat.
     Opaque N leq P' P deq less rel succ.
 
     Section withAxioms.
-      (** We now assume our axioms *)
+      (* We now assume our axioms *)
 
       Context {m z : D}.
       Context {rho' : env D}.
@@ -287,7 +289,7 @@ Section Fsat.
       Context {vDescr : rho' ⊨ aDescr 1}.
       Context {vDescr2: rho' ⊨ aDescr2 1}.
 
-      (** Basic properties of less-than *)
+      (* Basic properties of less-than *)
       Definition vpTrans a b c : a << b -> b << c -> a << c.
       Proof using vTrans rho'.
       intros Ha Hb. specialize (@vTrans a b c). fold sat in vTrans. cbn in vTrans.
@@ -318,12 +320,12 @@ Section Fsat.
         transitivity proved by vpTrans
       as less_rel.
 
-      (** less-than is a transitive, irreflexive relation *)
+      (* less-than is a transitive, irreflexive relation *)
       Lemma less_irref (x : D) : ~ (iless x x).
       Proof.
       intros [H1 H2]. apply H2. firstorder'.
       Qed.
-      (** hence it is well-founded *)
+      (* hence it is well-founded *)
       Lemma less_wf : well_founded iless.
       Proof using fini vTrans. 
       destruct fini as [l Hl]. apply wf_strict_order_list with l.
@@ -332,7 +334,7 @@ Section Fsat.
       - intros x y H. now apply Hl.
       Qed.
 
-      (** Some more theorems about less and less-equal, proven by induction *)
+      (* Some more theorems about less and less-equal, proven by induction *)
       Lemma less_leq a b c : a << b -> b <<= c -> a << c.
       Proof using vTrans rho' rho fini decP.
       intros H1 H2. destruct (eqDec b c) as [Heq|Hneq].
@@ -388,7 +390,7 @@ Section Fsat.
       - exfalso;easy.
       Qed.
 
-      (** Definition of a chain, which maps elements of the finite model to numbers *)
+      (* Definition of a chain, which maps elements of the finite model to numbers *)
       Definition chain (m:D) (mN:nat) (f:D->option nat) := 
           (forall d, d <<= m <-> f d <> None)
       /\  (forall n, (exists d, d <<= m /\ f d = Some n) -> n <= mN)
@@ -397,7 +399,7 @@ Section Fsat.
       /\ (forall dl dh l h, f dl = Some l -> f dh = Some h -> S l = h <-> isucc dl dh z)
       /\ (forall d1 d2, f d1 <> None -> f d1 = f d2 <-> d1 == d2).
 
-      (** We can build a chain up to some d *)
+      (* We can build a chain up to some d *)
       Lemma mkchain (d:D) : iN d -> exists n f, chain d n f.
       Proof using vTrans vSucc vPred rho rho' m fini decP Hrho.
       induction d as [dd IH] using (well_founded_ind less_wf).
@@ -467,7 +469,7 @@ Section Fsat.
       Qed.
 
 
-      (** We can extract a proof of h10upc_sem_direct from our finite model, using the chain *)
+      (* We can extract a proof of h10upc_sem_direct from our finite model, using the chain *)
       Lemma chain_proves (a b c d: D) (nm : nat) (f:D->option nat): chain m nm f -> b <<= m -> irel a b c d 
                    -> a <<= m -> c <<= m -> d <<= m
                    -> exists a' b' c' d', h10upc_sem_direct ((a',b'),(c',d')) /\ 
@@ -520,7 +522,7 @@ Section Fsat.
 
       Definition chain_env (f:D -> option nat) : D -> nat := fun k => match f k with Some l => l | None => 0 end.
 
-      (** We then can translate a single constraint *)
+      (* We then can translate a single constraint *)
       Lemma translate_single_correct (e:env D) (h10v : h10upc) zz n f : zz > highest_var h10v
       -> chain m n f -> (forall k, rho' k = e (k+zz))
       -> e ⊨ translate_single h10v zz
@@ -536,7 +538,7 @@ Section Fsat.
       unfold h10upc_sem, chain_env. rewrite !Hna,!Hnb,!Hnc,!Hnd. cbn in Hsem. cbn. nia.
       Qed.
 
-      (** And a list of constraints *)
+      (* And a list of constraints *)
       Lemma translate_list_correct (e:env D) zz n f : zz > highest_var_list h10
       -> chain m n f -> (forall k, rho' k = e (k+zz))
       -> e ⊨ translate_list zz h10
@@ -561,7 +563,7 @@ Section Fsat.
       intros k. rewrite Nat.add_succ_r. cbn. now apply Hrrr.
     Qed.
 
-    (** Finally, a finite model satisfying F gives us a solution to h10 *)
+    (* Finally, a finite model satisfying F gives us a solution to h10 *)
     Lemma F_correct : rho ⊨ F -> H10UPC_SAT h10.
     Proof using fini decP.
     intros [z [m [[[[[vpTrans vpPred] vpSucc] vpDescr] vpDescr2] [rho2 [Hlist Hrho]]%remove_emplace_exists]]].
@@ -576,18 +578,26 @@ Section Fsat.
     Qed.
   End inverseTransport.
 
-  (** Now, the inverse direction: build a finite model for fixed solution *)
+  (* Now, the inverse direction: build a finite model for fixed solution *)
   Section transport.
   Context {rho:nat -> nat}.
   Context {H10sat : forall k, In k h10 -> h10upc_sem rho k}.
-  (** Type of numbers up to and including m. *)
+  (* Type of numbers up to and including m. *)
   Inductive finNum (m:nat) : Type := fN : forall n, n <= m -> finNum m.
   
   Lemma le0 {m} : 0 <= m. Proof. lia. Qed.
   Lemma leS {n m} : n <= m -> S n <= S m. Proof. lia. Qed.
 
-  (** That type is finite *)
-  Lemma finNum_fin m : finite (finNum m).
+  Lemma finNum_eq m (f1 f2 : finNum m) : {f1=f2}+{f1<>f2}.
+  Proof.
+    destruct f1 as [m1 Hm1], f2 as [m2 Hm2].
+    destruct (eq_nat_decide m1 m2) as [Heq|Hne]; rewrite eq_nat_is_eq in *.
+    - subst. left. f_equal. apply le_unique.
+    - right. congruence.
+  Defined.
+
+  (* That type is finite *)
+  Lemma finNum_fin m : cListable (finNum m).
   Proof.
   induction m as [|m [l IHl]].
   - exists ((fN le0)::nil). intros [n u]. assert (n=0) as -> by lia. left. f_equal. apply le_unique.
@@ -599,11 +609,11 @@ Section Fsat.
       * apply IHl.
   Qed.
 
-  (** Elements of that type, and pairs of such elements, make our model *)
+  (* Elements of that type, and pairs of such elements, make our model *)
   Inductive model (m:nat) : Type := Num : finNum m -> model m | Pair : finNum m -> finNum m -> model m.
   
-  (** Our model is finite *)
-  Lemma model_fin m : finite (model m).
+  (* Our model is finite *)
+  Lemma model_fin m : cListable (model m).
   Proof.
   destruct (finNum_fin m) as [l Hl].
   exists (map (@Num m) l ++ flat_map (fun v => map (Pair v) l) l).
@@ -613,7 +623,7 @@ Section Fsat.
     apply in_map, Hl.
   Qed.
 
-  (** Interpretation for single binary relation *)
+  (* Interpretation for single binary relation *)
   Definition model_rel (m:nat) (a b : model m) : Prop := match (a,b) with
   (Num (@fN _ n1 _), Num (@fN _ n2 _)) => n1 <= n2
 | (Pair _ (@fN _ r _), Num (@fN _ n _)) => r = n
@@ -627,7 +637,7 @@ Section Fsat.
     exact (@model_rel m l r).
   Defined.
 
-  (** Interpretation for single binary relation is decidable *)
+  (* Interpretation for single binary relation is decidable *)
   Lemma leq_dec a b : sum (a<=b) (a <= b -> False).
   Proof.
   induction a as [|a IH] in b|-*.
@@ -637,7 +647,7 @@ Section Fsat.
     + destruct (IH b) as [IHl|IHr]; [left|right]; lia.
   Defined.
 
-  (** Some helpers for converting between regular numbers and our finite numbers *)
+  (* Some helpers for converting between regular numbers and our finite numbers *)
   Definition into_fin m k := match leq_dec k m with inl u => fN u | _ => fN le0 end.
 
   Definition m := S (highest_num rho (highest_var_list h10)).
@@ -657,7 +667,7 @@ Section Fsat.
 
   Ltac solve_m := (unfold m;lia).
 
-  (** Some helpers for converting between FOL formulas and meta-theoretic formulas *)
+  (* Some helpers for converting between FOL formulas and meta-theoretic formulas *)
   Lemma m_N m (e : env (model m)) (a : nat) : e ⊨ N a <-> exists n1 u1, (e a) = Num (@fN _ n1 u1).
   Proof. split.
   - cbn -[model_rel]. destruct (e a) as [[n1 u1]|l r]. 
@@ -686,7 +696,7 @@ Section Fsat.
     + cbn. rewrite Hr, Hp. easy.
   Qed.
 
-  (** Useful lemma: for m>0, there are two unequal finite numbers, both either larger or smaller than some given number *)
+  (* Useful lemma: for m>0, there are two unequal finite numbers, both either larger or smaller than some given number *)
   Lemma differentNums (m:nat) (base:finNum m) : m > 0 -> exists (m1 m2 : finNum m), m1 <> m2 /\ (
     (model_rel (Num m1) (Num base) /\ model_rel (Num m2) (Num base))
   \/(model_rel (Num base) (Num m1) /\ model_rel (Num base) (Num m2))
@@ -707,7 +717,7 @@ Section Fsat.
   Unshelve. all: lia.
   Qed.
 
-  (** FOL indistinguishability corresponds to equality in our model. *)
+  (* FOL indistinguishability corresponds to equality in our model. *)
   Lemma m_deq (m:nat) (e : env (model m)) (l r : nat) : m > 0 -> e ⊨ deq l r <-> e l = e r.
   Proof. intros Hm0.
   destruct (e l) as [[n1 Hn1]|[a Ha] [b Hb]] eqn:Hel, (e r) as [[n2 Hn2]|[c Hc] [d Hd]] eqn:Her; split.
@@ -730,7 +740,7 @@ Section Fsat.
   * cbn -[model_rel]. rewrite !Hel,! Her. intros ->. firstorder.
   Qed.
 
-  (** Leq and less also correspond to leq and less on natural numbers *)
+  (* Leq and less also correspond to leq and less on natural numbers *)
   Lemma m_leq (m:nat)  (e : env (model m)) (l r : nat) : m > 0 -> e ⊨ leq l r <-> exists n1 u1 n2 u2, (e l) = Num (@fN _ n1 u1) /\ (e r) = Num (@fN _ n2 u2) /\ n1 <= n2.
   Proof. split.
   - intros [[[nl [ul Hl]]%m_N [nr [ur Hr]]%m_N]Hlr]. exists nl,ul,nr,ur. split. 2:split. 1-2:easy.
@@ -775,7 +785,7 @@ Section Fsat.
   Qed.
 
   
-  (** Finally, our model satisfies F if there is a solution to h10 *)
+  (* Finally, our model satisfies F if there is a solution to h10 *)
   Lemma valid (e:env (model m)) : e ⊨ F.
   Proof using H10sat.
   exists (Num (fN le0)). exists (Num(into_fin m m)). split. 1:split. 1:split. 1:split. 1:split.
@@ -857,6 +867,7 @@ Section Fsat.
         -- intros k Hk. apply H10sat. now right.
         -- cbn in Hvl. lia.
   Qed.
+  End transport.
 
   Lemma rel_decider m (a b : model m) : dec (model_rel a b).
   Proof.
@@ -867,7 +878,7 @@ Section Fsat.
   - cbn. destruct la,ra,lb,rb. apply and_dec; unfold dec; decide equality.
   Qed.
 
-  Lemma decider_of_annoying_type : t (model m) (ar_preds tt) -> bool.
+  Lemma decider_of_annoying_type m : t (model m) (ar_preds tt) -> bool.
   Proof.
   intros [x y]%proj_vec2.
   destruct (rel_decider x y ) as [Hl|Hr].
@@ -875,26 +886,42 @@ Section Fsat.
   - exact false.
   Defined.
 
+  Lemma m_listable m : listable (model m).
+  Proof.
+    destruct (model_fin m) as [ls Hls]. now exists ls.
+  Qed.
 
-  End transport.
+  Lemma m_decidable m : (forall p, decidable (fun v => i_atom (interp := model_interp m) (P:=p) v)).
+  Proof.
+    intros [ ]. exists (@decider_of_annoying_type m). intros v. unfold decider_of_annoying_type.
+    cbn. destruct (proj_vec2 ) as [l r].
+    destruct (@rel_decider m l r) as [Ht|Hf] eqn:Heq.
+    * unfold reflects; tauto.
+    * unfold reflects. split. 1:intros k;exfalso;apply Hf;easy. intros Hc. congruence.
+  Qed.
+
+  Lemma m_discrete m : discrete (model m).
+  Proof.
+    assert (forall (d1 d2 : model m), {d1=d2}+{d1<>d2}) as Heq by (intros d1 d2; repeat decide equality; apply finNum_eq).
+    eexists (fun '(a, b) => if Heq a b then true else false).
+    intros [a b]. split; intros ?; destruct (Heq a b); congruence.
+  Defined.
 
 End Fsat.
 
 
-(** Collect the undecidability results *)
+(* Collect the undecidability results *)
 Section result.
-
-  (** F is a reduction function *)
+  (* F is a reduction function *)
   Lemma fsat_reduction : reduction (@F) H10UPC_SAT FSAT.
   Proof.
   intros Hl. split.
   - intros [rho H]. pose (@m Hl rho) as m. exists (model m). exists (model_interp m). exists (fun _ => Num (fN le0)). split. 2:split.
-    + destruct (model_fin m) as [ls Hls]. now exists ls.
-    + exists decider_of_annoying_type. unfold m. intros v. unfold decider_of_annoying_type. cbn. destruct (proj_vec2 ) as [l r]. destruct (rel_decider l r) as [Ht|Hf] eqn:Heq.
-      * unfold reflects. tauto.
-      * unfold reflects. split. 1:intros k;exfalso;apply Hf;easy. intros Hc. congruence.
+    + apply m_listable.
+    + apply m_decidable.
     + apply (@valid Hl rho H).
-  - intros [D [I [rho [lst [tdec H]]]]]. destruct lst as [l Hlst].  destruct tdec as [f Hf].
+  - intros [D [I [rho [lst [tdec H]]]]]. specialize (tdec tt).
+    destruct lst as [l Hlst].  destruct tdec as [f Hf].
     apply (@F_correct Hl D I rho).
     + intros a b. cbn. destruct (f (Vector.cons D a 1 (Vector.cons D b 0 (Vector.nil D)))) as [|] eqn:Hdec.
       * left. now apply Hf.
@@ -903,58 +930,76 @@ Section result.
     + exact H.
   Qed.
 
-  (** FSAT on the small signature is undecidable *)
-  Lemma fval_reduction : reduction (fun k => @F k ~> falsity) (fun l => ~ (H10UPC_SAT l)) FVAL.
+  (* FSAT on the small signature is undecidable *)
+  Lemma fval_reduction : reduction (fun k => @F k → falsity) (fun l => ~ (H10UPC_SAT l)) FVAL.
   Proof.
   intros Hl. split.
   - intros Hc D I rho [lst tdec] H. apply Hc.
-    destruct lst as [l Hlst].  destruct tdec as [f Hf].
+    destruct lst as [l Hlst]. destruct (tdec tt) as [f Hf].
     apply (@F_correct Hl D I rho).
     + intros a b. cbn. destruct (f (Vector.cons D a 1 (Vector.cons D b 0 (Vector.nil D)))) as [|] eqn:Hdec.
       * left. now apply Hf.
       * right. intros Hc1. apply Hf in Hc1. congruence.
     + exists l. exact Hlst.
     + exact H.
-  - intros Hc [rho H]. pose (@m Hl rho) as m. specialize (Hc (model m)). specialize (Hc (model_interp m)). specialize (Hc (fun _ => Num (fN le0))). apply Hc.
-    + destruct (model_fin m) as [ls Hls]. split. 1: now exists ls.
-      exists decider_of_annoying_type. unfold m. intros v. unfold decider_of_annoying_type. cbn. destruct (proj_vec2 ) as [l r]. destruct (rel_decider l r) as [Ht|Hf] eqn:Heq.
-      * unfold reflects. tauto.
-      * unfold reflects. split. 1:intros k;exfalso;apply Hf;easy. intros Hc1. congruence.
+  - intros Hc [rho H]. pose (@m Hl rho) as m. specialize (Hc (model m)). specialize (Hc (model_interp m)). specialize (Hc (fun _ => Num (fN le0))). apply Hc. 1: split.
+    + apply m_listable.
+    + apply m_decidable.
     + apply (@valid Hl rho H).
   Qed.
 
-  (** Reduction into fragment syntax. Step 1: define FSAT for fragment syntax *)
-  Definition FSAT_frag (phi : (@form _ _ FragmentSyntax.frag_operators falsity_on)) :=
-  exists D (I : Tarski.interp D) rho, listable D /\ decidable (fun v => Tarski.i_atom (P:=tt) v) /\ @Tarski.sat _ _ D I falsity_on rho phi.
-
-  (** Also define FVAL for fragment syntax *)
-  Definition FVAL_frag (phi : (@form _ _ FragmentSyntax.frag_operators falsity_on)) :=
-  forall D (I : Tarski.interp D) rho, listable D /\ decidable (fun v => Tarski.i_atom (P:=tt) v) -> @Tarski.sat _ _ D I falsity_on rho phi.
-
-
-  (** Show satisfaction decidable for fixed model *)
-  Lemma general_decider D (I:interp D) (ff:falsity_flag) (e : env D) f : finite D -> (forall (ff:falsity_flag) p v ee, dec (ee ⊨ atom p v)) -> dec (e ⊨ f).
+  Lemma fsatd_reduction : reduction (@F) H10UPC_SAT FSATd.
   Proof.
-  intros Hfin Hdec.
-  induction f as [|f [] v|f [| |] l IHl r IHr|f [|] v IHv] in e|-*.
-  - now right.
-  - apply Hdec.
-  - cbn. now apply and_dec.
-  - cbn. now apply or_dec.
-  - cbn. now apply impl_dec.
-  - cbn. apply fin_dec. 1:easy. intros k. apply IHv.
-  - cbn. apply fin_dec_ex. 1:easy. intros k. apply IHv.
+  intros Hl. split.
+  - intros [rho H]. pose (@m Hl rho) as m. exists (model m). exists (model_interp m). exists (fun _ => Num (fN le0)). repeat split.
+    + apply m_listable.
+    + apply m_discrete.
+    + apply m_decidable.
+    + apply (@valid Hl rho H).
+  - intros [D [I [rho [lst [tdisc [tdec H]]]]]]. specialize (tdec tt).
+    destruct lst as [l Hlst].  destruct tdec as [f Hf].
+    apply (@F_correct Hl D I rho).
+    + intros a b. cbn. destruct (f (Vector.cons D a 1 (Vector.cons D b 0 (Vector.nil D)))) as [|] eqn:Hdec.
+      * left. now apply Hf.
+      * right. intros Hc. apply Hf in Hc. congruence.
+    + exists l. exact Hlst.
+    + exact H.
   Qed.
 
+  Definition F_cform (h:list h10upc) : cform := exist _ (@F h) (ltac:(apply F_closed)).
 
-  (** Reduce from FSAT to FSAT_frag using double negation translation. *)
+  Lemma fsatdc_reduction : reduction (@F_cform) H10UPC_SAT FSATdc.
+  Proof.
+  intros Hl. unfold F_cform. split.
+  - intros [rho H]. pose (@m Hl rho) as m. exists (model m). exists (model_interp m). exists (fun _ => Num (fN le0)). repeat split.
+    + apply m_listable.
+    + apply m_discrete.
+    + apply m_decidable.
+    + apply (@valid Hl rho H).
+  - intros [D [I [rho [lst [tdisc [tdec H]]]]]]. specialize (tdec tt).
+    destruct lst as [l Hlst].  destruct tdec as [f Hf].
+    apply (@F_correct Hl D I rho).
+    + intros a b. cbn. destruct (f (Vector.cons D a 1 (Vector.cons D b 0 (Vector.nil D)))) as [|] eqn:Hdec.
+      * left. now apply Hf.
+      * right. intros Hc. apply Hf in Hc. congruence.
+    + exists l. exact Hlst.
+    + exact H.
+  Qed.
+
+  Notation FSAT_frag := Fragment.FSAT.
+  Notation FSATd_frag := Fragment.FSATd.
+  Notation FSATdc_frag := Fragment.FSATdc.
+  Notation FVAL_frag := Fragment.FVAL.
+
+
+  (* Reduce from FSAT to FSAT_frag using double negation translation. *)
   Definition frag_reduction_fsat : reduction (translate_form) FSAT FSAT_frag.
   Proof.
   intros f. split.
   - intros [D [I [rho [Hl [Hd Hsat]]]]]. exists D. exists (full_tarski_tarski_interp I). exists rho. split. 2:split.
     + easy.
     + setoid_rewrite eval_same_atom. rewrite (full_interp_inverse_1 I). apply Hd.
-    + destruct Hl as [ll Hll]. destruct Hd as [df Hf]. edestruct (@DoubleNegation.correct _ _ D (full_tarski_tarski_interp I)) as [HH _].
+    + destruct Hl as [ll Hll]. destruct (Hd tt) as [df Hf]. edestruct (@DoubleNegation.correct _ _ D (full_tarski_tarski_interp I)) as [HH _].
       2: rewrite HH, (full_interp_inverse_1 I); apply Hsat.
       intros ff fm e. apply general_decider.
       * now exists ll.
@@ -963,8 +1008,8 @@ Section result.
         ++ right. unfold decider,reflects in Hf. rewrite (full_interp_inverse_1 I), Hf. cbn in Heq. congruence.
   - intros [D [I [rho [Hl [Hd Hsat]]]]]. exists D. exists (tarski_full_tarski_interp I). exists rho. split. 2:split.
     + easy.
-    + setoid_rewrite <- eval_same_atom. apply Hd.
-    + destruct Hl as [ll Hll]. destruct Hd as [df Hf]. edestruct (@DoubleNegation.correct _ _ D I) as [HH _].
+    + intros [ ]. setoid_rewrite <- eval_same_atom. apply Hd.
+    + destruct Hl as [ll Hll]. destruct (Hd tt) as [df Hf]. edestruct (@DoubleNegation.correct _ _ D I) as [HH _].
       2: now rewrite <- HH. 
       intros ff fm e. apply general_decider.
       * now exists ll.
@@ -974,12 +1019,12 @@ Section result.
   Qed.
 
 
-  (** Reduce from FVAL to FVAL_frag using double negation translation. *)
+  (* Reduce from FVAL to FVAL_frag using double negation translation. *)
   Definition frag_reduction_fval : reduction (translate_form) FVAL FVAL_frag.
   Proof.
   intros f. split.
   - intros Hval D I rho [Hl Hd]. specialize (@Hval D (tarski_full_tarski_interp I) rho).
-    destruct Hl as [ll Hll]. destruct Hd as [df Hf]. 
+    destruct Hl as [ll Hll]. destruct (Hd tt) as [df Hf]. 
     edestruct (@DoubleNegation.correct _ _ D I) as [HH [HH2 [HH3 HH4]]].
     + intros ff fm e. apply general_decider.
       * now exists ll.
@@ -987,19 +1032,78 @@ Section result.
         ++ left. unfold decider,reflects in Hf. rewrite <- Hf in Heq. rewrite <- eval_same_atom. exact Heq.
         ++ right. unfold decider,reflects in Hf. rewrite <- eval_same_atom, Hf. cbn in Heq. congruence.
     + rewrite HH. apply Hval. split. 1: now exists ll.
-      setoid_rewrite <- eval_same_atom. now exists df.
+      setoid_rewrite <- eval_same_atom. intros [ ]. now exists df.
   - intros Hval D I rho [Hl Hd]. specialize (@Hval D (full_tarski_tarski_interp I) rho).
-    destruct Hl as [ll Hll]. destruct Hd as [df Hf]. 
+    destruct Hl as [ll Hll]. destruct (Hd tt) as [df Hf]. 
     enough (forall (ff:falsity_flag) f e, dec (@sat _ _ _ (tarski_full_tarski_interp (full_tarski_tarski_interp I)) ff e f)) as HH.
     + edestruct (@DoubleNegation.correct _ _ D (full_tarski_tarski_interp I) HH _ rho f) as [HH2 _].
       rewrite  (full_interp_inverse_1 I) in HH2. rewrite <- HH2. apply Hval. split.
       * now exists ll.
-      * exists df. setoid_rewrite eval_same_atom. intros k. rewrite (full_interp_inverse_1 I). apply Hf.
+      * intros []. exists df. setoid_rewrite eval_same_atom. intros k. rewrite (full_interp_inverse_1 I). apply Hf.
     + intros ff fm e. apply general_decider.
       * now exists ll.
       * intros ff' [] t ee. cbn. destruct (df (Vector.map (eval ee) t)) eqn:Heq.
         ++ left. unfold decider,reflects in Hf. rewrite (full_interp_inverse_1 I), Hf. easy.
         ++ right. unfold decider,reflects in Hf. rewrite (full_interp_inverse_1 I), Hf. cbn in Heq. congruence.
   Qed.
+
+
+
+  (* Reduce from FSAT to FSATd_frag using double negation translation. *)
+  Definition frag_reduction_fsatd : reduction (translate_form) FSATd FSATd_frag.
+  Proof.
+  intros f. split.
+  - intros [D [I [rho [Hl [Hdisc [Hd Hsat]]]]]]. exists D. exists (full_tarski_tarski_interp I). exists rho. repeat split.
+    + easy.
+    + easy.
+    + setoid_rewrite eval_same_atom. rewrite (full_interp_inverse_1 I). apply Hd.
+    + destruct Hl as [ll Hll]. destruct (Hd tt) as [df Hf]. edestruct (@DoubleNegation.correct _ _ D (full_tarski_tarski_interp I)) as [HH _].
+      2: rewrite HH, (full_interp_inverse_1 I); apply Hsat.
+      intros ff fm e. apply general_decider.
+      * now exists ll.
+      * intros ff' [] t ee. cbn. destruct (df (Vector.map (eval ee) t)) eqn:Heq.
+        ++ left. unfold decider,reflects in Hf. rewrite (full_interp_inverse_1 I), Hf. easy.
+        ++ right. unfold decider,reflects in Hf. rewrite (full_interp_inverse_1 I), Hf. cbn in Heq. congruence.
+  - intros [D [I [rho [Hl [Hdisc [Hd Hsat]]]]]]. exists D. exists (tarski_full_tarski_interp I). exists rho. repeat split.
+    + easy.
+    + easy.
+    + intros [ ]. setoid_rewrite <- eval_same_atom. apply Hd.
+    + destruct Hl as [ll Hll]. destruct (Hd tt) as [df Hf]. edestruct (@DoubleNegation.correct _ _ D I) as [HH _].
+      2: now rewrite <- HH. 
+      intros ff fm e. apply general_decider.
+      * now exists ll.
+      * intros ff' [] t ee. cbn. destruct (df (Vector.map (@eval _ _ _ (tarski_full_tarski_interp I) ee) t)) eqn:Heq.
+        ++ left. unfold decider,reflects in Hf. rewrite <- Hf in Heq. rewrite <- eval_same_atom. exact Heq.
+        ++ right. unfold decider,reflects in Hf. rewrite <- eval_same_atom, Hf. cbn in Heq. congruence.
+  Qed.
+
+  (* Reduce from FSAT to FSATdc_frag using double negation translation. *)
+  Definition frag_reduction_fsatdc : reduction (translate_form_closed) FSATdc FSATdc_frag.
+  Proof.
+  intros [f Hfclosed]. split.
+  - intros [D [I [rho [Hl [Hdisc [Hd Hsat]]]]]]. exists D. exists (full_tarski_tarski_interp I). exists rho. repeat split.
+    + easy.
+    + easy.
+    + setoid_rewrite eval_same_atom. rewrite (full_interp_inverse_1 I). apply Hd.
+    + destruct Hl as [ll Hll]. destruct (Hd tt) as [df Hf]. cbn. edestruct (@DoubleNegation.correct _ _ D (full_tarski_tarski_interp I)) as [HH _].
+      2: rewrite HH, (full_interp_inverse_1 I); apply Hsat.
+      intros ff fm e. apply general_decider.
+      * now exists ll.
+      * intros ff' [] t ee. cbn. destruct (df (Vector.map (eval ee) t)) eqn:Heq.
+        ++ left. unfold decider,reflects in Hf. rewrite (full_interp_inverse_1 I), Hf. easy.
+        ++ right. unfold decider,reflects in Hf. rewrite (full_interp_inverse_1 I), Hf. cbn in Heq. congruence.
+  - intros [D [I [rho [Hl [Hdisc [Hd Hsat]]]]]]. exists D. exists (tarski_full_tarski_interp I). exists rho. repeat split.
+    + easy.
+    + easy.
+    + intros [ ]. setoid_rewrite <- eval_same_atom. apply Hd.
+    + destruct Hl as [ll Hll]. destruct (Hd tt) as [df Hf]. edestruct (@DoubleNegation.correct _ _ D I) as [HH _].
+      2: now rewrite <- HH. 
+      intros ff fm e. apply general_decider.
+      * now exists ll.
+      * intros ff' [] t ee. cbn. destruct (df (Vector.map (@eval _ _ _ (tarski_full_tarski_interp I) ee) t)) eqn:Heq.
+        ++ left. unfold decider,reflects in Hf. rewrite <- Hf in Heq. rewrite <- eval_same_atom. exact Heq.
+        ++ right. unfold decider,reflects in Hf. rewrite <- eval_same_atom, Hf. cbn in Heq. congruence.
+  Qed.
+
 
 End result.

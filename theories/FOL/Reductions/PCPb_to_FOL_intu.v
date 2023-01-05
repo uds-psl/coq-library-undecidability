@@ -1,9 +1,14 @@
 (* * Intuitionistic FOL *)
 
+From Undecidability.PCP Require Import PCP Util.PCP_facts.
+From Undecidability.FOL Require Import Deduction.FragmentNDFacts Semantics.Tarski.FragmentFacts Syntax.Facts.
+From Undecidability.FOL.Semantics.Kripke Require Import FragmentCore FragmentSoundness FragmentToTarski.
+From Undecidability.FOL Require Import FOL.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ReducibilityFacts MoreReducibilityFacts.
-From Undecidability.FOL Require Import FOL Util.Kripke Util.Deduction Util.Syntax Util.Tarski PCPb_to_FOL.
-
-From Undecidability.PCP Require Import PCP Reductions.PCPb_iff_dPCPb.
+Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb.
+Require Import Undecidability.FOL.Reductions.PCPb_to_FOL.
+From Undecidability Require Import Shared.ListAutomation.
+Import ListAutomationNotations ListAutomationHints ListAutomationInstances.
 
 Local Hint Constructors BPCP : core.
 
