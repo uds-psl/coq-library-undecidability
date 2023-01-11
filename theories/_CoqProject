@@ -649,16 +649,6 @@ HOU/concon/conservativity_consequences.v
 HOU/concon/constants.v
 HOU/concon/constants_consequences.v
 
-FOLP/Util/axioms.v
-FOLP/Util/unscoped.v
-FOLP/Util/Syntax.v
-FOLP/Util/FOL.v
-FOLP/Util/FullSyntax.v
-FOLP/Util/FullFOL.v
-FOLP/Util/FullTarski.v
-FOLP/FOLFS.v
-FOLP/Reductions/PCPb_to_FOLFS.v
-
 TRAKHTENBROT/notations.v
 TRAKHTENBROT/bpcp.v
 TRAKHTENBROT/utils.v
