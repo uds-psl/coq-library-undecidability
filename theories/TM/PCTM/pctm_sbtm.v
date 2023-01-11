@@ -13,7 +13,7 @@ From Undecidability.Shared.Libs.DLW
   Require Import utils pos subcode sss.
 
 From Undecidability.Synthetic
-  Require Import Undecidability ReducibilityFacts.
+  Require Import ReducibilityFacts.
 
 From Undecidability.TM 
   Require Import SBTM pctm_defs.

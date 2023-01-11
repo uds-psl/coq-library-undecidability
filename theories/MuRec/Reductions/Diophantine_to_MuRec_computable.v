@@ -1,7 +1,5 @@
 Require Import List Lia.
 
-From Undecidability.Synthetic Require Import Undecidability.
-
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_nat.
 

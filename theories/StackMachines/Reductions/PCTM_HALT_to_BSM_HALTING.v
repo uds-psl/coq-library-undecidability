@@ -10,7 +10,7 @@
 Require Import List Bool.
 
 From Undecidability.Synthetic
-  Require Import Undecidability ReducibilityFacts.
+  Require Import Definitions ReducibilityFacts.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import pos vec sss compiler_correction.
