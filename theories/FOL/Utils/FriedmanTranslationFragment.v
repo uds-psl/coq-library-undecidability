@@ -6,7 +6,6 @@ From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationFacts ListAutomationInstances.
 From Undecidability.FOL Require Import FragmentSyntax.
 Import Vector.VectorNotations.
-From Undecidability Require Import Synthetic.Undecidability.
 
 Notation "I ⊨= phi" := (forall rho, sat I rho phi) (at level 20).
 Notation "I ⊨=T T" := (forall psi, T psi -> I ⊨= psi) (at level 20).

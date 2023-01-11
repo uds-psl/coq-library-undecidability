@@ -3,7 +3,7 @@
 From Undecidability.FOL Require Import Syntax.Facts Semantics.Tarski.FullFacts.
 From Undecidability.FOL Require Import Sets.ZF.
 From Undecidability.FOL Require Import ZF.
-From Undecidability.TRAKHTENBROT Require Import hfs.
+From Undecidability.FOL.TRAKHTENBROT Require Import hfs.
 From Undecidability.Shared.Libs.DLW.Utils Require Import finite.
 
 From Undecidability Require Import Shared.ListAutomation.
@@ -13,7 +13,7 @@ Import ListAutomationNotations.
 Existing Instance ZF_func_sig.
 
 Require Import Lia.
-
+Locate hfs_mem_fin_t.
 Definition hfs_listing x :=
    proj1_sig (hfs_mem_fin_t x).
 

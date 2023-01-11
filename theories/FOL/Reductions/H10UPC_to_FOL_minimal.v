@@ -25,7 +25,7 @@ Idea: The relation (#&#35;#) has the following properties:#<ul>#
 Set Default Goal Selector "!".
 
 
-Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.Definitions.
 
 (* Final collection of undecidability reductions *)
 Section undecResults.

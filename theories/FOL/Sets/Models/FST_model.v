@@ -1,7 +1,7 @@
 (* ** Constructive extensional model of finite set theory *)
 From Undecidability.FOL Require Import Syntax.Facts Semantics.Tarski.FullFacts FST.
 From Undecidability.FOL Require Import Sets.FST.
-From Undecidability.TRAKHTENBROT Require Import hfs.
+From Undecidability.FOL.TRAKHTENBROT Require Import hfs.
 From Undecidability.Shared.Libs.DLW.Utils Require Import finite.
 
 From Undecidability Require Import Shared.ListAutomation.

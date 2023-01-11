@@ -1,6 +1,6 @@
 (* ** Reduction from H10 *)
 
-Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.Definitions.
 From Undecidability.FOL Require Import Syntax.Facts Deduction.FullNDFacts Semantics.Tarski.FullFacts Semantics.Tarski.FullSoundness.
 Require Import Undecidability.FOL.PA.
 From Undecidability.FOL.Arithmetics Require Import TarskiFacts DeductionFacts NatModel.

@@ -649,58 +649,58 @@ HOU/concon/conservativity_consequences.v
 HOU/concon/constants.v
 HOU/concon/constants_consequences.v
 
-TRAKHTENBROT/notations.v
-TRAKHTENBROT/bpcp.v
-TRAKHTENBROT/utils.v
-TRAKHTENBROT/decidable.v
-TRAKHTENBROT/enumerable.v
-TRAKHTENBROT/fol_ops.v
-TRAKHTENBROT/discernable.v
+FOL/TRAKHTENBROT/notations.v
+FOL/TRAKHTENBROT/bpcp.v
+FOL/TRAKHTENBROT/utils.v
+FOL/TRAKHTENBROT/decidable.v
+FOL/TRAKHTENBROT/enumerable.v
+FOL/TRAKHTENBROT/fol_ops.v
+FOL/TRAKHTENBROT/discernable.v
 
-TRAKHTENBROT/gfp.v
-TRAKHTENBROT/btree.v
-TRAKHTENBROT/hfs.v
+FOL/TRAKHTENBROT/gfp.v
+FOL/TRAKHTENBROT/btree.v
+FOL/TRAKHTENBROT/hfs.v
 
-TRAKHTENBROT/fo_sig.v
-TRAKHTENBROT/fo_terms.v
-TRAKHTENBROT/fo_logic.v
-TRAKHTENBROT/fo_enum.v
-TRAKHTENBROT/fo_congruence.v
-TRAKHTENBROT/fo_sat.v
-TRAKHTENBROT/fo_definable.v
-TRAKHTENBROT/fo_sat_dec.v
+FOL/TRAKHTENBROT/fo_sig.v
+FOL/TRAKHTENBROT/fo_terms.v
+FOL/TRAKHTENBROT/fo_logic.v
+FOL/TRAKHTENBROT/fo_enum.v
+FOL/TRAKHTENBROT/fo_congruence.v
+FOL/TRAKHTENBROT/fo_sat.v
+FOL/TRAKHTENBROT/fo_definable.v
+FOL/TRAKHTENBROT/fo_sat_dec.v
 
-TRAKHTENBROT/discrete.v
-TRAKHTENBROT/membership.v
-TRAKHTENBROT/reln_hfs.v
+FOL/TRAKHTENBROT/discrete.v
+FOL/TRAKHTENBROT/membership.v
+FOL/TRAKHTENBROT/reln_hfs.v
 
-TRAKHTENBROT/Sig_discrete.v
-TRAKHTENBROT/Sig_noeq.v
+FOL/TRAKHTENBROT/Sig_discrete.v
+FOL/TRAKHTENBROT/Sig_noeq.v
 
-TRAKHTENBROT/BPCP_SigBPCP.v
-TRAKHTENBROT/Sign_Sig2.v
-TRAKHTENBROT/Sig2_Sign.v
-TRAKHTENBROT/Sign_Sig.v
-TRAKHTENBROT/Sign1_Sig.v
-TRAKHTENBROT/Sig_no_syms.v
-TRAKHTENBROT/Sig_rem_syms.v
-TRAKHTENBROT/Sig_uniform.v
-TRAKHTENBROT/Sig_rem_cst.v
-TRAKHTENBROT/Sig_one_rel.v
-TRAKHTENBROT/Sig_Sig_fin.v
-TRAKHTENBROT/Sig_rem_props.v
-TRAKHTENBROT/Sig_rem_constants.v
-TRAKHTENBROT/Sig_discernable.v
+FOL/TRAKHTENBROT/BPCP_SigBPCP.v
+FOL/TRAKHTENBROT/Sign_Sig2.v
+FOL/TRAKHTENBROT/Sig2_Sign.v
+FOL/TRAKHTENBROT/Sign_Sig.v
+FOL/TRAKHTENBROT/Sign1_Sig.v
+FOL/TRAKHTENBROT/Sig_no_syms.v
+FOL/TRAKHTENBROT/Sig_rem_syms.v
+FOL/TRAKHTENBROT/Sig_uniform.v
+FOL/TRAKHTENBROT/Sig_rem_cst.v
+FOL/TRAKHTENBROT/Sig_one_rel.v
+FOL/TRAKHTENBROT/Sig_Sig_fin.v
+FOL/TRAKHTENBROT/Sig_rem_props.v
+FOL/TRAKHTENBROT/Sig_rem_constants.v
+FOL/TRAKHTENBROT/Sig_discernable.v
 
-TRAKHTENBROT/Sig0.v
-TRAKHTENBROT/Sig1.v
-TRAKHTENBROT/Sig1_1.v
-TRAKHTENBROT/Sig2_SigSSn1.v
+FOL/TRAKHTENBROT/Sig0.v
+FOL/TRAKHTENBROT/Sig1.v
+FOL/TRAKHTENBROT/Sig1_1.v
+FOL/TRAKHTENBROT/Sig2_SigSSn1.v
 
-TRAKHTENBROT/red_utils.v
-TRAKHTENBROT/red_dec.v
-TRAKHTENBROT/red_enum.v
-TRAKHTENBROT/red_undec.v
+FOL/TRAKHTENBROT/red_utils.v
+FOL/TRAKHTENBROT/red_dec.v
+FOL/TRAKHTENBROT/red_enum.v
+FOL/TRAKHTENBROT/red_undec.v
 
 CounterMachines/Util/CM1_facts.v
 CounterMachines/Reductions/MM2_HALTING_to_CM1_HALT.v

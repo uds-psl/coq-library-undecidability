@@ -1,6 +1,6 @@
 From Undecidability.FOL Require Import Syntax.Facts Semantics.Tarski.FullFacts Syntax.BinSig Semantics.FiniteTarski.Full.
-From Undecidability.TRAKHTENBROT Require bpcp. (* keep this Require to avoid universe problems *)
-From Undecidability.TRAKHTENBROT Require Import fo_sat fo_sig fo_terms fo_logic fol_ops.
+From Undecidability.FOL.TRAKHTENBROT Require bpcp. (* keep this Require to avoid universe problems *)
+From Undecidability.FOL.TRAKHTENBROT Require Import fo_sat fo_sig fo_terms fo_logic fol_ops.
 Require Import Undecidability.Synthetic.DecidabilityFacts.
 Require Import Vector Lia.
 

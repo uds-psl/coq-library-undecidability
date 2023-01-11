@@ -6,7 +6,7 @@ From Undecidability.FOL Require Import Syntax.Facts Deduction.FullNDFacts Semant
 From Undecidability.Shared Require Import Dec.
 From Undecidability.Shared.Libs.PSL Require Import Numbers.
 From Coq Require Import Arith Lia List.
-Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.Definitions.
 
 
 (* ** Validity *)

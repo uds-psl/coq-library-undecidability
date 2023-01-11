@@ -12,7 +12,7 @@ From Coq Require Import Arith Lia List.
 
 From Undecidability.FOL.Semantics.FiniteTarski Require Import Full DoubleNegation.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts.
-Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.Definitions.
 Require Import Datatypes.
 Require Import Relation_Definitions.
 Require Import Setoid.
