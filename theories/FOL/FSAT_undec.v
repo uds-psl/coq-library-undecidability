@@ -1,4 +1,4 @@
-From Undecidability.FOL.TRAKHTENBROT Require Import bpcp red_collection fo_sig.
+From Undecidability.FOL.TRAKHTENBROT Require Import bpcp red_chain_undec_full fo_sig.
 From Undecidability.Synthetic Require Import Undecidability ReducibilityFacts.
 From Undecidability.FOL.Syntax Require Import Core.
 From Undecidability.FOL.Semantics.FiniteTarski Require Fragment Full DoubleNegation.

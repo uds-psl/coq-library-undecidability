@@ -700,7 +700,7 @@ FOL/TRAKHTENBROT/Sig2_SigSSn1.v
 FOL/TRAKHTENBROT/red_utils.v
 FOL/TRAKHTENBROT/red_dec.v
 FOL/TRAKHTENBROT/red_enum.v
-FOL/TRAKHTENBROT/red_collection.v
+FOL/TRAKHTENBROT/red_chain_undec_full.v
 
 CounterMachines/Util/CM1_facts.v
 CounterMachines/Reductions/MM2_HALTING_to_CM1_HALT.v
