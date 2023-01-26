@@ -10,6 +10,7 @@
 *.nia.cache
 *.vok
 *.vos
+*.crashcoqide
 
 theories/.vscode
 *.#*

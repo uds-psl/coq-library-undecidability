@@ -1,6 +1,8 @@
 (* * First-Order Logic *)
 
-From Undecidability.FOL.Util Require Import Syntax Deduction Tarski Kripke.
+From Undecidability.FOL Require Import Syntax.Facts Deduction.FragmentNDFacts Semantics.Tarski.FragmentFacts Semantics.Kripke.FragmentCore.
+From Undecidability.FOL Require Syntax.BinSig Semantics.Tarski.FullCore. 
+From Undecidability.FOL Require Deduction.FullND.
  
 (* ** Syntax as defined in Util/Syntax.v 
 
@@ -16,6 +18,11 @@ From Undecidability.FOL.Util Require Import Syntax Deduction Tarski Kripke.
   | bin {b} : binop -> form b -> form b -> form b
   | quant {b} : quantop -> form b -> form b.    
 *)
+
+
+
+Import FragmentSyntax.
+Export FragmentSyntax.
 
 (* ** Instantiation to signature with 1 constant, 2 unary functions, 1 prop constant, 1 binary relation *)
 
@@ -34,6 +41,7 @@ Instance sig_pred : preds_signature :=
 (* ** List of decision problems concerning validity, satisfiability and provability *)
 
 (* Provability and validity of minimal logic without falsity *)
+Notation "FOL*_prv_class" := (@prv _ _ falsity_off class nil).
 Notation "FOL*_prv_intu" := (@prv _ _ falsity_off intu nil).
 Notation "FOL*_valid" := (@valid _ _ falsity_off).
 
@@ -54,3 +62,15 @@ Definition FOL_prv_intu := @prv _ _ falsity_on intu nil.
 
 (* Provability of formulas with falsity in ND with explosion and Peirce's law *)
 Definition FOL_prv_class := @prv _ _ falsity_on class nil.
+
+
+(* ** List of decision problems concerning validity, satisfiability and provability *)
+
+Import BinSig Semantics.Tarski.FullCore. 
+
+(* Validity of formulas with falsity in Tarski semantics *)
+Definition binFOL_valid := @FullCore.valid sig_empty sig_binary falsity_on.
+
+(* Provability of formulas with falsity in ND with explosion *)
+Definition binFOL_prv_intu := @FullND.prv sig_empty sig_binary falsity_on intu nil.
+

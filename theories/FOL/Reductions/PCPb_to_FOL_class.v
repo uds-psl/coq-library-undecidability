@@ -1,12 +1,17 @@
 (* * Classical Natural Deduction *)
 
 
-From Undecidability.FOL Require Import FOL Reductions.PCPb_to_FOL Util.Syntax_facts Util.Deduction Util.Tarski.
-Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb Undecidability.PCP.PCP.
+From Undecidability.PCP Require Import PCP Util.PCP_facts.
+From Undecidability.FOL Require Import Deduction.FragmentNDFacts Semantics.Tarski.FragmentFacts Semantics.Tarski.FragmentSoundness Syntax.Core Syntax.Facts.
+From Undecidability.FOL Require Import FOL.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ReducibilityFacts MoreReducibilityFacts.
+Require Import Undecidability.FOL.Reductions.PCPb_to_FOL.
+Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb.
 Require Import List.
-Require Import Undecidability.Shared.ListAutomation.
-Import ListNotations. Import ListAutomationHints.
+From Undecidability Require Import Shared.ListAutomation.
+Import ListAutomationNotations ListAutomationHints ListAutomationInstances.
+Import ListNotations.
+
 
 (* ** Double Negation Translation *)
 
@@ -59,7 +64,7 @@ Qed.
 Lemma DN A phi :
   A ⊢C (¬¬phi) -> A ⊢C phi.
 Proof.
-  intros H. eapply IE with ((phi --> falsity) --> phi); try apply Pc.
+  intros H. eapply IE with ((phi → falsity) → phi); try apply Pc.
   apply II, Exp. eapply IE. apply (Weak H); auto. now apply Ctx.
 Qed.
                                                     
@@ -67,12 +72,12 @@ Lemma cnd_XM:
   (forall (phi : form falsity_on), cprv nil phi -> valid phi) ->
   forall P, ~~ P -> P.
 Proof.
-  intros H P. specialize (H ((¬¬Q) --> Q)).
+  intros H P. specialize (H ((¬¬Q) → Q)).
   refine (H _ unit (iUnit P) (fun _ => tt)).
   eapply II. eapply DN. eauto.
 Qed.
 
-Definition dnQ {b} (phi : form b) : form b := (phi --> Q) --> Q.
+Definition dnQ {b} (phi : form b) : form b := (phi → Q) → Q.
 
 Fixpoint trans {b} (phi : form b) : form b :=
   match phi with
@@ -93,31 +98,31 @@ Proof.
 Qed.
 
 Lemma appCtx b psi1 psi2 A :
-  In (psi1 --> psi2) A -> A ⊢I psi1 -> A ⊢I psi2.
+  In (psi1 → psi2) A -> A ⊢I psi1 -> A ⊢I psi2.
 Proof.
   intros. eapply (IE (phi := psi1) (psi := psi2)); eauto using Ctx.
 Qed.
 
 Lemma app1 b psi1 psi2 A :
-  (psi1 --> psi2 :: A) ⊢I psi1 -> (psi1 --> psi2 :: A) ⊢I psi2.
+  (psi1 → psi2 :: A) ⊢I psi1 -> (psi1 → psi2 :: A) ⊢I psi2.
 Proof.
   intros. eapply appCtx; eauto.
 Qed.
 
 Lemma app2 b psi1 psi2 A phi :
-  (phi :: psi1 --> psi2 :: A) ⊢I psi1 -> (phi :: psi1 --> psi2 :: A) ⊢I psi2.
+  (phi :: psi1 → psi2 :: A) ⊢I psi1 -> (phi :: psi1 → psi2 :: A) ⊢I psi2.
 Proof.
   intros. eapply appCtx; eauto.
 Qed.
 
 Lemma app3 b psi1 psi2 A phi phi2 :
-  (phi :: phi2 :: psi1 --> psi2 :: A) ⊢I psi1 -> (phi :: phi2 :: psi1 --> psi2 :: A) ⊢I psi2.
+  (phi :: phi2 :: psi1 → psi2 :: A) ⊢I psi1 -> (phi :: phi2 :: psi1 → psi2 :: A) ⊢I psi2.
 Proof.
   intros. eapply appCtx; eauto.
 Qed.
 
 Lemma trans_trans' b (phi : form b) A sigma tau :
-  (map (subst_form tau) A) ⊢I ((dnQ (trans phi[sigma])) --> trans phi[sigma]).
+  (map (subst_form tau) A) ⊢I ((dnQ (trans phi[sigma])) → trans phi[sigma]).
 Proof.
   revert A sigma tau. induction phi; cbn; intros; try destruct P; try destruct b0; try destruct q.
   - cbn. eapply II. eapply app1. eapply II. eapply Ctx. eauto.
@@ -138,9 +143,9 @@ Proof.
 Qed.
 
 Lemma trans_trans b (phi : form b) A :
-  A ⊢I ((dnQ (trans phi)) --> trans phi).
+  A ⊢I ((dnQ (trans phi)) → trans phi).
 Proof.
-  specialize (trans_trans' _ phi A var var).
+  specialize (trans_trans' phi A var var).
   rewrite subst_var. intros H. apply (Weak H).
   clear H. induction A; cbn; trivial. setoid_rewrite subst_var. auto.
 Qed.

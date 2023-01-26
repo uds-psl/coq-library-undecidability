@@ -56,6 +56,13 @@ Proof.
   eexists. eapply enum_red; eauto.
 Qed.
 
+Lemma semi_decidable_red (X Y : Type) (p : X -> Prop) (q : Y -> Prop) :
+  p ⪯ q -> semi_decidable q -> semi_decidable p.
+Proof.
+  intros [f Hf] [g Hg]. exists (fun x n => g (f x) n).
+  firstorder.
+Qed.
+
 Theorem not_decidable X Y (p : X -> Prop) (q : Y -> Prop) :
   p ⪯ q -> enumerable__T X -> ~ enumerable (complement p) ->
   ~ decidable q /\ ~ decidable (complement q).

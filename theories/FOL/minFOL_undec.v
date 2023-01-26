@@ -1,15 +1,21 @@
-From Undecidability.FOL.Util Require Import Syntax sig_bin.
-From Undecidability.FOL.Util Require  Tarski Deduction Kripke.
+(** ** Signature Minimisation *)
+
 From Undecidability.DiophantineConstraints Require Import H10C H10C_undec.
-From Undecidability.FOL.Reductions Require H10UPC_to_FOL_minimal H10UPC_to_FSAT.
-From Undecidability.FOL.Reductions Require H10UPC_to_FOL_full_fragment.
+From Undecidability.FOL.Syntax Require Import Core BinSig.
+From Undecidability.FOL Require Semantics.Tarski.FragmentFacts Deduction.FragmentNDFacts Semantics.Kripke.FragmentCore
+                                Semantics.FiniteTarski.Fragment.
+From Undecidability.FOL Require Semantics.Tarski.FragmentFacts Deduction.FullNDFacts.
+From Undecidability.FOL.Reductions Require H10UPC_to_FOL_minimal.
+From Undecidability.FOL.Reductions Require H10UPC_to_FOL_full_fragment H10UPC_to_FSAT.
 From Undecidability.Synthetic Require Import Definitions Undecidability ReducibilityFacts.
+
 
 Definition minimalForm (ff:falsity_flag) := @form sig_empty sig_binary FragmentSyntax.frag_operators ff.
 
 
 Section full_fragment.
-  Import H10UPC_to_FOL_full_fragment FullTarski.
+  Import H10UPC_to_FOL_full_fragment.
+  Import Undecidability.FOL.Semantics.Tarski.FullFacts.
 
   Lemma minSignatureValiditiyUndec : @undecidable (@form sig_empty sig_binary FullSyntax.full_operators falsity_on) valid.
   Proof.
@@ -19,7 +25,8 @@ Section full_fragment.
 End full_fragment.
 
 Section general.
-  Import H10UPC_to_FOL_minimal Tarski Deduction Kripke.
+  Import H10UPC_to_FOL_minimal.
+  Import Semantics.Tarski.FragmentFacts Deduction.FragmentNDFacts Semantics.Kripke.FragmentCore.
 
   Lemma minValidityUndec : undecidable (fun k : minimalForm falsity_off => valid k).
   Proof.
@@ -42,10 +49,10 @@ Section general.
     exact proveReduction.
   Qed.
 
-  Lemma minClassicalProvabilityUndec (LEM : forall P:Prop, P \/ ~P) : undecidable class_provable.
+  Lemma minClassicalProvabilityUndec : undecidable class_provable.
   Proof.
     apply (undecidability_from_reducibility H10UPC_SAT_undec).
-    apply classicalProveReduction, LEM.
+    exact classicalProveReduction.
   Qed.
 
   Lemma minSatisfiabilityUndec : undecidable (fun k : minimalForm falsity_on => satis k).
@@ -65,27 +72,37 @@ End general.
 
 Section finite.
   Import H10UPC_to_FSAT.
-  (** Reduction into fragment syntax. Step 1: define FSAT for fragment syntax *)
-  Definition FSAT_frag (phi : minimalForm falsity_on) :=
-  exists D (I : Tarski.interp D) rho, FSAT.listable D /\ decidable (fun v => Tarski.i_atom (P:=tt) v) /\ @Tarski.sat _ _ D I _ rho phi.
-
-  (** Also define FVAL for fragment syntax *)
-  Definition FVAL_frag (phi : minimalForm falsity_on) :=
-  forall D (I : Tarski.interp D) rho, FSAT.listable D /\ decidable (fun v => Tarski.i_atom (P:=tt) v) -> @Tarski.sat _ _ D I _ rho phi.
-
-  (** Also define FVAL for negation-free fragment *)
-  Definition FVAL_frag_no_negation (phi : minimalForm falsity_off) :=
-  forall D (I : Tarski.interp D) rho, FSAT.listable D /\ decidable (fun v => Tarski.i_atom (P:=tt) v) -> @Tarski.sat _ _ D I _ rho phi.
-
-  Lemma minFiniteSatisfiabilityUndec : undecidable FSAT_frag.
+  Import Semantics.FiniteTarski.Fragment.
+  Import Semantics.Tarski.FragmentFacts.
+  Lemma minFiniteSatisfiabilityUndec : undecidable FSAT.
   Proof.
     apply (undecidability_from_reducibility H10UPC_SAT_undec).
     eapply reduces_transitive.
     * eexists. apply fsat_reduction.
     * eexists. apply frag_reduction_fsat.
   Qed.
+  Lemma minDiscreteFiniteSatisfiabilityUndec : undecidable FSATd.
+  Proof.
+    apply (undecidability_from_reducibility H10UPC_SAT_undec).
+    eapply reduces_transitive.
+    * eexists. apply fsatd_reduction.
+    * eexists. apply frag_reduction_fsatd.
+  Qed.
+  Lemma minDiscreteClosedFiniteSatisfiabilityUndec : undecidable FSATdc.
+  Proof.
+    apply (undecidability_from_reducibility H10UPC_SAT_undec).
+    eapply reduces_transitive.
+    * eexists. apply fsatdc_reduction.
+    * eexists. apply frag_reduction_fsatdc.
+  Qed.
 
-  Lemma minFiniteValidityUndec : undecidable FVAL_frag.
+  Lemma minDiscreteClosedFullFiniteSatisfiabilityUndec : undecidable Full.FSATdc.
+  Proof.
+    apply (undecidability_from_reducibility H10UPC_SAT_undec).
+    eexists. apply fsatdc_reduction.
+  Qed.
+
+  Lemma minFiniteValidityUndec : undecidable FVAL.
   Proof.
     apply (undecidability_from_reducibility H10UPC_SAT_compl_undec).
     eapply reduces_transitive.
@@ -93,8 +110,8 @@ Section finite.
     * eexists. apply frag_reduction_fval.
   Qed.
 
-  (** This is a conjecture *)
-  Lemma minFiniteValidityConjecture : undecidable FVAL_frag_no_negation.
+  (* This is a conjecture *)
+  Lemma minFiniteValidityConjecture : undecidable (@FVAL _ _ falsity_off).
   Abort.
 
 End finite.

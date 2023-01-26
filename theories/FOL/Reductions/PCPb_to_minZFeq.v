@@ -1,16 +1,23 @@
-(* * Conservativity *)
+(* ** Variant allowing intensional models *)
 
-From Undecidability.FOL Require Import Util.FullTarski_facts Util.Syntax_facts Util.FullDeduction_facts.
-From Undecidability.FOL Require Import ZF Reductions.PCPb_to_ZF Reductions.PCPb_to_minZF minZF Reductions.PCPb_to_ZFeq.
+Require Import Undecidability.FOL.ZF.
+Require Import Undecidability.FOL.Syntax.Facts.
+Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
+From Undecidability.FOL.Sets Require Import minZF ZF.
+Require Import Undecidability.FOL.Sets.ZF.
+From Undecidability.FOL.Reductions Require Import PCPb_to_ZF PCPb_to_ZFeq PCPb_to_minZF.
 From Undecidability Require Import Shared.ListAutomation.
-Import ListAutomationNotations ListAutomationHints.
+Import ListAutomationNotations ListAutomationHints ListAutomationInstances.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
 Require Import Morphisms.
 
+
 Local Notation vec := Vector.t.
 
+#[local] Notation term' := (term sig_empty).
+#[local] Notation form' := (form sig_empty _ _ falsity_on).
 
 (* ** Semantics *)
 

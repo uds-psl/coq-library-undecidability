@@ -1,8 +1,10 @@
-(* * Reduction to semantic ZF entailment *)
+(* ** Variant allowing intensional models *)
 
-Require Import Undecidability.FOL.Util.Syntax.
-Require Import Undecidability.FOL.Util.FullTarski_facts.
 Require Import Undecidability.FOL.ZF.
+Require Import Undecidability.FOL.Syntax.Facts.
+Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
+From Undecidability.FOL.Sets Require Import ZF.
+Require Import Undecidability.FOL.Sets.ZF.
 Require Import Undecidability.FOL.Reductions.PCPb_to_ZF.
 Require Import Lia.
 
@@ -15,6 +17,7 @@ Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
 Require Import Morphisms.
+
 
 (* ** Internal axioms *)
 
@@ -492,6 +495,12 @@ Section ZF.
     destruct (@M_solutions_el B f n X (M_opair s s)) as (u&v&H1&H2); trivial.
     now split. exists u. apply opair_inj in H1 as [H H1]. rewrite H1 in H.
     apply enc_string_inj in H as ->. apply H2.
+  Qed.
+
+  Theorem PCP_ZFeq B rho :
+    standard M -> rho ⊨ solvable B -> PCPb B.
+  Proof using M_ZF.
+    intros H1 H2. apply PCPb_iff_dPCPb. eapply PCP_ZF2; eauto.
   Qed.
   
 End ZF.

@@ -1,8 +1,6 @@
-From Undecidability.TRAKHTENBROT Require bpcp. (* keep this Require to avoid universe problems *)
-
-From Undecidability.TRAKHTENBROT Require Import fo_sat fo_sig fo_terms fo_logic fol_ops.
-From Undecidability.FOL.Util Require Import Syntax FullTarski_facts sig_bin.
-From Undecidability.FOL Require Import FSAT.
+From Undecidability.FOL Require Import Syntax.Facts Semantics.Tarski.FullFacts Syntax.BinSig Semantics.FiniteTarski.Full.
+From Undecidability.FOL.TRAKHTENBROT Require bpcp. (* keep this Require to avoid universe problems *)
+From Undecidability.FOL.TRAKHTENBROT Require Import fo_sat fo_sig fo_terms fo_logic fol_ops.
 Require Import Undecidability.Synthetic.DecidabilityFacts.
 Require Import Vector Lia.
 
@@ -10,11 +8,13 @@ Set Default Goal Selector "!".
 
 (* Reduction from the TRAKHTENBROT development to the FSAT problems in FOL *)
 
-(** syntax translation **)
+(* syntax translation **)
 
 Definition term' := @fo_term Empty_set (fun f => match f with end).
 Definition form' := fol_form (Σrel 2).
 
+#[local]
+Existing Instance falsity_on.
 Definition translate_term (t : term') : term :=
   match t with
   | in_var n => $n
@@ -27,12 +27,12 @@ Fixpoint translate (phi : form') : form :=
   | fol_atom tt v => atom tt (map translate_term v)
   | fol_bin fol_conj phi psi => translate phi ∧ translate psi
   | fol_bin fol_disj phi psi => translate phi ∨ translate psi
-  | fol_bin fol_imp phi psi => translate phi ~> translate psi
+  | fol_bin fol_imp phi psi => translate phi → translate psi
   | fol_quant fol_ex phi => ∃ translate phi
   | fol_quant fol_fa phi => ∀ translate phi
   end.
 
-(** verification **)
+(* verification **)
 
 Section Forward.
   
@@ -106,17 +106,17 @@ Section Backward.
 
 End Backward.
 
-(** reduction theorems **)
+(* reduction theorems **)
 
 Lemma reduction :
-  @fo_form_fin_dec_SAT (Σrel 2) ⪯ FSAT.
+  @fo_form_fin_dec_SAT (Σrel 2) ⪯ Full.FSAT.
 Proof.
   exists translate. intros phi. split.
   - intros (D & M & [L HL] & HD & rho & H). exists D, (@M1 D M), rho. repeat split.
     + exists L. apply HL.
-    + apply decidable_iff. constructor. apply HD.
+    + intros [ ]. apply decidable_iff. constructor. apply HD.
     + now apply fwd_sat.
-  - intros (D & M & rho & [L HL] & [HD] % decidable_iff & H). exists D, (@M2 D M), (exist _ L HL). eexists.
+  - intros (D & M & rho & [L HL] & HD & H). specialize (HD tt). apply decidable_iff in HD. destruct HD as [HD]. exists D, (@M2 D M), (exist _ L HL). eexists.
     + intros []. apply HD.
     + exists rho. now apply bwd_sat.
 Qed.
@@ -128,9 +128,11 @@ Proof.
   - intros (D & HE & M & [L HL] & HD & rho & H). exists D, (@M1 D M), rho. repeat split.
     + exists L. apply HL.
     + apply discrete_iff. constructor. apply HE.
-    + apply decidable_iff. constructor. apply HD.
+    + intros [ ]. apply decidable_iff. constructor. apply HD.
     + now apply fwd_sat.
-  - intros (D & M & rho & [L HL] & [HE] % discrete_iff & [HD] % decidable_iff & H).
+  - intros (D & M & rho & [L HL] & [HE] % discrete_iff & HD & H).
+    specialize (HD tt).
+    apply decidable_iff in HD. destruct HD as [HD].
     exists D, HE, (@M2 D M), (exist _ L HL). eexists.
     + intros []. apply HD.
     + exists rho. now apply bwd_sat.

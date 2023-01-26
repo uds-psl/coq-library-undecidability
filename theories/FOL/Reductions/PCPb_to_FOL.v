@@ -1,11 +1,13 @@
 (* * FOL Reductions *)
 
 From Undecidability.PCP Require Import PCP Util.PCP_facts.
-From Undecidability.FOL Require Import Util.Deduction Util.Tarski Util.Syntax_facts FOL.
+From Undecidability.FOL Require Import Deduction.FragmentNDFacts Semantics.Tarski.FragmentFacts Semantics.Tarski.FragmentSoundness Syntax.Core Syntax.Facts.
+From Undecidability.FOL Require Import FOL.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ReducibilityFacts MoreReducibilityFacts.
 Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb.
-Require Import Undecidability.Shared.ListAutomation.
-Import ListAutomationHints.
+From Undecidability Require Import Shared.ListAutomation.
+Import ListAutomationNotations ListAutomationHints ListAutomationInstances.
+
 
 (* ** Validity *)
 
@@ -49,10 +51,10 @@ Section validity.
     end.
 
   Definition F1 := map (fun '(x,y) => Pr (enc x) (enc y)) R.
-  Definition F2 := map (fun '(x, y) => ∀ ∀ Pr $1 $0 --> Pr (prep x $1) (prep y $0)) R.
-  Definition F3 := (∀ Pr $0 $0 --> Q).
+  Definition F2 := map (fun '(x, y) => ∀ ∀ Pr $1 $0 → Pr (prep x $1) (prep y $0)) R.
+  Definition F3 := (∀ Pr $0 $0 → Q).
 
-  Definition F : form := F1 ==> F2 ==> F3 --> Q.
+  Definition F : form := F1 ==> F2 ==> F3 → Q.
 
   Lemma iprep_eval domain (I : interp domain) rho x s :
     eval rho (prep x s) = iprep x (eval rho s).
@@ -81,7 +83,7 @@ Section validity.
     induction s; cbn; trivial.
     rewrite <- IHs. reflexivity.
   Qed.
-
+ 
   Lemma IB_enc rho s :
     eval rho (enc s) = s.
   Proof.
@@ -130,7 +132,7 @@ Section validity.
   Proof.
     rewrite !impl_sat. intros. induction H.
     - eapply H0. eapply in_map_iff. exists (x/y). eauto.
-    - eapply (H1 (∀ ∀ Pr $1 $0 --> Pr (prep x $1) (prep y $0))) in IHderivable.
+    - eapply (H1 (∀ ∀ Pr $1 $0 → Pr (prep x $1) (prep y $0))) in IHderivable.
       + cbn in *. unfold enc in *. rewrite !iprep_eval in *. cbn in *.
         rewrite <- !iprep_app in IHderivable. eapply IHderivable.
       + eapply in_map_iff. exists (x/y). eauto.
@@ -164,7 +166,7 @@ Section validity.
     induction 1.
     - apply Ctx. right. eapply in_app_iff. right.
       rewrite <- in_rev. eapply in_map_iff. exists (x/y). eauto.
-    - assert (ctx_S ⊢ ∀ ∀ Pr $1 $0 --> Pr (prep x $1) (prep y $0)).
+    - assert (ctx_S ⊢ ∀ ∀ Pr $1 $0 → Pr (prep x $1) (prep y $0)).
       + apply Ctx. right. eapply in_app_iff. left.
         rewrite <- in_rev. eapply in_map_iff. exists (x/y). eauto.
       + eapply AllE with (t := enc u) in H1; eauto.
@@ -181,7 +183,7 @@ Section validity.
     intros [u H].
     apply drv_prv with (s:=s) in H. unfold F.
     repeat eapply impl_prv. simpl_list. eapply II.
-    assert (ctx_S ⊢ (∀ Pr $0 $0 --> Q)).
+    assert (ctx_S ⊢ (∀ Pr $0 $0 → Q)).
     apply Ctx. now unfold ctx_S. eapply AllE with  (t := enc u) in H0.
     cbn in H0. now eapply (IE H0).
   Qed.
@@ -210,9 +212,9 @@ Theorem BPCP_satis R :
 Proof.
   rewrite PCPb_iff_dPCPb. split.
   - intros H. exists (list bool), (IB R), (fun _ => nil).
-    intros H'. cbn. apply H, (IB_F _ _ H').
+    intros H'. cbn. apply H, (IB_F H').
   - rewrite <- PCPb_iff_dPCPb. intros H1 H2 % (BPCP_valid R (ff:=falsity_on)).
-    apply (valid_satis _ H2), H1.
+    apply (valid_satis H2), H1.
 Qed.
 
 (* ** Reduction theorems *)
