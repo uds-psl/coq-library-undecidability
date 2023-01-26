@@ -45,12 +45,10 @@ Proof.
 Qed.
 
 Module UndecidabilityNotations.
+Import ReductionChainNotations.
 
 Tactic Notation "undec" "from" constr(H) :=
   apply (undecidability_from_reducibility H).
-
-Tactic Notation "reduce" "with" "chain" constr(H) := 
-  repeat (apply (reduces_reflexive _) || (eapply reduces_transitive; [ apply H | ])).
 
 Tactic Notation "undec" "from" constr(U) "using" "chain" constr(C) :=
   undec from U; reduce with chain C.

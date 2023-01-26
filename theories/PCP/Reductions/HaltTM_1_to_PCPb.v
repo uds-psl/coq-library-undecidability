@@ -16,7 +16,7 @@ Require Import List.
 From Undecidability.Shared.Libs.DLW
   Require Import utils.
 
-Require Import Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Synthetic.ReducibilityFacts.
 
 Require Import Undecidability.TM.TM.
@@ -39,7 +39,7 @@ From Undecidability.StringRewriting.Reductions
 From Undecidability.PCP.Reductions
   Require SR_to_MPCP MPCP_to_PCP PCP_to_PCPb PCPb_iff_iPCPb.
 
-Import ReductionChainNotations UndecidabilityNotations.
+Import ReductionChainNotations.
 
 Lemma HaltTM_1_chain_iPCPb : 
   HaltTM 1 ⪯ SBTM_HALT /\

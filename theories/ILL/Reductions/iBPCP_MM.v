@@ -11,7 +11,7 @@ Require Import List.
 
 Import ListNotations.
 
-Require Import Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Synthetic.ReducibilityFacts.
 
 From Undecidability.Shared.Libs.DLW
@@ -26,7 +26,7 @@ From Undecidability.StackMachines
 From Undecidability.MinskyMachines
   Require Import MM BSM_MM MM_sss.
 
-Import ReductionChainNotations UndecidabilityNotations.
+Import ReductionChainNotations.
 
 Lemma iBPCP_chain_MM : 
   iPCPb ⪯ Halt_BSM /\

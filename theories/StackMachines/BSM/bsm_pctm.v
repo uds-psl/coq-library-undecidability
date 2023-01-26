@@ -10,7 +10,7 @@
 Require Import List Arith Lia Bool.
 
 From Undecidability.Synthetic
-  Require Import Undecidability ReducibilityFacts.
+  Require Import ReducibilityFacts.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import utils list_bool pos vec subcode sss compiler_correction.

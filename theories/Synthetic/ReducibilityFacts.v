@@ -120,4 +120,7 @@ Tactic Notation "red" "chain" "step" constr(H) := constructor 2; [ apply H | ].
 Tactic Notation "red" "chain" "app" constr(H) := apply reduction_chain_app with (1 := H).
 *)
 
+Tactic Notation "reduce" "with" "chain" constr(H) := 
+  repeat (apply (reduces_reflexive _) || (eapply reduces_transitive; [ apply H | ])).
+
 End ReductionChainNotations.
