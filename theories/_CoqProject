@@ -407,6 +407,7 @@ ILL/Ll/imsell.v
 MuRec/MuRec.v
 MuRec/MuRec_undec.v
 
+MuRec/Util/enumerable.v
 MuRec/Util/beta.v
 MuRec/Util/minimizer.v
 MuRec/Util/MuRec_computable.v
