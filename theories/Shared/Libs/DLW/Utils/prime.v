@@ -68,7 +68,10 @@ Section prime.
 
   Fact modS_divide n p : p mod S n = 0 <-> S n <d p.
   Proof.
-    rewrite Nat.mod_divide; try discriminate; tauto.
+    unfold divides. split.
+    - intros E. rewrite (Nat.div_mod_eq p (S n)). exists (p / S n). lia.
+    - intros [k ->]. generalize (Nat.div_mod_eq (k * (S n)) (S n)).
+      rewrite Nat.div_mul; lia.
   Qed.
 
   Fact divides_bool_spec n p : divides_bool (S n) p = true <-> S n <d p.

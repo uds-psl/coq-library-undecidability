@@ -188,7 +188,7 @@ Section MPCP_PCP.
           now eapply fresh_spec in H4 as []. 
       + assert ((#_L x ++ #_L x') ++ tau1 B = # :: (#_R y ++ #_R y') ++ tau2 B) by now simpl_list.
         rewrite <- hash_L_app, <- hash_R_app in H5. eapply IHB in H5 as (A & ? & ?).
-        * exists (x' / y' :: A). intuition; try inv H7; intuition;
+        * exists (x' / y' :: A). intuition idtac; try inv H7; auto with datatypes;
           cbn; now autorewrite with list in *. 
         * eapply incl_cons_inv. eassumption.
         * eapply incl_app. { eauto. }

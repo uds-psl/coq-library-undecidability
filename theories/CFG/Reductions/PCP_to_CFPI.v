@@ -62,7 +62,7 @@ Section PCP_CFPI.
       eapply in_map_iff in H0 as ((x',y') & ? & ?). inv H0.
       assert (B <<= gamma1 C) as (A & Hi & He) % IHB by firstorder.
       exists ((x, y') :: A). split.
-      + intuition.
+      + auto with datatypes.
       + now subst.
   Qed.
 
@@ -77,7 +77,7 @@ Section PCP_CFPI.
       eapply in_map_iff in H0 as ((x',y') & ? & ?). inv H0.
       assert (B <<= gamma2 C) as (A & Hi & He) % IHB by firstorder.
       exists ((x', x) :: A). split.
-      + intuition.
+      + auto with datatypes.
       + now subst.
   Qed.
 

@@ -233,24 +233,26 @@ Section ra_h10c.
     + pos split; simpl.
       * exists (c##vec_nil); split; simpl; auto.
         pos split; simpl; auto.
-      * exists (beta v i0##1##vec_nil); split; simpl; auto.
+      * exists (beta v i0##1##vec_nil); split.
         - apply ra_eq_val.
-        - pos split; simpl; auto.
-          apply Hx0.
-      * exists (beta v i+beta v j##beta v k##vec_nil); split; simpl; auto.
+        - pos split; simpl.
+          { apply Hx0. }
+          apply ra_cst_n_val.
+      * exists (beta v i+beta v j##beta v k##vec_nil); split; simpl.
         - apply ra_eq_val.
-        - pos split; simpl; auto.
-          2: apply Hz.
-          exists (beta v i##beta v j##vec_nil); split; simpl; auto.
-          pos split; simpl; auto.
+        - pos split; simpl.
+          2: { apply Hz. }
+          exists (beta v i##beta v j##vec_nil); split; simpl.
+          { apply ra_plus_val. }
+          pos split; simpl.
           ++ apply Hx.
           ++ apply Hy.
-      * exists (beta v i*beta v j##beta v k##vec_nil); split; simpl; auto.
+      * exists (beta v i*beta v j##beta v k##vec_nil); split; simpl.
         - apply ra_eq_val.
-        - pos split; simpl; auto.
+        - pos split; simpl.
           2: apply Hz.
           exists (beta v i##beta v j##vec_nil); split; simpl; auto.
-          pos split; simpl; auto.
+          pos split; simpl.
           ++ apply Hx.
           ++ apply Hy.
   Qed.

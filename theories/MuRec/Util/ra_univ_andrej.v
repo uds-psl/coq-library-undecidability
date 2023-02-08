@@ -136,7 +136,7 @@ Section ra_h10uc.
     exists (ite_rel (1+vx+vy*vy-vz) (vz-(1+vx+vy*vy)) 1##vec_nil); split.
     { apply ra_not_val. }
     pos split; simpl.
-    exists (1+vx+vy*vy##vz##vec_nil); split; auto.
+    exists (1+vx+vy*vy##vz##vec_nil); split.
     { apply ra_eq_val. }
     pos split; simpl; auto.
     + exists (vx+vy*vy##vec_nil); split; auto.
@@ -144,15 +144,15 @@ Section ra_h10uc.
       pos split; simpl; auto.
       exists (vx##vy*vy##vec_nil); split; auto.
       pos split; simpl; auto.
-      * exists (a'##b'##x##vec_nil); split; auto.
+      * exists (a'##b'##x##vec_nil); split.
         { apply ra_godel_beta_val. }
         pos split; simpl; auto.
       * exists (vy##vec_nil); split; auto.
         pos split.
-        exists (a'##b'##y##vec_nil); split; auto.
+        exists (a'##b'##y##vec_nil); split.
         { apply ra_godel_beta_val. }
         pos split; simpl; auto.
-    + exists (a'##b'##z##vec_nil); split; auto.
+    + exists (a'##b'##z##vec_nil); split.
       { apply ra_godel_beta_val. }
       pos split; simpl; auto.
   Qed.
@@ -233,7 +233,7 @@ Section ra_iter_h10uc.
       exists (1+3*n##vec_nil); split; auto.
       { simpl; auto. }
       pos split; simpl; auto.
-      exists (3*n##vec_nil); split; auto.
+      exists (3*n##vec_nil); split.
       { simpl; auto. }
       pos split; simpl.
       exists (n##vec_nil); split; auto.

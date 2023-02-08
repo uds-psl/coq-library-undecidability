@@ -181,7 +181,7 @@ Section ra_recomp.
       pos split; simpl; auto.
     + exists (2*b##vec_nil); split; simpl; auto.
       pos split; simpl; auto.
-      exists (2##b##vec_nil); split; auto.
+      exists (2##b##vec_nil); split.
       { apply ra_mult_val. }
       pos split; simpl; auto.
   Qed.

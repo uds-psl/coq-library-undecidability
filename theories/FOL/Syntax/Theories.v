@@ -35,7 +35,7 @@ Section Theory.
 
   Global Instance subset_T_trans : Transitive subset_T.
   Proof.
-    intros T1 T2 T3. intuition.
+    auto with contains_theory.
   Qed.
 
   Definition extend T (phi : form) := fun psi => T psi \/ psi = phi.
@@ -45,25 +45,25 @@ Section Theory.
   Lemma closed_T_extend T phi :
     closed_T T -> closed phi -> closed_T (T ⋄ phi).
   Proof.
-    intros ? ? ? [|]; subst; intuition.
+    intros ? ? ? [|]; subst; auto with contains_theory.
   Qed.
 
   Section ContainsAutomation.
     Lemma contains_nil T :
       List.nil ⊏ T.
-    Proof. intuition. Qed.
+    Proof. auto with contains_theory. Qed.
 
     Lemma contains_cons a A T :
       a ∈ T -> A ⊏ T -> (a :: A) ⊏ T.
-    Proof. intros ? ? ? []; subst; intuition. Qed.
+    Proof. intros ? ? ? []; subst; auto with contains_theory. Qed.
 
     Lemma contains_cons2 a A T :
       (a :: A) ⊏ T -> A ⊏ T.
-    Proof. firstorder. Qed.
+    Proof. auto with contains_theory. Qed.
 
     Lemma contains_app A B T :
       A ⊏ T -> B ⊏ T -> (A ++ B) ⊏ T.
-    Proof. intros ? ? ? [] % in_app_or; intuition. Qed.
+    Proof. intros ? ? ? [] % in_app_or; auto with contains_theory. Qed.
 
     Lemma contains_extend1 phi T :
       phi ∈ (T ⋄ phi).

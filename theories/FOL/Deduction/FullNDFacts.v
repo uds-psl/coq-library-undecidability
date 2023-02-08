@@ -25,7 +25,7 @@ Section ND_def.
     A ⊢ phi -> A <<= B -> B ⊢ phi.
   Proof.
     intros H. revert B.
-    induction H; intros B HB; try unshelve (solve [econstructor; intuition]); try now econstructor.
+    induction H; intros B HB; try unshelve (solve [econstructor; auto with datatypes]); try now econstructor.
   Qed.
 
   Hint Constructors prv : core.

@@ -547,8 +547,11 @@ Section Unification.
     Lemma equi_unifiable_decomp s t E:
       decomp s t = Some E -> [(s,t)] ≈ E.
     Proof.
-      decomp_ind; eauto with equi_unifiable. easy. intros.
-      now rewrite <-H1, <-H3, equi_unifiable_decompose_app. 
+      decomp_ind.
+      - eauto with equi_unifiable.
+      - easy.
+      - eauto with equi_unifiable.
+      - intros. now rewrite <-H1, <-H3, equi_unifiable_decompose_app. 
     Qed.
 
 

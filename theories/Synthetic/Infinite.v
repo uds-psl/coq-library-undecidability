@@ -237,7 +237,8 @@ Section Inf.
     f n el LL (S n).
   Proof.
     induction (lt_acc n) as [n _ IH].
-    decide _; try eassumption. exfalso.
+    decide (f n el LL (S n)); try assumption.
+    exfalso.
     assert (H : ~ f n el LL n).
     { intros H. apply n0. apply (cum_ge' LL_cum H). auto. }
     apply gen_le_f in H as [n'[H1 H2] ].

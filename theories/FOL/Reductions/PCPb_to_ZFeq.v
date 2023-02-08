@@ -223,9 +223,9 @@ Section ZF.
   Proof using M_ZF.
     intros He. split.
     - assert (H : y ∈' {y; z}) by apply M_pair1.
-      rewrite <- He in H. apply M_pair in H. intuition.
+      rewrite <- He in H. apply M_pair in H. intuition (auto with crelations).
     - assert (H : z ∈' {y; z}) by apply M_pair2.
-      rewrite <- He in H. apply M_pair in H. intuition.
+      rewrite <- He in H. apply M_pair in H. intuition (auto with crelations).
   Qed.
 
   Lemma opair_inj1 x x' y y' :
@@ -241,7 +241,7 @@ Section ZF.
     intros He. assert (y ≡' x' \/ y ≡' y') as [Hy | Hy]; trivial.
     - assert (H : {x; y} ∈' M_opair x y) by apply M_pair2.
       rewrite He in H. apply M_pair in H as [H|H].
-      + symmetry in H. apply sing_pair in H. intuition.
+      + symmetry in H. apply sing_pair in H. intuition (auto with crelations).
       + assert (H' : y ∈' {x; y}) by apply M_pair2.
         rewrite H in H'. now apply M_pair in H'.
     - assert (Hx : x ≡' x') by now apply opair_inj1 in He.

@@ -54,7 +54,7 @@ Fixpoint rm_const_tm (t : term) : form' :=
                   ∧ is_pair $1 $0 $2
                     | func union v => ∃ (Vector.hd (Vector.map rm_const_tm v))[sshift 1] ∧ is_union $0 $1
   | func power v => ∃ (Vector.hd (Vector.map rm_const_tm v))[sshift 1] ∧ is_power $0 $1
-  | func omega v => is_om $0
+  | func _ _ => is_om $0
   end.
 
 Fixpoint rm_const_fm {ff : falsity_flag} (phi : form) : form' :=

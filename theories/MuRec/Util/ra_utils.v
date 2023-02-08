@@ -595,7 +595,7 @@ Section ra_div.
   Let af_val k v : ⟦af⟧ (k##v) (f v k).
   Proof.
     vec split v with b. 
-    exists (b##k##vec_nil); split; auto.
+    exists (b##k##vec_nil); split.
     + apply ra_mult_val.
     + pos split; simpl; auto.
   Qed.

@@ -170,7 +170,7 @@ Section trivial_phase_semantics.
       | A ⊕ B   => ⟦A⟧ x \/ ⟦B⟧ x
       | ⟘              => False
       | ⟙              => True
-      | 𝝐               => x = vec_zero
+      | _               => x = vec_zero
     end
   where "⟦ A ⟧" := (ill_tps A).
 
