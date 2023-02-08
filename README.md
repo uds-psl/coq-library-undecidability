@@ -1,3 +1,16 @@
+# Tentative manual installation for Coq 8.17+rc1
+
+```
+opam switch create 8.17+rc1 4.14.1
+eval $(opam env)
+opam pin add -k git coq-core.dev "https://github.com/coq/coq.git#v8.17"
+opam pin add -k git coq-stdlib.dev "https://github.com/coq/coq.git#v8.17"
+opam pin add -k git coqide-server.dev "https://github.com/coq/coq.git#v8.17"
+opam pin add -k git coq.dev "https://github.com/coq/coq.git#v8.17"
+opam pin add -k git coq-equations.dev "https://github.com/mattam82/Coq-Equations.git#80767d571837914218bcde040c3071a483f75a72"
+opam pin add -k git coq-metacoq-template.dev "https://github.com/MetaCoq/metacoq.git#859fdccf985c348fe7ee6bf36a9ab0c34410d723"
+```
+
 # Coq Library of Undecidability Proofs
 
 [![CI](https://github.com/uds-psl/coq-library-undecidability/workflows/CI/badge.svg?branch=coq-8.16)](https://github.com/uds-psl/coq-library-undecidability/actions)
