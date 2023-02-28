@@ -197,7 +197,9 @@ Section FIB.
   Proof.
     destruct x as [ [x HX]|], y as [ [y HY]|]; split; cbn; auto.
     { intros H. exists x, y. repeat setoid_rewrite obstring_ienc. now repeat split. }
-    all: intros (s&t&H1&H2&H3&H4&H5). all: try unshelve setoid_rewrite obstring_ienc in H2; try unshelve setoid_rewrite obstring_ienc in H3; auto.
+    all: intros (s&t&H1&H2&H3&H4&H5).
+    all: unshelve setoid_rewrite obstring_ienc in H2; [auto |];
+         unshelve setoid_rewrite obstring_ienc in H3; [auto |].
     all: try discriminate.
     revert H2 H3. now intros [= ->] [= ->].
   Qed.
