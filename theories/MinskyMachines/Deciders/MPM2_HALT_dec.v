@@ -99,14 +99,6 @@ Set Default Goal Selector "!".
 (* local facts *)
 Module Facts.
 
-(* induction/recursion principle wrt. a decreasing measure f *)
-(* example: elim /(measure_rect length) : l. *)
-Lemma measure_rect {X : Type} (f : X -> nat) (P : X -> Type) : 
-  (forall x, (forall y, f y < f x -> P y) -> P x) -> forall (x : X), P x.
-Proof.
-  exact: (well_founded_induction_type (Wf_nat.well_founded_lt_compat X f _ (fun _ _ => id)) P).
-Qed.
-
 Lemma list_sum_map_le {X: Type} f g (L: list X) :
   (forall x, f x <= g x) ->
   list_sum (map f L) <= list_sum (map g L).
@@ -405,7 +397,7 @@ Proof.
     list_sum (map (fun p => if f p is None then 1 else 0) (seq 0 l))).
   pose G := (fun (f : nat -> option nat) => 
     list_sum (map (fun p => if f p is Some c then c else 0) (seq 0 l))).
-  elim /(measure_rect F). elim /(measure_rect G).
+  elim /(Nat.measure_induction _ F). elim /(Nat.measure_induction _ G).
   move=> f IHG IHF. constructor => g Hgf.
   case: Hgf IHG IHF.
   - move=> {}f p c ? Hf IHG IHF.

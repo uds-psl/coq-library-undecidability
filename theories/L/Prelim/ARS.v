@@ -35,8 +35,6 @@ Section FixX.
   Definition symmetric R := forall x y, R x y -> R y x.
   Definition transitive R := forall x y z, R x y -> R y z -> R x z.
 
-
-
   (* Reflexive transitive closure *)
 
   Inductive star R : X -> X -> Prop :=
@@ -199,12 +197,6 @@ Section FixX.
 
   Definition uniform_confluent (R : X -> X -> Prop ) := forall s t1 t2, R s t1 -> R s t2 -> t1 = t2 \/ exists u, R t1 u /\ R t2 u.
 
-  Lemma functional_uc R :
-    functional R -> uniform_confluent R.
-  Proof.
-    intros F ? ? ? H1 H2. left. eapply F. all:eauto.
-  Qed.
-
   Lemma pow_add R n m (s t : X) : pow R (n + m) s t <-> rcomp (pow R n) (pow R m) s t.
   Proof.
     revert m s t; induction n; intros m s t.
@@ -222,25 +214,10 @@ Section FixX.
         econstructor.  split. eassumption. change (it (rcomp R) (n + m) eq) with (pow R (n + m)).
         rewrite IHn. econstructor. split; eassumption.
   Qed.
-
-  Lemma rcomp_eq (R S R' S' : X -> X -> Prop) (s t : X) : (R =2 R') -> (S =2 S') -> (rcomp R S s t <-> rcomp R' S' s t).
-  Proof.
-    intros A B.
-    split; intros H; destruct H as [u [H1 H2]];
-    eapply A in H1; eapply B in H2;
-    econstructor; split; eassumption.
-  Qed.
   
   Lemma eq_ref : forall (R : X -> X -> Prop), R =2 R.
   Proof.
     split; tauto.
-  Qed.
-  
-  Lemma rcomp_1 (R : X -> X -> Prop): R =2 pow R 1.
-  Proof.
-    intros s t; split;unfold pow in *; simpl in *; intros H.
-    - econstructor. split; eauto.
-    - destruct H as [u [H1 H2]]; subst u; eassumption.
   Qed.
    
   Lemma parametrized_semi_confluence (R : X -> X -> Prop) (m : nat) (s t1 t2 : X) :
@@ -261,18 +238,6 @@ Section FixX.
       + destruct (IHm _ _ _ v_to_t1 v_to_u) as [k [l [u' H]]].
         eexists k, (S l), u'; repeat split; try lia; try tauto.
         econstructor. split. eassumption. tauto.
-  Qed.
-  
-  Lemma rcomp_comm R m (s t : X) : rcomp R (it (rcomp R) m eq) s t <-> rcomp (it (rcomp R) m eq) R s t.
-  Proof.
-    split; intros H;
-    [rewrite (rcomp_eq s t (rcomp_1 R) (eq_ref _)) in H;
-      rewrite (rcomp_eq s t (eq_ref _) (rcomp_1 R)) |
-     rewrite (rcomp_eq s t (eq_ref _) (rcomp_1 R)) in H;
-       rewrite (rcomp_eq s t (rcomp_1 R) (eq_ref _))];
-    change ((it (rcomp R) m eq)) with (pow R m) in *;
-    try rewrite <- pow_add in *;
-    rewrite Nat.add_comm; eassumption.
   Qed.
   
   Lemma parametrized_confluence (R : X -> X -> Prop) (m n : nat) (s t1 t2 : X) : 
@@ -296,38 +261,5 @@ Section FixX.
       rewrite pow_add.
       econstructor; split; eassumption.
   Qed.
-
-  Lemma uniform_confluent_noloop R x y:
-    uniform_confluent R ->
-    star R x y -> (forall y', ~ R y y') ->
-    ~exists z k, star R x z /\ pow R (S k) z z.
-  Proof.
-    intros UC (k0&R0)%star_pow Term (z&k1&R1&RL).
-    induction R1 in k0,RL,R0|-*.
-    -edestruct parametrized_confluence with (m:=k0) (n:=S k1 + k0) as (i0&i1&?&?&?&?&?&?).
-     1,2:eassumption.
-     now eapply pow_add;eexists;split;eassumption.
-     destruct i0. destruct i1.
-     +now lia.
-     +destruct H2 as (?&?&_). edestruct Term. eauto.
-     +destruct H1 as (?&?&_). edestruct Term. eauto.
-    -edestruct parametrized_semi_confluence with (R:=R) (2:= R0) as (i0&?&?&?&?&?&?&?). 1,2:eassumption.
-     destruct i0. 2:{ destruct H2 as (?&?&_). edestruct Term. eauto. }
-     cbn in H2;inv H2.
-     eapply IHR1. all:eauto.
-  Qed.
-  
- Lemma uc_terminal R x y z n:
-    uniform_confluent R ->
-    R x y ->
-    pow R n x z ->
-    terminal R z ->
-    exists n' , n = S n' /\ pow R n' y z.
-  Proof.
-    intros ? ? ? ter. edestruct parametrized_semi_confluence as (k&?&?&?&?&R'&?&?). 1-3:now eauto.
-    destruct k as [|].
-    -inv R'. rewrite <- plus_n_O in *. eauto.
-    -edestruct R' as (?&?&?). edestruct ter. eauto.
-  Qed.  
 
 End FixX.

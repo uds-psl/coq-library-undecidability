@@ -49,13 +49,6 @@ Module Argument.
 #[local] Arguments vec_change_eq {X n v p q x}.
 #[local] Arguments vec_change_comm {X n v p q x y}.
 
-(* example: elim /(measure_ind length) : l. *)
-Lemma measure_ind {X : Type} (f : X -> nat) (P : X -> Prop) :
-  (forall x, (forall y, f y < f x -> P y) -> P x) -> forall (x : X), P x.
-Proof.
-  exact: (well_founded_ind (Wf_nat.well_founded_lt_compat X f _ (fun _ _ => id)) P).
-Qed.
-
 Lemma vec_change_same' {X : Type} {n : nat} (v : vec X n) (p : pos n) (x : X) :
   vec_pos v p = x -> vec_change v p x = v.
 Proof. move=> <-. by apply: vec_change_same. Qed.
@@ -353,7 +346,7 @@ Proof.
   move=> /= HX.
   apply: (concat_sss_compute_trans 0). { by apply: JMP_spec. }
   move Hst: (st in _ // _ ->> st) => st.
-  elim /(measure_ind (fun v => vec_pos v X)) : v st Hst.
+  elim /(Nat.measure_induction _ (fun v => vec_pos v X)) : v st Hst.
   move=> v IH st <-.
   case EX: (vec_pos v X) => [|[|n]].
   { apply: mma_step. rewrite /= EX.

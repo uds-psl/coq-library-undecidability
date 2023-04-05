@@ -34,7 +34,7 @@ Proof.
   - move=> > /typingE /nth_error_In. rewrite Forall_forall.
     by move=> + H => /H.
   - move=> ? IH1 ? IH2 > /typingE [?] [/IH1{}IH1 /IH2{}IH2].
-    move=> /copy [/IH1 [? ?] /IH2 [? ?]]. eexists. apply: typing_app; by eassumption. 
+    move=> /[dup] [/IH1 [? ?] /IH2 [? ?]]. eexists. apply: typing_app; by eassumption. 
   - move=> s > IH Gamma Gamma' > /typingE [?] [->] /IH.
     move=> /(_ (s :: Gamma')) + HG. apply: unnest.
     { 

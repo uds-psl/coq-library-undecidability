@@ -18,7 +18,7 @@
       Schloss Dagstuhl-Leibniz-Zentrum fuer Informatik, 2019.
 *)
 
-Require Import List Lia.
+Require Import PeanoNat List Lia.
 Import ListNotations.
 Require Import Undecidability.SystemF.SysF Undecidability.SystemF.Autosubst.syntax.
 From Undecidability.SystemF.Util Require Import Facts poly_type_facts term_facts typing_facts iipc2_facts sn_facts.
@@ -106,8 +106,8 @@ Proof.
         by move=> /typing_functional H [_ /H].
     + move=> s ss IH P [| [Q|?] ?] /=.
       * by move=> /typing_functional H /H.
-      * move=> + /copy [/IH {}IH]. 
-        move=> + /typing_many_argument_subterm [?] /copy [/typingE [?]].
+      * move=> + /[dup] [/IH {}IH]. 
+        move=> + /typing_many_argument_subterm [?] /[dup] [/typingE [?]].
         move=> /typing_functional H [/H{H} [<-]] <- ? /IH.
         move=> [[| ? ?]] [Qs] [<-] [->] [?] ->; last done. by exists [], (Q :: Qs).
       * move=> + /typing_many_argument_subterm [?] /typingE [?].
@@ -134,7 +134,7 @@ Lemma typing_is_safe_environment {Gamma P x} : normal_form P -> typing Gamma P (
 Proof.
   case; [ | by move=> > _ /typingE [?] [] | by move=> > _ /typingE [?] []].
   move=> {}P /many_argument_appI [y] [As] [-> _].
-  move=> /copy [/typing_many_argument_subterm [?]]. move=> /copy [/typingE].
+  move=> /[dup] [/typing_many_argument_subterm [?]]. move=> /[dup] [/typingE].
   move=> + + + /Forall_forall H => /nth_error_In /H{H} /is_safe_poly_typeE.
   move=> [n] [ss] [z] -> Hy HyAs. exists ss, y.
   move: (Hy) (HyAs) => /typing_safe_poly_typeE H /H{H}.
@@ -526,21 +526,21 @@ Proof.
   case; first by move=> /last_poly_var_safe_poly_type [] ?; subst x.
   case.
   {
-    move=> /copy [/(congr1 parameters_poly_arr) + /last_poly_var_safe_poly_type [{}Hx]].
+    move=> /[dup] [/(congr1 parameters_poly_arr) + /last_poly_var_safe_poly_type [{}Hx]].
     rewrite parameters_poly_arr_safe_poly_type /=. case: ts Hss; last done. move=> /= + ?. subst x ss.
     move=> /Forall_inv. rewrite subst_poly_type_poly_var.
     by move=> /generalize_GammaC /encodes_nat_transport H _ _ /H {}H /H{H} ->.
   }
   case.
   {
-    move=> /copy [/(congr1 parameters_poly_arr) + /last_poly_var_safe_poly_type [{}Hx]].
+    move=> /[dup] [/(congr1 parameters_poly_arr) + /last_poly_var_safe_poly_type [{}Hx]].
     rewrite parameters_poly_arr_safe_poly_type /=. case: ts Hss; last done. move=> /= + ?. subst x ss. 
     move=> /Forall_inv. rewrite subst_poly_type_poly_var. 
     by move=> /generalize_GammaC /encodes_nat_transport H _ /H {}H _ /H{H} ->.
   }
   case.
   {
-    move=> /copy [/(congr1 parameters_poly_arr) + /last_poly_var_safe_poly_type [{}Hx]].
+    move=> /[dup] [/(congr1 parameters_poly_arr) + /last_poly_var_safe_poly_type [{}Hx]].
     rewrite parameters_poly_arr_safe_poly_type /=. case: ts Hss; last done. move=> /= + ?. subst x ss. 
     move=> /Forall_inv. rewrite subst_poly_type_poly_var. 
     by move=> /generalize_GammaC /encodes_nat_transport H /H {}H _ _ /H{H} ->.
@@ -607,8 +607,8 @@ Lemma construct_h10cs_solution {xs tSs tPs P}:
   typing (Gamma0 ++ (map Ut (map (fun x => poly_var (x + zt)) xs)) ++ (map St tSs) ++ (map Pt tPs)) P (poly_var tt) -> H10C_SAT h10cs.
 Proof using h10cs.
 
-  elim /(measure_rect term_size): P xs tSs tPs => P IH xs tSs tPs + HtSs HtPs.
-  move=> /copy [HP] /typing_is_safe_environment H /H{H}. apply: unnest.
+  elim /(Nat.measure_induction _ term_size): P xs tSs tPs => P IH xs tSs tPs + HtSs HtPs.
+  move=> /[dup] [HP] /typing_is_safe_environment H /H{H}. apply: unnest.
   {
     apply: Forall_appI; first by apply: is_safe_environment_Gamma0.
     apply: Forall_appI; first by apply: is_safe_environment_Ut.
@@ -621,12 +621,12 @@ Proof using h10cs.
       move: IH HP. case ts; first by case: ss.
       move=> s. case; last by case ss.
       move=> IH HQs [] /(congr1 parameters_poly_arr). rewrite ?parameters_many_poly_arr. move=> <- HQsss.
-      move: (HQsss) => /Forall2_length_eq /=. move HQs': (Qs) => Qs'.
+      move: (HQsss) => /Forall2_length /=. move HQs': (Qs) => Qs'.
       move: Qs' HQs' => [|]; first done.
       move=> Q1 [|]; first done. move=> Q1' [|]; first done. move=> Q1'' [|]; first done. move=> Q1''' [|]; first done. 
       move=> Q2 [|]; last done. move=> ? _. subst Qs.
       move: HQs => /normal_form_many_app [_ +]. do 4 (move=> /Forall_inv_tail). move=> /Forall_inv HQ2.
-      move: HQsss => /Forall2_consE [/iipc2I HQ1] /Forall2_consE [_] /Forall2_consE [_] /Forall2_consE [_] /Forall2_consE [+ _].
+      move: HQsss => /Forall2_cons_iff [/iipc2I HQ1] /Forall2_cons_iff [_] /Forall2_cons_iff [_] /Forall2_cons_iff [_] /Forall2_cons_iff [+ _].
       have [n Hsn] : exists n, encodes_nat s n by apply: iipc2_Ut_unique; eassumption.
       rewrite [poly_arr _ _]lock [Gamma0]lock /=.
 
@@ -670,7 +670,7 @@ Proof using h10cs.
       move=> /normal_form_many_app [_ HQs] IH _.
 
       rewrite [Ut']lock [St']lock /= -[locked Ut']lock -[locked St']lock ?subst_poly_type_Ut' ?subst_poly_type_St' /= -lock.
-      move=> /copy [/Forall2_typing_Forall_iipc2 /Forall_cons_iff [_]].
+      move=> /[dup] [/Forall2_typing_Forall_iipc2 /Forall_cons_iff [_]].
       move=> /Forall_cons_iff [/iipc2_Ut_unique [n5 ?]]. move=> /Forall_cons_iff [/iipc2_Ut_unique [n4 ?]].
       move=> /Forall_cons_iff [/iipc2_Ut_unique [n3 ?]]. move=> /Forall_cons_iff [/iipc2_Ut_unique [n2 ?]].
       move=> /Forall_cons_iff [/iipc2_Ut_unique [n1 ?]].
@@ -678,8 +678,8 @@ Proof using h10cs.
       move=> /Forall_cons_iff [/iipc2_St_soundness {}H]. have ?: n5 + n4 = n3 by apply: H; eassumption.
       move=> /Forall_cons_iff [/iipc2_St_soundness {}H]. have ?: n4 + 1 = n2 by apply: H; eassumption.
       move=> /Forall_cons_iff [/iipc2_St_soundness {}H]. have ?: n3 + 1 = n1 by apply: H; eassumption.
-      move=> _ {H} /copy [/Forall2_length_eq]. move: Qs HQs IH.
-      move=> [|Q9]; first done. move=> Qs /Forall_inv HQ9 IH _ /Forall2_consE [+ _].
+      move=> _ {H} /[dup] [/Forall2_length]. move: Qs HQs IH.
+      move=> [|Q9]; first done. move=> Qs /Forall_inv HQ9 IH _ /Forall2_cons_iff [+ _].
 
       move: HQ9 => /typing_normal_form_poly_arrE H /H{H} [Q] [H1Q] [?]. set tS := (tS in St tS).
       move=> /(typing_weakening (Gamma' := 
@@ -700,7 +700,7 @@ Proof using h10cs.
       rewrite [Ut']lock [St']lock [Pt']lock /= 
         -[locked Ut']lock -[locked St']lock -[locked Pt']lock 
         ?subst_poly_type_Ut' ?subst_poly_type_St' ?subst_poly_type_Pt' /= -lock.
-      move=> /copy [/Forall2_typing_Forall_iipc2 /Forall_cons_iff [_]].
+      move=> /[dup] [/Forall2_typing_Forall_iipc2 /Forall_cons_iff [_]].
       move=> /Forall_cons_iff [/iipc2_Ut_unique [n5 ?]]. move=> /Forall_cons_iff [/iipc2_Ut_unique [n4 ?]].
       move=> /Forall_cons_iff [/iipc2_Ut_unique [n3 ?]]. move=> /Forall_cons_iff [/iipc2_Ut_unique [n2 ?]].
       move=> /Forall_cons_iff [/iipc2_Ut_unique [n1 ?]].
@@ -708,8 +708,8 @@ Proof using h10cs.
       move=> /Forall_cons_iff [/iipc2_Pt_soundness {}H]. have ?: n5 * n4 = n3 by apply: H; eassumption.
       move=> /Forall_cons_iff [/iipc2_St_soundness {}H]. have ?: n4 + 1 = n2 by apply: H; eassumption.
       move=> /Forall_cons_iff [/iipc2_St_soundness {}H]. have ?: n3 + n5 = n1 by apply: H; eassumption.
-      move=> _ {H} /copy [/Forall2_length_eq]. move: Qs HQs IH.
-      move=> [|Q9]; first done. move=> Qs /Forall_inv HQ9 IH _ /Forall2_consE [+ _].
+      move=> _ {H} /[dup] [/Forall2_length]. move: Qs HQs IH.
+      move=> [|Q9]; first done. move=> Qs /Forall_inv HQ9 IH _ /Forall2_cons_iff [+ _].
 
       move: HQ9 => /typing_normal_form_poly_arrE H /H{H} [Q] [H1Q] [?]. set tP := (tP in Pt tP).
       move=> /(typing_weakening (Gamma' := 
@@ -731,7 +731,7 @@ Proof using h10cs.
       have /list_choice [φ Hφ] : Forall (fun i => exists n, encodes_nat (σ i) n) (seq 0 δ).
       { move: Hδ => /Forall_map. apply: Forall_impl => ?. by apply: iipc2_Ut_unique. }
       exists φ => c. move: Hh10cs δP Hφ => /Forall_map /Forall_forall H1 /Forall_forall H2 /Forall_forall Hφ. 
-      move=> /copy [/H1{H1} + /H2{H2}]. case: c.
+      move=> /[dup] [/H1{H1} + /H2{H2}]. case: c.
       + move=> x /iipc2_St_soundness + ? /=. move=> /(_ (φ x) 0 1). have -> : φ x + 0 = φ x by lia. 
         apply; [done | | by apply: encodes_natI | by apply: encodes_natI].
         apply /Hφ /in_seq. by lia.

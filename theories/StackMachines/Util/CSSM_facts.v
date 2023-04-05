@@ -18,8 +18,6 @@ Require Import ssreflect ssrfun ssrbool.
 (* uniform boundedness of deterministic simple stack machines *)
 Require Import Undecidability.StackMachines.SSM.
 
-From Undecidability.StackMachines.Util Require Import Facts.
-
 Set Default Goal Selector "!".
 
 (* width of a configuration *)
@@ -168,14 +166,14 @@ Qed.
 
 Lemma spaceP0 {X Y: config} : reachable M X Y -> In Y (space X).
 Proof.
-  move=> /copy [/enum_states_reachable + /reachable_width]. case.
+  move=> /[dup] [/enum_states_reachable + /reachable_width]. case.
   - move=> <- _. by left.
   - move=> [_ /spaceP] + ?. by apply.
 Qed.
 
 Lemma space_equivP {X Y: config} : equiv X Y -> In Y (space X).
 Proof.
-  move=> [Z] /copy [[/reachable_width + /reachable_width]] => <- /spaceP HY. 
+  move=> [Z] /[dup] [[/reachable_width + /reachable_width]] => <- /spaceP HY. 
   move=> [/enum_states_reachable + /enum_states_reachable]. case.
   - move=> <-. case.
     + move=> <-. by left.
@@ -282,7 +280,7 @@ Lemma reachable_n_bounded {X Y: config} {n: nat} {L: list config} :
   (forall Z, reachable_n n X Z -> In Z L) -> reachable_n n X Y -> 
   reachable_n (length L) X Y.
 Proof.
-  elim /(measure_rect id): n L X Y. case.
+  elim /(Nat.measure_induction _ id): n L X Y. case.
   { move=> /= *. apply: reachable_n_monotone; last by eassumption. by lia. }
   move=> n IH L X Y HL. case: (reachable_n_dec n X Y) => HXY.
   { move=> _. apply: (IH n ltac:(lia)); last by eassumption.
@@ -415,8 +413,9 @@ Lemma bounded_stack_difference {n: nat} {x y: state} {A B C D: stack} : bounded 
   length B <= length D + n /\ length D <= length B + n.
 Proof.
   move /(_ (A, B, x)) => [L [HL1 HL2]]. move /reachable_to_reachable_n => [m].
-  move /(reachable_n_bounded (L := L)). apply: unnest.
+  have: forall Z : config, reachable_n m (A, B, x) Z -> In Z L.
   { move=> *. apply: HL1. apply: reachable_n_to_reachable. by eassumption. }
+  move /(reachable_n_bounded (L := L)) /[apply].
   move /reachable_n_monotone => /(_ n ltac:(lia)). clear m HL1 HL2 L.
   elim: n x y A B C D.
   { move=> > /reachable_0E [] *. subst. by lia. }
@@ -518,9 +517,9 @@ Lemma bounded_of_bounded' {n: nat}: bounded' n -> exists (m: nat), bounded M m.
 Proof using confluent_M.
   move=> Hn.
   pose W := (repeat false n, repeat false n, 0) : config.
-  exists (length (space W)). elim /(measure_rect width).
+  exists (length (space W)). elim /(Nat.measure_induction _ width).
   move=> X IH. case: (reachable_suffixes X); last case.
-  - move=> [?] [?] [?] [?] [+ /copy] => /confluent_M H [/H{H}] [Y]. 
+  - move=> [?] [?] [?] [?] [+ /[dup]] => /confluent_M H /H{H} [Y]. 
     move=> [/Hn] H /H{H} ? /reachable_width HwX. move=> /= in HwX.
     exists (space X). constructor.
     + by move=> ? /spaceP0.
@@ -552,21 +551,21 @@ Qed.
 (* right stack size bound translates to all narrow configurations *)
 Lemma extend_bounded' {n: nat} {X: config} : bounded' n -> narrow X -> length (get_right X) <= n.
 Proof using confluent_M.
-  move: X => [[A B] x] Hn. elim /(measure_rect (@length symbol)) : A => A IH.
+  move: X => [[A B] x] Hn. elim /(Nat.measure_induction _ (@length symbol)) : A => A IH.
   case: (stack_eq_dec A []).
   { move=> -> [y [A']] [Z [+ ?]]. move /Hn. apply. by eassumption. }
   move /exists_last => [A' [a HA]]. subst A. rename A' into A.
   move=> [y [A']] [Z [Hx]]. case: (stack_eq_dec A' []).
   { move=> ->. move: Hx => /reachable_width + /reachable_width => <- /=. by lia. }
   move /exists_last => [A'' [a' HA']]. subst A'. rename A'' into A'.
-  move: Z Hx => [[A'' B''] z] /copy [/remove_rendundant_suffixL]. case.
-  { move=> [x' [B']] /copy [/reachable_width] /= HB Hx1 Hx2 Hy.
+  move: Z Hx => [[A'' B''] z] /[dup] [/remove_rendundant_suffixL]. case.
+  { move=> [x' [B']] /[dup] [/reachable_width] /= HB Hx1 Hx2 Hy.
     have [Y [HY1 HY2]] := (confluent_M Hx1 Hx2).
     move: Hy HY2 HY1 => /(@rt_trans config). move=> H /H{H}.
     move /Hn => H /H{H}. by lia. }
   move=> /= [A''' [? Hx]]. subst A''. rename A''' into A''.
-  move=> _ /copy [/remove_rendundant_suffixL]. case.
-  { move=> [x' [B']]. move=> /copy [/reachable_width] /=. 
+  move=> _ /[dup] [/remove_rendundant_suffixL]. case.
+  { move=> [x' [B']]. move=> /[dup] [/reachable_width] /=. 
     rewrite app_length => /= ?. move /Hn. 
     move /(_ _ _ ltac:(apply: rt_refl)) => ?.
     move: Hx => /reachable_width + /reachable_width => /=.

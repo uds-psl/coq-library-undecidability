@@ -167,8 +167,8 @@ Lemma typing_ren_term {ξ Gamma Delta P t} :
   typing Gamma P t ->
   typing Delta (ren_term id ξ P) t.
 Proof.
-  move=> H /copy [/typing_allfv_term_in_environment HP] /typing_ren_allfv_term. 
-  apply. by apply: allfv_term_impl HP => ? [?] /copy [/H] -> ->.
+  move=> H /[dup] [/typing_allfv_term_in_environment HP] /typing_ren_allfv_term. 
+  apply. by apply: allfv_term_impl HP => ? [?] /[dup] [/H] -> ->.
 Qed.
 
 Lemma typing_ren_term' {ξ Gamma Delta P t} :
@@ -252,9 +252,9 @@ Proof.
   elim: Qs P t ss t'.
   - move=> ? ? [|] *; [by constructor | done].
   - move=> Q Qs IH P ? [|? ?] ?; first done.
-    move=> [/IH {}IH] /= /copy [/IH {}IH].
+    move=> [/IH {}IH] /= /[dup] [/IH {}IH].
     rewrite -many_argument_app_map_argument_term. move=> /typing_many_argument_subterm [?].
-    move=> /copy [/typingE [?] [+ ?]].
+    move=> /[dup] [/typingE [?] [+ ?]].
     move=> /typing_functional H + /H{H} [? ?]. subst.
     move=> /IH ?. by constructor.
 Qed.

@@ -147,7 +147,7 @@ Proof.
     A ~p map (fun i => (1+d) * i) (seq k (length A)) /\ B = [(1+d) * (k + length A)].
   { have ->: [0] = [(1+d) * 0] by (congr cons; lia).
     move=> /[apply] ?. by exists (length A). }
-  move=> k. elim /(measure_rect (@length nat)) : A k => A IH k H.
+  move=> k. elim /(Nat.measure_induction _ (@length nat)) : A k => A IH k H.
   move: (H) => /Permutation_length. rewrite ?app_length map_length /= => HAB.
   have [b Hb] : exists b, B = [b].
   { move: (B) HAB => [|? [|? ?]] /=; [ by lia | by eexists | by lia ]. }
@@ -345,7 +345,8 @@ Proof.
   move=> /(@Forall_eq_repeat nat) ->. move: (length (φ _)) => m.
   move=> [/(Permutation_repeat 0) H1] [/(Permutation_repeat 0) H2].
   have -> : map S (X 4) = map [eta Init.Nat.add 1] (X 4) by done.
-  move=> [/seq_spec2 [n]]. rewrite (map_id' _ (seq 0 n)); [lia|].
+  move=> [/seq_spec2 [n]].
+  rewrite (map_ext (Nat.mul 1) id); [lia|]. rewrite map_id.
   move=> [->] _ [].
   have -> : X 0 = repeat 0 (length (X 0)).
   { elim: (X 0) (m) H1; [done|].

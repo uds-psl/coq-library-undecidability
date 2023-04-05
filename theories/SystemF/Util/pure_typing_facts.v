@@ -357,8 +357,8 @@ Proof.
   move=> ? IH ξ /=.
   set b1 := (fresh_inb _ (ren_poly_type _ _)). move Hb2: (fresh_inb _ _) => b2.
   have ->: b1 = b2.
-  { apply /is_trueP. rewrite /b1 -Hb2 -?(rwP fresh_inP) /= allfv_poly_type_ren_poly_type. 
-    apply: ext_allfv_poly_type. by case. }
+  { subst b2. apply /(sameP fresh_inP) /(equivP fresh_inP).
+    rewrite /= allfv_poly_type_ren_poly_type. apply: ext_allfv_poly_type. by case. }
   case: b2 Hb2; last by rewrite /= IH.
   rewrite IH ?poly_type_norm => /fresh_inP H. 
   apply: ext_ren_poly_type_allfv_poly_type. rewrite allfv_poly_type_tidy.
@@ -371,9 +371,10 @@ Proof.
   move=> ? IH σ /=.
   set b1 := (fresh_inb _ (subst_poly_type _ _)). move Hb2: (fresh_inb _ _) => b2.
   have ->: b1 = b2.
-  { apply /is_trueP. rewrite /b1 -Hb2 -?(rwP fresh_inP) /= allfv_poly_type_subst_poly_type. 
+  { subst b2. apply /(sameP fresh_inP) /(equivP fresh_inP).
+    rewrite /= allfv_poly_type_subst_poly_type.
     apply: ext_allfv_poly_type. case; first done. 
-    move=> ?. rewrite /= allfv_poly_type_ren_poly_type /=. constructor; first done.
+    move=> ?. rewrite /= allfv_poly_type_ren_poly_type /=. constructor; last done.
     move=> _. by apply: allfv_poly_type_TrueI. }
   case: b2 Hb2.
   - rewrite IH ?poly_type_norm => /fresh_inP H.
@@ -437,7 +438,7 @@ Proof.
   - by rewrite ?tidy_ren_poly_type => ->.
   - rewrite /=. 
     have -> : fresh_inb 0 (tidy t) = fresh_inb 0 t.
-    { apply /is_trueP. by rewrite -?(rwP fresh_inP) /= allfv_poly_type_tidy. }
+    { apply /(sameP fresh_inP) /(equivP fresh_inP). by rewrite /= allfv_poly_type_tidy. }
     by rewrite Ht => ->.
 Qed.
 
@@ -446,7 +447,8 @@ Proof.
   elim: n; first by rewrite tidy_tidy.
   move=> n /= ->. 
   have ->: fresh_inb 0 (many_poly_abs n (tidy t)) = fresh_inb 0 (many_poly_abs n t).
-  { apply /is_trueP. by rewrite -?(rwP fresh_inP) /= ?allfv_poly_type_many_poly_abs allfv_poly_type_tidy. }
+  { apply /(sameP fresh_inP) /(equivP fresh_inP).
+    by rewrite /= ?allfv_poly_type_many_poly_abs allfv_poly_type_tidy. }
   done.
 Qed.
 
@@ -652,7 +654,7 @@ Proof.
       have H'x: x - length Gamma1 = 0 by lia. move: (H'x) => -> [<-].
       move: Hss' => /(pure_typing_ren_pure_term_allfv_pure_term (fun y => y + x)). apply.
       rewrite /= nth_error_app2; first by lia. by rewrite H'x.
-  - move=> ? IH1 ? IH2 > /copy [/IH1 {}IH1 /IH2 {}IH2] /typingE [?] [/IH1 + /IH2 +].
+  - move=> ? IH1 ? IH2 > /[dup] [/IH1 {}IH1 /IH2 {}IH2] /typingE [?] [/IH1 + /IH2 +].
     by move=> /pure_typing_pure_app_simpleI H /H.
   - move=> ? ? IH > /IH {}IH /typingE [?] [->]. rewrite -/((_ :: _) ++ _).
     by move=> /IH /= /pure_typing_pure_abs_simpleI.
@@ -722,11 +724,11 @@ Proof.
     by case: (nth_error Gamma x). 
   - move=> n > /(pure_typing_ren_poly_type (fun x => x - n)) H1.
     move=> /(pure_typing_ren_poly_type (fun x => x - n)) H2 _.
-    move: H1 H2. rewrite ?map_map. rewrite map_id'.
+    move: H1 H2. rewrite ?map_map. rewrite (map_ext _ id) ?map_id.
     { move=> ?. rewrite poly_type_norm ren_poly_type_id' /=; by [|lia]. }
     move=> ? ?. do 2 eexists. constructor; by eassumption.
   - move=> n > /(pure_typing_ren_poly_type (fun x => x - n)) /=.
-    rewrite ?map_map map_id'.
+    rewrite ?map_map. rewrite (map_ext _ id) ?map_id.
     { move=> ?. rewrite poly_type_norm ren_poly_type_id' /=; by [|lia]. }
     move=> /pure_typableI ?. eexists. by eassumption.
 Qed.

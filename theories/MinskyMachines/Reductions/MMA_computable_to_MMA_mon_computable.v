@@ -68,10 +68,6 @@ Qed.
 (* generic auxiliary facts *)
 Module Facts.
 
-(* transforms a goal (A -> B) -> C into goals A and B -> C *)
-Lemma unnest : forall (A B C : Type), A -> (B -> C) -> (A -> B) -> C.
-Proof. auto. Qed.
-
 Lemma vec_append_const (c : nat) n m : Vector.append (Vector.const c n) (Vector.const c m) = Vector.const c (n + m).
 Proof.
   elim: n. { done. }

@@ -722,7 +722,6 @@ StackMachines/Util/BSM_sss.v
 
 StackMachines/Reductions/TM_computable_to_BSM_computable.v
 
-StackMachines/Util/Facts.v
 StackMachines/Util/Nat_facts.v
 StackMachines/Util/List_facts.v
 StackMachines/Util/Enumerable.v
