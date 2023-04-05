@@ -22,7 +22,7 @@ Module CM_facts := CM1_facts.
 Require Undecidability.StackMachines.Reductions.CM1_HALT_to_SMNdl_UB.SMX.
 Require Import Undecidability.StackMachines.Reductions.CM1_HALT_to_SMNdl_UB.SMX_facts.
 Module SM := SMX.
-From Undecidability.StackMachines.Util Require Import Facts Nat_facts List_facts.
+From Undecidability.StackMachines.Util Require Import Nat_facts List_facts.
 
 Require Import ssreflect ssrbool ssrfun.
 
@@ -381,7 +381,7 @@ Section Reduction.
 
   Lemma nth_error_iP_Some {i} : i < length iP -> exists j n, nth_error iP i = Some (i, (j, n)).
   Proof. rewrite length_iP. move /in_iPI => [j [n /nth_error_Some_In_combineP /nth_error_combine_SomeP ?]]. by exists j, n. Qed.
-
+  
   Lemma gotos_indexP {i n X Y} : nth_error gotos i = Some (n, X, Y) -> i = gotos_index X Y.
   Proof.
     have ? := length_iP. case /nth_error_appP.
@@ -426,7 +426,7 @@ Section Reduction.
   Qed.
 
   Lemma zero_prefix_eq {n m v1 v2} : §0^n ++ [§1] ++ v1 = §0^m ++ [§1] ++ v2 -> n = m.
-  Proof. move /copy => [/zero_prefix_lt + /esym /zero_prefix_lt]. by lia. Qed.
+  Proof. move /[dup] => [/zero_prefix_lt + /esym /zero_prefix_lt]. by lia. Qed.
 
   Lemma contradict_G_prefix {v1 v2 n} : §0^G ++ v1 = §0^n ++ [§1] ++ v2 -> n < G -> False.
   Proof. move=> /esym /zero_prefix_lt. by lia. Qed.
@@ -511,7 +511,7 @@ Section Reduction.
       ([§1] ++ r, §0^c ++ l, basic_state (if c mod (n+1) is 0 then X else Y)).
     { apply: reachable_n_mon'; [ by (rewrite /goto_time; nia) | done ]. }
     
-    elim /(measure_rect id): c l r HC => c IH l r HcC.
+    elim /(Nat.measure_induction _ id): c l r HC => c IH l r HcC.
     have [HcG | HcG]: c < G \/ c >= G by lia.
       (* case c < G *)
     { apply: (first_step (goto_spec_1 c (i, (n, X, Y))) l r);
@@ -763,10 +763,11 @@ Section Reduction.
     case; first done. move=> He. exfalso.
     have /CM_facts.acyclicity : not (CM.halting P (Nat.iter NM (CM.step P) cm_start)) by rewrite HNM.
     set f := (fun i : nat => Nat.iter i (CM1.step P) cm_start).
-    rewrite seq_last map_app. move /(@NoDup_remove CM1.Config) => [+ _]. rewrite app_nil_r.
+    have ->: 2 + NM = S NM + 1 by lia.
+    rewrite seq_app map_app. move /(@NoDup_remove CM1.Config) => [+ _]. rewrite app_nil_r.
     have [L [H1L H2L]] := NM_spec ([§1], [§0] ++ [§1] ++ §0^(CM.value cm_end - 1), '#?0).
     set g : _ -> SM.Config := (fun X => ([§1], §0^(CM.value X) ++ [§1] ++ §0^(CM.value cm_end - (CM.value X)), '#? (CM.state X))).
-    move /(NoDup_map (f := g)). apply: unnest.
+    have /(NoDup_map (f := g)) /[apply]: injective g.
     { move=> [p1 v1] [p2 v2]. rewrite /g /=. by move=> [] /zero_prefix_eq => -> ->. }
     set L' := (map g (map f (seq 0 (1 + NM)))). move=> HL'.
     have /(NoDup_incl_length HL') : incl L' L.

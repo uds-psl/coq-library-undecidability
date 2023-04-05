@@ -17,7 +17,7 @@ Require Import Relation_Operators Operators_Properties List Lia PeanoNat.
 Import ListNotations.
 
 Require Import Undecidability.StackMachines.SMN.
-From Undecidability.StackMachines.Util Require Import Facts List_facts SMN_facts.
+From Undecidability.StackMachines.Util Require Import List_facts SMN_facts.
 
 Require Import ssreflect ssrbool ssrfun.
 
@@ -783,7 +783,7 @@ Theorem minimize_weight (M: SMN) :
   confluent M -> length_preserving M -> 
   { M' : SMN | weight M' = 0 /\ (confluent M' /\ length_preserving M' /\ ((exists NM, bounded M NM) <-> (exists NM', bounded M' NM'))) }.
 Proof.
-  elim /(measure_rect weight): M => M IH confluent_M lp_M.
+  elim /(Nat.measure_induction _ weight): M => M IH confluent_M lp_M.
   have [? |] : {weight M = 0} + {weight M <> 0} by decide equality.
   { exists M. by firstorder done. }
   move /overweight_Instruction => [[[[l r] x] [[l' r'] y]] []].

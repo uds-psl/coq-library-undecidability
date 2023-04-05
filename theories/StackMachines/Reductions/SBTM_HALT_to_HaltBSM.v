@@ -3,7 +3,7 @@ From Undecidability.StackMachines Require Import BSM BSM.bsm_defs.
 From Undecidability.TM Require Import SBTM Util.SBTM_facts.
 From Undecidability.Shared.Libs.DLW Require Import vec subcode sss.
 
-Require Import List Lia.
+Require Import PeanoNat List Lia.
 Import Vector.VectorNotations ListNotations SBTMNotations.
 #[local] Open Scope list_scope.
 
@@ -17,14 +17,6 @@ Set Default Goal Selector "!".
 #[local] Notation LEFT := (@Fin.F1 3).
 #[local] Notation RIGHT := (@Fin.FS 3 (@Fin.FS 2 (@Fin.F1 1))).
 #[local] Notation ZERO := (@Fin.FS 3 (@Fin.FS 2 (@Fin.FS 1 (@Fin.F1 0)))).
-
-(* induction principle wrt. a decreasing measure f *)
-(* example: elim /(measure_ind length) : l. *)
-Lemma measure_ind {X : Type} (f : X -> nat) (P : X -> Prop) :
-(forall x, (forall y, f y < f x -> P y) -> P x) -> forall (x : X), P x.
-Proof.
-  exact: (well_founded_ind (Wf_nat.well_founded_lt_compat X f _ (fun _ _ => id)) P).
-Qed.
 
 Section Construction.
 
@@ -199,7 +191,7 @@ Section Construction.
     out_code i (1, P) ->
     exists k, steps M k (q, t) = None.
   Proof.
-    elim /(@measure_ind nat id) : n q t => - [|n] IH q t.
+    elim /(Nat.measure_induction _ id) : n q t => - [|n] IH q t.
     { move=> /sss_steps_0_inv [] /= <- _.
       rewrite /encode_state P_length (ltac:(done) : c = (S (c-1))).
       have := svalP (Fin.to_nat q). nia. }

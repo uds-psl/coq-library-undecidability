@@ -23,7 +23,7 @@ Require Undecidability.StackMachines.Reductions.CM1_HALT_to_SMNdl_UB.SMX.
 
 Require Import Undecidability.StackMachines.SMN.
 
-From Undecidability.StackMachines.Util Require Import Facts Nat_facts List_facts Enumerable.
+From Undecidability.StackMachines.Util Require Import Nat_facts List_facts Enumerable.
 Require Import Undecidability.StackMachines.Reductions.CM1_HALT_to_SMNdl_UB.CM1_to_SMX.
 
 Require Import ssreflect ssrbool ssrfun.
@@ -317,11 +317,9 @@ Section Reduction.
       }
       rewrite ?app_length.
       set f1 := (f in (flat_map f T1)). set f2 := (f in (flat_map f T2)).
-      have := legnth_flat_map (f := f1) (l := T1) (n := 2).
-      apply: unnest.
-      { move=> [[? ?] ?]. rewrite /f1 /length. by lia. }
-      have := legnth_flat_map (f := f2) (l := T2) (n := 2).
-      apply: unnest.
+      have /(legnth_flat_map (l := T1)): (forall a, length (f1 a) <= 2).
+      { move=> [[? ?] ?]. rewrite /f1 /length. by lia. }  
+      have /(legnth_flat_map (l := T2)): (forall a, length (f2 a) <= 2).
       { move=> [[? ?] ?]. rewrite /f2 /length. by lia. }
       rewrite /length -?/(length _).
       move: H2T1 H2T2. move: (length _) (length _). by lia.

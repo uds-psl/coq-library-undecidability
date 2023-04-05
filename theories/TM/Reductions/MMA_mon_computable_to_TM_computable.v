@@ -41,10 +41,6 @@ Set Default Goal Selector "!".
 (* generic auxiliary facts *)
 Module Facts.
 
-(* transforms a goal (A -> B) -> C into goals A and B -> C *)
-Lemma unnest : forall (A B C : Type), A -> (B -> C) -> (A -> B) -> C.
-Proof. auto. Qed.
-
 Lemma vec_Forall2_append {X Y : Type} {P : X -> Y -> Prop} {n m : nat} {v : Vector.t X n} {w : Vector.t X m} {v' w'} :  
   Vector.Forall2 P v v' -> Vector.Forall2 P w w' ->
   Vector.Forall2 P (Vector.append v w) (Vector.append v' w').
@@ -485,8 +481,8 @@ Proof.
   exists k', Argument.Σ, true, false.
   split; [done|]. exists (Argument.P M). split.
   - move=> v m /H2M [c] [v'] [] /(simulation M H1M) => /(_ _ sync_init).
-    move=> [[p' b's]] [Hst'] /terminates2E + ?.
-    apply: unnest. { by apply: stuck_step2I; eassumption. }
+    move=> [[p' b's]] [Hst'] + Hc.
+    move: (Hst') Hc => /stuck_step2I /[apply] /terminates2E /[apply].
     move=> [n] Hn. exists p', b's. split.
     + apply /TM_facts.TM_eval_iff.
       exists (S n) => /=. by rewrite P_init.

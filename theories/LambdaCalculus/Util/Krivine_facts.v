@@ -48,13 +48,6 @@ Lemma flatten_var_S t ctx n :
   flatten (closure (t :: ctx) (var (S n))) = flatten (closure ctx (var n)).
 Proof. done. Qed.
 
-(* example: elim /(measure_rect length) : l. *)
-Lemma measure_rect {X : Type} (f : X -> nat) (P : X -> Type) : 
-(forall x, (forall y, f y < f x -> P y) -> P x) -> forall (x : X), P x.
-Proof.
-  exact: (well_founded_induction_type (Wf_nat.well_founded_lt_compat X f _ (fun _ _ => id)) P).
-Qed.
-
 Fixpoint term_size (t : term) : nat :=
   match t with
   | var n => n
@@ -91,7 +84,7 @@ Proof.
   - move=> ts1 ctx1 n t ? IH ts2 ctx2 s2.
     rewrite flatten_var_S. by move=> /IH /[apply].
   - move=> ts1 ctx1 s t ? IH ts2 ctx2 s2.
-    elim /(measure_rect context_size): ctx2 s2.
+    elim /(Nat.measure_induction _ context_size): ctx2 s2.
     move=> ctx2 IH' []. 
     + (* s2 is (var n) *)
       move: ctx2 IH' => [|[ctx'2 t'2] ctx2] IH'. { by case. }
@@ -107,7 +100,7 @@ Proof.
     + done.
   - move=> t1 ts1 ctx1 s1 ? IH [|t2 ts2] ctx2 s2; first done.
     move=> [Ht1t2 ?].
-    elim /(measure_rect context_size): ctx2 s2.
+    elim /(Nat.measure_induction _ context_size): ctx2 s2.
     move=> ctx2 IH' []. 
     + (* s2 is (var n) *)
       move: ctx2 IH' => [|[ctx'2 t'2] ctx2] IH'. { by case. }
@@ -123,7 +116,7 @@ Proof.
       by rewrite Ht1t2 !flatten_cons Hs1s2.
   - move=> ctx1 s1 [|t2 ts2] ctx2 s2; last done.
     move=> _.
-    elim /(measure_rect context_size): ctx2 s2.
+    elim /(Nat.measure_induction _ context_size): ctx2 s2.
     move=> ctx2 IH' []. 
     + (* s2 is (var n) *)
       move: ctx2 IH' => [|[ctx'2 t'2] ctx2] IH'. { by case. }

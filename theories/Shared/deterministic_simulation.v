@@ -108,7 +108,7 @@ Section Deterministic_simulation.
     - intros [t' [Hs't' Htt']]%(fstep Hst).
       apply (terminates_extend _ (t := t)); [now apply rt_step|].
       eapply (IH t'); [|now apply Htt'].
-      clear Htt' IH. induction Hs't'; eauto using clos_trans.
+      now eapply clos_trans_transp_permute.
     - intros _. exists s. eauto using clos_refl_trans.
   Qed.
 

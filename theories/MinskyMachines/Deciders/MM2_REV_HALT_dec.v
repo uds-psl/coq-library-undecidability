@@ -36,12 +36,6 @@ Proof.
   - move=> ??. right. tauto.
 Qed.
 
-Lemma clos_trans_flip {A R} {x y : A} :
-  clos_trans A R x y -> clos_trans A (fun y' x' => R x' y') y x.
-Proof.
-  elim; by eauto using clos_trans with nocore.
-Qed.
-
 Lemma clos_rt_clos_t {X R x y }:
   clos_trans _ R x y -> clos_refl_trans X R x y.
 Proof.
@@ -873,7 +867,7 @@ Proof.
   move=> Hv ab Hab [z] [/mm2_terminates_Acc] /[apply] /Acc_clos_trans.
   move Ex: (1, ab) => x Hx.
   elim: Hx ab Ex Hab => {}x _ IH ab ? Hab. subst x.
-  have [a'b' [Ha'b' /clos_trans_flip Ha'b'ab]] := Hv ab Hab.
+  have [a'b' [Ha'b' /clos_trans_transp_permute Ha'b'ab]] := Hv ab Hab.
   by apply: (IH _ Ha'b'ab a'b').
 Qed.
 

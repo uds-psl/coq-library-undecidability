@@ -127,7 +127,7 @@ Fact subst_poly_type_poly_var' {σ t} : (forall x, σ x = poly_var x) -> subst_p
 Proof. move=> ?. by apply: idSubst_poly_type. Qed.
 
 Fact map_subst_poly_type_poly_var {Gamma} : map (subst_poly_type poly_var) Gamma = Gamma.
-Proof. apply: map_id' => ?. by rewrite subst_poly_type_poly_var. Qed.
+Proof. rewrite (map_ext _ id); [|apply: map_id]. move => ?. by rewrite subst_poly_type_poly_var. Qed.
 
 Fact ren_poly_type_id {t}: ren_poly_type id t = t.
 Proof. rewrite -[RHS]subst_poly_type_poly_var. by apply: rinst_inst_poly_type. Qed.
@@ -184,7 +184,7 @@ Lemma allfv_poly_type_impl {P1 P2: nat -> Prop} {t}:
 Proof.
   elim: t P1 P2.
   - move=> >. by apply.
-  - by move=> ? IH1 ? IH2 > /= /copy [/IH1 {}IH1 /IH2 {}IH2] [/IH1 ? /IH2 ?].
+  - by move=> ? IH1 ? IH2 > /= /[dup] [/IH1 {}IH1 /IH2 {}IH2] [/IH1 ? /IH2 ?].
   - move=> ? IH > H /=. apply: IH. by case.
 Qed.
 

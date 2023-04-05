@@ -28,7 +28,7 @@ Lemma allfv_pure_term_impl {p1 p2: nat -> Prop} {M}:
 Proof.
   elim: M p1 p2.
   - move=> >. by apply.
-  - by move=> ? IH1 ? IH2 > /= /copy [/IH1 {}IH1 /IH2 {}IH2] [/IH1 ? /IH2 ?].
+  - by move=> ? IH1 ? IH2 > /= /[dup] [/IH1 {}IH1 /IH2 {}IH2] [/IH1 ? /IH2 ?].
   - move=> > IH > H /=. apply: IH. by case.
 Qed.
 

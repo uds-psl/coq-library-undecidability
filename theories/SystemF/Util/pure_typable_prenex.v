@@ -47,8 +47,9 @@ Proof.
   move=> /(pure_typing_contains H1C) /pure_typing_many_poly_absI HM.
   move=> /(pure_typing_ren_poly_type (fun x => x - n)) /pure_typableI HN.
   constructor; first done.
-  congr pure_typable: HN. rewrite map_map. apply: map_id' => ?.
-  rewrite ?poly_type_norm ren_poly_type_id' /=; by [|lia].
+  congr pure_typable: HN. rewrite map_map (map_ext _ id).
+  { move=> ?. rewrite ?poly_type_norm ren_poly_type_id' /=; by [|lia]. }
+  apply: map_id.
 Qed.
 
 Lemma pure_typable_K'I {Gamma M N}: 
@@ -174,7 +175,7 @@ Proof.
   case: (leftmost_poly_var t).
   - move=> y H1y H2y. exists y. constructor; last done.
     suff: (not (n <= y)) by lia.
-    move=> /copy [/H1y + /H2y] => -> /=.
+    move=> /[dup] [/H1y + /H2y] => -> /=.
     rewrite leftmost_path_length_many_poly_abs leftmost_path_length_ren_poly_type.
     by lia.
   - move=> -> /=.
@@ -306,7 +307,7 @@ Proof.
   - rewrite /M_Wells_J. move=> /pure_typableE [s] [?] [].
     move=> /pure_typingE' /pure_typableI /pure_typable_K'E [].
     have [ns [s' [? Hs]]] := many_poly_absI s. subst s. rename s' into s.
-    move=> /copy [H00] /pure_typable_self_application => /(_ _ _ ltac:(eassumption) ltac:(done)).
+    move=> /[dup] [H00] /pure_typable_self_application => /(_ _ _ ltac:(eassumption) ltac:(done)).
     move=> [y [Hyns Hsy]] H. rewrite /M_Wells.
     move=> /pure_typingE [nM] [?] [?] [+ /many_poly_abs_eqE'].
     case Es: (s); [by move=> + [] | | by subst s].
@@ -664,7 +665,7 @@ Proof.
   - move=> Gamma e /= _. elim: s Gamma Hs.
     + move=> /= *. by apply: pure_typing_pure_var_simpleI.
     + move=> s IHs t IHt Gamma /= [/IHs {}IHs /IHt {}IHt] [/IHs {}IHs /IHt {}IHt].
-      move=> /copy [He] /copy [/IHs {}IHs /IHt {}IHt].
+      move=> /[dup] [He] /[dup] [/IHs {}IHs /IHt {}IHt].
       apply: (pure_typing_pure_app_simpleI (s := s)); last done.
       apply: (pure_typing_pure_app 0 (s := t)); rewrite ?map_ren_poly_type_id; last by apply: rt_refl.
       * apply: (pure_typing_pure_var 0); [by rewrite nth_error_map He | ].
@@ -734,7 +735,7 @@ Proof.
   move=> [n s] nss IH t. rewrite fold_right_app /= => Hx.
   rewrite app_length repeat_app many_pure_app_app /=.
   move=> /pure_typableE [?] [?] [].
-  move=> /copy [/pure_typableI /IH] /(_ _ Hx) Hnss.
+  move=> /[dup] [/pure_typableI /IH] /(_ _ Hx) Hnss.
   move=> /(pure_typing_fold_right_many_pure_app Hx) [?] [?] [[|?]] [?] []; last done.
   move=> /= ?. subst. rewrite ren_poly_type_many_poly_abs many_poly_abs_many_poly_abs /=.
   move=> /contains_poly_arrE [?] [?] [? ?]. subst.

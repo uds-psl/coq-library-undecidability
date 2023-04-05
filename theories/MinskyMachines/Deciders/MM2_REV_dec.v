@@ -24,17 +24,6 @@ Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 
-(* local facts *)
-Module Facts.
-
-(* transforms a goal (A -> B) -> C into goals A and B -> C *)
-Lemma unnest : forall (A B C : Type), A -> (B -> C) -> (A -> B) -> C.
-Proof. auto. Qed.
-
-End Facts.
-
-Import Facts.
-
 Section Construction.
 Variable M : list mm2_instr.
 
@@ -47,8 +36,7 @@ Lemma finite_characterization : let t := list_prod (seq 1 l) (list_prod [0;1;2] 
   mm2_reversible M.
 Proof.
   move=> t. pose P := fun '(x, y) => x <> y /\ exists z, step x z /\ step y z.
-  have := Exists_dec P (list_prod t t).
-  apply: unnest.
+  have /(Exists_dec P (list_prod t t)): forall xy, {P xy} + {~ P xy}.
   { move=> [x y]. rewrite /P.
     have [<-|?] := mm2_state_eq_dec x y.
     { right. tauto. }
@@ -128,9 +116,9 @@ Qed.
 Theorem decision : (mm2_reversible M) + (not (mm2_reversible M)).
 Proof.
   pose t := list_prod (seq 1 l) (list_prod [0;1;2] [0;1;2]).
-  have := Forall_Exists_dec (fun '(x, y) => forall z, step x z -> step y z -> x = y) _ (list_prod t t).
-  apply: unnest.
-  { move=> [x y].
+  pose P := fun '(x, y) => forall z, step x z -> step y z -> x = y.
+  have: forall xy, {P xy} + {~ P xy}.
+  { move=> [x y]. subst P.
     have [<-|?] := mm2_state_eq_dec x y.
     { left. tauto. }
     have [[z1 Hxz1]|Hx] := mm2_sig_step_dec M x.
@@ -142,6 +130,7 @@ Proof.
           by move: Hyz2 => /mm2_step_det /[apply].
       + by left => ?? /Hy.
     - by left => ? /Hx. }
+  move=> /(Forall_Exists_dec P) /(_ (list_prod t t)).
   case.
   { move=> /finite_characterization ?. by left. }
   move=> H. right.
