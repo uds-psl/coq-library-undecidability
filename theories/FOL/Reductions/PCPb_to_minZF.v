@@ -152,9 +152,14 @@ Section Model.
   Lemma min_embed (rho : nat -> V) (phi : form')  :
     sat I rho (embed phi) <-> sat min_model rho phi.
   Proof.
-    induction phi in rho |- *; try destruct b0; try destruct q; cbn.
-    1,3-7: firstorder. erewrite Vector.map_map, Vector.map_ext.
-    reflexivity. apply min_embed_eval.
+    induction phi as [| |b [] phi1 IH1 phi2 IH2|b [] phi IH] in rho |- *; cbn.
+    3-5: specialize (IH1 rho); specialize (IH2 rho); tauto.
+    - easy.
+    - erewrite Vector.map_map, Vector.map_ext.
+      + reflexivity.
+      + apply min_embed_eval.
+    - now split; intros; apply IH.
+    - split; intros [? ?]; eexists; apply IH; eassumption.
   Qed.
 
   Lemma embed_subst_t (sigma : nat -> term') (t : term') :
@@ -263,20 +268,22 @@ Section Model.
   Lemma rm_const_sat (rho : nat -> V) (phi : form) :
     rho ⊨ phi <-> rho ⊨ rm_const_fm phi.
   Proof using VIEQ M_ZF.
-    induction phi in rho |- *; try destruct P; try destruct b0; try destruct q; cbn.
-    1,4-6: firstorder easy.
-    - rewrite (vec_inv2 t). cbn. split.
+    induction phi as [|b P t|b [] phi1 IH1 phi2 IH2|b [] phi IH] in rho |- *; cbn.
+    - easy.
+    - destruct P; cbn; rewrite (vec_inv2 t); cbn; split.
       + intros H. exists (eval rho (Vector.hd t)). rewrite rm_const_tm_sat. split; trivial.
         exists (eval rho (Vector.hd (Vector.tl t))). now rewrite sat_sshift1, rm_const_tm_sat.
       + intros (x & Hx & y & Hy & H). apply rm_const_tm_sat in Hx as <-.
         rewrite sat_sshift1, rm_const_tm_sat in Hy. now subst.
-    - rewrite (vec_inv2 t). cbn. split.
       + intros H. exists (eval rho (Vector.hd t)). rewrite rm_const_tm_sat. split; trivial.
         exists (eval rho (Vector.hd (Vector.tl t))). now rewrite sat_sshift1, rm_const_tm_sat.
       + intros (x & Hx & y & Hy & H). apply rm_const_tm_sat in Hx as <-.
         rewrite sat_sshift1, rm_const_tm_sat in Hy. now subst.
-    - split; intros; firstorder easy.
-    - firstorder eauto.
+    - specialize (IH1 rho). specialize (IH2 rho). tauto.
+    - specialize (IH1 rho). specialize (IH2 rho). tauto.
+    - specialize (IH1 rho). specialize (IH2 rho). tauto.
+    - now split; intros; apply IH.
+    - split; intros [? ?]; eexists; apply IH; eassumption.
   Qed.
 
   Theorem min_correct (rho : nat -> V) (phi : form) :
@@ -289,19 +296,19 @@ Section Model.
     rho ⊫ minZF'.
   Proof using VIEQ M_ZF.
     intros A [<-|[<-|[<-|[<-|[<-|[<-|[]]]]]]]; cbn.
-    - apply (@M_ZF rho ax_ext). firstorder.
-    - exists ∅. apply (@M_ZF rho ax_eset). firstorder.
-    - intros x y. exists ({x; y}). apply (@M_ZF rho ax_pair). firstorder.
-    - intros x. exists (⋃ x). apply (@M_ZF rho ax_union). firstorder.
-    - intros x. exists (PP x). apply (@M_ZF rho ax_power). firstorder.
+    - apply (@M_ZF rho ax_ext). cbn. tauto.
+    - exists ∅. apply (@M_ZF rho ax_eset). cbn. tauto.
+    - intros x y. exists ({x; y}). apply (@M_ZF rho ax_pair). cbn. tauto.
+    - intros x. exists (⋃ x). apply (@M_ZF rho ax_union). cbn. tauto.
+    - intros x. exists (PP x). apply (@M_ZF rho ax_power). cbn. tauto.
     - exists ω. split. split.
-      + exists ∅. split. apply (@M_ZF rho ax_eset). firstorder. apply (@M_ZF rho ax_om1). firstorder.
-      + intros x Hx. exists (σ x). split. 2: apply (@M_ZF rho ax_om1); firstorder.
+      + exists ∅. split. apply (@M_ZF rho ax_eset). cbn. tauto. apply (@M_ZF rho ax_om1). cbn. tauto.
+      + intros x Hx. exists (σ x). split. 2: apply (@M_ZF rho ax_om1); cbn; tauto.
         intros y. rewrite !VIEQ. now apply sigma_el.
-      + intros x [H1 H2]. apply (@M_ZF rho ax_om2); cbn. auto 8. split.
+      + intros x [H1 H2]. apply (@M_ZF rho ax_om2); cbn. tauto. split.
         * destruct H1 as (e & E1 & E2). enough (∅ = e) as -> by assumption.
           apply M_ext; trivial. all: intros y Hy; exfalso; try now apply E1 in Hy.
-          apply (@M_ZF rho ax_eset) in Hy; trivial. unfold ZF'. auto 8.
+          apply (@M_ZF rho ax_eset) in Hy; trivial. unfold ZF'. cbn. tauto.
         * intros d (s & S1 & S2) % H2. enough (σ d = s) as -> by assumption.
           apply M_ext; trivial. all: intros y; rewrite sigma_el; trivial. all: rewrite <- !VIEQ; apply S1.
   Qed.
@@ -399,7 +406,7 @@ Proof.
   induction phi in sigma |- *; cbn; trivial; try destruct P.
   - rewrite (vec_inv2 t). cbn. now rewrite up_sshift1, !rm_const_tm_subst.
   - rewrite (vec_inv2 t). cbn. now rewrite up_sshift1, !rm_const_tm_subst.
-  - firstorder congruence.
+  - congruence.
   - rewrite IHphi. f_equal. erewrite subst_ext. reflexivity. intros []; trivial.
     unfold funcomp. cbn. unfold funcomp. now destruct (sigma n) as [x|[]].
 Qed.
@@ -475,7 +482,7 @@ Lemma minZF_elem { p : peirce } A x y u v :
   minZFeq' <<= A -> A ⊢ x ≡' u -> A ⊢ y ≡' v -> A ⊢ x ∈' y -> A ⊢ u ∈' v.
 Proof.
   intros HA H1 H2 H3. eapply IE. eapply IE. eapply IE.
-  eapply Weak. eapply minZF_elem'. auto. all: eauto.
+  eapply Weak. eapply minZF_elem'. all: eauto.
 Qed.
 
 Lemma minZF_ext { p : peirce } A x y :
@@ -980,7 +987,7 @@ Section Deduction.
   Lemma rm_const_fm_swap { p : peirce } A phi t x :
     minZFeq' <<= A -> A ⊢ (rm_const_tm t)[x..] -> A ⊢ (rm_const_fm phi)[x..] <-> A ⊢ rm_const_fm phi[t..].
   Proof.
-    revert A. induction phi using form_ind_subst; cbn; intros A HA Hx.
+    revert A. induction phi as [| | b0 phi1 IHphi1 phi2 IHphi2| ] using form_ind_subst; cbn; intros A HA Hx.
     all: try destruct P0; try destruct b0; try destruct q; try tauto.
     - rewrite (vec_inv2 t0). cbn. apply ex_equiv. cbn. intros B a HB. apply and_equiv.
       + rewrite subst_comp. erewrite subst_ext.
@@ -1000,7 +1007,7 @@ Section Deduction.
         * eapply rm_const_tm_swap. now rewrite HA, HB. apply (Weak Hx). now rewrite HB.
         * intros [|[]]; reflexivity.
         * intros [|[]]; trivial. now destruct x as [|[]].
-    - apply and_equiv; firstorder easy.
+    - now apply and_equiv; split; (apply IHphi1 + apply IHphi2).
     - apply or_equiv; intros B HB.
       + apply IHphi1. now rewrite HA. now apply (Weak Hx).
       + apply IHphi2. now rewrite HA. now apply (Weak Hx).
@@ -1018,7 +1025,7 @@ Section Deduction.
       erewrite subst_comp, subst_ext, <- subst_comp, (rm_const_fm_subst ($(S n)..)). setoid_rewrite subst_ext at 2.
       rewrite H0. erewrite rm_const_fm_subst, !subst_comp, subst_ext. reflexivity.
       all: intros [|[]]; cbn; try reflexivity. rewrite subst_term_comp, subst_term_id; reflexivity.
-  Qed. 
+  Qed.
 
   Lemma ZF_subst sigma :
     map (subst_form sigma) ZFeq' = ZFeq'.

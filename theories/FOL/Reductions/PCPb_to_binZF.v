@@ -171,12 +171,17 @@ Section Model.
     destruct t as [|[]]. reflexivity.
   Qed.
 
-  Lemma min_embed (rho : nat -> V) (phi : form') :
+  Lemma min_embed (rho : nat -> V) (phi : form')  :
     sat I rho (embed phi) <-> sat min_model rho phi.
   Proof.
-    induction phi in rho |- *; try destruct b0; try destruct q; cbn.
-    1,3-7: firstorder. destruct P. erewrite Vector.map_map, Vector.map_ext.
-    reflexivity. apply min_embed_eval.
+    induction phi as [| |b [] phi1 IH1 phi2 IH2|b [] phi IH] in rho |- *; cbn.
+    3-5: specialize (IH1 rho); specialize (IH2 rho); tauto.
+    - easy.
+    - destruct P. erewrite Vector.map_map, Vector.map_ext.
+      + reflexivity.
+      + apply min_embed_eval.
+    - now split; intros; apply IH.
+    - split; intros [? ?]; eexists; apply IH; eassumption.
   Qed.
 
   Lemma embed_subst_t (sigma : nat -> term') (t : term') :
@@ -190,7 +195,7 @@ Section Model.
   Proof.
     induction phi in sigma |- *; cbn; trivial.
     - f_equal. erewrite !Vector.map_map, Vector.map_ext. reflexivity. apply embed_subst_t.
-    - firstorder congruence.
+    - congruence.
     - rewrite IHphi. asimpl. f_equal. apply subst_ext. intros []; cbn; trivial.
       unfold funcomp. cbn. unfold funcomp. now destruct (sigma n) as [x|[]].
   Qed.
@@ -343,7 +348,7 @@ Section Model.
   Lemma rm_const_sat (rho : nat -> V) (phi : form) :
     rho ⊨ phi <-> rho ⊨ embed (rm_const_fm phi).
   Proof using M_ZF.
-    induction phi in rho |- *; try destruct P; try destruct b0; try destruct q; cbn.
+    induction phi as [| | | b q phi IHphi] in rho |- *; try destruct P; try destruct b0; try destruct q; cbn.
     1: firstorder easy.
     3-5: specialize (IHphi1 rho); specialize (IHphi2 rho); intuition easy.
     - rewrite (vec_inv2 t). cbn. split.
@@ -362,7 +367,7 @@ Section Model.
     - split; intros.
       + now apply IHphi.
       + now apply IHphi, H.
-    - firstorder eauto.
+    - split; intros [? ?]; eexists; apply IHphi; eassumption.
   Qed.
 
   Theorem min_correct (rho : nat -> V) (phi : form) :
@@ -377,15 +382,15 @@ Section Model.
     intros A [<-|[<-|[<-|[<-|[<-|[<-|[<-|[]]]]]]]]; cbn.
     - intros x y H1 H2. apply eq_equiv. now apply M_ext.
     - intros x y u v H1 % eq_equiv H2 % eq_equiv. now apply set_equiv_elem'.
-    - exists ∅. apply (@M_ZF rho ax_eset). firstorder.
-    - intros x y. exists ({x; y}). setoid_rewrite eq_equiv. apply (@M_ZF rho ax_pair). firstorder.
-    - intros x. exists (⋃ x). apply (@M_ZF rho ax_union). firstorder.
-    - intros x. exists (PP x). apply (@M_ZF rho ax_power). firstorder.
+    - exists ∅. apply (@M_ZF rho ax_eset). cbn. tauto.
+    - intros x y. exists ({x; y}). setoid_rewrite eq_equiv. apply (@M_ZF rho ax_pair). cbn. tauto.
+    - intros x. exists (⋃ x). apply (@M_ZF rho ax_union). cbn. tauto.
+    - intros x. exists (PP x). apply (@M_ZF rho ax_power). cbn. tauto.
     - exists ω. split. split.
-      + exists ∅. split. apply (@M_ZF rho ax_eset). firstorder. apply (@M_ZF rho ax_om1). firstorder.
-      + intros x Hx. exists (σ x). split. 2: apply (@M_ZF rho ax_om1); firstorder.
+      + exists ∅. split. apply (@M_ZF rho ax_eset). cbn. tauto. apply (@M_ZF rho ax_om1). cbn. tauto.
+      + intros x Hx. exists (σ x). split. 2: apply (@M_ZF rho ax_om1); cbn; tauto.
         intros y. rewrite !eq_equiv. now apply sigma_el.
-      + intros x [H1 H2]. apply (@M_ZF rho ax_om2); cbn. auto 12. split.
+      + intros x [H1 H2]. apply (@M_ZF rho ax_om2); cbn. tauto. split.
         * destruct H1 as (e & E1 & E2). change (set_elem ∅ x).
           enough (set_equiv ∅ e) as -> by assumption.
           apply M_ext; trivial. all: intros y Hy; exfalso; try now apply E1 in Hy.
@@ -432,7 +437,7 @@ Proof.
   induction phi in sigma |- *; cbn; trivial; try destruct P.
   - rewrite (vec_inv2 t). cbn. now rewrite up_sshift1, !rm_const_tm_subst.
   - rewrite (vec_inv2 t). cbn. now rewrite up_sshift1, !rm_const_tm_subst.
-  - firstorder congruence.
+  - congruence.
   - rewrite IHphi. f_equal. erewrite subst_ext. reflexivity. intros []; trivial.
     unfold funcomp. cbn. unfold funcomp. now destruct (sigma n) as [x|[]].
 Qed.
@@ -490,7 +495,7 @@ Lemma minZF_sym { p : peirce } A x y :
 Proof.
   intros HA H. prv_all' z.
   apply (AllE z) in H. cbn in H. subsimpl_in H.
-  apply CE in H. now apply CI.
+  apply CE in H. apply CI; tauto.
 Qed.
 
 Lemma minZF_trans { p : peirce } A x y z :
@@ -1037,7 +1042,7 @@ Section Deduction.
       + asimpl. eapply rm_const_tm_swap. now rewrite HA. now apply (Weak Hx).
       + apply ex_equiv. cbn. intros C a' HC. apply and_equiv; try tauto.
         unfold sshift. asimpl. eapply rm_const_tm_swap. now rewrite HA, HB. apply (Weak Hx). now rewrite HB.
-    - apply and_equiv; firstorder easy.
+    - now apply and_equiv; split; (apply IHphi1 + apply IHphi2).
     - apply or_equiv; intros B HB.
       + apply IHphi1. now rewrite HA. now apply (Weak Hx).
       + apply IHphi2. now rewrite HA. now apply (Weak Hx).
