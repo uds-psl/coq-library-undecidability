@@ -287,7 +287,7 @@ Definition tmInstanceRed name red {X} (x:X) :=
   def' <- tmDefinitionRed name red x;;
   def <- tmQuote def';;
   match def with
-    tConst name _ => tmExistingInstance (ConstRef name)
+    tConst name _ => tmExistingInstance global (ConstRef name)
   | _ => tmFail "internal invariant violated : tmInstanceRed"
   end;;
   tmReturn def'.
