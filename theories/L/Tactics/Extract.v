@@ -1,9 +1,8 @@
 Require Import Ascii String.
 From Undecidability.L Require Import Util.L_facts. 
 From MetaCoq Require Import Template.All Template.Checker.
-Require Import Undecidability.Shared.Libs.PSL.Base. 
-From MetaCoq Require Import bytestring.
-
+Require Import Undecidability.Shared.Libs.PSL.Base.
+Require Import MetaCoq.Utils.bytestring.
 
 Open Scope bs.
 
@@ -287,7 +286,7 @@ Definition tmInstanceRed name red {X} (x:X) :=
   def' <- tmDefinitionRed name red x;;
   def <- tmQuote def';;
   match def with
-    tConst name _ => tmExistingInstance (ConstRef name)
+    tConst name _ => tmExistingInstance global (ConstRef name)
   | _ => tmFail "internal invariant violated : tmInstanceRed"
   end;;
   tmReturn def'.
