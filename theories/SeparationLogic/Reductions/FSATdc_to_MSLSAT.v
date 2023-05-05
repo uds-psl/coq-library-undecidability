@@ -501,7 +501,7 @@ Theorem reduction' phi :
   incl (FV phi) nil -> FSATd phi <-> MSLSAT (encode' phi).
 Proof.
   intros HV. split.
-  - intros (D & M & rho & [L HL] & [H2] % discrete_iff & [f H3] & H4).
+  - eintros (D & M & rho & [L HL] & [H2] % discrete_iff & [f H3] & H4).
     pose (f' (p : D * D) := let (d, e) := p in f ([d; e])).
     destruct (@discrete_nodup D L H2) as [L'[HL1 HL2]].
     assert (HL2' : forall x, x el L') by auto.
