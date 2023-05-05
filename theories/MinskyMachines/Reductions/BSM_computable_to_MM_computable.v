@@ -617,7 +617,7 @@ Lemma BSM_computable_to_MM_computable {k} (R : Vector.t nat k -> nat -> Prop) :
   BSM_computable R -> MM_computable R.
 Proof.
   intros (i & n & P & HP1 & HP2) % BSM_computable_iff. eapply MM_computable_iff.
-  unshelve epose proof (@bsm_mm_compiler_strong (1 + k + i) n P (pos_right _ Fin.F1) (pos_right _ (Fin.FS Fin.F1)) (pos_right _ (pos2)) (pos_left _) (1 + length (PREPALL k i 1)) _ _ _ _ ) as [Q HQ].
+  unshelve (epose proof (@bsm_mm_compiler_strong (1 + k + i) n P (pos_right _ Fin.F1) (pos_right _ (Fin.FS Fin.F1)) (pos_right _ (pos2)) (pos_left _) (1 + length (PREPALL k i 1)) _ _ _ _ ) as HQ0; edestruct HQ0 as [Q HQ]).
   - eapply tmp0_tmp1.
   - intros p. intros H. eapply  pos_right_left. now rewrite H.
   - intros.  intros H. eapply  pos_right_left. now rewrite H.
