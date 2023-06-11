@@ -1,5 +1,5 @@
 (* * Addendum for Vectors ([Vector.t]) *)
-(* Author: Maximilian Wuttke *)
+(* Author: Maxi Wuttke *)
 
 Require Import Undecidability.Shared.Libs.PSL.EqDec.
 From Coq.Vectors Require Import Fin Vector.

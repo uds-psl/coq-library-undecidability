@@ -1,5 +1,5 @@
 (* * Notations for [Fin.t] *)
-(* Author: Maximilian Wuttke *)
+(* Author: Maxi Wuttke *)
 
 Require Vector.
 
