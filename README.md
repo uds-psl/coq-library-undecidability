@@ -177,7 +177,7 @@ We recommend to use the newest branch if possible.
 
 ### Papers and abstracts on the library
 
-A Coq Library of Undecidable Problems. Yannick Forster, Dominique Larchey-Wendling, Andrej Dudenhefner, Edith Heiter, Dominik Kirst, Fabian Kunze, Gert Smolka, Simon Spies, Dominik Wehr, Maximilian Wuttke. CoqPL '20. https://popl20.sigplan.org/details/CoqPL-2020-papers/5/A-Coq-Library-of-Undecidable-Problems
+A Coq Library of Undecidable Problems. Yannick Forster, Dominique Larchey-Wendling, Andrej Dudenhefner, Edith Heiter, Dominik Kirst, Fabian Kunze, Gert Smolka, Simon Spies, Dominik Wehr, Maxi Wuttke. CoqPL '20. https://popl20.sigplan.org/details/CoqPL-2020-papers/5/A-Coq-Library-of-Undecidable-Problems
 
 Computability in Constructive Type Theory. Yannick Forster. PhD thesis. https://dx.doi.org/10.22028/D291-35758
 
@@ -186,7 +186,7 @@ Computability in Constructive Type Theory. Yannick Forster. PhD thesis. https://
 - Certified Decision Procedures for Two-Counter Machines. Andrej Dudenhefner. FSCD 2022. Subdirectory `MinskyMachines/Deciders`. https://drops.dagstuhl.de/opus/volltexte/2022/16297/
 - Constructive Many-One Reduction from the Halting Problem to Semi-Unification. Andrej Dudenhefner. CSL 2022. Subdirectory `SemiUnification`. https://drops.dagstuhl.de/opus/volltexte/2022/15738/
 - Undecidability, Incompleteness, and Completeness of Second-Order Logic in Coq. Mark Koch and Dominik Kirst. CPP 2022. Subdirectory `SOL`. https://www.ps.uni-saarland.de/extras/cpp22-sol/
-- A Mechanised Proof of the Time Invariance Thesis for the Weak Call-By-Value λ-Calculus. Yannick Foster, Fabian Kunze, Gert Smolka, Maximilian Wuttke. ITP 2021. Subdirectory `TM/L`. https://drops.dagstuhl.de/opus/volltexte/2021/13914/
+- A Mechanised Proof of the Time Invariance Thesis for the Weak Call-By-Value λ-Calculus. Yannick Foster, Fabian Kunze, Gert Smolka, Maxi Wuttke. ITP 2021. Subdirectory `TM/L`. https://drops.dagstuhl.de/opus/volltexte/2021/13914/
 - Synthetic Undecidability of MSELL via FRACTRAN. Dominique Larchey-Wendling. FSCD 2021. File [`ILL/IMSELL.v`](theories/ILL/IMSELL.v). Also documents 
  the undecidability proof for 2-counters Minsky machines [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v) via FRACTRAN. https://github.com/uds-psl/coq-library-undecidability/releases/tag/FSCD-2021/ 
 - The Undecidability of System F Typability and Type Checking for Reductionists. Andrej Dudenhefner. LICS 2021. Subdirectory `SystemF`. https://ieeexplore.ieee.org/document/9470520
@@ -194,7 +194,7 @@ Computability in Constructive Type Theory. Yannick Forster. PhD thesis. https://
 - Undecidability of Semi-Unification on a Napkin. Andrej Dudenhefner. FSCD 2020. Subdirectory `SemiUnification`. https://www.ps.uni-saarland.de/Publications/documents/Dudenhefner_2020_Semi-unification.pdf
 - Mechanized Undecidability Results for Propositional Calculi. TYPES 2020. Subdirectory `HilbertCalculi`. https://types2020.di.unito.it/abstracts/BookOfAbstractsTYPES2020.pdf#page=94
 - Undecidability of Higher-Order Unification Formalised in Coq. Simon Spies and Yannick Forster. Technical report. Subdirectory `HOU`. https://www.ps.uni-saarland.de/Publications/details/SpiesForster:2019:UndecidabilityHOU.html
-- Verified Programming of Turing Machines in Coq. Yannick Forster, Fabian Kunze, Maximilian Wuttke. Technical report. Subdirectory `TM`. https://github.com/uds-psl/tm-verification-framework/
+- Verified Programming of Turing Machines in Coq. Yannick Forster, Fabian Kunze, Maxi Wuttke. Technical report. Subdirectory `TM`. https://github.com/uds-psl/tm-verification-framework/
 - Hilbert's Tenth Problem in Coq. Dominique Larchey-Wendling and Yannick Forster. FSCD '19. Subdirectory `H10`. https://uds-psl.github.io/H10
 - A certifying extraction with time bounds from Coq to call-by-value lambda-calculus. ITP '19. Subdirectory `L`. https://github.com/uds-psl/certifying-extraction-with-time-bounds
 - Certified Undecidability of Intuitionistic Linear Logic via Binary Stack Machines and Minsky Machines. Yannick Forster and Dominique Larchey-Wendling. CPP '19. Subdirectory `ILL`. http://uds-psl.github.io/ill-undecidability/
@@ -223,7 +223,7 @@ We have [guidelines for the directory structure of projects](https://github.com/
 - Gert Smolka
 - Simon Spies
 - Dominik Wehr
-- Maximilian Wuttke
+- Maxi Wuttke
 
 Parts of the Coq Library of Undecidability Proofs reuse generic code initially developed as a library for the lecture ["Introduction to Computational Logics"](https://courses.ps.uni-saarland.de/icl_16/) at [Saarland University](https://www.uni-saarland.de/nc/en/home.html), which was written by a subset of the above contributors, Sigurd Schneider, and Jan Christian Menz.
 
