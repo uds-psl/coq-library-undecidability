@@ -108,7 +108,7 @@ If you can use `opam 2` on your system, you can follow the instructions here.
 We recommend creating a fresh opam switch:
 
 ```
-opam switch create coq-library-undecidability 4.09.1+flambda
+opam switch create coq-library-undecidability --packages=ocaml-variants.4.14.1+options,ocaml-option-flambda
 eval $(opam env)
 ```
 
