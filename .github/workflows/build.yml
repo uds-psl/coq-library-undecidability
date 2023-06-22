@@ -21,6 +21,7 @@ jobs:
       uses: avsm/setup-ocaml@v2
       with:
         ocaml-compiler: ${{env.OCAML_VERSION}}
+        dune-cache: true
 
     - name: Build dependencies
       if: steps.cache.outputs.cache-hit != 'true' 
