@@ -105,7 +105,7 @@ Section linker.
     destruct P as (iP,lP).
     rewrite H; simpl in H |- *.
     destruct mm as [ | x mm ].
-    * rewrite <- app_nil_end.
+    * rewrite app_nil_r.
       solve eq nat dec.
     * rew length.
       dest eq nat dec as [ H1 | H1 ]; [ lia | clear H1 ].
@@ -168,7 +168,7 @@ Section linker.
       rewrite <- E; auto; f_equal; lia. }
     assert (linker (1+j) = lc x + linker j) as HSj.
     {  generalize (linker_app (l++x::nil) r).
-      rewrite HP, app_ass; simpl; intros H3.
+      rewrite HP, <- app_assoc; simpl; intros H3.
       specialize (H3 H1).
       eq goal H3; f_equal.
       f_equal.
@@ -190,7 +190,7 @@ Section linker.
   Fact linker_code_end : linker (code_end P) = lsum (snd P)+i.
   Proof.
     unfold code_end; rewrite Nat.add_comm.
-    apply (linker_app _ nil), app_nil_end.
+    apply (linker_app _ nil), eq_sym, app_nil_r.
   Qed.
   
    Fact linker_out_code j : err < i \/ length_compiler (snd P) + i <= err 
@@ -212,7 +212,7 @@ Section linker.
     destruct (eq_nat_dec j (code_end P)) as [ H | H ].
     + rewrite H1, H; unfold code_end.
       rewrite Nat.add_comm, linker_app with (mm := nil); auto.
-      rewrite <- app_nil_end; auto.
+      rewrite app_nil_r; auto.
     + apply linker_err_code; red in H2; unfold code_end, code_start in *; lia.
   Qed.
 

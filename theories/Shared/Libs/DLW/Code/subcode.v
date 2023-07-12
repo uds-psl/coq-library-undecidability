@@ -83,7 +83,7 @@ Section subcode.
   Fact subcode_refl P : P <sc P.
   Proof.
     destruct P; exists nil, nil; split; simpl.
-    rewrite <- app_nil_end; auto.
+    rewrite app_nil_r; auto.
     lia.
   Qed.
 
@@ -114,7 +114,7 @@ Section subcode.
   Fact subcode_right n m l r : n = m+length l -> (n,r) <sc (m,l++r).
   Proof.
     exists l, nil; split; auto.
-    rewrite <- app_nil_end; auto.
+    rewrite app_nil_r; auto.
   Qed.
 
   Fact subcode_app_end P n l r : P <sc (n,l) -> P <sc (n,l++r).
@@ -214,7 +214,7 @@ Ltac subcode_tac :=
          | |- subcode (_,?i)      (_,?l++?i)      => exists l, nil 
          | |- subcode (_,?i::nil) (_,?l++?i::?r)  => exists l, r 
          | |- subcode (_,?i)      (_,?l++?i++?r)  => exists l, r 
-       end; try rewrite <- !app_nil_end;
+       end; try rewrite !app_nil_r;
        split; auto; rew length; try lia.
 
 (* Add it to auto so that fam sss * will try it to solve the subcode goal it generates *)

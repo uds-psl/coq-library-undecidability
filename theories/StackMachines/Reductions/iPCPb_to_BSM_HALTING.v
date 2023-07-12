@@ -26,7 +26,7 @@ Proof.
   induction ln as [ | i ln IH ]; simpl; auto.
   rewrite itau1_app, itau2_app; simpl.
   generalize (nth i lt ([], [])); intros (a,b); rewrite IH.
-  repeat rewrite <- app_nil_end; auto.
+  repeat rewrite app_nil_r; auto.
 Qed.
 
 (* tiles_solvable & iBPCP is the same predicate except that the existentially

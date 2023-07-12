@@ -49,7 +49,7 @@ Tactic Notation "vector_destruct" hyp(tin) :=
       | _ => simple apply all_vec_correct2;try clear tin;let tin' := fresh tin in intros tin'
       end 
   in
-  let tac n :=  revert dependent tin; refine (all_vec_correct _);
+  let tac n := generalize dependent tin; refine (all_vec_correct _);
     cbn [all_vec];introT n;cbn [Vector.nth Vector.caseS];intros
   in
     once lazymatch type of tin with

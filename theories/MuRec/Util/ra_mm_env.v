@@ -203,7 +203,7 @@ Section ra_compiler.
             ++ rew length.
                revert G5; rewrite Nat.add_assoc, (Nat.add_comm _ (length _)).
                apply subcode_sss_compute.
-               subcode_tac; rewrite <- app_nil_end; auto.
+               subcode_tac; rewrite app_nil_r; auto.
         * intros v e H3 H4 H5.
           assert ((i,P) // (i,e) ↓) as H6.
           { apply subcode_sss_terminates with (2 := H3); auto. }
@@ -220,7 +220,7 @@ Section ra_compiler.
              * split; simpl; auto; lia. }
             destruct H7 as (st & H7 & H8).
             assert ( (length P+i,Q) <sc (i,P++Q) ) as H9.
-            { subcode_tac; rewrite <- app_nil_end; auto. }
+            { subcode_tac; rewrite app_nil_r; auto. }
             destruct subcode_sss_compute_inv 
               with (P := (length P+i,Q)) (3 := H7)
               as (st2 & F1 & _ & F2); auto.
@@ -701,7 +701,7 @@ Section ra_compiler.
           replace (length Q1+(length F+(length Q2+length Q3))+i)
              with (2*(2+n)+(23+length F+length G+9*n+i)).
           revert F22; apply subcode_sss_compute; auto.
-          unfold Q3; subcode_tac; rewrite <- app_nil_end; auto.
+          unfold Q3; subcode_tac; rewrite app_nil_r; auto.
           rewrite Q1_length, Q2_length, Q3_length; lia.
           rewrite Q2_length; unfold s2; lia. }
     Qed.
@@ -749,7 +749,7 @@ Section ra_compiler.
         1: unfold s2; auto.
         apply subcode_sss_terminates_inv with (P := (i,Q1++F)) (2 := G3); auto.
         1: apply mm_sss_env_fun.
-        1: rewrite <- app_ass; apply subcode_left; auto.
+        1: rewrite app_assoc; apply subcode_left; auto.
         split.
         + rewrite Q1_length.
           replace s2 with (length F+(11+9*n+i)).
@@ -1077,7 +1077,7 @@ Section ra_compiler.
           unfold s4, s1; lia. }
         { replace (length Q4+i) with (2*(1+n)+(9+s4)).
           unfold Q4; revert F5; apply subcode_sss_compute; auto.
-          unfold s4; subcode_tac; rewrite <- app_nil_end; auto.
+          unfold s4; subcode_tac; rewrite app_nil_r; auto.
           unfold s4, Q4; rew length; lia. }
     Qed.
 

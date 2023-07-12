@@ -30,7 +30,7 @@ Tactic Notation "spec" "in" hyp(H) :=
        end 
      end.
 
-Ltac solve_list_eq := simpl; repeat progress (try rewrite app_ass; try rewrite <- app_nil_end; simpl; auto); auto.
+Ltac solve_list_eq := simpl; repeat progress (try rewrite <- app_assoc; try rewrite app_nil_r; simpl; auto); auto.
 
 Tactic Notation "solve" "list" "eq" := solve_list_eq.
 

@@ -66,7 +66,7 @@ Proof.
     rewrite map_map.
     apply in_ill1_bang_l.
     apply in_ill1_perm with (((£ a ⊸ £ p) ⊸ £ q) :: ((map (fun c => !⦑c⦒) Si ++ map £ Ga) ++ nil)).
-    * rewrite <- app_nil_end; auto.
+    * rewrite app_nil_r; auto.
     * apply in_ill1_limp_l.
       2: apply in_ill1_ax.
       apply in_ill1_limp_r.
@@ -81,19 +81,19 @@ Proof.
     apply in_ill1_perm with (£ p ⊸ £ q ⊸ £ r :: (map (fun c => !⦑c⦒) Si ++ map £ Ga) 
                                              ++ (map (fun c => !⦑c⦒) Si ++ map £ De)).
     * apply Permutation_cons; auto.
-      rewrite app_ass; apply Permutation_app; auto.
-      do 2 rewrite <- app_ass; apply Permutation_app; auto.
+      rewrite <- app_assoc; apply Permutation_app; auto.
+      do 2 rewrite app_assoc; apply Permutation_app; auto.
       apply Permutation_app_comm.
     * apply in_ill1_limp_l; auto.
       apply in_ill1_perm with (£ q ⊸ £ r :: ((map (fun c => !⦑c⦒) Si ++ map £ De) ++ nil)).
-      - rewrite <- app_nil_end; auto.
+      - rewrite app_nil_r; auto.
       - apply in_ill1_limp_l; auto.
         apply in_ill1_ax.
   + rewrite <- map_map; apply S_ill_restr_weak_cntr with (1 := in_map _ _ _ H1); simpl.
     rewrite map_map.
     apply in_ill1_bang_l.
     apply in_ill1_perm with (£ p & £ q ⊸ £ r :: ((map (fun c => !⦑c⦒) Si ++ map £ Ga) ++ nil)).
-    * rewrite <- app_nil_end; auto.
+    * rewrite app_nil_r; auto.
     * apply in_ill1_limp_l.
       - apply in_ill1_with_r; auto.
       - apply in_ill1_ax.

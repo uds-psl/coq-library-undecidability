@@ -256,7 +256,7 @@ Section fo_term_extra.
          fo_term_vars (t⟬f⟭) = flat_map (fun n => fo_term_vars (f n)) (fo_term_vars t).
   Proof.
     induction t as [ n | s v IHv ]; rew fot; auto.
-    + simpl; rewrite <- app_nil_end; auto.
+    + simpl; rewrite app_nil_r; auto.
     + rewrite vec_list_vec_map.
       rewrite flat_map_flat_map.
       rewrite flat_map_concat_map, map_map, <- flat_map_concat_map.

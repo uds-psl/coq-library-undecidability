@@ -753,7 +753,7 @@ Section vec_map_list.
                                  ++ vec_map_list v (fun p => f (pos_nxt p)) 
                                  ++ vec_map_list w (fun p => f (pos_nxt p))).
       * apply Permutation_app; auto.
-      * do 2 rewrite <- app_ass.
+      * do 2 rewrite app_assoc.
         apply Permutation_app; auto.
        apply Permutation_app_comm.
   Qed.

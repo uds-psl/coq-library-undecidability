@@ -494,7 +494,7 @@ Section Σfull_mon_rem.
       destruct (H x); simpl; auto.
     + simpl.
       rewrite Σfull_mon_rec_syms, fol_syms_mquant.
-      rewrite fol_syms_bigop, <- app_nil_end; simpl.
+      rewrite fol_syms_bigop, app_nil_r; simpl.
       intros x; rewrite in_flat_map.
       intros (u & H & Hu); revert H.
       rewrite in_map_iff.

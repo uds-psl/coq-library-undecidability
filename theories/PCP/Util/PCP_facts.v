@@ -62,10 +62,10 @@ Qed.
 
 
 Lemma itau1_app {X : Type} {P : stack X} A B : itau1 P (A++B) = itau1 P A ++ itau1 P B.
-Proof. induction A; simpl; auto; rewrite app_ass; simpl; f_equal; auto. Qed.
+Proof. induction A; simpl; auto; rewrite <- app_assoc; simpl; f_equal; auto. Qed.
 
 Lemma itau2_app {X : Type} {P : stack X} A B : itau2 P (A++B) = itau2 P A ++ itau2 P B.
-Proof. induction A; simpl; auto; rewrite app_ass; simpl; f_equal; auto. Qed.
+Proof. induction A; simpl; auto; rewrite <- app_assoc; simpl; f_equal; auto. Qed.
 
 Definition card_eq : forall x y : card bool, {x = y} + {x <> y}.
 Proof.
