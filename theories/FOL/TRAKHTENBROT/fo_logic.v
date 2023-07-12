@@ -171,7 +171,7 @@ Section fol_subst.
       rewrite fo_term_vars_map; rew fot.
       rewrite flat_map_concat_map, map_map.
       rewrite <- flat_map_concat_map.
-      rewrite <- app_nil_end.
+      rewrite app_nil_r.
       rewrite flat_map_single, map_id; auto.
   Qed.
 
@@ -221,19 +221,19 @@ Section fol_subst.
   Fact fol_vars_bigop c l A : fol_vars (fol_bigop c A l) = flat_map fol_vars l++fol_vars A.
   Proof.
     induction l; simpl; auto.
-    rewrite app_ass; f_equal; auto.
+    rewrite <- app_assoc; f_equal; auto.
   Qed.
 
   Fact fol_syms_bigop c l A : fol_syms (fol_bigop c A l) = flat_map fol_syms l++fol_syms A.
   Proof. 
     induction l; simpl; auto.
-    rewrite app_ass; f_equal; auto.
+    rewrite <- app_assoc; f_equal; auto.
   Qed.
 
   Fact fol_rels_bigop c l A : fol_rels (fol_bigop c A l) = flat_map fol_rels l++fol_rels A.
   Proof. 
     induction l; simpl; auto.
-    rewrite app_ass; f_equal; auto.
+    rewrite <- app_assoc; f_equal; auto.
   Qed.
 
   Fact fol_subst_bigop c l A σ : (fol_bigop c A l)⦃σ⦄ = fol_bigop c (A⦃σ⦄) (map (fol_subst σ) l).
@@ -270,7 +270,7 @@ Section fol_subst.
       rewrite IHn; simpl fol_vars; rewrite flat_map_flat_map.
       do 2 rewrite flat_map_concat_map; f_equal; apply map_ext.
       intros [ | a ]; auto; simpl flat_map.
-      rewrite <- app_nil_end.
+      rewrite app_nil_r.
       destruct (le_lt_dec n a); destruct (le_lt_dec (S n) (S a)); auto; lia.
   Qed.
  
@@ -454,19 +454,19 @@ Section fol_semantics.
   Fact fol_vars_vec_fa n A : fol_vars (@fol_vec_fa n A) = flat_map (@fol_vars _) (vec_list A).
   Proof.
     unfold fol_vec_fa; rewrite fol_vars_bigop; simpl.
-    rewrite app_nil_end; auto. 
+    rewrite app_nil_r; auto. 
   Qed.
 
   Fact fol_syms_vec_fa n A : fol_syms (@fol_vec_fa n A) = flat_map (@fol_syms _) (vec_list A).
   Proof.
     unfold fol_vec_fa; rewrite fol_syms_bigop; simpl.
-    rewrite app_nil_end; auto. 
+    rewrite app_nil_r; auto.
   Qed.
 
   Fact fol_rels_vec_fa n A : fol_rels (@fol_vec_fa n A) = flat_map (@fol_rels _) (vec_list A).
   Proof.
     unfold fol_vec_fa; rewrite fol_rels_bigop; simpl.
-    rewrite app_nil_end; auto. 
+    rewrite app_nil_r; auto.
   Qed.
  
   Fact fol_sem_vec_fa n A φ : ⟪@fol_vec_fa n A⟫ φ <-> forall p, ⟪vec_pos A p⟫ φ.

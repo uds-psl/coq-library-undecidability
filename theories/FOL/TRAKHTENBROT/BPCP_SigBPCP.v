@@ -63,7 +63,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
   Local Fact fot_vars_lb_app l t : fo_term_vars (l⤜t) = fo_term_vars t.
   Proof.
     induction l as [ | x l IHl ]; simpl; rew fot; auto.
-    simpl; rewrite <- app_nil_end; auto.
+    simpl; rewrite app_nil_r; auto.
   Qed.
 
   Notation lb2term := (fun l => l⤜e).
@@ -221,8 +221,8 @@ Section BPCP_FIN_DEC_EQ_SAT.
     Let fot_sem_lb_app_e lb φ (H : length lb < S n) : ⟦lb⤜e⟧ φ = Some (exist _ lb H).
     Proof.
       revert H.
-      rewrite (app_nil_end lb); intros H.
-      rewrite <- app_nil_end at 1. 
+      rewrite <- (app_nil_r lb); intros H.
+      rewrite app_nil_r at 1. 
       apply fot_sem_lb_app_Some with (Ht := Nat.lt_0_succ _).
       rew fot; simpl; auto.
     Qed.
@@ -258,7 +258,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
             simpl in H4; do 2 rewrite app_length in H4; lia.
         * clear H1 H3; revert H2 H4.
           intros (a & <-) (b & <-).
-          exists (b++a); rewrite app_ass; auto.
+          exists (b++a); rewrite <- app_assoc; auto.
     Qed.
 
     Let sem_phi_eq : ⟪ phi_eq ⟫ φ0.

@@ -1020,12 +1020,12 @@ Section Binary_Stack_Machines.
      in (i,full_decoder i lt) // (i,v) ->> (p,v[nil/c][hh/h][ll/l]).
     Proof using Hhl Hcl Hch.
       intros H1 H2 H3 H4.
-      rewrite app_nil_end in H1.
+      rewrite <- app_nil_r in H1.
       generalize (@full_dec_spec_rec i ln nil lt v H1 H4).
       destruct (tile_concat ln lt) as (hh,ll).
       intros E.
       apply sss_compute_trans with (1 := E); auto.
-      rewrite H2, H3; repeat rewrite <- app_nil_end.
+      rewrite H2, H3; repeat rewrite app_nil_r.
       apply full_dec_start_spec_0; rew vec.
     Qed.
  
@@ -1267,7 +1267,7 @@ Section Binary_Stack_Machines.
         apply sss_compute_trans with (st2 := (16+i,v[(list_nat_bool ln)/a])).
         apply subcode_sss_compute with (P := (i,copy_stack s a h i)); auto.
         apply copy_stack_spec with (list_nat_bool ln); auto.
-        rewrite H2, <- app_nil_end; auto.
+        rewrite H2, app_nil_r; auto.
 
         apply sss_compute_trans with (st2 := (lFD+16+i,v[nil/a][hh/h][ll/l])).
         apply subcode_sss_compute with (P := (16+i,full_decoder a h l (lFD+16+i) (lFD+26+i) (16+i) lt)); auto.
@@ -1303,7 +1303,7 @@ Section Binary_Stack_Machines.
         apply sss_compute_trans with (st2 := (16+i,v[(list_nat_bool ln++lc)/a])).
         apply subcode_sss_compute with (P := (i,copy_stack s a h i)); auto.
         apply copy_stack_spec with (list_nat_bool ln++lc); auto.
-        rewrite H2, <- app_nil_end; auto.
+        rewrite H2, app_nil_r; auto.
 
         apply subcode_sss_compute_trans with (2 := Hw1); auto. 
 
@@ -1316,7 +1316,7 @@ Section Binary_Stack_Machines.
         
         unfold main_loop.
         subst lc.
-        rewrite <- app_nil_end in H3.
+        rewrite app_nil_r in H3.
         case_eq (tile_concat ln lt).
         intros hh ll E; rewrite E in H5.
         destruct (compare_stack_neq_spec Hhl (lFD+16+i) p (lFD+26+i) (v[nil/a][hh/h][ll/l]))
@@ -1325,7 +1325,7 @@ Section Binary_Stack_Machines.
         apply sss_compute_trans with (st2 := (16+i,v[(list_nat_bool ln)/a])).
         apply subcode_sss_compute with (P := (i,copy_stack s a h i)); auto.
         apply copy_stack_spec with (list_nat_bool ln); auto.
-        rewrite H2, <- app_nil_end; auto.
+        rewrite H2, app_nil_r; auto.
 
         apply sss_compute_trans with (st2 := (lFD+16+i,v[nil/a][hh/h][ll/l])).
         apply subcode_sss_compute with (P := (16+i,full_decoder a h l (lFD+16+i) (lFD+26+i) (16+i) lt)); auto.
@@ -1389,7 +1389,7 @@ Section Binary_Stack_Machines.
         * left.
           destruct H1 as (H1 & H4).
           exists ln, nil.
-          rewrite <- app_nil_end.
+          rewrite app_nil_r.
           split; auto.
           right.
           rewrite H2; auto.

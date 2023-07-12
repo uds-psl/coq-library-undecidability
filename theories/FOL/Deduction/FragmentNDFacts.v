@@ -126,7 +126,7 @@ Section ND_def.
 
   Lemma big_imps_nil A phi : A ⊢ phi <-> [] ⊢ (impl A phi).
   Proof.
-    specialize (big_imps A nil phi). rewrite <- (app_nil_end). easy.
+    specialize (big_imps A nil phi). rewrite app_nil_r. easy.
   Qed.
 
   Lemma subst_forall_prv phi {N Gamma} :

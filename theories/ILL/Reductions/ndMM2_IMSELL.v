@@ -118,16 +118,16 @@ Section ndmm2_imsell.
   Proof.
     unfold ndmm2_imsell_ctx.
     apply Permutation_sym, perm_trans with (1 := Permutation_cons_append _ _).
-    rewrite !app_ass; apply Permutation_app; auto.
+    rewrite <- !app_assoc; apply Permutation_app; auto.
     simpl; apply Permutation_sym, perm_trans with (1 := Permutation_cons_append _ _).
-    now rewrite app_ass.
+    now rewrite <- app_assoc.
   Qed.
 
   Fact ndmm2_imsell_perm2 Σ x y : ⟬Σ,x,1+y⟭ ~p β::⟬Σ,x,y⟭ .
   Proof.
     unfold ndmm2_imsell_ctx.
     apply Permutation_sym, perm_trans with (1 := Permutation_cons_append _ _).
-    rewrite !app_ass; repeat apply Permutation_app; auto.
+    rewrite <- !app_assoc; repeat apply Permutation_app; auto.
     simpl; apply Permutation_sym, perm_trans with (1 := Permutation_cons_append _ _); auto.
   Qed.
 
@@ -138,7 +138,7 @@ Section ndmm2_imsell.
         ->  ⟬Σ,x,y⟭  ⊢ A 
        <-> ![∞]⟬c⟭ :: ⟬Σ,x,y⟭  ++ nil ⊢ A.
   Proof using Hi.
-    intros H; rewrite <- app_nil_end.
+    intros H; rewrite app_nil_r.
     apply S_imsell_extract; auto.
     apply in_app_iff; left.
     apply in_map_iff.
@@ -161,7 +161,7 @@ Section ndmm2_imsell.
       apply in_imsell_bang_l, in_imsell_limp_l; auto.
       apply in_imsell_limp_r.
       apply in_imsell_perm with (1 := Permutation_sym (Permutation_cons_append _ _)).
-      unfold ndmm2_imsell_ctx; simpl; rewrite <- app_nil_end.
+      unfold ndmm2_imsell_ctx; simpl; rewrite app_nil_r.
       apply S_imsell_gen_weak; auto.
 
     + apply ndmm2_imsell_weak with (1 := H1); simpl.
@@ -177,17 +177,17 @@ Section ndmm2_imsell.
     + apply ndmm2_imsell_weak with (1 := H1); simpl.
       apply in_imsell_bang_l.
       apply in_imsell_perm with (Γ := α⊸⌊q⌋⊸⌊p⌋ :: (α::nil) ++ ⟬Σ,x,y⟭).
-      * apply Permutation_sym, perm_skip; rewrite <- app_nil_end; simpl; auto.
+      * apply Permutation_sym, perm_skip; rewrite app_nil_r; simpl; auto.
       * apply in_imsell_limp_l; auto.
-        rewrite app_nil_end with (l := ⟬_,_,_⟭).
+        rewrite <- app_nil_r with (l := ⟬_,_,_⟭).
         apply in_imsell_limp_l; auto.
 
     + apply ndmm2_imsell_weak with (1 := H1); simpl.
       apply in_imsell_bang_l.
       apply in_imsell_perm with (Γ := β⊸⌊q⌋⊸⌊p⌋ :: (β::nil) ++ ⟬Σ,x,y⟭).
-      * apply Permutation_sym, perm_skip; rewrite <- app_nil_end; simpl; auto.
+      * apply Permutation_sym, perm_skip; rewrite app_nil_r; simpl; auto.
       * apply in_imsell_limp_l; auto.
-        rewrite app_nil_end with (l := ⟬_,_,_⟭).
+        rewrite <- app_nil_r with (l := ⟬_,_,_⟭).
         apply in_imsell_limp_l; auto.
 
     + apply ndmm2_imsell_weak with (1 := H1); simpl.
@@ -205,7 +205,7 @@ Section ndmm2_imsell.
       rewrite ndmm2_imsell_eq2 in IH2 |- *.
       apply in_imsell_bang_r; auto.
       intros (v,A); simpl. 
-      rewrite <- app_nil_end, in_app_iff, in_map_iff.
+      rewrite app_nil_r, in_app_iff, in_map_iff.
       intros [ (? & HvA & ?) | HvA ].
       * now inversion HvA; subst.
       * now apply repeat_spec in HvA; inversion HvA.

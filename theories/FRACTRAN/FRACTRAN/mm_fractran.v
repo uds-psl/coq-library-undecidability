@@ -73,7 +73,7 @@ Fixpoint encode_mm_instr m i (l : list (mm_instr (pos m))) : list (nat * nat) :=
 
 Fact encode_mm_instr_app m i l r : @encode_mm_instr m i (l++r) = encode_mm_instr i l++encode_mm_instr (length l+i) r.
 Proof.
-  revert i; induction l as [ | rho l IHl ]; intros i; simpl; auto; rewrite IHl, app_ass.
+  revert i; induction l as [ | rho l IHl ]; intros i; simpl; auto; rewrite IHl, <- app_assoc.
   do 3 f_equal; lia.
 Qed.
 

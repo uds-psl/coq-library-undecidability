@@ -386,7 +386,7 @@ Section mm_env_utils.
             revert G2; apply subcode_sss_progress; auto.
           - replace (9*S k+i) with (9*k+(9+i)) by lia.
             revert G5; apply subcode_sss_compute.
-            subcode_tac; rewrite <- app_nil_end; auto.
+            subcode_tac; rewrite app_nil_r; auto.
     Qed.
 
   End mm_multi_copy.
@@ -420,7 +420,7 @@ Section mm_env_utils.
         * mm env INC with dst.
           replace (S (n+i)) with (n+(1+i)) by lia.
           revert H2; apply subcode_sss_compute.
-          subcode_tac; simpl; rewrite <- app_nil_end; auto.
+          subcode_tac; simpl; rewrite app_nil_r; auto.
     Qed.
 
     Definition mm_set n i := mm_erase dst zero i ++ mm_incs n.

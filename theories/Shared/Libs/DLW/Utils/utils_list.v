@@ -293,7 +293,7 @@ Proof.
   destruct H as [ H | (m & H1 & H2) ]; auto.
   destruct m as [ | y m ].
   left; exists nil; simpl in *; split; auto.
-  revert H1; do 2 rewrite <- app_nil_end; auto.
+  revert H1; do 2 rewrite app_nil_r; auto.
   inversion H2; subst.
   right; exists m; auto.
 Qed.
@@ -345,9 +345,9 @@ Proof.
   intros H1 H2 H.
   apply list_app_eq_inv in H.
   destruct H as [ (m & H3 & H4) | (m & H3 & H4) ]; destruct m.
-  inversion H4; subst; rewrite <- app_nil_end; auto.
+  inversion H4; subst; rewrite app_nil_r; auto.
   inversion H4; subst; destruct H1; apply in_or_app; right; left; auto.
-  inversion H4; subst; rewrite <- app_nil_end; auto.
+  inversion H4; subst; rewrite app_nil_r; auto.
   inversion H4; subst; destruct H2; apply in_or_app; right; left; auto.
 Qed.
 
@@ -372,7 +372,7 @@ Section flat_map.
       - apply IHl in Hm2.
         destruct Hm2 as (l1 & m1 & x' & m2 & l2 & G1 & G2 & G3 & G4); subst.
         exists (x::l1), m1, x', m2, l2; simpl; repeat (split; auto).
-        rewrite app_ass; auto.
+        rewrite <- app_assoc; auto.
       - exists nil, r1, x, m, l; auto.
   Qed.
 
@@ -457,7 +457,7 @@ Section prefix. (* as an inductive predicate *)
   Fact prefix_app_lft l r1 r2 : r1 <p r2 -> l++r1 <p l++r2.
   Proof.
     intros (a & ?); subst.
-    exists a; rewrite app_ass; auto.
+    exists a; rewrite <- app_assoc; auto.
   Qed.
   
   Fact prefix_inv x y l ll : x::l <p y::ll -> x = y /\ l <p ll.
@@ -474,7 +474,7 @@ Section prefix. (* as an inductive predicate *)
   Qed.
 
   Fact prefix_refl l : l <p l.
-  Proof. exists nil; rewrite <- app_nil_end; auto. Qed.
+  Proof. exists nil; rewrite app_nil_r; auto. Qed.
 
   Fact prefix_trans l1 l2 l3 : l1 <p l2 -> l2 <p l3 -> l1 <p l3.
   Proof. intros (m1 & H1) (m2 & H2); subst; exists (m1++m2); solve list eq. Qed.

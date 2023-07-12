@@ -63,7 +63,7 @@ Section MMA2_ndMM2.
   Fact mma2_linstr_enc_app i l m : ⟪i,l++m⟫ₗ = ⟪i,l⟫ₗ ++ ⟪length l+i,m⟫ₗ.
   Proof.
     revert i; induction l as [ | ? l IHl ]; intros ?; simpl; auto.
-    rewrite app_ass, IHl; do 3 f_equal; auto.
+    rewrite <- app_assoc, IHl; do 3 f_equal; auto.
   Qed.
 
   Fact mma2_linstr_enc_In i P c : 

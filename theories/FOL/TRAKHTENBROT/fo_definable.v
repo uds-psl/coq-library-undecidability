@@ -180,14 +180,14 @@ Section fo_definability.
     set (f := fun k Hk => proj1_sig (H k Hk)).
     exists (fol_lconj (list_in_map l f)); msplit 2. 
     + rewrite fol_syms_bigop.
-      intros s; simpl; rewrite <- app_nil_end.
+      intros s; simpl; rewrite app_nil_r.
       rewrite in_flat_map.
       intros (A & H1 & H2).
       apply In_list_in_map_inv in H1.
       destruct H1 as (k & Hk & ->).
       revert H2; apply (proj2_sig (H k Hk)); auto.
     + rewrite fol_rels_bigop.
-      intros s; simpl; rewrite <- app_nil_end.
+      intros s; simpl; rewrite app_nil_r.
       rewrite in_flat_map.
       intros (A & H1 & H2).
       apply In_list_in_map_inv in H1.
@@ -224,14 +224,14 @@ Section fo_definability.
     set (f := fun k Hk => proj1_sig (H k Hk)).
     exists (fol_ldisj (list_in_map l f)); msplit 2. 
     + rewrite fol_syms_bigop.
-      intros s; simpl; rewrite <- app_nil_end.
+      intros s; simpl; rewrite app_nil_r.
       rewrite in_flat_map.
       intros (A & H1 & H2).
       apply In_list_in_map_inv in H1.
       destruct H1 as (k & Hk & ->).
       revert H2; apply (proj2_sig (H k Hk)); auto.
     + rewrite fol_rels_bigop.
-      intros s; simpl; rewrite <- app_nil_end.
+      intros s; simpl; rewrite app_nil_r.
       rewrite in_flat_map.
       intros (A & H1 & H2).
       apply In_list_in_map_inv in H1.

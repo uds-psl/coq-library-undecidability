@@ -347,7 +347,7 @@ Section Minsky.
     + intros H1 H2.
       rewrite vec_pos_plus in H1.
       apply in_geill_perm with (vec_map_list v rx ++ vec_map_list w rx ++ Ga).
-      rewrite vec_map_list_plus, app_ass; auto.
+      rewrite vec_map_list_plus, <- app_assoc; auto.
       apply Hv.
       lia.
       apply Hw; auto; lia.
@@ -357,7 +357,7 @@ Section Minsky.
            vec_pos v p = 0 
         -> Σ; vec_map_list v rx ⊦ ry p.
   Proof.
-    rewrite (app_nil_end (_ _ rx)).
+    rewrite <- (app_nil_r (_ _ rx)).
     intros H.
     apply g_eill_mono_Si with Σ0.
     unfold Σ; intros ? ?; apply in_or_app; left; auto.

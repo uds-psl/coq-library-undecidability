@@ -68,7 +68,7 @@ Section fol_congruence.
     Proof. simpl; f_equal; rewrite H_ae; simpl; auto. Qed.
 
     Let fol_syms_e x y : fol_syms (x ≡ y) = fo_term_syms x ++ fo_term_syms y.
-    Proof. simpl; rewrite H_ae; simpl; auto; rewrite <- app_nil_end; auto. Qed.
+    Proof. simpl; rewrite H_ae; simpl; auto; rewrite app_nil_r; auto. Qed.
 
     Let fol_rels_e x y : fol_rels (x ≡ y) = e::nil.
     Proof. auto. Qed.
@@ -367,7 +367,7 @@ Section fol_congruence.
     Fact fol_congruence_syms : fol_syms fol_congruence ⊑ ls.
     Proof.
       unfold fol_congruence.
-      rewrite fol_syms_bin, fol_equivalence_syms, <- app_nil_end.
+      rewrite fol_syms_bin, fol_equivalence_syms, app_nil_r.
       apply fol_congruent_syms.
     Qed.
 

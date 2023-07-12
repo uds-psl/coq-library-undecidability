@@ -269,7 +269,7 @@ Section discriminable_implies_FSAT_DEC.
       2: destruct (C s); auto.
       revert IH Ht; vec split v with a; vec nil v; intros IH Ht.
       simpl in Ht |- *.
-      rewrite <- app_nil_end in Ht.
+      rewrite app_nil_r in Ht.
       specialize (IH pos0); simpl in IH.
       assert (undiscernable x s) as Hxs by (apply Hδ; auto).
       rewrite IH.
@@ -293,7 +293,7 @@ Section discriminable_implies_FSAT_DEC.
         fol equiv.
         rewrite vec_map_map.
         clear Hy2.
-        revert G1; vec split v with a; vec nil v; simpl; rewrite <- app_nil_end; intros G1.
+        revert G1; vec split v with a; vec nil v; simpl; rewrite app_nil_r; intros G1.
         f_equal; apply term_equal; auto.
       + apply incl_app_inv in G1 as [].
         apply incl_app_inv in G2 as [].

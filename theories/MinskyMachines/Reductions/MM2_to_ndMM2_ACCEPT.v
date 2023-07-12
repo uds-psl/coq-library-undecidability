@@ -47,7 +47,7 @@ Section MM2_ndMM2.
   Fact mm2_linstr_enc_app i l m : mm2_linstr_enc i (l++m) = mm2_linstr_enc i l ++ mm2_linstr_enc (length l+i) m.
   Proof.
     revert i; induction l as [ | ? l IHl ]; intros ?; simpl; auto.
-    rewrite app_ass, IHl; do 3 f_equal; auto.
+    rewrite <- app_assoc, IHl; do 3 f_equal; auto.
   Qed.
 
   Fact mm2_linstr_enc_In i P c : 
