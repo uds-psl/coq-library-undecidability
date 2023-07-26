@@ -44,3 +44,8 @@ Definition L_computable {k} (R : Vector.t nat k -> nat -> Prop) :=
   exists s, forall v : Vector.t nat k, 
       (forall m, R v m <-> L.eval (Vector.fold_left (fun s n => L.app s (nat_enc n)) s v) (nat_enc m)) /\
       (forall o, L.eval (Vector.fold_left (fun s n => L.app s (nat_enc n)) s v) o -> exists m, o = nat_enc m).
+
+Definition L_computable_closed {k} (R : Vector.t nat k -> nat -> Prop) := 
+  exists s, (forall n u, subst s n u = s) /\ forall v : Vector.t nat k, 
+      (forall m, R v m <-> L.eval (Vector.fold_left (fun s n => L.app s (nat_enc n)) s v) (nat_enc m)) /\
+      (forall o, L.eval (Vector.fold_left (fun s n => L.app s (nat_enc n)) s v) o -> exists m, o = nat_enc m).

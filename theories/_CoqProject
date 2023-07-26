@@ -350,6 +350,7 @@ MinskyMachines/Reductions/MMA3_to_MMA2_HALTING.v
 MinskyMachines/Reductions/SBTM_to_MMA2_HALTING.v
 MinskyMachines/Reductions/BSM_computable_to_MM_computable.v
 MinskyMachines/Reductions/MM2_HALTING_to_MM2_ZERO_HALTING.v
+MinskyMachines/Reductions/L_computable_closed_to_MMA_computable.v
 MinskyMachines/Reductions/L_computable_to_MMA_computable.v
 MinskyMachines/Reductions/MMA_computable_to_MMA_mon_computable.v
 
