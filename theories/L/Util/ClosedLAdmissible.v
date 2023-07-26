@@ -2,8 +2,7 @@ From Undecidability.Shared.Libs.PSL Require Import Vectors.
 
 From Coq Require Import Vector List.
 
-From Undecidability.L Require Import L LTactics L_facts Functions.Eval Functions.Encoding.
-From Undecidability.L.Datatypes Require Import LBool Lists LVector List.List_fold.
+From Undecidability.L Require Import L LTactics L_facts Functions.Eval.
 
 From Undecidability.L.Util Require Import NaryApp.
 

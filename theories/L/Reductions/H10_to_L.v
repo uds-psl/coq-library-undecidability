@@ -2,9 +2,10 @@ From Undecidability.H10 Require Import H10 dio_single dio_logic.
 Require Import Undecidability.PCP.Util.PCP_facts.
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.
 From Undecidability.Synthetic Require Export DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
-From Undecidability.L.Datatypes Require Import LNat Lists LProd.
+From Undecidability.L.Datatypes Require Import LNat LProd.
 From Undecidability.L Require Import Tactics.LTactics Computability.MuRec Computability.Synthetic Tactics.GenEncode.
 From Undecidability.Shared.Libs.DLW.Vec Require Import pos.
+From Undecidability.L.Datatypes.List Require Import List_basics List_extra.
 
 Local Ltac in_app n :=
   (match goal with

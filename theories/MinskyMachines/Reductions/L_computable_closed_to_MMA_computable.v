@@ -134,10 +134,10 @@ Definition vec_simpl :=
 End Facts.
 
 Import Facts.
-Import L (term, var, app, lam).
+Import L (term, var, app, lam, closed).
 
-Lemma closed_many_app_nat_enc {s} ns : L_facts.closed s ->
-  L_facts.closed (fold_left (fun s n => app s (nat_enc n)) ns s).
+Lemma closed_many_app_nat_enc {s} ns : closed s ->
+  closed (fold_left (fun s n => app s (nat_enc n)) ns s).
 Proof.
   elim: ns s. { done. }
   move=> n ns IH s ? /=. apply: IH.
@@ -165,7 +165,7 @@ Section Construction.
 (* relation *)
 Context {k0: nat} {R: Vector.t nat k0 -> nat -> Prop}.
 (* term which computes the relation *)
-Context {s0 : term} {Hs0 : L_facts.closed s0}.
+Context {s0 : term} {Hs0 : closed s0}.
 (* s0 computes R *)
 Context {Hs0R : forall (v : Vector.t nat k0) m, R v m <-> eval (Vector.fold_left (fun s n => app s (nat_enc n)) s0 v) (nat_enc m)}.
 (* s0 computes numerals *)

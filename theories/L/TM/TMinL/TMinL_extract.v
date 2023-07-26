@@ -1,6 +1,5 @@
-From Undecidability.L.Datatypes Require Import LNat Lists LProd LFinType LVector .
-From Undecidability.L Require Import Functions.FinTypeLookup Functions.EqBool.
-
+From Undecidability.L.Datatypes Require Import LProd LFinType.
+From Undecidability.L Require Import Functions.FinTypeLookup.
 From Undecidability.L Require Import TM.TapeFuns TM.TMEncoding.
 
 From Undecidability.TM Require Import TM_facts.

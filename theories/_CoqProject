@@ -545,7 +545,6 @@ L/Datatypes/List/List_basics.v
 L/Datatypes/List/List_enc.v
 L/Datatypes/List/List_eqb.v
 L/Datatypes/List/List_extra.v
-L/Datatypes/List/List_fold.v
 L/Datatypes/List/List_in.v
 L/Datatypes/List/List_nat.v
 L/Datatypes/Lists.v

@@ -1,17 +1,12 @@
-From Undecidability.L.Tactics Require Import LTactics GenEncode.
-From Undecidability.L.Datatypes Require Import LNat Lists LProd LFinType LVector.
+From Undecidability.L.Datatypes Require Import LVector.
 From Undecidability.L Require Import Functions.EqBool.
-
 From Undecidability.TM.Util Require Import TM_facts.
-
-Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.
-
+From Undecidability.L.Tactics Require Import LTactics GenEncode.
 
 Import L_Notations.
 
 (* ** Extraction of Turing Machine interpreter  *)
 
-Import GenEncode.
 MetaCoq Run (tmGenEncodeInj "move_enc" move).
 #[export] Hint Resolve move_enc_correct : Lrewrite.
 
