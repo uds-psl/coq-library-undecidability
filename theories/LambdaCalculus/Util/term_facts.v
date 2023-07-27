@@ -1,6 +1,6 @@
 From Undecidability Require L.L L.Util.L_facts.
-Import L (term, var, app, lam).
-Import L_facts (closed, bound, closed_dcl, dclvar, dclApp, dcllam).
+Import L (term, var, app, lam, closed).
+Import L_facts (bound, closed_dcl, dclvar, dclApp, dcllam).
 
 From Undecidability Require Import wCBN.
 Require Import PeanoNat Lia.

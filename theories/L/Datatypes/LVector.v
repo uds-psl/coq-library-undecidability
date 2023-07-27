@@ -1,5 +1,5 @@
 From Undecidability.L.Tactics Require Import LTactics GenEncode.
-From Undecidability.L.Datatypes Require Import LNat Lists LFinType.
+From Undecidability.L.Datatypes Require Import LNat List.List_basics List.List_eqb LFinType.
 
 Require Import Undecidability.Shared.Libs.PSL.Vectors.Vectors.
 

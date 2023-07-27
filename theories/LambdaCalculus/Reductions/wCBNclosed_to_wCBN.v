@@ -18,7 +18,7 @@ Proof.
   - intros [t Ht]. exists (L.lam t). split; [assumption|].
     intros u H%stepE. destruct H.
   - intros [t [Hst Ht]].
-    assert (L_facts.closed t) as H't.
+    assert (L.closed t) as H't.
     { apply (@steps_bound 0) in Hst; [now apply L_facts.closed_dcl|].
       apply L_facts.closed_dcl. apply closed_I. intros k.
       now rewrite L_subst_wCBN_subst. }

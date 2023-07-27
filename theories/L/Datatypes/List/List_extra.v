@@ -1,26 +1,6 @@
 From Undecidability.L.Tactics Require Import LTactics.
 From Undecidability.L.Datatypes Require Export List_enc List_in List_basics LBool LNat.
 
-Definition lengthEq A :=
-  fix f (t:list A) n :=
-    match n,t with
-      0,nil => true
-    | (S n), _::t => f t n
-    | _,_ => false
-    end.
-Lemma lengthEq_spec A (t:list A) n:
-| t | =? n = lengthEq t n.
-Proof.
-  induction n in t|-*;destruct t;now cbn.
-Qed.
-
-#[global]
-Instance term_lengthEq A `{encodable A} : computable (lengthEq (A:=A)).
-Proof.
-  extract.
-Qed.
-
-
 (* seq *)
 #[global]
 Instance term_seq : computable seq. 

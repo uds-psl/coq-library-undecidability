@@ -19,7 +19,7 @@ Section Fix_X.
   Global Instance term_inb: computable inb.
   Proof.
     extract.
-  Defined. (*because other extract*)
+  Qed.
 
 End Fix_X.
 

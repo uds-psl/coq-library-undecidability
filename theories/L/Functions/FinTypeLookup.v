@@ -1,5 +1,6 @@
 From Undecidability.L.Tactics Require Import LTactics.
-From Undecidability.L.Datatypes Require Import LFinType LBool LProd Lists.
+From Undecidability.L.Datatypes Require Import LFinType LBool LProd.
+From Undecidability.L.Datatypes.List Require Export List_basics.
 From Undecidability.L.Functions Require Import EqBool.
 
 Section Lookup.

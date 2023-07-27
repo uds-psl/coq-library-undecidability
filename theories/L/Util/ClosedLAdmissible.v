@@ -2,8 +2,7 @@ From Undecidability.Shared.Libs.PSL Require Import Vectors.
 
 From Coq Require Import Vector List.
 
-From Undecidability.L Require Import L LTactics L_facts Functions.Eval Functions.Encoding.
-From Undecidability.L.Datatypes Require Import LBool Lists LVector List.List_fold.
+From Undecidability.L Require Import L LTactics L_facts Functions.Eval.
 
 From Undecidability.L.Util Require Import NaryApp.
 
@@ -12,11 +11,6 @@ Notation encNatL := nat_enc.
 Import ListNotations.
 Import VectorNotations.
 Import L_Notations.
-
-Definition L_computable_closed {k} (R : Vector.t nat k -> nat -> Prop) := 
-  exists s, closed s /\ forall v : Vector.t nat k, 
-      (forall m, R v m <-> L.eval (Vector.fold_left (fun s n => L.app s (encNatL n)) s v) (encNatL m)) /\
-      (forall o, L.eval (Vector.fold_left (fun s n => L.app s (encNatL n)) s v) o -> exists m, o = encNatL m).
 
 Lemma logical {X} (P Q : X -> Prop) :
 (forall x, Q x  -> P x) -> ((forall x, Q x  -> P x) -> forall x, P x -> Q x) -> forall x, P x <-> Q x.
@@ -157,7 +151,7 @@ Proof.
     unshelve edestruct (@total_decodable_closed_new nat _ _ k s) as (s' & Hcl & Hs').
     + intros v o. rewrite <- eval_iff. intros. eapply (H v). unfold apply_to in H0. revert H0.
       now rewrite many_app_eq_nat.
-    + unfold apply_to in Hs'. exists s'. split. Lproc. intros v. split. 
+    + unfold apply_to in Hs'. exists s'. split. change (closed s'). Lproc. intros v. split. 
       * intros m. specialize (H v) as [H1 H2]. rewrite H1. rewrite !eval_iff. rewrite <- !many_app_eq_nat. now rewrite Hs'.
       * intros o. rewrite eval_iff. rewrite <- many_app_eq_nat. rewrite Hs'. rewrite <- eval_iff. rewrite many_app_eq_nat. eapply H.
 Qed.

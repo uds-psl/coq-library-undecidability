@@ -92,8 +92,6 @@ Definition Omega : term := app omega omega.
 
 (* Important definitions *)
 
-Definition closed s := forall n u, subst s n u = s.
-
 Definition lambda s := exists t, s = lam t.
 
 Definition proc s := closed s /\ lambda s.

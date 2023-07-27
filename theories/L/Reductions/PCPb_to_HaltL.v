@@ -4,7 +4,8 @@ From Undecidability.Synthetic Require Import Definitions EnumerabilityFacts List
 From Undecidability Require Export PCP.PCP.
 Require Import Lia.
 
-From Undecidability.L Require Import LProd LBool LNat LOptions Lists.
+From Undecidability.L Require Import LProd LBool LNat LOptions.
+From Undecidability.L.Datatypes.List Require Import List_basics List_eqb List_extra List_nat.
 
 Definition blist_eqb :=
   list_eqb Bool.eqb.

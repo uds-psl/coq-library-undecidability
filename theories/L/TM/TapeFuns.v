@@ -1,7 +1,6 @@
-From Undecidability.L.Datatypes Require Import LNat Lists LVector.
+From Undecidability.L.Datatypes Require Import LBool List.List_nat.
 From Undecidability.L Require Import TM.TMEncoding.
 From Undecidability.TM Require Import Util.TM_facts.
-
 
 Section fix_sig.
   Variable sig : Type.

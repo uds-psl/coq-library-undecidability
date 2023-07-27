@@ -39,7 +39,7 @@ Ltac Lproc' :=idtac;
   | |- lambda (app _ _) => fail
   | |- lambda _ => (simple apply proc_lambda;(trivial with nocore LProc || tauto)) || tauto || (eexists;reflexivity)
   | |- rClosed ?phi _ => solve [simple apply rClosed_decb_correct;[assumption|reflexivity]]
-  | |- L_facts.closed ?s => refine (proj2 (closed_dcl s) _)
+  | |- L.closed ?s => refine (proj2 (closed_dcl s) _)
   | |- bound _  (match ?c with _ => _ end) => destruct c
   | |- bound _ (rho ?s) => simple apply rho_dcls
   | |- bound ?k (@ext ?X ?tt ?x ?H) =>

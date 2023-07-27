@@ -12,7 +12,7 @@ Qed.
 Instance term_map (X Y:Type) (Hx : encodable X) (Hy:encodable Y): computable (@map X Y).
 Proof.
   extract.
-Defined. (*because other extract*)
+Qed.
   
 
 #[global]
@@ -36,7 +36,7 @@ Section Fix_X.
   Global Instance term_filter_notime: computable (@filter X).
   Proof using intX.
     extract.
-  Defined. (*because other extract*)
+  Qed.
 
   Global Instance term_repeat: computable (@repeat X).
   Proof using intX.
