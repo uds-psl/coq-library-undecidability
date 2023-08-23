@@ -99,6 +99,7 @@ An equivalence proof that most of the mentioned models of computation compute th
 - Halting problem for Krivine machines (`KrivineM_HALT` in [`LambdaCalculus/Krivine.v`](theories/LambdaCalculus/Krivine.v))
 - Strong normalization wrt. beta-reduction in the lambda-calculus (`SNclosed` in [`LambdaCalculus/Lambda.v`](theories/LambdaCalculus/Lambda.v))
 - System F Inhabitation (`SysF_INH` in [`SystemF/SysF.v`](theories/SystemF/SysF.v)), System F Typability (`SysF_TYP` in [`SystemF/SysF.v`](theories/SystemF/SysF.v)), System F Type Checking (`SysF_TC` in [`SystemF/SysF.v`](theories/SystemF/SysF.v))
+- Intersection Type Inhabitation (`CD_INH` in [`IntersectionTypes/CD.v`](theories/IntersectionTypes/CD.v)), Intersection Type Typability (`CD_TYP` in [`IntersectionTypes/CD.v`](theories/IntersectionTypes/CD.v)), Intersection Type Type Checking (`CD_TC` in [`IntersectionTypes/CD.v`](theories/IntersectionTypes/CD.v))
 
 #### Decidable Problems
 
