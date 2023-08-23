@@ -807,17 +807,16 @@ SOL/Reductions/H10p_to_SOL.v
 SOL/SOL_undec.v
 SOL/PA2_undec.v
 
-LambdaCalculus/wCBN.v
-LambdaCalculus/wCBN_undec.v
+LambdaCalculus/Lambda.v
+LambdaCalculus/Lambda_undec.v
 LambdaCalculus/Krivine.v
 LambdaCalculus/Krivine_undec.v
-
 LambdaCalculus/Util/term_facts.v
 LambdaCalculus/Util/wCBN_facts.v
 LambdaCalculus/Util/Krivine_facts.v
 LambdaCalculus/Reductions/HaltLclosed_to_wCBNclosed.v
-LambdaCalculus/Reductions/wCBNclosed_to_wCBN.v
 LambdaCalculus/Reductions/wCBNclosed_to_KrivineMclosed_HALT.v
+LambdaCalculus/Reductions/KrivineMclosed_HALT_to_SNclosed.v
 
 H10/Reductions/FRACTRAN_computable_to_Diophantine.v
 H10/Util/Diophantine.v

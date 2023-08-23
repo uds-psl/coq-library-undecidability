@@ -48,7 +48,7 @@ Proof.
   - by move=> [p'] [ts] /MMA_TM.inverse_simulation.
 Qed.
 
-Lemma KM_MMA_iff {tm} : (forall sigma, wCBN.subst sigma tm = tm) ->
+Lemma KM_MMA_iff {tm} : (forall sigma, Lambda.subst sigma tm = tm) ->
   KrivineM_HALT tm <->
   @MMA_HALTING 5 (KM_MMA.PROG 1, KM_MMA.input tm).
 Proof.

@@ -1,4 +1,11 @@
-(* 
+(*
+  Author(s):
+    Andrej Dudenhefner (1)
+  Affiliation(s):
+    (1) TU Dortmund University, Dortmund, Germany
+*)
+
+(*
   Problem(s):
     Krivine machine halting (KrivineM_HALT)
     Krivine machine halting for closed terms (KrivineMclosed_HALT)
@@ -14,8 +21,8 @@
 Require Undecidability.L.L.
 Import L (term, var, app, lam).
 
-Require Undecidability.LambdaCalculus.wCBN.
-Import wCBN (subst).
+Require Undecidability.LambdaCalculus.Lambda.
+Import Lambda (closed).
 
 (* (closure ctx t) is a lambda-term t in the environment ctx *)
 Inductive eterm := closure : list eterm -> term -> eterm.
@@ -44,5 +51,5 @@ Definition KrivineM_HALT : term -> Prop :=
   fun t => halt_cbn nil nil t.
 
 (* Krivine machine halting for closed terms *)
-Definition KrivineMclosed_HALT : { t : term | forall sigma, subst sigma t = t } -> Prop :=
+Definition KrivineMclosed_HALT : { t : term | closed t } -> Prop :=
   fun '(exist _ t _) => KrivineM_HALT t.

@@ -9,7 +9,7 @@
   Reduction from:
     L halting for closed terms (HaltLclosed)
   to:
-    Weak call-by-name leftmost outermost normalization of closed terms (wCBNclosed)
+    Weak call-by-name leftmost outermost normalization of closed lambda-terms (wCBNclosed)
 
   Related Work:
   [1] Plotkin, Gordon.
@@ -17,19 +17,21 @@
       Theoretical computer science 1.2 (1975): 125-159.
 *)
 
-From Undecidability.LambdaCalculus Require Import wCBN Util.term_facts Util.wCBN_facts.
+From Undecidability.LambdaCalculus Require Import Lambda Util.term_facts Util.wCBN_facts.
 
 From Undecidability Require Import L.Util.L_facts.
 
 From Coq Require Import Relations Wellfounded.Transitive_Closure List Lia.
 Import L (term, var, app, lam).
-Import wCBN (subst, step, stepLam, stepApp).
-From Coq Require Import ssreflect ssrbool ssrfun.
+Import Lambda (subst, wCBN_step, wCBN_stepSubst, wCBN_stepApp).
+From Coq Require Import ssreflect.
 
 Import Relation_Operators (t1n_trans).
 Import Datatypes (id).
 
 Set Default Goal Selector "!".
+
+#[local] Notation step := wCBN_step.
 
 Module Argument.
 
@@ -37,6 +39,13 @@ Module Argument.
 #[local] Arguments clos_refl_trans {A}.
 #[local] Arguments clos_trans {A}.
 #[local] Unset Implicit Arguments.
+
+Lemma t_trans' {A : Type} {R : relation A} {x x' y z : A} : 
+  x = x' -> clos_trans R x y -> clos_trans R y z -> clos_trans R x' z.
+Proof. move=> ->. by apply: t_trans. Qed.
+
+Lemma clos_t_rt s t : clos_trans step s t -> clos_refl_trans step s t.
+Proof. elim; eauto using @clos_refl_trans. Qed.
 
 Lemma closed_eval {s t} : L.eval s t -> closed s -> closed t.
 Proof. by move=> /eval_iff [/closed_star]. Qed.
@@ -129,7 +138,7 @@ Proof.
   { apply /closed_dcl. apply: closed_subst; [done|by apply /closed_dcl]. }
   move: IH3.
   have -> : L.subst u 0 t' = subst (scons t' var) u.
-  { rewrite L_subst_wCBN_subst; first done.
+  { rewrite L_subst_Lambda_subst; first done.
     apply: (bound_ext_subst_term Hu).
     move=> [|n]; [done|lia]. }
   move=> {}IH3.
@@ -172,16 +181,12 @@ Proof.
   elim; clear s s'.
   - move=> s s' /closed_app [/closed_dcl /boundE ?] /closed_dcl ?.
     have := L_facts.stepApp s s'. congr L_facts.step.
-    rewrite L_subst_wCBN_subst. { by apply /closed_dcl. }
+    rewrite L_subst_Lambda_subst. { by apply /closed_dcl. }
     apply: bound_ext_subst_term; first by eassumption.
     move=> [|n]; [done|lia].
   - move=> > ? H /closed_app [/H ? ?]. by apply: stepAppL.
   - move=> > ? H /closed_app [? /H ?]. by apply: stepAppR.
 Qed.
-
-Lemma t_trans' {A : Type} {R : relation A} {x x' y z : A} : 
-  x = x' -> clos_trans R x y -> clos_trans R y z -> clos_trans R x' z.
-Proof. move=> ->. by apply: t_trans. Qed.
 
 Lemma steps_to_colon s u : closed s -> clos_trans step (app (cbv_cbn s) u) (colon s u).
 Proof.
@@ -193,14 +198,14 @@ Proof.
     move: (s) Hs IH1 IH2 => [].
     + by move=> > /not_closed_var.
     + move=> s1 s2 _. move: (app s1 s2) => s' IH1 IH2.
-      apply: t_trans. { apply: t_step. by apply: stepLam. }
+      apply: t_trans. { apply: t_step. by apply: wCBN_stepSubst. }
       move: IH1. by rewrite /= !simpl_term !ren_as_subst_term.
     + move=> s' _ IH1 IH2.
-      apply: t_trans. { apply: t_step. by apply: stepLam. }
+      apply: t_trans. { apply: t_step. by apply: wCBN_stepSubst. }
       move: IH1 => /t_trans'. apply.
       { rewrite /= !simpl_term !ren_as_subst_term. congr app.
         congr lam. congr app. congr lam. apply: ext_subst_term. by case. }
-      apply: t_trans. { apply: t_step. by apply: stepLam. }
+      apply: t_trans. { apply: t_step. by apply: wCBN_stepSubst. }
       move: IH2. by rewrite /= !simpl_term !ren_as_subst_term.
   - move=> s IH u ?.
     apply: t_step. rewrite /=. apply: stepLam'.
@@ -212,8 +217,8 @@ Lemma colon_redex s t u : closed (lam s) -> closed (lam t) ->
   clos_trans step (colon (app (lam s) (lam t)) u) (colon (subst (scons (lam t) var) s) u).
 Proof.
   move=> /= Hs Ht.
-  apply: t_trans. { apply: t_step. by apply: stepLam. } rewrite /=.
-  apply: t_trans. { apply: t_step. apply: stepApp. by apply: stepLam. }
+  apply: t_trans. { apply: t_step. by apply: wCBN_stepSubst. } rewrite /=.
+  apply: t_trans. { apply: t_step. apply: wCBN_stepApp. by apply: wCBN_stepSubst. }
   have /(steps_to_colon _ u) : closed (subst (scons (lam t) var) s).
   { move: Hs Ht => /closed_dcl /boundE ? /closed_dcl ?.
     apply /closed_dcl. apply: bound_subst; first by eassumption.
@@ -245,15 +250,12 @@ Proof.
     + move=> s' IH /cbv_step_to_lam [s1'] [s2'] [? [? Hs']].
       move=> x. subst.
       apply: t_trans. { by apply: IH. }
-      apply: t_trans. { apply: t_step.  by apply: stepLam. }
+      apply: t_trans. { apply: t_step.  by apply: wCBN_stepSubst. }
       have := steps_to_colon t (lam (app (app (ren S (Psi (lam s'))) # 0) (ren S x))) Ht.
       by rewrite /= !simpl_term !ren_as_subst_term.
   - move=> > ? IH /closed_app [? /IH] {}IH x.
     by apply: IH.
 Qed.
-
-Lemma clos_t_rt s t : clos_trans step s t -> clos_refl_trans step s t.
-Proof. elim; eauto using @clos_refl_trans. Qed.
 
 (* cbv simulation lemma for closed terms *)
 Lemma simulation {s t} : L.eval s t -> closed s ->
@@ -305,7 +307,7 @@ Proof.
   { move=> [t' ->]. exists t'. by apply: starR. }
   move=> [s'] /[dup] /cbv_step_L_step /(_ Hs) H0s.
   move=> /[dup] /simulate_cbv_step /(_ Hs (lam (var 0))) /clos_trans_swap /IH H1s.
-  move=> /cbv_step_closed /(_ Hs) /H1s => /(_ erefl) [? [Hs't']] [t' ?].
+  move=> /cbv_step_closed /(_ Hs) /H1s => /(_ eq_refl) [? [Hs't']] [t' ?].
   subst. exists t'. by apply: starC; eassumption.
 Qed.
 
@@ -341,8 +343,10 @@ End Argument.
 Require Import Undecidability.Synthetic.Definitions.
 Require Undecidability.L.Reductions.HaltL_to_HaltLclosed.
 Import HaltL_to_HaltLclosed (HaltLclosed).
+
 #[local] Unset Asymmetric Patterns.
 
+(* reduction from L halting to weak call-by-name leftmost outermost normalization *)
 (* note: currently HaltLclosed is defined in HaltL_to_HaltLclosed *)
 Theorem reduction : HaltLclosed ⪯ wCBNclosed.
 Proof.
@@ -352,6 +356,6 @@ Proof.
     move=> /eval_iff /= /Argument.simulation.
     move=> /(_ Hs (lam (var 0))) ?. exists (Argument.cbv_cbn t').
     apply: rt_trans; first by eassumption.
-    apply: rt_step. by apply: stepLam.
+    apply: rt_step. by apply: wCBN_stepSubst.
   - move=> [t] /Argument.inverse_simulation. by apply.
 Qed.

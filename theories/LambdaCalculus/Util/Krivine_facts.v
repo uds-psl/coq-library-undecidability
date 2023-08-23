@@ -1,12 +1,14 @@
-From Undecidability.LambdaCalculus Require Import Krivine wCBN Util.term_facts.
+From Undecidability.LambdaCalculus Require Import Krivine Lambda Util.term_facts.
 Require Import Undecidability.L.Util.L_facts.
 
-Require Import List Lia.
+Require Import List Lia Relations.
 Import ListNotations.
 Import L (term, var, app, lam).
-Import wCBN (step, subst).
+Import Lambda (wCBN_step, subst).
 
-Require Import ssreflect ssrbool ssrfun.
+#[local] Notation step := wCBN_step.
+
+Require Import ssreflect.
 
 Set Default Goal Selector "!".
 
@@ -35,7 +37,7 @@ Proof. by case. Qed.
 
 (* recursively substitute each local context, rename all free varaibles to 0 *)
 Fixpoint flatten (u : eterm) : term :=
-  let '(closure ctx t) := u in subst (fun n => ren (fun=> 0) (nth n (map flatten ctx) (var 0))) t.
+  let '(closure ctx t) := u in subst (fun n => ren (fun _ => 0) (nth n (map flatten ctx) (var 0))) t.
 
 Lemma flatten_var_0 t ctx :
   flatten (closure (t :: ctx) (var 0)) = flatten t.
@@ -58,13 +60,26 @@ Fixpoint term_size (t : term) : nat :=
 Fixpoint eterm_size (u : eterm) : nat :=
   let '(closure ctx t) := u in 1 + list_sum (map eterm_size ctx) + (term_size t).
 
+Lemma eterm_ind' (P : eterm -> Prop) :
+  (forall (l : list eterm) (t : term), Forall P l -> P (closure l t)) ->
+  forall u, P u.
+Proof.
+  move=> H. elim /(Nat.measure_induction _ eterm_size).
+  move=> [ctx t] IH. apply: H.
+  elim: ctx IH.
+  - by constructor.
+  - move=> ?? IH IH'. constructor.
+    + apply: IH'=> /=. lia.
+    + apply: IH => /= *. apply: IH'=> /=. lia.
+Qed.
+
 Definition context_size (ctx : list eterm) : nat :=
   eterm_size (closure ctx (var 0)).
 
 Lemma flatten_cons u sigma s :
-  subst (fun n : nat => ren (fun=> 0) (scons u sigma n)) s =
-  subst (scons (ren (fun=> 0) u) var)
-    (subst (scons (var 0) (funcomp (ren S) (funcomp (ren (fun=> 0)) sigma))) s).
+  subst (fun n : nat => ren (fun _ => 0) (scons u sigma n)) s =
+  subst (scons (ren (fun _ => 0) u) var)
+    (subst (scons (var 0) (funcomp (ren S) (funcomp (ren (fun _ => 0)) sigma))) s).
 Proof.
   rewrite /= !simpl_term. apply: ext_subst_term.
   move=> [|n] /=; first done.
@@ -157,5 +172,83 @@ Lemma eclosed_closed t :
 Proof.
   move=> H. split; last done.
   apply /closed_dcl /closed_I.
-  move=> ?. by rewrite L_subst_wCBN_subst.
+  move=> ?. by rewrite L_subst_Lambda_subst.
+Qed.
+
+Inductive Krivine_step : (list eterm * list eterm * term) -> (list eterm * list eterm * term) -> Prop :=
+  | Krivine_step_var_0 ts ctx t ctx' : Krivine_step (ts, (closure ctx t)::ctx', var 0) (ts, ctx, t)
+  | Krivine_step_var_S ts t ctx n : Krivine_step (ts, t::ctx, var (S n)) (ts, ctx, var n)
+  | Krivine_step_app ts ctx s t : Krivine_step (ts, ctx, app s t) ((closure ctx t)::ts, ctx, s)
+  | Krivine_step_lam t ts ctx s : Krivine_step (t::ts, ctx, lam s) (ts, t::ctx, s).
+
+Lemma halt_cbn_Krivine_step ts ctx t : halt_cbn ts ctx t ->
+  exists ctx' t', clos_refl_trans _ Krivine_step (ts, ctx, t) (nil, ctx', lam t').
+Proof.
+  elim.
+  - move=> > ? [?] [?] ?. do 2 eexists.
+    apply: rt_trans; [apply: rt_step; by constructor|eassumption].
+  - move=> > ? [?] [?] ?. do 2 eexists.
+    apply: rt_trans; [apply: rt_step; by constructor|eassumption].
+  - move=> > ? [?] [?] ?. do 2 eexists.
+    apply: rt_trans; [apply: rt_step; by constructor|eassumption].
+  - move=> > ? [?] [?] ?. do 2 eexists.
+    apply: rt_trans; [apply: rt_step; by constructor|eassumption].
+  - move=> >. do 2 eexists. by apply: rt_refl.
+Qed. 
+
+Lemma Krivine_step_halt_cbn ts ctx t ctx' t' : clos_refl_trans _ Krivine_step (ts, ctx, t) (nil, ctx', lam t') ->
+  halt_cbn ts ctx t.
+Proof.
+  move=> /clos_rt_rt1n_iff.
+  move E: ([], ctx', lam t') => x H.
+  change (halt_cbn ts ctx t) with (halt_cbn (fst (fst (ts, ctx, t))) (snd (fst (ts, ctx, t))) (snd (ts, ctx, t))).
+  elim: H E.
+  - move=> ? <-. by constructor.
+  - move=> > H _ IH ?. subst. case: H IH=> > /(_ eq_refl) ?; by constructor.
+Qed.
+
+Lemma Krivine_step_eclosed ts ctx t ts' ctx' t' : Krivine_step (ts, ctx, t) (ts', ctx', t') -> Forall eclosed ts -> eclosed (closure ctx t) ->
+  Forall eclosed ts' /\ eclosed (closure ctx' t').
+Proof.
+  move EX: (ts, ctx, t) => X.
+  move EY: (ts', ctx', t') => Y H.
+  case: H EX EY=> > [-> -> ->] [-> -> ->] /=.
+  - tauto.
+  - move=> ? [/boundE] *. split; [done|split; [apply: dclvar; lia|tauto]].
+  - move=> ? [/boundE] ??. split; [|tauto].
+    constructor; cbn; tauto.
+  - move=> /Forall_cons_iff ? [/boundE]. tauto.
+Qed.
+
+Lemma Krivine_step_halt_cbn_step ts ctx t ts' ctx' t' :
+  Krivine_step (ts, ctx, t) (ts', ctx', t') ->
+  halt_cbn ts' ctx' t' -> halt_cbn ts ctx t.
+Proof.
+  move EX: (ts, ctx, t) => X.
+  move EY: (ts', ctx', t') => Y H.
+  case: H EX EY=> > [-> -> ->] [] *; subst.
+  all: by constructor.
+Qed.
+
+Lemma Krivine_step_halt_cbn' ts ctx t Y : clos_refl_trans _ Krivine_step (ts, ctx, t) Y ->
+  Forall eclosed ts -> eclosed (closure ctx t) -> (forall Z, not (Krivine_step Y Z)) ->
+  halt_cbn ts ctx t.
+Proof.
+  move E: (ts, ctx, t) => X /clos_rt_rt1n_iff H.
+  elim: H ts ctx t E.
+  - move=> [[ts ctx] t] > [-> -> ->].
+    move: t => [[|x]|s t|t].
+    + move: ctx => [|[??]?] /=.
+      * move=> ? [/boundE]. lia.
+      * move=> _ _ H. exfalso. apply: H. by constructor.
+    + move: ctx => [|[??]?] /=.
+      * move=> ? [/boundE]. lia.
+      * move=> _ _ H. exfalso. apply: H. by constructor.
+    + move=> _ _ H. exfalso. apply: H. by constructor.
+    + move: ts => [|??] /=.
+      * move=> *. by constructor.
+      * move=> _ _ H. exfalso. apply: H. by constructor.
+  - move=> [[??]?] [[??]?] ? /[dup] /Krivine_step_eclosed H1.
+    move=> /Krivine_step_halt_cbn_step H _ IH ??? [???] *. subst.
+    apply: H. apply: IH; tauto.
 Qed.

@@ -1,3 +1,14 @@
+(*
+  Author(s):
+    Andrej Dudenhefner (1)
+  Affiliation(s):
+    (1) TU Dortmund University, Dortmund, Germany
+*)
+
+(*
+  Undecidability Result(s):
+    Simple Semi-Thue System 01 Rewriting (SSTS01)
+*)
 
 Require Import Undecidability.Synthetic.Undecidability.
 
