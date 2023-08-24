@@ -1,6 +1,6 @@
 (*
-  Intersection Type Typability (type_assignment Gamma M t)
-  implies Strong Normalization (Acc (fun x y => step y x) M)
+  Intersection Type Typability of a term M (type_assignment Gamma M t)
+  implies Strong Normalization of M (Acc (fun x y => step y x) M)
 *)
 
 Require Import

@@ -7,7 +7,7 @@
 
 (*
   Reduction from:
-    Strong normalization for closed lambda-terms (SNclosed)
+    Strong normalization for given closed lambda-terms (SNclosed)
   to:
     Intersection Type Typability (CD_TYP)
 *)
@@ -15,6 +15,7 @@
 (*
   Literature:
   [1] van Raamsdonk, Femke, et al. "Perpetual Reductions in λ-Calculus." Information and Computation 149.2 (1999): 173-225.
+  [2] Neergaard, Peter Møller. "Theoretical pearls: A bargain for intersection types: a simple strong normalization proof." Journal of Functional Programming 15.5 (2005): 669-677.
 *)
 
 Require Import Undecidability.IntersectionTypes.CD.
@@ -422,6 +423,7 @@ Proof.
     by case: M => > => [[? /typable_intro]|[? /typable_intro]|].
 Qed.
 
+(* cf. Neergaard's technique [2] *)
 Lemma sn_type_assignment M : sn M -> exists Gamma t, type_assignment Gamma M t.
 Proof.
   move=> /sn_step'_nf [N] [/clos_rt_rt1n_iff]. elim.

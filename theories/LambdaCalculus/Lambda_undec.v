@@ -7,8 +7,8 @@
 
 (*
   Undecidability Result(s):
-    Weak call-by-name leftmost outermost normalization for closed lambda-terms (wCBNclosed)
-    Strong normalization for closed lambda-terms (SNclosed)
+    Weak call-by-name leftmost outermost normalization for given closed lambda-terms (wCBNclosed)
+    Strong normalization for given closed lambda-terms in the strong call-by-name lambda-calculus (SNclosed)
 *)
 
 From Undecidability.Synthetic Require Import Undecidability ReducibilityFacts.
@@ -22,7 +22,7 @@ Require Undecidability.L.Reductions.HaltL_to_HaltLclosed.
 Require Import Undecidability.L.L_undec.
 Require Import Undecidability.LambdaCalculus.Krivine_undec.
 
-(* Undecidability of weak call-by-name leftmost outermost normalization of closed terms *)
+(* Undecidability of weak call-by-name leftmost outermost normalization for given closed terms *)
 Theorem wCBNclosed_undec : undecidable wCBNclosed.
 Proof.
   apply (undecidability_from_reducibility HaltL_undec).
@@ -32,7 +32,7 @@ Qed.
 
 Check wCBNclosed_undec.
 
-(* Undecidability of strong normalization wrt. beta-reduction for closed lamda-terms *)
+(* Undecidability of strong normalization for given closed lamda-terms in the strong call-by-name lambda-calculus *)
 Theorem SNclosed_undec : undecidable SNclosed.
 Proof.
   apply (undecidability_from_reducibility KrivineMclosed_HALT_undec).

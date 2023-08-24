@@ -7,8 +7,8 @@
 
 (*
   Problem(s):
-    Weak call-by-name leftmost outermost normalization for closed lambda-terms (wCBNclosed)
-    Strong normalization for closed lambda-terms (SNclosed)
+    Weak call-by-name leftmost outermost normalization for given closed lambda-terms (wCBNclosed)
+    Strong normalization for given closed lambda-terms (SNclosed)
 
   Literature:
     [1] Plotkin, Gordon.
@@ -49,14 +49,14 @@ Fixpoint subst (sigma: nat -> term) (s: term) : term :=
 
 Notation closed t := (forall (sigma: nat -> term), subst sigma t = t).
 
-(* beta-reduction *)
+(* beta-reduction (strong call-by-name reduction) *)
 Inductive step : term -> term -> Prop :=
-  | stepSubst s t   : step (app (lam s) t) (subst (scons t var) s)
+  | stepSubst s t   : step (app (lam s) t) (subst (scons t (fun x => var x)) s)
   | stepAppL s s' t : step s s' -> step (app s t) (app s' t)
   | stepAppR s t t' : step t t' -> step (app s t) (app s t')
   | stepLam s s'    : step s s' -> step (lam s) (lam s').
 
-(* strong normalization of closed lambda-terms *)
+(* given a closed lambda-term s, is it strongly normalizing wrt. beta-reduction? *)
 Definition SNclosed : { s : term | closed s } -> Prop :=
   fun '(exist _ s _) => Acc (fun x y => step y x) s.
 
@@ -65,6 +65,6 @@ Inductive wCBN_step : term -> term -> Prop :=
   | wCBN_stepSubst s t  : wCBN_step (app (lam s) t) (subst (scons t var) s)
   | wCBN_stepApp s s' t : wCBN_step s s' -> wCBN_step (app s t) (app s' t).
 
-(* weak call-by-name leftmost outermost normalization of closed lambda-terms *)
+(* given a closed lambda-term s, is it normalizing wrt. call-by-name leftmost outermost reduction? *)
 Definition wCBNclosed : { s : term | closed s } -> Prop :=
   fun '(exist _ s _) => exists t, clos_refl_trans term wCBN_step s (lam t).

@@ -38,7 +38,7 @@ Proof. by eauto using clos_refl_trans. Qed.
 
 (* left-most outer-most call-by-name reduction on closed terms *)
 Inductive step' : term -> term -> Prop :=
-  | step'Lam s t    : normal_form s -> normal_form t -> step' (app (lam s) t) (subst (scons t var) s)
+  | step'Lam s t    : normal_form s -> normal_form t -> step' (app (lam s) t) (subst (scons t (fun x => var x)) s)
   | step'App s s' t : normal_form t -> step' s s' -> step' (app s t) (app s' t).
 
 #[local] Notation steps' := (clos_trans _ step').
