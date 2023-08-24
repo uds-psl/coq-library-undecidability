@@ -807,17 +807,16 @@ SOL/Reductions/H10p_to_SOL.v
 SOL/SOL_undec.v
 SOL/PA2_undec.v
 
-LambdaCalculus/wCBN.v
-LambdaCalculus/wCBN_undec.v
+LambdaCalculus/Lambda.v
+LambdaCalculus/Lambda_undec.v
 LambdaCalculus/Krivine.v
 LambdaCalculus/Krivine_undec.v
-
 LambdaCalculus/Util/term_facts.v
 LambdaCalculus/Util/wCBN_facts.v
 LambdaCalculus/Util/Krivine_facts.v
 LambdaCalculus/Reductions/HaltLclosed_to_wCBNclosed.v
-LambdaCalculus/Reductions/wCBNclosed_to_wCBN.v
 LambdaCalculus/Reductions/wCBNclosed_to_KrivineMclosed_HALT.v
+LambdaCalculus/Reductions/KrivineMclosed_HALT_to_SNclosed.v
 
 H10/Reductions/FRACTRAN_computable_to_Diophantine.v
 H10/Util/Diophantine.v
@@ -826,5 +825,15 @@ L/Reductions/PCPb_to_HaltL.v
 TM/KOSBTM/HaltKOSBTM_to_HaltBSM.v
 TM/KOSBTM/HaltTM_1_to_HaltKOSBTM.v
 TM/KOSBTM/KOSBTM.v
+
+IntersectionTypes/CD.v
+IntersectionTypes/CD_undec.v
+IntersectionTypes/Util/CD_facts.v
+IntersectionTypes/Util/CD_fundamental.v
+IntersectionTypes/Util/CD_wn.v
+IntersectionTypes/Util/CD_sn.v
+IntersectionTypes/Reductions/CD_TYP_to_CD_TC.v
+IntersectionTypes/Reductions/SSTS01_to_CD_INH.v
+IntersectionTypes/Reductions/SNclosed_to_CD_TYP.v
 
 Synthetic/Models_Equivalent.v

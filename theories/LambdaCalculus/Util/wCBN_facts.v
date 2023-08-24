@@ -1,11 +1,15 @@
-From Undecidability.LambdaCalculus Require Import wCBN Util.term_facts.
+From Undecidability.LambdaCalculus Require Import Lambda Util.term_facts.
 Import L.L (term, var, app, lam).
 Require Import Undecidability.L.Util.L_facts.
-Import wCBN (subst, step, stepApp, stepLam).
+Import Lambda (subst, wCBN_step, wCBN_stepApp, wCBN_stepSubst).
 Require Import Relations Lia.
-Require Import ssreflect ssrbool ssrfun.
+
+Require Import ssreflect.
 
 Set Default Goal Selector "!".
+
+#[local] Notation step := wCBN_step.
+#[local] Notation steps := (clos_refl_trans _ step).
 
 Inductive stepLam_spec s t : term -> Prop :=
   | stepLam_spec_intro : stepLam_spec s t (subst (scons t var) s).
@@ -41,12 +45,12 @@ Proof.
 Qed.
 
 Lemma stepLam' s t t' : t' = (subst (scons t var) s) -> step (app (lam s) t) t'.
-Proof. move=> ->. by apply: stepLam. Qed.
+Proof. move=> ->. by apply: wCBN_stepSubst. Qed.
 
 Lemma step_closed s t : step s t -> closed s -> closed t.
 Proof. by move=> /step_bound + /closed_dcl => /[apply] /closed_dcl. Qed.
 
-Lemma steps_bound k {s t} : clos_refl_trans term step s t -> bound k s -> bound k t.
+Lemma steps_bound k {s t} : steps s t -> bound k s -> bound k t.
 Proof. elim; by eauto using step_bound. Qed.
 
 Lemma closed_halt_iff {t} : closed t -> ((exists t', t = lam t') <-> (forall u, not (step t u))).
@@ -61,6 +65,14 @@ Proof.
   elim.
   - by move=> > /not_closed_var.
   - move=> ? IH1 ? IH2 ? /closed_app [/IH1] /[apply].
-    move=> [u Hu] ?. eexists. apply: stepApp. by eassumption.
-  - move=> *. eexists. by apply: stepLam.
+    move=> [u Hu] ?. eexists. apply: wCBN_stepApp. by eassumption.
+  - move=> *. eexists. by apply: wCBN_stepSubst.
+Qed.
+
+Lemma stepsApp M1 M2 N : steps M1 M2 -> steps (app M1 N) (app M2 N).
+Proof.
+  elim=> *.
+  - apply: rt_step. by apply: wCBN_stepApp.
+  - apply: rt_refl.
+  - by apply: rt_trans; eassumption.
 Qed.

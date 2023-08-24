@@ -1,4 +1,11 @@
 (*
+  Author(s):
+    Andrej Dudenhefner (1)
+  Affiliation(s):
+    (1) TU Dortmund University, Dortmund, Germany
+*)
+
+(*
   Reduction from:
     Weak call-by-name leftmost outermost normalization of closed terms (wCBNclosed)
   to:
@@ -6,15 +13,17 @@
 *)
 
 From Undecidability.LambdaCalculus Require Import
-  wCBN Krivine Util.term_facts Util.wCBN_facts Util.Krivine_facts.
+  Lambda Krivine Util.term_facts Util.wCBN_facts Util.Krivine_facts.
 Require Import List Relations.
 Import Undecidability.L.L (term, var, app, lam).
 Import Undecidability.L.Util.L_facts.
-Import wCBN (subst, step).
+Import Lambda (subst, wCBN_step).
 
 Require Import ssreflect.
 
 Set Default Goal Selector "!".
+
+#[local] Notation step := wCBN_step.
 
 Module Argument.
 
@@ -63,11 +72,12 @@ End Argument.
 
 Require Import Undecidability.Synthetic.Definitions.
 
+(* reduction from weak call-by-name leftmost outermost normalization to Krivine machine halting *)
 Theorem reduction : wCBNclosed ⪯ KrivineMclosed_HALT.
 Proof.
   exists id.
   move=> [s Hs].
-  have H's : closed s. { apply: closed_I => k. by rewrite L_subst_wCBN_subst. }
+  have H's : closed s. { apply: closed_I => k. by rewrite L_subst_Lambda_subst. }
   split.
   - move=> [t]. move: H's => /Argument.simulation /[apply].
     apply. by constructor.

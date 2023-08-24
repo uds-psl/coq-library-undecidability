@@ -63,7 +63,7 @@ Target problems are very expressive and thus work well as targets for reduction,
 - Halting problem for Binary Stack Machines (`BSM_HALTING` in [`StackMachines/BSM.v`](theories/StackMachines/BSM.v))
 - Halting problems for Minsky machines (`MM_HALTING` and `MMA_HALTING n` in [`MinskyMachines/MM.v`](theories/MinskyMachines/MM.v))
 - Halting problem for partial recursive functions (`MUREC_HALTING` in [`MuRec/recalg.v`](theories/MuRec/recalg.v))
-- Halting problem for the weak call-by-name lambda-calculus (`wCBN` in [`LambdaCalculus/wCBN.v`](theories/LambdaCalculus/wCBN.v))
+- Halting problem for the weak call-by-name lambda-calculus (`wCBNclosed` in [`LambdaCalculus/Lambda.v`](theories/LambdaCalculus/Lambda.v))
 
 An equivalence proof that most of the mentioned models of computation compute the same `n`-ary functional relations over natural numbers is available in [`Models_Equivalent.v`](theories/Synthetic/Models_Equivalent.v).
 
@@ -96,8 +96,10 @@ An equivalence proof that most of the mentioned models of computation compute th
 - Finite multiset constraint solvability (`FMsetC_SAT` in [`SetConstraints/FMsetC.v`](theories/SetConstraints/FMsetC.v))
 - Uniform boundedness of deterministic, length-preserving stack machines (`SMNdl_UB` in [`StackMachines/SMN.v`](theories/StackMachines/SMN.v))
 - Semi-unification (`SemiU` in [`SemiUnification/SemiU.v`](theories/SemiUnification/SemiU.v))
-- System F Inhabitation (`SysF_INH` in [`SystemF/SysF.v`](theories/SystemF/SysF.v)), System F Typability (`SysF_TYP` in [`SystemF/SysF.v`](theories/SystemF/SysF.v)), System F Type Checking (`SysF_TC` in [`SystemF/SysF.v`](theories/SystemF/SysF.v))
 - Halting problem for Krivine machines (`KrivineM_HALT` in [`LambdaCalculus/Krivine.v`](theories/LambdaCalculus/Krivine.v))
+- Strong normalization for given terms in the strong call-by-name lambda-calculus (`SNclosed` in [`LambdaCalculus/Lambda.v`](theories/LambdaCalculus/Lambda.v))
+- System F Inhabitation (`SysF_INH` in [`SystemF/SysF.v`](theories/SystemF/SysF.v)), System F Typability (`SysF_TYP` in [`SystemF/SysF.v`](theories/SystemF/SysF.v)), System F Type Checking (`SysF_TC` in [`SystemF/SysF.v`](theories/SystemF/SysF.v))
+- Intersection Type Inhabitation (`CD_INH` in [`IntersectionTypes/CD.v`](theories/IntersectionTypes/CD.v)), Intersection Type Typability (`CD_TYP` in [`IntersectionTypes/CD.v`](theories/IntersectionTypes/CD.v)), Intersection Type Type Checking (`CD_TC` in [`IntersectionTypes/CD.v`](theories/IntersectionTypes/CD.v))
 
 #### Decidable Problems
 
