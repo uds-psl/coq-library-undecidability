@@ -1,53 +1,39 @@
-name: coq-library-undecidability CI
+name: CI
 
-on:
-  push:
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+on: [push, pull_request]
+
+permissions: read-all
+
+env:
+  OCAML_VERSION: 4.14
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        coq_version: 
-          - 'dev'
-        ocaml_version:
-          - '4.14-flambda'
-      fail-fast: true
-
     steps:
 
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 1
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 1
 
-      - name: Docker-Coq-Action
-        uses: coq-community/docker-coq-action@v1
-        with:
-          coq_version: ${{ matrix.coq_version }}
-          ocaml_version: ${{ matrix.ocaml_version }}
-          before_script: |
-            startGroup "Workaround permission issue"
-              sudo chown -R coq:coq .  # <--
-              opam exec -- ocamlfind list
-            endGroup
-          before_install: |
-            startGroup "Print opam config"
-              sudo chown -R coq:coq .  
-              opam config list; opam repo list; opam list
-            endGroup
-          script: |
-            startGroup "Build project"
-              opam exec -- make -j 2 all TIMED=1
-            endGroup
-          uninstall: |
-            startGroup "Clean project"
-            endGroup
+    - name: Install OCaml ${{env.OCAML_VERSION}}
+      uses: avsm/setup-ocaml@v2
+      with:
+        ocaml-compiler: ${{env.OCAML_VERSION}}
+        dune-cache: true
 
-      - name: Revert permissions
-        # to avoid a warning at cleanup time
-        if: ${{ always() }}
-        run: sudo chown -R 1001:116 .  # <--
+    - name: Build dependencies
+      if: steps.cache.outputs.cache-hit != 'true' 
+      run: |
+        opam repo add coq-released https://coq.inria.fr/opam/released
+        opam pin -y coq-equations "https://github.com/mattam82/Coq-Equations.git#8.18"
+        opam pin -y coq-metacoq-template "https://github.com/MetaCoq/metacoq.git#efe2b96"
+        opam install . --deps-only --with-doc --with-test
+        opam list --installed
+
+    - name: Build interfaces (vos)
+      run: opam exec -- make -j 2 vos TIMED=1
+
+    - name: Build full (vo)
+      run: opam exec -- make -j 2 all TIMED=1
