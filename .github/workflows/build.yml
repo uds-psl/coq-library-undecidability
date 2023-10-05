@@ -28,7 +28,7 @@ jobs:
       run: |
         opam repo add coq-released https://coq.inria.fr/opam/released
         opam pin -y coq-equations "https://github.com/mattam82/Coq-Equations.git#8.18"
-        opam pin -n -y "https://github.com/MetaCoq/metacoq.git#efe2b96"
+        opam pin -n -y "https://github.com/MetaCoq/metacoq.git#1fcd7ff"
         opam install . --deps-only --with-doc --with-test
         opam list --installed
 
