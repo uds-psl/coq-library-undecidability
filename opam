@@ -18,7 +18,7 @@ authors: ["Yannick Forster"
           "Dominik Wehr"
           "Maximilian Wuttke"]
 
-license: "CECILL-2.1"
+license: "MPL-2.0"
 build: [
   [make "-j%{jobs}%"]
 ]
