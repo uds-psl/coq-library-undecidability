@@ -4,7 +4,7 @@
 (*                             [*] Affiliation LORIA -- CNRS  *)
 (**************************************************************)
 (*      This file is distributed under the terms of the       *)
-(*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
+(*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
 (* Certified Undecidability of Intuitionistic Linear Logic via Binary Stack Machines and Minsky Machines. Yannick Forster and Dominique Larchey-Wendling. CPP '19. http://uds-psl.github.io/ill-undecidability/ *)
