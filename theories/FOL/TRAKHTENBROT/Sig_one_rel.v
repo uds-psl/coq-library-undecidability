@@ -6,7 +6,7 @@
 (*                             [*] Affiliation LORIA -- CNRS  *)
 (**************************************************************)
 (*      This file is distributed under the terms of the       *)
-(*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
+(*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
 (* The code was initially developed by Dominik Kirst to be 
