@@ -5,7 +5,7 @@
 (*                                                            *)
 (**************************************************************)
 (*      This file is distributed under the terms of the       *)
-(*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
+(*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
 (* A inductive characterization of list bi-inclusion
