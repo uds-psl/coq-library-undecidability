@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.Synthetic</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.Definitions.html#"><span class="id" title="library">Definitions</span></a> <a class="idref" href="Undecidability.Synthetic.DecidabilityFacts.html#"><span class="id" title="library">DecidabilityFacts</span></a> <a class="idref" href="Undecidability.Synthetic.EnumerabilityFacts.html#"><span class="id" title="library">EnumerabilityFacts</span></a> <a class="idref" href="Undecidability.Synthetic.ListEnumerabilityFacts.html#"><span class="id" title="library">ListEnumerabilityFacts</span></a> <a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#"><span class="id" title="library">ReducibilityFacts</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.FOL</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.Syntax.Facts.html#"><span class="id" title="library">Syntax.Facts</span></a> <a class="idref" href="Undecidability.FOL.Syntax.Theories.html#"><span class="id" title="library">Syntax.Theories</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.FOL</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="Undecidability.FOL.Deduction.FullNDFacts.html#"><span class="id" title="library">Deduction.FullNDFacts</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.FOL.Semantics.Tarski</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullFacts.html#"><span class="id" title="library">FullFacts</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullSoundness.html#"><span class="id" title="library">FullSoundness</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Shared.ListAutomation.html#"><span class="id" title="library">Shared.ListAutomation</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Shared.ListAutomation.html#ListAutomationNotations"><span class="id" title="module">ListAutomationNotations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.micromega.Lia.html#"><span class="id" title="library">Lia</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.Syntax.Core.html#FullSyntax"><span class="id" title="module">FullSyntax</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Set Implicit Arguments</span>.<br/>
+<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Unset</span> <span class="id" title="keyword">Strict</span> <span class="id" title="keyword">Implicit</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Consistency" class="idref" href="#Consistency"><span class="id" title="section">Consistency</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="3119b92ea0f8e0e70d627e0a58772fa6" class="idref" href="#3119b92ea0f8e0e70d627e0a58772fa6"><span class="id" title="binder">Σ_funcs</span></a> : <a class="idref" href="Undecidability.FOL.Syntax.Core.html#funcs_signature"><span class="id" title="class">funcs_signature</span></a>}.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="390ba1ee029e8777dc2378d46aca0ba0" class="idref" href="#390ba1ee029e8777dc2378d46aca0ba0"><span class="id" title="binder">Σ_preds</span></a> : <a class="idref" href="Undecidability.FOL.Syntax.Core.html#preds_signature"><span class="id" title="class">preds_signature</span></a>}.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="p:3" class="idref" href="#p:3"><span class="id" title="binder">p</span></a> : <a class="idref" href="Undecidability.FOL.Syntax.Core.html#peirce"><span class="id" title="class">peirce</span></a>}.<br/>
+
+<br/>
+&nbsp;&nbsp;#[<span class="id" title="var">local</span>] <span class="id" title="var">Existing</span> <span class="id" title="keyword">Instance</span> <span class="id" title="var">TM</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="consistent" class="idref" href="#consistent"><span class="id" title="lemma">consistent</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#63a68285c81db8f9bc456233bb9ed181"><span class="id" title="notation">~</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#63a68285c81db8f9bc456233bb9ed181"><span class="id" title="notation">(</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#ae9a5e1034e143b218b09d8e454472bd"><span class="id" title="notation">[]</span></a> <a class="idref" href="Undecidability.FOL.Deduction.FullND.html#417d4f8793ef9552198c889adf95d0f2"><span class="id" title="notation">⊢</span></a> <a class="idref" href="Undecidability.FOL.Syntax.Core.html#7517e9d03720c673bbc5c610fe69e03d"><span class="id" title="notation">⊥</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#63a68285c81db8f9bc456233bb9ed181"><span class="id" title="notation">)</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>. <span class="id" title="var">unshelve</span> <span class="id" title="tactic">eapply</span> (<a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullSoundness.html#sound_for_classical_model"><span class="id" title="lemma">sound_for_classical_model</span></a> <span class="id" title="var">_</span> <span class="id" title="var">H</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<span class="id" title="keyword">fun</span> <span class="id" title="var">_</span> =&gt; <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#tt"><span class="id" title="constructor">tt</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullFacts.html#TM_sat_decidable"><span class="id" title="lemma">TM_sat_decidable</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">easy</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="Undecidability.FOL.Deduction.FullNDConsistency.html#Consistency"><span class="id" title="section">Consistency</span></a>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

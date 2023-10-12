@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#"><span class="id" title="library">Undecidability.Synthetic.Undecidability</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.Synthetic</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.DecidabilityFacts.html#"><span class="id" title="library">DecidabilityFacts</span></a> <a class="idref" href="Undecidability.Synthetic.EnumerabilityFacts.html#"><span class="id" title="library">EnumerabilityFacts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.TM.SBTM.html#"><span class="id" title="library">Undecidability.TM.SBTM</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <a class="idref" href="Undecidability.TM.Reductions.HaltTM_1_to_SBTM_HALT.html#"><span class="id" title="library">Undecidability.TM.Reductions.HaltTM_1_to_SBTM_HALT</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <a class="idref" href="Undecidability.TM.Enumerators.SBTM_HALT_enum.html#"><span class="id" title="library">Undecidability.TM.Enumerators.SBTM_HALT_enum</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab20"></a><h2 class="section">complement SBTM_HALT is undecidable</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="complement_SBTM_HALT_undec" class="idref" href="#complement_SBTM_HALT_undec"><span class="id" title="lemma">complement_SBTM_HALT_undec</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> (<a class="idref" href="Undecidability.Synthetic.Definitions.html#complement"><span class="id" title="definition">complement</span></a> <a class="idref" href="Undecidability.TM.SBTM.html#SBTM_HALT"><span class="id" title="definition">SBTM_HALT</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> (<a class="idref" href="Undecidability.Synthetic.EnumerabilityFacts.html#dec_count_enum"><span class="id" title="lemma">dec_count_enum</span></a> <span class="id" title="var">H</span>), <a class="idref" href="Undecidability.Synthetic.EnumerabilityFacts.html#enumerator_enumerable"><span class="id" title="lemma">enumerator_enumerable</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.Synthetic.EnumerabilityFacts.html#enumerator__T_sigT"><span class="id" title="lemma">enumerator__T_sigT</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Specif.html#proj2_sig"><span class="id" title="definition">proj2_sig</span></a> <a class="idref" href="Undecidability.TM.Enumerators.SBTM_HALT_enum.html#SBTM_enumeration"><span class="id" title="lemma">SBTM_HALT_enum.SBTM_enumeration</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">M</span>. <span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Specif.html#proj2_sig"><span class="id" title="definition">proj2_sig</span></a> (<a class="idref" href="Undecidability.TM.Enumerators.SBTM_HALT_enum.html#config_enumeration"><span class="id" title="lemma">SBTM_HALT_enum.config_enumeration</span></a> <span class="id" title="var">M</span>)).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab21"></a><h2 class="section">SBTM_HALT is undecidable</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="SBTM_HALT_undec" class="idref" href="#SBTM_HALT_undec"><span class="id" title="lemma">SBTM_HALT_undec</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.TM.SBTM.html#SBTM_HALT"><span class="id" title="definition">SBTM_HALT</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>. <span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.TM.SBTM_undec.html#complement_SBTM_HALT_undec"><span class="id" title="lemma">complement_SBTM_HALT_undec</span></a>, <a class="idref" href="Undecidability.Synthetic.DecidabilityFacts.html#dec_compl"><span class="id" title="lemma">dec_compl</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

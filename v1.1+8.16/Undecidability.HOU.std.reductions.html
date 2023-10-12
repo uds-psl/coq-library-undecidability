@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+<span class="id" title="keyword">Set Implicit Arguments</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.micromega.Lia.html#"><span class="id" title="library">Lia</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#"><span class="id" title="library">List</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.HOU</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.HOU.std.lists.basics.html#"><span class="id" title="library">std.lists.basics</span></a> <a class="idref" href="Undecidability.HOU.std.misc.html#"><span class="id" title="library">std.misc</span></a> <a class="idref" href="Undecidability.HOU.std.decidable.html#"><span class="id" title="library">std.decidable</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#ListNotations"><span class="id" title="module">ListNotations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Reductions" class="idref" href="#Reductions"><span class="id" title="section">Reductions</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Variable</span> (<a id="Reductions.X" class="idref" href="#Reductions.X"><span class="id" title="variable">X</span></a> <a id="Reductions.Y" class="idref" href="#Reductions.Y"><span class="id" title="variable">Y</span></a> <a id="Reductions.Z" class="idref" href="#Reductions.Z"><span class="id" title="variable">Z</span></a>: <span class="id" title="keyword">Type</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Implicit</span> <span class="id" title="keyword">Types</span> (<span class="id" title="var">P</span>: <a class="idref" href="Undecidability.HOU.std.reductions.html#Reductions.X"><span class="id" title="variable">X</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="keyword">Prop</span>) (<span class="id" title="var">Q</span>: <a class="idref" href="Undecidability.HOU.std.reductions.html#Reductions.Y"><span class="id" title="variable">Y</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="keyword">Prop</span>) (<span class="id" title="var">R</span>: <a class="idref" href="Undecidability.HOU.std.reductions.html#Reductions.Z"><span class="id" title="variable">Z</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="keyword">Prop</span>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="reduction" class="idref" href="#reduction"><span class="id" title="definition">reduction</span></a> {<a id="X:4" class="idref" href="#X:4"><span class="id" title="binder">X</span></a> <a id="Y:5" class="idref" href="#Y:5"><span class="id" title="binder">Y</span></a>: <span class="id" title="keyword">Type</span>} (<a id="P:6" class="idref" href="#P:6"><span class="id" title="binder">P</span></a>: <a class="idref" href="Undecidability.HOU.std.reductions.html#X:4"><span class="id" title="variable">X</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="keyword">Prop</span>) (<a id="Q:7" class="idref" href="#Q:7"><span class="id" title="binder">Q</span></a>: <a class="idref" href="Undecidability.HOU.std.reductions.html#Y:5"><span class="id" title="variable">Y</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="keyword">Prop</span>) :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#a883bdd010993579f99d60b3775bcf54"><span class="id" title="notation">exists</span></a> <a id="f:8" class="idref" href="#f:8"><span class="id" title="binder">f</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#a883bdd010993579f99d60b3775bcf54"><span class="id" title="notation">,</span></a> <span class="id" title="keyword">forall</span> <a id="x:9" class="idref" href="#x:9"><span class="id" title="binder">x</span></a>, <a class="idref" href="Undecidability.HOU.std.reductions.html#P:6"><span class="id" title="variable">P</span></a> <a class="idref" href="Undecidability.HOU.std.reductions.html#x:9"><span class="id" title="variable">x</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'&lt;-&gt;'_x"><span class="id" title="notation">&lt;-&gt;</span></a> <a class="idref" href="Undecidability.HOU.std.reductions.html#Q:7"><span class="id" title="variable">Q</span></a> (<a class="idref" href="Undecidability.HOU.std.reductions.html#f:8"><span class="id" title="variable">f</span></a> <a class="idref" href="Undecidability.HOU.std.reductions.html#x:9"><span class="id" title="variable">x</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Notation</span> <a id="6b1bc8d982dffc22e96593bbdfaa6afd" class="idref" href="#6b1bc8d982dffc22e96593bbdfaa6afd"><span class="id" title="notation">&quot;</span></a>P ⪯ Q" := (<a class="idref" href="Undecidability.HOU.std.reductions.html#reduction"><span class="id" title="definition">reduction</span></a> <span class="id" title="var">P</span> <span class="id" title="var">Q</span>) (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 60).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="reduction_transitive" class="idref" href="#reduction_transitive"><span class="id" title="lemma">reduction_transitive</span></a> <a id="P:10" class="idref" href="#P:10"><span class="id" title="binder">P</span></a> <a id="Q:11" class="idref" href="#Q:11"><span class="id" title="binder">Q</span></a> <a id="R:12" class="idref" href="#R:12"><span class="id" title="binder">R</span></a>:<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.HOU.std.reductions.html#P:10"><span class="id" title="variable">P</span></a> <a class="idref" href="Undecidability.HOU.std.reductions.html#6b1bc8d982dffc22e96593bbdfaa6afd"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.HOU.std.reductions.html#Q:11"><span class="id" title="variable">Q</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.HOU.std.reductions.html#Q:11"><span class="id" title="variable">Q</span></a> <a class="idref" href="Undecidability.HOU.std.reductions.html#6b1bc8d982dffc22e96593bbdfaa6afd"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.HOU.std.reductions.html#R:12"><span class="id" title="variable">R</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.HOU.std.reductions.html#P:10"><span class="id" title="variable">P</span></a> <a class="idref" href="Undecidability.HOU.std.reductions.html#6b1bc8d982dffc22e96593bbdfaa6afd"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.HOU.std.reductions.html#R:12"><span class="id" title="variable">R</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> [<span class="id" title="var">f</span> <span class="id" title="var">H1</span>] [<span class="id" title="var">g</span> <span class="id" title="var">H2</span>]; <span class="id" title="tactic">exists</span> (<span class="id" title="var">f</span> <a class="idref" href="Undecidability.HOU.std.misc.html#:::x_'&gt;&gt;'_x"><span class="id" title="notation">&gt;&gt;</span></a> <span class="id" title="var">g</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span>; <span class="id" title="tactic">rewrite</span> <span class="id" title="var">H1</span>, <span class="id" title="var">H2</span>. <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="reduction_reflexive" class="idref" href="#reduction_reflexive"><span class="id" title="lemma">reduction_reflexive</span></a> <a id="P:13" class="idref" href="#P:13"><span class="id" title="binder">P</span></a>: <a class="idref" href="Undecidability.HOU.std.reductions.html#P:13"><span class="id" title="variable">P</span></a> <a class="idref" href="Undecidability.HOU.std.reductions.html#6b1bc8d982dffc22e96593bbdfaa6afd"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.HOU.std.reductions.html#P:13"><span class="id" title="variable">P</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#id"><span class="id" title="definition">id</span></a>; <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="Undecidability.HOU.std.reductions.html#Reductions"><span class="id" title="section">Reductions</span></a>.<br/>
+
+<br/>
+#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Hint</span> <span class="id" title="keyword">Resolve</span> <span class="id" title="var">reduction_reflexive</span> <span class="id" title="var">reduction_transitive</span> : <span class="id" title="var">core</span>.<br/>
+<span class="id" title="keyword">Notation</span> <a id="8d2edb2d53aefda0fb906bca2c603282" class="idref" href="#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">&quot;</span></a>P ⪯ Q" := (<a class="idref" href="Undecidability.HOU.std.reductions.html#reduction"><span class="id" title="definition">reduction</span></a> <span class="id" title="var">P</span> <span class="id" title="var">Q</span>) (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 60).<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

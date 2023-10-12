@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.L.Tactics</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.L.Tactics.LTactics.html#"><span class="id" title="library">LTactics</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.L.Datatypes</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="Undecidability.L.Datatypes.List.List_enc.html#"><span class="id" title="library">List_enc</span></a> <a class="idref" href="Undecidability.L.Datatypes.LBool.html#"><span class="id" title="library">LBool</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="forallb" class="idref" href="#forallb"><span class="id" title="section">forallb</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Variable</span> (<a id="forallb.X" class="idref" href="#forallb.X"><span class="id" title="variable">X</span></a> : <span class="id" title="keyword">Type</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="H:2" class="idref" href="#H:2"><span class="id" title="binder">H</span></a> : <a class="idref" href="Undecidability.L.Tactics.Extract.html#encodable"><span class="id" title="class">encodable</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_fold.html#forallb.X"><span class="id" title="variable">X</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Global Instance</span> <a id="term_forallb_notime" class="idref" href="#term_forallb_notime"><span class="id" title="instance">term_forallb_notime</span></a> : <a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> (@<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#forallb"><span class="id" title="definition">forallb</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_fold.html#forallb.X"><span class="id" title="variable">X</span></a>) .<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="Undecidability.L.Datatypes.List.List_fold.html#forallb"><span class="id" title="section">forallb</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Section</span> <a id="foldl_time" class="idref" href="#foldl_time"><span class="id" title="section">foldl_time</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="X:3" class="idref" href="#X:3"><span class="id" title="binder">X</span></a> <a id="Y:4" class="idref" href="#Y:4"><span class="id" title="binder">Y</span></a> : <span class="id" title="keyword">Type</span>}.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="H:5" class="idref" href="#H:5"><span class="id" title="binder">H</span></a> : <a class="idref" href="Undecidability.L.Tactics.Extract.html#encodable"><span class="id" title="class">encodable</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_fold.html#foldl_time.X"><span class="id" title="variable">X</span></a>}.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="F:6" class="idref" href="#F:6"><span class="id" title="binder">F</span></a> : <a class="idref" href="Undecidability.L.Tactics.Extract.html#encodable"><span class="id" title="class">encodable</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_fold.html#foldl_time.Y"><span class="id" title="variable">Y</span></a>}.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Global Instance</span> <a id="term_fold_left" class="idref" href="#term_fold_left"><span class="id" title="instance">term_fold_left</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> (@<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#fold_left"><span class="id" title="definition">fold_left</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_fold.html#foldl_time.X"><span class="id" title="variable">X</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_fold.html#foldl_time.Y"><span class="id" title="variable">Y</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="Undecidability.L.Datatypes.List.List_fold.html#foldl_time"><span class="id" title="section">foldl_time</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Section</span> <a id="foldr_time" class="idref" href="#foldr_time"><span class="id" title="section">foldr_time</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="X:7" class="idref" href="#X:7"><span class="id" title="binder">X</span></a> <a id="Y:8" class="idref" href="#Y:8"><span class="id" title="binder">Y</span></a>: <span class="id" title="keyword">Type</span>}.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="H:9" class="idref" href="#H:9"><span class="id" title="binder">H</span></a>:<a class="idref" href="Undecidability.L.Tactics.Extract.html#encodable"><span class="id" title="class">encodable</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_fold.html#foldr_time.X"><span class="id" title="variable">X</span></a>}.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="H0:10" class="idref" href="#H0:10"><span class="id" title="binder">H0</span></a>: <a class="idref" href="Undecidability.L.Tactics.Extract.html#encodable"><span class="id" title="class">encodable</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_fold.html#foldr_time.Y"><span class="id" title="variable">Y</span></a>}.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Global Instance</span> <a id="term_fold_right" class="idref" href="#term_fold_right"><span class="id" title="instance">term_fold_right</span></a> : <a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> (@<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#fold_right"><span class="id" title="definition">fold_right</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_fold.html#foldr_time.X"><span class="id" title="variable">X</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_fold.html#foldr_time.Y"><span class="id" title="variable">Y</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="Undecidability.L.Datatypes.List.List_fold.html#foldr_time"><span class="id" title="section">foldr_time</span></a>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

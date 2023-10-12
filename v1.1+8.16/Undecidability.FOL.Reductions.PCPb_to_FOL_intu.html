@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.PCP</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.PCP.PCP.html#"><span class="id" title="library">PCP</span></a> <a class="idref" href="Undecidability.PCP.Util.PCP_facts.html#"><span class="id" title="library">Util.PCP_facts</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.FOL</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.Deduction.FragmentNDFacts.html#"><span class="id" title="library">Deduction.FragmentNDFacts</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FragmentFacts.html#"><span class="id" title="library">Semantics.Tarski.FragmentFacts</span></a> <a class="idref" href="Undecidability.FOL.Syntax.Facts.html#"><span class="id" title="library">Syntax.Facts</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.FOL.Semantics.Kripke</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentCore.html#"><span class="id" title="library">FragmentCore</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentSoundness.html#"><span class="id" title="library">FragmentSoundness</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentToTarski.html#"><span class="id" title="library">FragmentToTarski</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.FOL</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.FOL.html#"><span class="id" title="library">FOL</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.Synthetic</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.Definitions.html#"><span class="id" title="library">Definitions</span></a> <a class="idref" href="Undecidability.Synthetic.DecidabilityFacts.html#"><span class="id" title="library">DecidabilityFacts</span></a> <a class="idref" href="Undecidability.Synthetic.EnumerabilityFacts.html#"><span class="id" title="library">EnumerabilityFacts</span></a> <a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#"><span class="id" title="library">ReducibilityFacts</span></a> <a class="idref" href="Undecidability.Synthetic.MoreReducibilityFacts.html#"><span class="id" title="library">MoreReducibilityFacts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.PCP.Reductions.PCPb_iff_dPCPb.html#"><span class="id" title="library">Undecidability.PCP.Reductions.PCPb_iff_dPCPb</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL.html#"><span class="id" title="library">Undecidability.FOL.Reductions.PCPb_to_FOL</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Shared.ListAutomation.html#"><span class="id" title="library">Shared.ListAutomation</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Shared.ListAutomation.html#ListAutomationNotations"><span class="id" title="module">ListAutomationNotations</span></a> <a class="idref" href="Undecidability.Shared.ListAutomation.html#ListAutomationHints"><span class="id" title="module">ListAutomationHints</span></a> <a class="idref" href="Undecidability.Shared.ListAutomation.html#ListAutomationInstances"><span class="id" title="module">ListAutomationInstances</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Hint Constructors</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#BPCP"><span class="id" title="inductive">BPCP</span></a> : <span class="id" title="var">core</span>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="kvalidity" class="idref" href="#kvalidity"><span class="id" title="section">kvalidity</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Definition</span> <a id="BSRS" class="idref" href="#BSRS"><span class="id" title="definition">BSRS</span></a> := <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#list"><span class="id" title="inductive">list</span></a> (<a class="idref" href="Undecidability.PCP.PCP.html#card"><span class="id" title="abbreviation">card</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#bool"><span class="id" title="inductive">bool</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Variable</span> <a id="kvalidity.R" class="idref" href="#kvalidity.R"><span class="id" title="variable">R</span></a> : <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#BSRS"><span class="id" title="definition">BSRS</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="ff:2" class="idref" href="#ff:2"><span class="id" title="binder">ff</span></a> : <a class="idref" href="Undecidability.FOL.Syntax.Core.html#falsity_flag"><span class="id" title="class">falsity_flag</span></a>}.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Theorem</span> <a id="BPCP_kprv" class="idref" href="#BPCP_kprv"><span class="id" title="lemma">BPCP_kprv</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.PCP.PCP.html#PCPb"><span class="id" title="definition">PCPb</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#kvalidity.R"><span class="id" title="variable">R</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'&lt;-&gt;'_x"><span class="id" title="notation">&lt;-&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nil"><span class="id" title="constructor">nil</span></a> <a class="idref" href="Undecidability.FOL.Deduction.FragmentND.html#aa0f3d507e3ec18ca9177877ebdb5fcb"><span class="id" title="notation">⊢</span></a><a class="idref" href="Undecidability.FOL.Deduction.FragmentND.html#aa0f3d507e3ec18ca9177877ebdb5fcb"><span class="id" title="notation">I</span></a> <a class="idref" href="Undecidability.FOL.Deduction.FragmentND.html#aa0f3d507e3ec18ca9177877ebdb5fcb"><span class="id" title="notation">(</span></a><a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL.html#F"><span class="id" title="definition">F</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#kvalidity.R"><span class="id" title="variable">R</span></a><a class="idref" href="Undecidability.FOL.Deduction.FragmentND.html#aa0f3d507e3ec18ca9177877ebdb5fcb"><span class="id" title="notation">)</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="Undecidability.PCP.Reductions.PCPb_iff_dPCPb.html#PCPb_iff_dPCPb"><span class="id" title="lemma">PCPb_iff_dPCPb</span></a>. <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL.html#BPCP_prv'"><span class="id" title="lemma">BPCP_prv'</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">H</span> % <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentSoundness.html#ksoundness'"><span class="id" title="lemma">ksoundness'</span></a>. <span class="id" title="tactic">rewrite</span> &lt;- <a class="idref" href="Undecidability.PCP.Reductions.PCPb_iff_dPCPb.html#PCPb_iff_dPCPb"><span class="id" title="lemma">PCPb_iff_dPCPb</span></a>. <span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL.html#BPCP_valid"><span class="id" title="lemma">BPCP_valid</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#kvalidity.R"><span class="id" title="variable">R</span></a>), <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentToTarski.html#kvalid_valid"><span class="id" title="lemma">kvalid_valid</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Theorem</span> <a id="BPCP_kvalid" class="idref" href="#BPCP_kvalid"><span class="id" title="lemma">BPCP_kvalid</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.PCP.PCP.html#PCPb"><span class="id" title="definition">PCPb</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#kvalidity.R"><span class="id" title="variable">R</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'&lt;-&gt;'_x"><span class="id" title="notation">&lt;-&gt;</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentCore.html#kvalid"><span class="id" title="definition">kvalid</span></a> (<a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL.html#F"><span class="id" title="definition">F</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#kvalidity.R"><span class="id" title="variable">R</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">now</span> <span class="id" title="tactic">intros</span> <span class="id" title="var">H</span> % <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#BPCP_kprv"><span class="id" title="lemma">BPCP_kprv</span></a> % <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentSoundness.html#ksoundness'"><span class="id" title="lemma">ksoundness'</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">H</span> % <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentToTarski.html#kvalid_valid"><span class="id" title="lemma">kvalid_valid</span></a>. <span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL.html#BPCP_valid"><span class="id" title="lemma">BPCP_valid</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#kvalidity.R"><span class="id" title="variable">R</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#kvalidity"><span class="id" title="section">kvalidity</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="BPCP_ksatis" class="idref" href="#BPCP_ksatis"><span class="id" title="lemma">BPCP_ksatis</span></a> <a id="R:3" class="idref" href="#R:3"><span class="id" title="binder">R</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#63a68285c81db8f9bc456233bb9ed181"><span class="id" title="notation">~</span></a> <a class="idref" href="Undecidability.PCP.PCP.html#PCPb"><span class="id" title="definition">PCPb</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#R:3"><span class="id" title="variable">R</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'&lt;-&gt;'_x"><span class="id" title="notation">&lt;-&gt;</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentCore.html#ksatis"><span class="id" title="definition">ksatis</span></a> (<a class="idref" href="Undecidability.FOL.Syntax.Core.html#2574c1dfa79d12a7d6592c93e69bc52c"><span class="id" title="notation">¬</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL.html#F"><span class="id" title="definition">F</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#R:3"><span class="id" title="variable">R</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">H</span> % (<a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL.html#BPCP_satis"><span class="id" title="lemma">BPCP_satis</span></a> <span class="id" title="var">R</span>). <span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentToTarski.html#ksatis_satis"><span class="id" title="lemma">ksatis_satis</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> (<span class="id" title="var">D</span> &amp; <span class="id" title="var">M</span> &amp; <span class="id" title="var">u</span> &amp; <span class="id" title="var">rho</span> &amp; <span class="id" title="var">H</span>) <span class="id" title="var">H'</span> % (<a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#BPCP_kvalid"><span class="id" title="lemma">BPCP_kvalid</span></a> <span class="id" title="var">R</span> (<span class="id" title="var">ff</span>:=<a class="idref" href="Undecidability.FOL.Syntax.Core.html#falsity_on"><span class="id" title="constructor">falsity_on</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<span class="id" title="var">H</span> <span class="id" title="var">u</span>), (<span class="id" title="var">H'</span> <span class="id" title="var">D</span> <span class="id" title="var">M</span> <span class="id" title="var">u</span>). <span class="id" title="tactic">apply</span> <span class="id" title="var">M</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="kvalid_red" class="idref" href="#kvalid_red"><span class="id" title="lemma">kvalid_red</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.PCP.PCP.html#PCPb"><span class="id" title="definition">PCPb</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.FOL.FOL.html#FOL_valid_intu"><span class="id" title="definition">FOL_valid_intu</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<span class="id" title="keyword">fun</span> <a id="R:5" class="idref" href="#R:5"><span class="id" title="binder">R</span></a> =&gt; <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL.html#F"><span class="id" title="definition">F</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#R:4"><span class="id" title="variable">R</span></a>). <span class="id" title="tactic">intros</span> <span class="id" title="var">R</span>. <span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#BPCP_kvalid"><span class="id" title="lemma">BPCP_kvalid</span></a> <span class="id" title="var">R</span>).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="kprv_red" class="idref" href="#kprv_red"><span class="id" title="lemma">kprv_red</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.PCP.PCP.html#PCPb"><span class="id" title="definition">PCPb</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.FOL.FOL.html#FOL_prv_intu"><span class="id" title="definition">FOL_prv_intu</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<span class="id" title="keyword">fun</span> <a id="R:7" class="idref" href="#R:7"><span class="id" title="binder">R</span></a> =&gt; <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL.html#F"><span class="id" title="definition">F</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#R:6"><span class="id" title="variable">R</span></a>). <span class="id" title="tactic">intros</span> <span class="id" title="var">R</span>. <span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#BPCP_kprv"><span class="id" title="lemma">BPCP_kprv</span></a> <span class="id" title="var">R</span>).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="ksatis_red" class="idref" href="#ksatis_red"><span class="id" title="lemma">ksatis_red</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.Synthetic.Definitions.html#complement"><span class="id" title="definition">complement</span></a> <a class="idref" href="Undecidability.PCP.PCP.html#PCPb"><span class="id" title="definition">PCPb</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.FOL.FOL.html#FOL_satis_intu"><span class="id" title="definition">FOL_satis_intu</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<span class="id" title="keyword">fun</span> <a id="R:9" class="idref" href="#R:9"><span class="id" title="binder">R</span></a> =&gt; <a class="idref" href="Undecidability.FOL.Syntax.Core.html#2574c1dfa79d12a7d6592c93e69bc52c"><span class="id" title="notation">¬</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL.html#F"><span class="id" title="definition">F</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#R:8"><span class="id" title="variable">R</span></a>). <span class="id" title="tactic">intros</span> <span class="id" title="var">R</span>. <span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#BPCP_ksatis"><span class="id" title="lemma">BPCP_ksatis</span></a> <span class="id" title="var">R</span>).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Corollary</span> <a id="kvalid_undec" class="idref" href="#kvalid_undec"><span class="id" title="lemma">kvalid_undec</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL.html#UA"><span class="id" title="definition">UA</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#63a68285c81db8f9bc456233bb9ed181"><span class="id" title="notation">~</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#decidable"><span class="id" title="definition">decidable</span></a> (@<a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentCore.html#kvalid"><span class="id" title="definition">kvalid</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="Undecidability.FOL.Syntax.Core.html#falsity_on"><span class="id" title="constructor">falsity_on</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>. <span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.MoreReducibilityFacts.html#not_decidable"><span class="id" title="lemma">not_decidable</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#kvalid_red"><span class="id" title="lemma">kvalid_red</span></a>).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Corollary</span> <a id="kvalid_unenum" class="idref" href="#kvalid_unenum"><span class="id" title="lemma">kvalid_unenum</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL.html#UA"><span class="id" title="definition">UA</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#63a68285c81db8f9bc456233bb9ed181"><span class="id" title="notation">~</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#enumerable"><span class="id" title="definition">enumerable</span></a> (<a class="idref" href="Undecidability.Synthetic.Definitions.html#complement"><span class="id" title="definition">complement</span></a> (@<a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentCore.html#kvalid"><span class="id" title="definition">kvalid</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="Undecidability.FOL.Syntax.Core.html#falsity_on"><span class="id" title="constructor">falsity_on</span></a>)).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>. <span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.MoreReducibilityFacts.html#not_coenumerable"><span class="id" title="lemma">not_coenumerable</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#kvalid_red"><span class="id" title="lemma">kvalid_red</span></a>).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Corollary</span> <a id="kprv_undec" class="idref" href="#kprv_undec"><span class="id" title="lemma">kprv_undec</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL.html#UA"><span class="id" title="definition">UA</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#63a68285c81db8f9bc456233bb9ed181"><span class="id" title="notation">~</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#decidable"><span class="id" title="definition">decidable</span></a> (@<a class="idref" href="Undecidability.FOL.Deduction.FragmentND.html#prv"><span class="id" title="inductive">prv</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="Undecidability.FOL.Syntax.Core.html#falsity_on"><span class="id" title="constructor">falsity_on</span></a> <a class="idref" href="Undecidability.FOL.Syntax.Core.html#intu"><span class="id" title="constructor">intu</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nil"><span class="id" title="constructor">nil</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>. <span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.MoreReducibilityFacts.html#not_decidable"><span class="id" title="lemma">not_decidable</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#kprv_red"><span class="id" title="lemma">kprv_red</span></a>).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Corollary</span> <a id="kprv_unenum" class="idref" href="#kprv_unenum"><span class="id" title="lemma">kprv_unenum</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL.html#UA"><span class="id" title="definition">UA</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#63a68285c81db8f9bc456233bb9ed181"><span class="id" title="notation">~</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#enumerable"><span class="id" title="definition">enumerable</span></a> (<a class="idref" href="Undecidability.Synthetic.Definitions.html#complement"><span class="id" title="definition">complement</span></a> (@<a class="idref" href="Undecidability.FOL.Deduction.FragmentND.html#prv"><span class="id" title="inductive">prv</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="Undecidability.FOL.Syntax.Core.html#falsity_on"><span class="id" title="constructor">falsity_on</span></a> <a class="idref" href="Undecidability.FOL.Syntax.Core.html#intu"><span class="id" title="constructor">intu</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nil"><span class="id" title="constructor">nil</span></a>)).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>. <span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.MoreReducibilityFacts.html#not_coenumerable"><span class="id" title="lemma">not_coenumerable</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#kprv_red"><span class="id" title="lemma">kprv_red</span></a>); <span class="id" title="tactic">trivial</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Corollary</span> <a id="ksatis_undec" class="idref" href="#ksatis_undec"><span class="id" title="lemma">ksatis_undec</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL.html#UA"><span class="id" title="definition">UA</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#63a68285c81db8f9bc456233bb9ed181"><span class="id" title="notation">~</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#decidable"><span class="id" title="definition">decidable</span></a> (@<a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentCore.html#ksatis"><span class="id" title="definition">ksatis</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="Undecidability.FOL.Syntax.Core.html#falsity_on"><span class="id" title="constructor">falsity_on</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">H1</span> <span class="id" title="var">H2</span> % (<a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#dec_red"><span class="id" title="lemma">dec_red</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#ksatis_red"><span class="id" title="lemma">ksatis_red</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <span class="id" title="var">H1</span>, <a class="idref" href="Undecidability.Synthetic.EnumerabilityFacts.html#dec_count_enum"><span class="id" title="lemma">dec_count_enum</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Corollary</span> <a id="ksatis_enum" class="idref" href="#ksatis_enum"><span class="id" title="lemma">ksatis_enum</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL.html#UA"><span class="id" title="definition">UA</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#63a68285c81db8f9bc456233bb9ed181"><span class="id" title="notation">~</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#enumerable"><span class="id" title="definition">enumerable</span></a> (@<a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentCore.html#ksatis"><span class="id" title="definition">ksatis</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="Undecidability.FOL.Syntax.Core.html#falsity_on"><span class="id" title="constructor">falsity_on</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">H1</span> <span class="id" title="var">H2</span> % (<a class="idref" href="Undecidability.Synthetic.MoreReducibilityFacts.html#enumerable_red"><span class="id" title="lemma">enumerable_red</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#ksatis_red"><span class="id" title="lemma">ksatis_red</span></a>); <span class="id" title="tactic">auto</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

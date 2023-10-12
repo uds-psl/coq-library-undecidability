@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.L</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="Undecidability.L.Util.L_facts.html#"><span class="id" title="library">Util.L_facts</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.L.Tactics</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.L.Tactics.Lproc.html#"><span class="id" title="library">Lproc</span></a> <a class="idref" href="Undecidability.L.Tactics.Lbeta.html#"><span class="id" title="library">Lbeta</span></a> <a class="idref" href="Undecidability.L.Tactics.Lrewrite.html#"><span class="id" title="library">Lrewrite</span></a> <a class="idref" href="Undecidability.L.Tactics.Reflection.html#"><span class="id" title="library">Reflection</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.ListTactics.html#"><span class="id" title="library">ListTactics</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.L.Util.L_facts.html#L_Notations"><span class="id" title="module">L_Notations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Ltac</span> <span class="id" title="var">wLsimpl'</span> <span class="id" title="var">_n</span> := <span class="id" title="tactic">intros</span>;<span class="id" title="tactic">try</span> <span class="id" title="var">reflexivity'</span>;<span class="id" title="tactic">try</span> <span class="id" title="var">standardizeGoal</span> <span class="id" title="var">_n</span> ; <span class="id" title="tactic">try</span> <span class="id" title="var">reflexivity'</span>.<br/>
+<span class="id" title="keyword">Local Ltac</span> <span class="id" title="var">wLsimpl</span> := <span class="id" title="var">wLsimpl'</span> 100.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">Lsimpl'</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;| |- <a class="idref" href="Undecidability.L.Util.L_facts.html#eval"><span class="id" title="definition">eval</span></a> ?<span class="id" title="var">s</span> <span class="id" title="var">_</span> =&gt; <span class="id" title="tactic">assert</span> (<a class="idref" href="Undecidability.L.Util.L_facts.html#lambda"><span class="id" title="definition">lambda</span></a> <span class="id" title="var">s</span>) <span class="id" title="tactic">by</span> <span class="id" title="var">Lproc</span>;<span class="id" title="tactic">split</span>;[ (<span class="id" title="tactic">exact</span> (<a class="idref" href="Undecidability.L.Prelim.ARS.html#starR"><span class="id" title="constructor">starR</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>);<span class="id" title="tactic">fail</span> 1)|<span class="id" title="var">Lproc</span>]<br/>
+&nbsp;&nbsp;| |- <a class="idref" href="Undecidability.L.Util.L_facts.html#eval"><span class="id" title="definition">eval</span></a> ?<span class="id" title="var">s</span> <span class="id" title="var">_</span> =&gt; (<span class="id" title="tactic">progress</span> (<span class="id" title="tactic">eapply</span> <a class="idref" href="Undecidability.L.Tactics.Lbeta.html#eval_helper"><span class="id" title="lemma">eval_helper</span></a>;[<span class="id" title="var">Lsimpl'</span>;<span class="id" title="tactic">reflexivity</span>|]))<br/>
+<br/>
+&nbsp;&nbsp;| <span class="id" title="var">_</span> =&gt; <span class="id" title="tactic">try</span> <span class="id" title="var">Lrewrite</span>;<span class="id" title="tactic">try</span> <span class="id" title="var">wLsimpl'</span> 100<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">Lreduce</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">progress</span> ( (<span class="id" title="var">Lrewrite</span>;<span class="id" title="tactic">try</span> <span class="id" title="var">Lbeta</span>) || <span class="id" title="var">Lbeta</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">Lsimpl</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">lazymatch</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;| |- <span class="id" title="var">_</span> <a class="idref" href="Undecidability.L.Util.L_facts.html#644f0c78919effe08393e066e8472413"><span class="id" title="notation">&gt;(</span></a> <span class="id" title="var">_</span> <a class="idref" href="Undecidability.L.Util.L_facts.html#644f0c78919effe08393e066e8472413"><span class="id" title="notation">)</span></a> <span class="id" title="var">_</span> =&gt; <span class="id" title="tactic">repeat</span> <span class="id" title="tactic">progress</span> <span class="id" title="var">Lbeta</span>;<span class="id" title="tactic">try</span> <span class="id" title="var">Lreflexivity</span><br/>
+&nbsp;&nbsp;| |- <span class="id" title="var">_</span> =&gt; <span class="id" title="var">LrewriteSimpl</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">LsimplHypo</span> := <span class="id" title="var">standardizeHypo</span> 100.<br/>
+
+<br/>
+<span class="id" title="keyword">Tactic Notation</span> "closedRewrite" :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| [ |- <span class="id" title="keyword">context</span>[<a class="idref" href="Undecidability.L.L.html#subst"><span class="id" title="definition">subst</span></a> ?<span class="id" title="var">s</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>] ] =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">cl</span> := <span class="id" title="tactic">fresh</span> "cl" <span class="id" title="tactic">in</span> <span class="id" title="tactic">assert</span> (<span class="id" title="var">cl</span>:<a class="idref" href="Undecidability.L.Util.L_facts.html#closed"><span class="id" title="definition">closed</span></a> <span class="id" title="var">s</span>);[<span class="id" title="var">Lproc</span>|<span class="id" title="tactic">rewrite</span> !<span class="id" title="var">cl</span>;<span class="id" title="tactic">clear</span> <span class="id" title="var">cl</span>]<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Tactic Notation</span> "closedRewrite" "in" <span class="id" title="var">hyp</span>(<span class="id" title="var">h</span>):=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">type</span> <span class="id" title="keyword">of</span> <span class="id" title="var">h</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="keyword">context</span>[<a class="idref" href="Undecidability.L.L.html#subst"><span class="id" title="definition">subst</span></a> ?<span class="id" title="var">s</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>] =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">cl</span> := <span class="id" title="tactic">fresh</span> "cl" <span class="id" title="tactic">in</span> <span class="id" title="tactic">assert</span> (<span class="id" title="var">cl</span>:<a class="idref" href="Undecidability.L.Util.L_facts.html#closed"><span class="id" title="definition">closed</span></a> <span class="id" title="var">s</span>);[<span class="id" title="var">Lproc</span>|<span class="id" title="tactic">rewrite</span> !<span class="id" title="var">cl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">h</span>;<span class="id" title="tactic">clear</span> <span class="id" title="var">cl</span>]<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Tactic Notation</span> "redStep" "at" <span class="id" title="var">integer</span>(<span class="id" title="var">pos</span>) := <span class="id" title="tactic">rewrite</span> <a class="idref" href="Undecidability.L.Util.L_facts.html#step_Lproc"><span class="id" title="lemma">step_Lproc</span></a> <span class="id" title="tactic">at</span> <span class="id" title="var">pos</span>;[<span class="id" title="tactic">simpl</span>;<span class="id" title="tactic">try</span> <span class="id" title="var">closedRewrite</span>|<span class="id" title="var">Lproc</span>].<br/>
+
+<br/>
+<span class="id" title="keyword">Tactic Notation</span> "redStep" "in" <span class="id" title="var">hyp</span>(<span class="id" title="var">h</span>) "at" <span class="id" title="var">integer</span>(<span class="id" title="var">pos</span>) := <span class="id" title="tactic">rewrite</span> <a class="idref" href="Undecidability.L.Util.L_facts.html#step_Lproc"><span class="id" title="lemma">step_Lproc</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">h</span> <span class="id" title="tactic">at</span> <span class="id" title="var">pos</span>;[<span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">h</span>;<span class="id" title="tactic">try</span> <span class="id" title="var">closedRewrite</span> <span class="id" title="tactic">in</span> <span class="id" title="var">h</span>|<span class="id" title="var">Lproc</span>].<br/>
+<span class="id" title="keyword">Tactic Notation</span> "redStep" "in" <span class="id" title="var">hyp</span>(<span class="id" title="var">h</span>) := <span class="id" title="var">redStep</span> <span class="id" title="tactic">in</span> <span class="id" title="var">h</span> <span class="id" title="tactic">at</span> 1.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="rho_correct" class="idref" href="#rho_correct"><span class="id" title="lemma">rho_correct</span></a> <a id="s:1" class="idref" href="#s:1"><span class="id" title="binder">s</span></a> <a id="t:2" class="idref" href="#t:2"><span class="id" title="binder">t</span></a> : <a class="idref" href="Undecidability.L.Util.L_facts.html#proc"><span class="id" title="definition">proc</span></a> <a class="idref" href="Undecidability.L.Tactics.Lsimpl.html#s:1"><span class="id" title="variable">s</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.L.Util.L_facts.html#lambda"><span class="id" title="definition">lambda</span></a> <a class="idref" href="Undecidability.L.Tactics.Lsimpl.html#t:2"><span class="id" title="variable">t</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.L.Util.L_facts.html#rho"><span class="id" title="definition">rho</span></a> <a class="idref" href="Undecidability.L.Tactics.Lsimpl.html#s:1"><span class="id" title="variable">s</span></a> <a class="idref" href="Undecidability.L.Tactics.Lsimpl.html#t:2"><span class="id" title="variable">t</span></a> <a class="idref" href="Undecidability.L.Util.L_facts.html#0e0d1d1feefa1bffdaee029dc7799bc1"><span class="id" title="notation">&gt;*</span></a> <a class="idref" href="Undecidability.L.Tactics.Lsimpl.html#s:1"><span class="id" title="variable">s</span></a> (<a class="idref" href="Undecidability.L.Util.L_facts.html#rho"><span class="id" title="definition">rho</span></a> <a class="idref" href="Undecidability.L.Tactics.Lsimpl.html#s:1"><span class="id" title="variable">s</span></a>) <a class="idref" href="Undecidability.L.Tactics.Lsimpl.html#t:2"><span class="id" title="variable">t</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span>. <span class="id" title="tactic">unfold</span> <a class="idref" href="Undecidability.L.Util.L_facts.html#rho"><span class="id" title="definition">rho</span></a>,<a class="idref" href="Undecidability.L.Util.L_facts.html#r"><span class="id" title="definition">r</span></a>. <span class="id" title="var">redStep</span> <span class="id" title="tactic">at</span> 1. <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.L.Util.L_facts.html#star_trans_l"><span class="id" title="lemma">star_trans_l</span></a>. <span class="id" title="var">now</span> <span class="id" title="var">Lsimpl</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="rho_inj" class="idref" href="#rho_inj"><span class="id" title="lemma">rho_inj</span></a> <a id="s:3" class="idref" href="#s:3"><span class="id" title="binder">s</span></a> <a id="t:4" class="idref" href="#t:4"><span class="id" title="binder">t</span></a>: <a class="idref" href="Undecidability.L.Util.L_facts.html#rho"><span class="id" title="definition">rho</span></a> <a class="idref" href="Undecidability.L.Tactics.Lsimpl.html#s:3"><span class="id" title="variable">s</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="Undecidability.L.Util.L_facts.html#rho"><span class="id" title="definition">rho</span></a> <a class="idref" href="Undecidability.L.Tactics.Lsimpl.html#t:4"><span class="id" title="variable">t</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.L.Tactics.Lsimpl.html#s:3"><span class="id" title="variable">s</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="Undecidability.L.Tactics.Lsimpl.html#t:4"><span class="id" title="variable">t</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="Undecidability.L.Util.L_facts.html#rho"><span class="id" title="definition">rho</span></a>,<a class="idref" href="Undecidability.L.Util.L_facts.html#r"><span class="id" title="definition">r</span></a>. <span class="id" title="tactic">congruence</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Hint</span> <span class="id" title="keyword">Resolve</span> <span class="id" title="var">rho_lambda</span> <span class="id" title="var">rho_cls</span> : <span class="id" title="var">LProc</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Tactic Notation</span> "recStep" <span class="id" title="keyword">constr</span>(<span class="id" title="var">P</span>) "at" <span class="id" title="var">integer</span>(<span class="id" title="var">i</span>):=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="tactic">eval</span> <span class="id" title="tactic">lazy</span> [<span class="id" title="var">P</span>] <span class="id" title="tactic">in</span> <span class="id" title="var">P</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a class="idref" href="Undecidability.L.Util.L_facts.html#rho"><span class="id" title="definition">rho</span></a> ?<span class="id" title="var">rP</span> =&gt; <span class="id" title="tactic">unfold</span> <span class="id" title="var">P</span>;<span class="id" title="tactic">rewrite</span> <a class="idref" href="Undecidability.L.Tactics.Lsimpl.html#rho_correct"><span class="id" title="lemma">rho_correct</span></a> <span class="id" title="tactic">at</span> <span class="id" title="var">i</span>;[|<span class="id" title="var">Lproc</span>..];<span class="id" title="tactic">fold</span> <span class="id" title="var">P</span>;<span class="id" title="tactic">try</span> <span class="id" title="tactic">unfold</span> <span class="id" title="var">rP</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Tactic Notation</span> "recStep" <span class="id" title="keyword">constr</span>(<span class="id" title="var">P</span>) :=<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span>;<span class="id" title="var">recStep</span> <span class="id" title="var">P</span> <span class="id" title="tactic">at</span> 1.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="I_proc" class="idref" href="#I_proc"><span class="id" title="lemma">I_proc</span></a> : <a class="idref" href="Undecidability.L.Util.L_facts.html#proc"><span class="id" title="definition">proc</span></a> <a class="idref" href="Undecidability.L.Util.L_facts.html#I"><span class="id" title="definition">I</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">fLproc</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="K_proc" class="idref" href="#K_proc"><span class="id" title="lemma">K_proc</span></a> : <a class="idref" href="Undecidability.L.Util.L_facts.html#proc"><span class="id" title="definition">proc</span></a> <a class="idref" href="Undecidability.L.Util.L_facts.html#K"><span class="id" title="definition">K</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">fLproc</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="omega_proc" class="idref" href="#omega_proc"><span class="id" title="lemma">omega_proc</span></a> : <a class="idref" href="Undecidability.L.Util.L_facts.html#proc"><span class="id" title="definition">proc</span></a> <a class="idref" href="Undecidability.L.Util.L_facts.html#omega"><span class="id" title="definition">omega</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">fLproc</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="Omega_closed" class="idref" href="#Omega_closed"><span class="id" title="lemma">Omega_closed</span></a> : <a class="idref" href="Undecidability.L.Util.L_facts.html#closed"><span class="id" title="definition">closed</span></a> <a class="idref" href="Undecidability.L.Util.L_facts.html#Omega"><span class="id" title="definition">Omega</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">fLproc</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Hint</span> <span class="id" title="keyword">Resolve</span> <span class="id" title="var">I_proc</span> <span class="id" title="var">K_proc</span> <span class="id" title="var">omega_proc</span> <span class="id" title="var">Omega_closed</span>: <span class="id" title="var">LProc</span>.<br/>
+
+<br/>
+#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Hint</span> <span class="id" title="keyword">Extern</span> 0 (<a class="idref" href="Undecidability.L.Util.L_facts.html#I"><span class="id" title="definition">I</span></a> <a class="idref" href="Undecidability.L.Util.L_facts.html#644f0c78919effe08393e066e8472413"><span class="id" title="notation">&gt;(</span></a><span class="id" title="var">_</span><a class="idref" href="Undecidability.L.Util.L_facts.html#644f0c78919effe08393e066e8472413"><span class="id" title="notation">)</span></a> <span class="id" title="var">_</span>)=&gt; <span class="id" title="tactic">unfold</span> <a class="idref" href="Undecidability.L.Util.L_facts.html#I"><span class="id" title="definition">I</span></a>;<span class="id" title="tactic">reflexivity</span> : <span class="id" title="var">Lrewrite</span>.<br/>
+#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Hint</span> <span class="id" title="keyword">Extern</span> 0 (<a class="idref" href="Undecidability.L.Util.L_facts.html#K"><span class="id" title="definition">K</span></a> <a class="idref" href="Undecidability.L.Util.L_facts.html#644f0c78919effe08393e066e8472413"><span class="id" title="notation">&gt;(</span></a><span class="id" title="var">_</span><a class="idref" href="Undecidability.L.Util.L_facts.html#644f0c78919effe08393e066e8472413"><span class="id" title="notation">)</span></a> <span class="id" title="var">_</span>)=&gt; <span class="id" title="tactic">unfold</span> <a class="idref" href="Undecidability.L.Util.L_facts.html#K"><span class="id" title="definition">K</span></a>;<span class="id" title="tactic">reflexivity</span> : <span class="id" title="var">Lrewrite</span>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

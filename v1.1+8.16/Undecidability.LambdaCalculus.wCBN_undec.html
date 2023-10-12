@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.Synthetic</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#"><span class="id" title="library">Undecidability</span></a> <a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#"><span class="id" title="library">ReducibilityFacts</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.LambdaCalculus.wCBN.html#"><span class="id" title="library">Undecidability.LambdaCalculus.wCBN</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.LambdaCalculus.Reductions</span> <span class="id" title="keyword">Require</span><br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.LambdaCalculus.Reductions.HaltLclosed_to_wCBNclosed.html#"><span class="id" title="library">HaltLclosed_to_wCBNclosed</span></a> <a class="idref" href="Undecidability.LambdaCalculus.Reductions.wCBNclosed_to_wCBN.html#"><span class="id" title="library">wCBNclosed_to_wCBN</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.L.L_undec.html#"><span class="id" title="library">Undecidability.L.L_undec</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <a class="idref" href="Undecidability.L.Reductions.HaltL_to_HaltLclosed.html#"><span class="id" title="library">Undecidability.L.Reductions.HaltL_to_HaltLclosed</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="wCBNclosed_undec" class="idref" href="#wCBNclosed_undec"><span class="id" title="lemma">wCBNclosed_undec</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.LambdaCalculus.wCBN.html#wCBNclosed"><span class="id" title="definition">wCBNclosed</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.L.L_undec.html#HaltL_undec"><span class="id" title="lemma">HaltL_undec</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#reduces_transitive"><span class="id" title="lemma">reduces_transitive</span></a> <a class="idref" href="Undecidability.L.Reductions.HaltL_to_HaltLclosed.html#reduction"><span class="id" title="lemma">HaltL_to_HaltLclosed.reduction</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="Undecidability.LambdaCalculus.Reductions.HaltLclosed_to_wCBNclosed.html#reduction"><span class="id" title="lemma">HaltLclosed_to_wCBNclosed.reduction</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="Undecidability.LambdaCalculus.wCBN_undec.html#wCBNclosed_undec"><span class="id" title="lemma">wCBNclosed_undec</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="wCBN_undec" class="idref" href="#wCBN_undec"><span class="id" title="lemma">wCBN_undec</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.LambdaCalculus.wCBN.html#wCBN"><span class="id" title="definition">wCBN</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.LambdaCalculus.wCBN_undec.html#wCBNclosed_undec"><span class="id" title="lemma">wCBNclosed_undec</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="Undecidability.LambdaCalculus.Reductions.wCBNclosed_to_wCBN.html#reduction"><span class="id" title="lemma">wCBNclosed_to_wCBN.reduction</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="Undecidability.LambdaCalculus.wCBN_undec.html#wCBN_undec"><span class="id" title="lemma">wCBN_undec</span></a>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#"><span class="id" title="library">List</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Arith.Arith.html#"><span class="id" title="library">Arith</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.NArith.NArith.html#"><span class="id" title="library">NArith</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Numbers.Natural.Peano.NPeano.html#"><span class="id" title="library">NPeano</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Strings.Ascii.html#"><span class="id" title="library">Ascii</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Strings.String.html#"><span class="id" title="library">String</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Set Implicit Arguments</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">string_scope</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Definition</span> <a id="natToDigit" class="idref" href="#natToDigit"><span class="id" title="definition">natToDigit</span></a> (<a id="n:1" class="idref" href="#n:1"><span class="id" title="binder">n</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a>) : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Strings.String.html#string"><span class="id" title="inductive">string</span></a> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#n:1"><span class="id" title="variable">n</span></a> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| 0 =&gt; "0"<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| 1 =&gt; "1"<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| 2 =&gt; "2"<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| 3 =&gt; "3"<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| 4 =&gt; "4"<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| 5 =&gt; "5"<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| 6 =&gt; "6"<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| 7 =&gt; "7"<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| 8 =&gt; "8"<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">_</span> =&gt; "9"<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Definition</span> <a id="NToDigit" class="idref" href="#NToDigit"><span class="id" title="definition">NToDigit</span></a> (<a id="n:3" class="idref" href="#n:3"><span class="id" title="binder">n</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Numbers.BinNums.html#N"><span class="id" title="inductive">N</span></a>) := <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#natToDigit"><span class="id" title="definition">natToDigit</span></a> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.NArith.BinNat.html#N.to_nat"><span class="id" title="definition">N.to_nat</span></a> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#n:3"><span class="id" title="variable">n</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Fixpoint</span> <a id="writeNatAux" class="idref" href="#writeNatAux"><span class="id" title="definition">writeNatAux</span></a> (<a id="time:4" class="idref" href="#time:4"><span class="id" title="binder">time</span></a> <a id="n:5" class="idref" href="#n:5"><span class="id" title="binder">n</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a>) (<a id="acc:6" class="idref" href="#acc:6"><span class="id" title="binder">acc</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Strings.String.html#string"><span class="id" title="inductive">string</span></a>) : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Strings.String.html#string"><span class="id" title="inductive">string</span></a> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <a id="acc':8" class="idref" href="#acc':8"><span class="id" title="binder">acc'</span></a> := <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#natToDigit"><span class="id" title="definition">natToDigit</span></a> (<a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#n:5"><span class="id" title="variable">n</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Numbers.Natural.Peano.NPeano.html#::nat_scope:x_'mod'_x"><span class="id" title="notation">mod</span></a> 10) <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Strings.String.html#169ad156fbc6036a53a0338819a2b301"><span class="id" title="notation">++</span></a> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#acc:6"><span class="id" title="variable">acc</span></a> <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#time:4"><span class="id" title="variable">time</span></a> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| 0 =&gt; <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#acc':8"><span class="id" title="variable">acc'</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#S"><span class="id" title="constructor">S</span></a> <span class="id" title="var">time'</span> =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#n:5"><span class="id" title="variable">n</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Numbers.Natural.Peano.NPeano.html#2e0d8202c5a48097752d760d3a1db6a7"><span class="id" title="notation">/</span></a> 10 <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| 0 =&gt; <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#acc':8"><span class="id" title="variable">acc'</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">n'</span> =&gt; <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#writeNatAux:7"><span class="id" title="definition">writeNatAux</span></a> <span class="id" title="var">time'</span> <span class="id" title="var">n'</span> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#acc':8"><span class="id" title="variable">acc'</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Fixpoint</span> <a id="writeNAux" class="idref" href="#writeNAux"><span class="id" title="definition">writeNAux</span></a> (<a id="time:10" class="idref" href="#time:10"><span class="id" title="binder">time</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a>) (<a id="n:11" class="idref" href="#n:11"><span class="id" title="binder">n</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Numbers.BinNums.html#N"><span class="id" title="inductive">N</span></a>) (<a id="acc:12" class="idref" href="#acc:12"><span class="id" title="binder">acc</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Strings.String.html#string"><span class="id" title="inductive">string</span></a>) : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Strings.String.html#string"><span class="id" title="inductive">string</span></a> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <a id="acc':14" class="idref" href="#acc':14"><span class="id" title="binder">acc'</span></a> := <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#NToDigit"><span class="id" title="definition">NToDigit</span></a> (<a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#n:11"><span class="id" title="variable">n</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.NArith.BinNat.html#::N_scope:x_'mod'_x"><span class="id" title="notation">mod</span></a> 10)%<span class="id" title="var">N</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Strings.String.html#169ad156fbc6036a53a0338819a2b301"><span class="id" title="notation">++</span></a> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#acc:12"><span class="id" title="variable">acc</span></a> <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#time:10"><span class="id" title="variable">time</span></a> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| 0 =&gt; <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#acc':14"><span class="id" title="variable">acc'</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#S"><span class="id" title="constructor">S</span></a> <span class="id" title="var">time'</span> =&gt;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span> (<a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#n:11"><span class="id" title="variable">n</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.NArith.BinNat.html#be3f246709fdc565d9577f86645e6da3"><span class="id" title="notation">/</span></a> 10)%<span class="id" title="var">N</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Numbers.BinNums.html#N0"><span class="id" title="constructor">N0</span></a> =&gt; <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#acc':14"><span class="id" title="variable">acc'</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">n'</span> =&gt; <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#writeNAux:13"><span class="id" title="definition">writeNAux</span></a> <span class="id" title="var">time'</span> <span class="id" title="var">n'</span> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#acc':14"><span class="id" title="variable">acc'</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="N_to_string" class="idref" href="#N_to_string"><span class="id" title="section">N_to_string</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="N_to_string.loop" class="idref" href="#N_to_string.loop"><span class="id" title="variable">loop</span></a> := <span class="id" title="keyword">fix</span> <span class="id" title="var">loop</span> <a id="l:16" class="idref" href="#l:16"><span class="id" title="binder">l</span></a> <a id="n:17" class="idref" href="#n:17"><span class="id" title="binder">n</span></a> <a id="s:18" class="idref" href="#s:18"><span class="id" title="binder">s</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">let</span> (<a id="d:20" class="idref" href="#d:20"><span class="id" title="binder">d</span></a>,<a id="r:21" class="idref" href="#r:21"><span class="id" title="binder">r</span></a>) := <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.NArith.BinNat.html#N.div_eucl"><span class="id" title="definition">N.div_eucl</span></a> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#n:17"><span class="id" title="variable">n</span></a> 10 <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">let</span> <a id="s':22" class="idref" href="#s':22"><span class="id" title="binder">s'</span></a>    := <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Strings.String.html#String"><span class="id" title="constructor">String</span></a> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Strings.Ascii.html#ascii_of_N"><span class="id" title="definition">ascii_of_N</span></a> (48<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.NArith.BinNat.html#64708cc1fcff61c206ed571fe7828ea8"><span class="id" title="notation">+</span></a><a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#r:21"><span class="id" title="variable">r</span></a>)) <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#s:18"><span class="id" title="variable">s</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">in</span> <span class="id" title="keyword">match</span> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#d:20"><span class="id" title="variable">d</span></a>, <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#l:16"><span class="id" title="variable">l</span></a> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Numbers.BinNums.html#N0"><span class="id" title="constructor">N0</span></a>, <span class="id" title="var">_</span>   =&gt; <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#s':22"><span class="id" title="variable">s'</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">_</span> , 0   =&gt; <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#s':22"><span class="id" title="variable">s'</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">_</span> , <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#S"><span class="id" title="constructor">S</span></a> <span class="id" title="var">l</span> =&gt; <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#loop:19"><span class="id" title="variable">loop</span></a> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#l:16"><span class="id" title="variable">l</span></a> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#d:20"><span class="id" title="variable">d</span></a> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#s':22"><span class="id" title="variable">s'</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="string_of_N" class="idref" href="#string_of_N"><span class="id" title="definition">string_of_N</span></a> <a id="n:25" class="idref" href="#n:25"><span class="id" title="binder">n</span></a> := <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#n:25"><span class="id" title="variable">n</span></a> <span class="id" title="keyword">with</span> <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Numbers.BinNums.html#N0"><span class="id" title="constructor">N0</span></a> =&gt; "0"<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">_</span>  =&gt; <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#N_to_string.loop"><span class="id" title="variable">loop</span></a> 12 <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#n:25"><span class="id" title="variable">n</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Strings.String.html#EmptyString"><span class="id" title="constructor">EmptyString</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#N_to_string"><span class="id" title="section">N_to_string</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="string_of_nat" class="idref" href="#string_of_nat"><span class="id" title="definition">string_of_nat</span></a> <a id="n:27" class="idref" href="#n:27"><span class="id" title="binder">n</span></a> := <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#writeNatAux"><span class="id" title="definition">writeNatAux</span></a> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#n:27"><span class="id" title="variable">n</span></a> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_string.html#n:27"><span class="id" title="variable">n</span></a> "".<br/>
+
+<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

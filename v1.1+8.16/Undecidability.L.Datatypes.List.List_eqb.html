@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.L.Tactics</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.L.Tactics.LTactics.html#"><span class="id" title="library">LTactics</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.L</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.L.Functions.EqBool.html#"><span class="id" title="library">Functions.EqBool</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.L.Datatypes</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="Undecidability.L.Datatypes.List.List_enc.html#"><span class="id" title="library">List.List_enc</span></a> <a class="idref" href="Undecidability.L.Datatypes.LBool.html#"><span class="id" title="library">LBool</span></a> <a class="idref" href="Undecidability.L.Datatypes.LOptions.html#"><span class="id" title="library">LOptions</span></a> <a class="idref" href="Undecidability.L.Datatypes.LNat.html#"><span class="id" title="library">LNat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Fix_X" class="idref" href="#Fix_X"><span class="id" title="section">Fix_X</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Variable</span> (<a id="Fix_X.X" class="idref" href="#Fix_X.X"><span class="id" title="variable">X</span></a>:<span class="id" title="keyword">Type</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="intX:2" class="idref" href="#intX:2"><span class="id" title="binder">intX</span></a> : <a class="idref" href="Undecidability.L.Tactics.Extract.html#encodable"><span class="id" title="class">encodable</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#Fix_X.X"><span class="id" title="variable">X</span></a>}.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Fixpoint</span> <a id="inb" class="idref" href="#inb"><span class="id" title="definition">inb</span></a> <a id="eqb:3" class="idref" href="#eqb:3"><span class="id" title="binder">eqb</span></a> (<a id="x:4" class="idref" href="#x:4"><span class="id" title="binder">x</span></a>:<a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#Fix_X.X"><span class="id" title="variable">X</span></a>) (<a id="A:5" class="idref" href="#A:5"><span class="id" title="binder">A</span></a>: <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#list"><span class="id" title="inductive">list</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#Fix_X.X"><span class="id" title="variable">X</span></a>) :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#A:5"><span class="id" title="variable">A</span></a> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nil"><span class="id" title="constructor">nil</span></a> =&gt; <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#false"><span class="id" title="constructor">false</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">a</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#::list_scope:x_'::'_x"><span class="id" title="notation">::</span></a><span class="id" title="var">A'</span> =&gt; <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#orb"><span class="id" title="definition">orb</span></a> (<a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#eqb:3"><span class="id" title="variable">eqb</span></a> <span class="id" title="var">a</span> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#x:4"><span class="id" title="variable">x</span></a>) (<a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#inb:6"><span class="id" title="definition">inb</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#eqb:3"><span class="id" title="variable">eqb</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#x:4"><span class="id" title="variable">x</span></a> <span class="id" title="var">A'</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Variable</span> <a id="Fix_X.X_eqb" class="idref" href="#Fix_X.X_eqb"><span class="id" title="variable">X_eqb</span></a> : <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#Fix_X.X"><span class="id" title="variable">X</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#Fix_X.X"><span class="id" title="variable">X</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#bool"><span class="id" title="inductive">bool</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Hypothesis</span> <a id="Fix_X.X_eqb_spec" class="idref" href="#Fix_X.X_eqb_spec"><span class="id" title="variable">X_eqb_spec</span></a> : (<span class="id" title="keyword">forall</span> (<a id="x:9" class="idref" href="#x:9"><span class="id" title="binder">x</span></a> <a id="y:10" class="idref" href="#y:10"><span class="id" title="binder">y</span></a>:<a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#Fix_X.X"><span class="id" title="variable">X</span></a>), <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Bool.Bool.html#reflect"><span class="id" title="inductive">Bool.reflect</span></a> (<a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#x:9"><span class="id" title="variable">x</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a><a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#y:10"><span class="id" title="variable">y</span></a>) (<a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#Fix_X.X_eqb"><span class="id" title="variable">X_eqb</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#x:9"><span class="id" title="variable">x</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#y:10"><span class="id" title="variable">y</span></a>)).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Global Instance</span> <a id="term_inb" class="idref" href="#term_inb"><span class="id" title="instance">term_inb</span></a>: <a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#inb"><span class="id" title="definition">inb</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>. 
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#Fix_X"><span class="id" title="section">Fix_X</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="list_eqb" class="idref" href="#list_eqb"><span class="id" title="section">list_eqb</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Variable</span> <a id="list_eqb.X" class="idref" href="#list_eqb.X"><span class="id" title="variable">X</span></a> : <span class="id" title="keyword">Type</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Variable</span> <a id="list_eqb.eqb" class="idref" href="#list_eqb.eqb"><span class="id" title="variable">eqb</span></a> : <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#list_eqb.X"><span class="id" title="variable">X</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#list_eqb.X"><span class="id" title="variable">X</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#bool"><span class="id" title="inductive">bool</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Variable</span> <a id="list_eqb.spec" class="idref" href="#list_eqb.spec"><span class="id" title="variable">spec</span></a> : <span class="id" title="keyword">forall</span> <a id="x:14" class="idref" href="#x:14"><span class="id" title="binder">x</span></a> <a id="y:15" class="idref" href="#y:15"><span class="id" title="binder">y</span></a>, <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Bool.Bool.html#reflect"><span class="id" title="inductive">reflect</span></a> (<a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#x:14"><span class="id" title="variable">x</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#y:15"><span class="id" title="variable">y</span></a>) (<a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#list_eqb.eqb"><span class="id" title="variable">eqb</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#x:14"><span class="id" title="variable">x</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#y:15"><span class="id" title="variable">y</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Fixpoint</span> <a id="list_eqb" class="idref" href="#list_eqb"><span class="id" title="definition">list_eqb</span></a> <a id="A:17" class="idref" href="#A:17"><span class="id" title="binder">A</span></a> <a id="B:18" class="idref" href="#B:18"><span class="id" title="binder">B</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#A:17"><span class="id" title="variable">A</span></a>,<a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#B:18"><span class="id" title="variable">B</span></a> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nil"><span class="id" title="constructor">nil</span></a>,<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nil"><span class="id" title="constructor">nil</span></a> =&gt; <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#true"><span class="id" title="constructor">true</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">a</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#::list_scope:x_'::'_x"><span class="id" title="notation">::</span></a><span class="id" title="var">A'</span>,<span class="id" title="var">b</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#::list_scope:x_'::'_x"><span class="id" title="notation">::</span></a><span class="id" title="var">B'</span> =&gt; <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#list_eqb.eqb"><span class="id" title="variable">eqb</span></a> <span class="id" title="var">a</span> <span class="id" title="var">b</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#::bool_scope:x_'&amp;&amp;'_x"><span class="id" title="notation">&amp;&amp;</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#list_eqb:19"><span class="id" title="definition">list_eqb</span></a> <span class="id" title="var">A'</span> <span class="id" title="var">B'</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">_</span>,<span class="id" title="var">_</span> =&gt; <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#false"><span class="id" title="constructor">false</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="list_eqb_spec" class="idref" href="#list_eqb_spec"><span class="id" title="lemma">list_eqb_spec</span></a> <a id="A:22" class="idref" href="#A:22"><span class="id" title="binder">A</span></a> <a id="B:23" class="idref" href="#B:23"><span class="id" title="binder">B</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Bool.Bool.html#reflect"><span class="id" title="inductive">reflect</span></a> (<a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#A:22"><span class="id" title="variable">A</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#B:23"><span class="id" title="variable">B</span></a>) (<a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#list_eqb"><span class="id" title="definition">list_eqb</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#A:22"><span class="id" title="variable">A</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#B:23"><span class="id" title="variable">B</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span> <span class="id" title="keyword">using</span> <span class="id" title="var">spec</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">revert</span> <span class="id" title="var">B</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">A</span>; <span class="id" title="tactic">intros</span>; <span class="id" title="tactic">destruct</span> <span class="id" title="var">B</span>; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *; <span class="id" title="tactic">try</span> <span class="id" title="var">now</span> <span class="id" title="tactic">econstructor</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> (<a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#list_eqb.spec"><span class="id" title="variable">spec</span></a> <span class="id" title="var">a</span> <span class="id" title="var">x</span>), (<span class="id" title="var">IHA</span> <span class="id" title="var">B</span>); <span class="id" title="var">cbn</span>; <span class="id" title="tactic">econstructor</span>; <span class="id" title="tactic">congruence</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#list_eqb"><span class="id" title="section">list_eqb</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="int" class="idref" href="#int"><span class="id" title="section">int</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="X:24" class="idref" href="#X:24"><span class="id" title="binder">X</span></a> : <span class="id" title="keyword">Type</span>}.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="HX:25" class="idref" href="#HX:25"><span class="id" title="binder">HX</span></a> : <a class="idref" href="Undecidability.L.Tactics.Extract.html#encodable"><span class="id" title="class">encodable</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#int.X"><span class="id" title="variable">X</span></a>}.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Global Instance</span> <a id="term_list_eqb" class="idref" href="#term_list_eqb"><span class="id" title="instance">term_list_eqb</span></a> : <a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> (<a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#list_eqb"><span class="id" title="definition">list_eqb</span></a> (<span class="id" title="var">X</span>:=<a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#int.X"><span class="id" title="variable">X</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Global Instance</span> <a id="eqbList" class="idref" href="#eqbList"><span class="id" title="instance">eqbList</span></a> <a id="f:26" class="idref" href="#f:26"><span class="id" title="binder">f</span></a> `{<a id="H:27" class="idref" href="#H:27"><span class="id" title="binder">eqbClass</span></a> <a id="H:27" class="idref" href="#H:27"><span class="id" title="binder">(</span></a><a id="H:27" class="idref" href="#H:27"><span class="id" title="binder">X</span></a><a id="H:27" class="idref" href="#H:27"><span class="id" title="binder">:=</span></a><a id="H:27" class="idref" href="#H:27"><span class="id" title="binder">X</span></a><a id="H:27" class="idref" href="#H:27"><span class="id" title="binder">)</span></a> <a id="H:27" class="idref" href="#H:27"><span class="id" title="binder">f</span></a>}:<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.L.Functions.EqBool.html#eqbClass"><span class="id" title="class">eqbClass</span></a> (<a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#list_eqb"><span class="id" title="definition">list_eqb</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#f:26"><span class="id" title="variable">f</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> ? ?. <span class="id" title="tactic">eapply</span> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#list_eqb_spec"><span class="id" title="lemma">list_eqb_spec</span></a>. <span class="id" title="var">all</span>:<span class="id" title="tactic">eauto</span> <span class="id" title="keyword">using</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Bool.Bool.html#eqb_spec"><span class="id" title="lemma">eqb_spec</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.L.Functions.EqBool.html#"><span class="id" title="module">EqBool</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Global Instance</span> <a id="eqbComp_List" class="idref" href="#eqbComp_List"><span class="id" title="instance">eqbComp_List</span></a> `{<a id="H0:30" class="idref" href="#H0:30"><span class="id" title="binder">eqbComp</span></a> <a id="H0:30" class="idref" href="#H0:30"><span class="id" title="binder">X</span></a> <a id="H0:30" class="idref" href="#H0:30"><span class="id" title="binder">(</span></a><a id="H0:30" class="idref" href="#H0:30"><span class="id" title="binder">R</span></a><a id="H0:30" class="idref" href="#H0:30"><span class="id" title="binder">:=</span></a><a id="H0:30" class="idref" href="#H0:30"><span class="id" title="binder">HX</span></a><a id="H0:30" class="idref" href="#H0:30"><span class="id" title="binder">)</span></a>}:<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.L.Functions.EqBool.html#eqbComp"><span class="id" title="class">eqbComp</span></a> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#list"><span class="id" title="inductive">list</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#int.X"><span class="id" title="variable">X</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">constructor</span>. <span class="id" title="tactic">unfold</span> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#list_eqb"><span class="id" title="definition">list_eqb</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="Undecidability.L.Datatypes.List.List_eqb.html#int"><span class="id" title="section">int</span></a>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

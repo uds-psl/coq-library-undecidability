@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.FOL.Arithmetics</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="Undecidability.FOL.Arithmetics.Signature.html#"><span class="id" title="library">Signature</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.FA.html#"><span class="id" title="library">FA</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.Robinson.html#"><span class="id" title="library">Robinson</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.PA.html#"><span class="id" title="library">PA</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Vector.html#VectorNotations"><span class="id" title="module">Vector.VectorNotations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#"><span class="id" title="library">List</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Notation</span> <a id="extensional" class="idref" href="#extensional"><span class="id" title="abbreviation">extensional</span></a> <span class="id" title="var">M</span> :=<br/>
+&nbsp;&nbsp;(<span class="id" title="keyword">forall</span> <a id="x:1" class="idref" href="#x:1"><span class="id" title="binder">x</span></a> <a id="y:2" class="idref" href="#y:2"><span class="id" title="binder">y</span></a>, @<a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullCore.html#i_atom"><span class="id" title="method">i_atom</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">M</span> <a class="idref" href="Undecidability.FOL.Arithmetics.Signature.html#Eq"><span class="id" title="constructor">Eq</span></a> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.VectorDef.html#48c8ce35afc5c902143c59f20156f923"><span class="id" title="notation">[</span></a><a class="idref" href="Undecidability.FOL.PA.html#x:1"><span class="id" title="variable">x</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.VectorDef.html#48c8ce35afc5c902143c59f20156f923"><span class="id" title="notation">;</span></a> <a class="idref" href="Undecidability.FOL.PA.html#y:2"><span class="id" title="variable">y</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.VectorDef.html#48c8ce35afc5c902143c59f20156f923"><span class="id" title="notation">]</span></a>) <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'&lt;-&gt;'_x"><span class="id" title="notation">&lt;-&gt;</span></a> <a class="idref" href="Undecidability.FOL.PA.html#x:1"><span class="id" title="variable">x</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="Undecidability.FOL.PA.html#y:2"><span class="id" title="variable">y</span></a>).<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="entailment_FA" class="idref" href="#entailment_FA"><span class="id" title="definition">entailment_FA</span></a> <a id="phi:3" class="idref" href="#phi:3"><span class="id" title="binder">phi</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullCore.html#valid_ctx"><span class="id" title="definition">valid_ctx</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.FA.html#FAeq"><span class="id" title="definition">FAeq</span></a> <a class="idref" href="Undecidability.FOL.PA.html#phi:3"><span class="id" title="variable">phi</span></a>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="deduction_FA" class="idref" href="#deduction_FA"><span class="id" title="definition">deduction_FA</span></a> <a id="phi:4" class="idref" href="#phi:4"><span class="id" title="binder">phi</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.FOL.Arithmetics.FA.html#FAeq"><span class="id" title="definition">FAeq</span></a> <a class="idref" href="Undecidability.FOL.Deduction.FullND.html#aa0f3d507e3ec18ca9177877ebdb5fcb"><span class="id" title="notation">⊢</span></a><a class="idref" href="Undecidability.FOL.Deduction.FullND.html#aa0f3d507e3ec18ca9177877ebdb5fcb"><span class="id" title="notation">I</span></a> <a class="idref" href="Undecidability.FOL.PA.html#phi:4"><span class="id" title="variable">phi</span></a>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="entailment_Q" class="idref" href="#entailment_Q"><span class="id" title="definition">entailment_Q</span></a> <a id="phi:5" class="idref" href="#phi:5"><span class="id" title="binder">phi</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullCore.html#valid_ctx"><span class="id" title="definition">valid_ctx</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.Robinson.html#Qeq"><span class="id" title="definition">Qeq</span></a> <a class="idref" href="Undecidability.FOL.PA.html#phi:5"><span class="id" title="variable">phi</span></a>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="deduction_Q" class="idref" href="#deduction_Q"><span class="id" title="definition">deduction_Q</span></a> <a id="phi:6" class="idref" href="#phi:6"><span class="id" title="binder">phi</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.FOL.Arithmetics.Robinson.html#Qeq"><span class="id" title="definition">Qeq</span></a> <a class="idref" href="Undecidability.FOL.Deduction.FullND.html#aa0f3d507e3ec18ca9177877ebdb5fcb"><span class="id" title="notation">⊢</span></a><a class="idref" href="Undecidability.FOL.Deduction.FullND.html#aa0f3d507e3ec18ca9177877ebdb5fcb"><span class="id" title="notation">I</span></a> <a class="idref" href="Undecidability.FOL.PA.html#phi:6"><span class="id" title="variable">phi</span></a>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="entailment_PA" class="idref" href="#entailment_PA"><span class="id" title="definition">entailment_PA</span></a> <a id="phi:7" class="idref" href="#phi:7"><span class="id" title="binder">phi</span></a> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <a id="D:8" class="idref" href="#D:8"><span class="id" title="binder">D</span></a> (<a id="I:9" class="idref" href="#I:9"><span class="id" title="binder">I</span></a> : <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullCore.html#interp"><span class="id" title="class">interp</span></a> <a class="idref" href="Undecidability.FOL.PA.html#D:8"><span class="id" title="variable">D</span></a>) <a id="rho:10" class="idref" href="#rho:10"><span class="id" title="binder">rho</span></a>, <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">(</span></a><span class="id" title="keyword">forall</span> <a id="psi:11" class="idref" href="#psi:11"><span class="id" title="binder">psi</span></a> <a id="rho:12" class="idref" href="#rho:12"><span class="id" title="binder">rho</span></a>, <a class="idref" href="Undecidability.FOL.Arithmetics.PA.html#PAeq"><span class="id" title="inductive">PAeq</span></a> <a class="idref" href="Undecidability.FOL.PA.html#psi:11"><span class="id" title="variable">psi</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.FOL.PA.html#rho:12"><span class="id" title="variable">rho</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullCore.html#d50aa3cc3a68361fcdb685523acf6731"><span class="id" title="notation">⊨</span></a> <a class="idref" href="Undecidability.FOL.PA.html#psi:11"><span class="id" title="variable">psi</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.FOL.PA.html#rho:10"><span class="id" title="variable">rho</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullCore.html#d50aa3cc3a68361fcdb685523acf6731"><span class="id" title="notation">⊨</span></a> <a class="idref" href="Undecidability.FOL.PA.html#phi:7"><span class="id" title="variable">phi</span></a>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="ext_entailment_PA" class="idref" href="#ext_entailment_PA"><span class="id" title="definition">ext_entailment_PA</span></a> <a id="phi:13" class="idref" href="#phi:13"><span class="id" title="binder">phi</span></a> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">forall</span> <a id="D:14" class="idref" href="#D:14"><span class="id" title="binder">D</span></a> (<a id="I:15" class="idref" href="#I:15"><span class="id" title="binder">I</span></a> : <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullCore.html#interp"><span class="id" title="class">interp</span></a> <a class="idref" href="Undecidability.FOL.PA.html#D:14"><span class="id" title="variable">D</span></a>) <a id="rho:16" class="idref" href="#rho:16"><span class="id" title="binder">rho</span></a>, <a class="idref" href="Undecidability.FOL.PA.html#extensional"><span class="id" title="abbreviation">extensional</span></a> <a class="idref" href="Undecidability.FOL.PA.html#I:15"><span class="id" title="variable">I</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">(</span></a><span class="id" title="keyword">forall</span> <a id="psi:17" class="idref" href="#psi:17"><span class="id" title="binder">psi</span></a> <a id="rho:18" class="idref" href="#rho:18"><span class="id" title="binder">rho</span></a>, <a class="idref" href="Undecidability.FOL.Arithmetics.PA.html#PA"><span class="id" title="inductive">PA</span></a> <a class="idref" href="Undecidability.FOL.PA.html#psi:17"><span class="id" title="variable">psi</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.FOL.PA.html#rho:18"><span class="id" title="variable">rho</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullCore.html#d50aa3cc3a68361fcdb685523acf6731"><span class="id" title="notation">⊨</span></a> <a class="idref" href="Undecidability.FOL.PA.html#psi:17"><span class="id" title="variable">psi</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.FOL.PA.html#rho:16"><span class="id" title="variable">rho</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullCore.html#d50aa3cc3a68361fcdb685523acf6731"><span class="id" title="notation">⊨</span></a> <a class="idref" href="Undecidability.FOL.PA.html#phi:13"><span class="id" title="variable">phi</span></a>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="deduction_PA" class="idref" href="#deduction_PA"><span class="id" title="definition">deduction_PA</span></a> <a id="phi:19" class="idref" href="#phi:19"><span class="id" title="binder">phi</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.FOL.Arithmetics.PA.html#PAeq"><span class="id" title="inductive">PAeq</span></a> <a class="idref" href="Undecidability.FOL.Deduction.FullND.html#2ed82dc02d92c0ec7063c49aad5b0ef5"><span class="id" title="notation">⊢</span></a><a class="idref" href="Undecidability.FOL.Deduction.FullND.html#2ed82dc02d92c0ec7063c49aad5b0ef5"><span class="id" title="notation">TI</span></a> <a class="idref" href="Undecidability.FOL.PA.html#phi:19"><span class="id" title="variable">phi</span></a>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

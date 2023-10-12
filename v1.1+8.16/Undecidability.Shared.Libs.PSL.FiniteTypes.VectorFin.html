@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.Shared.Libs.PSL</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.BasicDefinitions.html#"><span class="id" title="library">BasicDefinitions</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.Shared.Libs.PSL</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.html#"><span class="id" title="library">FiniteTypes.FinTypes</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.Shared.Libs.PSL</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Shared.Libs.PSL.Vectors.Vectors.html#"><span class="id" title="library">Vectors.Vectors</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Shared.Libs.PSL.Vectors.Vectors.html#VectorNotations2"><span class="id" title="module">VectorNotations2</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">vector_scope</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Fixpoint</span> <a id="all_fins" class="idref" href="#all_fins"><span class="id" title="definition">all_fins</span></a> (<a id="n:1" class="idref" href="#n:1"><span class="id" title="binder">n</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a>) : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#list"><span class="id" title="inductive">list</span></a> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Fin.html#t"><span class="id" title="inductive">Fin.t</span></a> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.VectorFin.html#n:1"><span class="id" title="variable">n</span></a>) :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.VectorFin.html#n:1"><span class="id" title="variable">n</span></a> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;| 0 =&gt; <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nil"><span class="id" title="constructor">nil</span></a><br/>
+&nbsp;&nbsp;| <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#S"><span class="id" title="constructor">S</span></a> <span class="id" title="var">n</span> =&gt; <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Fin.html#F1"><span class="id" title="constructor">Fin.F1</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#::list_scope:x_'::'_x"><span class="id" title="notation">::</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#map"><span class="id" title="definition">map</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Fin.html#FS"><span class="id" title="constructor">Fin.FS</span></a> (<a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.VectorFin.html#all_fins:2"><span class="id" title="definition">all_fins</span></a> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.VectorFin.html#n:1"><span class="id" title="variable">n</span></a>)<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+#[<span class="id" title="var">global</span>]<br/>
+<span class="id" title="keyword">Instance</span> <a id="Fin_finTypeC" class="idref" href="#Fin_finTypeC"><span class="id" title="instance">Fin_finTypeC</span></a> <a id="n:4" class="idref" href="#n:4"><span class="id" title="binder">n</span></a> : <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.html#finTypeC"><span class="id" title="class">finTypeC</span></a> (<a class="idref" href="Undecidability.Shared.Libs.PSL.EqDecDef.html#EqType"><span class="id" title="constructor">EqType</span></a> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Fin.html#t"><span class="id" title="inductive">Fin.t</span></a> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.VectorFin.html#n:4"><span class="id" title="variable">n</span></a>)).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">constructor</span> 1 <span class="id" title="keyword">with</span> (<span class="id" title="var">enum</span> := <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.VectorFin.html#all_fins"><span class="id" title="definition">all_fins</span></a> <span class="id" title="var">n</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="var">cbn</span>. <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span>. <span class="id" title="tactic">eapply</span> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.BasicDefinitions.html#dupfreeCount"><span class="id" title="lemma">dupfreeCount</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">clear</span> <span class="id" title="var">x</span>. <span class="id" title="tactic">induction</span> <span class="id" title="var">n</span> <span class="id" title="keyword">as</span> [|<span class="id" title="var">n</span> <span class="id" title="var">IH</span>]; <span class="id" title="tactic">simpl</span>; <span class="id" title="tactic">constructor</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">now</span> <span class="id" title="tactic">intros</span> [? [? ?]]%<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#in_map_iff"><span class="id" title="lemma">in_map_iff</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Logic.FinFun.html#Injective_map_NoDup"><span class="id" title="lemma">FinFun.Injective_map_NoDup</span></a> (@<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Fin.html#FS_inj"><span class="id" title="definition">Fin.FS_inj</span></a> <span class="id" title="var">n</span>) <span class="id" title="var">IH</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="var">now</span> <span class="id" title="tactic">induction</span> <span class="id" title="var">x</span>; [<span class="id" title="tactic">left</span>|<span class="id" title="tactic">right</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#in_map"><span class="id" title="lemma">in_map</span></a>].<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Fixpoint</span> <a id="Vector_pow" class="idref" href="#Vector_pow"><span class="id" title="definition">Vector_pow</span></a> {<a id="X:5" class="idref" href="#X:5"><span class="id" title="binder">X</span></a>: <span class="id" title="keyword">Type</span>} (<a id="A:6" class="idref" href="#A:6"><span class="id" title="binder">A</span></a>: <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#list"><span class="id" title="inductive">list</span></a> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.VectorFin.html#X:5"><span class="id" title="variable">X</span></a>) <a id="n:7" class="idref" href="#n:7"><span class="id" title="binder">n</span></a> {<span class="id" title="keyword">struct</span> <span class="id" title="var">n</span>} : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#list"><span class="id" title="inductive">list</span></a> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Vector.html#t"><span class="id" title="inductive">Vector.t</span></a> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.VectorFin.html#X:5"><span class="id" title="variable">X</span></a> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.VectorFin.html#n:7"><span class="id" title="variable">n</span></a>) :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.VectorFin.html#n:7"><span class="id" title="variable">n</span></a> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;| 0 =&gt; <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#ddd65c2f7ee73ecec433744948d846bb"><span class="id" title="notation">[</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Vector.html#nil"><span class="id" title="constructor">Vector.nil</span></a> <span class="id" title="var">_</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#ddd65c2f7ee73ecec433744948d846bb"><span class="id" title="notation">]</span></a><br/>
+&nbsp;&nbsp;| <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#S"><span class="id" title="constructor">S</span></a> <span class="id" title="var">n</span> =&gt; <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#concat"><span class="id" title="definition">concat</span></a> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#map"><span class="id" title="definition">map</span></a> (<span class="id" title="keyword">fun</span> <a id="a:10" class="idref" href="#a:10"><span class="id" title="binder">a</span></a> =&gt; <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#map"><span class="id" title="definition">map</span></a> (<span class="id" title="keyword">fun</span> <a id="v:11" class="idref" href="#v:11"><span class="id" title="binder">v</span></a> =&gt; <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.VectorFin.html#a:10"><span class="id" title="variable">a</span></a><a class="idref" href="Undecidability.Shared.Libs.PSL.Vectors.Vectors.html#VectorNotations2.::vector_scope:x_':::'_x"><span class="id" title="notation">:::</span></a><a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.VectorFin.html#v:11"><span class="id" title="variable">v</span></a>) (<a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.VectorFin.html#Vector_pow:8"><span class="id" title="definition">Vector_pow</span></a> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.VectorFin.html#A:6"><span class="id" title="variable">A</span></a> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.VectorFin.html#n:7"><span class="id" title="variable">n</span></a>) ) <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.VectorFin.html#A:6"><span class="id" title="variable">A</span></a>)<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+#[<span class="id" title="var">global</span>]<br/>
+<span class="id" title="keyword">Instance</span> <a id="Vector_finTypeC" class="idref" href="#Vector_finTypeC"><span class="id" title="instance">Vector_finTypeC</span></a> (<a id="A:12" class="idref" href="#A:12"><span class="id" title="binder">A</span></a>:<a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.html#finType"><span class="id" title="record">finType</span></a>) <a id="n:13" class="idref" href="#n:13"><span class="id" title="binder">n</span></a>: <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.html#finTypeC"><span class="id" title="class">finTypeC</span></a> (<a class="idref" href="Undecidability.Shared.Libs.PSL.EqDecDef.html#EqType"><span class="id" title="constructor">EqType</span></a> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Vector.html#t"><span class="id" title="inductive">Vector.t</span></a> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.VectorFin.html#A:12"><span class="id" title="variable">A</span></a> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.VectorFin.html#n:13"><span class="id" title="variable">n</span></a>)).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#nodup"><span class="id" title="definition">nodup</span></a> (@<a class="idref" href="Undecidability.Shared.Libs.PSL.EqDecDef.html#eqType_dec"><span class="id" title="projection">eqType_dec</span></a> <span class="id" title="var">_</span>) ((<a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.VectorFin.html#Vector_pow"><span class="id" title="definition">Vector_pow</span></a> (<a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.html#elem"><span class="id" title="definition">elem</span></a> <span class="id" title="var">A</span>) <span class="id" title="var">n</span>))). <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">v</span>. <span class="id" title="tactic">eapply</span> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.BasicDefinitions.html#dupfreeCount"><span class="id" title="lemma">dupfreeCount</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">eapply</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#NoDup_nodup"><span class="id" title="lemma">NoDup_nodup</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#nodup_In"><span class="id" title="lemma">nodup_In</span></a>. <span class="id" title="tactic">induction</span> <span class="id" title="var">v</span>; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">eauto</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">eapply</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#in_concat"><span class="id" title="lemma">in_concat</span></a>. <span class="id" title="tactic">eexists</span>; <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#in_map_iff"><span class="id" title="lemma">in_map_iff</span></a>. <span class="id" title="tactic">eexists</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>. <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2:<span class="id" title="tactic">eapply</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#in_map_iff"><span class="id" title="lemma">in_map_iff</span></a>. 2:<span class="id" title="tactic">eauto</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.html#elem_spec"><span class="id" title="lemma">elem_spec</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Hint</span> <span class="id" title="keyword">Extern</span> 4 (<a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.html#finTypeC"><span class="id" title="class">finTypeC</span></a> (<a class="idref" href="Undecidability.Shared.Libs.PSL.EqDecDef.html#EqType"><span class="id" title="constructor">EqType</span></a> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Vector.html#t"><span class="id" title="inductive">Vector.t</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span>))) =&gt; <span class="id" title="tactic">eapply</span> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.VectorFin.html#Vector_finTypeC"><span class="id" title="instance">Vector_finTypeC</span></a> : <span class="id" title="var">typeclass_instances</span>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

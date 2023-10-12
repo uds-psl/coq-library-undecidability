@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#"><span class="id" title="library">List</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.Definitions.html#"><span class="id" title="library">Undecidability.Synthetic.Definitions</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.Shared.Libs.DLW.Utils</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_tac.html#"><span class="id" title="library">utils_tac</span></a> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_nat.html#"><span class="id" title="library">utils_nat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.Shared.Libs.DLW.Vec</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Shared.Libs.DLW.Vec.pos.html#"><span class="id" title="library">pos</span></a> <a class="idref" href="Undecidability.Shared.Libs.DLW.Vec.vec.html#"><span class="id" title="library">vec</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.H10</span> <br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.H10.Dio.dio_single.html#"><span class="id" title="library">Dio.dio_single</span></a> <a class="idref" href="Undecidability.H10.H10.html#"><span class="id" title="library">H10</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.MuRec.Util</span> <br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.MuRec.Util.recalg.html#"><span class="id" title="library">recalg</span></a> <a class="idref" href="Undecidability.MuRec.Util.ra_dio_poly.html#"><span class="id" title="library">ra_dio_poly</span></a> <a class="idref" href="Undecidability.MuRec.Util.ra_sem_eq.html#"><span class="id" title="library">ra_sem_eq</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="H10_MUREC_HALTING" class="idref" href="#H10_MUREC_HALTING"><span class="id" title="section">H10_MUREC_HALTING</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="H10_MUREC_HALTING.f" class="idref" href="#H10_MUREC_HALTING.f"><span class="id" title="variable">f</span></a> : <a class="idref" href="Undecidability.H10.H10.html#H10_PROBLEM"><span class="id" title="definition">H10_PROBLEM</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.MuRec.Util.recalg.html#MUREC_PROBLEM"><span class="id" title="definition">MUREC_PROBLEM</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> (<span class="id" title="var">n</span> &amp; <span class="id" title="var">p</span> &amp; <span class="id" title="var">q</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="Undecidability.MuRec.Util.ra_dio_poly.html#ra_dio_poly_find"><span class="id" title="definition">ra_dio_poly_find</span></a> <span class="id" title="var">p</span> <span class="id" title="var">q</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Theorem</span> <a id="H10_MUREC_HALTING" class="idref" href="#H10_MUREC_HALTING"><span class="id" title="lemma">H10_MUREC_HALTING</span></a> : <a class="idref" href="Undecidability.H10.H10.html#H10"><span class="id" title="definition">H10</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.MuRec.MuRec.html#Halt_murec"><span class="id" title="definition">Halt_murec</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">unshelve</span> <span class="id" title="tactic">eexists</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">intros</span> (<span class="id" title="var">n</span> &amp; <span class="id" title="var">p</span> &amp; <span class="id" title="var">q</span>). <span class="id" title="tactic">exists</span> 0. 2: <span class="id" title="tactic">exact</span> <a class="idref" href="Undecidability.Shared.Libs.DLW.Vec.vec.html#vec_nil"><span class="id" title="abbreviation">vec_nil</span></a>. <span class="id" title="tactic">exact</span> (<a class="idref" href="Undecidability.MuRec.Util.ra_dio_poly.html#ra_dio_poly_find"><span class="id" title="definition">ra_dio_poly_find</span></a> <span class="id" title="var">p</span> <span class="id" title="var">q</span>). }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> (<span class="id" title="var">n</span> &amp; <span class="id" title="var">p</span> &amp; <span class="id" title="var">q</span>); <span class="id" title="tactic">simpl</span>; <span class="id" title="tactic">unfold</span> <a class="idref" href="Undecidability.MuRec.MuRec.html#Halt_murec"><span class="id" title="definition">Halt_murec</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">setoid_rewrite</span> &lt;- <a class="idref" href="Undecidability.MuRec.Util.ra_sem_eq.html#ra_bs_correct"><span class="id" title="lemma">ra_bs_correct</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="Undecidability.MuRec.Util.ra_dio_poly.html#ra_dio_poly_find_spec"><span class="id" title="lemma">ra_dio_poly_find_spec</span></a>; <span class="id" title="tactic">unfold</span> <a class="idref" href="Undecidability.H10.Dio.dio_single.html#dio_single_pred"><span class="id" title="definition">dio_single_pred</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> (<span class="id" title="var">phi</span> &amp; <span class="id" title="var">Hphi</span>); <span class="id" title="tactic">exists</span> (<a class="idref" href="Undecidability.Shared.Libs.DLW.Vec.vec.html#vec_set_pos"><span class="id" title="definition">vec_set_pos</span></a> <span class="id" title="var">phi</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">Hphi</span>; <span class="id" title="var">eq</span> <span class="id" title="keyword">goal</span> <span class="id" title="var">Hphi</span>; <span class="id" title="tactic">f_equal</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.H10.Dio.dio_single.html#dp_eval_ext"><span class="id" title="lemma">dp_eval_ext</span></a>; <span class="id" title="tactic">auto</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">try</span> (<span class="id" title="tactic">intros</span>; <span class="id" title="tactic">rewrite</span> <a class="idref" href="Undecidability.Shared.Libs.DLW.Vec.vec.html#vec_pos_set"><span class="id" title="lemma">vec_pos_set</span></a>; <span class="id" title="tactic">auto</span>; <span class="id" title="tactic">fail</span>);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">j</span>; <span class="id" title="var">analyse</span> <span class="id" title="var">pos</span> <span class="id" title="var">j</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> (<span class="id" title="var">v</span> &amp; <span class="id" title="var">Hw</span>); <span class="id" title="tactic">exists</span> (<a class="idref" href="Undecidability.Shared.Libs.DLW.Vec.vec.html#vec_pos"><span class="id" title="definition">vec_pos</span></a> <span class="id" title="var">v</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">eq</span> <span class="id" title="keyword">goal</span> <span class="id" title="var">Hw</span>; <span class="id" title="tactic">f_equal</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.H10.Dio.dio_single.html#dp_eval_ext"><span class="id" title="lemma">dp_eval_ext</span></a>; <span class="id" title="tactic">auto</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">j</span>; <span class="id" title="var">analyse</span> <span class="id" title="var">pos</span> <span class="id" title="var">j</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="Undecidability.MuRec.Reductions.H10_to_MUREC_HALTING.html#H10_MUREC_HALTING"><span class="id" title="section">H10_MUREC_HALTING</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="Undecidability.MuRec.Reductions.H10_to_MUREC_HALTING.html#H10_MUREC_HALTING"><span class="id" title="lemma">H10_MUREC_HALTING</span></a>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.Shared.Libs.DLW</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_tac.html#"><span class="id" title="library">utils_tac</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.Synthetic</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#"><span class="id" title="library">Undecidability</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#"><span class="id" title="library">Undecidability.Synthetic.ReducibilityFacts</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.TM.TM.html#"><span class="id" title="library">Undecidability.TM.TM</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.PCP.PCP.html#"><span class="id" title="library">Undecidability.PCP.PCP</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.PCP.Reductions.HaltTM_1_to_PCPb.html#"><span class="id" title="library">Undecidability.PCP.Reductions.HaltTM_1_to_PCPb</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.MinskyMachines</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.MinskyMachines.MM.html#"><span class="id" title="library">MM</span></a> <a class="idref" href="Undecidability.MinskyMachines.Reductions.PCPb_to_MM.html#"><span class="id" title="library">PCPb_to_MM</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.FRACTRAN</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FRACTRAN.FRACTRAN.html#"><span class="id" title="library">FRACTRAN</span></a> <a class="idref" href="Undecidability.FRACTRAN.FRACTRAN_undec.html#"><span class="id" title="library">FRACTRAN_undec</span></a> <a class="idref" href="Undecidability.FRACTRAN.Reductions.MM_FRACTRAN.html#"><span class="id" title="library">MM_FRACTRAN</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.H10</span> <br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.H10.H10.html#"><span class="id" title="library">H10</span></a> <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#"><span class="id" title="library">FRACTRAN_DIO</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.H10.Dio</span> <br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.H10.Dio.dio_logic.html#"><span class="id" title="library">dio_logic</span></a> <a class="idref" href="Undecidability.H10.Dio.dio_elem.html#"><span class="id" title="library">dio_elem</span></a> <a class="idref" href="Undecidability.H10.Dio.dio_single.html#"><span class="id" title="library">dio_single</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#ReductionChainNotations"><span class="id" title="module">ReductionChainNotations</span></a> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#UndecidabilityNotations"><span class="id" title="module">UndecidabilityNotations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.TM.TM_undec.html#"><span class="id" title="library">Undecidability.TM.TM_undec</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Set Implicit Arguments</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="DIO_SINGLE_SAT_H10" class="idref" href="#DIO_SINGLE_SAT_H10"><span class="id" title="lemma">DIO_SINGLE_SAT_H10</span></a> : <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#DIO_SINGLE_SAT"><span class="id" title="definition">DIO_SINGLE_SAT</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.H10.H10.html#H10"><span class="id" title="definition">H10</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#reduces_dependent"><span class="id" title="lemma">reduces_dependent</span></a>; <span class="id" title="tactic">exists</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> (<span class="id" title="var">E</span>,<span class="id" title="var">v</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> (<a class="idref" href="Undecidability.H10.Dio.dio_single.html#dio_poly_eq_pos"><span class="id" title="lemma">dio_poly_eq_pos</span></a> <span class="id" title="var">E</span>) <span class="id" title="keyword">as</span> (<span class="id" title="var">n</span> &amp; <span class="id" title="var">p</span> &amp; <span class="id" title="var">q</span> &amp; <span class="id" title="var">H</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Specif.html#existT"><span class="id" title="constructor">existT</span></a> <span class="id" title="var">_</span> <span class="id" title="var">n</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a><a class="idref" href="Undecidability.H10.Dio.dio_single.html#dp_inst_par"><span class="id" title="definition">dp_inst_par</span></a> <span class="id" title="var">_</span> <span class="id" title="var">v</span> <span class="id" title="var">p</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a> <a class="idref" href="Undecidability.H10.Dio.dio_single.html#dp_inst_par"><span class="id" title="definition">dp_inst_par</span></a> <span class="id" title="var">_</span> <span class="id" title="var">v</span> <span class="id" title="var">q</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#DIO_SINGLE_SAT"><span class="id" title="definition">DIO_SINGLE_SAT</span></a>, <a class="idref" href="Undecidability.H10.H10.html#H10"><span class="id" title="definition">H10</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="Undecidability.H10.Dio.dio_single.html#dio_single_pred"><span class="id" title="definition">dio_single_pred</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>; <span class="id" title="tactic">intros</span> (<span class="id" title="var">phi</span> &amp; <span class="id" title="var">H1</span>); <span class="id" title="tactic">exists</span> <span class="id" title="var">phi</span>; <span class="id" title="var">revert</span> <span class="id" title="var">H1</span>; <span class="id" title="var">cbn</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="Undecidability.H10.Dio.dio_single.html#dp_inst_par_eval"><span class="id" title="lemma">dp_inst_par_eval</span></a>; <span class="id" title="tactic">auto</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="Hilberts_Tenth" class="idref" href="#Hilberts_Tenth"><span class="id" title="lemma">Hilberts_Tenth</span></a> : <a class="idref" href="Undecidability.TM.TM.html#HaltTM"><span class="id" title="definition">HaltTM</span></a> 1 <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.PCP.PCP.html#PCPb"><span class="id" title="definition">PCPb</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#ba2b0e492d2b4675a0acf3ea92aabadd"><span class="id" title="notation">/\</span></a> <a class="idref" href="Undecidability.PCP.PCP.html#PCPb"><span class="id" title="definition">PCPb</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.MinskyMachines.MM.html#Halt_MM"><span class="id" title="definition">Halt_MM</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#ba2b0e492d2b4675a0acf3ea92aabadd"><span class="id" title="notation">/\</span></a> <a class="idref" href="Undecidability.MinskyMachines.MM.html#Halt_MM"><span class="id" title="definition">Halt_MM</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.FRACTRAN.FRACTRAN.html#Halt_FRACTRAN"><span class="id" title="definition">Halt_FRACTRAN</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#ba2b0e492d2b4675a0acf3ea92aabadd"><span class="id" title="notation">/\</span></a> <a class="idref" href="Undecidability.FRACTRAN.FRACTRAN.html#Halt_FRACTRAN"><span class="id" title="definition">Halt_FRACTRAN</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#DIO_LOGIC_SAT"><span class="id" title="definition">DIO_LOGIC_SAT</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#ba2b0e492d2b4675a0acf3ea92aabadd"><span class="id" title="notation">/\</span></a> <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#DIO_LOGIC_SAT"><span class="id" title="definition">DIO_LOGIC_SAT</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#DIO_ELEM_SAT"><span class="id" title="definition">DIO_ELEM_SAT</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#ba2b0e492d2b4675a0acf3ea92aabadd"><span class="id" title="notation">/\</span></a> <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#DIO_ELEM_SAT"><span class="id" title="definition">DIO_ELEM_SAT</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#DIO_SINGLE_SAT"><span class="id" title="definition">DIO_SINGLE_SAT</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#ba2b0e492d2b4675a0acf3ea92aabadd"><span class="id" title="notation">/\</span></a> <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#DIO_SINGLE_SAT"><span class="id" title="definition">DIO_SINGLE_SAT</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.H10.H10.html#H10"><span class="id" title="definition">H10</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">msplit</span> 6.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.PCP.Reductions.HaltTM_1_to_PCPb.html#HaltTM_1_to_PCPb"><span class="id" title="lemma">HaltTM_1_to_PCPb</span></a>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.MinskyMachines.Reductions.PCPb_to_MM.html#PCPb_MM_HALTING"><span class="id" title="lemma">PCPb_MM_HALTING</span></a>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FRACTRAN.Reductions.MM_FRACTRAN.html#MM_FRACTRAN_HALTING"><span class="id" title="lemma">MM_FRACTRAN_HALTING</span></a>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#FRACTRAN_HALTING_DIO_LOGIC_SAT"><span class="id" title="lemma">FRACTRAN_HALTING_DIO_LOGIC_SAT</span></a>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#DIO_LOGIC_ELEM_SAT"><span class="id" title="lemma">DIO_LOGIC_ELEM_SAT</span></a>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#DIO_ELEM_SINGLE_SAT"><span class="id" title="lemma">DIO_ELEM_SINGLE_SAT</span></a>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.H10.H10_undec.html#DIO_SINGLE_SAT_H10"><span class="id" title="lemma">DIO_SINGLE_SAT_H10</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="Undecidability.H10.H10_undec.html#Hilberts_Tenth"><span class="id" title="lemma">Hilberts_Tenth</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="H10_undec" class="idref" href="#H10_undec"><span class="id" title="lemma">H10_undec</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.H10.H10.html#H10"><span class="id" title="definition">H10</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.TM.TM_undec.html#HaltTM_1_undec"><span class="id" title="lemma">HaltTM_1_undec</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="var">reduce</span> <span class="id" title="keyword">with</span> <span class="id" title="var">chain</span> <a class="idref" href="Undecidability.H10.H10_undec.html#Hilberts_Tenth"><span class="id" title="lemma">Hilberts_Tenth</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="Undecidability.H10.H10_undec.html#H10_undec"><span class="id" title="lemma">H10_undec</span></a>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

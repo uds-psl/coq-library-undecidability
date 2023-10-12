@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.Synthetic</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.Definitions.html#"><span class="id" title="library">Definitions</span></a> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#"><span class="id" title="library">Undecidability</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.FOL</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.Sets.FST.html#"><span class="id" title="library">Sets.FST</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullFacts.html#"><span class="id" title="library">Semantics.Tarski.FullFacts</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullSoundness.html#"><span class="id" title="library">Semantics.Tarski.FullSoundness</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.FOL.Deduction.FullNDFacts.html#"><span class="id" title="library">Deduction.FullNDFacts</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.FOL.Sets.Models.FST_model.html#"><span class="id" title="library">Sets.Models.FST_model</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.FOL.FST.html#"><span class="id" title="library">FST</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.FOL.Reductions</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FST.html#"><span class="id" title="library">PCPb_to_FST</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FSTD.html#"><span class="id" title="library">PCPb_to_FSTD</span></a> <a class="idref" href="Undecidability.FOL.Reductions.ZF_to_FST.html#"><span class="id" title="library">ZF_to_FST</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.PCP</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.PCP.PCP.html#"><span class="id" title="library">PCP</span></a> <a class="idref" href="Undecidability.PCP.PCP_undec.html#"><span class="id" title="library">PCP_undec</span></a> <a class="idref" href="Undecidability.PCP.Reductions.PCPb_iff_dPCPb.html#"><span class="id" title="library">Reductions.PCPb_iff_dPCPb</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="undecidable_entailment_FSTeq" class="idref" href="#undecidable_entailment_FSTeq"><span class="id" title="lemma">undecidable_entailment_FSTeq</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.FOL.FST.html#entailment_FSTeq"><span class="id" title="definition">entailment_FSTeq</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.PCP.PCP_undec.html#PCPb_undec"><span class="id" title="lemma">PCPb_undec</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="Undecidability.FOL.Reductions.ZF_to_FST.html#solvable'"><span class="id" title="definition">solvable'</span></a>. <span class="id" title="tactic">intros</span> <span class="id" title="var">B</span>. <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">HP</span> % (<a class="idref" href="Undecidability.FOL.Reductions.ZF_to_FST.html#PCP_FSTD"><span class="id" title="lemma">PCP_FSTD</span></a> (<span class="id" title="var">p</span>:=<a class="idref" href="Undecidability.FOL.Syntax.Core.html#intu"><span class="id" title="constructor">intu</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullSoundness.html#soundness"><span class="id" title="lemma">soundness</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">HP</span>. <span class="id" title="tactic">intros</span> <span class="id" title="var">I</span> <span class="id" title="var">M</span> <span class="id" title="var">rho</span> <span class="id" title="var">H</span>. <span class="id" title="tactic">apply</span> <span class="id" title="var">HP</span>, <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Reductions.ZF_to_FST.html#PCP_FST"><span class="id" title="lemma">PCP_FST</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="undecidable_deduction_FST" class="idref" href="#undecidable_deduction_FST"><span class="id" title="lemma">undecidable_deduction_FST</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.FOL.FST.html#deduction_FST"><span class="id" title="definition">deduction_FST</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.PCP.PCP_undec.html#PCPb_undec"><span class="id" title="lemma">PCPb_undec</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="Undecidability.FOL.Reductions.ZF_to_FST.html#solvable'"><span class="id" title="definition">solvable'</span></a>. <span class="id" title="tactic">intros</span> <span class="id" title="var">B</span>. <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">HP</span> % (<a class="idref" href="Undecidability.FOL.Reductions.ZF_to_FST.html#PCP_FSTD"><span class="id" title="lemma">PCP_FSTD</span></a> (<span class="id" title="var">p</span>:=<a class="idref" href="Undecidability.FOL.Syntax.Core.html#intu"><span class="id" title="constructor">intu</span></a>)). <span class="id" title="tactic">apply</span> <span class="id" title="var">HP</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">HP</span> % <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullSoundness.html#soundness"><span class="id" title="lemma">soundness</span></a>. <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Reductions.ZF_to_FST.html#PCP_FST"><span class="id" title="lemma">PCP_FST</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">I</span> <span class="id" title="var">M</span> <span class="id" title="var">rho</span> <span class="id" title="var">H</span>. <span class="id" title="tactic">apply</span> <span class="id" title="var">HP</span>. <span class="id" title="tactic">apply</span> <span class="id" title="var">H</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="undecidable_entailment_FST" class="idref" href="#undecidable_entailment_FST"><span class="id" title="lemma">undecidable_entailment_FST</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.FOL.FST.html#entailment_FST"><span class="id" title="definition">entailment_FST</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.PCP.PCP_undec.html#PCPb_undec"><span class="id" title="lemma">PCPb_undec</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FST.html#solvable"><span class="id" title="definition">solvable</span></a>. <span class="id" title="tactic">intros</span> <span class="id" title="var">B</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FST.html#PCP_FST"><span class="id" title="lemma">PCPb_to_FST.PCP_FST</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Sets.Models.FST_model.html#FST_model"><span class="id" title="lemma">FST_model</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="undecidable_entailment_FSTI" class="idref" href="#undecidable_entailment_FSTI"><span class="id" title="lemma">undecidable_entailment_FSTI</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.FOL.FST.html#entailment_FSTI"><span class="id" title="definition">entailment_FSTI</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.PCP.PCP_undec.html#PCPb_undec"><span class="id" title="lemma">PCPb_undec</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FST.html#solvable"><span class="id" title="definition">solvable</span></a>. <span class="id" title="tactic">intros</span> <span class="id" title="var">B</span>. <span class="id" title="tactic">rewrite</span> <a class="idref" href="Undecidability.PCP.Reductions.PCPb_iff_dPCPb.html#PCPb_iff_dPCPb"><span class="id" title="lemma">PCPb_iff_dPCPb</span></a>. <span class="id" title="tactic">split</span>; <span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">destruct</span> <span class="id" title="var">H</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">s</span> <span class="id" title="var">H</span>]. <span class="id" title="tactic">intros</span> <span class="id" title="var">M</span> <span class="id" title="var">HM</span> <span class="id" title="var">rho</span> <span class="id" title="var">H1</span> <span class="id" title="var">H2</span>. <span class="id" title="tactic">eapply</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FST.html#PCP_FST1"><span class="id" title="lemma">PCP_FST1</span></a>; <span class="id" title="tactic">eauto</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">sigma</span> <span class="id" title="var">psi</span> <span class="id" title="var">Hp</span>. <span class="id" title="tactic">apply</span> <span class="id" title="var">H2</span>. <span class="id" title="var">now</span> <span class="id" title="tactic">constructor</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">destruct</span> <a class="idref" href="Undecidability.FOL.Sets.Models.FST_model.html#FSTI_model"><span class="id" title="lemma">FSTI_model</span></a> <span class="id" title="keyword">as</span> (<span class="id" title="var">D</span> &amp; <span class="id" title="var">I</span> &amp; <span class="id" title="var">H1</span> &amp; <span class="id" title="var">H2</span> &amp; <span class="id" title="var">H3</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">specialize</span> (<span class="id" title="var">H</span> <span class="id" title="var">D</span> <span class="id" title="var">I</span> (<span class="id" title="keyword">fun</span> <span class="id" title="var">_</span> =&gt; @<a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullCore.html#i_func"><span class="id" title="method">i_func</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="Undecidability.FOL.Sets.Signatures.html#FSTSignature.eset"><span class="id" title="constructor">eset</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Vector.html#nil"><span class="id" title="constructor">Vector.nil</span></a>) <span class="id" title="var">H1</span> <span class="id" title="var">H3</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FST.html#PCP_FST2"><span class="id" title="lemma">PCP_FST2</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">s</span> <span class="id" title="var">Hs</span>]; <span class="id" title="tactic">trivial</span>. <span class="id" title="var">now</span> <span class="id" title="tactic">exists</span> <span class="id" title="var">s</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">sigma</span> <span class="id" title="var">psi</span> <span class="id" title="var">Hp</span>. <span class="id" title="tactic">apply</span> <span class="id" title="var">H3</span>. <span class="id" title="var">now</span> <span class="id" title="tactic">constructor</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="undecidable_deduction_FSTI" class="idref" href="#undecidable_deduction_FSTI"><span class="id" title="lemma">undecidable_deduction_FSTI</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.FOL.FST.html#deduction_FSTI"><span class="id" title="definition">deduction_FSTI</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.PCP.PCP_undec.html#PCPb_undec"><span class="id" title="lemma">PCPb_undec</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FST.html#solvable"><span class="id" title="definition">solvable</span></a>. <span class="id" title="tactic">intros</span> <span class="id" title="var">B</span>. <span class="id" title="tactic">split</span>; <span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exists</span> <a class="idref" href="Undecidability.FOL.Sets.FST.html#FSTeq"><span class="id" title="definition">FSTeq</span></a>. <span class="id" title="tactic">split</span>; <span class="id" title="tactic">try</span> <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Sets.FST.html#FSTeq_base"><span class="id" title="constructor">FSTeq_base</span></a>. <span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FSTD.html#PCP_FSTD"><span class="id" title="lemma">PCPb_to_FSTD.PCP_FSTD</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">destruct</span> <a class="idref" href="Undecidability.FOL.Sets.Models.FST_model.html#FSTI_model"><span class="id" title="lemma">FSTI_model</span></a> <span class="id" title="keyword">as</span> (<span class="id" title="var">D</span> &amp; <span class="id" title="var">I</span> &amp; <span class="id" title="var">H1</span> &amp; <span class="id" title="var">H2</span> &amp; <span class="id" title="var">H3</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="Undecidability.PCP.Reductions.PCPb_iff_dPCPb.html#PCPb_iff_dPCPb"><span class="id" title="lemma">PCPb_iff_dPCPb</span></a>. <span class="id" title="var">unshelve</span> <span class="id" title="tactic">eapply</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FST.html#PCP_FST2"><span class="id" title="lemma">PCP_FST2</span></a>; <span class="id" title="tactic">eauto</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<span class="id" title="keyword">fun</span> <span class="id" title="var">_</span> =&gt; @<a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullCore.html#i_func"><span class="id" title="method">i_func</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="Undecidability.FOL.Sets.Signatures.html#FSTSignature.eset"><span class="id" title="constructor">eset</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Vector.html#nil"><span class="id" title="constructor">Vector.nil</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">sigma</span> <span class="id" title="var">psi</span> <span class="id" title="var">Hp</span>. <span class="id" title="tactic">apply</span> <span class="id" title="var">H3</span>. <span class="id" title="var">now</span> <span class="id" title="tactic">constructor</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullSoundness.html#tsoundness"><span class="id" title="lemma">tsoundness</span></a> <span class="id" title="var">H</span>). <span class="id" title="tactic">intros</span> <span class="id" title="var">psi</span> [<span class="id" title="var">theta</span> [&lt;-|[&lt;-|[&lt;-|[&lt;-|<span class="id" title="var">Hp</span>]]]]|<span class="id" title="var">theta</span>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1-4: <span class="id" title="var">cbn</span>; <span class="id" title="tactic">setoid_rewrite</span> <span class="id" title="var">H1</span>; <span class="id" title="tactic">congruence</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> <span class="id" title="var">H3</span>. <span class="id" title="var">now</span> <span class="id" title="tactic">constructor</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> <span class="id" title="var">H3</span>. <span class="id" title="tactic">constructor</span> 2.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+
+<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

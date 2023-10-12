@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#"><span class="id" title="library">List</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.Definitions.html#"><span class="id" title="library">Undecidability.Synthetic.Definitions</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.Shared.Libs.DLW</span> <br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Shared.Libs.DLW.Vec.pos.html#"><span class="id" title="library">pos</span></a> <a class="idref" href="Undecidability.Shared.Libs.DLW.Vec.vec.html#"><span class="id" title="library">vec</span></a> <a class="idref" href="Undecidability.Shared.Libs.DLW.Code.sss.html#"><span class="id" title="library">sss</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.MinskyMachines</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.MinskyMachines.MM.mm_defs.html#"><span class="id" title="library">mm_defs</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.ILL</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.ILL.ILL.html#"><span class="id" title="library">ILL</span></a> <a class="idref" href="Undecidability.ILL.EILL.html#"><span class="id" title="library">EILL</span></a> <a class="idref" href="Undecidability.ILL.Ll.eill.html#"><span class="id" title="library">eill</span></a> <a class="idref" href="Undecidability.ILL.Ll.eill_mm.html#"><span class="id" title="library">eill_mm</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Notation</span> "P '/MM/' s -&gt;&gt; t" := (<a class="idref" href="Undecidability.Shared.Libs.DLW.Code.sss.html#sss_compute"><span class="id" title="definition">sss_compute</span></a> (@<a class="idref" href="Undecidability.MinskyMachines.Util.MM_sss.html#mm_sss"><span class="id" title="inductive">mm_sss</span></a> <span class="id" title="var">_</span>) <span class="id" title="var">P</span> <span class="id" title="var">s</span> <span class="id" title="var">t</span>) (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 70, <span class="id" title="keyword">no</span> <span class="id" title="keyword">associativity</span>).<br/>
+<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Notation</span> "P '/MM/' s ~~&gt; t" := (<a class="idref" href="Undecidability.Shared.Libs.DLW.Code.sss.html#sss_output"><span class="id" title="definition">sss_output</span></a> (@<a class="idref" href="Undecidability.MinskyMachines.Util.MM_sss.html#mm_sss"><span class="id" title="inductive">mm_sss</span></a> <span class="id" title="var">_</span>) <span class="id" title="var">P</span> <span class="id" title="var">s</span> <span class="id" title="var">t</span>) (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 70, <span class="id" title="keyword">no</span> <span class="id" title="keyword">associativity</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="MM_HALTING_EILL_PROVABILITY" class="idref" href="#MM_HALTING_EILL_PROVABILITY"><span class="id" title="section">MM_HALTING_EILL_PROVABILITY</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="MM_HALTING_EILL_PROVABILITY.f" class="idref" href="#MM_HALTING_EILL_PROVABILITY.f"><span class="id" title="variable">f</span></a> : <a class="idref" href="Undecidability.MinskyMachines.Util.MM_sss.html#MM_PROBLEM"><span class="id" title="definition">MM_PROBLEM</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.ILL.EILL.html#EILL_SEQUENT"><span class="id" title="definition">EILL_SEQUENT</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> (<span class="id" title="var">n</span> &amp; <span class="id" title="var">P</span> &amp; <span class="id" title="var">v</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a><a class="idref" href="Undecidability.ILL.Ll.eill_mm.html#e15c0eb40e61adefe95778c26e7840f6"><span class="id" title="definition">Σ</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a>1<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a><span class="id" title="var">P</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a> 0<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a> <a class="idref" href="Undecidability.Shared.Libs.DLW.Vec.vec.html#vec_map_list"><span class="id" title="definition">vec_map_list</span></a> <span class="id" title="var">v</span> (<span class="id" title="keyword">fun</span> <a id="p:2" class="idref" href="#p:2"><span class="id" title="binder">p</span></a> : <a class="idref" href="Undecidability.Shared.Libs.DLW.Vec.pos.html#pos"><span class="id" title="abbreviation">pos</span></a> <span class="id" title="var">n</span> =&gt; <a class="idref" href="Undecidability.Shared.Libs.DLW.Vec.pos.html#pos2nat"><span class="id" title="definition">pos2nat</span></a> <a class="idref" href="Undecidability.ILL.Reductions.MM_EILL.html#p:1"><span class="id" title="variable">p</span></a>)<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a> 2 <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Peano.html#ea2ff3d561159081cea6fb2e8113cc54"><span class="id" title="notation">*</span></a> <span class="id" title="var">n</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Peano.html#0dacc1786c5ba797d47dd85006231633"><span class="id" title="notation">+</span></a> 1<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Theorem</span> <a id="MM_HALTS_ON_ZERO_EILL_PROVABILITY" class="idref" href="#MM_HALTS_ON_ZERO_EILL_PROVABILITY"><span class="id" title="lemma">MM_HALTS_ON_ZERO_EILL_PROVABILITY</span></a> : <a class="idref" href="Undecidability.MinskyMachines.Util.MM_sss.html#MM_HALTS_ON_ZERO"><span class="id" title="definition">MM_HALTS_ON_ZERO</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.ILL.EILL.html#EILL_PROVABILITY"><span class="id" title="definition">EILL_PROVABILITY</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="Undecidability.ILL.Reductions.MM_EILL.html#MM_HALTING_EILL_PROVABILITY.f"><span class="id" title="variable">f</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> (<span class="id" title="var">n</span> &amp; <span class="id" title="var">P</span> &amp; <span class="id" title="var">v</span>); <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> &lt;- <a class="idref" href="Undecidability.ILL.Ll.eill_mm.html#G_eill_mm"><span class="id" title="lemma">G_eill_mm</span></a>; <span class="id" title="tactic">simpl</span>; <span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> (? &amp; <span class="id" title="var">_</span>); <span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">split</span>; <span class="id" title="tactic">simpl</span>; <span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="Undecidability.ILL.Reductions.MM_EILL.html#MM_HALTING_EILL_PROVABILITY"><span class="id" title="section">MM_HALTING_EILL_PROVABILITY</span></a>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#"><span class="id" title="library">List</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Bool.Bool.html#"><span class="id" title="library">Bool</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.Shared.Libs.DLW</span> <br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Shared.Libs.DLW.Code.sss.html#"><span class="id" title="library">sss</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.TM</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.TM.SBTM.html#"><span class="id" title="library">SBTM</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.TM.SBTM.html#SBTMNotations"><span class="id" title="module">SBTMNotations</span></a> (<span class="id" title="var">tape</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Set Implicit Arguments</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab24"></a><h1 class="section">Halting problem for (micro-programmed) Turing machines with a PC counter</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Inductive</span> <a id="pctm_instr" class="idref" href="#pctm_instr"><span class="id" title="inductive">pctm_instr</span></a> : <span class="id" title="keyword">Set</span> :=<br/>
+&nbsp;&nbsp;| <a id="pctm_mv" class="idref" href="#pctm_mv"><span class="id" title="constructor">pctm_mv</span></a>  : <a class="idref" href="Undecidability.TM.SBTM.html#direction"><span class="id" title="inductive">direction</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.TM.PCTM.html#pctm_instr:1"><span class="id" title="inductive">pctm_instr</span></a><br/>
+&nbsp;&nbsp;| <a id="pctm_wr" class="idref" href="#pctm_wr"><span class="id" title="constructor">pctm_wr</span></a>  : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#bool"><span class="id" title="inductive">bool</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.TM.PCTM.html#pctm_instr:1"><span class="id" title="inductive">pctm_instr</span></a><br/>
+&nbsp;&nbsp;| <a id="pctm_br" class="idref" href="#pctm_br"><span class="id" title="constructor">pctm_br</span></a>  : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.TM.PCTM.html#pctm_instr:1"><span class="id" title="inductive">pctm_instr</span></a><br/>
+&nbsp;&nbsp;.<br/>
+
+<br/>
+<span class="id" title="keyword">Module</span> <a id="PCTMNotations" class="idref" href="#PCTMNotations"><span class="id" title="module">PCTMNotations</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Notation</span> <a id="PCTMNotations.MV" class="idref" href="#PCTMNotations.MV"><span class="id" title="abbreviation">MV</span></a>  := <a class="idref" href="Undecidability.TM.PCTM.html#pctm_mv"><span class="id" title="constructor">pctm_mv</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Notation</span> <a id="PCTMNotations.WR" class="idref" href="#PCTMNotations.WR"><span class="id" title="abbreviation">WR</span></a>  := <a class="idref" href="Undecidability.TM.PCTM.html#pctm_wr"><span class="id" title="constructor">pctm_wr</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Notation</span> <a id="PCTMNotations.BR" class="idref" href="#PCTMNotations.BR"><span class="id" title="abbreviation">BR</span></a>  := <a class="idref" href="Undecidability.TM.PCTM.html#pctm_br"><span class="id" title="constructor">pctm_br</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Notation</span> <a id="PCTMNotations.JMP" class="idref" href="#PCTMNotations.JMP"><span class="id" title="abbreviation">JMP</span></a> <span class="id" title="var">j</span> := (<a class="idref" href="Undecidability.TM.PCTM.html#PCTMNotations.BR"><span class="id" title="abbreviation">BR</span></a> <span class="id" title="var">j</span> <span class="id" title="var">j</span>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="PCTMNotations.rd" class="idref" href="#PCTMNotations.rd"><span class="id" title="definition">rd</span></a> (<a id="t:3" class="idref" href="#t:3"><span class="id" title="binder">t</span></a> : <a class="idref" href="Undecidability.TM.SBTM.html#SBTMNotations.tape"><span class="id" title="abbreviation">tape</span></a>) : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#bool"><span class="id" title="inductive">bool</span></a>   := <span class="id" title="keyword">let</span> '<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a><span class="id" title="var">_</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a><span class="id" title="var">b</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a><span class="id" title="var">_</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a> := <a class="idref" href="Undecidability.TM.PCTM.html#t:3"><span class="id" title="variable">t</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">b</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="PCTMNotations.wr" class="idref" href="#PCTMNotations.wr"><span class="id" title="definition">wr</span></a> (<a id="t:5" class="idref" href="#t:5"><span class="id" title="binder">t</span></a> : <a class="idref" href="Undecidability.TM.SBTM.html#SBTMNotations.tape"><span class="id" title="abbreviation">tape</span></a>) <a id="b:6" class="idref" href="#b:6"><span class="id" title="binder">b</span></a> : <a class="idref" href="Undecidability.TM.SBTM.html#SBTMNotations.tape"><span class="id" title="abbreviation">tape</span></a> := <span class="id" title="keyword">let</span> '<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a><span class="id" title="var">l</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a><span class="id" title="var">_</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a><span class="id" title="var">r</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a> := <a class="idref" href="Undecidability.TM.PCTM.html#t:5"><span class="id" title="variable">t</span></a> <span class="id" title="tactic">in</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a><span class="id" title="var">l</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a><a class="idref" href="Undecidability.TM.PCTM.html#b:6"><span class="id" title="variable">b</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a><span class="id" title="var">r</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="Undecidability.TM.PCTM.html#PCTMNotations"><span class="id" title="module">PCTMNotations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.TM.PCTM.html#PCTMNotations"><span class="id" title="module">PCTMNotations</span></a> <a class="idref" href="Undecidability.TM.SBTM.html#SBTMNotations"><span class="id" title="module">SBTMNotations</span></a>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="pctm_state" class="idref" href="#pctm_state"><span class="id" title="definition">pctm_state</span></a> := (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#11c698c8685bb8ab1cf725545c085ac4"><span class="id" title="notation">*</span></a> <a class="idref" href="Undecidability.TM.SBTM.html#SBTMNotations.tape"><span class="id" title="abbreviation">tape</span></a>)%<span class="id" title="keyword">type</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   ρ // (i,t₁) -1&gt; (j,t₂) 
+    means instruction ρ at PC i transforms 
+    the state (i,t₁) into the state (j,t₂) 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Inductive</span> <a id="pctm_sss" class="idref" href="#pctm_sss"><span class="id" title="inductive">pctm_sss</span></a> : <a class="idref" href="Undecidability.TM.PCTM.html#pctm_instr"><span class="id" title="inductive">pctm_instr</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.TM.PCTM.html#pctm_state"><span class="id" title="definition">pctm_state</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.TM.PCTM.html#pctm_state"><span class="id" title="definition">pctm_state</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;| <a id="pctm_sss_mv" class="idref" href="#pctm_sss_mv"><span class="id" title="constructor">pctm_sss_mv</span></a> <a id="d:10" class="idref" href="#d:10"><span class="id" title="binder">d</span></a> <a id="i:11" class="idref" href="#i:11"><span class="id" title="binder">i</span></a> <a id="t:12" class="idref" href="#t:12"><span class="id" title="binder">t</span></a> :      <a class="idref" href="Undecidability.TM.PCTM.html#MV"><span class="id" title="abbreviation">MV</span></a> <a class="idref" href="Undecidability.TM.PCTM.html#d:10"><span class="id" title="variable">d</span></a> <a class="idref" href="Undecidability.TM.PCTM.html#9f4fcc48a52a8a15deaa5c67cdf221fb"><span class="id" title="notation">//</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a><a class="idref" href="Undecidability.TM.PCTM.html#i:11"><span class="id" title="variable">i</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a><a class="idref" href="Undecidability.TM.PCTM.html#t:12"><span class="id" title="variable">t</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a> <a class="idref" href="Undecidability.TM.PCTM.html#9f4fcc48a52a8a15deaa5c67cdf221fb"><span class="id" title="notation">-1&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a>1<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Peano.html#0dacc1786c5ba797d47dd85006231633"><span class="id" title="notation">+</span></a><a class="idref" href="Undecidability.TM.PCTM.html#i:11"><span class="id" title="variable">i</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a><a class="idref" href="Undecidability.TM.SBTM.html#mv"><span class="id" title="definition">mv</span></a> <a class="idref" href="Undecidability.TM.PCTM.html#d:10"><span class="id" title="variable">d</span></a> <a class="idref" href="Undecidability.TM.PCTM.html#t:12"><span class="id" title="variable">t</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a>       <br/>
+&nbsp;&nbsp;| <a id="pctm_sss_wr" class="idref" href="#pctm_sss_wr"><span class="id" title="constructor">pctm_sss_wr</span></a> <a id="b:13" class="idref" href="#b:13"><span class="id" title="binder">b</span></a> <a id="i:14" class="idref" href="#i:14"><span class="id" title="binder">i</span></a> <a id="t:15" class="idref" href="#t:15"><span class="id" title="binder">t</span></a> :      <a class="idref" href="Undecidability.TM.PCTM.html#WR"><span class="id" title="abbreviation">WR</span></a> <a class="idref" href="Undecidability.TM.PCTM.html#b:13"><span class="id" title="variable">b</span></a> <a class="idref" href="Undecidability.TM.PCTM.html#9f4fcc48a52a8a15deaa5c67cdf221fb"><span class="id" title="notation">//</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a><a class="idref" href="Undecidability.TM.PCTM.html#i:14"><span class="id" title="variable">i</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a><a class="idref" href="Undecidability.TM.PCTM.html#t:15"><span class="id" title="variable">t</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a> <a class="idref" href="Undecidability.TM.PCTM.html#9f4fcc48a52a8a15deaa5c67cdf221fb"><span class="id" title="notation">-1&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a>1<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Peano.html#0dacc1786c5ba797d47dd85006231633"><span class="id" title="notation">+</span></a><a class="idref" href="Undecidability.TM.PCTM.html#i:14"><span class="id" title="variable">i</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a><a class="idref" href="Undecidability.TM.PCTM.html#wr"><span class="id" title="definition">wr</span></a> <a class="idref" href="Undecidability.TM.PCTM.html#t:15"><span class="id" title="variable">t</span></a> <a class="idref" href="Undecidability.TM.PCTM.html#b:13"><span class="id" title="variable">b</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a><br/>
+&nbsp;&nbsp;| <a id="pctm_sss_br" class="idref" href="#pctm_sss_br"><span class="id" title="constructor">pctm_sss_br</span></a> <a id="i:16" class="idref" href="#i:16"><span class="id" title="binder">i</span></a> <a id="j:17" class="idref" href="#j:17"><span class="id" title="binder">j</span></a> <a id="p:18" class="idref" href="#p:18"><span class="id" title="binder">p</span></a> <a id="t:19" class="idref" href="#t:19"><span class="id" title="binder">t</span></a> :  <a class="idref" href="Undecidability.TM.PCTM.html#BR"><span class="id" title="abbreviation">BR</span></a> <a class="idref" href="Undecidability.TM.PCTM.html#j:17"><span class="id" title="variable">j</span></a> <a class="idref" href="Undecidability.TM.PCTM.html#p:18"><span class="id" title="variable">p</span></a> <a class="idref" href="Undecidability.TM.PCTM.html#9f4fcc48a52a8a15deaa5c67cdf221fb"><span class="id" title="notation">//</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a><a class="idref" href="Undecidability.TM.PCTM.html#i:16"><span class="id" title="variable">i</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a><a class="idref" href="Undecidability.TM.PCTM.html#t:19"><span class="id" title="variable">t</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a> <a class="idref" href="Undecidability.TM.PCTM.html#9f4fcc48a52a8a15deaa5c67cdf221fb"><span class="id" title="notation">-1&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a><span class="id" title="keyword">if</span> <a class="idref" href="Undecidability.TM.PCTM.html#rd"><span class="id" title="definition">rd</span></a> <a class="idref" href="Undecidability.TM.PCTM.html#t:19"><span class="id" title="variable">t</span></a> <span class="id" title="keyword">then</span> <a class="idref" href="Undecidability.TM.PCTM.html#j:17"><span class="id" title="variable">j</span></a> <span class="id" title="keyword">else</span> <a class="idref" href="Undecidability.TM.PCTM.html#p:18"><span class="id" title="variable">p</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a><a class="idref" href="Undecidability.TM.PCTM.html#t:19"><span class="id" title="variable">t</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a><br/>
+<span class="id" title="keyword">where</span> <a id="9f4fcc48a52a8a15deaa5c67cdf221fb" class="idref" href="#9f4fcc48a52a8a15deaa5c67cdf221fb"><span class="id" title="notation">&quot;</span></a>ρ // s -1&gt; t" := (<a class="idref" href="Undecidability.TM.PCTM.html#pctm_sss:9"><span class="id" title="inductive">pctm_sss</span></a> ρ <span class="id" title="var">s</span> <span class="id" title="var">t</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+when P = (i,l) with (i = start PC value for instructions in l) 
+                  and  (l = list of instructions)
+   P // s ↓ means repeating steps as above in P, starting from s,
+   eventually leads to a PC value outside of P
+
+<div class="paragraph"> </div>
+
+   Notice that this is equivalent to termination because the PCTM
+   small steps semantics is total, ie if there is an instruction at
+   the current PC, then a computation step can occur: no instruction
+   is blocking 
+</div>
+<div class="code">
+
+<br/>
+#[<span class="id" title="var">local</span>] <span class="id" title="keyword">Notation</span> "P // s ↓" := (<a class="idref" href="Undecidability.Shared.Libs.DLW.Code.sss.html#sss_terminates"><span class="id" title="definition">sss_terminates</span></a> <a class="idref" href="Undecidability.TM.PCTM.html#pctm_sss"><span class="id" title="inductive">pctm_sss</span></a> <span class="id" title="var">P</span> <span class="id" title="var">s</span>).<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="PCTM_PROBLEM" class="idref" href="#PCTM_PROBLEM"><span class="id" title="definition">PCTM_PROBLEM</span></a> := (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#list"><span class="id" title="inductive">list</span></a> <a class="idref" href="Undecidability.TM.PCTM.html#pctm_instr"><span class="id" title="inductive">pctm_instr</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#11c698c8685bb8ab1cf725545c085ac4"><span class="id" title="notation">*</span></a> <a class="idref" href="Undecidability.TM.SBTM.html#SBTMNotations.tape"><span class="id" title="abbreviation">tape</span></a>)%<span class="id" title="keyword">type</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="PCTM_HALT" class="idref" href="#PCTM_HALT"><span class="id" title="definition">PCTM_HALT</span></a> (<a id="Q:20" class="idref" href="#Q:20"><span class="id" title="binder">Q</span></a> : <a class="idref" href="Undecidability.TM.PCTM.html#PCTM_PROBLEM"><span class="id" title="definition">PCTM_PROBLEM</span></a>) :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> (<a id="P:21" class="idref" href="#P:21"><span class="id" title="binder">P</span></a>,<a id="t:22" class="idref" href="#t:22"><span class="id" title="binder">t</span></a>) := <a class="idref" href="Undecidability.TM.PCTM.html#Q:20"><span class="id" title="variable">Q</span></a> <span class="id" title="tactic">in</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a>1<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a><a class="idref" href="Undecidability.TM.PCTM.html#P:21"><span class="id" title="variable">P</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a> <a class="idref" href="Undecidability.TM.PCTM.html#2a216efe27167f242b8b3412366dc18e"><span class="id" title="notation">//</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a>1<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a><a class="idref" href="Undecidability.TM.PCTM.html#t:22"><span class="id" title="variable">t</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a> <a class="idref" href="Undecidability.TM.PCTM.html#2a216efe27167f242b8b3412366dc18e"><span class="id" title="notation">↓</span></a>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

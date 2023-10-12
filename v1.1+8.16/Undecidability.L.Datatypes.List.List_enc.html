@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.L.Tactics</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.L.Tactics.LTactics.html#"><span class="id" title="library">LTactics</span></a> <a class="idref" href="Undecidability.L.Tactics.GenEncode.html#"><span class="id" title="library">GenEncode</span></a>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Fix_X" class="idref" href="#Fix_X"><span class="id" title="section">Fix_X</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Variable</span> (<a id="Fix_X.X" class="idref" href="#Fix_X.X"><span class="id" title="variable">X</span></a>:<span class="id" title="keyword">Type</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="intX:2" class="idref" href="#intX:2"><span class="id" title="binder">intX</span></a> : <a class="idref" href="Undecidability.L.Tactics.Extract.html#encodable"><span class="id" title="class">encodable</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_enc.html#Fix_X.X"><span class="id" title="variable">X</span></a>}.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="var">MetaCoq</span> <span class="id" title="var">Run</span> (<a class="idref" href="Undecidability.L.Tactics.GenEncode.html#tmGenEncode"><span class="id" title="definition">tmGenEncode</span></a> "list_enc" (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#list"><span class="id" title="inductive">list</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_enc.html#Fix_X.X"><span class="id" title="variable">X</span></a>)).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Global Instance</span> <a id="encInj_list_enc" class="idref" href="#encInj_list_enc"><span class="id" title="instance">encInj_list_enc</span></a> {<a id="H:3" class="idref" href="#H:3"><span class="id" title="binder">H</span></a> : <a class="idref" href="Undecidability.L.Tactics.Computable.html#encInj"><span class="id" title="class">encInj</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_enc.html#Fix_X.intX"><span class="id" title="variable">intX</span></a>} : <a class="idref" href="Undecidability.L.Tactics.Computable.html#encInj"><span class="id" title="class">encInj</span></a> (<a class="idref" href="Undecidability.L.Datatypes.List.List_enc.html#encodable_list_enc"><span class="id" title="definition">encodable_list_enc</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>. <span class="id" title="var">register_inj</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Global Instance</span> <a id="termT_cons" class="idref" href="#termT_cons"><span class="id" title="instance">termT_cons</span></a> : <a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> (@<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#cons"><span class="id" title="constructor">cons</span></a> <a class="idref" href="Undecidability.L.Datatypes.List.List_enc.html#Fix_X.X"><span class="id" title="variable">X</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span> <span class="id" title="tactic">constructor</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="Undecidability.L.Datatypes.List.List_enc.html#Fix_X"><span class="id" title="section">Fix_X</span></a>.<br/>
+
+<br/>
+#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Hint</span> <span class="id" title="keyword">Resolve</span> <span class="id" title="var">list_enc_correct</span> : <span class="id" title="var">Lrewrite</span>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

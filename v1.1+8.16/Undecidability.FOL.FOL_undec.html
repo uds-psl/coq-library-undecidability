@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab38"></a><h1 class="section">Undecidability</h1>
+<a id="lab39"></a><h2 class="section">The Entscheidungsproblem</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.Definitions.html#"><span class="id" title="library">Undecidability.Synthetic.Definitions</span></a> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#"><span class="id" title="library">Undecidability.Synthetic.Undecidability</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.PCP.PCP_undec.html#"><span class="id" title="library">Undecidability.PCP.PCP_undec</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.FOL.html#"><span class="id" title="library">Undecidability.FOL.FOL</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.FOL.Reductions</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL.html#"><span class="id" title="library">PCPb_to_FOL</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#"><span class="id" title="library">PCPb_to_FOL_intu</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_class.html#"><span class="id" title="library">PCPb_to_FOL_class</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="undecidable_FOLstar_prv_intu" class="idref" href="#undecidable_FOLstar_prv_intu"><span class="id" title="lemma">undecidable_FOLstar_prv_intu</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.FOL.FOL.html#5823f4d47422700bb1711223b462ad5c"><span class="id" title="notation">FOL</span></a><a class="idref" href="Undecidability.FOL.FOL.html#5823f4d47422700bb1711223b462ad5c"><span class="id" title="notation">*</span></a><a class="idref" href="Undecidability.FOL.FOL.html#5823f4d47422700bb1711223b462ad5c"><span class="id" title="notation">_prv_intu</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.PCP.PCP_undec.html#PCPb_undec"><span class="id" title="lemma">PCPb_undec</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL.html#prv_red"><span class="id" title="lemma">PCPb_to_FOL.prv_red</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="undecidable_FOLstar_valid" class="idref" href="#undecidable_FOLstar_valid"><span class="id" title="lemma">undecidable_FOLstar_valid</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.FOL.FOL.html#ca5a6d2c7d9a998022ff2bc422ff6462"><span class="id" title="notation">FOL</span></a><a class="idref" href="Undecidability.FOL.FOL.html#ca5a6d2c7d9a998022ff2bc422ff6462"><span class="id" title="notation">*</span></a><a class="idref" href="Undecidability.FOL.FOL.html#ca5a6d2c7d9a998022ff2bc422ff6462"><span class="id" title="notation">_valid</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.PCP.PCP_undec.html#PCPb_undec"><span class="id" title="lemma">PCPb_undec</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL.html#valid_star_red"><span class="id" title="lemma">PCPb_to_FOL.valid_star_red</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="undecidable_FOL_valid" class="idref" href="#undecidable_FOL_valid"><span class="id" title="lemma">undecidable_FOL_valid</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.FOL.FOL.html#FOL_valid"><span class="id" title="definition">FOL_valid</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.PCP.PCP_undec.html#PCPb_undec"><span class="id" title="lemma">PCPb_undec</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL.html#valid_red"><span class="id" title="lemma">PCPb_to_FOL.valid_red</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="undecidable_FOL_satis" class="idref" href="#undecidable_FOL_satis"><span class="id" title="lemma">undecidable_FOL_satis</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.FOL.FOL.html#FOL_satis"><span class="id" title="definition">FOL_satis</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.PCP.PCP_undec.html#PCPb_compl_undec"><span class="id" title="lemma">PCPb_compl_undec</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL.html#satis_red"><span class="id" title="lemma">satis_red</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="undecidable_FOL_valid_intu" class="idref" href="#undecidable_FOL_valid_intu"><span class="id" title="lemma">undecidable_FOL_valid_intu</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.FOL.FOL.html#FOL_valid_intu"><span class="id" title="definition">FOL_valid_intu</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.PCP.PCP_undec.html#PCPb_undec"><span class="id" title="lemma">PCPb_undec</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#kvalid_red"><span class="id" title="lemma">PCPb_to_FOL_intu.kvalid_red</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="undecidable_FOL_prv_intu" class="idref" href="#undecidable_FOL_prv_intu"><span class="id" title="lemma">undecidable_FOL_prv_intu</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.FOL.FOL.html#FOL_prv_intu"><span class="id" title="definition">FOL_prv_intu</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.PCP.PCP_undec.html#PCPb_undec"><span class="id" title="lemma">PCPb_undec</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#kprv_red"><span class="id" title="lemma">PCPb_to_FOL_intu.kprv_red</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="undecidable_FOL_satis_intu" class="idref" href="#undecidable_FOL_satis_intu"><span class="id" title="lemma">undecidable_FOL_satis_intu</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.FOL.FOL.html#FOL_satis_intu"><span class="id" title="definition">FOL_satis_intu</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.PCP.PCP_undec.html#PCPb_compl_undec"><span class="id" title="lemma">PCPb_compl_undec</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_intu.html#ksatis_red"><span class="id" title="lemma">ksatis_red</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="undecidable_FOL_prv_class" class="idref" href="#undecidable_FOL_prv_class"><span class="id" title="lemma">undecidable_FOL_prv_class</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.FOL.FOL.html#FOL_prv_class"><span class="id" title="definition">FOL_prv_class</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.PCP.PCP_undec.html#PCPb_undec"><span class="id" title="lemma">PCPb_undec</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_class.html#cprv_red"><span class="id" title="lemma">PCPb_to_FOL_class.cprv_red</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="undecidable_FOLstar_prv_class" class="idref" href="#undecidable_FOLstar_prv_class"><span class="id" title="lemma">undecidable_FOLstar_prv_class</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.FOL.FOL.html#a695805091c491fe55b4af2bb226143c"><span class="id" title="notation">FOL</span></a><a class="idref" href="Undecidability.FOL.FOL.html#a695805091c491fe55b4af2bb226143c"><span class="id" title="notation">*</span></a><a class="idref" href="Undecidability.FOL.FOL.html#a695805091c491fe55b4af2bb226143c"><span class="id" title="notation">_prv_class</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.PCP.PCP_undec.html#PCPb_undec"><span class="id" title="lemma">PCPb_undec</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<span class="id" title="keyword">fun</span> <a id="R:2" class="idref" href="#R:2"><span class="id" title="binder">R</span></a> =&gt; <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL.html#F"><span class="id" title="definition">F</span></a> <a class="idref" href="Undecidability.FOL.FOL_undec.html#R:1"><span class="id" title="variable">R</span></a>). <span class="id" title="tactic">intros</span> <span class="id" title="var">R</span>. <span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_FOL_class.html#BPCP_CND"><span class="id" title="lemma">BPCP_CND</span></a> <span class="id" title="var">R</span>).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

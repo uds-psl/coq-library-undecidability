@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.Synthetic</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.Definitions.html#"><span class="id" title="library">Definitions</span></a> <a class="idref" href="Undecidability.Synthetic.EnumerabilityFacts.html#"><span class="id" title="library">EnumerabilityFacts</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.L.L.html#"><span class="id" title="library">Undecidability.L.L</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.L.Enumerators.term_enum.html#"><span class="id" title="library">Undecidability.L.Enumerators.term_enum</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.L.Computability.Seval.html#"><span class="id" title="library">Undecidability.L.Computability.Seval</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="HaltL_semi_decision" class="idref" href="#HaltL_semi_decision"><span class="id" title="lemma">HaltL_semi_decision</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Specif.html#6556914db359db999889decec6a4a562"><span class="id" title="notation">{</span></a> <a id="f:1" class="idref" href="#f:1"><span class="id" title="binder">f</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Specif.html#6556914db359db999889decec6a4a562"><span class="id" title="notation">:</span></a> <a class="idref" href="Undecidability.L.L.html#term"><span class="id" title="inductive">term</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#bool"><span class="id" title="inductive">bool</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Specif.html#6556914db359db999889decec6a4a562"><span class="id" title="notation">|</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#semi_decider"><span class="id" title="definition">semi_decider</span></a> <a class="idref" href="Undecidability.L.Enumerators.HaltL_enum.html#f:1"><span class="id" title="variable">f</span></a> <a class="idref" href="Undecidability.L.L.html#HaltL"><span class="id" title="definition">HaltL</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Specif.html#6556914db359db999889decec6a4a562"><span class="id" title="notation">}</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<span class="id" title="keyword">fun</span> <a id="t:4" class="idref" href="#t:4"><span class="id" title="binder">t</span></a> <a id="n:5" class="idref" href="#n:5"><span class="id" title="binder">n</span></a> =&gt; <span class="id" title="keyword">match</span> <a class="idref" href="Undecidability.L.Computability.Seval.html#eva"><span class="id" title="definition">eva</span></a> <a class="idref" href="Undecidability.L.Enumerators.HaltL_enum.html#n:3"><span class="id" title="variable">n</span></a> <a class="idref" href="Undecidability.L.Enumerators.HaltL_enum.html#t:2"><span class="id" title="variable">t</span></a> <span class="id" title="keyword">with</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#Some"><span class="id" title="constructor">Some</span></a> <span class="id" title="var">_</span> =&gt; <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#true"><span class="id" title="constructor">true</span></a> | <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#None"><span class="id" title="constructor">None</span></a> =&gt; <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#false"><span class="id" title="constructor">false</span></a> <span class="id" title="keyword">end</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">s</span>. <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> [<span class="id" title="var">t</span> [<span class="id" title="var">n</span> <span class="id" title="var">Hn</span>]%<a class="idref" href="Undecidability.L.Util.L_facts.html#eval_iff"><span class="id" title="lemma">eval_iff</span></a>%<a class="idref" href="Undecidability.L.Computability.Seval.html#eval_seval"><span class="id" title="lemma">eval_seval</span></a>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <span class="id" title="var">n</span>. <span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> (<a class="idref" href="Undecidability.L.Computability.Seval.html#seval_eva"><span class="id" title="lemma">seval_eva</span></a> <span class="id" title="var">Hn</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> [<span class="id" title="var">n</span> <span class="id" title="var">Hn</span>]. <span class="id" title="tactic">destruct</span> (<a class="idref" href="Undecidability.L.Computability.Seval.html#eva"><span class="id" title="definition">eva</span></a> <span class="id" title="var">n</span> <span class="id" title="var">s</span>) <span class="id" title="keyword">as</span> [<span class="id" title="var">t</span>|] <span class="id" title="var">eqn</span>:<span class="id" title="var">E</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exists</span> <span class="id" title="var">t</span>. <span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.L.Util.L_facts.html#eval_iff"><span class="id" title="lemma">eval_iff</span></a>, (@<a class="idref" href="Undecidability.L.Computability.Seval.html#seval_eval"><span class="id" title="lemma">seval_eval</span></a> <span class="id" title="var">n</span>), <a class="idref" href="Undecidability.L.Computability.Seval.html#eva_seval"><span class="id" title="lemma">eva_seval</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="var">easy</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="HaltL_enumeration" class="idref" href="#HaltL_enumeration"><span class="id" title="lemma">HaltL_enumeration</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Specif.html#6556914db359db999889decec6a4a562"><span class="id" title="notation">{</span></a> <a id="e:6" class="idref" href="#e:6"><span class="id" title="binder">e</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Specif.html#6556914db359db999889decec6a4a562"><span class="id" title="notation">:</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#option"><span class="id" title="inductive">option</span></a> <a class="idref" href="Undecidability.L.L.html#term"><span class="id" title="inductive">term</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Specif.html#6556914db359db999889decec6a4a562"><span class="id" title="notation">|</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#enumerator"><span class="id" title="definition">enumerator</span></a> <a class="idref" href="Undecidability.L.Enumerators.HaltL_enum.html#e:6"><span class="id" title="variable">e</span></a> <a class="idref" href="Undecidability.L.L.html#HaltL"><span class="id" title="definition">HaltL</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Specif.html#6556914db359db999889decec6a4a562"><span class="id" title="notation">}</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.EnumerabilityFacts.html#semi_decider_enumerator"><span class="id" title="lemma">semi_decider_enumerator</span></a> <a class="idref" href="Undecidability.L.Enumerators.term_enum.html#enumerator__T_term"><span class="id" title="lemma">enumerator__T_term</span></a> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Specif.html#proj2_sig"><span class="id" title="definition">proj2_sig</span></a> <a class="idref" href="Undecidability.L.Enumerators.HaltL_enum.html#HaltL_semi_decision"><span class="id" title="lemma">HaltL_semi_decision</span></a>)).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="HaltL_enumerator" class="idref" href="#HaltL_enumerator"><span class="id" title="definition">HaltL_enumerator</span></a> := <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Specif.html#proj1_sig"><span class="id" title="definition">proj1_sig</span></a> <a class="idref" href="Undecidability.L.Enumerators.HaltL_enum.html#HaltL_enumeration"><span class="id" title="lemma">HaltL_enumeration</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="HaltL_enumerator_spec" class="idref" href="#HaltL_enumerator_spec"><span class="id" title="lemma">HaltL_enumerator_spec</span></a> : <a class="idref" href="Undecidability.Synthetic.Definitions.html#enumerator"><span class="id" title="definition">enumerator</span></a> <a class="idref" href="Undecidability.L.Enumerators.HaltL_enum.html#HaltL_enumerator"><span class="id" title="definition">HaltL_enumerator</span></a> <a class="idref" href="Undecidability.L.L.html#HaltL"><span class="id" title="definition">HaltL</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">exact</span> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Specif.html#proj2_sig"><span class="id" title="definition">proj2_sig</span></a> <a class="idref" href="Undecidability.L.Enumerators.HaltL_enum.html#HaltL_enumeration"><span class="id" title="lemma">HaltL_enumeration</span></a>). <span class="id" title="keyword">Qed</span>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

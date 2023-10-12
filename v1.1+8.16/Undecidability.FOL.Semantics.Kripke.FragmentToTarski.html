@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FragmentFacts.html#"><span class="id" title="library">FOL.Semantics.Tarski.FragmentFacts</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentCore.html#"><span class="id" title="library">FOL.Semantics.Kripke.FragmentCore</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Shared.ListAutomation.html#"><span class="id" title="library">Shared.ListAutomation</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Shared.ListAutomation.html#ListAutomationNotations"><span class="id" title="module">ListAutomationNotations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Set Implicit Arguments</span>.<br/>
+<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Unset</span> <span class="id" title="keyword">Strict</span> <span class="id" title="keyword">Implicit</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Notation</span> <a id="vec" class="idref" href="#vec"><span class="id" title="abbreviation">vec</span></a> := <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Vector.html#t"><span class="id" title="inductive">Vector.t</span></a>.<br/>
+
+<br/>
+#[<span class="id" title="var">local</span>] <span class="id" title="keyword">Ltac</span> <span class="id" title="var">comp</span> := <span class="id" title="tactic">repeat</span> (<span class="id" title="tactic">progress</span> (<span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *; <span class="id" title="var">autounfold</span> <span class="id" title="tactic">in</span> *)).<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="ToTarski" class="idref" href="#ToTarski"><span class="id" title="section">ToTarski</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="3119b92ea0f8e0e70d627e0a58772fa6" class="idref" href="#3119b92ea0f8e0e70d627e0a58772fa6"><span class="id" title="binder">Σ_funcs</span></a> : <a class="idref" href="Undecidability.FOL.Syntax.Core.html#funcs_signature"><span class="id" title="class">funcs_signature</span></a>}.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="390ba1ee029e8777dc2378d46aca0ba0" class="idref" href="#390ba1ee029e8777dc2378d46aca0ba0"><span class="id" title="binder">Σ_preds</span></a> : <a class="idref" href="Undecidability.FOL.Syntax.Core.html#preds_signature"><span class="id" title="class">preds_signature</span></a>}.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Program Instance</span> <a id="interp_kripke" class="idref" href="#interp_kripke"><span class="id" title="instance">interp_kripke</span></a> {<a id="domain:3" class="idref" href="#domain:3"><span class="id" title="binder">domain</span></a>} (<a id="I:4" class="idref" href="#I:4"><span class="id" title="binder">I</span></a> : <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FragmentCore.html#interp"><span class="id" title="class">interp</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentToTarski.html#domain:3"><span class="id" title="variable">domain</span></a>) : <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentCore.html#kmodel"><span class="id" title="class">kmodel</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentToTarski.html#domain:3"><span class="id" title="variable">domain</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{| <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentCore.html#nodes"><span class="id" title="method">nodes</span></a> := <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#unit"><span class="id" title="inductive">unit</span></a> ; <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentCore.html#reachable"><span class="id" title="method">reachable</span></a> <a id="u:5" class="idref" href="#u:5"><span class="id" title="binder">u</span></a> <a id="v:6" class="idref" href="#v:6"><span class="id" title="binder">v</span></a> := <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#True"><span class="id" title="inductive">True</span></a> |}.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Next</span> <span class="id" title="keyword">Obligation</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <span class="id" title="var">I</span> <span class="id" title="tactic">in</span> <span class="id" title="var">X</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="kripke_tarski" class="idref" href="#kripke_tarski"><span class="id" title="lemma">kripke_tarski</span></a> {<a id="ff:7" class="idref" href="#ff:7"><span class="id" title="binder">ff</span></a> : <a class="idref" href="Undecidability.FOL.Syntax.Core.html#falsity_flag"><span class="id" title="class">falsity_flag</span></a>} <a id="domain:8" class="idref" href="#domain:8"><span class="id" title="binder">domain</span></a> (<a id="I:9" class="idref" href="#I:9"><span class="id" title="binder">I</span></a> : <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FragmentCore.html#interp"><span class="id" title="class">interp</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentToTarski.html#domain:8"><span class="id" title="variable">domain</span></a>) <a id="rho:10" class="idref" href="#rho:10"><span class="id" title="binder">rho</span></a> <a id="phi:11" class="idref" href="#phi:11"><span class="id" title="binder">phi</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentToTarski.html#rho:10"><span class="id" title="variable">rho</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FragmentCore.html#d50aa3cc3a68361fcdb685523acf6731"><span class="id" title="notation">⊨</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentToTarski.html#phi:11"><span class="id" title="variable">phi</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'&lt;-&gt;'_x"><span class="id" title="notation">&lt;-&gt;</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentCore.html#ksat"><span class="id" title="definition">ksat</span></a> (<a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentToTarski.html#interp_kripke"><span class="id" title="instance">interp_kripke</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentToTarski.html#I:9"><span class="id" title="variable">I</span></a>) <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#tt"><span class="id" title="constructor">tt</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentToTarski.html#rho:10"><span class="id" title="variable">rho</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentToTarski.html#phi:11"><span class="id" title="variable">phi</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">revert</span> <span class="id" title="var">rho</span>. <span class="id" title="tactic">induction</span> <span class="id" title="var">phi</span>; <span class="id" title="tactic">intros</span> <span class="id" title="var">rho</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">tauto</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">tauto</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">destruct</span> <span class="id" title="var">b0</span>. <span class="id" title="var">cbn</span>. <span class="id" title="tactic">rewrite</span> <span class="id" title="var">IHphi1</span>, <span class="id" title="var">IHphi2</span>. <span class="id" title="tactic">intuition</span>. <span class="id" title="tactic">destruct</span> <span class="id" title="var">v</span>. <span class="id" title="tactic">tauto</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">destruct</span> <span class="id" title="var">q</span>. <span class="id" title="var">cbn</span>. <span class="id" title="tactic">split</span>; <span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">i</span>. <span class="id" title="tactic">apply</span> <span class="id" title="var">IHphi</span>, <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">i</span>. <span class="id" title="tactic">apply</span> <span class="id" title="var">IHphi</span>, <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="kvalid_valid" class="idref" href="#kvalid_valid"><span class="id" title="lemma">kvalid_valid</span></a> <a id="b:12" class="idref" href="#b:12"><span class="id" title="binder">b</span></a> (<a id="phi:13" class="idref" href="#phi:13"><span class="id" title="binder">phi</span></a> : <a class="idref" href="Undecidability.FOL.Syntax.Core.html#form"><span class="id" title="inductive">form</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentToTarski.html#b:12"><span class="id" title="variable">b</span></a>) :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentCore.html#kvalid"><span class="id" title="definition">kvalid</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentToTarski.html#phi:13"><span class="id" title="variable">phi</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FragmentCore.html#valid"><span class="id" title="definition">valid</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentToTarski.html#phi:13"><span class="id" title="variable">phi</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">H</span> <span class="id" title="var">domain</span> <span class="id" title="var">I</span> <span class="id" title="var">rho</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentToTarski.html#kripke_tarski"><span class="id" title="lemma">kripke_tarski</span></a>, <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="ksatis_satis" class="idref" href="#ksatis_satis"><span class="id" title="lemma">ksatis_satis</span></a> <a id="b:14" class="idref" href="#b:14"><span class="id" title="binder">b</span></a> (<a id="phi:15" class="idref" href="#phi:15"><span class="id" title="binder">phi</span></a> : <a class="idref" href="Undecidability.FOL.Syntax.Core.html#form"><span class="id" title="inductive">form</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentToTarski.html#b:14"><span class="id" title="variable">b</span></a>) :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.FOL.Semantics.Tarski.FragmentCore.html#satis"><span class="id" title="definition">satis</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentToTarski.html#phi:15"><span class="id" title="variable">phi</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentCore.html#ksatis"><span class="id" title="definition">ksatis</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentToTarski.html#phi:15"><span class="id" title="variable">phi</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> (<span class="id" title="var">domain</span> &amp; <span class="id" title="var">I</span> &amp; <span class="id" title="var">rho</span> &amp; ?). <span class="id" title="tactic">eapply</span> <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentToTarski.html#kripke_tarski"><span class="id" title="lemma">kripke_tarski</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">exists</span> <span class="id" title="var">domain</span>, (<a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentToTarski.html#interp_kripke"><span class="id" title="instance">interp_kripke</span></a> <span class="id" title="var">I</span>), <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#tt"><span class="id" title="constructor">tt</span></a>, <span class="id" title="var">rho</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="Undecidability.FOL.Semantics.Kripke.FragmentToTarski.html#ToTarski"><span class="id" title="section">ToTarski</span></a>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

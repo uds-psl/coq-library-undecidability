@@ -1,0 +1,193 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#"><span class="id" title="library">List</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Sorting.Permutation.html#"><span class="id" title="library">Permutation</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.Shared.Libs.DLW.Utils</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.focus.html#"><span class="id" title="library">focus</span></a> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_tac.html#"><span class="id" title="library">utils_tac</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">focus_g</span> <span class="id" title="var">x</span> <span class="id" title="var">ll</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">rr</span> := <span class="id" title="var">focus_lst</span> <span class="id" title="var">x</span> <span class="id" title="var">ll</span><br/>
+&nbsp;&nbsp;<span class="id" title="tactic">in</span>  <span class="id" title="tactic">replace</span> <span class="id" title="var">ll</span> <span class="id" title="keyword">with</span> <span class="id" title="var">rr</span>; [ <span class="id" title="tactic">idtac</span> | <span class="id" title="var">solve_list_eq</span> ].<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">focus_g_2</span> <span class="id" title="var">x</span> <span class="id" title="var">ll</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">rr</span> := <span class="id" title="var">focus_lst_2</span> <span class="id" title="var">x</span> <span class="id" title="var">ll</span><br/>
+&nbsp;&nbsp;<span class="id" title="tactic">in</span>  <span class="id" title="tactic">replace</span> <span class="id" title="var">ll</span> <span class="id" title="keyword">with</span> <span class="id" title="var">rr</span>; [ <span class="id" title="tactic">idtac</span> | <span class="id" title="var">solve_list_eq</span> ].<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">focus_g_3</span> <span class="id" title="var">x</span> <span class="id" title="var">ll</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">rr</span> := <span class="id" title="var">focus_lst_3</span> <span class="id" title="var">x</span> <span class="id" title="var">ll</span><br/>
+&nbsp;&nbsp;<span class="id" title="tactic">in</span>  <span class="id" title="tactic">replace</span> <span class="id" title="var">ll</span> <span class="id" title="keyword">with</span> <span class="id" title="var">rr</span>; [ <span class="id" title="tactic">idtac</span> | <span class="id" title="var">solve_list_eq</span> ].<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">focus_h</span> <span class="id" title="var">H</span> <span class="id" title="var">x</span> <span class="id" title="var">ll</span> := <br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">rr</span> := <span class="id" title="var">focus_lst</span> <span class="id" title="var">x</span> <span class="id" title="var">ll</span><br/>
+&nbsp;&nbsp;<span class="id" title="tactic">in</span>  <span class="id" title="tactic">replace</span> <span class="id" title="var">ll</span> <span class="id" title="keyword">with</span> <span class="id" title="var">rr</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; [ <span class="id" title="tactic">idtac</span> | <span class="id" title="var">solve_list_eq</span> ].<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">focus_h_2</span> <span class="id" title="var">H</span> <span class="id" title="var">x</span> <span class="id" title="var">ll</span> := <br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">rr</span> := <span class="id" title="var">focus_lst_2</span> <span class="id" title="var">x</span> <span class="id" title="var">ll</span><br/>
+&nbsp;&nbsp;<span class="id" title="tactic">in</span>  <span class="id" title="tactic">replace</span> <span class="id" title="var">ll</span> <span class="id" title="keyword">with</span> <span class="id" title="var">rr</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; [ <span class="id" title="tactic">idtac</span> | <span class="id" title="var">solve_list_eq</span> ].<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">focus_h_3</span> <span class="id" title="var">H</span> <span class="id" title="var">x</span> <span class="id" title="var">ll</span> := <br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">rr</span> := <span class="id" title="var">focus_lst_3</span> <span class="id" title="var">x</span> <span class="id" title="var">ll</span><br/>
+&nbsp;&nbsp;<span class="id" title="tactic">in</span>  <span class="id" title="tactic">replace</span> <span class="id" title="var">ll</span> <span class="id" title="keyword">with</span> <span class="id" title="var">rr</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; [ <span class="id" title="tactic">idtac</span> | <span class="id" title="var">solve_list_eq</span> ].<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">focus_goal</span> <span class="id" title="var">x</span> <span class="id" title="var">ll</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">type</span> <span class="id" title="keyword">of</span> <span class="id" title="var">x</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#list"><span class="id" title="inductive">list</span></a> <span class="id" title="var">_</span> =&gt; <span class="id" title="var">focus_g</span> <span class="id" title="var">x</span> <span class="id" title="var">ll</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">_</span>      =&gt; <span class="id" title="var">focus_g</span> (<span class="id" title="var">x</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#::list_scope:x_'::'_x"><span class="id" title="notation">::</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nil"><span class="id" title="constructor">nil</span></a>) <span class="id" title="var">ll</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">focus_goal_2</span> <span class="id" title="var">x</span> <span class="id" title="var">ll</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">type</span> <span class="id" title="keyword">of</span> <span class="id" title="var">x</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#list"><span class="id" title="inductive">list</span></a> <span class="id" title="var">_</span> =&gt; <span class="id" title="var">focus_g_2</span> <span class="id" title="var">x</span> <span class="id" title="var">ll</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">_</span>      =&gt; <span class="id" title="var">focus_g_2</span> (<span class="id" title="var">x</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#::list_scope:x_'::'_x"><span class="id" title="notation">::</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nil"><span class="id" title="constructor">nil</span></a>) <span class="id" title="var">ll</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">focus_goal_3</span> <span class="id" title="var">x</span> <span class="id" title="var">ll</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">type</span> <span class="id" title="keyword">of</span> <span class="id" title="var">x</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#list"><span class="id" title="inductive">list</span></a> <span class="id" title="var">_</span> =&gt; <span class="id" title="var">focus_g_3</span> <span class="id" title="var">x</span> <span class="id" title="var">ll</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">_</span>      =&gt; <span class="id" title="var">focus_g_3</span> (<span class="id" title="var">x</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#::list_scope:x_'::'_x"><span class="id" title="notation">::</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nil"><span class="id" title="constructor">nil</span></a>) <span class="id" title="var">ll</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">focus_hyp</span> <span class="id" title="var">H</span> <span class="id" title="var">x</span> <span class="id" title="var">ll</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">type</span> <span class="id" title="keyword">of</span> <span class="id" title="var">x</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#list"><span class="id" title="inductive">list</span></a> <span class="id" title="var">_</span> =&gt; <span class="id" title="var">focus_h</span> <span class="id" title="var">H</span> <span class="id" title="var">x</span> <span class="id" title="var">ll</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">_</span>      =&gt; <span class="id" title="var">focus_h</span> <span class="id" title="var">H</span> (<span class="id" title="var">x</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#::list_scope:x_'::'_x"><span class="id" title="notation">::</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nil"><span class="id" title="constructor">nil</span></a>) <span class="id" title="var">ll</span> <br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">focus_hyp_2</span> <span class="id" title="var">H</span> <span class="id" title="var">x</span> <span class="id" title="var">ll</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">type</span> <span class="id" title="keyword">of</span> <span class="id" title="var">x</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#list"><span class="id" title="inductive">list</span></a> <span class="id" title="var">_</span> =&gt; <span class="id" title="var">focus_h_2</span> <span class="id" title="var">H</span> <span class="id" title="var">x</span> <span class="id" title="var">ll</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">_</span>      =&gt; <span class="id" title="var">focus_h_2</span> <span class="id" title="var">H</span> (<span class="id" title="var">x</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#::list_scope:x_'::'_x"><span class="id" title="notation">::</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nil"><span class="id" title="constructor">nil</span></a>) <span class="id" title="var">ll</span> <br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">focus_hyp_3</span> <span class="id" title="var">H</span> <span class="id" title="var">x</span> <span class="id" title="var">ll</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">type</span> <span class="id" title="keyword">of</span> <span class="id" title="var">x</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#list"><span class="id" title="inductive">list</span></a> <span class="id" title="var">_</span> =&gt; <span class="id" title="var">focus_h_3</span> <span class="id" title="var">H</span> <span class="id" title="var">x</span> <span class="id" title="var">ll</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="var">_</span>      =&gt; <span class="id" title="var">focus_h_3</span> <span class="id" title="var">H</span> (<span class="id" title="var">x</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#::list_scope:x_'::'_x"><span class="id" title="notation">::</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nil"><span class="id" title="constructor">nil</span></a>) <span class="id" title="var">ll</span> <br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">chg_goal</span> <span class="id" title="var">x</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="keyword">context</span>[?<span class="id" title="var">hh</span>] =&gt; <span class="id" title="keyword">match</span> <span class="id" title="keyword">type</span> <span class="id" title="keyword">of</span> <span class="id" title="var">hh</span> <span class="id" title="keyword">with</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#list"><span class="id" title="inductive">list</span></a> <span class="id" title="var">_</span> =&gt; <span class="id" title="var">focus_goal</span> <span class="id" title="var">x</span> <span class="id" title="var">hh</span> <span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">chg_goal_2</span> <span class="id" title="var">x</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="keyword">context</span>[?<span class="id" title="var">hh</span>] =&gt; <span class="id" title="keyword">match</span> <span class="id" title="keyword">type</span> <span class="id" title="keyword">of</span> <span class="id" title="var">hh</span> <span class="id" title="keyword">with</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#list"><span class="id" title="inductive">list</span></a> <span class="id" title="var">_</span> =&gt; <span class="id" title="var">focus_goal_2</span> <span class="id" title="var">x</span> <span class="id" title="var">hh</span> <span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">chg_goal_3</span> <span class="id" title="var">x</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="keyword">context</span>[?<span class="id" title="var">hh</span>] =&gt; <span class="id" title="keyword">match</span> <span class="id" title="keyword">type</span> <span class="id" title="keyword">of</span> <span class="id" title="var">hh</span> <span class="id" title="keyword">with</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#list"><span class="id" title="inductive">list</span></a> <span class="id" title="var">_</span> =&gt; <span class="id" title="var">focus_goal_3</span> <span class="id" title="var">x</span> <span class="id" title="var">hh</span> <span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">chg_hyp</span> <span class="id" title="var">H</span> <span class="id" title="var">x</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">gg</span> := <span class="id" title="tactic">fresh</span> <br/>
+&nbsp;&nbsp;<span class="id" title="tactic">in</span> <span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span> <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|- ?<span class="id" title="var">G</span> =&gt; <span class="id" title="tactic">set</span> (<span class="id" title="var">gg</span> := <span class="id" title="var">G</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">generalize</span> <span class="id" title="var">H</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span> <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="keyword">context</span>[?<span class="id" title="var">hh</span>] =&gt; <span class="id" title="tactic">intros</span> <span class="id" title="var">_</span>; <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">type</span> <span class="id" title="keyword">of</span> <span class="id" title="var">hh</span> <span class="id" title="keyword">with</span> <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#list"><span class="id" title="inductive">list</span></a> <span class="id" title="var">_</span> =&gt; <span class="id" title="var">focus_hyp</span> <span class="id" title="var">H</span> <span class="id" title="var">x</span> <span class="id" title="var">hh</span> <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span>; <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <span class="id" title="var">gg</span>; <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">clear</span> <span class="id" title="var">gg</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">chg_hyp_2</span> <span class="id" title="var">H</span> <span class="id" title="var">x</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">gg</span> := <span class="id" title="tactic">fresh</span> <br/>
+&nbsp;&nbsp;<span class="id" title="tactic">in</span> <span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span> <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|- ?<span class="id" title="var">G</span> =&gt; <span class="id" title="tactic">set</span> (<span class="id" title="var">gg</span> := <span class="id" title="var">G</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">generalize</span> <span class="id" title="var">H</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span> <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="keyword">context</span>[?<span class="id" title="var">hh</span>] =&gt; <span class="id" title="tactic">intros</span> <span class="id" title="var">_</span>; <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">type</span> <span class="id" title="keyword">of</span> <span class="id" title="var">hh</span> <span class="id" title="keyword">with</span> <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#list"><span class="id" title="inductive">list</span></a> <span class="id" title="var">_</span> =&gt; <span class="id" title="var">focus_hyp_2</span> <span class="id" title="var">H</span> <span class="id" title="var">x</span> <span class="id" title="var">hh</span> <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span>; <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <span class="id" title="var">gg</span>; <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">clear</span> <span class="id" title="var">gg</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">chg_hyp_3</span> <span class="id" title="var">H</span> <span class="id" title="var">x</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> <span class="id" title="var">gg</span> := <span class="id" title="tactic">fresh</span> <br/>
+&nbsp;&nbsp;<span class="id" title="tactic">in</span> <span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span> <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|- ?<span class="id" title="var">G</span> =&gt; <span class="id" title="tactic">set</span> (<span class="id" title="var">gg</span> := <span class="id" title="var">G</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">generalize</span> <span class="id" title="var">H</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span> <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| |- <span class="id" title="keyword">context</span>[?<span class="id" title="var">hh</span>] =&gt; <span class="id" title="tactic">intros</span> <span class="id" title="var">_</span>; <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">type</span> <span class="id" title="keyword">of</span> <span class="id" title="var">hh</span> <span class="id" title="keyword">with</span> <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#list"><span class="id" title="inductive">list</span></a> <span class="id" title="var">_</span> =&gt; <span class="id" title="var">focus_hyp_3</span> <span class="id" title="var">H</span> <span class="id" title="var">x</span> <span class="id" title="var">hh</span> <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span>; <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <span class="id" title="var">gg</span>; <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">clear</span> <span class="id" title="var">gg</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Tactic Notation</span> "focus" <span class="id" title="keyword">constr</span>(<span class="id" title="var">X</span>) := <span class="id" title="var">chg_goal</span> <span class="id" title="var">X</span>.<br/>
+<span class="id" title="keyword">Tactic Notation</span> "focus" <span class="id" title="keyword">constr</span>(<span class="id" title="var">X</span>) "in" <span class="id" title="var">hyp</span>(<span class="id" title="var">H</span>) := <span class="id" title="var">chg_hyp</span> <span class="id" title="var">H</span> <span class="id" title="var">X</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Tactic Notation</span> "focus" <span class="id" title="keyword">constr</span>(<span class="id" title="var">X</span>) "in" <span class="id" title="var">hyp</span>(<span class="id" title="var">H</span>) "at" "two" := <span class="id" title="var">chg_hyp_2</span> <span class="id" title="var">H</span> <span class="id" title="var">X</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Tactic Notation</span> "focus" <span class="id" title="keyword">constr</span>(<span class="id" title="var">X</span>) "at" "three" := <span class="id" title="var">chg_goal_3</span> <span class="id" title="var">X</span>.<br/>
+<span class="id" title="keyword">Tactic Notation</span> "focus" <span class="id" title="keyword">constr</span>(<span class="id" title="var">X</span>) "in" <span class="id" title="var">hyp</span>(<span class="id" title="var">H</span>) "at" "three" := <span class="id" title="var">chg_hyp_3</span> <span class="id" title="var">H</span> <span class="id" title="var">X</span>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

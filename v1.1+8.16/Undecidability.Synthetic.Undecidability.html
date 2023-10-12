@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="Undecidability.Synthetic.Definitions.html#"><span class="id" title="library">Undecidability.Synthetic.Definitions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.DecidabilityFacts.html#"><span class="id" title="library">Undecidability.Synthetic.DecidabilityFacts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#"><span class="id" title="library">Undecidability.Synthetic.ReducibilityFacts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.TM.SBTM.html#"><span class="id" title="library">Undecidability.TM.SBTM</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="undecidable" class="idref" href="#undecidable"><span class="id" title="definition">undecidable</span></a> {<a id="X:1" class="idref" href="#X:1"><span class="id" title="binder">X</span></a>} (<a id="p:2" class="idref" href="#p:2"><span class="id" title="binder">p</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#X:1"><span class="id" title="variable">X</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="keyword">Prop</span>) :=<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.Synthetic.Definitions.html#decidable"><span class="id" title="definition">decidable</span></a> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#p:2"><span class="id" title="variable">p</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#enumerable"><span class="id" title="definition">enumerable</span></a> (<a class="idref" href="Undecidability.Synthetic.Definitions.html#complement"><span class="id" title="definition">complement</span></a> <a class="idref" href="Undecidability.TM.SBTM.html#SBTM_HALT"><span class="id" title="definition">SBTM_HALT</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="undecidability_from_reducibility" class="idref" href="#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> {<a id="X:3" class="idref" href="#X:3"><span class="id" title="binder">X</span></a>} {<a id="p:4" class="idref" href="#p:4"><span class="id" title="binder">p</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#X:3"><span class="id" title="variable">X</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="keyword">Prop</span>} {<a id="Y:5" class="idref" href="#Y:5"><span class="id" title="binder">Y</span></a>} {<a id="q:6" class="idref" href="#q:6"><span class="id" title="binder">q</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#Y:5"><span class="id" title="variable">Y</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="keyword">Prop</span>} :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#p:4"><span class="id" title="variable">p</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#p:4"><span class="id" title="variable">p</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#q:6"><span class="id" title="variable">q</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#q:6"><span class="id" title="variable">q</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a>, <a class="idref" href="Undecidability.Synthetic.Definitions.html#decidable"><span class="id" title="definition">decidable</span></a>, <a class="idref" href="Undecidability.Synthetic.Definitions.html#decider"><span class="id" title="definition">decider</span></a>, <a class="idref" href="Undecidability.Synthetic.Definitions.html#reduces"><span class="id" title="definition">reduces</span></a>, <a class="idref" href="Undecidability.Synthetic.Definitions.html#reduction"><span class="id" title="definition">reduction</span></a>, <a class="idref" href="Undecidability.Synthetic.Definitions.html#reflects"><span class="id" title="definition">reflects</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">H</span> [<span class="id" title="var">f</span> <span class="id" title="var">Hf</span>] [<span class="id" title="var">d</span> <span class="id" title="var">Hd</span>]. <span class="id" title="tactic">eapply</span> <span class="id" title="var">H</span>. <span class="id" title="tactic">exists</span> (<span class="id" title="keyword">fun</span> <a id="x:8" class="idref" href="#x:8"><span class="id" title="binder">x</span></a> =&gt; <span class="id" title="var">d</span> (<span class="id" title="var">f</span> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#x:7"><span class="id" title="variable">x</span></a>)). <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span>. <span class="id" title="tactic">rewrite</span> <span class="id" title="var">Hf</span>. <span class="id" title="tactic">eapply</span> <span class="id" title="var">Hd</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="undecidability_from_complement" class="idref" href="#undecidability_from_complement"><span class="id" title="lemma">undecidability_from_complement</span></a> {<a id="X:9" class="idref" href="#X:9"><span class="id" title="binder">X</span></a>} {<a id="p:10" class="idref" href="#p:10"><span class="id" title="binder">p</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#X:9"><span class="id" title="variable">X</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="keyword">Prop</span>} :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> (<a class="idref" href="Undecidability.Synthetic.Definitions.html#complement"><span class="id" title="definition">complement</span></a> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#p:10"><span class="id" title="variable">p</span></a>) <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#p:10"><span class="id" title="variable">p</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">H</span> <span class="id" title="var">Hp</span>. <span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <span class="id" title="var">H</span>, <a class="idref" href="Undecidability.Synthetic.DecidabilityFacts.html#dec_compl"><span class="id" title="lemma">dec_compl</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="undecidability_to_complement" class="idref" href="#undecidability_to_complement"><span class="id" title="lemma">undecidability_to_complement</span></a> {<a id="X:11" class="idref" href="#X:11"><span class="id" title="binder">X</span></a>} {<a id="p:12" class="idref" href="#p:12"><span class="id" title="binder">p</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#X:11"><span class="id" title="variable">X</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="keyword">Prop</span>} :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> (<a class="idref" href="Undecidability.Synthetic.Definitions.html#complement"><span class="id" title="definition">complement</span></a> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#p:12"><span class="id" title="variable">p</span></a>) <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> (<a class="idref" href="Undecidability.Synthetic.Definitions.html#complement"><span class="id" title="definition">complement</span></a> (<a class="idref" href="Undecidability.Synthetic.Definitions.html#complement"><span class="id" title="definition">complement</span></a> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#p:12"><span class="id" title="variable">p</span></a>)).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">H</span> <span class="id" title="var">Hp</span>. <span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <span class="id" title="var">H</span>, <a class="idref" href="Undecidability.Synthetic.DecidabilityFacts.html#dec_compl'"><span class="id" title="lemma">dec_compl'</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Module</span> <a id="UndecidabilityNotations" class="idref" href="#UndecidabilityNotations"><span class="id" title="module">UndecidabilityNotations</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#ReductionChainNotations"><span class="id" title="module">ReductionChainNotations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Tactic Notation</span> "undec" "from" <span class="id" title="keyword">constr</span>(<span class="id" title="var">H</span>) :=<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <span class="id" title="var">H</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Tactic Notation</span> "undec" "from" <span class="id" title="keyword">constr</span>(<span class="id" title="var">U</span>) "using" "chain" <span class="id" title="keyword">constr</span>(<span class="id" title="var">C</span>) :=<br/>
+&nbsp;&nbsp;<span class="id" title="var">undec</span> <span class="id" title="var">from</span> <span class="id" title="var">U</span>; <span class="id" title="var">reduce</span> <span class="id" title="keyword">with</span> <span class="id" title="var">chain</span> <span class="id" title="var">C</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#UndecidabilityNotations"><span class="id" title="module">UndecidabilityNotations</span></a>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

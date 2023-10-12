@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.Definitions.html#"><span class="id" title="library">Undecidability.Synthetic.Definitions</span></a> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#"><span class="id" title="library">Undecidability.Synthetic.Undecidability</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.PCP.PCP_undec.html#"><span class="id" title="library">Undecidability.PCP.PCP_undec</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.FOL</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.binZF_undec.html#"><span class="id" title="library">binZF_undec</span></a> <a class="idref" href="Undecidability.FOL.FOL.html#"><span class="id" title="library">FOL</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.FOL.Sets</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.Sets.binZF.html#"><span class="id" title="library">binZF</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.ZF.html#"><span class="id" title="library">Undecidability.FOL.ZF</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.Syntax.Core.html#"><span class="id" title="library">Undecidability.FOL.Syntax.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.Syntax.BinSig.html#"><span class="id" title="library">Undecidability.FOL.Syntax.BinSig</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullFacts.html#"><span class="id" title="library">Undecidability.FOL.Semantics.Tarski.FullFacts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.Deduction.FullNDFacts.html#"><span class="id" title="library">Undecidability.FOL.Deduction.FullNDFacts</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="binZF_binFOL_valid" class="idref" href="#binZF_binFOL_valid"><span class="id" title="lemma">binZF_binFOL_valid</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.FOL.ZF.html#entailment_binZF"><span class="id" title="definition">entailment_binZF</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.FOL.FOL.html#binFOL_valid"><span class="id" title="definition">binFOL_valid</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="Undecidability.FOL.Syntax.Core.html#FullSyntax.impl"><span class="id" title="definition">impl</span></a> <a class="idref" href="Undecidability.FOL.Sets.binZF.html#binZF"><span class="id" title="definition">binZF</span></a>). <span class="id" title="tactic">intros</span> <span class="id" title="var">phi</span>. <span class="id" title="tactic">unfold</span> <a class="idref" href="Undecidability.FOL.FOL.html#binFOL_valid"><span class="id" title="definition">binFOL_valid</span></a>, <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullCore.html#valid"><span class="id" title="definition">valid</span></a>, <a class="idref" href="Undecidability.FOL.ZF.html#entailment_binZF"><span class="id" title="definition">entailment_binZF</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">setoid_rewrite</span> <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullFacts.html#impl_sat"><span class="id" title="lemma">impl_sat</span></a>. <span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="binFOL_valid_undec" class="idref" href="#binFOL_valid_undec"><span class="id" title="lemma">binFOL_valid_undec</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.FOL.FOL.html#binFOL_valid"><span class="id" title="definition">binFOL_valid</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.FOL.binZF_undec.html#undecidable_entailment_binZF"><span class="id" title="lemma">undecidable_entailment_binZF</span></a>), <a class="idref" href="Undecidability.FOL.binFOL_undec.html#binZF_binFOL_valid"><span class="id" title="lemma">binZF_binFOL_valid</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="binZF_binFOL_prv_intu" class="idref" href="#binZF_binFOL_prv_intu"><span class="id" title="lemma">binZF_binFOL_prv_intu</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.FOL.ZF.html#deduction_binZF"><span class="id" title="definition">deduction_binZF</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.FOL.FOL.html#binFOL_prv_intu"><span class="id" title="definition">binFOL_prv_intu</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="Undecidability.FOL.Syntax.Core.html#FullSyntax.impl"><span class="id" title="definition">impl</span></a> <a class="idref" href="Undecidability.FOL.Sets.binZF.html#binZF"><span class="id" title="definition">binZF</span></a>). <span class="id" title="tactic">intros</span> <span class="id" title="var">phi</span>. <span class="id" title="tactic">unfold</span> <a class="idref" href="Undecidability.FOL.FOL.html#binFOL_prv_intu"><span class="id" title="definition">binFOL_prv_intu</span></a>, <a class="idref" href="Undecidability.FOL.ZF.html#deduction_binZF"><span class="id" title="definition">deduction_binZF</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">setoid_rewrite</span> &lt;- <a class="idref" href="Undecidability.FOL.Deduction.FullNDFacts.html#impl_prv"><span class="id" title="lemma">impl_prv</span></a>. <span class="id" title="tactic">rewrite</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#app_nil_r"><span class="id" title="lemma">List.app_nil_r</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>; <span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.FOL.Deduction.FullNDFacts.html#Weak"><span class="id" title="lemma">Weak</span></a> <span class="id" title="var">H</span>); <span class="id" title="tactic">unfold</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#incl"><span class="id" title="definition">List.incl</span></a>; <span class="id" title="tactic">apply</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#in_rev"><span class="id" title="lemma">List.in_rev</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="binFOL_prv_intu_undec" class="idref" href="#binFOL_prv_intu_undec"><span class="id" title="lemma">binFOL_prv_intu_undec</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.FOL.FOL.html#binFOL_prv_intu"><span class="id" title="definition">binFOL_prv_intu</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.FOL.binZF_undec.html#undecidable_deduction_binZF"><span class="id" title="lemma">undecidable_deduction_binZF</span></a>), <a class="idref" href="Undecidability.FOL.binFOL_undec.html#binZF_binFOL_prv_intu"><span class="id" title="lemma">binZF_binFOL_prv_intu</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

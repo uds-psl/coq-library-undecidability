@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.FOL</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.Utils.FullSyntax.html#"><span class="id" title="library">FullSyntax</span></a>.<br/>
+
+<br/>
+#[<span class="id" title="var">global</span>]<br/>
+<span class="id" title="var">Existing</span> <span class="id" title="keyword">Instance</span> <span class="id" title="var">falsity_on</span>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Inductive</span> <a id="syms_func" class="idref" href="#syms_func"><span class="id" title="inductive">syms_func</span></a> :=<br/>
+&nbsp;&nbsp;| <a id="f" class="idref" href="#f"><span class="id" title="constructor">f</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#bool"><span class="id" title="inductive">bool</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.FOL.FSAT.html#syms_func:1"><span class="id" title="inductive">syms_func</span></a><br/>
+&nbsp;&nbsp;| <a id="e" class="idref" href="#e"><span class="id" title="constructor">e</span></a> : <a class="idref" href="Undecidability.FOL.FSAT.html#syms_func:1"><span class="id" title="inductive">syms_func</span></a><br/>
+&nbsp;&nbsp;| <a id="dum" class="idref" href="#dum"><span class="id" title="constructor">dum</span></a> : <a class="idref" href="Undecidability.FOL.FSAT.html#syms_func:1"><span class="id" title="inductive">syms_func</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="func_arity" class="idref" href="#func_arity"><span class="id" title="definition">func_arity</span></a> (<a id="f:3" class="idref" href="#f:3"><span class="id" title="binder">f</span></a> : <a class="idref" href="Undecidability.FOL.FSAT.html#syms_func"><span class="id" title="inductive">syms_func</span></a>) := <span class="id" title="keyword">match</span> <a class="idref" href="Undecidability.FOL.FSAT.html#f:3"><span class="id" title="variable">f</span></a> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;| <a class="idref" href="Undecidability.FOL.FSAT.html#f"><span class="id" title="constructor">f</span></a> <span class="id" title="var">_</span> =&gt; 1<br/>
+&nbsp;&nbsp;| <a class="idref" href="Undecidability.FOL.FSAT.html#e"><span class="id" title="constructor">e</span></a> =&gt; 0<br/>
+&nbsp;&nbsp;| <a class="idref" href="Undecidability.FOL.FSAT.html#dum"><span class="id" title="constructor">dum</span></a> =&gt; 0 <span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+#[<span class="id" title="var">global</span>]<br/>
+<span class="id" title="keyword">Instance</span> <a id="sig_func" class="idref" href="#sig_func"><span class="id" title="instance">sig_func</span></a> : <a class="idref" href="Undecidability.FOL.Syntax.Core.html#funcs_signature"><span class="id" title="class">funcs_signature</span></a> :=<br/>
+&nbsp;&nbsp;{| <a class="idref" href="Undecidability.FOL.Syntax.Core.html#syms"><span class="id" title="method">syms</span></a> := <a class="idref" href="Undecidability.FOL.FSAT.html#syms_func"><span class="id" title="inductive">syms_func</span></a>; <a class="idref" href="Undecidability.FOL.Syntax.Core.html#ar_syms"><span class="id" title="method">ar_syms</span></a> := <a class="idref" href="Undecidability.FOL.FSAT.html#func_arity"><span class="id" title="definition">func_arity</span></a> |}.<br/>
+
+<br/>
+<span class="id" title="keyword">Inductive</span> <a id="syms_pred" class="idref" href="#syms_pred"><span class="id" title="inductive">syms_pred</span></a> := <br/>
+&nbsp;&nbsp;| <a id="P" class="idref" href="#P"><span class="id" title="constructor">P</span></a> : <a class="idref" href="Undecidability.FOL.FSAT.html#syms_pred:5"><span class="id" title="inductive">syms_pred</span></a><br/>
+&nbsp;&nbsp;| <a id="less" class="idref" href="#less"><span class="id" title="constructor">less</span></a> : <a class="idref" href="Undecidability.FOL.FSAT.html#syms_pred:5"><span class="id" title="inductive">syms_pred</span></a><br/>
+&nbsp;&nbsp;| <a id="equiv" class="idref" href="#equiv"><span class="id" title="constructor">equiv</span></a> : <a class="idref" href="Undecidability.FOL.FSAT.html#syms_pred:5"><span class="id" title="inductive">syms_pred</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="pred_arty" class="idref" href="#pred_arty"><span class="id" title="definition">pred_arty</span></a> (<a id="p:7" class="idref" href="#p:7"><span class="id" title="binder">p</span></a> : <a class="idref" href="Undecidability.FOL.FSAT.html#syms_pred"><span class="id" title="inductive">syms_pred</span></a>) := 2.<br/>
+
+<br/>
+#[<span class="id" title="var">global</span>]<br/>
+<span class="id" title="keyword">Instance</span> <a id="sig_pred" class="idref" href="#sig_pred"><span class="id" title="instance">sig_pred</span></a> : <a class="idref" href="Undecidability.FOL.Syntax.Core.html#preds_signature"><span class="id" title="class">preds_signature</span></a> :=<br/>
+&nbsp;&nbsp;{| <a class="idref" href="Undecidability.FOL.Syntax.Core.html#preds"><span class="id" title="method">preds</span></a> := <a class="idref" href="Undecidability.FOL.FSAT.html#syms_pred"><span class="id" title="inductive">syms_pred</span></a>; <a class="idref" href="Undecidability.FOL.Syntax.Core.html#ar_preds"><span class="id" title="method">ar_preds</span></a> := <a class="idref" href="Undecidability.FOL.FSAT.html#pred_arty"><span class="id" title="definition">pred_arty</span></a> |}.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

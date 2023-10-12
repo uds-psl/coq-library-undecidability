@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#"><span class="id" title="library">List</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.Definitions.html#"><span class="id" title="library">Undecidability.Synthetic.Definitions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#"><span class="id" title="library">Undecidability.Synthetic.ReducibilityFacts</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.Shared.Libs.DLW</span><br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_tac.html#"><span class="id" title="library">utils_tac</span></a> <a class="idref" href="Undecidability.Shared.Libs.DLW.Vec.pos.html#"><span class="id" title="library">pos</span></a> <a class="idref" href="Undecidability.Shared.Libs.DLW.Vec.vec.html#"><span class="id" title="library">vec</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.FRACTRAN</span> <br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FRACTRAN.FRACTRAN.html#"><span class="id" title="library">FRACTRAN</span></a> <a class="idref" href="Undecidability.FRACTRAN.Reductions.MM_FRACTRAN.html#"><span class="id" title="library">MM_FRACTRAN</span></a> <a class="idref" href="Undecidability.FRACTRAN.Util.FRACTRAN_sss.html#"><span class="id" title="library">FRACTRAN_sss</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.H10.Fractran</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.H10.Fractran.fractran_dio.html#"><span class="id" title="library">fractran_dio</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.H10.Dio</span>      <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.H10.Dio.dio_elem.html#"><span class="id" title="library">dio_elem</span></a> <a class="idref" href="Undecidability.H10.Dio.dio_single.html#"><span class="id" title="library">dio_single</span></a> <a class="idref" href="Undecidability.H10.Dio.dio_logic.html#"><span class="id" title="library">dio_logic</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Set Implicit Arguments</span>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="DIO_LOGIC_PROBLEM" class="idref" href="#DIO_LOGIC_PROBLEM"><span class="id" title="definition">DIO_LOGIC_PROBLEM</span></a> := <br/>
+&nbsp;&nbsp;(<a class="idref" href="Undecidability.H10.Dio.dio_logic.html#dio_formula"><span class="id" title="inductive">dio_formula</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#11c698c8685bb8ab1cf725545c085ac4"><span class="id" title="notation">*</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#11c698c8685bb8ab1cf725545c085ac4"><span class="id" title="notation">(</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#11c698c8685bb8ab1cf725545c085ac4"><span class="id" title="notation">)</span></a>)%<span class="id" title="keyword">type</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="DIO_LOGIC_SAT" class="idref" href="#DIO_LOGIC_SAT"><span class="id" title="definition">DIO_LOGIC_SAT</span></a> (<a id="p:1" class="idref" href="#p:1"><span class="id" title="binder">p</span></a> : <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#DIO_LOGIC_PROBLEM"><span class="id" title="definition">DIO_LOGIC_PROBLEM</span></a>) :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> (<a id="f:2" class="idref" href="#f:2"><span class="id" title="binder">f</span></a>,<a id="aade8cb64b616444e287464264b17ee7" class="idref" href="#aade8cb64b616444e287464264b17ee7"><span class="id" title="binder">ν</span></a>) := <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#p:1"><span class="id" title="variable">p</span></a> <span class="id" title="tactic">in</span> <a class="idref" href="Undecidability.H10.Dio.dio_logic.html#df_pred"><span class="id" title="definition">df_pred</span></a> <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#f:2"><span class="id" title="variable">f</span></a> <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#aade8cb64b616444e287464264b17ee7"><span class="id" title="variable">ν</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="FRACTRAN_HALTING_DIO_LOGIC_SAT" class="idref" href="#FRACTRAN_HALTING_DIO_LOGIC_SAT"><span class="id" title="lemma">FRACTRAN_HALTING_DIO_LOGIC_SAT</span></a> : <a class="idref" href="Undecidability.FRACTRAN.FRACTRAN.html#Halt_FRACTRAN"><span class="id" title="definition">Halt_FRACTRAN</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#DIO_LOGIC_SAT"><span class="id" title="definition">DIO_LOGIC_SAT</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#reduces_dependent"><span class="id" title="lemma">reduces_dependent</span></a>; <span class="id" title="tactic">exists</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> (<span class="id" title="var">l</span> &amp; <span class="id" title="var">x</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> <a class="idref" href="Undecidability.H10.Fractran.fractran_dio.html#FRACTRAN_HALTING_on_diophantine"><span class="id" title="lemma">FRACTRAN_HALTING_on_diophantine</span></a> <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">with</span> (<span class="id" title="var">ll</span> := <span class="id" title="var">l</span>) (<span class="id" title="var">x</span> := <span class="id" title="keyword">fun</span> <span class="id" title="var">_</span> : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a> =&gt; <span class="id" title="var">x</span>) <span class="id" title="keyword">as</span> (<span class="id" title="var">f</span> &amp; <span class="id" title="var">Hf</span>); <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="var">dio_rel_auto</span>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">exists</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a><span class="id" title="var">f</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a> <span class="id" title="keyword">fun</span> <span class="id" title="var">_</span> =&gt; <span class="id" title="var">x</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">setoid_rewrite</span> <a class="idref" href="Undecidability.FRACTRAN.Util.FRACTRAN_sss.html#eval_iff"><span class="id" title="lemma">eval_iff</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#DIO_LOGIC_SAT"><span class="id" title="definition">DIO_LOGIC_SAT</span></a>; <span class="id" title="tactic">rewrite</span> <span class="id" title="var">Hf</span>; <span class="id" title="tactic">tauto</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="DIO_ELEM_PROBLEM" class="idref" href="#DIO_ELEM_PROBLEM"><span class="id" title="definition">DIO_ELEM_PROBLEM</span></a> := <br/>
+&nbsp;&nbsp;(<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#list"><span class="id" title="inductive">list</span></a> <a class="idref" href="Undecidability.H10.Dio.dio_elem.html#dio_constraint"><span class="id" title="definition">dio_constraint</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#11c698c8685bb8ab1cf725545c085ac4"><span class="id" title="notation">*</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#11c698c8685bb8ab1cf725545c085ac4"><span class="id" title="notation">(</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#11c698c8685bb8ab1cf725545c085ac4"><span class="id" title="notation">)</span></a>)%<span class="id" title="keyword">type</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="DIO_ELEM_SAT" class="idref" href="#DIO_ELEM_SAT"><span class="id" title="definition">DIO_ELEM_SAT</span></a> (<a id="p:4" class="idref" href="#p:4"><span class="id" title="binder">p</span></a> : <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#DIO_ELEM_PROBLEM"><span class="id" title="definition">DIO_ELEM_PROBLEM</span></a>) :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> (<a id="l:5" class="idref" href="#l:5"><span class="id" title="binder">l</span></a>,<a id="v:6" class="idref" href="#v:6"><span class="id" title="binder">v</span></a>) := <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#p:4"><span class="id" title="variable">p</span></a> <span class="id" title="tactic">in</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#a883bdd010993579f99d60b3775bcf54"><span class="id" title="notation">exists</span></a> <a id="318b893980ba1f14a5a856f2bbea644a" class="idref" href="#318b893980ba1f14a5a856f2bbea644a"><span class="id" title="binder">φ</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#a883bdd010993579f99d60b3775bcf54"><span class="id" title="notation">,</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#Forall"><span class="id" title="inductive">Forall</span></a> (<a class="idref" href="Undecidability.H10.Dio.dio_elem.html#dc_eval"><span class="id" title="definition">dc_eval</span></a> <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#318b893980ba1f14a5a856f2bbea644a"><span class="id" title="variable">φ</span></a> <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#v:6"><span class="id" title="variable">v</span></a>) <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#l:5"><span class="id" title="variable">l</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="DIO_LOGIC_ELEM_SAT" class="idref" href="#DIO_LOGIC_ELEM_SAT"><span class="id" title="lemma">DIO_LOGIC_ELEM_SAT</span></a> : <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#DIO_LOGIC_SAT"><span class="id" title="definition">DIO_LOGIC_SAT</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a>  <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#DIO_ELEM_SAT"><span class="id" title="definition">DIO_ELEM_SAT</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#reduces_dependent"><span class="id" title="lemma">reduces_dependent</span></a>; <span class="id" title="tactic">exists</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> (<span class="id" title="var">A</span>,<span class="id" title="var">v</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> (<a class="idref" href="Undecidability.H10.Dio.dio_elem.html#dio_formula_elem"><span class="id" title="lemma">dio_formula_elem</span></a> <span class="id" title="var">A</span>) <span class="id" title="keyword">as</span> (<span class="id" title="var">l</span> &amp; <span class="id" title="var">_</span> &amp; <span class="id" title="var">_</span> &amp; <span class="id" title="var">Hl</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a><span class="id" title="var">l</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a><span class="id" title="var">v</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a>; <span class="id" title="tactic">apply</span> <span class="id" title="var">Hl</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="DIO_SINGLE_PROBLEM" class="idref" href="#DIO_SINGLE_PROBLEM"><span class="id" title="definition">DIO_SINGLE_PROBLEM</span></a> := <br/>
+&nbsp;&nbsp;(<a class="idref" href="Undecidability.H10.Dio.dio_single.html#dio_single"><span class="id" title="definition">dio_single</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#11c698c8685bb8ab1cf725545c085ac4"><span class="id" title="notation">*</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#11c698c8685bb8ab1cf725545c085ac4"><span class="id" title="notation">(</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#11c698c8685bb8ab1cf725545c085ac4"><span class="id" title="notation">)</span></a>)%<span class="id" title="keyword">type</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="DIO_SINGLE_SAT" class="idref" href="#DIO_SINGLE_SAT"><span class="id" title="definition">DIO_SINGLE_SAT</span></a> (<a id="p:8" class="idref" href="#p:8"><span class="id" title="binder">p</span></a> : <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#DIO_SINGLE_PROBLEM"><span class="id" title="definition">DIO_SINGLE_PROBLEM</span></a>) :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">let</span> (<a id="E:9" class="idref" href="#E:9"><span class="id" title="binder">E</span></a>,<a id="ec4b304ddf42d851d75fca6932b4d645" class="idref" href="#ec4b304ddf42d851d75fca6932b4d645"><span class="id" title="binder">φ</span></a>) := <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#p:8"><span class="id" title="variable">p</span></a> <span class="id" title="tactic">in</span> <a class="idref" href="Undecidability.H10.Dio.dio_single.html#dio_single_pred"><span class="id" title="definition">dio_single_pred</span></a> <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#E:9"><span class="id" title="variable">E</span></a> <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#ec4b304ddf42d851d75fca6932b4d645"><span class="id" title="variable">φ</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="DIO_ELEM_SINGLE_SAT" class="idref" href="#DIO_ELEM_SINGLE_SAT"><span class="id" title="lemma">DIO_ELEM_SINGLE_SAT</span></a> : <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#DIO_ELEM_SAT"><span class="id" title="definition">DIO_ELEM_SAT</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#DIO_SINGLE_SAT"><span class="id" title="definition">DIO_SINGLE_SAT</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#reduces_dependent"><span class="id" title="lemma">reduces_dependent</span></a>; <span class="id" title="tactic">exists</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> (<span class="id" title="var">l</span>,<span class="id" title="var">v</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> (<a class="idref" href="Undecidability.H10.Dio.dio_single.html#dio_elem_equation"><span class="id" title="lemma">dio_elem_equation</span></a> <span class="id" title="var">l</span>) <span class="id" title="keyword">as</span> (<span class="id" title="var">E</span> &amp; <span class="id" title="var">_</span> &amp; <span class="id" title="var">HE</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a><span class="id" title="var">E</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a><span class="id" title="var">v</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#DIO_ELEM_SAT"><span class="id" title="definition">DIO_ELEM_SAT</span></a>, <a class="idref" href="Undecidability.H10.FRACTRAN_DIO.html#DIO_SINGLE_SAT"><span class="id" title="definition">DIO_SINGLE_SAT</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> &lt;- <span class="id" title="var">HE</span>; <span class="id" title="tactic">tauto</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

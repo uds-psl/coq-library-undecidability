@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.PCP.PCP.html#"><span class="id" title="library">Undecidability.PCP.PCP</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#"><span class="id" title="library">Undecidability.Synthetic.Undecidability</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#"><span class="id" title="library">Undecidability.Synthetic.ReducibilityFacts</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.PCP.Reductions</span> <span class="id" title="keyword">Require</span> <br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.PCP.Reductions.SR_to_MPCP.html#"><span class="id" title="library">SR_to_MPCP</span></a> <a class="idref" href="Undecidability.PCP.Reductions.MPCP_to_MPCPb.html#"><span class="id" title="library">MPCP_to_MPCPb</span></a> <a class="idref" href="Undecidability.PCP.Reductions.MPCP_to_PCP.html#"><span class="id" title="library">MPCP_to_PCP</span></a> <a class="idref" href="Undecidability.PCP.Reductions.PCP_to_PCPb.html#"><span class="id" title="library">PCP_to_PCPb</span></a> <a class="idref" href="Undecidability.PCP.Reductions.PCPb_iff_iPCPb.html#"><span class="id" title="library">PCPb_iff_iPCPb</span></a> <a class="idref" href="Undecidability.PCP.Reductions.PCPb_iff_dPCPb.html#"><span class="id" title="library">PCPb_iff_dPCPb</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <a class="idref" href="Undecidability.StringRewriting.SR_undec.html#"><span class="id" title="library">Undecidability.StringRewriting.SR_undec</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.FRACTRAN</span>  <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FRACTRAN.FRACTRAN.html#"><span class="id" title="library">FRACTRAN</span></a> <a class="idref" href="Undecidability.FRACTRAN.Reductions.MM_FRACTRAN.html#"><span class="id" title="library">Reductions.MM_FRACTRAN</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.MinskyMachines</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.MinskyMachines.MM.html#"><span class="id" title="library">MM</span></a> <a class="idref" href="Undecidability.MinskyMachines.Reductions.BSM_MM.html#"><span class="id" title="library">Reductions.BSM_MM</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.StackMachines</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.StackMachines.BSM.html#"><span class="id" title="library">BSM</span></a> <a class="idref" href="Undecidability.StackMachines.Reductions.SBTM_HALT_to_HaltBSM.html#"><span class="id" title="library">Reductions.SBTM_HALT_to_HaltBSM</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.TM.SBTM_undec.html#"><span class="id" title="library">Undecidability.TM.SBTM_undec</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3"></a><h2 class="section">PCP is undecidable</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="MPCP_undec" class="idref" href="#MPCP_undec"><span class="id" title="lemma">MPCP_undec</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.PCP.PCP.html#MPCP"><span class="id" title="definition">MPCP</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.StringRewriting.SR_undec.html#SR_undec"><span class="id" title="lemma">SR_undec.SR_undec</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="Undecidability.PCP.Reductions.SR_to_MPCP.html#reduction"><span class="id" title="lemma">SR_to_MPCP.reduction</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="Undecidability.PCP.PCP_undec.html#MPCP_undec"><span class="id" title="lemma">MPCP_undec</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="MPCPb_undec" class="idref" href="#MPCPb_undec"><span class="id" title="lemma">MPCPb_undec</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.PCP.PCP.html#MPCPb"><span class="id" title="definition">MPCPb</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.PCP.PCP_undec.html#MPCP_undec"><span class="id" title="lemma">MPCP_undec</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="Undecidability.PCP.Reductions.MPCP_to_MPCPb.html#reduction"><span class="id" title="lemma">MPCP_to_MPCPb.reduction</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="Undecidability.PCP.PCP_undec.html#MPCPb_undec"><span class="id" title="lemma">MPCPb_undec</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="PCP_undec" class="idref" href="#PCP_undec"><span class="id" title="lemma">PCP_undec</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.PCP.PCP.html#PCP"><span class="id" title="definition">PCP</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.PCP.PCP_undec.html#MPCP_undec"><span class="id" title="lemma">MPCP_undec</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="Undecidability.PCP.Reductions.MPCP_to_PCP.html#reduction"><span class="id" title="lemma">MPCP_to_PCP.reduction</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="Undecidability.PCP.PCP_undec.html#PCP_undec"><span class="id" title="lemma">PCP_undec</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="PCP_compl_undec" class="idref" href="#PCP_compl_undec"><span class="id" title="lemma">PCP_compl_undec</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> (<a class="idref" href="Undecidability.Synthetic.Definitions.html#complement"><span class="id" title="definition">complement</span></a> <a class="idref" href="Undecidability.PCP.PCP.html#PCP"><span class="id" title="definition">PCP</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.TM.SBTM_undec.html#complement_SBTM_HALT_undec"><span class="id" title="lemma">complement_SBTM_HALT_undec</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#reduces_complement"><span class="id" title="lemma">reduces_complement</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#reduces_transitive"><span class="id" title="lemma">reduces_transitive</span></a>; <span class="id" title="var">last</span> <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.PCP.Reductions.MPCP_to_PCP.html#reduction"><span class="id" title="lemma">MPCP_to_PCP.reduction</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#reduces_transitive"><span class="id" title="lemma">reduces_transitive</span></a>; <span class="id" title="var">last</span> <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.PCP.Reductions.SR_to_MPCP.html#reduction"><span class="id" title="lemma">SR_to_MPCP.reduction</span></a>. <span class="id" title="keyword">Locate</span> <span class="id" title="var">SR.SR</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#reduces_transitive"><span class="id" title="lemma">reduces_transitive</span></a>; <span class="id" title="var">last</span> <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.StringRewriting.Reductions.SBTM_HALT_to_SR.html#reduction"><span class="id" title="lemma">SBTM_HALT_to_SR.reduction</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#reduces_reflexive"><span class="id" title="lemma">reduces_reflexive</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="PCPb_undec" class="idref" href="#PCPb_undec"><span class="id" title="lemma">PCPb_undec</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.PCP.PCP.html#PCPb"><span class="id" title="definition">PCPb</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.PCP.PCP_undec.html#PCP_undec"><span class="id" title="lemma">PCP_undec</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="Undecidability.PCP.Reductions.PCP_to_PCPb.html#reduction"><span class="id" title="lemma">PCP_to_PCPb.reduction</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="Undecidability.PCP.PCP_undec.html#PCPb_undec"><span class="id" title="lemma">PCPb_undec</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="PCPb_compl_undec" class="idref" href="#PCPb_compl_undec"><span class="id" title="lemma">PCPb_compl_undec</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> (<a class="idref" href="Undecidability.Synthetic.Definitions.html#complement"><span class="id" title="definition">complement</span></a> <a class="idref" href="Undecidability.PCP.PCP.html#PCPb"><span class="id" title="definition">PCPb</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.PCP.PCP_undec.html#PCP_compl_undec"><span class="id" title="lemma">PCP_compl_undec</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#reduces_complement"><span class="id" title="lemma">reduces_complement</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="Undecidability.PCP.Reductions.PCP_to_PCPb.html#reduction"><span class="id" title="lemma">PCP_to_PCPb.reduction</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="iPCPb_undec" class="idref" href="#iPCPb_undec"><span class="id" title="lemma">iPCPb_undec</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.PCP.PCP.html#iPCPb"><span class="id" title="definition">iPCPb</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.PCP.PCP_undec.html#PCPb_undec"><span class="id" title="lemma">PCPb_undec</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#id"><span class="id" title="definition">id</span></a>. <span class="id" title="tactic">exact</span> <a class="idref" href="Undecidability.PCP.Reductions.PCPb_iff_iPCPb.html#PCPb_iff_iPCPb"><span class="id" title="lemma">PCPb_iff_iPCPb.PCPb_iff_iPCPb</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="Undecidability.PCP.PCP_undec.html#iPCPb_undec"><span class="id" title="lemma">iPCPb_undec</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="dPCPb_undec" class="idref" href="#dPCPb_undec"><span class="id" title="lemma">dPCPb_undec</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.PCP.PCP.html#dPCPb"><span class="id" title="definition">dPCPb</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.PCP.PCP_undec.html#PCPb_undec"><span class="id" title="lemma">PCPb_undec</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#id"><span class="id" title="definition">id</span></a>. <span class="id" title="tactic">exact</span> <a class="idref" href="Undecidability.PCP.Reductions.PCPb_iff_dPCPb.html#PCPb_iff_dPCPb"><span class="id" title="lemma">PCPb_iff_dPCPb.PCPb_iff_dPCPb</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="Undecidability.PCP.PCP_undec.html#dPCPb_undec"><span class="id" title="lemma">dPCPb_undec</span></a>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

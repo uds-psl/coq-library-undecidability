@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#"><span class="id" title="library">List</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Arith.Arith.html#"><span class="id" title="library">Arith</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.micromega.Lia.html#"><span class="id" title="library">Lia</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Classes.Morphisms.html#"><span class="id" title="library">Morphisms</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Setoids.Setoid.html#"><span class="id" title="library">Setoid</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.HOU</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.HOU.calculus.calculus.html#"><span class="id" title="library">calculus.calculus</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.HOU</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.HOU.unification.higher_order_unification.html#"><span class="id" title="library">unification.higher_order_unification</span></a> <a class="idref" href="Undecidability.HOU.unification.nth_order_unification.html#"><span class="id" title="library">unification.nth_order_unification</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.HOU.concon.conservativity_constants.html#"><span class="id" title="library">concon.conservativity_constants</span></a> <a class="idref" href="Undecidability.HOU.concon.conservativity.html#"><span class="id" title="library">concon.conservativity</span></a> <a class="idref" href="Undecidability.HOU.concon.constants.html#"><span class="id" title="library">concon.constants</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#ListNotations"><span class="id" title="module">ListNotations</span></a>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.HOU</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span><br/>
+&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.HOU.second_order.diophantine_equations.html#"><span class="id" title="library">second_order.diophantine_equations</span></a> <a class="idref" href="Undecidability.HOU.second_order.goldfarb.reduction.html#"><span class="id" title="library">second_order.goldfarb.reduction</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="gonly" class="idref" href="#gonly"><span class="id" title="definition">gonly</span></a> : <a class="idref" href="Undecidability.HOU.calculus.terms.html#Const"><span class="id" title="record">Const</span></a> :=<br/>
+&nbsp;&nbsp;{|<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.HOU.calculus.terms.html#const_type"><span class="id" title="projection">const_type</span></a> := <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#option"><span class="id" title="inductive">option</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#False"><span class="id" title="inductive">False</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.HOU.calculus.terms.html#ctype"><span class="id" title="projection">ctype</span></a> := <span class="id" title="keyword">fun</span> <a id="o:1" class="idref" href="#o:1"><span class="id" title="binder">o</span></a> =&gt; <span class="id" title="keyword">match</span> <a class="idref" href="Undecidability.HOU.concon.constants_consequences.html#o:1"><span class="id" title="variable">o</span></a> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#None"><span class="id" title="constructor">None</span></a> =&gt; <a class="idref" href="Undecidability.HOU.calculus.prelim.html#alpha"><span class="id" title="definition">alpha</span></a> <a class="idref" href="Undecidability.HOU.calculus.prelim.html#bb8d9050f9df35c0476eae46ff96b3be"><span class="id" title="notation">→</span></a> <a class="idref" href="Undecidability.HOU.calculus.prelim.html#alpha"><span class="id" title="definition">alpha</span></a> <a class="idref" href="Undecidability.HOU.calculus.prelim.html#bb8d9050f9df35c0476eae46ff96b3be"><span class="id" title="notation">→</span></a> <a class="idref" href="Undecidability.HOU.calculus.prelim.html#alpha"><span class="id" title="definition">alpha</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#Some"><span class="id" title="constructor">Some</span></a> <span class="id" title="var">f</span> =&gt; <span class="id" title="keyword">match</span> <span class="id" title="var">f</span> <span class="id" title="keyword">with</span> <span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;|}.<br/>
+
+<br/>
+#[<span class="id" title="var">export</span>]<br/>
+<span class="id" title="var">Program</span> <span class="id" title="keyword">Instance</span> <a id="RE_ag_gonly" class="idref" href="#RE_ag_gonly"><span class="id" title="instance">RE_ag_gonly</span></a> : <a class="idref" href="Undecidability.HOU.std.retracts.html#retract"><span class="id" title="class">retract</span></a> <a class="idref" href="Undecidability.HOU.concon.constants_consequences.html#gonly"><span class="id" title="definition">gonly</span></a> <a class="idref" href="Undecidability.HOU.second_order.goldfarb.encoding.html#ag"><span class="id" title="definition">ag</span></a> :=<br/>
+&nbsp;&nbsp;{|<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.HOU.std.retracts.html#I"><span class="id" title="method">I</span></a> := <span class="id" title="keyword">fun</span> <span class="id" title="var">_</span> =&gt; <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#None"><span class="id" title="constructor">None</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.HOU.std.retracts.html#R"><span class="id" title="method">R</span></a> := <span class="id" title="keyword">fun</span> <a id="x:4" class="idref" href="#x:4"><span class="id" title="binder">x</span></a> =&gt; <span class="id" title="keyword">match</span> <a class="idref" href="Undecidability.HOU.concon.constants_consequences.html#x:4"><span class="id" title="variable">x</span></a> <span class="id" title="keyword">with</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#None"><span class="id" title="constructor">None</span></a> =&gt; <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#Some"><span class="id" title="constructor">Some</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#None"><span class="id" title="constructor">None</span></a> | <span class="id" title="var">_</span> =&gt; <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#None"><span class="id" title="constructor">None</span></a> <span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;|}.<br/>
+<span class="id" title="keyword">Next</span> <span class="id" title="keyword">Obligation</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">destruct</span> <span class="id" title="var">x</span> <span class="id" title="keyword">as</span> [[]|].<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="Goldfarb_remove" class="idref" href="#Goldfarb_remove"><span class="id" title="lemma">Goldfarb_remove</span></a>:<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.HOU.second_order.diophantine_equations.html#H10"><span class="id" title="definition">H10</span></a> <a class="idref" href="Undecidability.HOU.std.reductions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.HOU.unification.nth_order_unification.html#OU"><span class="id" title="definition">OU</span></a> 2 <a class="idref" href="Undecidability.HOU.second_order.goldfarb.encoding.html#ag"><span class="id" title="definition">ag</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#ba2b0e492d2b4675a0acf3ea92aabadd"><span class="id" title="notation">/\</span></a> <a class="idref" href="Undecidability.HOU.unification.nth_order_unification.html#OU"><span class="id" title="definition">OU</span></a> 2 <a class="idref" href="Undecidability.HOU.second_order.goldfarb.encoding.html#ag"><span class="id" title="definition">ag</span></a> <a class="idref" href="Undecidability.HOU.std.reductions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.HOU.unification.nth_order_unification.html#OU"><span class="id" title="definition">OU</span></a> 2 <a class="idref" href="Undecidability.HOU.concon.constants_consequences.html#gonly"><span class="id" title="definition">gonly</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>. <span class="id" title="tactic">eapply</span> <a class="idref" href="Undecidability.HOU.second_order.goldfarb.reduction.html#Goldfarb"><span class="id" title="lemma">Goldfarb</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> (@<a class="idref" href="Undecidability.HOU.concon.constants.html#remove_constants_reduction"><span class="id" title="lemma">remove_constants_reduction</span></a> <a class="idref" href="Undecidability.HOU.second_order.goldfarb.encoding.html#ag"><span class="id" title="definition">ag</span></a> <a class="idref" href="Undecidability.HOU.concon.constants_consequences.html#gonly"><span class="id" title="definition">gonly</span></a>); <span class="id" title="tactic">eauto</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> [[]|]; <span class="id" title="var">cbn</span>; <span class="id" title="tactic">eauto</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> [[[]|]|]; <span class="id" title="var">cbn</span>; <span class="id" title="tactic">eauto</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> <a class="idref" href="Undecidability.HOU.std.decidable.html#eq_dec"><span class="id" title="definition">eq_dec</span></a>; <span class="id" title="tactic">intuition</span>  <span class="id" title="tactic">discriminate</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="Goldfarb_sharp" class="idref" href="#Goldfarb_sharp"><span class="id" title="lemma">Goldfarb_sharp</span></a> (<a id="C:6" class="idref" href="#C:6"><span class="id" title="binder">C</span></a>: <a class="idref" href="Undecidability.HOU.calculus.terms.html#Const"><span class="id" title="record">Const</span></a>) (<a id="re:7" class="idref" href="#re:7"><span class="id" title="binder">re</span></a>: <a class="idref" href="Undecidability.HOU.std.retracts.html#retract"><span class="id" title="class">retract</span></a> <a class="idref" href="Undecidability.HOU.concon.constants_consequences.html#gonly"><span class="id" title="definition">gonly</span></a> <a class="idref" href="Undecidability.HOU.concon.constants_consequences.html#C:6"><span class="id" title="variable">C</span></a>):<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.HOU.calculus.terms.html#ctype"><span class="id" title="projection">ctype</span></a> <a class="idref" href="Undecidability.HOU.concon.constants_consequences.html#C:6"><span class="id" title="variable">C</span></a> (<a class="idref" href="Undecidability.HOU.std.retracts.html#I"><span class="id" title="method">I</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#None"><span class="id" title="constructor">None</span></a>) <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="Undecidability.HOU.calculus.prelim.html#alpha"><span class="id" title="definition">alpha</span></a> <a class="idref" href="Undecidability.HOU.calculus.prelim.html#bb8d9050f9df35c0476eae46ff96b3be"><span class="id" title="notation">→</span></a> <a class="idref" href="Undecidability.HOU.calculus.prelim.html#alpha"><span class="id" title="definition">alpha</span></a> <a class="idref" href="Undecidability.HOU.calculus.prelim.html#bb8d9050f9df35c0476eae46ff96b3be"><span class="id" title="notation">→</span></a> <a class="idref" href="Undecidability.HOU.calculus.prelim.html#alpha"><span class="id" title="definition">alpha</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.HOU.unification.nth_order_unification.html#OU"><span class="id" title="definition">OU</span></a> 2 <a class="idref" href="Undecidability.HOU.concon.constants_consequences.html#gonly"><span class="id" title="definition">gonly</span></a> <a class="idref" href="Undecidability.HOU.std.reductions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.HOU.unification.nth_order_unification.html#OU"><span class="id" title="definition">OU</span></a> 2 <a class="idref" href="Undecidability.HOU.concon.constants_consequences.html#C:6"><span class="id" title="variable">C</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span>. <span class="id" title="tactic">eapply</span> <a class="idref" href="Undecidability.HOU.concon.constants.html#unification_constants_monotone"><span class="id" title="lemma">unification_constants_monotone</span></a>; <span class="id" title="tactic">eauto</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> [[]|]; <span class="id" title="var">cbn</span>; <span class="id" title="tactic">eauto</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="cfree" class="idref" href="#cfree"><span class="id" title="definition">cfree</span></a> : <a class="idref" href="Undecidability.HOU.calculus.terms.html#Const"><span class="id" title="record">Const</span></a> :=<br/>
+&nbsp;&nbsp;{|<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.HOU.calculus.terms.html#const_type"><span class="id" title="projection">const_type</span></a> := <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#False"><span class="id" title="inductive">False</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.HOU.calculus.terms.html#ctype"><span class="id" title="projection">ctype</span></a> := <span class="id" title="keyword">fun</span> <a id="f:8" class="idref" href="#f:8"><span class="id" title="binder">f</span></a> =&gt; <span class="id" title="keyword">match</span> <a class="idref" href="Undecidability.HOU.concon.constants_consequences.html#f:8"><span class="id" title="variable">f</span></a> <span class="id" title="keyword">with</span> <span class="id" title="keyword">end</span><br/>
+&nbsp;&nbsp;|}.<br/>
+
+<br/>
+#[<span class="id" title="var">export</span>]<br/>
+<span class="id" title="var">Program</span> <span class="id" title="keyword">Instance</span> <a id="RE_cfree" class="idref" href="#RE_cfree"><span class="id" title="instance">RE_cfree</span></a> <a id="X:10" class="idref" href="#X:10"><span class="id" title="binder">X</span></a> : <a class="idref" href="Undecidability.HOU.std.retracts.html#retract"><span class="id" title="class">retract</span></a> <a class="idref" href="Undecidability.HOU.concon.constants_consequences.html#cfree"><span class="id" title="definition">cfree</span></a> <a class="idref" href="Undecidability.HOU.concon.constants_consequences.html#X:10"><span class="id" title="variable">X</span></a> :=<br/>
+&nbsp;&nbsp;{|<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.HOU.std.retracts.html#I"><span class="id" title="method">I</span></a> := <span class="id" title="keyword">fun</span> <a id="f:11" class="idref" href="#f:11"><span class="id" title="binder">f</span></a> =&gt; <span class="id" title="keyword">match</span> <a class="idref" href="Undecidability.HOU.concon.constants_consequences.html#f:11"><span class="id" title="variable">f</span></a> <span class="id" title="keyword">with</span> <span class="id" title="keyword">end</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.HOU.std.retracts.html#R"><span class="id" title="method">R</span></a> := <span class="id" title="keyword">fun</span> <a id="x:13" class="idref" href="#x:13"><span class="id" title="binder">x</span></a> =&gt; <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#None"><span class="id" title="constructor">None</span></a><br/>
+&nbsp;&nbsp;|}.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="Goldfarb_Huet" class="idref" href="#Goldfarb_Huet"><span class="id" title="lemma">Goldfarb_Huet</span></a> <a id="X:14" class="idref" href="#X:14"><span class="id" title="binder">X</span></a>:<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.HOU.unification.nth_order_unification.html#OU"><span class="id" title="definition">OU</span></a> 2 <a class="idref" href="Undecidability.HOU.concon.constants_consequences.html#gonly"><span class="id" title="definition">gonly</span></a> <a class="idref" href="Undecidability.HOU.std.reductions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.HOU.unification.nth_order_unification.html#OU"><span class="id" title="definition">OU</span></a> 3 <a class="idref" href="Undecidability.HOU.concon.constants_consequences.html#gonly"><span class="id" title="definition">gonly</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#ba2b0e492d2b4675a0acf3ea92aabadd"><span class="id" title="notation">/\</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.HOU.unification.nth_order_unification.html#OU"><span class="id" title="definition">OU</span></a> 3 <a class="idref" href="Undecidability.HOU.concon.constants_consequences.html#gonly"><span class="id" title="definition">gonly</span></a> <a class="idref" href="Undecidability.HOU.std.reductions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.HOU.unification.nth_order_unification.html#OU"><span class="id" title="definition">OU</span></a> 3 <a class="idref" href="Undecidability.HOU.concon.constants_consequences.html#cfree"><span class="id" title="definition">cfree</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#ba2b0e492d2b4675a0acf3ea92aabadd"><span class="id" title="notation">/\</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.HOU.unification.nth_order_unification.html#OU"><span class="id" title="definition">OU</span></a> 3 <a class="idref" href="Undecidability.HOU.concon.constants_consequences.html#cfree"><span class="id" title="definition">cfree</span></a> <a class="idref" href="Undecidability.HOU.std.reductions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.HOU.unification.nth_order_unification.html#OU"><span class="id" title="definition">OU</span></a> 3 <a class="idref" href="Undecidability.HOU.concon.constants_consequences.html#X:14"><span class="id" title="variable">X</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <a class="idref" href="Undecidability.HOU.concon.conservativity.html#unification_step"><span class="id" title="lemma">unification_step</span></a>; <span class="id" title="tactic">eauto</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <a class="idref" href="Undecidability.HOU.concon.constants.html#remove_constants_reduction"><span class="id" title="lemma">remove_constants_reduction</span></a>; <span class="id" title="tactic">eauto</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> []. <span class="id" title="tactic">intros</span> [[]|]; <span class="id" title="var">cbn</span>; <span class="id" title="tactic">eauto</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <a class="idref" href="Undecidability.HOU.concon.constants.html#unification_constants_monotone"><span class="id" title="lemma">unification_constants_monotone</span></a>; <span class="id" title="tactic">eauto</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> [].<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

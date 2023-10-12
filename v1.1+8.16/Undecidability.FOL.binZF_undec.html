@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.Definitions.html#"><span class="id" title="library">Undecidability.Synthetic.Definitions</span></a> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#"><span class="id" title="library">Undecidability.Synthetic.Undecidability</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.ZF_undec.html#"><span class="id" title="library">Undecidability.FOL.ZF_undec</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.Sets.binZF.html#"><span class="id" title="library">Undecidability.FOL.Sets.binZF</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.Sets.Models.ZF_model.html#"><span class="id" title="library">Undecidability.FOL.Sets.Models.ZF_model</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullFacts.html#"><span class="id" title="library">Undecidability.FOL.Semantics.Tarski.FullFacts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullSoundness.html#"><span class="id" title="library">Undecidability.FOL.Semantics.Tarski.FullSoundness</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.ZF.html#"><span class="id" title="library">Undecidability.FOL.ZF</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.FOL.Reductions</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_ZF.html#"><span class="id" title="library">PCPb_to_ZF</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_ZFeq.html#"><span class="id" title="library">PCPb_to_ZFeq</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_ZFD.html#"><span class="id" title="library">PCPb_to_ZFD</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_binZF.html#"><span class="id" title="library">PCPb_to_binZF</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.PCP</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.PCP.PCP.html#"><span class="id" title="library">PCP</span></a> <a class="idref" href="Undecidability.PCP.PCP_undec.html#"><span class="id" title="library">PCP_undec</span></a> <a class="idref" href="Undecidability.PCP.Util.PCP_facts.html#"><span class="id" title="library">Util.PCP_facts</span></a> <a class="idref" href="Undecidability.PCP.Reductions.PCPb_iff_dPCPb.html#"><span class="id" title="library">Reductions.PCPb_iff_dPCPb</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="PCPb_entailment_binZF" class="idref" href="#PCPb_entailment_binZF"><span class="id" title="lemma">PCPb_entailment_binZF</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.Synthetic.Definitions.html#reduction"><span class="id" title="definition">reduction</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_binZF.html#binsolvable"><span class="id" title="definition">binsolvable</span></a> <a class="idref" href="Undecidability.PCP.PCP.html#PCPb"><span class="id" title="definition">PCPb</span></a> <a class="idref" href="Undecidability.FOL.ZF.html#entailment_binZF"><span class="id" title="definition">entailment_binZF</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">B</span>. <span class="id" title="tactic">split</span>; <span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">V'</span> <span class="id" title="var">M'</span> <span class="id" title="var">rho'</span> <span class="id" title="var">HM</span>. <span class="id" title="tactic">apply</span> (@<a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_ZFD.html#PCP_ZFD"><span class="id" title="lemma">PCP_ZFD</span></a> <a class="idref" href="Undecidability.FOL.Syntax.Core.html#intu"><span class="id" title="constructor">intu</span></a>), (@<a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_binZF.html#rm_const_prv"><span class="id" title="lemma">rm_const_prv</span></a> <a class="idref" href="Undecidability.FOL.Syntax.Core.html#intu"><span class="id" title="constructor">intu</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nil"><span class="id" title="constructor">nil</span></a>), <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullSoundness.html#soundness"><span class="id" title="lemma">soundness</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>. <span class="id" title="tactic">apply</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">trivial</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_ZFeq.html#PCP_ZFeq'"><span class="id" title="lemma">PCP_ZFeq'</span></a>; <span class="id" title="tactic">try</span> <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Sets.Models.ZF_model.html#intensional_model"><span class="id" title="lemma">intensional_model</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">V</span> <span class="id" title="var">M</span> <span class="id" title="var">rho</span> <span class="id" title="var">HM</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_binZF.html#min_correct"><span class="id" title="lemma">min_correct</span></a>; <span class="id" title="tactic">trivial</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">H</span>. <span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_binZF.html#min_axioms'"><span class="id" title="lemma">min_axioms'</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Corollary</span> <a id="undecidable_entailment_binZF" class="idref" href="#undecidable_entailment_binZF"><span class="id" title="lemma">undecidable_entailment_binZF</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.FOL.ZF.html#entailment_binZF"><span class="id" title="definition">entailment_binZF</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.PCP.PCP_undec.html#PCPb_undec"><span class="id" title="lemma">PCPb_undec</span></a>). <span class="id" title="tactic">exists</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_binZF.html#binsolvable"><span class="id" title="definition">binsolvable</span></a>. <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.binZF_undec.html#PCPb_entailment_binZF"><span class="id" title="lemma">PCPb_entailment_binZF</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="PCPb_deduction_binZF" class="idref" href="#PCPb_deduction_binZF"><span class="id" title="lemma">PCPb_deduction_binZF</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.Synthetic.Definitions.html#reduction"><span class="id" title="definition">reduction</span></a> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_binZF.html#binsolvable"><span class="id" title="definition">binsolvable</span></a> <a class="idref" href="Undecidability.PCP.PCP.html#PCPb"><span class="id" title="definition">PCPb</span></a> <a class="idref" href="Undecidability.FOL.ZF.html#deduction_binZF"><span class="id" title="definition">deduction_binZF</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">B</span>. <span class="id" title="tactic">split</span>; <span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> (@<a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_ZFD.html#PCP_ZFD"><span class="id" title="lemma">PCP_ZFD</span></a> <a class="idref" href="Undecidability.FOL.Syntax.Core.html#intu"><span class="id" title="constructor">intu</span></a>), (@<a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_binZF.html#rm_const_prv"><span class="id" title="lemma">rm_const_prv</span></a> <a class="idref" href="Undecidability.FOL.Syntax.Core.html#intu"><span class="id" title="constructor">intu</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nil"><span class="id" title="constructor">nil</span></a>) <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_ZFeq.html#PCP_ZFeq'"><span class="id" title="lemma">PCP_ZFeq'</span></a>; <span class="id" title="tactic">try</span> <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Sets.Models.ZF_model.html#intensional_model"><span class="id" title="lemma">intensional_model</span></a>. <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullSoundness.html#soundness"><span class="id" title="lemma">soundness</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">V</span> <span class="id" title="var">M</span> <span class="id" title="var">rho</span> <span class="id" title="var">HM</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_binZF.html#min_correct"><span class="id" title="lemma">min_correct</span></a>; <span class="id" title="tactic">trivial</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">H</span>. <span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_binZF.html#min_axioms'"><span class="id" title="lemma">min_axioms'</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="undecidable_deduction_binZF" class="idref" href="#undecidable_deduction_binZF"><span class="id" title="lemma">undecidable_deduction_binZF</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.FOL.ZF.html#deduction_binZF"><span class="id" title="definition">deduction_binZF</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.PCP.PCP_undec.html#PCPb_undec"><span class="id" title="lemma">PCPb_undec</span></a>). <span class="id" title="tactic">exists</span> <a class="idref" href="Undecidability.FOL.Reductions.PCPb_to_binZF.html#binsolvable"><span class="id" title="definition">binsolvable</span></a>. <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.binZF_undec.html#PCPb_deduction_binZF"><span class="id" title="lemma">PCPb_deduction_binZF</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

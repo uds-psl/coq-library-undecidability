@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+<span class="id" title="keyword">Set Implicit Arguments</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.HOU</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.HOU.std.misc.html#"><span class="id" title="library">std.misc</span></a> <a class="idref" href="Undecidability.HOU.std.decidable.html#"><span class="id" title="library">std.decidable</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Class</span> <a id="retract" class="idref" href="#retract"><span class="id" title="record">retract</span></a> (<a id="X:1" class="idref" href="#X:1"><span class="id" title="binder">X</span></a> <a id="Y:2" class="idref" href="#Y:2"><span class="id" title="binder">Y</span></a>: <span class="id" title="keyword">Type</span>) :=<br/>
+&nbsp;&nbsp;{ <a id="I" class="idref" href="#I"><span class="id" title="projection">I</span></a>: <a class="idref" href="Undecidability.HOU.std.retracts.html#X:1"><span class="id" title="variable">X</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#Y:2"><span class="id" title="variable">Y</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a id="R" class="idref" href="#R"><span class="id" title="projection">R</span></a>: <a class="idref" href="Undecidability.HOU.std.retracts.html#Y:2"><span class="id" title="variable">Y</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#option"><span class="id" title="inductive">option</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#X:1"><span class="id" title="variable">X</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a id="retr" class="idref" href="#retr"><span class="id" title="projection">retr</span></a>: <span class="id" title="keyword">forall</span> <a id="x:6" class="idref" href="#x:6"><span class="id" title="binder">x</span></a>, <a class="idref" href="Undecidability.HOU.std.retracts.html#R:5"><span class="id" title="method">R</span></a> (<a class="idref" href="Undecidability.HOU.std.retracts.html#I:4"><span class="id" title="method">I</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#x:6"><span class="id" title="variable">x</span></a>) <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#Some"><span class="id" title="constructor">Some</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#x:6"><span class="id" title="variable">x</span></a><br/>
+&nbsp;&nbsp;}.<br/>
+
+<br/>
+#[<span class="id" title="var">export</span>]<br/>
+<span class="id" title="keyword">Instance</span> <a id="retract_refl" class="idref" href="#retract_refl"><span class="id" title="instance">retract_refl</span></a> <a id="X:8" class="idref" href="#X:8"><span class="id" title="binder">X</span></a>: <a class="idref" href="Undecidability.HOU.std.retracts.html#retract"><span class="id" title="class">retract</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#X:8"><span class="id" title="variable">X</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#X:8"><span class="id" title="variable">X</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (@<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#id"><span class="id" title="definition">id</span></a> <span class="id" title="var">X</span>) <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#Some"><span class="id" title="constructor">Some</span></a>. <span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+#[<span class="id" title="var">export</span>]<br/>
+<span class="id" title="keyword">Instance</span> <a id="retract_trans" class="idref" href="#retract_trans"><span class="id" title="instance">retract_trans</span></a> <a id="X:9" class="idref" href="#X:9"><span class="id" title="binder">X</span></a> <a id="Y:10" class="idref" href="#Y:10"><span class="id" title="binder">Y</span></a> <a id="Z:11" class="idref" href="#Z:11"><span class="id" title="binder">Z</span></a>:<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.HOU.std.retracts.html#retract"><span class="id" title="class">retract</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#X:9"><span class="id" title="variable">X</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#Y:10"><span class="id" title="variable">Y</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#retract"><span class="id" title="class">retract</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#Y:10"><span class="id" title="variable">Y</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#Z:11"><span class="id" title="variable">Z</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#retract"><span class="id" title="class">retract</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#X:9"><span class="id" title="variable">X</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#Z:11"><span class="id" title="variable">Z</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">H1</span> <span class="id" title="var">H2</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="Undecidability.HOU.std.retracts.html#I"><span class="id" title="method">I</span></a> <a class="idref" href="Undecidability.HOU.std.misc.html#:::x_'&gt;&gt;'_x"><span class="id" title="notation">&gt;&gt;</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#I"><span class="id" title="method">I</span></a>) (<span class="id" title="keyword">fun</span> <a id="z:13" class="idref" href="#z:13"><span class="id" title="binder">z</span></a> =&gt; <span class="id" title="keyword">match</span> <a class="idref" href="Undecidability.HOU.std.retracts.html#R"><span class="id" title="method">R</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#z:12"><span class="id" title="variable">z</span></a> <span class="id" title="keyword">with</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#Some"><span class="id" title="constructor">Some</span></a> <span class="id" title="var">y</span> =&gt; <a class="idref" href="Undecidability.HOU.std.retracts.html#R"><span class="id" title="method">R</span></a> <span class="id" title="var">y</span> | <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#None"><span class="id" title="constructor">None</span></a> =&gt; <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#None"><span class="id" title="constructor">None</span></a> <span class="id" title="keyword">end</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span>; <span class="id" title="tactic">unfold</span> <a class="idref" href="Undecidability.HOU.std.misc.html#funcomp"><span class="id" title="definition">funcomp</span></a>; <span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> !<a class="idref" href="Undecidability.HOU.std.retracts.html#retr"><span class="id" title="method">retr</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+#[<span class="id" title="var">export</span>]<br/>
+<span class="id" title="keyword">Instance</span> <a id="retract_False" class="idref" href="#retract_False"><span class="id" title="instance">retract_False</span></a> <a id="X:14" class="idref" href="#X:14"><span class="id" title="binder">X</span></a>: <a class="idref" href="Undecidability.HOU.std.retracts.html#retract"><span class="id" title="class">retract</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#False"><span class="id" title="inductive">False</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#X:14"><span class="id" title="variable">X</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<span class="id" title="keyword">fun</span> <a id="f:17" class="idref" href="#f:17"><span class="id" title="binder">f</span></a>: <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#False"><span class="id" title="inductive">False</span></a> =&gt; <span class="id" title="keyword">match</span> <a class="idref" href="Undecidability.HOU.std.retracts.html#f:15"><span class="id" title="variable">f</span></a> <span class="id" title="keyword">with</span> <span class="id" title="keyword">end</span>) (<span class="id" title="keyword">fun</span> <span class="id" title="var">_</span> =&gt; <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#None"><span class="id" title="constructor">None</span></a>). <span class="id" title="tactic">intros</span> [].<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Logic.FinFun.html#"><span class="id" title="library">FinFun</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Properties" class="idref" href="#Properties"><span class="id" title="section">Properties</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Variable</span> (<a id="Properties.X" class="idref" href="#Properties.X"><span class="id" title="variable">X</span></a> <a id="Properties.Y" class="idref" href="#Properties.Y"><span class="id" title="variable">Y</span></a>: <span class="id" title="keyword">Type</span>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Variable</span> (<a id="Properties.r" class="idref" href="#Properties.r"><span class="id" title="variable">r</span></a>: <a class="idref" href="Undecidability.HOU.std.retracts.html#retract"><span class="id" title="class">retract</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#Properties.X"><span class="id" title="variable">X</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#Properties.Y"><span class="id" title="variable">Y</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="retract_injective" class="idref" href="#retract_injective"><span class="id" title="lemma">retract_injective</span></a>:<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Logic.FinFun.html#Injective"><span class="id" title="definition">Injective</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#I"><span class="id" title="method">I</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">H</span> % (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#f_equal"><span class="id" title="lemma">f_equal</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#R"><span class="id" title="method">R</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="Undecidability.HOU.std.retracts.html#retr"><span class="id" title="method">retr</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">injection</span> <span class="id" title="var">H</span> <span class="id" title="keyword">as</span> -&gt;.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="D:22" class="idref" href="#D:22"><span class="id" title="binder">D</span></a>: <a class="idref" href="Undecidability.HOU.std.decidable.html#Dis"><span class="id" title="class">Dis</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#Properties.Y"><span class="id" title="variable">Y</span></a>}.<br/>
+
+<br/>
+&nbsp;&nbsp;#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Instance</span> <a id="dis_retract" class="idref" href="#dis_retract"><span class="id" title="instance">dis_retract</span></a>: <a class="idref" href="Undecidability.HOU.std.decidable.html#Dis"><span class="id" title="class">Dis</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#Properties.X"><span class="id" title="variable">X</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span> <span class="id" title="keyword">using</span> <span class="id" title="var">r</span> <span class="id" title="var">Y</span> <span class="id" title="var">D</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span>. <span class="id" title="tactic">destruct</span> (<a class="idref" href="Undecidability.HOU.std.retracts.html#I"><span class="id" title="method">I</span></a> <span class="id" title="var">x</span> <a class="idref" href="Undecidability.HOU.std.decidable.html#12489c9c79e91749bd1f337dd0c899e9"><span class="id" title="notation">==</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#I"><span class="id" title="method">I</span></a> <span class="id" title="var">y</span>) <span class="id" title="keyword">as</span> [<span class="id" title="var">H</span>|<span class="id" title="var">H</span>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">left</span>; <span class="id" title="tactic">eapply</span> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#f_equal"><span class="id" title="lemma">f_equal</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#R"><span class="id" title="method">R</span></a>) <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">rewrite</span> !<a class="idref" href="Undecidability.HOU.std.retracts.html#retr"><span class="id" title="method">retr</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">injection</span> <span class="id" title="var">H</span> <span class="id" title="keyword">as</span> -&gt;.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">right</span>; <span class="id" title="tactic">intros</span> -&gt;; <span class="id" title="var">now</span> <span class="id" title="tactic">eapply</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="tight" class="idref" href="#tight"><span class="id" title="definition">tight</span></a> (<a id="y:23" class="idref" href="#y:23"><span class="id" title="binder">y</span></a>: <a class="idref" href="Undecidability.HOU.std.retracts.html#Properties.Y"><span class="id" title="variable">Y</span></a>) :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span> <a class="idref" href="Undecidability.HOU.std.retracts.html#R"><span class="id" title="method">R</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#y:23"><span class="id" title="variable">y</span></a> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#Some"><span class="id" title="constructor">Some</span></a> <span class="id" title="var">x</span> =&gt; <span class="id" title="keyword">if</span> <a class="idref" href="Undecidability.HOU.std.retracts.html#I"><span class="id" title="method">I</span></a> <span class="id" title="var">x</span> <a class="idref" href="Undecidability.HOU.std.decidable.html#12489c9c79e91749bd1f337dd0c899e9"><span class="id" title="notation">==</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#y:23"><span class="id" title="variable">y</span></a> <span class="id" title="keyword">then</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#Some"><span class="id" title="constructor">Some</span></a> <span class="id" title="var">x</span> <span class="id" title="keyword">else</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#None"><span class="id" title="constructor">None</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;| <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#None"><span class="id" title="constructor">None</span></a> =&gt; <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#None"><span class="id" title="constructor">None</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="tight_is_tight" class="idref" href="#tight_is_tight"><span class="id" title="lemma">tight_is_tight</span></a> <a id="x:24" class="idref" href="#x:24"><span class="id" title="binder">x</span></a> <a id="y:25" class="idref" href="#y:25"><span class="id" title="binder">y</span></a>:<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.HOU.std.retracts.html#tight"><span class="id" title="definition">tight</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#y:25"><span class="id" title="variable">y</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#Some"><span class="id" title="constructor">Some</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#x:24"><span class="id" title="variable">x</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#I"><span class="id" title="method">I</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#x:24"><span class="id" title="variable">x</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#y:25"><span class="id" title="variable">y</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="Undecidability.HOU.std.retracts.html#tight"><span class="id" title="definition">tight</span></a>. <span class="id" title="tactic">destruct</span> <a class="idref" href="Undecidability.HOU.std.retracts.html#R"><span class="id" title="method">R</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> (<a class="idref" href="Undecidability.HOU.std.retracts.html#I"><span class="id" title="method">I</span></a> <span class="id" title="var">x0</span> <a class="idref" href="Undecidability.HOU.std.decidable.html#12489c9c79e91749bd1f337dd0c899e9"><span class="id" title="notation">==</span></a> <span class="id" title="var">y</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">all</span>: <span class="id" title="tactic">try</span> <span class="id" title="tactic">discriminate</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">injection</span> 1 <span class="id" title="keyword">as</span> -&gt;.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="tight_retr" class="idref" href="#tight_retr"><span class="id" title="lemma">tight_retr</span></a> <a id="x:26" class="idref" href="#x:26"><span class="id" title="binder">x</span></a>:<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.HOU.std.retracts.html#tight"><span class="id" title="definition">tight</span></a> (<a class="idref" href="Undecidability.HOU.std.retracts.html#I"><span class="id" title="method">I</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#x:26"><span class="id" title="variable">x</span></a>) <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#Some"><span class="id" title="constructor">Some</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#x:26"><span class="id" title="variable">x</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="Undecidability.HOU.std.retracts.html#tight"><span class="id" title="definition">tight</span></a>; <span class="id" title="tactic">rewrite</span> <a class="idref" href="Undecidability.HOU.std.retracts.html#retr"><span class="id" title="method">retr</span></a>; <span class="id" title="tactic">destruct</span> <a class="idref" href="Undecidability.HOU.std.decidable.html#eq_dec"><span class="id" title="definition">eq_dec</span></a>; <span class="id" title="tactic">intuition</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="Undecidability.HOU.std.retracts.html#Properties"><span class="id" title="section">Properties</span></a>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

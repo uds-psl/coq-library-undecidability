@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab22"></a><h1 class="section">Halting problem for a fixed, universal, single-tape, binary Turing machine (HaltUTM)</h1>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Coq</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Vector.html#"><span class="id" title="library">Vector</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Vector.html#VectorNotations"><span class="id" title="module">VectorNotations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.TM.TM.html#"><span class="id" title="library">TM</span></a> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.html#"><span class="id" title="library">Shared.Libs.PSL.FiniteTypes.FinTypesDef</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Shared.Libs.PSL.EqDec.html#"><span class="id" title="library">Undecidability.Shared.Libs.PSL.EqDec</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability</span> <span class="id" title="keyword">Require</span><br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.MinskyMachines.Reductions.KrivineMclosed_HALT_to_MMA_HALTING.html#"><span class="id" title="library">MinskyMachines.Reductions.KrivineMclosed_HALT_to_MMA_HALTING</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.TM.Reductions.MMA_HALTING_n_to_HaltTM_n.html#"><span class="id" title="library">TM.Reductions.MMA_HALTING_n_to_HaltTM_n</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.TM.Reductions.mTM_to_TM.html#"><span class="id" title="library">TM.Reductions.mTM_to_TM</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.TM.Reductions.Arbitrary_to_Binary.html#"><span class="id" title="library">TM.Reductions.Arbitrary_to_Binary</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="UTM" class="idref" href="#UTM"><span class="id" title="definition">UTM</span></a> : <a class="idref" href="Undecidability.TM.TM.html#TM"><span class="id" title="record">TM</span></a> (<a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.html#finType_CS"><span class="id" title="definition">finType_CS</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#bool"><span class="id" title="inductive">bool</span></a>) 1.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">MM5</span> := <a class="idref" href="Undecidability.MinskyMachines.Reductions.KrivineMclosed_HALT_to_MMA_HALTING.html#Argument.PROG"><span class="id" title="definition">KrivineMclosed_HALT_to_MMA_HALTING.Argument.PROG</span></a> 1).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">TM5</span> := <a class="idref" href="Undecidability.TM.Reductions.MMA_HALTING_n_to_HaltTM_n.html#Argument.P"><span class="id" title="definition">MMA_HALTING_n_to_HaltTM_n.Argument.P</span></a> <span class="id" title="var">MM5</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">TM1</span> := <a class="idref" href="Undecidability.TM.Reductions.mTM_to_TM.html#M'"><span class="id" title="definition">mTM_to_TM.M'</span></a> <span class="id" title="var">TM5</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="Undecidability.TM.Reductions.Arbitrary_to_Binary.html#M'"><span class="id" title="definition">Arbitrary_to_Binary.M'</span></a> <span class="id" title="var">TM1</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="HaltUTM" class="idref" href="#HaltUTM"><span class="id" title="definition">HaltUTM</span></a> : <a class="idref" href="Undecidability.TM.TM.html#tape"><span class="id" title="inductive">tape</span></a> (<a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.html#finType_CS"><span class="id" title="definition">finType_CS</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#bool"><span class="id" title="inductive">bool</span></a>) <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">fun</span> <a id="t:1" class="idref" href="#t:1"><span class="id" title="binder">t</span></a> =&gt; <a class="idref" href="Undecidability.TM.TM.html#HaltsTM"><span class="id" title="definition">HaltsTM</span></a> <a class="idref" href="Undecidability.TM.UTM.html#UTM"><span class="id" title="definition">UTM</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.VectorDef.html#06a81d089cb210523d05cd9d098003fa"><span class="id" title="notation">[</span></a><a class="idref" href="Undecidability.TM.UTM.html#t:1"><span class="id" title="variable">t</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.VectorDef.html#06a81d089cb210523d05cd9d098003fa"><span class="id" title="notation">]</span></a>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.L.Tactics</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.L.Tactics.LTactics.html#"><span class="id" title="library">LTactics</span></a> <a class="idref" href="Undecidability.L.Tactics.GenEncode.html#"><span class="id" title="library">GenEncode</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.L</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.L.Datatypes.LNat.html#"><span class="id" title="library">Datatypes.LNat</span></a> <a class="idref" href="Undecidability.L.Functions.EqBool.html#"><span class="id" title="library">Functions.EqBool</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Arith.PeanoNat.html#Nat"><span class="id" title="module">Nat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.html#"><span class="id" title="library">Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="encodable_finType" class="idref" href="#encodable_finType"><span class="id" title="definition">encodable_finType</span></a> `{<a id="X:1" class="idref" href="#X:1"><span class="id" title="binder">X</span></a> : <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.html#finType"><span class="id" title="record">finType</span></a>} : <a class="idref" href="Undecidability.L.Tactics.Extract.html#encodable"><span class="id" title="class">encodable</span></a> <a class="idref" href="Undecidability.L.Datatypes.LFinType.html#X:1"><span class="id" title="variable">X</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> (<a class="idref" href="Undecidability.L.Tactics.Computable.html#registerAs"><span class="id" title="lemma">registerAs</span></a> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.html#index"><span class="id" title="definition">index</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>. 
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="finType_eqb" class="idref" href="#finType_eqb"><span class="id" title="definition">finType_eqb</span></a> {<a id="X:2" class="idref" href="#X:2"><span class="id" title="binder">X</span></a>:<a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.html#finType"><span class="id" title="record">finType</span></a>} (<a id="x:3" class="idref" href="#x:3"><span class="id" title="binder">x</span></a> <a id="y:4" class="idref" href="#y:4"><span class="id" title="binder">y</span></a> : <a class="idref" href="Undecidability.L.Datatypes.LFinType.html#X:2"><span class="id" title="variable">X</span></a>) :=<br/>
+&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Arith.PeanoNat.html#Nat.eqb"><span class="id" title="definition">Nat.eqb</span></a> (<a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.html#index"><span class="id" title="definition">index</span></a> <a class="idref" href="Undecidability.L.Datatypes.LFinType.html#x:3"><span class="id" title="variable">x</span></a>) (<a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.html#index"><span class="id" title="definition">index</span></a> <a class="idref" href="Undecidability.L.Datatypes.LFinType.html#y:4"><span class="id" title="variable">y</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="finType_eqb_reflect" class="idref" href="#finType_eqb_reflect"><span class="id" title="lemma">finType_eqb_reflect</span></a> (<a id="X:5" class="idref" href="#X:5"><span class="id" title="binder">X</span></a>:<a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.html#finType"><span class="id" title="record">finType</span></a>) (<a id="x:6" class="idref" href="#x:6"><span class="id" title="binder">x</span></a> <a id="y:7" class="idref" href="#y:7"><span class="id" title="binder">y</span></a>:<a class="idref" href="Undecidability.L.Datatypes.LFinType.html#X:5"><span class="id" title="variable">X</span></a>) : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Bool.Bool.html#reflect"><span class="id" title="inductive">reflect</span></a> (<a class="idref" href="Undecidability.L.Datatypes.LFinType.html#x:6"><span class="id" title="variable">x</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="Undecidability.L.Datatypes.LFinType.html#y:7"><span class="id" title="variable">y</span></a>) (<a class="idref" href="Undecidability.L.Datatypes.LFinType.html#finType_eqb"><span class="id" title="definition">finType_eqb</span></a> <a class="idref" href="Undecidability.L.Datatypes.LFinType.html#x:6"><span class="id" title="variable">x</span></a> <a class="idref" href="Undecidability.L.Datatypes.LFinType.html#y:7"><span class="id" title="variable">y</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="Undecidability.L.Datatypes.LFinType.html#finType_eqb"><span class="id" title="definition">finType_eqb</span></a>. <span class="id" title="tactic">destruct</span> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Arith.PeanoNat.html#Nat.eqb_spec"><span class="id" title="lemma">Nat.eqb_spec</span></a> (<a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.html#index"><span class="id" title="definition">index</span></a> <span class="id" title="var">x</span>) (<a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.html#index"><span class="id" title="definition">index</span></a> <span class="id" title="var">y</span>));<span class="id" title="tactic">constructor</span>.<br/>
+&nbsp;&nbsp;-<span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.html#injective_index"><span class="id" title="lemma">injective_index</span></a>.<br/>
+&nbsp;&nbsp;-<span class="id" title="tactic">congruence</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="finType_eqb" class="idref" href="#finType_eqb"><span class="id" title="section">finType_eqb</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local</span> <span class="id" title="var">Existing</span> <span class="id" title="keyword">Instance</span> <span class="id" title="var">encodable_finType</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Global Instance</span> <a id="term_index" class="idref" href="#term_index"><span class="id" title="instance">term_index</span></a> (<a id="F:8" class="idref" href="#F:8"><span class="id" title="binder">F</span></a>:<a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.html#finType"><span class="id" title="record">finType</span></a>): <a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> (@<a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.html#index"><span class="id" title="definition">index</span></a> <a class="idref" href="Undecidability.L.Datatypes.LFinType.html#F:8"><span class="id" title="variable">F</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.L.Tactics.ComputableTactics.html#cast_computable"><span class="id" title="lemma">cast_computable</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Instance</span> <a id="eqbFinType_inst" class="idref" href="#eqbFinType_inst"><span class="id" title="instance">eqbFinType_inst</span></a> (<a id="X:9" class="idref" href="#X:9"><span class="id" title="binder">X</span></a>:<a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.html#finType"><span class="id" title="record">finType</span></a>): <a class="idref" href="Undecidability.L.Functions.EqBool.html#eqbClass"><span class="id" title="class">eqbClass</span></a> <a class="idref" href="Undecidability.L.Datatypes.LFinType.html#finType_eqb"><span class="id" title="definition">finType_eqb</span></a> (<span class="id" title="var">X</span>:=<a class="idref" href="Undecidability.L.Datatypes.LFinType.html#X:9"><span class="id" title="variable">X</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> ? ?. <span class="id" title="tactic">eapply</span> <a class="idref" href="Undecidability.L.Datatypes.LFinType.html#finType_eqb_reflect"><span class="id" title="lemma">finType_eqb_reflect</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Global Instance</span> <a id="eqbFinType" class="idref" href="#eqbFinType"><span class="id" title="instance">eqbFinType</span></a> (<a id="X:10" class="idref" href="#X:10"><span class="id" title="binder">X</span></a>:<a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.html#finType"><span class="id" title="record">finType</span></a>): <a class="idref" href="Undecidability.L.Functions.EqBool.html#eqbComp"><span class="id" title="class">eqbComp</span></a> <a class="idref" href="Undecidability.L.Datatypes.LFinType.html#X:10"><span class="id" title="variable">X</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">constructor</span>. <span class="id" title="tactic">unfold</span> <a class="idref" href="Undecidability.L.Datatypes.LFinType.html#finType_eqb"><span class="id" title="definition">finType_eqb</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="Undecidability.L.Datatypes.LFinType.html#finType_eqb"><span class="id" title="section">finType_eqb</span></a>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

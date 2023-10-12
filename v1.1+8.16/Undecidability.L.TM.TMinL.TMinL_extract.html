@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.L.Datatypes</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.L.Datatypes.LNat.html#"><span class="id" title="library">LNat</span></a> <a class="idref" href="Undecidability.L.Datatypes.Lists.html#"><span class="id" title="library">Lists</span></a> <a class="idref" href="Undecidability.L.Datatypes.LProd.html#"><span class="id" title="library">LProd</span></a> <a class="idref" href="Undecidability.L.Datatypes.LFinType.html#"><span class="id" title="library">LFinType</span></a> <a class="idref" href="Undecidability.L.Datatypes.LVector.html#"><span class="id" title="library">LVector</span></a> .<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.L</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.L.Functions.FinTypeLookup.html#"><span class="id" title="library">Functions.FinTypeLookup</span></a> <a class="idref" href="Undecidability.L.Functions.EqBool.html#"><span class="id" title="library">Functions.EqBool</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.L</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.L.TM.TapeFuns.html#"><span class="id" title="library">TM.TapeFuns</span></a> <a class="idref" href="Undecidability.L.TM.TMEncoding.html#"><span class="id" title="library">TM.TMEncoding</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.TM</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.TM.Util.TM_facts.html#"><span class="id" title="library">TM_facts</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Notation</span> <a id="L" class="idref" href="#L"><span class="id" title="abbreviation">L</span></a> := <a class="idref" href="Undecidability.TM.TM.html#Lmove"><span class="id" title="constructor">TM.Lmove</span></a>.<br/>
+<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Notation</span> <a id="R" class="idref" href="#R"><span class="id" title="abbreviation">R</span></a> := <a class="idref" href="Undecidability.TM.TM.html#Rmove"><span class="id" title="constructor">TM.Rmove</span></a>.<br/>
+<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Notation</span> <a id="N" class="idref" href="#N"><span class="id" title="abbreviation">N</span></a> := <a class="idref" href="Undecidability.TM.TM.html#Nmove"><span class="id" title="constructor">TM.Nmove</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="loopM" class="idref" href="#loopM"><span class="id" title="section">loopM</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="sig:1" class="idref" href="#sig:1"><span class="id" title="binder">sig</span></a> : <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.html#finType"><span class="id" title="record">finType</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="loopM.reg_sig" class="idref" href="#loopM.reg_sig"><span class="id" title="variable">reg_sig</span></a> := @<a class="idref" href="Undecidability.L.Datatypes.LFinType.html#encodable_finType"><span class="id" title="definition">encodable_finType</span></a> <a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#loopM.sig"><span class="id" title="variable">sig</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Existing Instance</span> <span class="id" title="var">reg_sig</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="loopM.eqb_sig" class="idref" href="#loopM.eqb_sig"><span class="id" title="variable">eqb_sig</span></a> := <a class="idref" href="Undecidability.L.Datatypes.LFinType.html#eqbFinType_inst"><span class="id" title="instance">eqbFinType_inst</span></a> (<span class="id" title="var">X</span>:=<a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#loopM.sig"><span class="id" title="variable">sig</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Existing Instance</span> <span class="id" title="var">eqb_sig</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Variable</span> <a id="loopM.n" class="idref" href="#loopM.n"><span class="id" title="variable">n</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Variable</span> <a id="loopM.M" class="idref" href="#loopM.M"><span class="id" title="variable">M</span></a> : <a class="idref" href="Undecidability.TM.TM.html#TM"><span class="id" title="record">TM</span></a> <a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#loopM.sig"><span class="id" title="variable">sig</span></a> <a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#loopM.n"><span class="id" title="variable">n</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="loopM.reg_state" class="idref" href="#loopM.reg_state"><span class="id" title="variable">reg_state</span></a> := @<a class="idref" href="Undecidability.L.Datatypes.LFinType.html#encodable_finType"><span class="id" title="definition">encodable_finType</span></a> (<a class="idref" href="Undecidability.TM.TM.html#state"><span class="id" title="projection">state</span></a> <a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#loopM.M"><span class="id" title="variable">M</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Existing Instance</span> <span class="id" title="var">reg_state</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="loopM.eqb_state" class="idref" href="#loopM.eqb_state"><span class="id" title="variable">eqb_state</span></a> := <a class="idref" href="Undecidability.L.Datatypes.LFinType.html#eqbFinType_inst"><span class="id" title="instance">eqbFinType_inst</span></a> (<span class="id" title="var">X</span>:=<a class="idref" href="Undecidability.TM.TM.html#state"><span class="id" title="projection">state</span></a> <a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#loopM.M"><span class="id" title="variable">M</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Existing Instance</span> <span class="id" title="var">eqb_state</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Vector.html#"><span class="id" title="module">Vector</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Instance</span> <a id="term_trans" class="idref" href="#term_trans"><span class="id" title="instance">term_trans</span></a> : <a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> (<a class="idref" href="Undecidability.TM.TM.html#trans"><span class="id" title="projection">trans</span></a> (<span class="id" title="var">m</span>:=<a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#loopM.M"><span class="id" title="variable">M</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">pose</span> (<span class="id" title="var">t</span>:= (<a class="idref" href="Undecidability.L.Functions.FinTypeLookup.html#funTable"><span class="id" title="definition">funTable</span></a> (<a class="idref" href="Undecidability.TM.TM.html#trans"><span class="id" title="projection">trans</span></a> (<span class="id" title="var">m</span>:=<a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#loopM.M"><span class="id" title="variable">M</span></a>)))).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.L.Tactics.Computable.html#computableExt"><span class="id" title="lemma">computableExt</span></a> <span class="id" title="keyword">with</span> (<span class="id" title="var">x</span>:= (<span class="id" title="keyword">fun</span> <a id="c:5" class="idref" href="#c:5"><span class="id" title="binder">c</span></a> =&gt; <a class="idref" href="Undecidability.L.Functions.FinTypeLookup.html#lookup"><span class="id" title="definition">lookup</span></a> <a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#c:4"><span class="id" title="variable">c</span></a> <span class="id" title="var">t</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a><a class="idref" href="Undecidability.TM.TM.html#start"><span class="id" title="projection">start</span></a> <a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#loopM.M"><span class="id" title="variable">M</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Vector.html#const"><span class="id" title="definition">Vector.const</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#None"><span class="id" title="constructor">None</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a> <a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#N"><span class="id" title="abbreviation">N</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a> <span class="id" title="var">_</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a> )).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;2:{ <span class="id" title="var">remember</span> <span class="id" title="var">t</span> <span class="id" title="keyword">as</span> <span class="id" title="var">lock__t</span> .<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> -[<span class="id" title="var">t</span>] ;<span class="id" title="tactic">intro</span>. <span class="id" title="tactic">subst</span> <span class="id" title="var">t</span>. <span class="id" title="tactic">setoid_rewrite</span> <a class="idref" href="Undecidability.L.Functions.FinTypeLookup.html#lookup_funTable"><span class="id" title="lemma">lookup_funTable</span></a>. <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="step'" class="idref" href="#step'"><span class="id" title="definition">step'</span></a> (<a id="c:6" class="idref" href="#c:6"><span class="id" title="binder">c</span></a> :  <a class="idref" href="Undecidability.TM.Util.TM_facts.html#mconfig"><span class="id" title="record">mconfig</span></a> <a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#loopM.sig"><span class="id" title="variable">sig</span></a> (<a class="idref" href="Undecidability.TM.TM.html#state"><span class="id" title="projection">state</span></a> <a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#loopM.M"><span class="id" title="variable">M</span></a>) <a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#loopM.n"><span class="id" title="variable">n</span></a>) : <a class="idref" href="Undecidability.TM.Util.TM_facts.html#mconfig"><span class="id" title="record">mconfig</span></a> <a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#loopM.sig"><span class="id" title="variable">sig</span></a> (<a class="idref" href="Undecidability.TM.TM.html#state"><span class="id" title="projection">state</span></a> <a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#loopM.M"><span class="id" title="variable">M</span></a>) <a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#loopM.n"><span class="id" title="variable">n</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">let</span> (<a id="news:7" class="idref" href="#news:7"><span class="id" title="binder">news</span></a>, <a id="actions:8" class="idref" href="#actions:8"><span class="id" title="binder">actions</span></a>) := <a class="idref" href="Undecidability.TM.TM.html#trans"><span class="id" title="projection">trans</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a><a class="idref" href="Undecidability.TM.Util.TM_facts.html#cstate"><span class="id" title="projection">cstate</span></a> <a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#c:6"><span class="id" title="variable">c</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a> <a class="idref" href="Undecidability.TM.Util.TM_facts.html#current_chars"><span class="id" title="definition">current_chars</span></a> (<a class="idref" href="Undecidability.TM.Util.TM_facts.html#ctapes"><span class="id" title="projection">ctapes</span></a> <a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#c:6"><span class="id" title="variable">c</span></a>)<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a> <span class="id" title="tactic">in</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.TM.Util.TM_facts.html#mk_mconfig"><span class="id" title="constructor">mk_mconfig</span></a> <a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#news:7"><span class="id" title="variable">news</span></a> (<a class="idref" href="Undecidability.TM.Util.TM_facts.html#doAct_multi"><span class="id" title="definition">doAct_multi</span></a> (<a class="idref" href="Undecidability.TM.Util.TM_facts.html#ctapes"><span class="id" title="projection">ctapes</span></a> <a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#c:6"><span class="id" title="variable">c</span></a>) <a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#actions:8"><span class="id" title="variable">actions</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Instance</span> <a id="term_doAct_multi" class="idref" href="#term_doAct_multi"><span class="id" title="instance">term_doAct_multi</span></a>: <a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> (<a class="idref" href="Undecidability.TM.Util.TM_facts.html#doAct_multi"><span class="id" title="definition">doAct_multi</span></a> (<span class="id" title="var">n</span>:=<a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#loopM.n"><span class="id" title="variable">n</span></a>) (<span class="id" title="var">sig</span>:=<a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#loopM.sig"><span class="id" title="variable">sig</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Instance</span> <a id="term_step'" class="idref" href="#term_step'"><span class="id" title="instance">term_step'</span></a> : <a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> (<a class="idref" href="Undecidability.TM.Util.TM_facts.html#step"><span class="id" title="definition">step</span></a> (<span class="id" title="var">M</span>:=<a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#loopM.M"><span class="id" title="variable">M</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Instance</span> <a id="term_halt" class="idref" href="#term_halt"><span class="id" title="instance">term_halt</span></a> : <a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> (<a class="idref" href="Undecidability.TM.TM.html#halt"><span class="id" title="projection">halt</span></a> (<span class="id" title="var">m</span>:=<a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#loopM.M"><span class="id" title="variable">M</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">pose</span> (<span class="id" title="var">t</span>:= (<a class="idref" href="Undecidability.L.Functions.FinTypeLookup.html#funTable"><span class="id" title="definition">funTable</span></a> (<a class="idref" href="Undecidability.TM.TM.html#halt"><span class="id" title="projection">halt</span></a> (<span class="id" title="var">m</span>:=<a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#loopM.M"><span class="id" title="variable">M</span></a>)))).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.L.Tactics.Computable.html#computableExt"><span class="id" title="lemma">computableExt</span></a> <span class="id" title="keyword">with</span> (<span class="id" title="var">x</span>:= <span class="id" title="keyword">fun</span> <a id="c:10" class="idref" href="#c:10"><span class="id" title="binder">c</span></a> =&gt; <a class="idref" href="Undecidability.L.Functions.FinTypeLookup.html#lookup"><span class="id" title="definition">lookup</span></a> <a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#c:9"><span class="id" title="variable">c</span></a> <span class="id" title="var">t</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#false"><span class="id" title="constructor">false</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;2:{ <span class="id" title="var">extract</span>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>;<span class="id" title="tactic">intro</span>. <span class="id" title="tactic">subst</span> <span class="id" title="var">t</span>. <span class="id" title="tactic">setoid_rewrite</span> <a class="idref" href="Undecidability.L.Functions.FinTypeLookup.html#lookup_funTable"><span class="id" title="lemma">lookup_funTable</span></a>. <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Instance</span> <a id="term_haltConf" class="idref" href="#term_haltConf"><span class="id" title="instance">term_haltConf</span></a> : <a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> (<a class="idref" href="Undecidability.TM.Util.TM_facts.html#haltConf"><span class="id" title="definition">haltConf</span></a> (<span class="id" title="var">M</span>:=<a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#loopM.M"><span class="id" title="variable">M</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Instance</span> <a id="term_loopM" class="idref" href="#term_loopM"><span class="id" title="instance">term_loopM</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> (<a class="idref" href="Undecidability.TM.Util.TM_facts.html#loopM"><span class="id" title="definition">loopM</span></a> (<span class="id" title="var">M</span>:=<a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#loopM.M"><span class="id" title="variable">M</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="Undecidability.TM.Util.TM_facts.html#loopM"><span class="id" title="definition">loopM</span></a>. &nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Instance</span> <a id="term_test" class="idref" href="#term_test"><span class="id" title="instance">term_test</span></a> <a id="cfg:11" class="idref" href="#cfg:11"><span class="id" title="binder">cfg</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> (<span class="id" title="keyword">fun</span> <a id="k:12" class="idref" href="#k:12"><span class="id" title="binder">k</span></a> =&gt; <a class="idref" href="Undecidability.L.Datatypes.LOptions.html#isSome"><span class="id" title="definition">LOptions.isSome</span></a> (<a class="idref" href="Undecidability.TM.Util.TM_facts.html#loopM"><span class="id" title="definition">loopM</span></a> (<span class="id" title="var">M</span> := <a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#loopM.M"><span class="id" title="variable">M</span></a>) <a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#cfg:11"><span class="id" title="variable">cfg</span></a> <a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#k:12"><span class="id" title="variable">k</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="Undecidability.L.TM.TMinL.TMinL_extract.html#loopM"><span class="id" title="section">loopM</span></a>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

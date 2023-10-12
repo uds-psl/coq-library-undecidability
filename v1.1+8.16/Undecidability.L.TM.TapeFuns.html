@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.L.Datatypes</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.L.Datatypes.LNat.html#"><span class="id" title="library">LNat</span></a> <a class="idref" href="Undecidability.L.Datatypes.Lists.html#"><span class="id" title="library">Lists</span></a> <a class="idref" href="Undecidability.L.Datatypes.LVector.html#"><span class="id" title="library">LVector</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.L</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.L.TM.TMEncoding.html#"><span class="id" title="library">TM.TMEncoding</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.TM</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.TM.Util.TM_facts.html#"><span class="id" title="library">Util.TM_facts</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="fix_sig" class="idref" href="#fix_sig"><span class="id" title="section">fix_sig</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Variable</span> <a id="fix_sig.sig" class="idref" href="#fix_sig.sig"><span class="id" title="variable">sig</span></a> : <span class="id" title="keyword">Type</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> `{<a id="reg_sig:2" class="idref" href="#reg_sig:2"><span class="id" title="binder">reg_sig</span></a> : <a class="idref" href="Undecidability.L.Tactics.Extract.html#encodable"><span class="id" title="class">encodable</span></a> <a class="idref" href="Undecidability.L.TM.TapeFuns.html#fix_sig.sig"><span class="id" title="variable">sig</span></a>}.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Section</span> <a id="fix_sig.reg_tapes" class="idref" href="#fix_sig.reg_tapes"><span class="id" title="section">reg_tapes</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Instance</span> <a id="term_tape_move_left'" class="idref" href="#term_tape_move_left'"><span class="id" title="instance">term_tape_move_left'</span></a> : <a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> (@<a class="idref" href="Undecidability.TM.Util.TM_facts.html#tape_move_left'"><span class="id" title="definition">tape_move_left'</span></a> <a class="idref" href="Undecidability.L.TM.TapeFuns.html#fix_sig.sig"><span class="id" title="variable">sig</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Instance</span> <a id="term_tape_move_left" class="idref" href="#term_tape_move_left"><span class="id" title="instance">term_tape_move_left</span></a> : <a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> (@<a class="idref" href="Undecidability.TM.Util.TM_facts.html#tape_move_left"><span class="id" title="definition">tape_move_left</span></a> <a class="idref" href="Undecidability.L.TM.TapeFuns.html#fix_sig.sig"><span class="id" title="variable">sig</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Instance</span> <a id="term_tape_move_right'" class="idref" href="#term_tape_move_right'"><span class="id" title="instance">term_tape_move_right'</span></a> : <a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> (@<a class="idref" href="Undecidability.TM.Util.TM_facts.html#tape_move_right'"><span class="id" title="definition">tape_move_right'</span></a> <a class="idref" href="Undecidability.L.TM.TapeFuns.html#fix_sig.sig"><span class="id" title="variable">sig</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Instance</span> <a id="term_tape_move_right" class="idref" href="#term_tape_move_right"><span class="id" title="instance">term_tape_move_right</span></a> : <a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> (@<a class="idref" href="Undecidability.TM.Util.TM_facts.html#tape_move_right"><span class="id" title="definition">tape_move_right</span></a> <a class="idref" href="Undecidability.L.TM.TapeFuns.html#fix_sig.sig"><span class="id" title="variable">sig</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Instance</span> <a id="term_tape_move" class="idref" href="#term_tape_move"><span class="id" title="instance">term_tape_move</span></a> : <a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> (@<a class="idref" href="Undecidability.TM.Util.TM_facts.html#tape_move"><span class="id" title="definition">tape_move</span></a> <a class="idref" href="Undecidability.L.TM.TapeFuns.html#fix_sig.sig"><span class="id" title="variable">sig</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Instance</span> <a id="term_left" class="idref" href="#term_left"><span class="id" title="instance">term_left</span></a> : <a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> (@<a class="idref" href="Undecidability.TM.Util.TM_facts.html#left"><span class="id" title="definition">left</span></a> <a class="idref" href="Undecidability.L.TM.TapeFuns.html#fix_sig.sig"><span class="id" title="variable">sig</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Instance</span> <a id="term_right" class="idref" href="#term_right"><span class="id" title="instance">term_right</span></a> : <a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> (@<a class="idref" href="Undecidability.TM.Util.TM_facts.html#right"><span class="id" title="definition">right</span></a> <a class="idref" href="Undecidability.L.TM.TapeFuns.html#fix_sig.sig"><span class="id" title="variable">sig</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Instance</span> <a id="term_tape_write" class="idref" href="#term_tape_write"><span class="id" title="instance">term_tape_write</span></a> : <a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> (@<a class="idref" href="Undecidability.TM.Util.TM_facts.html#tape_write"><span class="id" title="definition">tape_write</span></a> <a class="idref" href="Undecidability.L.TM.TapeFuns.html#fix_sig.sig"><span class="id" title="variable">sig</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Instance</span> <a id="term_tapeToList" class="idref" href="#term_tapeToList"><span class="id" title="instance">term_tapeToList</span></a>:  <a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> (@<a class="idref" href="Undecidability.TM.Util.TM_facts.html#tapeToList"><span class="id" title="definition">tapeToList</span></a> <a class="idref" href="Undecidability.L.TM.TapeFuns.html#fix_sig.sig"><span class="id" title="variable">sig</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Instance</span> <a id="term_sizeOfTape" class="idref" href="#term_sizeOfTape"><span class="id" title="instance">term_sizeOfTape</span></a>: <a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> (@<a class="idref" href="Undecidability.TM.Util.TM_facts.html#sizeOfTape"><span class="id" title="definition">sizeOfTape</span></a> <a class="idref" href="Undecidability.L.TM.TapeFuns.html#fix_sig.sig"><span class="id" title="variable">sig</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Arith.PeanoNat.html#Nat"><span class="id" title="module">Nat</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Instance</span> <a id="term_current" class="idref" href="#term_current"><span class="id" title="instance">term_current</span></a>: <a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> ((<a class="idref" href="Undecidability.TM.TM.html#current"><span class="id" title="definition">current</span></a> (<span class="id" title="var">Σ</span>:=<a class="idref" href="Undecidability.L.TM.TapeFuns.html#fix_sig.sig"><span class="id" title="variable">sig</span></a>))).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Instance</span> <a id="term_current_chars" class="idref" href="#term_current_chars"><span class="id" title="instance">term_current_chars</span></a> <a id="n:3" class="idref" href="#n:3"><span class="id" title="binder">n</span></a>: <a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> (<a class="idref" href="Undecidability.TM.Util.TM_facts.html#current_chars"><span class="id" title="definition">current_chars</span></a> (<span class="id" title="var">sig</span>:=<a class="idref" href="Undecidability.L.TM.TapeFuns.html#fix_sig.sig"><span class="id" title="variable">sig</span></a>) (<span class="id" title="var">n</span>:=<a class="idref" href="Undecidability.L.TM.TapeFuns.html#n:3"><span class="id" title="variable">n</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Instance</span> <a id="term_doAct" class="idref" href="#term_doAct"><span class="id" title="instance">term_doAct</span></a>: <a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> (<a class="idref" href="Undecidability.TM.Util.TM_facts.html#doAct"><span class="id" title="definition">doAct</span></a> (<span class="id" title="var">sig</span>:=<a class="idref" href="Undecidability.L.TM.TapeFuns.html#fix_sig.sig"><span class="id" title="variable">sig</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">extract</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">End</span> <a class="idref" href="Undecidability.L.TM.TapeFuns.html#fix_sig.reg_tapes"><span class="id" title="section">reg_tapes</span></a>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="Undecidability.L.TM.TapeFuns.html#fix_sig"><span class="id" title="section">fix_sig</span></a>.<br/>
+
+<br/>
+#[<span class="id" title="var">export</span>]<br/>
+<span class="id" title="keyword">Instance</span> <a id="term_loop" class="idref" href="#term_loop"><span class="id" title="instance">term_loop</span></a> <a id="A:4" class="idref" href="#A:4"><span class="id" title="binder">A</span></a> `{<a id="H:5" class="idref" href="#H:5"><span class="id" title="binder">encodable</span></a> <a id="H:5" class="idref" href="#H:5"><span class="id" title="binder">A</span></a>} :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.L.Tactics.Computable.html#computable"><span class="id" title="class">computable</span></a> (@<a class="idref" href="Undecidability.TM.Util.Prelim.html#loop"><span class="id" title="definition">loop</span></a> <a class="idref" href="Undecidability.L.TM.TapeFuns.html#A:4"><span class="id" title="variable">A</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">extract</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

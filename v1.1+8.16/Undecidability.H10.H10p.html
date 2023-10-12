@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+</div>
+
+<div class="doc">
+Reformulation of single Diophantine equations, i.e. p = q for Diophantine polynomials, without parameters. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Inductive</span> <a id="dio_op_pfree" class="idref" href="#dio_op_pfree"><span class="id" title="inductive">dio_op_pfree</span></a> := <a id="do_add_pfree" class="idref" href="#do_add_pfree"><span class="id" title="constructor">do_add_pfree</span></a> | <a id="do_mul_pfree" class="idref" href="#do_mul_pfree"><span class="id" title="constructor">do_mul_pfree</span></a>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Inductive</span> <a id="dio_polynomial_pfree" class="idref" href="#dio_polynomial_pfree"><span class="id" title="inductive">dio_polynomial_pfree</span></a> : <span class="id" title="keyword">Set</span> :=<br/>
+| <a id="dp_nat_pfree" class="idref" href="#dp_nat_pfree"><span class="id" title="constructor">dp_nat_pfree</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.H10.H10p.html#dio_polynomial_pfree:3"><span class="id" title="inductive">dio_polynomial_pfree</span></a> <br/>
+| <a id="dp_var_pfree" class="idref" href="#dp_var_pfree"><span class="id" title="constructor">dp_var_pfree</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.H10.H10p.html#dio_polynomial_pfree:3"><span class="id" title="inductive">dio_polynomial_pfree</span></a> <br/>
+| <a id="dp_comp_pfree" class="idref" href="#dp_comp_pfree"><span class="id" title="constructor">dp_comp_pfree</span></a> : <a class="idref" href="Undecidability.H10.H10p.html#dio_op_pfree"><span class="id" title="inductive">dio_op_pfree</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.H10.H10p.html#dio_polynomial_pfree:3"><span class="id" title="inductive">dio_polynomial_pfree</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.H10.H10p.html#dio_polynomial_pfree:3"><span class="id" title="inductive">dio_polynomial_pfree</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.H10.H10p.html#dio_polynomial_pfree:3"><span class="id" title="inductive">dio_polynomial_pfree</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Fixpoint</span> <a id="dp_eval_pfree" class="idref" href="#dp_eval_pfree"><span class="id" title="definition">dp_eval_pfree</span></a> <a id="b22fe073e837927eaf1a55cd742674b8" class="idref" href="#b22fe073e837927eaf1a55cd742674b8"><span class="id" title="binder">φ</span></a> <a id="p:6" class="idref" href="#p:6"><span class="id" title="binder">p</span></a> := <br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <a class="idref" href="Undecidability.H10.H10p.html#p:6"><span class="id" title="variable">p</span></a> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;| <a class="idref" href="Undecidability.H10.H10p.html#dp_nat_pfree"><span class="id" title="constructor">dp_nat_pfree</span></a> <span class="id" title="var">n</span> =&gt; <span class="id" title="var">n</span><br/>
+&nbsp;&nbsp;| <a class="idref" href="Undecidability.H10.H10p.html#dp_var_pfree"><span class="id" title="constructor">dp_var_pfree</span></a> <span class="id" title="var">v</span> =&gt; <a class="idref" href="Undecidability.H10.H10p.html#b22fe073e837927eaf1a55cd742674b8"><span class="id" title="variable">φ</span></a> <span class="id" title="var">v</span><br/>
+&nbsp;&nbsp;| <a class="idref" href="Undecidability.H10.H10p.html#dp_comp_pfree"><span class="id" title="constructor">dp_comp_pfree</span></a> <a class="idref" href="Undecidability.H10.H10p.html#do_add_pfree"><span class="id" title="constructor">do_add_pfree</span></a> <span class="id" title="var">p</span> <span class="id" title="var">q</span> =&gt; <a class="idref" href="Undecidability.H10.H10p.html#dp_eval_pfree:7"><span class="id" title="definition">dp_eval_pfree</span></a> <a class="idref" href="Undecidability.H10.H10p.html#b22fe073e837927eaf1a55cd742674b8"><span class="id" title="variable">φ</span></a> <a class="idref" href="Undecidability.H10.H10p.html#p:6"><span class="id" title="variable">p</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Peano.html#0dacc1786c5ba797d47dd85006231633"><span class="id" title="notation">+</span></a> <a class="idref" href="Undecidability.H10.H10p.html#dp_eval_pfree:7"><span class="id" title="definition">dp_eval_pfree</span></a> <a class="idref" href="Undecidability.H10.H10p.html#b22fe073e837927eaf1a55cd742674b8"><span class="id" title="variable">φ</span></a> <span class="id" title="var">q</span> <br/>
+&nbsp;&nbsp;| <a class="idref" href="Undecidability.H10.H10p.html#dp_comp_pfree"><span class="id" title="constructor">dp_comp_pfree</span></a> <a class="idref" href="Undecidability.H10.H10p.html#do_mul_pfree"><span class="id" title="constructor">do_mul_pfree</span></a> <span class="id" title="var">p</span> <span class="id" title="var">q</span> =&gt; <a class="idref" href="Undecidability.H10.H10p.html#dp_eval_pfree:7"><span class="id" title="definition">dp_eval_pfree</span></a> <a class="idref" href="Undecidability.H10.H10p.html#b22fe073e837927eaf1a55cd742674b8"><span class="id" title="variable">φ</span></a> <a class="idref" href="Undecidability.H10.H10p.html#p:6"><span class="id" title="variable">p</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Peano.html#ea2ff3d561159081cea6fb2e8113cc54"><span class="id" title="notation">*</span></a> <a class="idref" href="Undecidability.H10.H10p.html#dp_eval_pfree:7"><span class="id" title="definition">dp_eval_pfree</span></a> <a class="idref" href="Undecidability.H10.H10p.html#b22fe073e837927eaf1a55cd742674b8"><span class="id" title="variable">φ</span></a> <span class="id" title="var">q</span> <br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="H10p_PROBLEM" class="idref" href="#H10p_PROBLEM"><span class="id" title="definition">H10p_PROBLEM</span></a> := (<a class="idref" href="Undecidability.H10.H10p.html#dio_polynomial_pfree"><span class="id" title="inductive">dio_polynomial_pfree</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#11c698c8685bb8ab1cf725545c085ac4"><span class="id" title="notation">*</span></a> <a class="idref" href="Undecidability.H10.H10p.html#dio_polynomial_pfree"><span class="id" title="inductive">dio_polynomial_pfree</span></a>)%<span class="id" title="keyword">type</span>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="H10p_sem" class="idref" href="#H10p_sem"><span class="id" title="definition">H10p_sem</span></a> <a id="e:9" class="idref" href="#e:9"><span class="id" title="binder">e</span></a> <a id="ec4b304ddf42d851d75fca6932b4d645" class="idref" href="#ec4b304ddf42d851d75fca6932b4d645"><span class="id" title="binder">φ</span></a> := <a class="idref" href="Undecidability.H10.H10p.html#dp_eval_pfree"><span class="id" title="definition">dp_eval_pfree</span></a> <a class="idref" href="Undecidability.H10.H10p.html#ec4b304ddf42d851d75fca6932b4d645"><span class="id" title="variable">φ</span></a> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#fst"><span class="id" title="definition">fst</span></a> <a class="idref" href="Undecidability.H10.H10p.html#e:9"><span class="id" title="variable">e</span></a>) <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="Undecidability.H10.H10p.html#dp_eval_pfree"><span class="id" title="definition">dp_eval_pfree</span></a> <a class="idref" href="Undecidability.H10.H10p.html#ec4b304ddf42d851d75fca6932b4d645"><span class="id" title="variable">φ</span></a> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#snd"><span class="id" title="definition">snd</span></a> <a class="idref" href="Undecidability.H10.H10p.html#e:9"><span class="id" title="variable">e</span></a>).<br/>
+<span class="id" title="keyword">Definition</span> <a id="H10p" class="idref" href="#H10p"><span class="id" title="definition">H10p</span></a> (<a id="e:11" class="idref" href="#e:11"><span class="id" title="binder">e</span></a> : <a class="idref" href="Undecidability.H10.H10p.html#H10p_PROBLEM"><span class="id" title="definition">H10p_PROBLEM</span></a>) := <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#a883bdd010993579f99d60b3775bcf54"><span class="id" title="notation">exists</span></a> <a id="3d6a293b00f8bce80d055a66d907400c" class="idref" href="#3d6a293b00f8bce80d055a66d907400c"><span class="id" title="binder">φ</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#a883bdd010993579f99d60b3775bcf54"><span class="id" title="notation">,</span></a> <a class="idref" href="Undecidability.H10.H10p.html#H10p_sem"><span class="id" title="definition">H10p_sem</span></a> <a class="idref" href="Undecidability.H10.H10p.html#e:11"><span class="id" title="variable">e</span></a> <a class="idref" href="Undecidability.H10.H10p.html#3d6a293b00f8bce80d055a66d907400c"><span class="id" title="variable">φ</span></a>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

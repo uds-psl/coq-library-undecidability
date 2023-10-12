@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.Shared.Libs.PSL</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.html#"><span class="id" title="library">FinTypes</span></a>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="bool_enum_ok" class="idref" href="#bool_enum_ok"><span class="id" title="lemma">bool_enum_ok</span></a> <a id="x:1" class="idref" href="#x:1"><span class="id" title="binder">x</span></a>:<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.html#count"><span class="id" title="definition">count</span></a>  <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">[</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#true"><span class="id" title="constructor">true</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#false"><span class="id" title="constructor">false</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#e76c6291366b599375c28eba0aae94bb"><span class="id" title="notation">]</span></a> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.BasicFinTypes.html#x:1"><span class="id" title="variable">x</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> 1.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simpl</span>. <span class="id" title="var">dec</span>; <span class="id" title="tactic">destruct</span> <span class="id" title="var">x</span>; <span class="id" title="tactic">congruence</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="unit_enum_ok" class="idref" href="#unit_enum_ok"><span class="id" title="lemma">unit_enum_ok</span></a> <a id="x:2" class="idref" href="#x:2"><span class="id" title="binder">x</span></a>:<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.html#count"><span class="id" title="definition">count</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#ddd65c2f7ee73ecec433744948d846bb"><span class="id" title="notation">[</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#tt"><span class="id" title="constructor">tt</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#ddd65c2f7ee73ecec433744948d846bb"><span class="id" title="notation">]</span></a> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.BasicFinTypes.html#x:2"><span class="id" title="variable">x</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> 1.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simpl</span>. <span class="id" title="tactic">destruct</span> <span class="id" title="var">x</span>; <span class="id" title="var">dec</span>; <span class="id" title="tactic">congruence</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="Empty_set_enum_ok" class="idref" href="#Empty_set_enum_ok"><span class="id" title="lemma">Empty_set_enum_ok</span></a> (<a id="x:3" class="idref" href="#x:3"><span class="id" title="binder">x</span></a>: <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#Empty_set"><span class="id" title="inductive">Empty_set</span></a>):<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.html#count"><span class="id" title="definition">count</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nil"><span class="id" title="constructor">nil</span></a> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.BasicFinTypes.html#x:3"><span class="id" title="variable">x</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> 1.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">tauto</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="True_enum_ok" class="idref" href="#True_enum_ok"><span class="id" title="lemma">True_enum_ok</span></a> <a id="x:4" class="idref" href="#x:4"><span class="id" title="binder">x</span></a>:<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.html#count"><span class="id" title="definition">count</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#ddd65c2f7ee73ecec433744948d846bb"><span class="id" title="notation">[</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#I"><span class="id" title="constructor">I</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#ddd65c2f7ee73ecec433744948d846bb"><span class="id" title="notation">]</span></a> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.BasicFinTypes.html#x:4"><span class="id" title="variable">x</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> 1.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simpl</span>; <span class="id" title="var">dec</span>;  <span class="id" title="tactic">destruct</span> <span class="id" title="var">x</span>; <span class="id" title="tactic">congruence</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="False_enum_ok" class="idref" href="#False_enum_ok"><span class="id" title="lemma">False_enum_ok</span></a> (<a id="x:5" class="idref" href="#x:5"><span class="id" title="binder">x</span></a>: <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#False"><span class="id" title="inductive">False</span></a>):<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.html#count"><span class="id" title="definition">count</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nil"><span class="id" title="constructor">nil</span></a> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.BasicFinTypes.html#x:5"><span class="id" title="variable">x</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> 1.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">tauto</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+
+<br/>
+#[<span class="id" title="var">global</span>]<br/>
+<span class="id" title="keyword">Instance</span> <a id="finTypeC_Empty_set" class="idref" href="#finTypeC_Empty_set"><span class="id" title="instance">finTypeC_Empty_set</span></a>: <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.html#finTypeC"><span class="id" title="class">finTypeC</span></a> (<a class="idref" href="Undecidability.Shared.Libs.PSL.EqDecDef.html#EqType"><span class="id" title="constructor">EqType</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#Empty_set"><span class="id" title="inductive">Empty_set</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">econstructor</span>. <span class="id" title="tactic">eapply</span> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.BasicFinTypes.html#Empty_set_enum_ok"><span class="id" title="lemma">Empty_set_enum_ok</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+#[<span class="id" title="var">global</span>]<br/>
+<span class="id" title="keyword">Instance</span> <a id="finTypeC_bool" class="idref" href="#finTypeC_bool"><span class="id" title="instance">finTypeC_bool</span></a>: <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.html#finTypeC"><span class="id" title="class">finTypeC</span></a> (<a class="idref" href="Undecidability.Shared.Libs.PSL.EqDecDef.html#EqType"><span class="id" title="constructor">EqType</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#bool"><span class="id" title="inductive">bool</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">econstructor</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.BasicFinTypes.html#bool_enum_ok"><span class="id" title="lemma">bool_enum_ok</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+#[<span class="id" title="var">global</span>]<br/>
+<span class="id" title="keyword">Instance</span> <a id="finTypeC_unit" class="idref" href="#finTypeC_unit"><span class="id" title="instance">finTypeC_unit</span></a>: <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.html#finTypeC"><span class="id" title="class">finTypeC</span></a> (<a class="idref" href="Undecidability.Shared.Libs.PSL.EqDecDef.html#EqType"><span class="id" title="constructor">EqType</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#unit"><span class="id" title="inductive">unit</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">econstructor</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.BasicFinTypes.html#unit_enum_ok"><span class="id" title="lemma">unit_enum_ok</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+#[<span class="id" title="var">global</span>]<br/>
+<span class="id" title="keyword">Instance</span> <a id="finTypeC_True" class="idref" href="#finTypeC_True"><span class="id" title="instance">finTypeC_True</span></a> : <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.html#finTypeC"><span class="id" title="class">finTypeC</span></a> (<a class="idref" href="Undecidability.Shared.Libs.PSL.EqDecDef.html#EqType"><span class="id" title="constructor">EqType</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#True"><span class="id" title="inductive">True</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">econstructor</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.BasicFinTypes.html#True_enum_ok"><span class="id" title="lemma">True_enum_ok</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+#[<span class="id" title="var">global</span>]<br/>
+<span class="id" title="keyword">Instance</span>  <a id="finTypeC_False" class="idref" href="#finTypeC_False"><span class="id" title="instance">finTypeC_False</span></a> : <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.html#finTypeC"><span class="id" title="class">finTypeC</span></a> (<a class="idref" href="Undecidability.Shared.Libs.PSL.EqDecDef.html#EqType"><span class="id" title="constructor">EqType</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#False"><span class="id" title="inductive">False</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">econstructor</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.Shared.Libs.PSL.FiniteTypes.BasicFinTypes.html#False_enum_ok"><span class="id" title="lemma">False_enum_ok</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

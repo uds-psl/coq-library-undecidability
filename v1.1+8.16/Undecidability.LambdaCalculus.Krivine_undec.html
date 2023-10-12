@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.Synthetic</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#"><span class="id" title="library">Undecidability</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.LambdaCalculus.Krivine.html#"><span class="id" title="library">Undecidability.LambdaCalculus.Krivine</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.LambdaCalculus.Reductions</span> <span class="id" title="keyword">Require</span><br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.LambdaCalculus.Reductions.wCBNclosed_to_KrivineMclosed_HALT.html#"><span class="id" title="library">wCBNclosed_to_KrivineMclosed_HALT</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.LambdaCalculus.wCBN_undec.html#"><span class="id" title="library">Undecidability.LambdaCalculus.wCBN_undec</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="KrivineMclosed_HALT_undec" class="idref" href="#KrivineMclosed_HALT_undec"><span class="id" title="lemma">KrivineMclosed_HALT_undec</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.LambdaCalculus.Krivine.html#KrivineMclosed_HALT"><span class="id" title="definition">KrivineMclosed_HALT</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.LambdaCalculus.wCBN_undec.html#wCBNclosed_undec"><span class="id" title="lemma">wCBNclosed_undec</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="Undecidability.LambdaCalculus.Reductions.wCBNclosed_to_KrivineMclosed_HALT.html#reduction"><span class="id" title="lemma">wCBNclosed_to_KrivineMclosed_HALT.reduction</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="Undecidability.LambdaCalculus.Krivine_undec.html#KrivineMclosed_HALT_undec"><span class="id" title="lemma">KrivineMclosed_HALT_undec</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="KrivineM_HALT_undec" class="idref" href="#KrivineM_HALT_undec"><span class="id" title="lemma">KrivineM_HALT_undec</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.LambdaCalculus.Krivine.html#KrivineM_HALT"><span class="id" title="definition">KrivineM_HALT</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.LambdaCalculus.Krivine_undec.html#KrivineMclosed_HALT_undec"><span class="id" title="lemma">KrivineMclosed_HALT_undec</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (@<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Specif.html#proj1_sig"><span class="id" title="definition">proj1_sig</span></a> <a class="idref" href="Undecidability.L.L.html#term"><span class="id" title="inductive">L.term</span></a> <span class="id" title="var">_</span>). <span class="id" title="var">now</span> <span class="id" title="tactic">intros</span> [??].<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="Undecidability.LambdaCalculus.Krivine_undec.html#KrivineM_HALT_undec"><span class="id" title="lemma">KrivineM_HALT_undec</span></a>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

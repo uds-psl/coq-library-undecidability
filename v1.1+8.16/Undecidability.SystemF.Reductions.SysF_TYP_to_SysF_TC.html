@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#"><span class="id" title="library">List</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.micromega.Lia.html#"><span class="id" title="library">Lia</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Relations.Relation_Operators.html#"><span class="id" title="library">Relation_Operators</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#ListNotations"><span class="id" title="module">ListNotations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.SystemF.SysF.html#"><span class="id" title="library">Undecidability.SystemF.SysF</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.SystemF.Util</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.SystemF.Util.Facts.html#"><span class="id" title="library">Facts</span></a> <a class="idref" href="Undecidability.SystemF.Util.poly_type_facts.html#"><span class="id" title="library">poly_type_facts</span></a> <a class="idref" href="Undecidability.SystemF.Util.pure_term_facts.html#"><span class="id" title="library">pure_term_facts</span></a> <a class="idref" href="Undecidability.SystemF.Util.term_facts.html#"><span class="id" title="library">term_facts</span></a> <a class="idref" href="Undecidability.SystemF.Util.typing_facts.html#"><span class="id" title="library">typing_facts</span></a> <a class="idref" href="Undecidability.SystemF.Util.pure_typing_facts.html#"><span class="id" title="library">pure_typing_facts</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.ssr.ssreflect.html#"><span class="id" title="library">ssreflect</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.ssr.ssrbool.html#"><span class="id" title="library">ssrbool</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.ssr.ssrfun.html#"><span class="id" title="library">ssrfun</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Set</span> <span class="id" title="var">Default</span> <span class="id" title="keyword">Goal</span> <span class="id" title="var">Selector</span> "!".<br/>
+
+<br/>
+<span class="id" title="keyword">Module</span> <a id="Argument" class="idref" href="#Argument"><span class="id" title="module">Argument</span></a>.<br/>
+<span class="id" title="keyword">Section</span> <a id="Argument.SysF_TYP_to_SysF_TC" class="idref" href="#Argument.SysF_TYP_to_SysF_TC"><span class="id" title="section">SysF_TYP_to_SysF_TC</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Variables</span> <a id="Argument.SysF_TYP_to_SysF_TC.M0" class="idref" href="#Argument.SysF_TYP_to_SysF_TC.M0"><span class="id" title="variable">M0</span></a> : <a class="idref" href="Undecidability.SystemF.SysF.html#pure_term"><span class="id" title="inductive">pure_term</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Argument.Gamma_M0" class="idref" href="#Argument.Gamma_M0"><span class="id" title="definition">Gamma_M0</span></a> := <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#ddd65c2f7ee73ecec433744948d846bb"><span class="id" title="notation">[</span></a><a class="idref" href="Undecidability.SystemF.SysF.html#poly_abs"><span class="id" title="constructor">poly_abs</span></a> (<a class="idref" href="Undecidability.SystemF.SysF.html#poly_var"><span class="id" title="constructor">poly_var</span></a> 0)<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#ddd65c2f7ee73ecec433744948d846bb"><span class="id" title="notation">]</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Argument.M_M0" class="idref" href="#Argument.M_M0"><span class="id" title="definition">M_M0</span></a> := <a class="idref" href="Undecidability.SystemF.SysF.html#pure_app"><span class="id" title="constructor">pure_app</span></a> (<a class="idref" href="Undecidability.SystemF.SysF.html#pure_var"><span class="id" title="constructor">pure_var</span></a> 0) (<a class="idref" href="Undecidability.SystemF.Util.term_facts.html#many_pure_term_abs"><span class="id" title="definition">many_pure_term_abs</span></a> (<a class="idref" href="Undecidability.SystemF.Util.pure_term_facts.html#pure_var_bound"><span class="id" title="definition">pure_var_bound</span></a> <a class="idref" href="Undecidability.SystemF.Reductions.SysF_TYP_to_SysF_TC.html#Argument.SysF_TYP_to_SysF_TC.M0"><span class="id" title="variable">M0</span></a>) <a class="idref" href="Undecidability.SystemF.Reductions.SysF_TYP_to_SysF_TC.html#Argument.SysF_TYP_to_SysF_TC.M0"><span class="id" title="variable">M0</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="Argument.t_M0" class="idref" href="#Argument.t_M0"><span class="id" title="definition">t_M0</span></a> := <a class="idref" href="Undecidability.SystemF.SysF.html#poly_var"><span class="id" title="constructor">poly_var</span></a> 0.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="Argument.transport" class="idref" href="#Argument.transport"><span class="id" title="lemma">transport</span></a> : <br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.SystemF.SysF.html#SysF_TYP"><span class="id" title="definition">SysF_TYP</span></a> <a class="idref" href="Undecidability.SystemF.Reductions.SysF_TYP_to_SysF_TC.html#Argument.SysF_TYP_to_SysF_TC.M0"><span class="id" title="variable">M0</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.SystemF.SysF.html#SysF_TC"><span class="id" title="definition">SysF_TC</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a><a class="idref" href="Undecidability.SystemF.Reductions.SysF_TYP_to_SysF_TC.html#Argument.Gamma_M0"><span class="id" title="definition">Gamma_M0</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a> <a class="idref" href="Undecidability.SystemF.Reductions.SysF_TYP_to_SysF_TC.html#Argument.M_M0"><span class="id" title="definition">M_M0</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a> <a class="idref" href="Undecidability.SystemF.Reductions.SysF_TYP_to_SysF_TC.html#Argument.t_M0"><span class="id" title="definition">t_M0</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">move</span>=&gt; [<span class="id" title="var">Gamma</span>] [<span class="id" title="var">t</span>] /<a class="idref" href="Undecidability.SystemF.Util.pure_typing_facts.html#pure_typing_iff_type_assignment"><span class="id" title="lemma">pure_typing_iff_type_assignment</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">move</span>=&gt; /<a class="idref" href="Undecidability.SystemF.Util.pure_typing_facts.html#pure_typableI"><span class="id" title="lemma">pure_typableI</span></a> /<a class="idref" href="Undecidability.SystemF.Util.pure_typing_facts.html#pure_typable_many_pure_term_abs_allI"><span class="id" title="lemma">pure_typable_many_pure_term_abs_allI</span></a> [{}<span class="id" title="var">t</span>].<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">move</span>=&gt; /(<a class="idref" href="Undecidability.SystemF.Util.pure_typing_facts.html#pure_typing_ren_pure_term"><span class="id" title="lemma">pure_typing_ren_pure_term</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.ssr.ssrfun.html#id"><span class="id" title="abbreviation">id</span></a> (<span class="id" title="var">Delta</span> := <a class="idref" href="Undecidability.SystemF.Reductions.SysF_TYP_to_SysF_TC.html#Argument.Gamma_M0"><span class="id" title="definition">Gamma_M0</span></a>)). <span class="id" title="tactic">rewrite</span> <a class="idref" href="Undecidability.SystemF.Util.pure_term_facts.html#ren_pure_term_id"><span class="id" title="lemma">ren_pure_term_id</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span>: <a class="idref" href="Undecidability.SystemF.Util.Facts.html#unnest"><span class="id" title="lemma">unnest</span></a>; <span class="id" title="tactic">first</span> <span class="id" title="tactic">by</span> <span class="id" title="tactic">case</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">move</span>=&gt; /(<a class="idref" href="Undecidability.SystemF.Util.pure_typing_facts.html#pure_typing_pure_app_simpleI"><span class="id" title="lemma">pure_typing_pure_app_simpleI</span></a> (<span class="id" title="var">M</span> := <a class="idref" href="Undecidability.SystemF.SysF.html#pure_var"><span class="id" title="constructor">pure_var</span></a> 0) (<span class="id" title="var">t</span> := <a class="idref" href="Undecidability.SystemF.Reductions.SysF_TYP_to_SysF_TC.html#Argument.t_M0"><span class="id" title="definition">t_M0</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span>: <a class="idref" href="Undecidability.SystemF.Util.Facts.html#unnest"><span class="id" title="lemma">unnest</span></a>.<br/>
+&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span>: (<a class="idref" href="Undecidability.SystemF.Util.pure_typing_facts.html#pure_typing_pure_var"><span class="id" title="constructor">pure_typing_pure_var</span></a> 0); <span class="id" title="tactic">first</span> <span class="id" title="tactic">by</span> <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span>: <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Relations.Relation_Operators.html#rt_step"><span class="id" title="constructor">rt_step</span></a>. <span class="id" title="tactic">by</span> <span class="id" title="tactic">apply</span>: <a class="idref" href="Undecidability.SystemF.Util.pure_typing_facts.html#contains_step_subst"><span class="id" title="constructor">contains_step_subst</span></a>. }<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">move</span>=&gt; /<a class="idref" href="Undecidability.SystemF.Util.pure_typing_facts.html#pure_typing_to_typing"><span class="id" title="lemma">pure_typing_to_typing</span></a> /= [<span class="id" title="var">P</span>] [<span class="id" title="var">HP</span>] /<a class="idref" href="Undecidability.SystemF.Util.typing_facts.html#typing_to_type_assignment"><span class="id" title="lemma">typing_to_type_assignment</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">by</span> <span class="id" title="tactic">rewrite</span> -<span class="id" title="var">HP</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="Argument.inverse_transport" class="idref" href="#Argument.inverse_transport"><span class="id" title="lemma">inverse_transport</span></a> : <br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.SystemF.SysF.html#SysF_TC"><span class="id" title="definition">SysF_TC</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a><a class="idref" href="Undecidability.SystemF.Reductions.SysF_TYP_to_SysF_TC.html#Argument.Gamma_M0"><span class="id" title="definition">Gamma_M0</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a> <a class="idref" href="Undecidability.SystemF.Reductions.SysF_TYP_to_SysF_TC.html#Argument.M_M0"><span class="id" title="definition">M_M0</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a> <a class="idref" href="Undecidability.SystemF.Reductions.SysF_TYP_to_SysF_TC.html#Argument.t_M0"><span class="id" title="definition">t_M0</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.SystemF.SysF.html#SysF_TYP"><span class="id" title="definition">SysF_TYP</span></a> <a class="idref" href="Undecidability.SystemF.Reductions.SysF_TYP_to_SysF_TC.html#Argument.SysF_TYP_to_SysF_TC.M0"><span class="id" title="variable">M0</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">move</span>=&gt; /<a class="idref" href="Undecidability.SystemF.Util.pure_typing_facts.html#pure_typing_iff_type_assignment"><span class="id" title="lemma">pure_typing_iff_type_assignment</span></a>. <span class="id" title="tactic">rewrite</span> /<a class="idref" href="Undecidability.SystemF.Reductions.SysF_TYP_to_SysF_TC.html#Argument.Gamma_M0"><span class="id" title="definition">Gamma_M0</span></a> /<a class="idref" href="Undecidability.SystemF.Reductions.SysF_TYP_to_SysF_TC.html#Argument.M_M0"><span class="id" title="definition">M_M0</span></a> /<a class="idref" href="Undecidability.SystemF.Reductions.SysF_TYP_to_SysF_TC.html#Argument.t_M0"><span class="id" title="definition">t_M0</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">move</span>=&gt; /<a class="idref" href="Undecidability.SystemF.Util.pure_typing_facts.html#pure_typingE'"><span class="id" title="lemma">pure_typingE'</span></a> [?] [?] [<span class="id" title="var">_</span>] [/<a class="idref" href="Undecidability.SystemF.Util.pure_typing_facts.html#pure_typableI"><span class="id" title="lemma">pure_typableI</span></a> <span class="id" title="var">HM0</span> <span class="id" title="var">_</span>].<br/>
+&nbsp;&nbsp;<span class="id" title="var">have</span> : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#a883bdd010993579f99d60b3775bcf54"><span class="id" title="notation">exists</span></a> <a id="Gamma:2" class="idref" href="#Gamma:2"><span class="id" title="binder">Gamma</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#a883bdd010993579f99d60b3775bcf54"><span class="id" title="notation">,</span></a> <a class="idref" href="Undecidability.SystemF.Util.pure_typing_facts.html#pure_typable"><span class="id" title="definition">pure_typable</span></a> <a class="idref" href="Undecidability.SystemF.Reductions.SysF_TYP_to_SysF_TC.html#Gamma:2"><span class="id" title="variable">Gamma</span></a> <a class="idref" href="Undecidability.SystemF.Reductions.SysF_TYP_to_SysF_TC.html#Argument.SysF_TYP_to_SysF_TC.M0"><span class="id" title="variable">M0</span></a>.<br/>
+&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">elim</span>: (<a class="idref" href="Undecidability.SystemF.Util.pure_term_facts.html#pure_var_bound"><span class="id" title="definition">pure_var_bound</span></a> <a class="idref" href="Undecidability.SystemF.Reductions.SysF_TYP_to_SysF_TC.html#Argument.SysF_TYP_to_SysF_TC.M0"><span class="id" title="variable">M0</span></a>) (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#ddd65c2f7ee73ecec433744948d846bb"><span class="id" title="notation">[</span></a><a class="idref" href="Undecidability.SystemF.SysF.html#poly_abs"><span class="id" title="constructor">poly_abs</span></a> (<a class="idref" href="Undecidability.SystemF.SysF.html#poly_var"><span class="id" title="constructor">poly_var</span></a> 0)<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#ddd65c2f7ee73ecec433744948d846bb"><span class="id" title="notation">]</span></a>) <span class="id" title="var">HM0</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">move</span>=&gt; /= ? ?. <span class="id" title="tactic">eexists</span>. <span class="id" title="tactic">by</span> <span class="id" title="var">eassumption</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">by</span> <span class="id" title="tactic">move</span>=&gt; {}<span class="id" title="var">n</span> <span class="id" title="var">IH</span> <span class="id" title="var">Gamma</span> /= /<a class="idref" href="Undecidability.SystemF.Util.pure_typing_facts.html#pure_typableE"><span class="id" title="lemma">pure_typableE</span></a> [?] /<span class="id" title="var">IH</span>.<br/>
+&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">move</span>=&gt; [<span class="id" title="var">Gamma</span>] [<span class="id" title="var">t</span>] /<a class="idref" href="Undecidability.SystemF.Util.pure_typing_facts.html#pure_typing_to_typing"><span class="id" title="lemma">pure_typing_to_typing</span></a> [<span class="id" title="var">P</span>] [-&gt;].<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">move</span>=&gt; /<a class="idref" href="Undecidability.SystemF.Util.typing_facts.html#typing_to_type_assignment"><span class="id" title="lemma">typing_to_type_assignment</span></a> ?. <span class="id" title="tactic">by</span> <span class="id" title="tactic">exists</span> <span class="id" title="var">Gamma</span>, <span class="id" title="var">t</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="Undecidability.SystemF.Reductions.SysF_TYP_to_SysF_TC.html#Argument.SysF_TYP_to_SysF_TC"><span class="id" title="section">SysF_TYP_to_SysF_TC</span></a>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="Undecidability.SystemF.Reductions.SysF_TYP_to_SysF_TC.html#Argument"><span class="id" title="module">Argument</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.Definitions.html#"><span class="id" title="library">Undecidability.Synthetic.Definitions</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="reduction" class="idref" href="#reduction"><span class="id" title="lemma">reduction</span></a> : <a class="idref" href="Undecidability.SystemF.SysF.html#SysF_TYP"><span class="id" title="definition">SysF_TYP</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.SystemF.SysF.html#SysF_TC"><span class="id" title="definition">SysF_TC</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<span class="id" title="keyword">fun</span> '<a id="M0:6" class="idref" href="#M0:6"><span class="id" title="binder">M0</span></a> =&gt; <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a><a class="idref" href="Undecidability.SystemF.Reductions.SysF_TYP_to_SysF_TC.html#Gamma_M0"><span class="id" title="definition">Argument.Gamma_M0</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a> <a class="idref" href="Undecidability.SystemF.Reductions.SysF_TYP_to_SysF_TC.html#M_M0"><span class="id" title="definition">Argument.M_M0</span></a> <a class="idref" href="Undecidability.SystemF.Reductions.SysF_TYP_to_SysF_TC.html#M0:3"><span class="id" title="variable">M0</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a> <a class="idref" href="Undecidability.SystemF.Reductions.SysF_TYP_to_SysF_TC.html#t_M0"><span class="id" title="definition">Argument.t_M0</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">move</span>=&gt; <span class="id" title="var">M0</span>. <span class="id" title="tactic">constructor</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span>: <a class="idref" href="Undecidability.SystemF.Reductions.SysF_TYP_to_SysF_TC.html#transport"><span class="id" title="lemma">Argument.transport</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span>: <a class="idref" href="Undecidability.SystemF.Reductions.SysF_TYP_to_SysF_TC.html#inverse_transport"><span class="id" title="lemma">Argument.inverse_transport</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

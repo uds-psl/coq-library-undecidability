@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.Definitions.html#"><span class="id" title="library">Undecidability.Synthetic.Definitions</span></a> <a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#"><span class="id" title="library">Undecidability.Synthetic.ReducibilityFacts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.MinskyMachines.MM2.html#"><span class="id" title="library">Undecidability.MinskyMachines.MM2</span></a>. <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.StackMachines.BSM.html#"><span class="id" title="library">Undecidability.StackMachines.BSM</span></a>. 
+<br/>
+<span class="id" title="keyword">Require</span> <a class="idref" href="Undecidability.MinskyMachines.Reductions.BSM_MM.html#"><span class="id" title="library">Undecidability.MinskyMachines.Reductions.BSM_MM</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <a class="idref" href="Undecidability.FRACTRAN.Reductions.MM_FRACTRAN.html#"><span class="id" title="library">Undecidability.FRACTRAN.Reductions.MM_FRACTRAN</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <a class="idref" href="Undecidability.MinskyMachines.Reductions.FRACTRAN_to_MMA2.html#"><span class="id" title="library">Undecidability.MinskyMachines.Reductions.FRACTRAN_to_MMA2</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <a class="idref" href="Undecidability.MinskyMachines.Reductions.MMA2_to_MM2.html#"><span class="id" title="library">Undecidability.MinskyMachines.Reductions.MMA2_to_MM2</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="reduction" class="idref" href="#reduction"><span class="id" title="lemma">reduction</span></a> : <a class="idref" href="Undecidability.StackMachines.BSM.html#Halt_BSM"><span class="id" title="definition">Halt_BSM</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.MinskyMachines.MM2.html#MM2_HALTING"><span class="id" title="definition">MM2_HALTING</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#reduces_transitive"><span class="id" title="lemma">reduces_transitive</span></a> <a class="idref" href="Undecidability.MinskyMachines.Reductions.BSM_MM.html#BSM_MM_HALTING"><span class="id" title="lemma">BSM_MM.BSM_MM_HALTING</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#reduces_transitive"><span class="id" title="lemma">reduces_transitive</span></a> <a class="idref" href="Undecidability.FRACTRAN.Reductions.MM_FRACTRAN.html#MM_FRACTRAN_REG_HALTING"><span class="id" title="lemma">MM_FRACTRAN.MM_FRACTRAN_REG_HALTING</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#reduces_transitive"><span class="id" title="lemma">reduces_transitive</span></a> <a class="idref" href="Undecidability.MinskyMachines.Reductions.FRACTRAN_to_MMA2.html#FRACTRAN_REG_MMA2_HALTING"><span class="id" title="lemma">FRACTRAN_to_MMA2.FRACTRAN_REG_MMA2_HALTING</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="Undecidability.MinskyMachines.Reductions.MMA2_to_MM2.html#MMA2_MM2_HALTING"><span class="id" title="lemma">MMA2_to_MM2.MMA2_MM2_HALTING</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

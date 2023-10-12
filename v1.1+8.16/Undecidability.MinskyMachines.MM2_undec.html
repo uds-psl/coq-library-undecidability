@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#"><span class="id" title="library">Undecidability.Synthetic.Undecidability</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.MinskyMachines</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.MinskyMachines.MMA.html#"><span class="id" title="library">MMA</span></a> <a class="idref" href="Undecidability.MinskyMachines.MM2.html#"><span class="id" title="library">MM2</span></a> <a class="idref" href="Undecidability.MinskyMachines.MMA2_undec.html#"><span class="id" title="library">MMA2_undec</span></a> <a class="idref" href="Undecidability.MinskyMachines.Reductions.MMA2_to_MM2.html#"><span class="id" title="library">MMA2_to_MM2</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.MinskyMachines.Reductions</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <a class="idref" href="Undecidability.MinskyMachines.Reductions.MM2_HALTING_to_MM2_ZERO_HALTING.html#"><span class="id" title="library">MM2_HALTING_to_MM2_ZERO_HALTING</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab4"></a><h2 class="section">MM2_HALTING is undecidable</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="MM2_HALTING_undec" class="idref" href="#MM2_HALTING_undec"><span class="id" title="lemma">MM2_HALTING_undec</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.MinskyMachines.MM2.html#MM2_HALTING"><span class="id" title="definition">MM2_HALTING</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.MinskyMachines.MMA2_undec.html#MMA2_HALTING_undec"><span class="id" title="lemma">MMA2_HALTING_undec</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.MinskyMachines.Reductions.MMA2_to_MM2.html#MMA2_MM2_HALTING"><span class="id" title="lemma">MMA2_MM2_HALTING</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="Undecidability.MinskyMachines.MM2_undec.html#MM2_HALTING_undec"><span class="id" title="lemma">MM2_HALTING_undec</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="MM2_ZERO_HALTING_undec" class="idref" href="#MM2_ZERO_HALTING_undec"><span class="id" title="lemma">MM2_ZERO_HALTING_undec</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.MinskyMachines.MM2.html#MM2_ZERO_HALTING"><span class="id" title="definition">MM2_ZERO_HALTING</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.MinskyMachines.MM2_undec.html#MM2_HALTING_undec"><span class="id" title="lemma">MM2_HALTING_undec</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="Undecidability.MinskyMachines.Reductions.MM2_HALTING_to_MM2_ZERO_HALTING.html#reduction"><span class="id" title="lemma">MM2_HALTING_to_MM2_ZERO_HALTING.reduction</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="Undecidability.MinskyMachines.MM2_undec.html#MM2_ZERO_HALTING_undec"><span class="id" title="lemma">MM2_ZERO_HALTING_undec</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="MM2_HALTS_ON_ZERO_undec" class="idref" href="#MM2_HALTS_ON_ZERO_undec"><span class="id" title="lemma">MM2_HALTS_ON_ZERO_undec</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.MinskyMachines.MM2.html#MM2_HALTS_ON_ZERO"><span class="id" title="definition">MM2_HALTS_ON_ZERO</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidability_from_reducibility"><span class="id" title="lemma">undecidability_from_reducibility</span></a> <a class="idref" href="Undecidability.MinskyMachines.MMA2_undec.html#MMA2_HALTS_ON_ZERO_undec"><span class="id" title="lemma">MMA2_HALTS_ON_ZERO_undec</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.MinskyMachines.Reductions.MMA2_to_MM2.html#MMA2_MM2_HALTS_ON_ZERO"><span class="id" title="lemma">MMA2_MM2_HALTS_ON_ZERO</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="Undecidability.MinskyMachines.MM2_undec.html#MM2_HALTS_ON_ZERO_undec"><span class="id" title="lemma">MM2_HALTS_ON_ZERO_undec</span></a>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

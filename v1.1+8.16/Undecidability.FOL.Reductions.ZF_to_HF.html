@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.FOL</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.Syntax.Facts.html#"><span class="id" title="library">Syntax.Facts</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullFacts.html#"><span class="id" title="library">Semantics.Tarski.FullFacts</span></a> <a class="idref" href="Undecidability.FOL.Deduction.FullNDFacts.html#"><span class="id" title="library">Deduction.FullNDFacts</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.FOL.Sets</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.Sets.ZF.html#"><span class="id" title="library">ZF</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.ZF.html#"><span class="id" title="library">Undecidability.FOL.ZF</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.micromega.Lia.html#"><span class="id" title="library">Lia</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Shared.ListAutomation.html#"><span class="id" title="library">Shared.ListAutomation</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Shared.ListAutomation.html#ListAutomationNotations"><span class="id" title="module">ListAutomationNotations</span></a> <a class="idref" href="Undecidability.Shared.ListAutomation.html#ListAutomationHints"><span class="id" title="module">ListAutomationHints</span></a> <a class="idref" href="Undecidability.Shared.ListAutomation.html#ListAutomationInstances"><span class="id" title="module">ListAutomationInstances</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Set Implicit Arguments</span>.<br/>
+<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Unset</span> <span class="id" title="keyword">Strict</span> <span class="id" title="keyword">Implicit</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="add_om" class="idref" href="#add_om"><span class="id" title="definition">add_om</span></a> <a id="phi:1" class="idref" href="#phi:1"><span class="id" title="binder">phi</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.FOL.Sets.ZF.html#ax_om1"><span class="id" title="definition">ax_om1</span></a> <a class="idref" href="Undecidability.FOL.Syntax.Core.html#edd89213ba4bdbe83c1b5ad1f8178c16"><span class="id" title="notation">→</span></a> <a class="idref" href="Undecidability.FOL.Sets.ZF.html#ax_om2"><span class="id" title="definition">ax_om2</span></a> <a class="idref" href="Undecidability.FOL.Syntax.Core.html#edd89213ba4bdbe83c1b5ad1f8178c16"><span class="id" title="notation">→</span></a> <a class="idref" href="Undecidability.FOL.Reductions.ZF_to_HF.html#phi:1"><span class="id" title="variable">phi</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="reduction_entailment" class="idref" href="#reduction_entailment"><span class="id" title="lemma">reduction_entailment</span></a> <a id="phi:2" class="idref" href="#phi:2"><span class="id" title="binder">phi</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.FOL.ZF.html#entailment_ZF'"><span class="id" title="definition">entailment_ZF'</span></a> <a class="idref" href="Undecidability.FOL.Reductions.ZF_to_HF.html#phi:2"><span class="id" title="variable">phi</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'&lt;-&gt;'_x"><span class="id" title="notation">&lt;-&gt;</span></a> <a class="idref" href="Undecidability.FOL.ZF.html#entailment_HF"><span class="id" title="definition">entailment_HF</span></a> (<a class="idref" href="Undecidability.FOL.Reductions.ZF_to_HF.html#add_om"><span class="id" title="definition">add_om</span></a> <a class="idref" href="Undecidability.FOL.Reductions.ZF_to_HF.html#phi:2"><span class="id" title="variable">phi</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>; <span class="id" title="tactic">intros</span> <span class="id" title="var">Hp</span> <span class="id" title="var">D</span> <span class="id" title="var">I</span> <span class="id" title="var">rho</span> <span class="id" title="var">HE</span> <span class="id" title="var">HI</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">H1</span> <span class="id" title="var">H2</span>. <span class="id" title="tactic">apply</span> <span class="id" title="var">Hp</span>; <span class="id" title="tactic">trivial</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">sigma</span> <span class="id" title="var">psi</span> [&lt;-|[&lt;-|[&lt;-|[&lt;-|[&lt;-|[&lt;-|[&lt;-|[]]]]]]]]; <span class="id" title="tactic">trivial</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">all</span>: <span class="id" title="tactic">apply</span> <span class="id" title="var">HI</span>; <span class="id" title="tactic">unfold</span> <a class="idref" href="Undecidability.FOL.Sets.ZF.html#HF"><span class="id" title="definition">HF</span></a>; <span class="id" title="tactic">intuition</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <span class="id" title="var">Hp</span>; <span class="id" title="tactic">fold</span> <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullCore.html#sat"><span class="id" title="definition">sat</span></a>; <span class="id" title="tactic">trivial</span>. 2,3: <span class="id" title="tactic">apply</span> <span class="id" title="var">HI</span>; <span class="id" title="tactic">unfold</span> <a class="idref" href="Undecidability.FOL.Sets.ZF.html#ZF'"><span class="id" title="definition">ZF'</span></a>; <span class="id" title="tactic">intuition</span> <span class="id" title="tactic">eauto</span> 7.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">sigma</span> <span class="id" title="var">psi</span> [&lt;-|[&lt;-|[&lt;-|[&lt;-|[&lt;-|[]]]]]].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">all</span>: <span class="id" title="tactic">apply</span> <span class="id" title="var">HI</span>; <span class="id" title="tactic">unfold</span> <a class="idref" href="Undecidability.FOL.Sets.ZF.html#ZF'"><span class="id" title="definition">ZF'</span></a>; <span class="id" title="tactic">intuition</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="reduction_deduction" class="idref" href="#reduction_deduction"><span class="id" title="lemma">reduction_deduction</span></a> <a id="phi:3" class="idref" href="#phi:3"><span class="id" title="binder">phi</span></a> :<br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.FOL.ZF.html#deduction_ZF'"><span class="id" title="definition">deduction_ZF'</span></a> <a class="idref" href="Undecidability.FOL.Reductions.ZF_to_HF.html#phi:3"><span class="id" title="variable">phi</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'&lt;-&gt;'_x"><span class="id" title="notation">&lt;-&gt;</span></a> <a class="idref" href="Undecidability.FOL.ZF.html#deduction_HF"><span class="id" title="definition">deduction_HF</span></a> (<a class="idref" href="Undecidability.FOL.Reductions.ZF_to_HF.html#add_om"><span class="id" title="definition">add_om</span></a> <a class="idref" href="Undecidability.FOL.Reductions.ZF_to_HF.html#phi:3"><span class="id" title="variable">phi</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="Undecidability.FOL.ZF.html#deduction_ZF'"><span class="id" title="definition">deduction_ZF'</span></a>, <a class="idref" href="Undecidability.FOL.ZF.html#deduction_HF"><span class="id" title="definition">deduction_HF</span></a>, <a class="idref" href="Undecidability.FOL.Reductions.ZF_to_HF.html#add_om"><span class="id" title="definition">add_om</span></a>. <span class="id" title="tactic">rewrite</span> !<a class="idref" href="Undecidability.FOL.Deduction.FullNDFacts.html#imps"><span class="id" title="lemma">imps</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>; <span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.FOL.Deduction.FullNDFacts.html#Weak"><span class="id" title="lemma">Weak</span></a> <span class="id" title="var">H</span>); <span class="id" title="tactic">unfold</span> <a class="idref" href="Undecidability.FOL.Sets.ZF.html#ZFeq'"><span class="id" title="definition">ZFeq'</span></a>, <a class="idref" href="Undecidability.FOL.Sets.ZF.html#HFeq"><span class="id" title="definition">HFeq</span></a>, <a class="idref" href="Undecidability.FOL.Sets.ZF.html#ZF'"><span class="id" title="definition">ZF'</span></a>, <a class="idref" href="Undecidability.FOL.Sets.ZF.html#HF"><span class="id" title="definition">HF</span></a>; <span class="id" title="tactic">firstorder</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

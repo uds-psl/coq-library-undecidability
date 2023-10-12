@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#"><span class="id" title="library">List</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Arith.Arith.html#"><span class="id" title="library">Arith</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.micromega.Lia.html#"><span class="id" title="library">Lia</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#ListNotations"><span class="id" title="module">ListNotations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.Definitions.html#"><span class="id" title="library">Undecidability.Synthetic.Definitions</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.Shared.Libs.DLW</span> <br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils.html#"><span class="id" title="library">utils</span></a> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.list_bool.html#"><span class="id" title="library">list_bool</span></a> <a class="idref" href="Undecidability.Shared.Libs.DLW.Vec.pos.html#"><span class="id" title="library">pos</span></a> <a class="idref" href="Undecidability.Shared.Libs.DLW.Vec.vec.html#"><span class="id" title="library">vec</span></a> <a class="idref" href="Undecidability.Shared.Libs.DLW.Code.subcode.html#"><span class="id" title="library">subcode</span></a> <a class="idref" href="Undecidability.Shared.Libs.DLW.Code.sss.html#"><span class="id" title="library">sss</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.StackMachines.BSM</span> <br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.StackMachines.BSM.tiles_solvable.html#"><span class="id" title="library">tiles_solvable</span></a> <a class="idref" href="Undecidability.StackMachines.BSM.bsm_defs.html#"><span class="id" title="library">bsm_defs</span></a> <a class="idref" href="Undecidability.StackMachines.BSM.bsm_utils.html#"><span class="id" title="library">bsm_utils</span></a> <a class="idref" href="Undecidability.StackMachines.BSM.bsm_pcp.html#"><span class="id" title="library">bsm_pcp</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.PCP</span> <br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.PCP.PCP.html#"><span class="id" title="library">PCP</span></a> <a class="idref" href="Undecidability.PCP.Util.PCP_facts.html#"><span class="id" title="library">PCP_facts</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Fact</span> <a id="tile_concat_itau" class="idref" href="#tile_concat_itau"><span class="id" title="lemma">tile_concat_itau</span></a> <a id="ln:1" class="idref" href="#ln:1"><span class="id" title="binder">ln</span></a> <a id="lt:2" class="idref" href="#lt:2"><span class="id" title="binder">lt</span></a> : <a class="idref" href="Undecidability.StackMachines.BSM.tiles_solvable.html#tile_concat"><span class="id" title="definition">tile_concat</span></a> <a class="idref" href="Undecidability.StackMachines.Reductions.iPCPb_to_BSM_HALTING.html#ln:1"><span class="id" title="variable">ln</span></a> <a class="idref" href="Undecidability.StackMachines.Reductions.iPCPb_to_BSM_HALTING.html#lt:2"><span class="id" title="variable">lt</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a><a class="idref" href="Undecidability.PCP.PCP.html#itau1"><span class="id" title="definition">itau1</span></a> <a class="idref" href="Undecidability.StackMachines.Reductions.iPCPb_to_BSM_HALTING.html#lt:2"><span class="id" title="variable">lt</span></a> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#rev"><span class="id" title="definition">rev</span></a> <a class="idref" href="Undecidability.StackMachines.Reductions.iPCPb_to_BSM_HALTING.html#ln:1"><span class="id" title="variable">ln</span></a>)<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a> <a class="idref" href="Undecidability.PCP.PCP.html#itau2"><span class="id" title="definition">itau2</span></a> <a class="idref" href="Undecidability.StackMachines.Reductions.iPCPb_to_BSM_HALTING.html#lt:2"><span class="id" title="variable">lt</span></a> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#rev"><span class="id" title="definition">rev</span></a> <a class="idref" href="Undecidability.StackMachines.Reductions.iPCPb_to_BSM_HALTING.html#ln:1"><span class="id" title="variable">ln</span></a>)<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">ln</span> <span class="id" title="keyword">as</span> [ | <span class="id" title="var">i</span> <span class="id" title="var">ln</span> <span class="id" title="var">IH</span> ]; <span class="id" title="tactic">simpl</span>; <span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="Undecidability.PCP.Util.PCP_facts.html#itau1_app"><span class="id" title="lemma">itau1_app</span></a>, <a class="idref" href="Undecidability.PCP.Util.PCP_facts.html#itau2_app"><span class="id" title="lemma">itau2_app</span></a>; <span class="id" title="tactic">simpl</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">generalize</span> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#nth"><span class="id" title="definition">nth</span></a> <span class="id" title="var">i</span> <span class="id" title="var">lt</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#ae9a5e1034e143b218b09d8e454472bd"><span class="id" title="notation">[]</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#ae9a5e1034e143b218b09d8e454472bd"><span class="id" title="notation">[]</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a>); <span class="id" title="tactic">intros</span> (<span class="id" title="var">a</span>,<span class="id" title="var">b</span>); <span class="id" title="tactic">rewrite</span> <span class="id" title="var">IH</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">rewrite</span> &lt;- <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#app_nil_end"><span class="id" title="lemma">app_nil_end</span></a>; <span class="id" title="tactic">auto</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="tiles_solvable_iBPCP" class="idref" href="#tiles_solvable_iBPCP"><span class="id" title="lemma">tiles_solvable_iBPCP</span></a> <a id="lt:3" class="idref" href="#lt:3"><span class="id" title="binder">lt</span></a> : <a class="idref" href="Undecidability.StackMachines.BSM.tiles_solvable.html#tiles_solvable"><span class="id" title="definition">tiles_solvable</span></a> <a class="idref" href="Undecidability.StackMachines.Reductions.iPCPb_to_BSM_HALTING.html#lt:3"><span class="id" title="variable">lt</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'&lt;-&gt;'_x"><span class="id" title="notation">&lt;-&gt;</span></a> <a class="idref" href="Undecidability.PCP.PCP.html#iPCPb"><span class="id" title="definition">iPCPb</span></a> <a class="idref" href="Undecidability.StackMachines.Reductions.iPCPb_to_BSM_HALTING.html#lt:3"><span class="id" title="variable">lt</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> (<span class="id" title="var">ln</span> &amp; <span class="id" title="var">H1</span> &amp; <span class="id" title="var">H2</span> &amp; <span class="id" title="var">H3</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="Undecidability.StackMachines.Reductions.iPCPb_to_BSM_HALTING.html#tile_concat_itau"><span class="id" title="lemma">tile_concat_itau</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">H3</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#rev"><span class="id" title="definition">rev</span></a> <span class="id" title="var">ln</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> &lt;- <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#Forall_forall"><span class="id" title="lemma">Forall_forall</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>; <span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#Forall_rev"><span class="id" title="lemma">Forall_rev</span></a>; <span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="var">contradict</span> <span class="id" title="var">H1</span>; <span class="id" title="tactic">rewrite</span> &lt;- (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#rev_involutive"><span class="id" title="lemma">rev_involutive</span></a> <span class="id" title="var">ln</span>), <span class="id" title="var">H1</span>; <span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> (<span class="id" title="var">ln</span> &amp; <span class="id" title="var">H1</span> &amp; <span class="id" title="var">H2</span> &amp; <span class="id" title="var">H3</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#rev"><span class="id" title="definition">rev</span></a> <span class="id" title="var">ln</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="Undecidability.StackMachines.Reductions.iPCPb_to_BSM_HALTING.html#tile_concat_itau"><span class="id" title="lemma">tile_concat_itau</span></a>, <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#rev_involutive"><span class="id" title="lemma">rev_involutive</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>; <span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="var">contradict</span> <span class="id" title="var">H2</span>; <span class="id" title="tactic">rewrite</span> &lt;- (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#rev_involutive"><span class="id" title="lemma">rev_involutive</span></a> <span class="id" title="var">ln</span>), <span class="id" title="var">H2</span>; <span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">apply</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#Forall_rev"><span class="id" title="lemma">Forall_rev</span></a>, <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#Forall_forall"><span class="id" title="lemma">Forall_forall</span></a>; <span class="id" title="tactic">auto</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Notation</span> "P // s -&gt;&gt; t" := (<a class="idref" href="Undecidability.Shared.Libs.DLW.Code.sss.html#sss_compute"><span class="id" title="definition">sss_compute</span></a> (@<a class="idref" href="Undecidability.StackMachines.Util.BSM_sss.html#bsm_sss"><span class="id" title="inductive">bsm_sss</span></a> <span class="id" title="var">_</span>) <span class="id" title="var">P</span> <span class="id" title="var">s</span> <span class="id" title="var">t</span>).<br/>
+<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Notation</span> "P // s ~~&gt; t" := (<a class="idref" href="Undecidability.Shared.Libs.DLW.Code.sss.html#sss_output"><span class="id" title="definition">sss_output</span></a> (@<a class="idref" href="Undecidability.StackMachines.Util.BSM_sss.html#bsm_sss"><span class="id" title="inductive">bsm_sss</span></a> <span class="id" title="var">_</span>) <span class="id" title="var">P</span> <span class="id" title="var">s</span> <span class="id" title="var">t</span>).<br/>
+<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Notation</span> "P // s ↓" := (<a class="idref" href="Undecidability.Shared.Libs.DLW.Code.sss.html#sss_terminates"><span class="id" title="definition">sss_terminates</span></a> (@<a class="idref" href="Undecidability.StackMachines.Util.BSM_sss.html#bsm_sss"><span class="id" title="inductive">bsm_sss</span></a> <span class="id" title="var">_</span>) <span class="id" title="var">P</span> <span class="id" title="var">s</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="iPCPb_to_BSM_HALTING" class="idref" href="#iPCPb_to_BSM_HALTING"><span class="id" title="section">iPCPb_to_BSM_HALTING</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="iPCPb_to_BSM_HALTING.f" class="idref" href="#iPCPb_to_BSM_HALTING.f"><span class="id" title="variable">f</span></a> (<a id="lt:4" class="idref" href="#lt:4"><span class="id" title="binder">lt</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#list"><span class="id" title="inductive">list</span></a> (<a class="idref" href="Undecidability.PCP.PCP.html#card"><span class="id" title="abbreviation">card</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#bool"><span class="id" title="inductive">bool</span></a>)) : <a class="idref" href="Undecidability.StackMachines.Util.BSM_sss.html#BSM_PROBLEM"><span class="id" title="definition">BSM_PROBLEM</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> 4, 1, (<a class="idref" href="Undecidability.StackMachines.BSM.bsm_pcp.html#pcp_bsm"><span class="id" title="definition">pcp_bsm</span></a> <span class="id" title="var">lt</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="Undecidability.Shared.Libs.DLW.Vec.vec.html#vec_set_pos"><span class="id" title="definition">vec_set_pos</span></a> (<span class="id" title="keyword">fun</span> <span class="id" title="var">_</span> =&gt; <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nil"><span class="id" title="constructor">nil</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Goal</span> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">forall</span></a> <a id="x:5" class="idref" href="#x:5"><span class="id" title="binder">x</span></a><a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">,</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">length</span></a><a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">(</span></a><a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">pcp_bsm</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">x</span></a><a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">)</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">&gt;=</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">80</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span>; <span class="id" title="tactic">rewrite</span> <a class="idref" href="Undecidability.StackMachines.BSM.bsm_pcp.html#pcp_bsm_size"><span class="id" title="lemma">pcp_bsm_size</span></a>; <span class="id" title="var">lia</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Theorem</span> <a id="iPCPb_to_BSM_HALTING" class="idref" href="#iPCPb_to_BSM_HALTING"><span class="id" title="lemma">iPCPb_to_BSM_HALTING</span></a> : <a class="idref" href="Undecidability.PCP.PCP.html#iPCPb"><span class="id" title="definition">iPCPb</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.StackMachines.BSM.html#Halt_BSM"><span class="id" title="definition">Halt_BSM</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="Undecidability.StackMachines.Reductions.iPCPb_to_BSM_HALTING.html#iPCPb_to_BSM_HALTING.f"><span class="id" title="variable">f</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">lt</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> &lt;- <a class="idref" href="Undecidability.StackMachines.Reductions.iPCPb_to_BSM_HALTING.html#tiles_solvable_iBPCP"><span class="id" title="lemma">tiles_solvable_iBPCP</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="Undecidability.StackMachines.Util.BSM_sss.html#Halt_BSM_iff"><span class="id" title="lemma">Halt_BSM_iff</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="Undecidability.StackMachines.Util.BSM_sss.html#BSM_HALTING"><span class="id" title="definition">BSM_HALTING</span></a>; <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.StackMachines.BSM.bsm_pcp.html#pcp_bsm_sound"><span class="id" title="lemma">pcp_bsm_sound</span></a> <span class="id" title="keyword">with</span> (<span class="id" title="var">v</span> := <a class="idref" href="Undecidability.Shared.Libs.DLW.Vec.vec.html#vec_set_pos"><span class="id" title="definition">vec_set_pos</span></a> (<span class="id" title="keyword">fun</span> <span class="id" title="var">_</span> =&gt; <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nil"><span class="id" title="constructor">nil</span></a>)) <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">type</span> <span class="id" title="keyword">of</span> <span class="id" title="var">H</span> <span class="id" title="keyword">with</span>  <span class="id" title="var">_</span> <a class="idref" href="Undecidability.StackMachines.Reductions.iPCPb_to_BSM_HALTING.html#4e9634b68fca0066c366514df14c6e56"><span class="id" title="notation">//</span></a> <span class="id" title="var">_</span> <a class="idref" href="Undecidability.StackMachines.Reductions.iPCPb_to_BSM_HALTING.html#4e9634b68fca0066c366514df14c6e56"><span class="id" title="notation">-&gt;&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a>?<span class="id" title="var">q</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a>?<span class="id" title="var">w</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a> =&gt; <span class="id" title="tactic">exists</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a><span class="id" title="var">q</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a> <span class="id" title="var">w</span><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a> <span class="id" title="keyword">end</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>; <span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simpl</span>; <span class="id" title="var">lia</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">intros</span> ((<span class="id" title="var">q</span> &amp; <span class="id" title="var">w</span>) &amp; <span class="id" title="var">H</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.StackMachines.BSM.bsm_pcp.html#pcp_bsm_complete"><span class="id" title="lemma">pcp_bsm_complete</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">tauto</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="Undecidability.StackMachines.Reductions.iPCPb_to_BSM_HALTING.html#iPCPb_to_BSM_HALTING"><span class="id" title="section">iPCPb_to_BSM_HALTING</span></a>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

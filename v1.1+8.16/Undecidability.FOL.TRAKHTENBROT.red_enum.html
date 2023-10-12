@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#"><span class="id" title="library">List</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Arith.Arith.html#"><span class="id" title="library">Arith</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.micromega.Lia.html#"><span class="id" title="library">Lia</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Arith.Max.html#"><span class="id" title="library">Max</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.Shared.Libs.DLW.Utils</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_tac.html#"><span class="id" title="library">utils_tac</span></a> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_list.html#"><span class="id" title="library">utils_list</span></a> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_nat.html#"><span class="id" title="library">utils_nat</span></a> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.finite.html#"><span class="id" title="library">finite</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.Shared.Libs.DLW.Vec</span> <br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Shared.Libs.DLW.Vec.pos.html#"><span class="id" title="library">pos</span></a> <a class="idref" href="Undecidability.Shared.Libs.DLW.Vec.vec.html#"><span class="id" title="library">vec</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.FOL.TRAKHTENBROT</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.notations.html#"><span class="id" title="library">notations</span></a> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.utils.html#"><span class="id" title="library">utils</span></a> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.enumerable.html#"><span class="id" title="library">enumerable</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.FOL.TRAKHTENBROT.fol_ops.html#"><span class="id" title="library">fol_ops</span></a> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.fo_sig.html#"><span class="id" title="library">fo_sig</span></a> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.fo_terms.html#"><span class="id" title="library">fo_terms</span></a> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.fo_logic.html#"><span class="id" title="library">fo_logic</span></a> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.fo_enum.html#"><span class="id" title="library">fo_enum</span></a> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.decidable.html#"><span class="id" title="library">decidable</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.FOL.TRAKHTENBROT.fo_sat.html#"><span class="id" title="library">fo_sat</span></a> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.fo_sat_dec.html#"><span class="id" title="library">fo_sat_dec</span></a> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.red_utils.html#"><span class="id" title="library">red_utils</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Set Implicit Arguments</span>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="FSAT_enumerable" class="idref" href="#FSAT_enumerable"><span class="id" title="section">FSAT_enumerable</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Variable</span> (<a id="48d51d604ecc20a24c37141f2f1d5a27" class="idref" href="#48d51d604ecc20a24c37141f2f1d5a27"><span class="id" title="variable">Σ</span></a> : <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.fo_sig.html#fo_signature"><span class="id" title="record">fo_signature</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Implicit</span> <span class="id" title="keyword">Type</span> (<span class="id" title="var">A</span> : <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.fo_logic.html#fol_form"><span class="id" title="inductive">fol_form</span></a> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.red_enum.html#48d51d604ecc20a24c37141f2f1d5a27"><span class="id" title="variable">Σ</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Theorem</span> <a id="FSAT_FSAT_in_pos" class="idref" href="#FSAT_FSAT_in_pos"><span class="id" title="lemma">FSAT_FSAT_in_pos</span></a> <a id="A:2" class="idref" href="#A:2"><span class="id" title="binder">A</span></a> : <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.fo_sat.html#FSAT"><span class="id" title="definition">FSAT</span></a> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.red_enum.html#48d51d604ecc20a24c37141f2f1d5a27"><span class="id" title="variable">Σ</span></a> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.red_enum.html#A:2"><span class="id" title="variable">A</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'&lt;-&gt;'_x"><span class="id" title="notation">&lt;-&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#a883bdd010993579f99d60b3775bcf54"><span class="id" title="notation">exists</span></a> <a id="n:3" class="idref" href="#n:3"><span class="id" title="binder">n</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#a883bdd010993579f99d60b3775bcf54"><span class="id" title="notation">,</span></a> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.fo_sat.html#fo_form_fin_dec_SAT_in"><span class="id" title="definition">fo_form_fin_dec_SAT_in</span></a> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.red_enum.html#A:2"><span class="id" title="variable">A</span></a> (<a class="idref" href="Undecidability.Shared.Libs.DLW.Vec.pos.html#pos"><span class="id" title="abbreviation">pos</span></a> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.red_enum.html#n:3"><span class="id" title="variable">n</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.red_utils.html#fo_form_fin_dec_SAT_discr_equiv"><span class="id" title="lemma">fo_form_fin_dec_SAT_discr_equiv</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.fo_sat_dec.html#fo_form_fin_discr_dec_SAT_pos"><span class="id" title="lemma">fo_form_fin_discr_dec_SAT_pos</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Hypothesis</span> (<a id="FSAT_enumerable.H1" class="idref" href="#FSAT_enumerable.H1"><span class="id" title="variable">H1</span></a> : <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.decidable.html#discrete"><span class="id" title="definition">discrete</span></a> (<a class="idref" href="Undecidability.FOL.TRAKHTENBROT.fo_sig.html#syms"><span class="id" title="projection">syms</span></a> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.red_enum.html#48d51d604ecc20a24c37141f2f1d5a27"><span class="id" title="variable">Σ</span></a>)) <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="FSAT_enumerable.H2" class="idref" href="#FSAT_enumerable.H2"><span class="id" title="variable">H2</span></a> : <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.decidable.html#discrete"><span class="id" title="definition">discrete</span></a> (<a class="idref" href="Undecidability.FOL.TRAKHTENBROT.fo_sig.html#rels"><span class="id" title="projection">rels</span></a> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.red_enum.html#48d51d604ecc20a24c37141f2f1d5a27"><span class="id" title="variable">Σ</span></a>)).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="FSAT_enumerable.dec" class="idref" href="#FSAT_enumerable.dec"><span class="id" title="variable">dec</span></a> <a id="n:6" class="idref" href="#n:6"><span class="id" title="binder">n</span></a> <a id="A:7" class="idref" href="#A:7"><span class="id" title="binder">A</span></a> : <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.decidable.html#decidable"><span class="id" title="definition">decidable</span></a> (<a class="idref" href="Undecidability.FOL.TRAKHTENBROT.fo_sat.html#fo_form_fin_dec_SAT_in"><span class="id" title="definition">fo_form_fin_dec_SAT_in</span></a> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.red_enum.html#A:7"><span class="id" title="variable">A</span></a> (<a class="idref" href="Undecidability.Shared.Libs.DLW.Vec.pos.html#pos"><span class="id" title="abbreviation">pos</span></a> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.red_enum.html#n:6"><span class="id" title="variable">n</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.fo_sat_dec.html#FSAT_in_dec"><span class="id" title="lemma">FSAT_in_dec</span></a>; <span class="id" title="tactic">auto</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.fin_base.html#finite_t_pos"><span class="id" title="lemma">finite_t_pos</span></a>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Theorem</span> <a id="FSAT_rec_enum_t" class="idref" href="#FSAT_rec_enum_t"><span class="id" title="lemma">FSAT_rec_enum_t</span></a> : <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.enumerable.html#rec_enum_t"><span class="id" title="definition">rec_enum_t</span></a> (<a class="idref" href="Undecidability.FOL.TRAKHTENBROT.fo_sat.html#FSAT"><span class="id" title="definition">FSAT</span></a> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.red_enum.html#48d51d604ecc20a24c37141f2f1d5a27"><span class="id" title="variable">Σ</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span> <span class="id" title="keyword">using</span> <span class="id" title="var">H2</span> <span class="id" title="var">H1</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<span class="id" title="keyword">fun</span> <a id="n:10" class="idref" href="#n:10"><span class="id" title="binder">n</span></a> <a id="A:11" class="idref" href="#A:11"><span class="id" title="binder">A</span></a> =&gt; <span class="id" title="keyword">if</span> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.red_enum.html#FSAT_enumerable.dec"><span class="id" title="variable">dec</span></a> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.red_enum.html#n:8"><span class="id" title="variable">n</span></a> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.red_enum.html#A:9"><span class="id" title="variable">A</span></a> <span class="id" title="keyword">then</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#true"><span class="id" title="constructor">true</span></a> <span class="id" title="keyword">else</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#false"><span class="id" title="constructor">false</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">A</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.red_enum.html#FSAT_FSAT_in_pos"><span class="id" title="lemma">FSAT_FSAT_in_pos</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.fol_ops.html#exists_equiv"><span class="id" title="abbreviation">exists_equiv</span></a>; <span class="id" title="tactic">intros</span> <span class="id" title="var">n</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> (<a class="idref" href="Undecidability.FOL.TRAKHTENBROT.red_enum.html#FSAT_enumerable.dec"><span class="id" title="variable">dec</span></a> <span class="id" title="var">n</span> <span class="id" title="var">A</span>); <span class="id" title="tactic">split</span>; <span class="id" title="tactic">auto</span>; <span class="id" title="tactic">discriminate</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Hypothesis</span> (<a id="FSAT_enumerable.H3" class="idref" href="#FSAT_enumerable.H3"><span class="id" title="variable">H3</span></a> : <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.enumerable.html#type_enum_t"><span class="id" title="definition">type_enum_t</span></a> (<a class="idref" href="Undecidability.FOL.TRAKHTENBROT.fo_sig.html#syms"><span class="id" title="projection">syms</span></a> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.red_enum.html#48d51d604ecc20a24c37141f2f1d5a27"><span class="id" title="variable">Σ</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Hypothesis</span> (<a id="FSAT_enumerable.H4" class="idref" href="#FSAT_enumerable.H4"><span class="id" title="variable">H4</span></a> : <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.enumerable.html#type_enum_t"><span class="id" title="definition">type_enum_t</span></a> (<a class="idref" href="Undecidability.FOL.TRAKHTENBROT.fo_sig.html#rels"><span class="id" title="projection">rels</span></a> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.red_enum.html#48d51d604ecc20a24c37141f2f1d5a27"><span class="id" title="variable">Σ</span></a>)).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Theorem</span> <a id="FSAT_opt_enum_t" class="idref" href="#FSAT_opt_enum_t"><span class="id" title="lemma">FSAT_opt_enum_t</span></a> : <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.enumerable.html#opt_enum_t"><span class="id" title="definition">opt_enum_t</span></a> (<a class="idref" href="Undecidability.FOL.TRAKHTENBROT.fo_sat.html#FSAT"><span class="id" title="definition">FSAT</span></a> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.red_enum.html#48d51d604ecc20a24c37141f2f1d5a27"><span class="id" title="variable">Σ</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span> <span class="id" title="keyword">using</span> <span class="id" title="var">H4</span> <span class="id" title="var">H3</span> <span class="id" title="var">H2</span> <span class="id" title="var">H1</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">generalize</span> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.red_enum.html#FSAT_rec_enum_t"><span class="id" title="lemma">FSAT_rec_enum_t</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.enumerable.html#rec_enum_opt_enum_type_enum_t"><span class="id" title="lemma">rec_enum_opt_enum_type_enum_t</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.fo_enum.html#type_enum_t_fol_form"><span class="id" title="lemma">type_enum_t_fol_form</span></a>; <span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="Undecidability.FOL.TRAKHTENBROT.red_enum.html#FSAT_enumerable"><span class="id" title="section">FSAT_enumerable</span></a>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

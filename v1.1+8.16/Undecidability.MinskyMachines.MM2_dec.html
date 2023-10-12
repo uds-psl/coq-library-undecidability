@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.Definitions.html#"><span class="id" title="library">Undecidability.Synthetic.Definitions</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.MinskyMachines.MM2.html#"><span class="id" title="library">Undecidability.MinskyMachines.MM2</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.MinskyMachines.Deciders</span> <span class="id" title="keyword">Require</span><br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.MinskyMachines.Deciders.MM2_REV_dec.html#"><span class="id" title="library">MM2_REV_dec</span></a> <a class="idref" href="Undecidability.MinskyMachines.Deciders.MM2_REV_HALT_dec.html#"><span class="id" title="library">MM2_REV_HALT_dec</span></a> <a class="idref" href="Undecidability.MinskyMachines.Deciders.MM2_UBOUNDED_dec.html#"><span class="id" title="library">MM2_UBOUNDED_dec</span></a> <a class="idref" href="Undecidability.MinskyMachines.Deciders.MM2_UMORTAL_dec.html#"><span class="id" title="library">MM2_UMORTAL_dec</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="MM2_REV_dec" class="idref" href="#MM2_REV_dec"><span class="id" title="lemma">MM2_REV_dec</span></a> : <a class="idref" href="Undecidability.Synthetic.Definitions.html#decidable"><span class="id" title="definition">decidable</span></a> <a class="idref" href="Undecidability.MinskyMachines.MM2.html#MM2_REV"><span class="id" title="definition">MM2_REV</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="Undecidability.MinskyMachines.Deciders.MM2_REV_dec.html#decide"><span class="id" title="definition">MM2_REV_dec.decide</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="Undecidability.MinskyMachines.Deciders.MM2_REV_dec.html#decide_spec"><span class="id" title="lemma">MM2_REV_dec.decide_spec</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="Undecidability.MinskyMachines.MM2_dec.html#MM2_REV_dec"><span class="id" title="lemma">MM2_REV_dec</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="MM2_REV_HALT_dec" class="idref" href="#MM2_REV_HALT_dec"><span class="id" title="lemma">MM2_REV_HALT_dec</span></a> : <a class="idref" href="Undecidability.Synthetic.Definitions.html#decidable"><span class="id" title="definition">decidable</span></a> <a class="idref" href="Undecidability.MinskyMachines.MM2.html#MM2_REV_HALT"><span class="id" title="definition">MM2_REV_HALT</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="Undecidability.MinskyMachines.Deciders.MM2_REV_HALT_dec.html#decide"><span class="id" title="definition">MM2_REV_HALT_dec.decide</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="Undecidability.MinskyMachines.Deciders.MM2_REV_HALT_dec.html#decide_spec"><span class="id" title="lemma">MM2_REV_HALT_dec.decide_spec</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="Undecidability.MinskyMachines.MM2_dec.html#MM2_REV_HALT_dec"><span class="id" title="lemma">MM2_REV_HALT_dec</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="MM2_UBOUNDED_dec" class="idref" href="#MM2_UBOUNDED_dec"><span class="id" title="lemma">MM2_UBOUNDED_dec</span></a> : <a class="idref" href="Undecidability.Synthetic.Definitions.html#decidable"><span class="id" title="definition">decidable</span></a> <a class="idref" href="Undecidability.MinskyMachines.MM2.html#MM2_UBOUNDED"><span class="id" title="definition">MM2_UBOUNDED</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="Undecidability.MinskyMachines.Deciders.MM2_UBOUNDED_dec.html#decide"><span class="id" title="definition">MM2_UBOUNDED_dec.decide</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="Undecidability.MinskyMachines.Deciders.MM2_UBOUNDED_dec.html#decide_spec"><span class="id" title="lemma">MM2_UBOUNDED_dec.decide_spec</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="Undecidability.MinskyMachines.MM2_dec.html#MM2_UBOUNDED_dec"><span class="id" title="lemma">MM2_UBOUNDED_dec</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="MM2_UMORTAL_dec" class="idref" href="#MM2_UMORTAL_dec"><span class="id" title="lemma">MM2_UMORTAL_dec</span></a> : <a class="idref" href="Undecidability.Synthetic.Definitions.html#decidable"><span class="id" title="definition">decidable</span></a> <a class="idref" href="Undecidability.MinskyMachines.MM2.html#MM2_UMORTAL"><span class="id" title="definition">MM2_UMORTAL</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="Undecidability.MinskyMachines.Deciders.MM2_UMORTAL_dec.html#decide"><span class="id" title="definition">MM2_UMORTAL_dec.decide</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="Undecidability.MinskyMachines.Deciders.MM2_UMORTAL_dec.html#decide_spec"><span class="id" title="lemma">MM2_UMORTAL_dec.decide_spec</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="Undecidability.MinskyMachines.MM2_dec.html#MM2_UMORTAL_dec"><span class="id" title="lemma">MM2_UMORTAL_dec</span></a>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

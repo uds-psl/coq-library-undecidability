@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.LambdaCalculus</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.LambdaCalculus.wCBN.html#"><span class="id" title="library">wCBN</span></a> <a class="idref" href="Undecidability.LambdaCalculus.Util.term_facts.html#"><span class="id" title="library">Util.term_facts</span></a> <a class="idref" href="Undecidability.LambdaCalculus.Util.wCBN_facts.html#"><span class="id" title="library">Util.wCBN_facts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <a class="idref" href="Undecidability.L.Util.L_facts.html#"><span class="id" title="library">Undecidability.L.Util.L_facts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.Definitions.html#"><span class="id" title="library">Undecidability.Synthetic.Definitions</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Set</span> <span class="id" title="var">Default</span> <span class="id" title="keyword">Goal</span> <span class="id" title="var">Selector</span> "!".<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="reduction" class="idref" href="#reduction"><span class="id" title="lemma">reduction</span></a> : <a class="idref" href="Undecidability.LambdaCalculus.wCBN.html#wCBNclosed"><span class="id" title="definition">wCBNclosed</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.LambdaCalculus.wCBN.html#wCBN"><span class="id" title="definition">wCBN</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (@<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Specif.html#proj1_sig"><span class="id" title="definition">proj1_sig</span></a> <a class="idref" href="Undecidability.L.L.html#term"><span class="id" title="inductive">L.term</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> [<span class="id" title="var">s</span> <span class="id" title="var">Hs</span>]. <span class="id" title="var">cbn</span>. <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> [<span class="id" title="var">t</span> <span class="id" title="var">Ht</span>]. <span class="id" title="tactic">exists</span> (<a class="idref" href="Undecidability.L.L.html#lam"><span class="id" title="constructor">L.lam</span></a> <span class="id" title="var">t</span>). <span class="id" title="tactic">split</span>; [<span class="id" title="tactic">assumption</span>|].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">u</span> <span class="id" title="var">H</span>%<a class="idref" href="Undecidability.LambdaCalculus.Util.wCBN_facts.html#stepE"><span class="id" title="lemma">stepE</span></a>. <span class="id" title="tactic">destruct</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> [<span class="id" title="var">t</span> [<span class="id" title="var">Hst</span> <span class="id" title="var">Ht</span>]].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<a class="idref" href="Undecidability.L.Util.L_facts.html#closed"><span class="id" title="definition">L_facts.closed</span></a> <span class="id" title="var">t</span>) <span class="id" title="keyword">as</span> <span class="id" title="var">H't</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="id" title="tactic">apply</span> (@<a class="idref" href="Undecidability.LambdaCalculus.Util.wCBN_facts.html#steps_bound"><span class="id" title="lemma">steps_bound</span></a> 0) <span class="id" title="tactic">in</span> <span class="id" title="var">Hst</span>; [<span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.L.Util.L_facts.html#closed_dcl"><span class="id" title="lemma">L_facts.closed_dcl</span></a>|].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.L.Util.L_facts.html#closed_dcl"><span class="id" title="lemma">L_facts.closed_dcl</span></a>. <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.LambdaCalculus.Util.term_facts.html#closed_I"><span class="id" title="lemma">closed_I</span></a>. <span class="id" title="tactic">intros</span> <span class="id" title="var">k</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> <a class="idref" href="Undecidability.LambdaCalculus.Util.term_facts.html#L_subst_wCBN_subst"><span class="id" title="lemma">L_subst_wCBN_subst</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="Undecidability.LambdaCalculus.Util.wCBN_facts.html#closed_halt_iff"><span class="id" title="lemma">closed_halt_iff</span></a> <span class="id" title="var">H't</span>) <span class="id" title="tactic">in</span> <span class="id" title="var">Ht</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">destruct</span> <span class="id" title="var">Ht</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">t'</span> ?]. <span class="id" title="tactic">subst</span> <span class="id" title="var">t</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <span class="id" title="var">t'</span>. <span class="id" title="tactic">assumption</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

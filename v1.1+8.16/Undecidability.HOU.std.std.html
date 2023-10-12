@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.HOU</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="Undecidability.HOU.std.tactics.html#"><span class="id" title="library">std.tactics</span></a> <a class="idref" href="Undecidability.HOU.std.reductions.html#"><span class="id" title="library">std.reductions</span></a> <a class="idref" href="Undecidability.HOU.std.misc.html#"><span class="id" title="library">std.misc</span></a> <a class="idref" href="Undecidability.HOU.std.decidable.html#"><span class="id" title="library">std.decidable</span></a> <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.HOU.std.countability.html#"><span class="id" title="library">std.countability</span></a> <a class="idref" href="Undecidability.HOU.std.retracts.html#"><span class="id" title="library">std.retracts</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.HOU.std.lists.basics.html#"><span class="id" title="library">std.lists.basics</span></a> <a class="idref" href="Undecidability.HOU.std.lists.advanced.html#"><span class="id" title="library">std.lists.advanced</span></a> <a class="idref" href="Undecidability.HOU.std.lists.misc.html#"><span class="id" title="library">std.lists.misc</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.HOU.std.ars.basic.html#"><span class="id" title="library">std.ars.basic</span></a> <a class="idref" href="Undecidability.HOU.std.ars.confluence.html#"><span class="id" title="library">std.ars.confluence</span></a> <a class="idref" href="Undecidability.HOU.std.ars.normalisation.html#"><span class="id" title="library">std.ars.normalisation</span></a> <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Undecidability.HOU.std.ars.evaluator.html#"><span class="id" title="library">std.ars.evaluator</span></a> <a class="idref" href="Undecidability.HOU.std.ars.list_reduction.html#"><span class="id" title="library">std.ars.list_reduction</span></a>.<br/>
+
+<br/>
+#[<span class="id" title="var">export</span>] <span class="id" title="keyword">Hint</span> <span class="id" title="keyword">Extern</span> 4 =&gt; <br/>
+<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+|[ <span class="id" title="var">H</span>: <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#False"><span class="id" title="inductive">False</span></a> |- <span class="id" title="var">_</span> ] =&gt; <span class="id" title="tactic">destruct</span> <span class="id" title="var">H</span><br/>
+|[ <span class="id" title="var">H</span>: <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#true"><span class="id" title="constructor">true</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#false"><span class="id" title="constructor">false</span></a> |- <span class="id" title="var">_</span> ] =&gt; <span class="id" title="tactic">discriminate</span> <span class="id" title="var">H</span><br/>
+|[ <span class="id" title="var">H</span>: <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#false"><span class="id" title="constructor">false</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#true"><span class="id" title="constructor">true</span></a> |- <span class="id" title="var">_</span> ] =&gt; <span class="id" title="tactic">discriminate</span> <span class="id" title="var">H</span><br/>
+<span class="id" title="keyword">end</span> : <span class="id" title="var">core</span>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

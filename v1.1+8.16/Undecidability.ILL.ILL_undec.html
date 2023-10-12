@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.Shared.Libs.DLW</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Shared.Libs.DLW.Utils.utils_tac.html#"><span class="id" title="library">utils_tac</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#"><span class="id" title="library">Undecidability.Synthetic.Undecidability</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#"><span class="id" title="library">Undecidability.Synthetic.ReducibilityFacts</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.PCP</span>              <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.PCP.PCP.html#"><span class="id" title="library">PCP</span></a> <a class="idref" href="Undecidability.PCP.PCP_undec.html#"><span class="id" title="library">PCP_undec</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.StackMachines</span>    <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.StackMachines.BSM.html#"><span class="id" title="library">BSM</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.MinskyMachines</span>   <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.MinskyMachines.MM.html#"><span class="id" title="library">MM</span></a> <a class="idref" href="Undecidability.MinskyMachines.Util.MM_sss.html#"><span class="id" title="library">MM_sss</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.ILL</span> <br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.ILL.EILL.html#"><span class="id" title="library">EILL</span></a> <a class="idref" href="Undecidability.ILL.ILL.html#"><span class="id" title="library">ILL</span></a> <a class="idref" href="Undecidability.ILL.Reductions.iBPCP_MM.html#"><span class="id" title="library">iBPCP_MM</span></a> <a class="idref" href="Undecidability.ILL.Reductions.MM_EILL.html#"><span class="id" title="library">MM_EILL</span></a> <a class="idref" href="Undecidability.ILL.Reductions.EILL_ILL.html#"><span class="id" title="library">EILL_ILL</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.PCP.Reductions.HaltTM_1_to_PCPb.html#"><span class="id" title="library">Undecidability.PCP.Reductions.HaltTM_1_to_PCPb</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#ReductionChainNotations"><span class="id" title="module">ReductionChainNotations</span></a> <a class="idref" href="Undecidability.Synthetic.Undecidability.html#UndecidabilityNotations"><span class="id" title="module">UndecidabilityNotations</span></a>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="PCP_chain_ILL" class="idref" href="#PCP_chain_ILL"><span class="id" title="lemma">PCP_chain_ILL</span></a> : <br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.PCP.PCP.html#PCP"><span class="id" title="definition">PCP</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.PCP.PCP.html#PCPb"><span class="id" title="definition">PCPb</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#ba2b0e492d2b4675a0acf3ea92aabadd"><span class="id" title="notation">/\</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.PCP.PCP.html#PCPb"><span class="id" title="definition">PCPb</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.PCP.PCP.html#iPCPb"><span class="id" title="definition">iPCPb</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#ba2b0e492d2b4675a0acf3ea92aabadd"><span class="id" title="notation">/\</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.PCP.PCP.html#iPCPb"><span class="id" title="definition">iPCPb</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.StackMachines.BSM.html#Halt_BSM"><span class="id" title="definition">Halt_BSM</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#ba2b0e492d2b4675a0acf3ea92aabadd"><span class="id" title="notation">/\</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.StackMachines.BSM.html#Halt_BSM"><span class="id" title="definition">Halt_BSM</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.MinskyMachines.Util.MM_sss.html#MM_HALTS_ON_ZERO"><span class="id" title="definition">MM_HALTS_ON_ZERO</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#ba2b0e492d2b4675a0acf3ea92aabadd"><span class="id" title="notation">/\</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.MinskyMachines.Util.MM_sss.html#MM_HALTS_ON_ZERO"><span class="id" title="definition">MM_HALTS_ON_ZERO</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.ILL.EILL.html#EILL_PROVABILITY"><span class="id" title="definition">EILL_PROVABILITY</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#ba2b0e492d2b4675a0acf3ea92aabadd"><span class="id" title="notation">/\</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="Undecidability.ILL.EILL.html#EILL_PROVABILITY"><span class="id" title="definition">EILL_PROVABILITY</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.ILL.ILL.html#ILL_PROVABILITY"><span class="id" title="definition">ILL_PROVABILITY</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">msplit</span> 5.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.PCP.Reductions.PCP_to_PCPb.html#reduction"><span class="id" title="lemma">PCP_to_PCPb.reduction</span></a>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.PCP.Reductions.PCPb_iff_iPCPb.html#reductionLR"><span class="id" title="lemma">PCPb_iff_iPCPb.reductionLR</span></a>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.ILL.Reductions.iBPCP_MM.html#iBPCP_chain_MM"><span class="id" title="lemma">iBPCP_chain_MM</span></a>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.ILL.Reductions.iBPCP_MM.html#iBPCP_chain_MM"><span class="id" title="lemma">iBPCP_chain_MM</span></a>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.ILL.Reductions.MM_EILL.html#MM_HALTS_ON_ZERO_EILL_PROVABILITY"><span class="id" title="lemma">MM_HALTS_ON_ZERO_EILL_PROVABILITY</span></a>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.ILL.Reductions.EILL_ILL.html#EILL_ILL_PROVABILITY"><span class="id" title="lemma">EILL_ILL_PROVABILITY</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="Undecidability.ILL.ILL_undec.html#PCP_chain_ILL"><span class="id" title="lemma">PCP_chain_ILL</span></a>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Local Hint Resolve</span> <span class="id" title="var">EILL_rILL_cf_PROVABILITY</span> <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">EILL_rILL_PROVABILITY</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">EILL_ILL_cf_PROVABILITY</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <span class="id" title="var">core</span>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="EILL_undec" class="idref" href="#EILL_undec"><span class="id" title="lemma">EILL_undec</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.ILL.EILL.html#EILL_PROVABILITY"><span class="id" title="definition">EILL_PROVABILITY</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="var">undec</span> <span class="id" title="var">from</span> <a class="idref" href="Undecidability.PCP.PCP_undec.html#PCP_undec"><span class="id" title="lemma">PCP_undec</span></a> <span class="id" title="keyword">using</span> <span class="id" title="var">chain</span> <a class="idref" href="Undecidability.ILL.ILL_undec.html#PCP_chain_ILL"><span class="id" title="lemma">PCP_chain_ILL</span></a>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="ILL_undec" class="idref" href="#ILL_undec"><span class="id" title="lemma">ILL_undec</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.ILL.ILL.html#ILL_PROVABILITY"><span class="id" title="definition">ILL_PROVABILITY</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="var">undec</span> <span class="id" title="var">from</span> <a class="idref" href="Undecidability.PCP.PCP_undec.html#PCP_undec"><span class="id" title="lemma">PCP_undec</span></a> <span class="id" title="keyword">using</span> <span class="id" title="var">chain</span> <a class="idref" href="Undecidability.ILL.ILL_undec.html#PCP_chain_ILL"><span class="id" title="lemma">PCP_chain_ILL</span></a>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="ILL_cf_undec" class="idref" href="#ILL_cf_undec"><span class="id" title="lemma">ILL_cf_undec</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.ILL.ILL.html#ILL_cf_PROVABILITY"><span class="id" title="definition">ILL_cf_PROVABILITY</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="var">undec</span> <span class="id" title="var">from</span> <a class="idref" href="Undecidability.ILL.ILL_undec.html#EILL_undec"><span class="id" title="lemma">EILL_undec</span></a>; <span class="id" title="tactic">auto</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="rILL_cf_undec" class="idref" href="#rILL_cf_undec"><span class="id" title="lemma">rILL_cf_undec</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.ILL.ILL.html#rILL_cf_PROVABILITY"><span class="id" title="definition">rILL_cf_PROVABILITY</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="var">undec</span> <span class="id" title="var">from</span> <a class="idref" href="Undecidability.ILL.ILL_undec.html#EILL_undec"><span class="id" title="lemma">EILL_undec</span></a>; <span class="id" title="tactic">auto</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="rILL_undec" class="idref" href="#rILL_undec"><span class="id" title="lemma">rILL_undec</span></a> : <a class="idref" href="Undecidability.Synthetic.Undecidability.html#undecidable"><span class="id" title="definition">undecidable</span></a> <a class="idref" href="Undecidability.ILL.ILL.html#rILL_PROVABILITY"><span class="id" title="definition">rILL_PROVABILITY</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="var">undec</span> <span class="id" title="var">from</span> <a class="idref" href="Undecidability.ILL.ILL_undec.html#EILL_undec"><span class="id" title="lemma">EILL_undec</span></a>; <span class="id" title="tactic">auto</span>. <span class="id" title="keyword">Qed</span>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

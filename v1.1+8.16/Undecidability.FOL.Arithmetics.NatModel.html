@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.FOL.Arithmetics</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.Arithmetics.FA.html#"><span class="id" title="library">FA</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.Signature.html#"><span class="id" title="library">Signature</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.FOL</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.FOL.PA.html#"><span class="id" title="library">PA</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.micromega.Lia.html#"><span class="id" title="library">Lia</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#"><span class="id" title="library">List</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Vector.html#"><span class="id" title="library">Vector</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Vector.html#VectorNotations"><span class="id" title="module">Vector.VectorNotations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Set Implicit Arguments</span>.<br/>
+<span class="id" title="keyword">Local</span> <span class="id" title="keyword">Unset</span> <span class="id" title="keyword">Strict</span> <span class="id" title="keyword">Implicit</span>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="StdModel" class="idref" href="#StdModel"><span class="id" title="section">StdModel</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="interp_nat" class="idref" href="#interp_nat"><span class="id" title="definition">interp_nat</span></a> : <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullCore.html#interp"><span class="id" title="class">interp</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">destruct</span> <span class="id" title="var">f</span>; <span class="id" title="tactic">intros</span> <span class="id" title="var">v</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> 0.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#S"><span class="id" title="constructor">S</span></a> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Vector.html#hd"><span class="id" title="definition">Vector.hd</span></a> <span class="id" title="var">v</span>) ).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Vector.html#hd"><span class="id" title="definition">Vector.hd</span></a> <span class="id" title="var">v</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Peano.html#0dacc1786c5ba797d47dd85006231633"><span class="id" title="notation">+</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Vector.html#hd"><span class="id" title="definition">Vector.hd</span></a> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Vector.html#tl"><span class="id" title="definition">Vector.tl</span></a> <span class="id" title="var">v</span>) ).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Vector.html#hd"><span class="id" title="definition">Vector.hd</span></a> <span class="id" title="var">v</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Peano.html#ea2ff3d561159081cea6fb2e8113cc54"><span class="id" title="notation">*</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Vector.html#hd"><span class="id" title="definition">Vector.hd</span></a> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Vector.html#tl"><span class="id" title="definition">Vector.tl</span></a> <span class="id" title="var">v</span>) ).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">destruct</span> <span class="id" title="var">P</span>. <span class="id" title="tactic">intros</span> <span class="id" title="var">v</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Vector.html#hd"><span class="id" title="definition">Vector.hd</span></a> <span class="id" title="var">v</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Vector.html#hd"><span class="id" title="definition">Vector.hd</span></a> (<a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Vectors.Vector.html#tl"><span class="id" title="definition">Vector.tl</span></a> <span class="id" title="var">v</span>) ).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Fact</span> <a id="nat_extensional" class="idref" href="#nat_extensional"><span class="id" title="lemma">nat_extensional</span></a> : <a class="idref" href="Undecidability.FOL.PA.html#extensional"><span class="id" title="abbreviation">extensional</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#interp_nat"><span class="id" title="definition">interp_nat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="nat_is_FA_model" class="idref" href="#nat_is_FA_model"><span class="id" title="lemma">nat_is_FA_model</span></a> : <span class="id" title="keyword">forall</span> <a id="rho:1" class="idref" href="#rho:1"><span class="id" title="binder">rho</span></a> <a id="phi:2" class="idref" href="#phi:2"><span class="id" title="binder">phi</span></a>,  <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#In"><span class="id" title="definition">List.In</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#phi:2"><span class="id" title="variable">phi</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.FA.html#FAeq"><span class="id" title="definition">FAeq</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullCore.html#sat"><span class="id" title="definition">sat</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#interp_nat"><span class="id" title="definition">interp_nat</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#rho:1"><span class="id" title="variable">rho</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#phi:2"><span class="id" title="variable">phi</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">rho</span> <span class="id" title="var">phi</span>. <span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> (<span class="id" title="tactic">destruct</span> <span class="id" title="var">H</span> <span class="id" title="keyword">as</span> [&lt;- | <span class="id" title="var">H</span>]; <span class="id" title="tactic">auto</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">all</span>: <span class="id" title="var">cbn</span>; <span class="id" title="tactic">try</span> <span class="id" title="tactic">congruence</span>. <span class="id" title="tactic">inversion</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="nat_is_Q_model" class="idref" href="#nat_is_Q_model"><span class="id" title="lemma">nat_is_Q_model</span></a> : <span class="id" title="keyword">forall</span> <a id="rho:3" class="idref" href="#rho:3"><span class="id" title="binder">rho</span></a> <a id="phi:4" class="idref" href="#phi:4"><span class="id" title="binder">phi</span></a>,  <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#In"><span class="id" title="definition">List.In</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#phi:4"><span class="id" title="variable">phi</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.Robinson.html#Qeq"><span class="id" title="definition">Qeq</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullCore.html#sat"><span class="id" title="definition">sat</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#interp_nat"><span class="id" title="definition">interp_nat</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#rho:3"><span class="id" title="variable">rho</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#phi:4"><span class="id" title="variable">phi</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">rho</span> <span class="id" title="var">phi</span>. <span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> (<span class="id" title="tactic">destruct</span> <span class="id" title="var">H</span> <span class="id" title="keyword">as</span> [&lt;- | <span class="id" title="var">H</span>]; <span class="id" title="tactic">auto</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">all</span>: <span class="id" title="var">cbn</span>; <span class="id" title="tactic">try</span> <span class="id" title="tactic">congruence</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;2: <span class="id" title="tactic">inversion</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">d</span>. <span class="id" title="var">now</span> <span class="id" title="tactic">left</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">right</span>. <span class="id" title="tactic">destruct</span> <span class="id" title="var">IHd</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> 0. <span class="id" title="tactic">congruence</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <span class="id" title="var">d</span>. <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Fact</span> <a id="nat_eval_num" class="idref" href="#nat_eval_num"><span class="id" title="lemma">nat_eval_num</span></a> (<a id="sigma:5" class="idref" href="#sigma:5"><span class="id" title="binder">sigma</span></a> : <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullCore.html#env"><span class="id" title="definition">env</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a>) <a id="n:6" class="idref" href="#n:6"><span class="id" title="binder">n</span></a> : @<a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullCore.html#eval"><span class="id" title="definition">eval</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#interp_nat"><span class="id" title="definition">interp_nat</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#sigma:5"><span class="id" title="variable">sigma</span></a> (<a class="idref" href="Undecidability.FOL.Arithmetics.FA.html#a1155692e3f69913320174f980c7eaf1"><span class="id" title="definition">μ</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#n:6"><span class="id" title="variable">n</span></a>) <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#n:6"><span class="id" title="variable">n</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">n</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">cbn</span>. <span class="id" title="var">now</span> <span class="id" title="tactic">rewrite</span> <span class="id" title="var">IHn</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Fact</span> <a id="nat_induction" class="idref" href="#nat_induction"><span class="id" title="lemma">nat_induction</span></a> <a id="phi:7" class="idref" href="#phi:7"><span class="id" title="binder">phi</span></a> : <span class="id" title="keyword">forall</span> <a id="rho:8" class="idref" href="#rho:8"><span class="id" title="binder">rho</span></a>, <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullCore.html#sat"><span class="id" title="definition">sat</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#interp_nat"><span class="id" title="definition">interp_nat</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#rho:8"><span class="id" title="variable">rho</span></a> (<a class="idref" href="Undecidability.FOL.Arithmetics.PA.html#ax_induction"><span class="id" title="definition">ax_induction</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#phi:7"><span class="id" title="variable">phi</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">rho</span> <span class="id" title="var">H0</span> <span class="id" title="var">IH</span> <span class="id" title="var">d</span>. <span class="id" title="tactic">induction</span> <span class="id" title="var">d</span>; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> &lt;-<a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullFacts.html#sat_single"><span class="id" title="lemma">sat_single</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">H0</span>. <span class="id" title="tactic">apply</span> <span class="id" title="var">H0</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">IH</span> <span class="id" title="tactic">in</span> <span class="id" title="var">IHd</span>. <span class="id" title="tactic">rewrite</span> <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullFacts.html#sat_comp"><span class="id" title="lemma">sat_comp</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">IHd</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">revert</span> <span class="id" title="var">IHd</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullFacts.html#sat_ext"><span class="id" title="lemma">sat_ext</span></a>. <span class="id" title="tactic">intros</span> []; <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Fact</span> <a id="nat_is_PAeq_model" class="idref" href="#nat_is_PAeq_model"><span class="id" title="lemma">nat_is_PAeq_model</span></a> : <span class="id" title="keyword">forall</span> <a id="ax:9" class="idref" href="#ax:9"><span class="id" title="binder">ax</span></a> <a id="rho:10" class="idref" href="#rho:10"><span class="id" title="binder">rho</span></a>, <a class="idref" href="Undecidability.FOL.Arithmetics.PA.html#PAeq"><span class="id" title="inductive">PAeq</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#ax:9"><span class="id" title="variable">ax</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullCore.html#sat"><span class="id" title="definition">sat</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#interp_nat"><span class="id" title="definition">interp_nat</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#rho:10"><span class="id" title="variable">rho</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#ax:9"><span class="id" title="variable">ax</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">rho</span> <span class="id" title="var">psi</span> [].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">now</span> <span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#nat_is_FA_model"><span class="id" title="lemma">nat_is_FA_model</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">all</span>: <span class="id" title="var">cbn</span>; <span class="id" title="tactic">try</span> <span class="id" title="tactic">congruence</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#nat_induction"><span class="id" title="lemma">nat_induction</span></a>.<br/>
+&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Fact</span> <a id="nat_is_PA_model" class="idref" href="#nat_is_PA_model"><span class="id" title="lemma">nat_is_PA_model</span></a> : <span class="id" title="keyword">forall</span> <a id="ax:11" class="idref" href="#ax:11"><span class="id" title="binder">ax</span></a> <a id="rho:12" class="idref" href="#rho:12"><span class="id" title="binder">rho</span></a>, <a class="idref" href="Undecidability.FOL.Arithmetics.PA.html#PA"><span class="id" title="inductive">PA</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#ax:11"><span class="id" title="variable">ax</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Undecidability.FOL.Semantics.Tarski.FullCore.html#sat"><span class="id" title="definition">sat</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#interp_nat"><span class="id" title="definition">interp_nat</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#rho:12"><span class="id" title="variable">rho</span></a> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#ax:11"><span class="id" title="variable">ax</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">rho</span> <span class="id" title="var">psi</span> [].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> (<span class="id" title="tactic">destruct</span> <span class="id" title="var">H</span> <span class="id" title="keyword">as</span> [&lt;- | <span class="id" title="var">H</span>]; <span class="id" title="tactic">auto</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">all</span>: <span class="id" title="var">cbn</span>; <span class="id" title="tactic">try</span> <span class="id" title="tactic">congruence</span>. <span class="id" title="tactic">inversion</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#nat_induction"><span class="id" title="lemma">nat_induction</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="Undecidability.FOL.Arithmetics.NatModel.html#StdModel"><span class="id" title="section">StdModel</span></a>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

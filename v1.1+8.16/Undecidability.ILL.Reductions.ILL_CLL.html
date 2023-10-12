@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="coqdocjs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="config.js"></script>
+<script type="text/javascript" src="coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="../">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./toc.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Lists.List.html#"><span class="id" title="library">List</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.Definitions.html#"><span class="id" title="library">Undecidability.Synthetic.Definitions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#"><span class="id" title="library">Undecidability.Synthetic.ReducibilityFacts</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Undecidability.ILL</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Undecidability.ILL.ILL.html#"><span class="id" title="library">ILL</span></a> <a class="idref" href="Undecidability.ILL.CLL.html#"><span class="id" title="library">CLL</span></a> <a class="idref" href="Undecidability.ILL.Ll.ill.html#"><span class="id" title="library">ill</span></a> <a class="idref" href="Undecidability.ILL.Ll.ill_cll.html#"><span class="id" title="library">ill_cll</span></a> <a class="idref" href="Undecidability.ILL.Ll.ill_cll_restr.html#"><span class="id" title="library">ill_cll_restr</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a id="rILL_rCLL_cf_PROVABILITY" class="idref" href="#rILL_rCLL_cf_PROVABILITY"><span class="id" title="lemma">rILL_rCLL_cf_PROVABILITY</span></a> : <a class="idref" href="Undecidability.ILL.ILL.html#rILL_cf_PROVABILITY"><span class="id" title="definition">rILL_cf_PROVABILITY</span></a> <a class="idref" href="Undecidability.Synthetic.Definitions.html#8d2edb2d53aefda0fb906bca2c603282"><span class="id" title="notation">⪯</span></a> <a class="idref" href="Undecidability.ILL.CLL.html#rCLL_cf_PROVABILITY"><span class="id" title="definition">rCLL_cf_PROVABILITY</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.Synthetic.ReducibilityFacts.html#reduces_dependent"><span class="id" title="lemma">reduces_dependent</span></a>; <span class="id" title="tactic">exists</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> (<span class="id" title="var">Γ</span>,<span class="id" title="var">A</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">(</span></a><a class="idref" href="Undecidability.ILL.Ll.ill_cll.html#a28bfd0a35de9a5c69829697b021d0f5"><span class="id" title="notation">⟦</span></a><span class="id" title="var">Γ</span><a class="idref" href="Undecidability.ILL.Ll.ill_cll.html#a28bfd0a35de9a5c69829697b021d0f5"><span class="id" title="notation">⟧</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">,</span></a><a class="idref" href="Undecidability.ILL.Ll.ill_cll.html#1e2518ff2e78f907c94429897ac7861a"><span class="id" title="notation">[</span></a><span class="id" title="var">A</span><a class="idref" href="Undecidability.ILL.Ll.ill_cll.html#1e2518ff2e78f907c94429897ac7861a"><span class="id" title="notation">]</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#::list_scope:x_'::'_x"><span class="id" title="notation">::</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#nil"><span class="id" title="constructor">nil</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.16.0/stdlib//Coq.Init.Datatypes.html#e6756e10c36f149b18b4a8741ed83079"><span class="id" title="notation">)</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Undecidability.ILL.Ll.ill_cll_restr.html#S_ill_cll_restr_equiv"><span class="id" title="lemma">S_ill_cll_restr_equiv</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/tebbi/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>
