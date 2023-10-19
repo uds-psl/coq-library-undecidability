@@ -462,12 +462,12 @@ Proof.
   exists M2. split.
   - intros q t t' [q1 H % (SIM_computes i) ] % Hf1.
     intros. eapply Hf2. eapply BSM_sss.eval_iff. split.
-    1: cbn [Fin.to_nat proj1_sig mult] in H.  1: rewrite !NPeano.Nat.add_0_l, NPeano.Nat.add_0_r in H.
+    1: cbn [Fin.to_nat proj1_sig mult] in H.  1: rewrite !Nat.add_0_l, Nat.add_0_r in H.
     1: rewrite <- Hl.  1: rewrite SIM_length.  1: rewrite Nat.mul_comm.  1: eapply H.
     right. unfold fst, subcode.code_end, snd, fst. rewrite <- Hl. lia.
   - intros t v'' (out & [[out1 out2] [Ho1 Ho2]% BSM_sss.eval_iff] % Hb2). eapply Hb1.
     eapply SIM_term with (q := Fin.F1) in Ho2 .
-    2:{ cbn [Fin.to_nat proj1_sig mult]. rewrite !NPeano.Nat.add_0_l, NPeano.Nat.add_0_r. eapply Ho1. }
+    2:{ cbn [Fin.to_nat proj1_sig mult]. rewrite !Nat.add_0_l, Nat.add_0_r. eapply Ho1. }
     destruct Ho2 as (q' & t' & H1 & -> & H2). eauto.
 Qed.
 
@@ -741,7 +741,7 @@ Proof.
   - unshelve edestruct (vector_inv_back v) as [(y, vl) Hv].  1: abstract lia. cbn - [minus mult].
     assert (k' < S k') as Hlt by lia.
     match goal with [ |- context[proj1_sig ?y]] => destruct y as [PREPIT [HlP HPREP]]; cbn [proj1_sig] end.
-    eapply subcode_sss_compute_trans with (P := (i, _)). { cbn - [minus mult]. eexists [], _. cbn - [mult minus]. split.  1: reflexivity. now rewrite NPeano.Nat.add_0_r. }
+    eapply subcode_sss_compute_trans with (P := (i, _)). { cbn - [minus mult]. eexists [], _. cbn - [mult minus]. split.  1: reflexivity. now rewrite Nat.add_0_r. }
     1: cbn - [minus mult].  1: cbn - [minus mult] in HPREP.  1: specialize HPREP with (m := v@[Fin.of_nat_lt Hlt]).  1: cbn [mult] in HPREP.
     Arguments Fin.of_nat_lt _ {_ _}.  1: refine (HPREP _ _ _). { rewrite <- !vec_pos_spec, <- !vec_map_spec, <- !vec_app_spec. eapply nth_error_vec_list.
     rewrite @vec_list_vec_app with (n := S k') (m := k''), vec_list_vec_map.
@@ -806,7 +806,7 @@ Proof.
   1: rewrite BSM_cast_length.  1: eapply PREP2_spec_strong.
     - eapply vec_list_inj.
       rewrite <- !vec_app_spec. cbn. rewrite vec_list_cast, !vec_list_vec_app, !vec_list_const.
-      f_equal. f_equal.  1: now rewrite NPeano.Nat.add_0_r.
+      f_equal. f_equal.  1: now rewrite Nat.add_0_r.
       eapply vec_list_encode_bsm. Unshelve. 3: exact [| |]. 2: exact v. 2: exact t.
       rewrite <- !vec_map_spec, !vec_list_vec_app, !vec_list_vec_map, !vec_list_vec_app. cbn. now rewrite app_nil_r.
     - eapply vec_list_inj.
@@ -985,7 +985,7 @@ Proof.
   cbn [vec_pos vec_change pos_S_inv].
   rewrite vec_app_spec. cbn [Vector.append] in *.
   rewrite vec_app_cons.
-  rewrite NPeano.Nat.add_0_r in HPOST'. rewrite vec_app_spec. cbn [repeat] in HPOST'.
+  rewrite Nat.add_0_r in HPOST'. rewrite vec_app_spec. cbn [repeat] in HPOST'.
   replace (|strpush_common s b| + i) with (i + |strpush_common s b|) by lia.
   eapply subcode_sss_compute_trans.
   2: apply HPOST'.  1: eexists _, [].  1: split.  1: now rewrite app_nil_r.  1: rewrite pop_many_length.  1: lia.

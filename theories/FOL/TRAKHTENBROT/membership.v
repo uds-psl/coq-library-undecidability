@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import List Arith Nat Lia Max Wellfounded Coq.Setoids.Setoid.
+Require Import List Arith Nat Lia Wellfounded Coq.Setoids.Setoid.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac utils_list finite.
