@@ -18,7 +18,7 @@
 
 *)
 
-Require Import List Arith Lia Max Wellfounded Setoid Eqdep_dec.
+Require Import List Arith Lia Wellfounded Setoid Eqdep_dec.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac utils_list utils_decidable finite seteq.

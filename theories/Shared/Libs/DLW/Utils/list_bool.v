@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import List Arith Max Lia Wellfounded Bool.
+Require Import List Arith Lia Wellfounded Bool.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import Utils.utils.

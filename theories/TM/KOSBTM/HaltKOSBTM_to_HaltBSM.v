@@ -629,7 +629,7 @@ Section fixM.
         eapply H.
         unfold out_code. right. unfold fst, code_end, snd, fst. rewrite SIM_length. lia.
       - intros ([i out] & H1 & H2). pose proof (HS := @SIM_term pos0).
-        cbn [Fin.to_nat proj1_sig] in HS. rewrite NPeano.Nat.mul_0_r, NPeano.Nat.add_0_r in HS.
+        cbn [Fin.to_nat proj1_sig] in HS. rewrite Nat.mul_0_r, Nat.add_0_r in HS.
         eapply HS in H1 as (q' & t' & -> & -> & H).
         exists q', t'. eassumption. 
         unfold out_code, code_start, code_end, fst, snd in H2. lia.

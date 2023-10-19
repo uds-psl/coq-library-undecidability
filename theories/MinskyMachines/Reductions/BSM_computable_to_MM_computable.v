@@ -566,7 +566,7 @@ Section preprocess.
      (i, POSTP i) /MM/ (i, v) ~~> (i + 18, v [ out / pos0] [ (stack_enc nil) / tmp pos2 ]).
   Proof.
     intros Htgt Htmp0 Htmp1 Htmp2.
-    pose proof (POSTP_spec_strong i v out 0 Htgt Htmp0 Htmp1 Htmp2). rewrite NPeano.Nat.add_0_r in H.
+    pose proof (POSTP_spec_strong i v out 0 Htgt Htmp0 Htmp1 Htmp2). rewrite Nat.add_0_r in H.
     eapply H.
   Qed.
 

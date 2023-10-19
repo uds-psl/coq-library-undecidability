@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import List Arith NArith NPeano Ascii String.
+Require Import List Arith NArith Ascii String.
 
 Set Implicit Arguments.
 
