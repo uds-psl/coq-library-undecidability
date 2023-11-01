@@ -28,10 +28,10 @@ install: [
 depends: [
   "coq" {>= "8.18" & < "8.19~"}
   "ocaml"
-  "coq-metacoq-template" {= "8.18.dev"}
+  "coq-metacoq-template" {= "1.2.1+8.18"}
 ]
 
 synopsis: "A Coq Library of Undecidability Proofs"
 url {
-  git: "https://github.com/uds-psl/coq-library-undecidability.git#coq-8.16"
+  git: "https://github.com/uds-psl/coq-library-undecidability.git#coq-8.18"
 }

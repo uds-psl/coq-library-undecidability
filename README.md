@@ -1,18 +1,3 @@
-# Manual installation for Coq
-
-```
-opam switch create coq-library-undecidability --packages=ocaml-variants.4.14.1+options,ocaml-option-flambda
-eval $(opam env)
-opam pin add -k git coq-core.dev "https://github.com/coq/coq.git#master"
-opam pin add -k git coq-stdlib.dev "https://github.com/coq/coq.git#master"
-opam pin add -k git coqide-server.dev "https://github.com/coq/coq.git#master"
-opam pin add -k git coq.dev "https://github.com/coq/coq.git#master"
-opam pin add -k git coq-equations.dev "https://github.com/mattam82/Coq-Equations.git#main"
-opam pin add -k git coq-metacoq-utils.dev "https://github.com/MetaCoq/metacoq.git#main"
-opam pin add -k git coq-metacoq-common.dev "https://github.com/MetaCoq/metacoq.git#main"
-opam pin add -k git coq-metacoq-template.dev "https://github.com/MetaCoq/metacoq.git#main"
-```
-
 # Coq Library of Undecidability Proofs
 
 [![CI](https://github.com/uds-psl/coq-library-undecidability/workflows/CI/badge.svg?branch=master)](https://github.com/uds-psl/coq-library-undecidability/actions)
@@ -134,7 +119,7 @@ Then the following commands install the library:
 ```
 opam repo add coq-released https://coq.inria.fr/opam/released
 opam update
-opam install coq-library-undecidability.1.1+8.18
+opam install coq-library-undecidability.1.1.1+8.18
 ```
 
 ### Install from git via opam
