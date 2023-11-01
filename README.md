@@ -117,7 +117,7 @@ Then the following commands install the library:
 ```
 opam repo add coq-released https://coq.inria.fr/opam/released
 opam update
-opam install coq-library-undecidability.1.1+8.17
+opam install coq-library-undecidability.1.1.1+8.17
 ```
 
 ### Install from git via opam
