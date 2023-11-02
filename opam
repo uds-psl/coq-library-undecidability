@@ -26,7 +26,7 @@ install: [
   [make "install"]
 ]
 depends: [
-  "coq" {= "8.17.0"}
+  "coq" {>= "8.17" & < "8.18~"}
   "ocaml"
   "coq-metacoq-template" {>= "1.2.1+8.17"}
 ]
