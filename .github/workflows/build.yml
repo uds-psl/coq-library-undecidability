@@ -14,7 +14,7 @@ jobs:
         coq_version: 
           - '8.17.1'
         ocaml_version:
-          - '4.14-flambda'
+          - '4.14.1-flambda'
       fail-fast: true
 
     steps:
