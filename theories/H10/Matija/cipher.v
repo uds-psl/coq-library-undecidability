@@ -701,7 +701,7 @@ Section sums.
       Proof. apply Nat.mul_le_mono; auto; apply (proj2_sig g_full). Qed.
 
       Let Hg3 i : 2*g i < r.
-      Proof using Hm. apply Nat.le_lt_trans with (1 := Hg2 _); auto. Qed.
+      Proof. clear -Hm. apply Nat.le_lt_trans with (1 := Hg2 _); auto. Qed.
       
       Let Hu2 : u2 = msum nat_join 0 (2*k) (fun i => (2*g i) * power i r).  
       Proof.

@@ -64,7 +64,8 @@ Section measure_rect.
       of Acc irrelevant functionals *)
 
   Let Fix_F_Acc_irr : forall x f g, @Fix_F x f = Fix_F g.
-  Proof using F_ext.
+  Proof.
+    clear -F_ext.
     apply Acc_irrelevance.
     intros; apply F_ext; auto.
   Qed.
