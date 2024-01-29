@@ -45,7 +45,7 @@ Proof.
   move=> /type_assignment_ren_fv => /(_ _ id). rewrite ren_id_term. apply.
   apply: allfv_impl (var_bound_spec M) => x ?.
   move=> > /(@nth_error_split ty) [Gamma1] [Gamma2] [-> ?]. subst x.
-  rewrite nth_error_map nth_error_seq /=; first done.
+  rewrite nth_error_map CD_facts.nth_error_seq /=; first done.
   by rewrite nth_error_app2 ?Nat.sub_diag.
 Qed.
 
