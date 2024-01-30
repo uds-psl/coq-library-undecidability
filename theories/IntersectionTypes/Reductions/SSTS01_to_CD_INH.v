@@ -174,7 +174,7 @@ Proof.
   { rewrite /Γ_lr map_length seq_length => Hx.
     have H'x : forall i', nth_error (Γ_all bound i') x = Some (s_pos i' x).
     { move=> i'. rewrite /Γ_all nth_error_app1. { by rewrite /Γ_lr map_length seq_length. }
-      by rewrite /Γ_lr nth_error_map nth_error_seq. }
+      by rewrite /Γ_lr nth_error_map CD_facts.nth_error_seq. }
     rewrite H'x /s_pos. case Eix: (Nat.eqb i x) => /=.
     { move=> [<- <-]. case; last done. move=> ?. move=> /Nat.eqb_eq in Eix. subst. by apply: Γ_all_lr_l. }
     case E'ix: (Nat.eqb i (S x)).
@@ -533,7 +533,7 @@ Qed.
 Lemma nth_Γ_lr i j bound : j < bound -> nth_error (Γ_all bound i) j = Some (s_pos i j).
 Proof.
   move=> ?. rewrite /Γ_all /Γ_lr nth_error_app1. { by rewrite map_length seq_length. }
-  by rewrite nth_error_map nth_error_seq.
+  by rewrite nth_error_map CD_facts.nth_error_seq.
 Qed.
 
 Lemma In_s_id_rulesI c a b a' b' :
