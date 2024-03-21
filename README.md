@@ -174,7 +174,7 @@ The library is compatible with Coq's compiled interfaces ([`vos`](https://coq.in
 
 #### Coq version
 
-Be careful that this branch only compiles under `Coq 8.16`. If you want to use a different Coq version you have to change to a different branch.
+Be careful that this branch only compiles under `Coq 8.19`. If you want to use a different Coq version you have to change to a different branch.
 Due to compatibility issues, not every branch contains exactly the same problems. 
 We recommend to use the newest branch if possible.
 
