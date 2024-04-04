@@ -207,13 +207,13 @@ Qed.
 Lemma rCompBeta_rValidComp s t u phi : rValidComp phi s -> rValidComp phi t -> rCompBeta s t = Some u -> rValidComp phi u.
 Proof with repeat (congruence || subst || simpl in * || intuition ).
   unfold rValidComp in *. intros vs vt eq. assert (pp:Proc phi)by (inv vs;auto). split;auto.  unfold rCompBeta in eq. destruct s... destruct s... destruct t... destruct s0...
-  -inv eq. inv H0; inv H2. constructor... rewrite map_length in *. now inv H7.
+  -inv eq. inv H0; inv H2. constructor... rewrite length_map in *. now inv H7.
   -inv eq. inv H0; inv H2. constructor...
    +destruct (pp x) as [_ H']. inv H'. now rewrite H0.
-   +rewrite map_length in *. now inv H7.
+   +rewrite length_map in *. now inv H7.
   -inv eq. inv H0; inv H2. constructor...
-   +rewrite map_length in *. now inv H7.
-   +rewrite map_length in *. now inv H7.
+   +rewrite length_map in *. now inv H7.
+   +rewrite length_map in *. now inv H7.
 Qed.
 
 Lemma rCompSeval_rValidComp n s phi k : Proc phi -> rValidComp phi s -> rValidComp phi (snd (rCompSeval n (k,s))).

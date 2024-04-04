@@ -471,7 +471,7 @@ Section preprocess.
       rewrite pos_right_spec.
       rewrite Fin.R_sanity.
       rewrite Fin.to_nat_of_nat. cbn [proj1_sig plus].
-      rewrite update_app_left. 2:{ rewrite !app_length, !vec_list_length. lia. }
+      rewrite update_app_left. 2:{ rewrite !length_app, !vec_list_length. lia. }
       f_equal.
       rewrite update_app_right. 2:{ cbn. rewrite !vec_list_length. lia. }
       f_equal. rewrite vec_list_length. replace (S (k + n'') - S k) with n'' by lia.
@@ -573,7 +573,7 @@ Section preprocess.
   Definition PREPALL i := PREP i ++ PREPMORE ++ INC pos0 :: List.nil.
 
   Lemma PREPALL_length i : length (PREPALL i) = k * 14 + n + 1.
-  Proof. unfold PREPALL, PREPMORE; rewrite !app_length, PREP_length, PREPMORE'_length; cbn; lia. Qed.
+  Proof. unfold PREPALL, PREPMORE; rewrite !length_app, PREP_length, PREPMORE'_length; cbn; lia. Qed.
 
   Lemma PREPALL_spec i v : 
     (i, PREPALL i) /MM/ (i, Vector.append (Vector.append (0 ## v) (Vector.const 0 n)) (0 ## 0 ## 0 ## vec_nil)) ~~>
@@ -584,7 +584,7 @@ Section preprocess.
     eapply subcode_sss_compute_trans. 2: eapply PREPMORE_spec. 1: unfold PREPALL; auto.
     mm sss INC with pos0.
     { unfold PREPALL. eexists. eexists nil. cbn. split.  1: now rewrite app_assoc.
-      rewrite app_length, PREP_length; unfold PREPMORE; rewrite PREPMORE'_length. lia. }
+      rewrite length_app, PREP_length; unfold PREPMORE; rewrite PREPMORE'_length. lia. }
     fold plus. mm sss stop.
     f_equal. lia.
   Qed.
@@ -675,7 +675,7 @@ Proof.
               now rewrite !vec_pos_const.
       }
       eapply subcode_sss_compute_trans with (P := (1 + length (PREPALL k i 1) + length Q, mm_transfert pos0 (pos_right (1 + k + i) pos2) (pos_right (1 + k + i) pos0) (1 + length (PREPALL k i 1) + length Q))).
-      { eexists (PREPALL k i 1 ++ Q). eexists (POSTP _ _ _). split. 1:  now rewrite <- app_assoc. rewrite !app_length, PREPALL_length. lia. }
+      { eexists (PREPALL k i 1 ++ Q). eexists (POSTP _ _ _). split. 1:  now rewrite <- app_assoc. rewrite !length_app, PREPALL_length. lia. }
       1: eapply sss_progress_compute.  1: eapply mm_transfert_progress.
       1-5: clear.
       { cbn. congruence. }
@@ -689,7 +689,7 @@ Proof.
         exfalso. eapply pos_right_left. now rewrite Hq. }
       { reflexivity. }
       eapply subcode_sss_compute_trans with (P := (4 + length (PREPALL k i 1) + length Q, POSTP k i (4 + length (PREPALL k i 1) + length Q))).
-      { eexists _. eexists List.nil. split.  1: rewrite app_nil_r.  1: now rewrite !app_assoc. rewrite !app_length, PREPALL_length. cbn. lia. }
+      { eexists _. eexists List.nil. split.  1: rewrite app_nil_r.  1: now rewrite !app_assoc. rewrite !length_app, PREPALL_length. cbn. lia. }
       1: eapply POSTP_spec.
       { unfold vec_enc. rewrite vec_pos_set. destruct cases as [ [ | ] | [q Hq]]; rew vec. }
       { unfold vec_enc. rewrite !vec_pos_set.

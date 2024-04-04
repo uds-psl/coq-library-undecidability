@@ -60,7 +60,7 @@ Section length.
 
 End length.
 
-Global Hint Rewrite length_nil length_cons app_length map_length rev_length : length_db.
+Global Hint Rewrite length_nil length_cons length_app length_map length_rev : length_db.
 
 Section list_an.
 
@@ -115,7 +115,7 @@ Section list_an.
     destruct H as (E1 & H); injection H; clear H; intros H E2.
     symmetry in H; apply list_an_app_inv in H; simpl in H.
     destruct H as (E3 & H); injection H; clear H; intros E4 E5.
-    do 2 (rewrite app_length in H1; simpl in H1).
+    do 2 (rewrite length_app in H1; simpl in H1).
     lia.
   Qed.
 
@@ -130,7 +130,7 @@ Proof.
   + destruct IHl as (f & Hf).
     exists (fun i => match i with 0 => y | S i => f i end); simpl.
     f_equal.
-    rewrite Hf, <- map_S_list_an, map_length, list_an_length, map_map; auto.
+    rewrite Hf, <- map_S_list_an, length_map, list_an_length, map_map; auto.
 Qed.
 
 Fact list_upper_bound (l : list nat) : { m | forall x, In x l -> x < m }.
@@ -205,7 +205,7 @@ Proof.
   intros H; contradict H.
   destruct u as [ | a u ]; auto; exfalso.
   apply f_equal with (f := @length _) in H.
-  revert H; simpl; rewrite app_length; intros; lia.
+  revert H; simpl; rewrite length_app; intros; lia.
 Qed.
 
 Section iter.
@@ -261,7 +261,7 @@ Fact map_cst_snoc X Y (y : Y) ll mm : y :: map (fun _ : X => y) ll++mm = map (fu
 Proof. induction ll; simpl; f_equal; auto. Qed.
 
 Fact map_cst_rev  X Y (y : Y) ll : map (fun _ : X => y) (rev ll) = map (fun _ => y) ll.
-Proof. do 2 rewrite map_cst_repeat; rewrite rev_length; auto. Qed.
+Proof. do 2 rewrite map_cst_repeat; rewrite length_rev; auto. Qed.
 
 Fact In_perm X (x : X) l : In x l -> exists m, x::m ~p l.
 Proof.

@@ -120,7 +120,7 @@ Proof.
       * move=> /typing_ty_app => /(_ s). rewrite subst_poly_type_many_poly_abs subst_poly_type_many_poly_arr /=.
         have ->: S (n + x) = n + S x by lia. rewrite iter_up_poly_type_poly_type.
         move=> /IH {}IH /IH. move=> [ts] [Qs] [<-] [->] [->].
-        rewrite map_length. move=> ->. by exists (s :: ts), Qs.
+        rewrite length_map. move=> ->. by exists (s :: ts), Qs.
 Qed.
 
 (* if one can type a normal form P by a type variable in a safe environment, then 
@@ -146,7 +146,7 @@ Proof.
     move: HyAs. rewrite many_argument_app_app many_argument_app_map_argument_poly_type. 
     move: (many_ty_app (var y) _) => {}P.
     rewrite subst_poly_type_many_poly_arr many_argument_app_map_argument_term.
-    move=> /typing_many_app_arguments H /H. apply. by rewrite map_length.
+    move=> /typing_many_app_arguments H /H. apply. by rewrite length_map.
 Qed.
 
 Corollary iipc2_is_safe_environment {Gamma x} : iipc2 Gamma (poly_var x) -> Forall (is_safe_poly_type 0) Gamma ->
@@ -442,11 +442,11 @@ Lemma subst_poly_type_h10c_poly_type {ts c} : let σ := (fold_right scons poly_v
     end.
 Proof.
   move=> σ Hts. subst σ. case: c.
-  - move=> x. rewrite /= Hts -rev_length ?fold_right_length_ts.
+  - move=> x. rewrite /= Hts -length_rev ?fold_right_length_ts.
     have -> : length (rev ts) + 1 + zt = length (rev ts) + (1 + zt) by lia.
     by rewrite fold_right_length_ts.
-  - move=> >. by rewrite /= Hts -rev_length ?fold_right_length_ts.
-  - move=> >. by rewrite /= Hts -rev_length ?fold_right_length_ts.
+  - move=> >. by rewrite /= Hts -length_rev ?fold_right_length_ts.
+  - move=> >. by rewrite /= Hts -length_rev ?fold_right_length_ts.
 Qed.
 
 Section InverseTransport.
@@ -725,7 +725,7 @@ Proof using h10cs.
     - (* case t_cs *)
       move=> /safe_poly_type_eqE [Hts] [<-] _ /Forall2_typing_Forall_iipc2.
       rewrite map_app ?[map (subst_poly_type _) (map _ _)]map_map.
-      under [map _ (seq _ _)]map_ext => x do rewrite Hts -rev_length subst_poly_type_Ut'.
+      under [map _ (seq _ _)]map_ext => x do rewrite Hts -length_rev subst_poly_type_Ut'.
       under [map _ h10cs]map_ext => c do (rewrite subst_poly_type_h10c_poly_type; first done).
       set σ := (fold_right _ _ (rev ts)). move=> /Forall_app [Hδ Hh10cs].
       have /list_choice [φ Hφ] : Forall (fun i => exists n, encodes_nat (σ i) n) (seq 0 δ).
@@ -959,16 +959,16 @@ Lemma eliminate_φ:
   iipc2 (Gamma0 ++ GammaUSP (S ϵ) ++ Gammaφ) (poly_var tt).
 Proof.
   apply: (iipc2_poly_varI 3 (ts := rev (map (fun x => poly_num (φ x)) (seq 0 δ))));
-    first by rewrite rev_length map_length seq_length.
+    first by rewrite length_rev length_map length_seq.
   rewrite map_app rev_involutive. apply /Forall_appI.
   - apply /Forall_map /Forall_map /Forall_seqP => x Hx.
-    set ts := (map _ _). have ->: δ = length ts by rewrite /ts map_length seq_length.
+    set ts := (map _ _). have ->: δ = length ts by rewrite /ts length_map length_seq.
     rewrite subst_poly_type_Ut' /subst_poly_type /ts fold_right_map_seq; first by lia.
     apply /iipc2_var_InI /in_app_r /in_app_l /in_Ut_GammaUSP. have := ϵP x. by lia.
   - apply /Forall_map /Forall_map. rewrite /Gammaφ.
     clear. have := δP. elim: (h10cs); first done.
     move=> c cs IH. move=> /Forall_cons_iff [Hc /IH {}IH]. constructor.
-    + set ts := (map _ (seq _ _)). have Hδ: δ = length ts by rewrite /ts map_length seq_length.
+    + set ts := (map _ (seq _ _)). have Hδ: δ = length ts by rewrite /ts length_map length_seq.
       move: c Hc {IH} => []; rewrite /h10c_poly_type.
       * move=> x ?. have ->: δ + 1 + zt = δ + (1 + zt) by lia. 
         rewrite Hδ subst_poly_type_St' /subst_poly_type ?fold_right_length_ts fold_right_map_seq; first by lia.

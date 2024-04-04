@@ -19,7 +19,7 @@ Proof. intros ->. now rewrite List.skipn_app, skipn_all, Nat.sub_diag. Qed.
 
 Lemma skipn_app_app {X : Type} (l1 l2 l3 : list X) : skipn (length (l1 ++ l2)) (l1 ++ l3) = skipn (length l2) l3.
 Proof.
-  rewrite skipn_app, app_length, skipn_all2 by lia.
+  rewrite skipn_app, length_app, skipn_all2 by lia.
   cbn. f_equal. lia.
 Qed.
 
@@ -257,7 +257,7 @@ Lemma BSM_addstacks_step' n i (P : list (bsm_instr n)) m j v o v' v'' :
 Proof.
   intros (? & ? & ? & ? & ? & ? & ? & ?). inv H. inv H0.
   unfold bsm_addstacks. rewrite map_app. cbn.
-  eexists. eexists. eexists. eexists. eexists. split.  1: reflexivity. split.  1: rewrite map_length.  1: reflexivity.
+  eexists. eexists. eexists. eexists. eexists. split.  1: reflexivity. split.  1: rewrite length_map.  1: reflexivity.
   now apply BSM_addstacks_step.
 Qed.
 
@@ -268,8 +268,8 @@ Proof.
   assert (nth_error (bsm_addstacks m P) (length x0) = Some x1).  1: rewrite H4.  1: rewrite nth_error_app2. 2:lia.  1: rewrite Nat.sub_diag.  1: reflexivity.
   unfold bsm_addstacks in H.
   destruct (nth_error_Some P (|x0|)) as [_ HH].
-  destruct (nth_error P (|x0|)) as [d | ] eqn:E. 2:{ exfalso. eapply HH; try reflexivity. erewrite <- (map_length _ P). unfold bsm_addstacks in H4. rewrite H4.
-  rewrite app_length. cbn. lia. }
+  destruct (nth_error P (|x0|)) as [d | ] eqn:E. 2:{ exfalso. eapply HH; try reflexivity. erewrite <- (length_map _ P). unfold bsm_addstacks in H4. rewrite H4.
+  rewrite length_app. cbn. lia. }
   pose proof (E' := E).
   eapply map_nth_error in E. unfold bsm_addstacks in H4. rewrite H4 in E.
   rewrite nth_error_app2 in E. 2:lia. rewrite Nat.sub_diag in E. cbn in E. inv E.
@@ -277,7 +277,7 @@ Proof.
   repeat eexists; eauto.
   1: f_equal.  1: instantiate (2 := firstn (length x0) P).
   1: instantiate (1 := skipn (1 + length x0) P).
-  2:{ f_equal. rewrite firstn_length. enough (|x0| < |P|).  1: lia.
+  2:{ f_equal. rewrite length_firstn. enough (|x0| < |P|).  1: lia.
       eapply nth_error_Some. now rewrite E'. }
   rewrite <- (firstn_skipn (length x0) P) at 1.
   f_equal.
@@ -308,16 +308,16 @@ Lemma BSM_addstacks n i (P : list (bsm_instr n)) m :
    {P' | length P = length P' /\ (forall j v o v', BSM.eval n (i, P) (j, v) (o, v') -> forall v'', BSM.eval (m + n) (i, P') (j, Vector.append v'' v) (o, Vector.append v'' v'))
           /\ forall v v'' j out, BSM.eval (m + n) (i, P') (j, Vector.append v'' v) out -> exists out, BSM.eval n (i, P) (j, v) out}.
 Proof.
-  exists (bsm_addstacks m P). split. { unfold bsm_addstacks. now rewrite map_length. }
+  exists (bsm_addstacks m P). split. { unfold bsm_addstacks. now rewrite length_map. }
   setoid_rewrite eval_iff.
   split.
-  - intros j v o v' [[steps H1] H2] v''. split. 2:{ cbn. unfold bsm_addstacks. rewrite map_length. exact H2. }
+  - intros j v o v' [[steps H1] H2] v''. split. 2:{ cbn. unfold bsm_addstacks. rewrite length_map. exact H2. }
     exists steps. rewrite <- !vec_app_spec. now eapply BSM_addstacks'.
   - intros v v'' j [o1 o2] H. eapply eval_iff in H as [[steps H1] H2].
     rewrite <- vec_app_spec in H1.
     eapply BSM_addstacks_bwd' in H1 as (? & ? & ? & ?). inv H.
     eexists (_, _). eapply eval_iff. split.  1: eexists.  1: eapply H0.
-    cbn in *. unfold bsm_addstacks in H2. rewrite map_length in H2. exact H2.
+    cbn in *. unfold bsm_addstacks in H2. rewrite length_map in H2. exact H2.
 Qed.
 
 Definition encode_bsm (Σ : finType) n (t : Vector.t (tape Σ) n) :=
@@ -521,7 +521,7 @@ Proof.
   eapply subcode_sss_compute_trans. 2: eapply (push_exactly_spec (pos_right (1 + k) Fin2) _ ((@encode_bsm Σ _ (Vector.const niltape n))@[Fin2])). 1:auto.
   eapply subcode_sss_compute_trans. 2: eapply (push_exactly_spec (pos_right (1 + k) Fin3) _ ((@encode_bsm Σ _ (Vector.const niltape n))@[Fin3])). 1:auto.
   bsm sss stop. apply f_equal2.
-  1:rewrite !app_length; lia.
+  1:rewrite !length_app; lia.
   eapply vec_pos_ext. eapply pos_left_right_rect.
   - rewrite <- !vec_app_spec. symmetry. rewrite vec_pos_app_left.
     rewrite !vec_change_neq; auto.
@@ -582,13 +582,13 @@ Proof.
        :: pop_many (pos_right (1 + k) Fin2) (length (strpush_common_short s b)) (1 + i)
        ++ push_exactly (pos_right (1 + k) Fin2) (strpush_succ s b)
        ++ POP (pos_left 4 Fin0) 0 i :: nil). split.
-  { cbn. rewrite !app_length. cbn. rewrite pop_many_length, push_exactly_length. lia. }
+  { cbn. rewrite !length_app. cbn. rewrite pop_many_length, push_exactly_length. lia. }
   intros v n t m m' Hx.
   induction m in v, m', Hx |- *.
   - bsm sss POP empty with (pos_left 4 (pos_right 1 x)) 0 (i + 2 + (length (strpush_common_short s b)) + length ((strpush_succ s b))).
   1: rewrite <- !vec_app_spec, vec_pos_app_left.  1: cbn in *.
   1: rewrite vec_pos_spec, Hx.  1: reflexivity.
-    bsm sss stop. apply f_equal2.  1: { cbn. rewrite !app_length, pop_many_length, push_exactly_length. cbn. lia. }
+    bsm sss stop. apply f_equal2.  1: { cbn. rewrite !length_app, pop_many_length, push_exactly_length. cbn. lia. }
     cbn in Hx. rewrite <- Hx. now rewrite <- vec_pos_spec, vec_change_same.
   - bsm sss POP one with (pos_left 4 (pos_right 1 x)) 0 (i + 2 + (length (strpush_common_short s b)) + length ((strpush_succ s b))) (repeat true m).
     1:{ rewrite <- !vec_app_spec, vec_pos_app_left. cbn.
@@ -651,7 +651,7 @@ Proof.
   exists (pop_many (pos_right (1 + k) Fin2) n' i
        ++ push_exactly (pos_right (1 + k) Fin2) (strpush_zero s b)
        ++ PREP2). split.
-  {  cbn. rewrite !app_length, pop_many_length, push_exactly_length. cbn in Hl2. lia. }
+  {  cbn. rewrite !length_app, pop_many_length, push_exactly_length. cbn in Hl2. lia. }
   intros v t m Hm.
   eapply subcode_sss_compute_trans. 2: eapply (pop_many_spec (pos_right (1 + k) Fin2) n' i). 1:auto.
   eapply subcode_sss_compute_trans. 2: eapply (push_exactly_spec (pos_right (1 + k) Fin2) _ (strpush_zero s b)).
@@ -682,9 +682,9 @@ Proof.
         rewrite vec_change_neq; [ | intros ? % pos_right_inj % pos_nxt_inj % pos_nxt_inj; congruence].
         now rewrite !vec_pos_app_right, !vec_pos_spec, !encode_bsm_at3.
   }
-  { eexists (pop_many _ _ _ ++ push_exactly _ _), []. rewrite app_nil_r. split.  1: now simpl_list. rewrite app_length, pop_many_length, push_exactly_length. lia. }
+  { eexists (pop_many _ _ _ ++ push_exactly _ _), []. rewrite app_nil_r. split.  1: now simpl_list. rewrite length_app, pop_many_length, push_exactly_length. lia. }
   bsm sss stop. apply f_equal2; [|reflexivity].
-  rewrite !app_length, pop_many_length, push_exactly_length. lia.
+  rewrite !length_app, pop_many_length, push_exactly_length. lia.
 Qed.
 
 Definition BSM_cast {n} (P : list (bsm_instr n)) {m} (E : n = m) : list (bsm_instr m).
@@ -716,7 +716,7 @@ Lemma PREP2'_length (Σ : finType) (s b : Σ) k (k' : nat) (i : nat) n :
 Proof.
   induction k' in k, i |- *.
   - cbn. reflexivity.
-  - cbn - [mult]. destruct PREP2_spec' as (? & ? & ?). cbn. rewrite app_length. cbn in e. rewrite e.
+  - cbn - [mult]. destruct PREP2_spec' as (? & ? & ?). cbn. rewrite length_app. cbn in e. rewrite e.
     rewrite BSM_cast_length. cbn in IHk'. rewrite IHk'. lia.
 Qed.
 
@@ -745,7 +745,7 @@ Proof.
     1: cbn - [minus mult].  1: cbn - [minus mult] in HPREP.  1: specialize HPREP with (m := v@[Fin.of_nat_lt Hlt]).  1: cbn [mult] in HPREP.
     Arguments Fin.of_nat_lt _ {_ _}.  1: refine (HPREP _ _ _). { rewrite <- !vec_pos_spec, <- !vec_map_spec, <- !vec_app_spec. eapply nth_error_vec_list.
     rewrite @vec_list_vec_app with (n := S k') (m := k''), vec_list_vec_map.
-    rewrite nth_error_app1. 2: rewrite map_length, vec_list_length; lia.
+    rewrite nth_error_app1. 2: rewrite length_map, vec_list_length; lia.
     eapply map_nth_error.
     erewrite nth_error_vec_list.
     all:eapply (nth_error_nth' _ 0); rewrite vec_list_length; lia. }
@@ -757,7 +757,7 @@ Proof.
     1: eapply subcode_sss_compute with (P := (i + |PREPIT|, _)). { exists PREPIT, []. split. 2:reflexivity. now simpl_list. }
     1: specialize IHk' with (v := vl) (v' := y ::: v') (k'' := S k'').  1: apply BSM_cast_spec.
     1: eapply IHk'.
-    + rewrite !app_length, BSM_cast_length, !PREP2'_length.
+    + rewrite !length_app, BSM_cast_length, !PREP2'_length.
       setoid_rewrite PREP2'_length. clear. lia.
     + cbn. f_equal. eapply vec_list_inj.
       rewrite <- !vec_map_spec, <- !vec_app_spec. cbn [vec_list]. rewrite !vec_list_cast, !vec_list_vec_app, !vec_list_const.
@@ -787,10 +787,10 @@ Proof.
        pose proof (@vec_list_vec_app (list bool) (S k') k''). cbn [plus] in H. rewrite !H. clear H.
        setoid_rewrite <- vec_map_spec.
        rewrite !vec_list_vec_map, !vec_list_const.
-       rewrite update_app_left. 2: rewrite Fin.to_nat_of_nat; cbn; rewrite map_length, vec_list_length; lia.
+       rewrite update_app_left. 2: rewrite Fin.to_nat_of_nat; cbn; rewrite length_map, vec_list_length; lia.
        subst v. rewrite vec_list_cast. rewrite <- vec_app_spec. rewrite vec_list_vec_app. cbn [vec_list]. rewrite Fin.to_nat_of_nat. cbn.
-       rewrite map_app, update_app_right.  2: rewrite map_length, vec_list_length; lia.
-       rewrite map_length, vec_list_length, Nat.sub_diag. cbn. now simpl_list.
+       rewrite map_app, update_app_right.  2: rewrite length_map, vec_list_length; lia.
+       rewrite length_map, vec_list_length, Nat.sub_diag. cbn. now simpl_list.
 Qed.
 
 Lemma PREP2_spec k (Σ : finType) i s b  n :
@@ -831,7 +831,7 @@ Proof.
   eapply subcode_sss_compute_trans with (P := (n' + i, push_exactly (pos_right k Fin2) str)).
   { exists (pop_many (pos_right k Fin2) n' i), []. split.  1: now rewrite app_nil_r. rewrite pop_many_length; lia. }
   1: eapply push_exactly_spec. bsm sss stop.
-  f_equal.  1: rewrite app_length, pop_many_length, push_exactly_length; lia.
+  f_equal.  1: rewrite length_app, pop_many_length, push_exactly_length; lia.
   rewrite !vec_change_idem.
   rewrite vec_change_eq; auto.
   rewrite <- !vec_app_spec.
@@ -869,7 +869,7 @@ Proof.
   eapply subcode_sss_compute_trans. 2: eapply H1.  1: auto.
   eapply subcode_sss_compute_trans. 2: eapply H2.  1: auto.
   eapply subcode_sss_compute_trans. 2: specialize H3 with (v := [] ## Vector.const [] k); apply H3.  1: auto.
-  bsm sss stop. f_equal. rewrite !app_length. now rewrite Nat.add_assoc.
+  bsm sss stop. f_equal. rewrite !length_app. now rewrite Nat.add_assoc.
 Qed.
 
 Lemma skipn_plus n m {X} (l : list X) : skipn n (skipn m l) = skipn (n + m) l.
@@ -913,7 +913,7 @@ Proof.
     edestruct (@pop_exactly_spec2 (1 + k + 4) (pos_right (1 + k) Fin2) (pos_right (1 + k) Fin0) (i + 4 + 2 * length THESYM)) as [x' Hpop].
     1:{ intros ? % pos_right_inj; congruence. }
     3:{ eexists. eapply subcode_sss_compute_trans. 2: eapply Hpop.  1: auto.  1: eexists [], _.  1: cbn.  1: split. 2: lia.  1: reflexivity.
-        bsm sss stop. apply f_equal2. 1: rewrite !app_length, pop_exactly_length.  1: cbn - [mult].  1: lia.
+        bsm sss stop. apply f_equal2. 1: rewrite !length_app, pop_exactly_length.  1: cbn - [mult].  1: lia.
         apply vec'_change_app_right. }
     2:{ apply vec'_pos_app_right. }
        rewrite vec'_pos_app_right. cbn.
@@ -938,10 +938,10 @@ Proof.
     eapply subcode_sss_compute_trans. 2: eapply (@pop_many_spec (1 + k + 4) (pos_right (1 + k) Fin2) 2).
     { eexists (pop_exactly (pos_right (1 + k) Fin2) (pos_right (1 + k) Fin0) (i + 4 + 2 * length THESYM) THESYM i
     ++  PUSH (pos_left 4 Fin0) true :: nil), (POP (pos_right (1 + k) Fin0) i i :: nil). split.  1: simpl_list.  1: cbn - [mult].  1: repeat f_equal. 1-4: cbn; lia.
-    rewrite app_length, pop_exactly_length. cbn. lia. }
+    rewrite length_app, pop_exactly_length. cbn. lia. }
     rewrite vec_change_app_right. cbn [vec_change pos_S_inv]. rewrite vec_pos_app_right.
     cbn [vec_pos pos_S_inv]. rewrite skipn_plus.
-    bsm sss POP empty with (pos_right (1 + k) Fin0) i i.  1: eexists (_ ++ _ :: _), [].  1: split.  1: rewrite app_nil_r.  1: simpl_list.  1: reflexivity.  1: rewrite app_length, pop_exactly_length.
+    bsm sss POP empty with (pos_right (1 + k) Fin0) i i.  1: eexists (_ ++ _ :: _), [].  1: split.  1: rewrite app_nil_r.  1: simpl_list.  1: reflexivity.  1: rewrite length_app, pop_exactly_length.
     1: cbn.  1: lia.  1: now rewrite vec_pos_app_right.
     
 
@@ -951,7 +951,7 @@ Proof.
     1: now rewrite vec_app_spec.  1: lia.
     cbn [repeat]. rewrite vec_app_spec.
     assert (2 + (| strpush_common_short s b |) = | strpush_common s b |) as ->.
-    { unfold strpush_common. rewrite app_length. cbn. lia. }
+    { unfold strpush_common. rewrite length_app. cbn. lia. }
     reflexivity.
 Qed.
 
@@ -989,7 +989,7 @@ Proof.
   replace (|strpush_common s b| + i) with (i + |strpush_common s b|) by lia.
   eapply subcode_sss_compute_trans.
   2: apply HPOST'.  1: eexists _, [].  1: split.  1: now rewrite app_nil_r.  1: rewrite pop_many_length.  1: lia.
-  bsm sss stop. f_equal. rewrite app_length, pop_many_length. cbn. lia.
+  bsm sss stop. f_equal. rewrite length_app, pop_many_length. cbn. lia.
 Qed.
 
 Theorem TM_computable_to_BSM_computable {k} (R : Vector.t nat k -> nat -> Prop) :
@@ -1013,9 +1013,9 @@ Proof.
       eapply subcode_sss_compute_trans with (P := (|PREP|, Mbsm)). 1:auto.
       1: eapply Heval.
       eapply subcode_sss_compute_trans with (P := (|PREP ++ Mbsm|, POSTP)). 1:auto.
-      1: rewrite <- app_length.  1: eapply HPOSTP'.
+      1: rewrite <- length_app.  1: eapply HPOSTP'.
       bsm sss stop. reflexivity.
-    + cbn. right. rewrite !app_length. lia.
+    + cbn. right. rewrite !length_app. lia.
   - intros. edestruct Hb as (? & ? & HbH). 2:eapply HM2. 2:eapply HbH.
     eapply subcode_sss_terminates.
     2:{ eapply subcode_sss_terminates_inv.  1: eapply bsm_sss_fun.

@@ -157,7 +157,7 @@ Section FIB.
   Lemma app_bound n (s t : string bool) :
     |t| <= n -> |s++t| <= n + |s|.
   Proof.
-    intros H. rewrite app_length. lia.
+    intros H. rewrite length_app. lia.
   Qed.
 
   Lemma obstring_iprep n x u (HX : |x++u| <= n) (HU : |u| <= n) :
@@ -166,10 +166,10 @@ Section FIB.
     induction x; cbn.
     - f_equal. now apply bstring_eq.
     - assert (H : |x++u| <= n).
-      { rewrite app_length in *. cbn in HX. lia. }
+      { rewrite length_app in *. cbn in HX. lia. }
       rewrite (IHx H). unfold ccons, bcast at 1. destruct le_dec.
       + f_equal. now apply bstring_eq.
-      + exfalso. cbn in *. rewrite app_length in *. lia.
+      + exfalso. cbn in *. rewrite length_app in *. lia.
   Qed.
 
   Lemma obstring_ienc n s (H : |s| <= n) :
@@ -178,7 +178,7 @@ Section FIB.
     unfold ienc. cbn.
     setoid_rewrite obstring_iprep. 
     f_equal. apply bstring_eq, app_nil_r.
-    Unshelve. rewrite app_length. cbn. lia.
+    Unshelve. rewrite length_app. cbn. lia.
   Qed.
 
   Lemma obstring_ienc' n s (H : ~ |s| <= n) :
@@ -260,7 +260,7 @@ Section FIB.
     Proof.
       destruct t; trivial. intros H. exfalso.
       assert (H' : |s| = |(b :: t) ++ s|) by now rewrite H at 1.
-      cbn in H'. rewrite app_length in H'. lia.
+      cbn in H'. rewrite length_app in H'. lia.
     Qed.
 
     Lemma app_neq b (s t : string bool) :
@@ -335,8 +335,8 @@ Section FIB.
     Proof.
       destruct x as [ [x HX]|], y as [ [y HY]|]; cbn; auto. induction 1.
       - left. exists x, y. repeat setoid_rewrite obstring_ienc. repeat split; trivial.
-      - assert (HU : |u| <= n). { rewrite app_length in HX. lia. }
-        assert (HV : |v| <= n). { rewrite app_length in HY. lia. }
+      - assert (HU : |u| <= n). { rewrite length_app in HX. lia. }
+        assert (HV : |v| <= n). { rewrite length_app in HY. lia. }
         destruct x as [|b x], y as [|c y].
         + cbn. apply IHderivable.
         + right. exists [], (c::y), (obcast HU), (obcast HV).

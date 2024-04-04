@@ -181,7 +181,7 @@ Proof.
   move=> HM. rewrite /toAddress /=.
   case: (le_lt_dec maxState (S (length l))).
   - move: HM => /(f_equal (@length _)).
-    rewrite app_length /=. lia.
+    rewrite length_app /=. lia.
   - move=> ?. by rewrite Fin.to_nat_of_nat.
 Qed.
 

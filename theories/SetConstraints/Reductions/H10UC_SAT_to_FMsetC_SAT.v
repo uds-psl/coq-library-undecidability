@@ -148,14 +148,14 @@ Proof.
   { have ->: [0] = [(1+d) * 0] by (congr cons; lia).
     move=> /[apply] ?. by exists (length A). }
   move=> k. elim /(Nat.measure_induction _ (@length nat)) : A k => A IH k H.
-  move: (H) => /Permutation_length. rewrite ?app_length map_length /= => HAB.
+  move: (H) => /Permutation_length. rewrite ?length_app length_map /= => HAB.
   have [b Hb] : exists b, B = [b].
   { move: (B) HAB => [|? [|? ?]] /=; [ by lia | by eexists | by lia ]. }
   subst B.
   move: (H) => /Permutation_sym /(Permutation_in ((1 + d) * k)) /(_ (in_eq _ _)) /in_app_iff [].
   - move /(@in_split nat) => [A1 [A2 ?]]. subst A.
     have := IH (A1 ++ A2). apply: unnest.
-    { rewrite ?app_length /=. by lia. }
+    { rewrite ?length_app /=. by lia. }
     move=> /(_ (1+k)). apply: unnest.
     { move: H. rewrite !map_app /= -!app_assoc /=.
       move=> /Permutation_sym /(@Permutation_cons_app_inv nat) <-.
@@ -163,9 +163,9 @@ Proof.
       by apply /Permutation_sym /Permutation_middle. }
     move=> {IH} [IH ->]. constructor.
     + have ->: length (A1 ++ (1 + d) * k :: A2) = 1 + length (A1 ++ A2).
-      { rewrite ?app_length /=. by lia. }
+      { rewrite ?length_app /=. by lia. }
       rewrite /= -IH. by apply /Permutation_sym /Permutation_middle.
-    + congr cons. rewrite !app_length /=. by lia.
+    + congr cons. rewrite !length_app /=. by lia.
   - case; last done. move=> ?. subst b.
     move: H => /Permutation_sym /(Permutation_cons_app_inv _ [] (A := nat)).
     rewrite app_nil_r.
@@ -242,7 +242,7 @@ Proof.
   have -> : map S = map [eta Nat.add 1] by done.
   move=> [/seq_spec2 [n [-> ->]]].
   move=> [/seq_spec2 [m [-> ->]]].
-  move=> [/Permutation_length]. rewrite !app_length !map_length !seq_length => ?.
+  move=> [/Permutation_length]. rewrite !length_app !length_map !length_seq => ?.
   have <- : n = m by lia. clear.
   have -> : 1 * n = n by lia.
   move=> [H1 [H2 _]]. by apply: nat_spec; eassumption.
@@ -332,7 +332,7 @@ Proof.
   move=> n IH A. rewrite seq_last.
   rewrite -app_assoc.
   move=> /square_spec_aux [A' [/Permutation_length + /IH]].
-  rewrite app_length seq_length. by lia. 
+  rewrite length_app length_seq. by lia. 
 Qed.
 
 (* if encode bound is satisfied, then there is a square relationship on length of solutions *)
@@ -354,8 +354,8 @@ Proof.
     move=> [-> /IH] ->. by rewrite repeat_length. }
   move=> /[dup] H3. rewrite repeat_length.
   have -> : length (X 0) = n.
-  { move: H3 => /Permutation_length. rewrite !app_length map_length seq_length repeat_length. by lia. }
-  move=> /square_spec <- [/Permutation_length]. rewrite !app_length map_length. by lia.
+  { move: H3 => /Permutation_length. rewrite !length_app length_map length_seq repeat_length. by lia. }
+  move=> /square_spec <- [/Permutation_length]. rewrite !length_app length_map. by lia.
 Qed.
 
 Lemma pyramid_shuffle {n} : seq 0 n ++ pyramid n ~p repeat 0 n ++ map S (pyramid n).
@@ -374,9 +374,9 @@ Lemma pyramid_length n : n + length (pyramid n) <= 4 ^ n.
 Proof.
   elim: n; first by (move=> /=; lia).
   move=> n IH. 
-  rewrite /pyramid seq_last /plus -/plus flat_map_concat_map map_app concat_app app_length.
+  rewrite /pyramid seq_last /plus -/plus flat_map_concat_map map_app concat_app length_app.
   rewrite -flat_map_concat_map -/(pyramid _).
-  rewrite /map /concat app_length seq_length /=.
+  rewrite /map /concat length_app length_seq /=.
   have := Nat.pow_gt_lin_r 4 n.
   by lia.
 Qed.
@@ -386,8 +386,8 @@ Lemma encode_nat_sat_aux {n} :
 Proof.
   elim: n; first done.
   move=> n IH.
-  rewrite /pyramid ? seq_last /plus ? (flat_map_concat_map, map_app, concat_app, app_length).
-  rewrite -?flat_map_concat_map -/pyramid -/(pyramid _) ?repeat_app seq_length /= ?app_nil_r.
+  rewrite /pyramid ? seq_last /plus ? (flat_map_concat_map, map_app, concat_app, length_app).
+  rewrite -?flat_map_concat_map -/pyramid -/(pyramid _) ?repeat_app length_seq /= ?app_nil_r.
   apply: (Permutation_trans (l' := (pyramid n ++ flat_map pyramid (seq 0 n)) ++ (seq 0 n ++ pyramid n))).
   { by Permutation_trivial. }
   rewrite pyramid_shuffle IH.
@@ -428,7 +428,7 @@ Proof.
   move=> [Hx [Hy [Hz]]].
   move=> [/(encode_nat_spec Hx) ? [/(encode_nat_spec Hy) ? [/(encode_nat_spec Hz) ?]]].
   rewrite /mset_sat Forall_cons_iff Forall_nil_iff /mset_sem.
-  move=> [/Permutation_length]. rewrite ? app_length /=. by lia.
+  move=> [/Permutation_length]. rewrite ? length_app /=. by lia.
 Qed.
 
 (* if uniform diophantine constraint is satisfied, then mset constraint has a solution *)
@@ -447,7 +447,7 @@ Proof.
   elim: (φ y); clear; first by (move=> /=; lia).
   move=> φy IH. 
   rewrite /pyramid seq_last /(plus 0 _) flat_map_concat_map map_app concat_app.
-  rewrite -flat_map_concat_map -/(pyramid _) /= ?app_length seq_length /=. by lia.
+  rewrite -flat_map_concat_map -/(pyramid _) /= ?length_app length_seq /=. by lia.
 Qed.
 
 (* encode a single H10UC constraint as a list of FMsetC constraints *)

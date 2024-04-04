@@ -267,7 +267,7 @@ Section remove_self_loops.
 
   Let Q_length : length Q = length P + 3.
   Proof. 
-    unfold Q; rewrite app_length, length_g.
+    unfold Q; rewrite length_app, length_g.
     unfold R; auto.
   Qed.
 

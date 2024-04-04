@@ -138,11 +138,11 @@ Section MM2_CM1.
 
   Lemma M_length : length M = a0+b0+b0+(length P * 6).
   Proof.
-    rewrite /M !app_length !map_length !seq_length.
+    rewrite /M !length_app !length_map !length_seq.
     suff: forall n, length (flat_map encode_instruction (combine P (seq n (length P)))) = length P * 6.
     { move=> ->. lia. }
     elim: (P). { done. }
-    move=> > IH > /=. by rewrite app_length length_encode_instruction IH.
+    move=> > IH > /=. by rewrite length_app length_encode_instruction IH.
   Qed.
 
   (* κ a b c encodes mm2 counters (a, b) *)
@@ -268,9 +268,9 @@ Section MM2_CM1.
     suff: nth_error M (n + fs i) = nth_error (encode_instruction (mm2i, i)) n.
     { move=> ->. by move: n Hn => [|[|[|[|[|[|?]]]]]]. }
     rewrite /M HP -Hi.
-    rewrite nth_error_app2. { rewrite !map_length !seq_length /=. lia. }
-    rewrite nth_error_app2. { rewrite !map_length !seq_length /=. lia. }
-    rewrite !map_length !seq_length.
+    rewrite nth_error_app2. { rewrite !length_map !length_seq /=. lia. }
+    rewrite nth_error_app2. { rewrite !length_map !length_seq /=. lia. }
+    rewrite !length_map !length_seq.
     suff: forall k, nth_error
       (flat_map encode_instruction (combine P (seq k (length P)))) (n + length Pl * 6) =
       nth_error (encode_instruction (mm2i, k + length Pl)) n.
@@ -406,7 +406,7 @@ Section MM2_CM1.
     elim: n. { done. }
     move=> n /= + ? => ->. { lia. }
     rewrite /M /= κ_pos.
-    rewrite nth_error_app1. { by rewrite map_length seq_length. }
+    rewrite nth_error_app1. { by rewrite length_map length_seq. }
     rewrite nth_error_map nth_error_seq /=. { done. }
     by rewrite κ_norm.
   Qed.
@@ -418,8 +418,8 @@ Section MM2_CM1.
     elim: n. { by rewrite Nat.sub_0_r Nat.add_0_r. }
     move=> n /= + ? => ->. { lia. }
     rewrite /M /= κ_pos.
-    rewrite nth_error_app2 map_length seq_length. { lia. }
-    rewrite nth_error_app1. { rewrite map_length seq_length. lia. }
+    rewrite nth_error_app2 length_map length_seq. { lia. }
+    rewrite nth_error_app1. { rewrite length_map length_seq. lia. }
     rewrite nth_error_map nth_error_seq /=. { lia. }
     rewrite κ_norm.
     have ->: a0 + b0 - n = S (a0 + b0 - n - 1) by lia.

@@ -115,7 +115,7 @@ Section Reduction.
     move=> s t X s' t' Y. rewrite /MN in_flat_map /encode_Instruction.
     move=> [[[[[? ?] ?] [[? ?] ?]] b]] [/length_preserving_MX [H1 H2]].
     case: b; (case; last (case; last done)).
-    all: move=> [] *; subst; move: H1 H2; rewrite /encode_Stack ?app_length ?map_length; by lia.
+    all: move=> [] *; subst; move: H1 H2; rewrite /encode_Stack ?length_app ?length_map; by lia.
   Qed.
 
   Lemma simulation_step_false {l r x l' r' y} : 
@@ -315,7 +315,7 @@ Section Reduction.
           constructor; first by eassumption.
           move=> /=. by firstorder done.
       }
-      rewrite ?app_length.
+      rewrite ?length_app.
       set f1 := (f in (flat_map f T1)). set f2 := (f in (flat_map f T2)).
       have /(legnth_flat_map (l := T1)): (forall a, length (f1 a) <= 2).
       { move=> [[? ?] ?]. rewrite /f1 /length. by lia. }  
@@ -343,7 +343,7 @@ Section Reduction.
         ((map (fun '(L, R, X) => (decode_Stack L, decode_Stack R, fst (decode_State X))) T)
         ++ (map (fun '(L, R, X) => (decode_Stack R, decode_Stack L, fst (decode_State X))) T)).
       constructor; first last.
-      { rewrite ?app_length ?map_length. move: (length T) H2T. by lia. }
+      { rewrite ?length_app ?length_map. move: (length T) H2T. by lia. }
       move=> [[l' r'] y] /simulation /=. rewrite ?in_app_iff ?in_map_iff.
       move=> [] _ [Hxy|Hxy].
       - left. exists (encode_Stack l', encode_Stack r', to_nat (y, false)).

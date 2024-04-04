@@ -316,7 +316,7 @@ Section lagrange_prelim_odd.
   Proof.
     destruct partition_intersection with (l := map f l) (m := map g l) (k := Zp_list Hp)
         as [ G | [ G | ] ]; auto.
-    * rewrite Zp_list_length, app_length, map_length, map_length.
+    * rewrite Zp_list_length, length_app, length_map, length_map.
       unfold l; rewrite list_an_length; lia.
     * intros ? _; apply Zp_list_spec.
     * apply list_has_dup_map_inv in G; auto.

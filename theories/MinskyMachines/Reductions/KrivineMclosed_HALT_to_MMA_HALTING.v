@@ -190,13 +190,13 @@ Proof.
   move Ew: (vec_change _ X 0) => w.
   elim: n v En w Ew.
   - move=> v En w <-.
-    apply: mma_step. rewrite /= nth_error_app2 map_length. { done. }
+    apply: mma_step. rewrite /= nth_error_app2 length_map. { done. }
     rewrite Nat.sub_diag /= En.
     apply: sss_compute_refl'. congr pair. { rewrite /MOVE_len. lia. }
     move: Ys HXYs => [|Y1 [|Y2 [|Y3 ?]]] /= *.
     all: rewrite !vec_change_same'; by [|lia].
   - move=> n IH v En w <-.
-    apply: mma_step. rewrite /= nth_error_app2 map_length. { done. }
+    apply: mma_step. rewrite /= nth_error_app2 length_map. { done. }
     rewrite Nat.sub_diag /= En.
     move: Ys HXYs IH => [|Y1 [|Y2 [|Y3 ?]]] /= HXYs IH; last done.
     + apply: IH.

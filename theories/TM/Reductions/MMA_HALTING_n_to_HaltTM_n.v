@@ -91,7 +91,7 @@ Lemma read_instr {p instr} : (p, [instr]) <sc (1, M) ->
 Proof.
   rewrite /toState. case: (le_lt_dec maxState p).
   { move=> ? [?] [?] [/(f_equal (@length _))].
-    rewrite app_length /=. by lia. }
+    rewrite length_app /=. by lia. }
   move=> Hp [l] [r] [HM H'p]. exists (length l).
   by rewrite Fin.to_nat_of_nat /= HM nth_error_app2 ?Nat.sub_diag.
 Qed.

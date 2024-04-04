@@ -163,7 +163,7 @@ Section Small_Step_Semantics.
       * right; intros (k1 & l1 & i1 & r1 & d1 & H3 & H4 & H5).
         inversion H3; subst.
         inversion H4; subst.
-        rewrite app_length in H2; simpl in H2; lia.
+        rewrite length_app in H2; simpl in H2; lia.
     + right; intros (k1 & l1 & i1 & r1 & d1 & H3 & H4 & H5).
       inversion H3; subst.
       inversion H4; subst.

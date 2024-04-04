@@ -129,10 +129,10 @@ Proof.
   { move=> > /reachable_0E => ?. by left. }
   move=> n IH l r x l' r' y /reachable_SnE [? | [Z] []]; first by left.
   move HX: (l, r, x) => X HXZ. case: HXZ HX.
-  move=> > /HM []. rewrite ?app_length. move=> ? ? [] ? ? ?. subst.
+  move=> > /HM []. rewrite ?length_app. move=> ? ? [] ? ? ?. subst.
   move /IH. case.
-  - move=> [] *. subst. rewrite ?app_length. right. by lia.
-  - rewrite ?app_length. move=> [] ? ?. right. by lia.
+  - move=> [] *. subst. rewrite ?length_app. right. by lia.
+  - rewrite ?length_app. move=> [] ? ?. right. by lia.
 Qed.
 
 Lemma next_configs M (X: Config) : exists L, (forall Y, step M X Y -> In Y L) /\ length L <= length M.
@@ -168,14 +168,14 @@ Proof.
       { exists []. constructor; [done | by move=> /=; lia]. }
       move=> X Xs [L [HL ?]]. have [LX [HLX ?]] := next_configs M X.
       exists (LX ++ L). constructor; first last.
-      - rewrite app_length /length -?/(length _). by lia.
+      - rewrite length_app /length -?/(length _). by lia.
       - move=> > /=. rewrite in_app_iff. move=> [<- /HLX ? | * ]; first by left.
         right. apply: HL; by eassumption. }
     have [L [HL ?]] := IH Ys. exists (Xs ++ L). constructor.
     { move=> X Y HX /reachable_SnE. case.
       - move=> <-. apply /in_app_iff. by left.
       - move=> [Z] [/HYs] /(_ HX) /HL => H /H ?. apply /in_app_iff. by right. }
-    rewrite app_length. 
+    rewrite length_app. 
     suff: length L <= (1 + length M) ^ S n * length Xs * (1 + n).
     { have := Nat.pow_nonzero (1 + length M) (S n) ltac:(lia). by nia. }
     rewrite /Nat.pow -/Nat.pow.
@@ -190,7 +190,7 @@ Proof.
   move=> bounded_M. elim: xs.
   { exists []. constructor; [done | by (move=> /=; lia) ]. }
   move=> x xs [Lxs [HLxs ?]]. have [Lx [HLx ?]] := bounded_M x.
-  exists (Lx ++ Lxs). constructor; last by (rewrite app_length /=; lia).
+  exists (Lx ++ Lxs). constructor; last by (rewrite length_app /=; lia).
   move=> ? ? /=. rewrite in_app_iff. case.
   - move=> <- /HLx *. by left.
   - move=> *. right. apply: HLxs; by eassumption.

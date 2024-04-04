@@ -48,7 +48,7 @@ Section MM2_MM2.
 
   Lemma length_M' : length M' = a0+b0+length M.
   Proof.
-    by rewrite /M' !app_length !repeat_length map_length Nat.add_assoc.
+    by rewrite /M' !length_app !repeat_length length_map Nat.add_assoc.
   Qed.
 
   Lemma init_a0 n : n <= a0 -> mm2'_reaches (1, (0, 0)) (1+n, (n, 0)).

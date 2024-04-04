@@ -69,7 +69,7 @@ Section fp_quotient.
       rewrite Forall_forall in G2, G3.
       set (T u v := ~ R x u /\ R u v).
       destruct (IHl m) with (R := T) as [ n cl rp Q1 Q2 Q3 ].
-      * apply Permutation_length in G1; rewrite app_length in G1.
+      * apply Permutation_length in G1; rewrite length_app in G1.
         simpl; lia.
       * intros u; unfold T; split.
         - rewrite Hl.

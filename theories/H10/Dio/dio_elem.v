@@ -391,7 +391,7 @@ Section diophantine_system.
   Proof.
     intros [ l1 r1 F0 F1 F2 F3 F4 ] [ l2 r2 G0 G1 G2 G3 G4 ] H12 ?; subst n.
     exists ((a2+n2,dee_comp (dio_op_swap o) r1 r2)::l1++l2) (a2+n2).
-    + simpl; rewrite app_length, F0, G0; lia.
+    + simpl; rewrite length_app, F0, G0; lia.
     + replace (a1+(1+a2+n2-a1)) with (1+a2+n2) by lia.
       intros x c [ Hc | Hc ].
       * subst; simpl; lia.
@@ -474,7 +474,7 @@ Section diophantine_system.
   Proof.
     intros [ l r F0 F1 F2 F3 F4 ] ?; subst m.
     exists (map (dc_dec (a+n)) l) r.
-    + rewrite map_length; auto.
+    + rewrite length_map; auto.
     + intros x c'; rewrite in_map_iff.
       intros (c & E & Hc) H; subst.
       apply dc_vars_dec in H.

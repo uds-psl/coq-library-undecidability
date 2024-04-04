@@ -77,7 +77,7 @@ Definition tmGenEncode (n : ident) (A : Type) : TemplateMonad (encodable A) :=
   n4 <- tmEval cbv (n ++ "_correct") ;;
   Core.tmBind (tmMatchCorrect A) (fun m' => tmLemma n4 m';;ret d).
 
-Arguments tmGenEncode _%bs _%type.
+Arguments tmGenEncode _%_bs _%_type.
 
 Definition tmGenEncodeInj (n : ident) (A : Type) : TemplateMonad unit :=
   d <- tmGenEncode n A;;
@@ -87,7 +87,7 @@ Definition tmGenEncodeInj (n : ident) (A : Type) : TemplateMonad unit :=
   d <- tmInstanceRed n3 None i;;
   ret tt.
 
-Arguments tmGenEncodeInj _%bs _%type.
+Arguments tmGenEncodeInj _%_bs _%_type.
 
 
 (*

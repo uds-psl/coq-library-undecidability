@@ -181,7 +181,7 @@ Definition P' : list (mm_instr (pos num_counters')) :=
 
 Lemma length_P' : length P' = 4 + length P.
 Proof.
-  rewrite /P' app_length map_length /=. lia.
+  rewrite /P' length_app length_map /=. lia.
 Qed.
 
 Lemma P'_mon : Forall (fun instr => if instr is DEC c _ then NonZero c else True) P'.
@@ -297,10 +297,10 @@ Proof.
   eexists 1, (map shift_instr l), (shift_instr instr), (map shift_instr r ++ _), _.
   split; [|split].
   - congr pair. by rewrite map_app /= -app_assoc.
-  - congr pair. rewrite map_length shift_addr_range //.
-    rewrite HP app_length /=. lia.
+  - congr pair. rewrite length_map shift_addr_range //.
+    rewrite HP length_app /=. lia.
   - apply: simulation_mma_sss Hinstr.
-    rewrite HP app_length /=. lia.
+    rewrite HP length_app /=. lia.
 Qed.
 
 Lemma shift_addr_outcode i :
@@ -343,12 +343,12 @@ Proof.
   exists (2+m*2+1). 
   econstructor.
   { eexists 1, _, _, _, _. split; [reflexivity|split].
-    - rewrite map_length. reflexivity.
+    - rewrite length_map. reflexivity.
     - by constructor. }
   econstructor.
   { eexists 1, (map shift_instr P ++ [INC F1']), _, _, _.
     rewrite -app_assoc. split; [reflexivity|split].
-    - rewrite app_length map_length /=. congr pair. lia.
+    - rewrite length_app length_map /=. congr pair. lia.
     - apply: in_mma_sss_dec_1'; [done..|].
       by rewrite !vec_app_eq !vec_pos_app_right !vec_change_app_right !vec_pos_app_right. }
   rewrite -/(Nat.add _ _).
@@ -358,20 +358,20 @@ Proof.
     econstructor; [|econstructor].
     eexists 1, (map shift_instr P ++ [_; _; _]), _, _, _.
     rewrite -app_assoc. split; [reflexivity|split].
-    - rewrite app_length map_length /=. congr pair. lia.
+    - rewrite length_app length_map /=. congr pair. lia.
     - apply: in_mma_sss_dec_0'; [done..|].
       by rewrite (vec_pos_app_right (n ## v)) vec_pos_app_right. }
   move=> m IH n.
   econstructor.
   { eexists 1, (map shift_instr P ++ [_; _; _]), _, _, _.
     rewrite -app_assoc. split; [reflexivity|split].
-    - rewrite app_length map_length /=. congr pair. lia.
+    - rewrite length_app length_map /=. congr pair. lia.
     - apply: in_mma_sss_dec_1'; [done..|].
       by rewrite (vec_pos_app_right (n ## v)) vec_pos_app_right. }
   econstructor.
   { eexists 1, (map shift_instr P ++ [_; _]), _, _, _.
     rewrite -app_assoc. split; [reflexivity|split].
-    - rewrite app_length map_length /=. congr pair. lia.
+    - rewrite length_app length_map /=. congr pair. lia.
     - by apply: in_mma_sss_inc'. }
   have := IH (S n). rewrite -(Nat.add_succ_comm n m).
   congr sss_steps. congr pair.

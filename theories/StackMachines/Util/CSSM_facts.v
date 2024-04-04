@@ -288,8 +288,8 @@ Proof.
   move=> H'XY. have := HL _ H'XY. move /(@in_split config) => [L1 [L2 ?]]. subst L.
   move: H'XY => /reachable_SnE. case.
   { move=> ->. by apply: rn_refl. }
-  move=> [Z [HXZ HZY]]. rewrite ?app_length /length -?/(length _).
-  have ->: (length L1 + S (length L2)) = 1 + length (L1 ++ L2) by rewrite app_length; lia.
+  move=> [Z [HXZ HZY]]. rewrite ?length_app /length -?/(length _).
+  have ->: (length L1 + S (length L2)) = 1 + length (L1 ++ L2) by rewrite length_app; lia.
   apply: rn_step; last by eassumption.
   apply: (IH n ltac:(lia)); last by eassumption.
   move=> Z' HXZ'. have HYZ' : Y <> Z' by move=> ?; subst.
@@ -440,7 +440,7 @@ Proof.
   move: (X in (seq X)) => i. move=> + Hfg. elim: l1 l2 i.
   {move=> /= *. by lia. }
   move=> l1 IH l2 i ?. have -> : (l2 = S (l2 - 1)) by lia.
-  move=> /=. rewrite ? app_length.
+  move=> /=. rewrite ? length_app.
   have := (IH (l2 - 1) (S i) ltac:(lia)).
   have := (Hfg i). by lia.
 Qed.
@@ -448,11 +448,11 @@ Qed.
 Lemma length_enum_stacks {l: nat} : length (enum_stacks l) = Nat.pow 2 l.
 Proof.
   elim: l; first done.
-  move=> l /=. rewrite app_length ? map_length. move=> ->. by lia.
+  move=> l /=. rewrite length_app ? length_map. move=> ->. by lia.
 Qed.
 
 Lemma length_enum_configs {lA lB} : length (enum_configs lA lB) = length (enum_stacks lA) * length (enum_stacks lB) * length (enum_states M).
-Proof. by rewrite /enum_configs ? prod_length. Qed.
+Proof. by rewrite /enum_configs ? length_prod. Qed.
 
 (* size of space is monotonous in configuration width *)
 Lemma space_length {X Y: config} : 
@@ -526,16 +526,16 @@ Proof using confluent_M.
     + apply: space_length => /=. rewrite repeat_length. by lia.
   - move: X IH => [[A B] x] IH. move=> [AX] [a] [HA HX]. move=> /= in HA. subst.
     case: (IH (AX, B, x)). 
-    { move=> /=. rewrite app_length /length. by lia. }
+    { move=> /=. rewrite length_app /length. by lia. }
     move=> L [HL1 HL2]. exists (map (fun '(A, B, x) => (A ++ [a], B, x)) L). 
-    constructor; last by rewrite map_length.
+    constructor; last by rewrite length_map.
     move=> [[A' y] B'] /HX [AY] /= [->] /HL1 ?. rewrite in_map_iff.
     eexists. by constructor; last by eassumption.
   - move: X IH => [[A B] x] IH. move=> [BX] [b] [HB HX]. move=> /= in HB. subst.
     case: (IH (A, BX, x)). 
-    { move=> /=. rewrite app_length /length. by lia. }
+    { move=> /=. rewrite length_app /length. by lia. }
     move=> L [HL1 HL2]. exists (map (fun '(A, B, x) => (A, B ++ [b], x)) L). 
-    constructor; last by rewrite map_length.
+    constructor; last by rewrite length_map.
     move=> [[A' y] B'] /HX [BY] /= [->] /HL1 ?. rewrite in_map_iff.
     eexists. by constructor; last by eassumption.
 Qed.
@@ -566,13 +566,13 @@ Proof using confluent_M.
   move=> /= [A''' [? Hx]]. subst A''. rename A''' into A''.
   move=> _ /[dup] [/remove_rendundant_suffixL]. case.
   { move=> [x' [B']]. move=> /[dup] [/reachable_width] /=. 
-    rewrite app_length => /= ?. move /Hn. 
+    rewrite length_app => /= ?. move /Hn. 
     move /(_ _ _ ltac:(apply: rt_refl)) => ?.
     move: Hx => /reachable_width + /reachable_width => /=.
-    rewrite ?app_length => /=. by lia. }
+    rewrite ?length_app => /=. by lia. }
   move=> [A''']. move=> [/(@app_inj_tail symbol) [? ?]]. subst.
   move=> ? _. apply: (IH A).
-  - rewrite app_length /length. by lia.
+  - rewrite length_app /length. by lia.
   - do 3 eexists. constructor; by eassumption.
 Qed.
 

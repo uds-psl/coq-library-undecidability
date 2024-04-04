@@ -103,8 +103,8 @@ Qed.
 Lemma fold_right_map_seq {f: nat -> poly_type} {x n} : x < n ->
   fold_right scons poly_var (map f (seq 0 n)) x = f x.
 Proof.
-  move=> ?. rewrite fold_right_length_ts_lt; first by rewrite map_length seq_length; lia.
-  rewrite (nth_indep _ _ (f 0)); first by rewrite map_length seq_length; lia.
+  move=> ?. rewrite fold_right_length_ts_lt; first by rewrite length_map length_seq; lia.
+  rewrite (nth_indep _ _ (f 0)); first by rewrite length_map length_seq; lia.
   rewrite map_nth seq_nth; by [|lia].
 Qed.
 

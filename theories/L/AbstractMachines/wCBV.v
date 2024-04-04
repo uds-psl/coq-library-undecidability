@@ -151,9 +151,9 @@ Proof.
   move=> Hts. elim: s n.
   - move=> x n /boundE ? /=.
     have [?|?] : x < n \/ n <= x by lia.
-    + rewrite app_nth1. { by rewrite map_length seq_length. }
+    + rewrite app_nth1. { by rewrite length_map length_seq. }
       by rewrite map_nth seq_nth; [|constructor].
-    + rewrite app_nth2 map_length seq_length; [done|].
+    + rewrite app_nth2 length_map length_seq; [done|].
       apply: (@bound_ge 0); [|lia].
       apply /closed_dcl.
       rewrite (nth_indep _ _ (lam (var 0))); [lia|].
@@ -168,7 +168,7 @@ Lemma eclosed_closed_flatten x : eclosed x -> closed (flatten x).
 Proof.
   elim /(induction_ltof1 _ eterm_size) : x.
   move=> [ctx s] /= IH [Hs] Hctx.
-  apply /closed_dcl. apply: bound_subst_many; [|by rewrite map_length].
+  apply /closed_dcl. apply: bound_subst_many; [|by rewrite length_map].
   rewrite map_map.
   apply /all_Forall /Forall_forall => y Hy. apply: IH.
   - rewrite /ltof /=.
@@ -239,7 +239,7 @@ Proof.
   - move=> {}x xs n {}vs {}y _ IH.
     move=> [/bound_var_S_iff] /[dup] /boundE Hxsn ? [? ?].
     rewrite flatten_var.
-    rewrite (nth_indep _ _ (var n)). { rewrite map_length. cbn. lia. }
+    rewrite (nth_indep _ _ (var n)). { rewrite length_map. cbn. lia. }
     by apply: IH.
   - move=> xs s t {}vs {}y _ IH.
     move=> [/boundE] [??] ??. by apply: IH; [|constructor].
@@ -265,7 +265,7 @@ Lemma flatten_closure_var_S x xs n :
 Proof.
   move=> ?.
   rewrite !flatten_var /=.
-  apply: nth_indep. by rewrite map_length.
+  apply: nth_indep. by rewrite length_map.
 Qed.
 
 Definition flatten_future v :=
@@ -286,7 +286,7 @@ Lemma flatten_closure_var_bound xs x : (if flatten (closure xs (var x)) is var _
 Proof.
   rewrite flatten_var.
   move=> H. suff: not (length xs <= x) by lia.
-  move=> ?. by rewrite nth_overflow in H; [rewrite map_length|].
+  move=> ?. by rewrite nth_overflow in H; [rewrite length_map|].
 Qed.
 
 Lemma flatten_eq_var_S {xs s x' x's x} :
@@ -456,7 +456,7 @@ Proof.
   - move=> x n /=. rewrite app_nil_r map_nth. congr var.
     have [?|?] : x < n \/ n <= x by lia.
     + by apply seq_nth.
-    + apply nth_overflow. by rewrite seq_length.
+    + apply nth_overflow. by rewrite length_seq.
   - by move=> /= ? + ? + ? => -> ->.
   - by move=> /= ? + ? => ->.
 Qed.
@@ -471,12 +471,12 @@ Proof.
   elim: s n.
   - move=> x n /=.
     have [?|[->|Hxn]] : x < n \/ x = n \/ (x - n = S (x - n - 1)) by lia.
-    + rewrite app_nth1. { by rewrite map_length seq_length. }
+    + rewrite app_nth1. { by rewrite length_map length_seq. }
       rewrite map_nth seq_nth. { done. }
       case E: (Nat.eqb _ _); move=> /Nat.eqb_spec in E; [lia|done].
-    + rewrite Nat.eqb_refl. by rewrite app_nth2 map_length seq_length ?Nat.sub_diag.
+    + rewrite Nat.eqb_refl. by rewrite app_nth2 length_map length_seq ?Nat.sub_diag.
     + case E: (Nat.eqb _ _); move=> /Nat.eqb_spec in E; [lia|].
-      rewrite app_nth2 map_length seq_length. { lia. }
+      rewrite app_nth2 length_map length_seq. { lia. }
       rewrite Hxn /=. by case: (x - n - 1).
   - by move=> ? + ? + ? /= => -> ->.
   - by move=> ? + ? /= => ->.

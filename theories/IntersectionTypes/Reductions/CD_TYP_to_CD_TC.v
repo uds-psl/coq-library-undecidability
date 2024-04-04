@@ -66,7 +66,7 @@ Proof.
   exists (fun M => (nil, app (lam (lam (var 0))) (Nat.iter (var_bound M) lam M), arr (atom 0) nil (atom 0))).
   move=> M. split.
   - move=> [Gamma] [t] /var_bound_spec' /abs_Gamma_spec [t'].
-    rewrite /= map_length seq_length=> ?. econstructor.
+    rewrite /= length_map length_seq=> ?. econstructor.
     + do 3 econstructor; first done. by left.
     + by eassumption.
     + by apply: Forall_nil.

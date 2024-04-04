@@ -101,7 +101,7 @@ Proof.
   elim: n Gamma P t ts.
   - move=> ? ? ? [|]; last done. move=> _ /=. congr typing. by rewrite subst_poly_type_poly_var.
   - move=> n IH Gamma P t. elim /rev_ind; first done.
-    move=> s ts'. rewrite app_length /many_poly_abs -iter_last -/(many_poly_abs _ _) /=.
+    move=> s ts'. rewrite length_app /many_poly_abs -iter_last -/(many_poly_abs _ _) /=.
     move=> ? ?. have /IH {}IH : length ts' = n by lia.
     move=> /IH {}IH. rewrite rev_unit many_ty_app_app /=.
     move: IH => /= => /typing_ty_app => /(_ s). congr typing.
