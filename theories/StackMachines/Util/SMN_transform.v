@@ -343,7 +343,7 @@ Section Reduction.
     have [ys [Hys H'ys]] := next_configs M' x.
     have [L [HL H'L]] := concat_reachable ys bounded_M.
     exists ([x] ++ L). constructor; first last.
-    { move: H'ys H'L. rewrite app_length /=. by nia. }
+    { move: H'ys H'L. rewrite length_app /=. by nia. }
     move=> ? /rt_rt1n Hxz. rewrite in_app_iff.
     case: Hxz Hys; first by (move=> *; left; left).
     move=> ? ? Hxy + Hys.
@@ -368,7 +368,7 @@ Section Reduction.
     case; last done. move=> [] *. subst. move=> /=. constructor; last done.
     have /length_preservingP := derivable. move /(_ length_preserving_M). 
     case; first by congruence.
-    rewrite ?app_length /=. by lia.
+    rewrite ?length_app /=. by lia.
   Qed.
 
   Lemma confluent_M' : confluent M'.
@@ -555,17 +555,17 @@ Proof.
     move: Hop. rewrite /M2 /DerivableRule.M' /= /weight_Instruction.
     case: (basic (a :: l, r, x, (l', r', y))); first by lia.
     move=> _. case: (basic (l, a :: r, z, (l', r', y))).
-    { rewrite /= ?app_length. by lia. }
-    rewrite /= ?app_length /= ?app_length. by lia.
+    { rewrite /= ?length_app. by lia. }
+    rewrite /= ?length_app /= ?length_app. by lia.
   - apply /DerivableRule.confluence; first by eassumption.
     apply /Reordering.confluence. rewrite /Reordering.M -HM2.
     apply /DerivableRule.confluence; first by eassumption.
     apply: AddFreshLoop.confluent_M'; [done | done | by apply: fresh_StateP' | by move=> /=; lia ].
   - apply /DerivableRule.length_preservation; 
-      [by eassumption | rewrite app_length /=; lia | ].
+      [by eassumption | rewrite length_app /=; lia | ].
     apply /Reordering.length_preservation. rewrite /Reordering.M -HM2.
     apply /DerivableRule.length_preservation;
-      [by eassumption | rewrite app_length /=; lia | ].
+      [by eassumption | rewrite length_app /=; lia | ].
     apply: AddFreshLoop.length_preserving_M'; [done | done | by apply: fresh_StateP' | by move=> /=; lia ].
   - rewrite (DerivableRule.boundedness (M21 ++ M22)); first by eassumption.
     rewrite -(Reordering.boundedness M21 M22).
@@ -611,8 +611,8 @@ Proof.
     move: Hop. rewrite /M2 /DerivableRule.M' /= /weight_Instruction.
     case: (basic ([], r, x, (a :: l', r', y))); first by lia.
     move=> _. case: (basic ([], r, x, (l', a :: r', z))).
-    { rewrite /= ?app_length. by lia. }
-    rewrite /= ?app_length /= ?app_length. by lia.
+    { rewrite /= ?length_app. by lia. }
+    rewrite /= ?length_app /= ?length_app. by lia.
   - apply /DerivableRule.confluence; first by eassumption.
     apply /Reordering.confluence. rewrite /Reordering.M -HM2.
     apply /DerivableRule.confluence; first by eassumption.
@@ -750,8 +750,8 @@ Proof.
     rewrite /M3 /DerivableRule.M' /= /weight_Instruction.
     case: (basic ([], a :: r, x, ([], b :: r', y))); first by lia.
     move=> _. case: (basic ([], r, z1, ([], r', z2))).
-    { rewrite /= ?app_length. by lia. }
-    rewrite /= ?app_length /= ?app_length. by lia.
+    { rewrite /= ?length_app. by lia. }
+    rewrite /= ?length_app /= ?length_app. by lia.
   - apply /DerivableRule.confluence; first by eassumption.
     apply /Reordering.confluence. rewrite /Reordering.M -HM3.
     apply /DerivableRule'.confluent_M'; [| by eassumption | done | done | done ].

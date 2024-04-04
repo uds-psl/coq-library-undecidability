@@ -235,7 +235,7 @@ Section ra_mm_comp.
           apply sss_steps_mm_pos_nat_inv with (v1 := vec_app v vec_zero) in G2.
           ++ destruct G2 as (v2 & G2 & G3); simpl in G3.
              eq goal G3; do 2 f_equal.
-             { rewrite HQ; unfold mm_pos_nat; rewrite map_length; auto. }
+             { rewrite HQ; unfold mm_pos_nat; rewrite length_map; auto. }
              apply vec_pos_ext, pos_left_right_rect.
              ** intros p; rewrite G2, vec_pos_app_left, G1; simpl.
                 rewrite pos2nat_left.

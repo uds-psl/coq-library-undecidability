@@ -206,10 +206,10 @@ End BasicLemmas.
 #[export] Hint Rewrite -> in_app_iff : listdb.
 #[export] Hint Rewrite <- app_comm_cons : listdb.
 #[export] Hint Rewrite app_nil_l app_nil_r : listdb.
-#[export] Hint Rewrite rev_seteq rev_involutive rev_length rev_app_distr : listdb.
+#[export] Hint Rewrite rev_seteq rev_involutive length_rev rev_app_distr : listdb.
 #[export] Hint Rewrite map_id map_rev map_nil map_cons map_app : listdb.
 #[export] Hint Resolve in_map : listdb.
-#[export] Hint Rewrite app_length map_length rev_length : listdb.
+#[export] Hint Rewrite length_app length_map length_rev : listdb.
 
 #[export] Hint Extern 4 => 
   match goal with

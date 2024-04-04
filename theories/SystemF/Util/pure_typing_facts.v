@@ -561,13 +561,13 @@ Lemma contains_many_poly_abs_closedI {n s σ} :
   contains (many_poly_abs n s) (subst_poly_type σ s).
 Proof.
   move=> Hns. pose ts := (map σ (seq 0 n)). 
-  have -> : n = length ts by rewrite /ts map_length seq_length.
+  have -> : n = length ts by rewrite /ts length_map length_seq.
   apply: contains_subst_poly_type_fold_rightE.
   have ->: subst_poly_type (fold_right scons poly_var ts) s = subst_poly_type σ s.
   {
     apply: ext_subst_poly_type_allfv_poly_type. apply: allfv_poly_type_impl Hns => x ?. 
-    rewrite /ts fold_right_length_ts_lt; first by (rewrite map_length seq_length; lia).
-    rewrite [nth _ _ (poly_var 0)](nth_indep _ _ (σ 0)); first by (rewrite map_length seq_length; lia).
+    rewrite /ts fold_right_length_ts_lt; first by (rewrite length_map length_seq; lia).
+    rewrite [nth _ _ (poly_var 0)](nth_indep _ _ (σ 0)); first by (rewrite length_map length_seq; lia).
     rewrite map_nth seq_nth; by [|lia].
   }
   by apply: rt_refl.

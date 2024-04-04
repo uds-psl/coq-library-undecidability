@@ -85,7 +85,7 @@ Section Construction.
     rewrite /P /=. congr S. have := PROG_length.
     elim: (num_states M) (PROG); first done.
     move=> n IH PROG' H. have ->: S n * c = n * c + c by lia.
-    rewrite /= app_length flat_map_concat_map map_map -flat_map_concat_map H.
+    rewrite /= length_app flat_map_concat_map map_map -flat_map_concat_map H.
     by rewrite IH; [|lia].
   Qed.
 
@@ -153,7 +153,7 @@ Section Construction.
     rewrite /= !flat_map_concat_map map_map -!flat_map_concat_map.
     move=> [l] [r] [{}IH {}IH']. exists (PROG' Fin.F1 ++ l), r. split.
     - by rewrite IH -app_assoc.
-    - move: (Fin.to_nat q) IH' => [? ?] /=. rewrite app_length H'. lia.
+    - move: (Fin.to_nat q) IH' => [? ?] /=. rewrite length_app H'. lia.
   Qed.
 
   Opaque P.

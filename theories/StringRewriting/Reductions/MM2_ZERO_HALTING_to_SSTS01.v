@@ -315,7 +315,7 @@ Lemma mm2_instr_at_state_bound {mm2i p} :
   mm2_instr_at mm2i p mm -> S p < state_bound /\ instr_state mm2i < state_bound.
 Proof.
   rewrite /state_bound.
-  move=> [?] [?] [-> <-]. rewrite !app_length !map_app !list_sum_app /=.
+  move=> [?] [?] [-> <-]. rewrite !length_app !map_app !list_sum_app /=.
   split; lia.
 Qed.
 
@@ -677,7 +677,7 @@ Proof.
   rewrite -?/([_] ++ [_] ++ v). move=> [+] [H1t H2t] => /eq2_app_app.
   have : length t > 1.
   { move: H1t => /(congr1 (@length _)).
-    rewrite ?map_app ?app_length ?map_length /=. move=> ->. by lia. }
+    rewrite ?map_app ?length_app ?length_map /=. move=> ->. by lia. }
   move=> Ht /(_ Ht) {Ht}.
   case; [|case; [|case; [|case]]].
   - move=> [u'2 ->]. left.

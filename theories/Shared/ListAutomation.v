@@ -73,7 +73,7 @@ Module ListAutomationHints.
   end : core.
 
 #[export] Hint Rewrite <- app_assoc : list.
-#[export] Hint Rewrite rev_app_distr map_app prod_length : list.
+#[export] Hint Rewrite rev_app_distr map_app length_prod : list.
 #[export] Hint Resolve in_eq in_nil in_cons in_or_app : core.
 #[export] Hint Resolve incl_refl incl_tl incl_cons incl_appl incl_appr incl_app incl_nil_l : core.
 #[export] Hint Resolve app_incl_l app_incl_R cons_incl incl_sing : core.

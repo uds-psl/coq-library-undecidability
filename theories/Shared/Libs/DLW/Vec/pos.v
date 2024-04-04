@@ -284,7 +284,7 @@ Qed.
 Fact pos_list_length n : length (pos_list n) = n.
 Proof.
   induction n; simpl; auto.
-  rewrite map_length; f_equal; auto.
+  rewrite length_map; f_equal; auto.
 Qed.
 
 Fact pos_list_NoDup n : NoDup (pos_list n).

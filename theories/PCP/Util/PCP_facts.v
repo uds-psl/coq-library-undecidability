@@ -304,7 +304,7 @@ Section pcp_hand_dec.
       apply IHP.
       intros l' m' (x & y & H & -> & ->).
       apply IH.
-      do 2 rewrite app_length.
+      do 2 rewrite length_app.
       destruct x; destruct y; simpl; try lia.
       destruct H as [ [] | [] ]; auto.
     Qed.

@@ -34,7 +34,7 @@ Qed.
 
 Lemma mm2_instr_at_bounds {P: list mm2_instr} {mmi: mm2_instr} {i: nat} : 
   mm2_instr_at mmi i P -> 0 < i /\ i <= length P.
-Proof. move=> [l] [r] [-> <-]. rewrite app_length /=. by lia. Qed.
+Proof. move=> [l] [r] [-> <-]. rewrite length_app /=. by lia. Qed.
 
 Lemma mm2_instr_at_pos {P: list mm2_instr} {mmi: mm2_instr} {i: nat} : mm2_instr_at mmi i P -> i = S (Nat.pred i).
 Proof. by move=> [?] [?] [_ <-] /=. Qed.

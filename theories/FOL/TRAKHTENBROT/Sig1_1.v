@@ -337,7 +337,7 @@ Section Σfull_mon_rem.
           replace (fo_term_sem M φ t) 
           with    (fo_term_sem M φ (fot_word_var (fot_word t) (fot_var t))).
           * revert HwA; generalize (fot_word t) (fot_var t); intros w i.
-            rewrite <- (rev_length w), <- Hf. 
+            rewrite <- (length_rev w), <- Hf. 
             simpl; generalize (rev w) (φ i); clear w; intros w.
             induction w as [ | s w IHw ]; simpl; auto; intros Hw x.
             - rewrite HM2'; tauto.

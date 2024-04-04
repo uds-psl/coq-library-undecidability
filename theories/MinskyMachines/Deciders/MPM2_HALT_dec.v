@@ -542,7 +542,7 @@ Proof.
     { move=> [p [a b]].
       move: H1L => /Forall_forall H1L /H1L ?.
       apply /in_prod; [|apply /in_prod]; apply /in_seq; lia. }
-    move=> /H2L. rewrite ?prod_length ?seq_length. lia. }
+    move=> /H2L. rewrite ?length_prod ?length_seq. lia. }
   move=> n IH L ? p a b ? ? H1L H2L.
   have [[|]|[[p' [a' b']] [Hp ?]]] := next_small_waypoint p a b; [tauto|tauto|].
   have := In_dec _ (p, (a, b)) L. case.

@@ -534,11 +534,11 @@ Proof.
   elim: s n ts.
   - move=> x n ts /=.
     have [?|?] : x < n \/ n <= x by lia.
-    + rewrite app_nth1. { by rewrite map_length seq_length. }
+    + rewrite app_nth1. { by rewrite length_map length_seq. }
       rewrite app_nth1. { by rewrite repeat_length. }
       rewrite map_nth (@nth_indep _ _ x (var x) (var 0)). { by rewrite repeat_length. }
       by rewrite nth_repeat seq_nth.
-    + rewrite app_nth2 map_length seq_length. { done. }
+    + rewrite app_nth2 length_map length_seq. { done. }
       by rewrite app_nth2 repeat_length.
   - by move=> ? _ ? + ?? /= => ->.
   - move=> s IH n ts /=.
@@ -945,7 +945,7 @@ Lemma INIT_INPUT_len_spec {offset} : length (INIT_INPUT offset) = INIT_INPUT_len
 Proof.
   rewrite /INIT_INPUT /INIT_INPUT_codes (length_compose (lengths := repeat PACK_len k0)).
   - apply: Forall2_repeat.
-    + by rewrite !map_length rev_length pos_list_length.
+    + by rewrite !length_map length_rev pos_list_length.
     + apply /Forall_map /Forall_map /Forall_map /Forall_forall => *.
       by apply: PACK_len_spec.
   - by rewrite list_sum_repeat.
@@ -981,7 +981,7 @@ Proof.
     move=> /(_ _ offset nil w v) /[apply]. move=> /(_ (rev (pos_list k0))).
     apply: unnest. { apply: NoDup_rev. by apply: pos_list_NoDup. }
     congr sss_compute. congr pair.
-    - rewrite /INIT_INPUT_len rev_length pos_list_length. lia.
+    - rewrite /INIT_INPUT_len length_rev pos_list_length. lia.
     - rewrite ?vec_simpl in Hv.
       congr Vector.append.
       + rewrite fold_left_vec_zero_eq //.
@@ -1038,7 +1038,7 @@ Proof.
   move=> j IH m {}offset {}v ? Hv.
   have EmSj : m - S j = length (compose (firstn (m - S j) (repeat (INC U) m)) offset).
   { rewrite (length_compose (lengths := repeat INC_len (m - S j))).
-  - apply: Forall2_repeat. { rewrite firstn_length repeat_length. lia. }
+  - apply: Forall2_repeat. { rewrite length_firstn repeat_length. lia. }
     rewrite firstn_repeat. by apply /Forall_forall => ? /repeat_spec ->.
   - by rewrite list_sum_repeat /INC_len Nat.mul_1_r. }
   rewrite EmSj. apply: (compose_sss_compute_trans).
