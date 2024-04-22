@@ -334,7 +334,7 @@ Qed.
 
 Lemma closed_colon {s} : closed s -> forall sigma, subst sigma (colon s (lam (var 0))) = colon s (lam (var 0)).
 Proof.
-  move=> Hs sigma. rewrite subst_closed; last done.
+  move=> Hs sigma. rewrite subst_L_closed; last done.
   by apply /closed_dcl /bound_colon; apply /closed_dcl.
 Qed.
 
