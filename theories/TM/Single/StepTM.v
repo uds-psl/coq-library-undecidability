@@ -384,7 +384,7 @@ Section ToSingleTape.
   Notation nMax := (finMax' n).
   Local Arguments finMax' : simpl never.
 
-  Notation sigSim := (FinType(EqType(boundary + sigList (sigTape sig)))).
+  Definition sigSim := (FinType(EqType(boundary + sigList (sigTape sig)))).
 
   Implicit Types (T : tapes sig n).
 
