@@ -552,6 +552,7 @@ Fixpoint extract (env : nat -> nat) (s : Ast.term) (fuel : nat) : TemplateMonad 
   | tCoFix _ _ =>  tmFail "tCoFix is not supported"
   | tInt _ =>  tmFail "tInt is not supported"
   | tFloat _ =>  tmFail "tFloat is not supported"
+  | tString _ =>  tmFail "tString is not supported"
   | tArray _ _ _ _ =>  tmFail "tArray is not supported"
    end end.
 
