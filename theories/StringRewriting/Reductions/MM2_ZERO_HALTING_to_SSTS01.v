@@ -603,7 +603,7 @@ Proof.
   elim: u s.
   - move=> [|y1 [|y2 s]].
     + rewrite ?app_nil_l. move=> <-. right. right. by exists [].
-    + move=> [] <- <- /=. right. by left.
+    + move=> []. rewrite [in [] ++ _]/List.app => <- <- /=. right. by left.
     + move=> [] <- <- ->. left. by exists s.
   - move=> x1 u IH [|y1 s].
     + rewrite ?app_nil_l. move=> <-. right. right. by exists (x1 :: u).
@@ -707,7 +707,7 @@ Proof.
         ** rewrite app_nil_r /= ?map_app. move: (a) => [|?]; first done.
            move=> Hi [] H1 [<-] H2.
            move=> y [?] [/(mm2_instr_at_unique Hi) <-] Hxy.
-           inversion Hxy. subst.
+           inversion Hxy. subst. try rewrite [in LHS]/List.app in H1.
            eexists (u' ++ [sz]), v', (_ :: _).
            rewrite -?app_assoc. constructor; [done | by rewrite /= ?map_app H1 H2].
         ** rewrite ?map_app filter_app /= app_nil_r /step.
