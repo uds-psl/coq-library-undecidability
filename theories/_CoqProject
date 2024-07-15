@@ -836,4 +836,11 @@ IntersectionTypes/Reductions/CD_TYP_to_CD_TC.v
 IntersectionTypes/Reductions/SSTS01_to_CD_INH.v
 IntersectionTypes/Reductions/SNclosed_to_CD_TYP.v
 
+LambdaCalculus/HOMatching.v
+LambdaCalculus/HOMatching_undec.v
+LambdaCalculus/Util/facts.v
+LambdaCalculus/Util/stlc_facts.v
+LambdaCalculus/Util/confluence.v
+LambdaCalculus/Reductions/SSTS01_to_HOMbeta.v
+
 Synthetic/Models_Equivalent.v
