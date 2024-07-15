@@ -606,10 +606,10 @@ Section fo_model_simulation.
   Infix "⋈" := R (at level 70, no associativity).
   
   Notation "⟦ t ⟧" := (fun φ => fo_term_sem M φ t).
-  Notation "⟦ t ⟧'" := (fun φ => fo_term_sem N φ t) (at level 1, format "⟦ t ⟧'").
+  Notation "⟦ t ⟧'" := (fun φ => fo_term_sem N φ t) (at level 0, format "⟦ t ⟧'").
 
   Notation "⟪ A ⟫" := (fun φ => fol_sem M φ A).
-  Notation "⟪ A ⟫'" := (fun φ => fol_sem N φ A) (at level 1, format "⟪ A ⟫'").
+  Notation "⟪ A ⟫'" := (fun φ => fol_sem N φ A) (at level 0, format "⟪ A ⟫'").
 
   (* The simulation lifts from variables to terms *)
 

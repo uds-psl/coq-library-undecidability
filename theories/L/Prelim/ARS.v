@@ -106,7 +106,8 @@ Section FixX.
   Lemma ecl_sym R :
     symmetric (ecl R).
   Proof.
-    induction 1; eauto using ecl, (@ecl_trans R).
+    pose proof (@ecl_trans R).
+    induction 1; eauto using ecl.
   Qed.
 
   Lemma star_ecl R :
@@ -164,7 +165,9 @@ Section FixX.
       + exists y. eauto using star.
                + destruct (A _ _ _ D B) as [v [E F]].
                  destruct (IH _ E) as [u [G H]].
-                 exists u. eauto using (@star_trans R).
+                 exists u.
+                 pose proof (@star_trans R).
+                 eauto.
                - apply (A x y z); eauto using star.
   Qed.
 
@@ -179,14 +182,16 @@ Section FixX.
   Proof.
     split; intros A.
     - intros x y z B C. apply A.
-      eauto using (@ecl_trans R), star_ecl, (@ecl_sym R).
+      pose proof (@ecl_trans R).
+      pose proof (@ecl_sym R).
+      eauto using star_ecl.
     - intros x y B. apply semi_confluent_confluent in A.
       induction B as [x|x x' y C B IH|x x' y C B IH].
       + exists x. eauto using star.
                + destruct IH as [z [D E]]. exists z. eauto using star.
                + destruct IH as [u [D E]].
                  destruct (A _ _ _ C D) as [z [F G]].
-                 exists z. eauto using (@star_trans R).
+                 exists z. pose proof (@star_trans R). eauto.
   Qed.
 
 
