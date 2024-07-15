@@ -85,14 +85,21 @@ Section Construction.
   Lemma In_srsI u v : In (u, v) srs -> In_srs u v.
   Proof.
     move=> /in_flat_map [[q a]] [_] /=.
+    have ? := In_srs_l2 _ true.
+    have ? := In_srs_l2 _ false.
+    have ? := In_srs_r2 _ true.
+    have ? := In_srs_r2 _ false.
+    have ? := In_srs_dl _ true.
+    have ? := In_srs_dl _ false.
+    have ? := In_srs_dr _ true.
+    have ? := In_srs_dr _ false.
     case E: (trans' M (q, a)) => [[[q' a'] []]|] /=.
     - move=> [|[|[|[]]]] => - [<- <-].
-      all: by auto using In_srs_l1, (In_srs_l2 _ true), (In_srs_l2 _ false).
+      all: by auto using In_srs_l1.
     - move=> [|[|[|[]]]] => - [<- <-].
-      all: by auto using In_srs_r1, (In_srs_r2 _ true), (In_srs_r2 _ false).
+      all: by auto using In_srs_r1.
     - move=> [|[|[|[|[|[]]]]]] => - [<- <-].
-      all: by auto using In_srs_f, (In_srs_dl _ true), (In_srs_dl _ false),
-        (In_srs_dr _ true), (In_srs_dr _ false).
+      all: by auto using In_srs_f.
   Qed.
 
   (* step simulation *)
