@@ -53,7 +53,7 @@ Section Sig_n_Sig.
     Defined.
 
     Notation "⟪ A ⟫" := (fun ψ => fol_sem M ψ A).
-    Notation "⟪ A ⟫'" := (fun φ => fol_sem M_enc_n φ A) (at level 1, format "⟪ A ⟫'").
+    Notation "⟪ A ⟫'" := (fun φ => fol_sem M_enc_n φ A) (at level 0, format "⟪ A ⟫'").
 
     Local Fact enc_correct_1 A φ : ⟪ A ⟫' φ <-> ⟪ enc A ⟫ φ.
     Proof.
@@ -96,7 +96,7 @@ Section Sig_n_Sig.
     Defined. 
 
     Notation "⟪ A ⟫" := (fun ψ => fol_sem Mn_enc ψ A).
-    Notation "⟪ A ⟫'" := (fun φ => fol_sem Mn φ A) (at level 1, format "⟪ A ⟫'").
+    Notation "⟪ A ⟫'" := (fun φ => fol_sem Mn φ A) (at level 0, format "⟪ A ⟫'").
 
     Local Fact enc_correct_2 A φ : ⟪ A ⟫' φ <-> ⟪ enc A ⟫ φ.
     Proof.

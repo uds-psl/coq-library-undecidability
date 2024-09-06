@@ -30,7 +30,7 @@ Set Implicit Arguments.
 
 (* * From several relations to one, arity incremented by 1 *)
 
-Local Reserved Notation "⟪ A ⟫'" (at level 1, format "⟪ A ⟫'").
+Local Reserved Notation "⟪ A ⟫'" (at level 0, format "⟪ A ⟫'").
 
 Local Notation ø := vec_nil.
 
