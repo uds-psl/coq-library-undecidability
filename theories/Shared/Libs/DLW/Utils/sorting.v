@@ -387,7 +387,7 @@ End sum_bounded_permutation.
 
 Section sum_bijection.
 
-  Inductive bijection n g h : Type :=
+  Inductive bijection n g h : Prop :=
     | in_bij : (forall i, i < n -> g i < n)
             -> (forall i, i < n -> h i < n) 
             -> (forall i, i < n -> g (h i) = i)

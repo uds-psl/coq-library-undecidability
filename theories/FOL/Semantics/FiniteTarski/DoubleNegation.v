@@ -8,6 +8,8 @@ From Coq Require Import Arith Lia List.
 From Undecidability.Shared.Libs.DLW.Wf Require Import wf_finite.
 From Undecidability.Synthetic Require Import Definitions.
 
+Unset Automatic Proposition Inductives.
+
 Set Default Goal Selector "!".
 Set Mangle Names.
 Inductive syms_func : Type := .

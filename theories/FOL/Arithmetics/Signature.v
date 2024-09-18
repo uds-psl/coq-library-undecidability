@@ -6,6 +6,8 @@ From Undecidability.Synthetic Require Import EnumerabilityFacts ListEnumerabilit
 Import Vector.VectorNotations.
 Require Import List.
 
+Unset Automatic Proposition Inductives.
+
 (* ** Signature for PA axiomatisation, containing function symbols for set operations *)
 
 #[global]

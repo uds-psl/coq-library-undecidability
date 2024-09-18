@@ -8,7 +8,7 @@ Import ListAutomationNotations.
 Import Coq.Vectors.Vector.
 Local Notation vec := t.
 
-
+Unset Automatic Proposition Inductives.
 
 Inductive peirce := class | intu.
 Existing Class peirce.

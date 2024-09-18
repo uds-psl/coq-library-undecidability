@@ -4,6 +4,7 @@ Require Import Undecidability.SOL.SOL.
 Require Import Vector.
 Import VectorNotations SOLNotations.
 
+Unset Automatic Proposition Inductives.
 
 (* ** Signature of PA2 *)
 
