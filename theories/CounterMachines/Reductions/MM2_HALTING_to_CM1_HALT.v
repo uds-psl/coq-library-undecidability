@@ -16,7 +16,7 @@ Import ListNotations.
 
 Require Import Undecidability.MinskyMachines.MM2.
 Require Undecidability.CounterMachines.CM1.
-Require Undecidability.Shared.deterministic_simulation.
+Require Undecidability.Shared.simulation.
 Require Import Undecidability.CounterMachines.Util.CM1_facts.
 Require Import Undecidability.MinskyMachines.Util.MM2_facts.
 
@@ -359,7 +359,7 @@ Section MM2_CM1.
 
   Lemma MM2_HALTING_iff_terminates {a b} :
     MM2_HALTING (P, a, b) <->
-      deterministic_simulation.terminates (mm2_step P) (1, (a, b)).
+      simulation.terminates (mm2_step P) (1, (a, b)).
   Proof. done. Qed.
 
   Notation cm1_step := (fun x y => CM1.step M x = y /\ x <> y).
@@ -375,18 +375,18 @@ Section MM2_CM1.
     - by apply: rt_step.
   Qed.
 
-  Lemma cm1_halting_stuck x : CM1.halting M x -> deterministic_simulation.stuck cm1_step x.
+  Lemma cm1_halting_stuck x : CM1.halting M x -> simulation.stuck cm1_step x.
   Proof.
     rewrite /CM1.halting. move=> Hx y [Hxy H'xy]. congruence.
   Qed. 
 
   Lemma CM1_halting_iff_terminates {x} :
     (exists n, CM1.halting M (Nat.iter n (CM1.step M) x)) <->
-    deterministic_simulation.terminates cm1_step x.
+    simulation.terminates cm1_step x.
   Proof.
     split.
     - move=> [n].
-      have /(@deterministic_simulation.terminates_extend CM1.Config) := cm1_steps n x.
+      have /(@simulation.terminates_extend CM1.Config) := cm1_steps n x.
       move: (Nat.iter n (CM1.step M) x) => y H Hy. apply: H.
       exists y. by split; [apply: rt_refl|apply: cm1_halting_stuck].
     - move=> [y] [].
@@ -443,13 +443,13 @@ Section MM2_CM1.
     rewrite /CM1.CM1_HALT.
     apply /(terminating_reaches_iff init_M).
     apply /CM1_halting_iff_terminates.
-    move: H. apply: deterministic_simulation.terminates_transport.
+    move: H. apply: simulation.terminates_transport.
     - exact: P_to_M_step.
-    - rewrite /deterministic_simulation.stuck.
+    - rewrite /simulation.stuck.
       move=> x x' Hx Hxx'.
-      rewrite /deterministic_simulation.terminates.
+      rewrite /simulation.terminates.
       exists x'. split; [by apply: rt_refl|].
-      rewrite /deterministic_simulation.stuck.
+      rewrite /simulation.stuck.
       move=> y' [Hx'y' H'x'y'].
       move: Hx => /mm2_stop_index_iff.
       subst y'.
@@ -470,8 +470,8 @@ Section MM2_CM1.
   Proof.
     move=> /(terminating_reaches_iff init_M) /CM1_halting_iff_terminates H.
     apply /MM2_HALTING_iff_terminates.
-    move: H. apply: deterministic_simulation.terminates_reflection.
-    - by move=> > [<- _] [<- _].
+    move: H. apply: simulation.terminates_reflection.
+    - move=> > [<- _] [<- _]. by left.
     - exact: P_to_M_step.
     - by apply: mm2_exists_step_dec.
     - by split; [|exists 0].

@@ -20,7 +20,7 @@ Definition rcomp X Y Z (R : X -> Y -> Prop) (S : Y -> Z -> Prop)
 
 (* Power predicates *)
 
-Require Import Arith.
+Require Import Arith Relations.
 Definition pow X R n : X -> X -> Prop := it (rcomp R) n eq.
 
 Definition functional {X Y} (R: X -> Y -> Prop) := forall x y1 y2, R x y1 -> R x y2 -> y1 = y2.
@@ -88,6 +88,13 @@ Section FixX.
     pow R n x y -> star R x y.
   Proof.
     intros A. erewrite star_pow. eauto.
+  Qed.
+
+  Lemma star_clos_rt_iff R x y : star R x y <-> clos_refl_trans _ R x y.
+  Proof.
+    split.
+    - intros H; induction H; eauto using clos_refl_trans.
+    - intros H%clos_rt_rt1n_iff. induction H; eauto using star.
   Qed.
 
   (* Equivalence closure *)

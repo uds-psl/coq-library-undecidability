@@ -16,8 +16,8 @@ Require Import List PeanoNat Lia Relations.Relation_Operators Relations.Operator
 Require Import Undecidability.MinskyMachines.MM2.
 Require Import Undecidability.MinskyMachines.Util.MM2_facts.
 
-Require Undecidability.Shared.deterministic_simulation.
-Module sim := deterministic_simulation.
+Require Undecidability.Shared.simulation.
+Module sim := simulation.
 
 Require Import ssreflect ssrbool ssrfun.
 
@@ -134,7 +134,7 @@ Section MM2_MM2.
     have Hx'y' : mm2'_reaches (shift_state (1, (a0, b0))) y'.
     { have [z [/mm2_steps_stop_refl Hyz Hinitz]] := mm2_steps_confluent Hxy' Hinit.
       by rewrite -(Hyz Hy'). }
-    have Hsim := sim.terminates_reflection (@mm2_step_det M') mm2_step_sim' (mm2_exists_step_dec M).
+    have Hsim := sim.terminates_reflection (sim.deterministic_uniformly_confluent _ (@mm2_step_det M')) mm2_step_sim' (mm2_exists_step_dec M).
     apply: (Hsim _ _ erefl).
     by exists y'.
   Qed.

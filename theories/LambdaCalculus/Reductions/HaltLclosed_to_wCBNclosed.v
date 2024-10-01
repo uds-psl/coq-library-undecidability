@@ -341,21 +341,19 @@ Qed.
 End Argument.
 
 Require Import Undecidability.Synthetic.Definitions.
-Require Undecidability.L.Reductions.HaltL_to_HaltLclosed.
-Import HaltL_to_HaltLclosed (HaltLclosed).
 
 #[local] Unset Asymmetric Patterns.
 
 (* reduction from L halting to weak call-by-name leftmost outermost normalization *)
-(* note: currently HaltLclosed is defined in HaltL_to_HaltLclosed *)
 Theorem reduction : HaltLclosed ⪯ wCBNclosed.
 Proof.
   exists (fun '(exist _ s Hs) => exist _ (Argument.colon s (lam (var 0))) (Argument.closed_colon Hs)).
   move=> [s Hs]. split.
-  - move=> [t] /= /[dup] [[_ []]] t' ->.
-    move=> /eval_iff /= /Argument.simulation.
+  - move=> [t] /= /[dup] /eval_iff [_ []] t' ->.
+    move=> /= /Argument.simulation.
     move=> /(_ Hs (lam (var 0))) ?. exists (Argument.cbv_cbn t').
     apply: rt_trans; first by eassumption.
     apply: rt_step. by apply: wCBN_stepSubst.
-  - move=> [t] /Argument.inverse_simulation. by apply.
+  - move=> [t] /Argument.inverse_simulation /(_ Hs) [{}t] /eval_iff ?.
+    by exists t.
 Qed.
