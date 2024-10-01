@@ -415,7 +415,7 @@ Require Import Undecidability.L.Reductions.MuRec.MuRec_extract.
 Definition evalfun fuel c v := match eval fuel 0 c v with Some (inl x) => Some x | _ => None end.
 
 From Undecidability Require Import MuRec_computable LVector.
-From Undecidability.L.Util Require Import NaryApp ClosedLAdmissible.
+From Undecidability.L.Util Require Import NaryApp.
 
 Import L_Notations.
 
@@ -442,6 +442,12 @@ Lemma vector_closed:
 Proof.
   intros k v.
   induction v; cbn; intros ? Hi. 1: inversion Hi. inv Hi. 1:Lproc. eapply IHv. eapply Eqdep_dec.inj_pair2_eq_dec in H2. 1:subst; eauto. eapply nat_eq_dec.
+Qed.
+
+Lemma equiv_R (s t t' : term):
+  t == t' -> s t == s t'.
+Proof.
+  now intros ->.
 Qed.
 
 Lemma cont_vec_correct k s (v : Vector.t nat k) :
@@ -557,6 +563,13 @@ Proof.
   now eapply erase_correct in H.
 Qed.
 
+Lemma many_app_eq_nat {k} (v : Vector.t nat k) s :  many_app s (Vector.map enc v) = Vector.fold_left (fun (s : term) n => s (nat_enc n)) s v.
+Proof.
+   induction v in s |- *.
+   * cbn. reflexivity.
+   * cbn. now rewrite IHv.
+Qed.
+
 Theorem computable_MuRec_to_L {k} (R : Vector.t nat k -> nat -> Prop) :
   MuRec_computable R -> L_computable R.
 Proof.
@@ -564,13 +577,13 @@ Proof.
   exists (cont_vec k (lam (mu_option (lam (ext evalfun 0 (enc (erase f)) 1))))).
   intros v. rewrite <- many_app_eq_nat. split.
   - intros m. rewrite L_facts.eval_iff.
-    assert (lambda (encNatL m)) as [b Hb]. { change  (lambda (enc m)). Lproc. }
+    assert (lambda (nat_enc m)) as [b Hb]. { change  (lambda (enc m)). Lproc. }
     rewrite Hb. rewrite eproc_equiv. rewrite cont_vec_correct. 2: unfold mu_option; Lproc.
     assert (lam (mu_option (lam (ext evalfun 0 (enc (erase f)) 1))) (enc v) ==
           mu_option (lam (ext evalfun 0 (enc (erase f)) (enc v)))).
     {  unfold mu_option. now Lsimpl. }
     rewrite H. rewrite <- Hb.
-    change (encNatL m) with (enc m).
+    change (nat_enc m) with (enc m).
     rewrite mu_option_spec. 2:Lproc.
     2:{ intros []; cbv; congruence. }
     2:{ intros. eexists. rewrite !enc_vector_eq. Lsimpl. reflexivity. }

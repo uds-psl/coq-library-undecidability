@@ -15,7 +15,7 @@
 Require Undecidability.L.L.
 From Undecidability.LambdaCalculus Require Import Krivine Lambda Util.Krivine_facts.
 Require Import Undecidability.LambdaCalculus.Util.term_facts.
-Require Import Undecidability.Shared.deterministic_simulation.
+Require Import Undecidability.Shared.simulation.
 Require Import Relations List.
 
 Import L (term, var, app, lam).
@@ -91,6 +91,11 @@ Qed.
 Lemma step'_det M N N' : step' M N -> step' M N' -> N = N'.
 Proof.
   move=> /step'_step_det H /step'_step. by apply: H.
+Qed.
+
+Lemma step'_uc : uniformly_confluent step'.
+Proof.
+  move=> ??? /step'_det /[apply] <-. by left.
 Qed.
 
 #[local] Notation I := (lam (var 0)).
@@ -473,7 +478,7 @@ Proof.
   move=> [t Ht] /=. split.
   - move=> ?. apply: step'_step_SN. by apply: halt_cbn_rt_step'.
   - move=> /SN_terminates_step'.
-    move=> /(terminates_reflection step'_det Krivine_step_steps' Krivine_step_dec (sync_intro _ _ _)).
+    move=> /(terminates_reflection step'_uc Krivine_step_steps' Krivine_step_dec (sync_intro _ _ _)).
     move=> [[[ts' ctx'] t']] [].
     move=> /Krivine_step_halt_cbn'. apply; [by constructor|].
     split; [|done].

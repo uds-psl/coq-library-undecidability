@@ -151,10 +151,7 @@ Shared/Libs/PSL/FiniteTypes/CompoundFinTypes.v
 Shared/Libs/PSL/FiniteTypes/DepPairs.v
 Shared/Libs/PSL/FiniteTypes/VectorFin.v
 
-Shared/deterministic_simulation.v
-
-L/Util/NaryApp.v
-L/Util/ClosedLAdmissible.v
+Shared/simulation.v
 
 PCP/Util/Facts.v
 PCP/Util/PCP_facts.v
@@ -330,6 +327,7 @@ MinskyMachines/ndMM2_undec.v
 MinskyMachines/Util/MM_sss.v
 MinskyMachines/Util/MM_computable.v
 MinskyMachines/Util/MM2_facts.v
+MinskyMachines/Util/MMA_facts.v
 MinskyMachines/Util/MMA_pairing.v
 MinskyMachines/Util/MMA_computable.v
 
@@ -351,8 +349,8 @@ MinskyMachines/Reductions/SBTM_to_MMA2_HALTING.v
 MinskyMachines/Reductions/BSM_computable_to_MM_computable.v
 MinskyMachines/Reductions/MM2_HALTING_to_MM2_ZERO_HALTING.v
 MinskyMachines/Reductions/L_computable_closed_to_MMA_computable.v
-MinskyMachines/Reductions/L_computable_to_MMA_computable.v
 MinskyMachines/Reductions/MMA_computable_to_MMA_mon_computable.v
+MinskyMachines/Reductions/MM_computable_to_MMA_computable.v
 
 MinskyMachines/Deciders/MPM2_HALT_dec.v
 MinskyMachines/Deciders/MM_2_HALTING_dec.v
@@ -500,8 +498,7 @@ TM/Code/Code.v
 
 TM/Single/EncodeTapes.v
 TM/Single/StepTM.v
-TM/Reductions/HaltL_to_HaltTM_5.v
-TM/Reductions/L_computable_to_TM_computable.v
+TM/Reductions/HaltLclosed_to_HaltTM_5.v
 TM/Reductions/MMA_mon_computable_to_TM_computable.v
 TM/Reductions/MMA_computable_to_TM_computable.v
 
@@ -521,14 +518,27 @@ L/Enumerators/term_enum.v
 L/Prelim/ARS.v
 
 L/Util/L_facts.v
+L/Util/term_facts.v
+
+L/Util/NaryApp.v
+L/Util/ClosedLAdmissible.v
+
+L/Reductions/MuRec_computable_to_L_computable.v
+L/Reductions/MMA_HALTING_to_HaltLclosed.v
+L/Reductions/MMA_computable_to_L_computable_closed.v
+
+L/Computability/Seval.v
+L/AbstractMachines/wCBV.v
+
+L/Enumerators/HaltL_enum.v
+L/L_enum.v
+
+#extraction framework
 
 L/Tactics/Computable.v
-
 L/Tactics/LTactics.v
-
 L/Tactics/Extract.v
 L/Tactics/GenEncode.v
-
 L/Tactics/Lbeta_nonrefl.v
 L/Tactics/Lproc.v
 L/Tactics/Lbeta.v
@@ -536,7 +546,6 @@ L/Tactics/Reflection.v
 L/Tactics/LClos.v
 L/Tactics/Lrewrite.v
 L/Tactics/Lsimpl.v
-
 L/Tactics/ComputableTactics.v
 
 L/Datatypes/LUnit.v
@@ -571,12 +580,9 @@ L/TM/TMinL/TMinL_extract.v
 L/TM/TapeFuns.v
 L/Reductions/TM_to_L.v
 L/Reductions/H10_to_L.v
+L/Reductions/PCPb_to_HaltL.v
 L/Reductions/MuRec/MuRec_extract.v
 L/Reductions/HaltMuRec_to_HaltL.v
-L/Reductions/HaltL_to_HaltLclosed.v
-L/Reductions/MuRec_computable_to_L_computable.v
-
-L/AbstractMachines/wCBV.v
 
 L/Computability/Acceptability.v
 L/Computability/Computability.v
@@ -584,13 +590,9 @@ L/Computability/Decidability.v
 L/Computability/Fixpoints.v
 L/Computability/MuRec.v
 L/Computability/Por.v
-L/Computability/Seval.v
 L/Computability/Synthetic.v
 L/Computability/Scott.v
 L/Computability/Rice.v
-
-L/Enumerators/HaltL_enum.v
-L/L_enum.v
 
 HOU/std/tactics.v
 HOU/std/misc.v
@@ -820,7 +822,6 @@ LambdaCalculus/Reductions/KrivineMclosed_HALT_to_SNclosed.v
 
 H10/Reductions/FRACTRAN_computable_to_Diophantine.v
 H10/Util/Diophantine.v
-L/Reductions/PCPb_to_HaltL.v
 
 TM/KOSBTM/HaltKOSBTM_to_HaltBSM.v
 TM/KOSBTM/HaltTM_1_to_HaltKOSBTM.v

@@ -3,7 +3,7 @@
     step1 : X -> X -> Prop
     step2 : Y -> Y -> Prop
   such that
-  - step2 is deterministic (step2_det)
+  - step2 is uniformly confluent (step2_uc)
   - one step in step1 is simulated by a positive number of steps in step2 (fstep)
   - halting in step1 is simulated by termination in step2 (fstop)
   - step1 admits existential successor decision (step1_intro)
@@ -25,7 +25,14 @@ Section Preliminaries.
   (* eventual termination *)
   Definition terminates s := exists t, clos_refl_trans X step s t /\ stuck t.
 
-  Fact terminates_extend {s t} : clos_refl_trans X step s t -> terminates t -> terminates s.
+  Definition uniformly_confluent := forall s t1 t2, step s t1 -> step s t2 -> t1 = t2 \/ exists t3, step t1 t3 /\ step t2 t3.
+
+  Lemma deterministic_uniformly_confluent : (forall s t1 t2, step s t1 -> step s t2 -> t1 = t2) -> uniformly_confluent.
+  Proof.
+    intros H s t1 t2 H1 H2. left. now apply (H s t1 t2).
+  Qed.
+
+  Lemma terminates_extend {s t} : clos_refl_trans X step s t -> terminates t -> terminates s.
   Proof.
     intros ? [u [??]]. exists u. eauto using clos_refl_trans.
   Qed.
@@ -37,7 +44,7 @@ Section Preliminaries.
 
 End Preliminaries.
 
-Section Deterministic_simulation.
+Section Simulation.
 
   (* configuration spaces *)
   Context {X Y : Type}.
@@ -48,9 +55,8 @@ Section Deterministic_simulation.
   (* configuration encoding *)
   Context {sync : X -> Y -> Prop}.
 
-  (* determinism of step2 *)
-  Context (step2_det : forall s' t1' t2', step2 s' t1' -> step2 s' t2' -> t1' = t2').
-  Arguments step2_det {s' t1' t2'}.
+  (* uniform confluence of step2 *)
+  Context (step2_uc : uniformly_confluent step2).
 
   (* step simulation wrt. encoding *)
   Context (fstep : forall s t s', step1 s t -> sync s s' ->
@@ -89,19 +95,25 @@ Section Deterministic_simulation.
 
   (* terminating configurations are accessible
      note that (Acc R^-1 s) means s is strongly normalizing for R in a constructive setting *)
-  Lemma terminating_Acc {s} : terminates step2 s -> Acc (fun y x => step2 x y) s.
-  Proof using step2_det.
-    intros [t [Hst%clos_rt_rt1n Ht]].
-    induction Hst as [|??? Hxy Hyz IH]; constructor.
-    - now intros y ?%Ht.
-    - intros y' Hxy'. rewrite <- (step2_det Hxy Hxy'). now apply IH.
+  Lemma terminating_Acc {s'} : terminates step2 s' -> Acc (fun y x => step2 x y) s'.
+  Proof using step2_uc.
+    intros [t' [Hs't'%clos_rt_rt1n Ht']].
+    induction Hs't' as [|??? Hxy Hyz IH]; constructor.
+    - now intros y ?%Ht'.
+    - intros y' Hxy'. specialize (IH Ht').
+      clear z Hyz Ht'. revert x y' Hxy Hxy'.
+      induction IH as [z IH1 IH2].
+      intros x y' Hxz Hxy'. constructor. intros v ?.
+      destruct (step2_uc _ _ _ Hxz Hxy') as [?|[w [Hzw ?]]].
+      + subst. now apply IH1.
+      + eapply (IH2 _ Hzw); eassumption.
   Qed.
 
   (* reflection of termination by well-founded induction on transitive closure using
      Lemma Acc_clos_trans A R x : Acc R x -> Acc (clos_trans A R) x
      from the Coq standard library *)
   Lemma terminates_reflection {s s'} : sync s s' -> terminates step2 s' -> terminates step1 s.
-  Proof using step2_det step1_intro fstep.
+  Proof using step2_uc step1_intro fstep.
     intros Hss' Hs'%terminating_Acc%(Acc_clos_trans Y).
     revert s Hss'. induction Hs' as [s' _ IH].
     intros s. destruct (step1_intro s) as [[t Hst] | Hs].
@@ -112,4 +124,4 @@ Section Deterministic_simulation.
     - intros _. exists s. eauto using clos_refl_trans.
   Qed.
 
-End Deterministic_simulation.
+End Simulation.

@@ -17,15 +17,13 @@ Require Import Undecidability.LambdaCalculus.Krivine.
 From Undecidability.LambdaCalculus.Reductions Require
   wCBNclosed_to_KrivineMclosed_HALT
   HaltLclosed_to_wCBNclosed.
-Require Undecidability.L.Reductions.HaltL_to_HaltLclosed.
 
 Require Import Undecidability.L.L_undec.
 
 (* Undecidability of Krivine machine halting for closed terms *)
 Theorem KrivineMclosed_HALT_undec : undecidable KrivineMclosed_HALT.
 Proof.
-  apply (undecidability_from_reducibility HaltL_undec).
-  apply (reduces_transitive HaltL_to_HaltLclosed.reduction).
+  apply (undecidability_from_reducibility HaltLclosed_undec).
   apply (reduces_transitive HaltLclosed_to_wCBNclosed.reduction).
   exact wCBNclosed_to_KrivineMclosed_HALT.reduction.
 Qed.

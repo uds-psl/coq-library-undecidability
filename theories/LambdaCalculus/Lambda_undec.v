@@ -17,7 +17,6 @@ Require Import Undecidability.LambdaCalculus.Lambda.
 From Undecidability.LambdaCalculus.Reductions Require
   HaltLclosed_to_wCBNclosed
   KrivineMclosed_HALT_to_SNclosed.
-Require Undecidability.L.Reductions.HaltL_to_HaltLclosed.
 
 Require Import Undecidability.L.L_undec.
 Require Import Undecidability.LambdaCalculus.Krivine_undec.
@@ -25,8 +24,7 @@ Require Import Undecidability.LambdaCalculus.Krivine_undec.
 (* Undecidability of weak call-by-name leftmost outermost normalization for given closed terms *)
 Theorem wCBNclosed_undec : undecidable wCBNclosed.
 Proof.
-  apply (undecidability_from_reducibility HaltL_undec).
-  apply (reduces_transitive HaltL_to_HaltLclosed.reduction).
+  apply (undecidability_from_reducibility HaltLclosed_undec).
   exact HaltLclosed_to_wCBNclosed.reduction.
 Qed.
 
