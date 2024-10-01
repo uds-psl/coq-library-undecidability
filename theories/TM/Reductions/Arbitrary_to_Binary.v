@@ -847,7 +847,7 @@ End HaltTM_Σ_to_HaltTM_bool.
 Require Import Undecidability.Synthetic.Definitions.
 
 Theorem reduction :
-  HaltTM 1 ⪯ fun '(M,t) => @HaltsTM (finType_CS bool) 1 M t.
+  HaltTM 1 ⪯ uncurry (@HaltsTM (finType_CS bool) 1).
 Proof.
   unshelve eexists.
   - intros [Σ M t]. exact (M' M, ts' t).
