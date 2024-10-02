@@ -57,7 +57,7 @@ Proof using Hstep.
     move=> /in_code_step [t] ? Hs. exfalso. by apply: (Hs t).
 Qed.
 
-Lemma sss_step_or_stuck p i P :
+Lemma sss_step_or_stuck i P p :
   (exists q, sss_step step (i, P) p q) \/ simulation.stuck (sss_step step (i, P)) p.
 Proof using Hstep.
   have [|] := subcode.in_out_code_dec (fst p) (i, P).

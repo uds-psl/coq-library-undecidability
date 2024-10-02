@@ -743,6 +743,6 @@ Proof.
         (sync P)
         L_facts.uniform_confluence
         (@sss_step_transport _ P)
-        (fun p => sss_step_or_stuck (@mma_sss_total_ni _) p 1 P)
+        (sss_step_or_stuck (@mma_sss_total_ni _) 1 P)
         (1, v) _ eq_refl Ht).
 Qed.

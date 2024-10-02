@@ -9,7 +9,7 @@
   If a relation R is MM_computable then it is MMA_computable
 *)
 
-From Undecidability.MinskyMachines Require Import MM MMA MMA.mma_defs Util.MMA_computable Util.MMA_facts Util.MM_computable MM.mm_defs.
+From Undecidability.MinskyMachines Require Import MM MMA MMA.mma_defs MM.mm_defs Util.MMA_computable Util.MMA_facts Util.MM_computable MM.mm_defs.
 Require Import Undecidability.MinskyMachines.Util.MM_sss.
 
 From Undecidability.Shared.Libs.DLW
@@ -131,12 +131,6 @@ Definition sync : nat * Vector.t nat num_counters -> nat * Vector.t nat num_coun
 #[local] Notation step1 := (sss_step (@mm_sss num_counters) (1, P)).
 #[local] Notation step2 := (sss_step (@mma_sss num_counters) (1, P')).
 
-Fact mm_sss_total_ni {n : nat} (ii : mm_instr (pos n)) (s : MM.mm_state n) :
-  exists t : MM.mm_state n, mm_sss ii s t.
-Proof.
-  have [t ?] := mm_sss_total ii s. by exists t.
-Qed.
-
 Lemma fstep s t s' : step1 s t -> sync s s' ->
   exists t', clos_trans _ step2 s' t' /\ sync t t'.
 Proof.
@@ -149,13 +143,6 @@ Lemma step2_det s' t1' t2' :
   sss_step (@mma_sss _) (1, P') s' t2' -> t1' = t2'.
 Proof.
   apply: sss_step_fun. by apply: mma_sss_fun.
-Qed.
-
-Lemma step1_intro s : (exists t, step1 s t) \/ (stuck step1 s).
-Proof.
-  have [|] := subcode.in_out_code_dec (fst s) (1, P).
-  - move=> /(in_code_step mm_sss_total_ni) ?. by left.
-  - move=> /(out_code_iff mm_sss_total_ni) ?. by right.
 Qed.
 
 Lemma simulation v v' c :
@@ -185,6 +172,6 @@ Proof.
     rewrite /= MM_MMA.length_P' MM_MMA.addr_spec.
     move: Hc => /=. lia.
   - move=> v /(sss_terminates_iff (@mma_sss_total_ni _)) Hv. apply: H2P.
-    apply /(sss_terminates_iff MM_MMA.mm_sss_total_ni). move: Hv.
-    by apply /(terminates_reflection (deterministic_uniformly_confluent _ MM_MMA.step2_det) MM_MMA.fstep MM_MMA.step1_intro).
+    apply /(sss_terminates_iff (@mm_sss_total_ni _)). move: Hv.
+    by apply /(terminates_reflection (deterministic_uniformly_confluent _ MM_MMA.step2_det) MM_MMA.fstep (sss_step_or_stuck (@mm_sss_total_ni _) 1 P)).
 Qed.

@@ -203,7 +203,7 @@ Proof.
         move E: (apps _ _) => t H.
         elim: H i v E {H' Hi}.
         move=> {}t IH1 IH2 i v ?. subst t.
-        have [[[j w]]|] := sss_step_or_stuck (@mma_sss_total_ni _) (i, v) 1 P.
+        have [[[j w]]|] := sss_step_or_stuck (@mma_sss_total_ni _) 1 P (i, v).
         ** move=> /[dup] Hvw /enc_run_spec /=.
            move=> /(@t_steps_app_r _ _ (enc_nth (@Fin.F1 (k + n)))).
            move=> /[dup] /(@clos_trans_clos_refl_trans term) /eval_rt_steps_eval H' + /H'.
@@ -234,7 +234,7 @@ Proof.
       move E: (apps _ _) => t H.
       elim: H i v E {H'}.
       move=> {}t IH1 IH2 i v ?. subst t.
-      have [[[j w]]|] := sss_step_or_stuck (@mma_sss_total_ni _) (i, v) 1 P.
+      have [[[j w]]|] := sss_step_or_stuck (@mma_sss_total_ni _) 1 P (i, v).
       * move=> /enc_run_spec /=.
         move=> /(@t_steps_app_r _ _ (enc_nth (@Fin.F1 (k + n)))).
         move=> /[dup] /(@clos_trans_clos_refl_trans term) /eval_rt_steps_eval H' + /H'.

@@ -359,13 +359,6 @@ Proof.
   apply: sss_step_fun. by apply: mma_sss_fun.
 Qed.
 
-Lemma step1_intro s : (exists t, step1 s t) \/ (Sim.stuck step1 s).
-Proof.
-  have [|] := subcode.in_out_code_dec (fst s) (1, P).
-  - move=> /(in_code_step (@mma_sss_total_ni num_counters)) ?. by left.
-  - move=> /(out_code_iff (@mma_sss_total_ni num_counters)) ?. by right.
-Qed.
-
 Lemma simulation v v' w' c m :
   (1, P) // (1, 0 ## Vector.append v (Vector.const 0 k')) ->> (c, m ## (Vector.append v' w')) ->
   c < 1 \/ S (length P) <= c ->
@@ -398,6 +391,6 @@ Proof.
     rewrite /= length_P' /=. lia.
   - move=> v /(sss_terminates_iff (@mma_sss_total_ni _)) Hv. apply: H2P.
     apply /(sss_terminates_iff (@mma_sss_total_ni _)). move: Hv.
-    apply /(Sim.terminates_reflection (Sim.deterministic_uniformly_confluent _ step2_det) fstep step1_intro).
+    apply /(Sim.terminates_reflection (Sim.deterministic_uniformly_confluent _ step2_det) fstep (sss_step_or_stuck (@mma_sss_total_ni _) 1 P)).
     rewrite -vec_append_const. by apply: sync_intro.
 Qed.

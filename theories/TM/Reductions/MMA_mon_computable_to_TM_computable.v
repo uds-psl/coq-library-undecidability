@@ -371,13 +371,6 @@ Proof.
   by move=> /= [_ ->] [_ ->].
 Qed.
 
-Lemma step1_intro s : (exists t, step1 s t) \/ (Sim.stuck step1 s).
-Proof.
-  have [|] := subcode.in_out_code_dec (fst s) (1, M).
-  - move=> /(in_code_step (@mma_sss_total_ni _)) ?. by left.
-  - move=> /(out_code_iff (@mma_sss_total_ni _)) ?. by right.
-Qed.
-
 Lemma halt'_terminates s' : halt' (TM_facts.cstate s') = true -> Sim.terminates step2 s'.
 Proof.
   move:s' => [[[] p] ts] /=; [done|].
@@ -490,7 +483,7 @@ Proof.
       by move=> [_ []].
   - move=> v q ts /TM_facts.TM_eval_iff [n HPn].
     apply: H3M. apply /(sss_terminates_iff (@mma_sss_total_ni _)).
-    apply /(Sim.terminates_reflection (Sim.deterministic_uniformly_confluent _ (step2_det M)) (fstep M H1M) (step1_intro M) sync_init).
+    apply /(Sim.terminates_reflection (Sim.deterministic_uniformly_confluent _ (step2_det M)) (fstep M H1M) (sss_step_or_stuck (@mma_sss_total_ni _) 1 M) sync_init).
     move: n HPn => [|n]. { done. }
     rewrite /= P_init. by apply: terminates2I.
 Qed.

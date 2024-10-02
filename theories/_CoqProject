@@ -351,6 +351,7 @@ MinskyMachines/Reductions/MM2_HALTING_to_MM2_ZERO_HALTING.v
 MinskyMachines/Reductions/L_computable_closed_to_MMA_computable.v
 MinskyMachines/Reductions/MMA_computable_to_MMA_mon_computable.v
 MinskyMachines/Reductions/MM_computable_to_MMA_computable.v
+MinskyMachines/Reductions/MuRec_computable_to_MM_computable.v
 
 MinskyMachines/Deciders/MPM2_HALT_dec.v
 MinskyMachines/Deciders/MM_2_HALTING_dec.v
@@ -520,10 +521,6 @@ L/Prelim/ARS.v
 L/Util/L_facts.v
 L/Util/term_facts.v
 
-L/Util/NaryApp.v
-L/Util/ClosedLAdmissible.v
-
-L/Reductions/MuRec_computable_to_L_computable.v
 L/Reductions/MMA_HALTING_to_HaltLclosed.v
 L/Reductions/MMA_computable_to_L_computable_closed.v
 
@@ -534,6 +531,9 @@ L/Enumerators/HaltL_enum.v
 L/L_enum.v
 
 #extraction framework
+
+L/Util/NaryApp.v
+L/Util/ClosedLAdmissible.v
 
 L/Tactics/Computable.v
 L/Tactics/LTactics.v
@@ -583,6 +583,7 @@ L/Reductions/H10_to_L.v
 L/Reductions/PCPb_to_HaltL.v
 L/Reductions/MuRec/MuRec_extract.v
 L/Reductions/HaltMuRec_to_HaltL.v
+L/Reductions/MuRec_computable_to_L_computable.v
 
 L/Computability/Acceptability.v
 L/Computability/Computability.v

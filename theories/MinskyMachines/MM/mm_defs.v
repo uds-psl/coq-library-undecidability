@@ -50,6 +50,12 @@ Section Minsky_Machine.
     * exists (j,v); constructor; auto.
     * exists (1+i,v[k/x]); constructor; auto.
   Qed.
+
+  Fact mm_sss_total_ni ii s :
+    exists t, ii // s -1> t.
+  Proof.
+    apply (ex_of_sig (mm_sss_total _ _)).
+  Qed.
   
   Fact mm_sss_INC_inv x i v j w : INC x // (i,v) -1> (j,w) -> j=1+i /\ w = v[(S (v#>x))/x].
   Proof. inversion 1; subst; auto. Qed.
