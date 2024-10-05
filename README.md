@@ -7,10 +7,6 @@ opam pin add -k git coq-core.dev "https://github.com/coq/coq.git#master"
 opam pin add -k git coq-stdlib.dev "https://github.com/coq/coq.git#master"
 opam pin add -k git coqide-server.dev "https://github.com/coq/coq.git#master"
 opam pin add -k git coq.dev "https://github.com/coq/coq.git#master"
-opam pin add -k git coq-equations.dev "https://github.com/mattam82/Coq-Equations.git#main"
-opam pin add -k git coq-metacoq-utils.dev "https://github.com/MetaCoq/metacoq.git#main"
-opam pin add -k git coq-metacoq-common.dev "https://github.com/MetaCoq/metacoq.git#main"
-opam pin add -k git coq-metacoq-template.dev "https://github.com/MetaCoq/metacoq.git#main"
 ```
 
 # Coq Library of Undecidability Proofs
@@ -117,7 +113,7 @@ An equivalence proof that most of the mentioned models of computation compute th
 
 ## Manual Installation Instructions
 
-You need the `master` branch of `Coq` built on OCAML `>= 4.09.1`, and the Template-Coq (part of [MetaCoq](https://metacoq.github.io/)) package for Coq. If you are using opam 2 you can use the following commands to install the dependencies on a new switch:
+You need the `master` branch of `Coq` built on OCAML `>= 4.09.1`. If you are using opam 2 you can use the following commands to install the dependencies on a new switch:
 
 ```
 opam switch create coq-library-undecidability --packages=ocaml-variants.4.14.1+options,ocaml-option-flambda
@@ -126,10 +122,6 @@ opam pin add -k git coq-core.dev "https://github.com/coq/coq.git#master"
 opam pin add -k git coq-stdlib.dev "https://github.com/coq/coq.git#master"
 opam pin add -k git coqide-server.dev "https://github.com/coq/coq.git#master"
 opam pin add -k git coq.dev "https://github.com/coq/coq.git#master"
-opam pin add -k git coq-equations.dev "https://github.com/mattam82/Coq-Equations.git#main"
-opam pin add -k git coq-metacoq-utils.dev "https://github.com/MetaCoq/metacoq.git#main"
-opam pin add -k git coq-metacoq-common.dev "https://github.com/MetaCoq/metacoq.git#main"
-opam pin add -k git coq-metacoq-template.dev "https://github.com/MetaCoq/metacoq.git#main"
 ```
 
 #### Building the undecidability library
@@ -150,7 +142,7 @@ The library is compatible with Coq's compiled interfaces ([`vos`](https://coq.in
 
 #### Coq version
 
-Be careful that this branch only compiles under `Coq 8.16`. If you want to use a different Coq version you have to change to a different branch.
+Be careful that this branch only compiles under `Coq dev`. If you want to use a different Coq version you have to change to a different branch.
 Due to compatibility issues, not every branch contains exactly the same problems. 
 We recommend to use the newest branch if possible.
 
