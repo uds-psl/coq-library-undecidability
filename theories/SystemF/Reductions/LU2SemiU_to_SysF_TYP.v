@@ -16,7 +16,7 @@
       Proceedings Ninth Annual IEEE Symposium on Logic In Computer Science. IEEE, 1994.
 *)
 
-Require Import List Lia.
+From Stdlib Require Import List Lia.
 Import ListNotations.
 Require Import Undecidability.SystemF.SysF Undecidability.SystemF.Autosubst.syntax.
 From Undecidability.SystemF.Util Require Import Facts poly_type_facts pure_term_facts term_facts typing_facts pure_typing_facts pure_typable_prenex.
@@ -24,7 +24,7 @@ From Undecidability.SystemF.Util Require Import Facts poly_type_facts pure_term_
 Require Undecidability.SemiUnification.SemiU.
 Module SU := SemiU.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

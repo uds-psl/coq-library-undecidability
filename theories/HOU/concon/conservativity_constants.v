@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import Morphisms Lia List.
+From Stdlib Require Import Morphisms Lia List.
 From Undecidability.HOU Require Import calculus.calculus.
 Import ListNotations ArsInstances.
 

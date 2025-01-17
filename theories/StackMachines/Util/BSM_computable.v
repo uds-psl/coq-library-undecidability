@@ -1,6 +1,6 @@
 From Undecidability Require Export BSM BSM_sss bsm_defs.
 
-From Coq Require Import List Vector.
+From Stdlib Require Import List Vector.
 Import ListNotations Vector.VectorNotations.
 
 Lemma BSM_computable_iff {k} (R : Vector.t nat k -> nat -> Prop) :

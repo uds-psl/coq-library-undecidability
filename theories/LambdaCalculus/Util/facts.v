@@ -1,6 +1,6 @@
-Require Import Relations List Lia PeanoNat.
+From Stdlib Require Import Relations List Lia PeanoNat.
 Import ListNotations.
-Require Import ssreflect.
+From Stdlib Require Import ssreflect.
 
 #[local] Arguments in_combine_l {A B l l' x y}.
 #[local] Arguments app_inj_tail {A x y a b}.

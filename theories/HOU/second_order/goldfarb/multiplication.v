@@ -1,9 +1,9 @@
 Set Implicit Arguments.
-Require Import List Lia Program.Program.
+From Stdlib Require Import List Lia Program.Program.
 From Undecidability.HOU Require Import std.std axioms.
-Require Import RelationClasses Morphisms Init.Wf Init.Nat Setoid.
+From Stdlib Require Import RelationClasses Morphisms Init.Wf Init.Nat Setoid.
 From Undecidability.HOU Require Import calculus.calculus second_order.goldfarb.encoding.
-Require Import FinFun Coq.Arith.Wf_nat.
+From Stdlib Require Import FinFun Arith.Wf_nat.
 Import ListNotations ArsInstances.
 
 

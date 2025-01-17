@@ -1,12 +1,12 @@
 Require Import Undecidability.IntersectionTypes.CD.
 Require Undecidability.L.L.
-Require Import PeanoNat List Relations Lia.
+From Stdlib Require Import PeanoNat List Relations Lia.
 Require Import Undecidability.LambdaCalculus.Lambda.
 Require Import Undecidability.LambdaCalculus.Util.term_facts.
 
 Import L (term, var, app, lam).
 
-Require Import ssreflect.
+From Stdlib Require Import ssreflect.
 
 Set Default Goal Selector "!".
 

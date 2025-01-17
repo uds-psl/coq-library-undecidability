@@ -2,10 +2,10 @@ From Undecidability.Synthetic Require Import Definitions DecidabilityFacts Enume
 From Undecidability Require Import Shared.ListAutomation Shared.Dec.
 Import ListAutomationNotations.
 
-From Coq Require Import Eqdep_dec.
-Require Import Coq.Vectors.Vector.
+From Stdlib Require Import Eqdep_dec.
+From Stdlib Require Import Vectors.Vector.
 From Undecidability.Shared.Libs.PSL.Vectors Require Import Vectors.
-Require Import EqdepFacts.
+From Stdlib Require Import EqdepFacts.
 
 Local Notation vec := t.
 

@@ -1,6 +1,6 @@
 -Q . Undecidability
 
--arg -w -arg -notation-overridden,-stdlib-vector,-notation-incompatible-prefix
+-arg -w -arg -notation-overridden,-stdlib-vector,-notation-incompatible-prefix,-closed-notation-not-level-0,-postfix-notation-not-level-1
 -arg "-set" -arg "'Default Proof Using = Type'"
 COQDOCFLAGS = "--charset utf-8 -s --with-header ../website/resources/header.html --with-footer ../website/resources/footer.html --index indexpage"
 
@@ -532,68 +532,68 @@ L/L_enum.v
 
 #extraction framework
 
-L/Util/NaryApp.v
-L/Util/ClosedLAdmissible.v
+#L/Util/NaryApp.v
+#L/Util/ClosedLAdmissible.v
 
-L/Tactics/Computable.v
-L/Tactics/LTactics.v
-L/Tactics/Extract.v
-L/Tactics/GenEncode.v
-L/Tactics/Lbeta_nonrefl.v
-L/Tactics/Lproc.v
-L/Tactics/Lbeta.v
-L/Tactics/Reflection.v
-L/Tactics/LClos.v
-L/Tactics/Lrewrite.v
-L/Tactics/Lsimpl.v
-L/Tactics/ComputableTactics.v
+#L/Tactics/Computable.v
+#L/Tactics/LTactics.v
+#L/Tactics/Extract.v
+#L/Tactics/GenEncode.v
+#L/Tactics/Lbeta_nonrefl.v
+#L/Tactics/Lproc.v
+#L/Tactics/Lbeta.v
+#L/Tactics/Reflection.v
+#L/Tactics/LClos.v
+#L/Tactics/Lrewrite.v
+#L/Tactics/Lsimpl.v
+#L/Tactics/ComputableTactics.v
 
-L/Datatypes/LUnit.v
-L/Datatypes/LBool.v
-L/Datatypes/List/List_basics.v
-L/Datatypes/List/List_enc.v
-L/Datatypes/List/List_eqb.v
-L/Datatypes/List/List_extra.v
-L/Datatypes/List/List_in.v
-L/Datatypes/List/List_nat.v
-L/Datatypes/Lists.v
-L/Datatypes/LNat.v
-L/Datatypes/LOptions.v
-L/Datatypes/LProd.v
-L/Datatypes/LSum.v
-L/Datatypes/LTerm.v
-L/Datatypes/LFinType.v
-L/Datatypes/LVector.v
+#L/Datatypes/LUnit.v
+#L/Datatypes/LBool.v
+#L/Datatypes/List/List_basics.v
+#L/Datatypes/List/List_enc.v
+#L/Datatypes/List/List_eqb.v
+#L/Datatypes/List/List_extra.v
+#L/Datatypes/List/List_in.v
+#L/Datatypes/List/List_nat.v
+#L/Datatypes/Lists.v
+#L/Datatypes/LNat.v
+#L/Datatypes/LOptions.v
+#L/Datatypes/LProd.v
+#L/Datatypes/LSum.v
+#L/Datatypes/LTerm.v
+#L/Datatypes/LFinType.v
+#L/Datatypes/LVector.v
 
-L/Functions/EqBool.v
-L/Functions/Equality.v
-L/Functions/Encoding.v
-L/Functions/Proc.v
-L/Functions/Subst.v
-L/Functions/Eval.v
-L/Functions/FinTypeLookup.v
-L/Functions/Ackermann.v
+#L/Functions/EqBool.v
+#L/Functions/Equality.v
+#L/Functions/Encoding.v
+#L/Functions/Proc.v
+#L/Functions/Subst.v
+#L/Functions/Eval.v
+#L/Functions/FinTypeLookup.v
+#L/Functions/Ackermann.v
 
-L/TM/TMEncoding.v
-L/TM/TMinL.v
-L/TM/TMinL/TMinL_extract.v
-L/TM/TapeFuns.v
-L/Reductions/TM_to_L.v
-L/Reductions/H10_to_L.v
-L/Reductions/PCPb_to_HaltL.v
-L/Reductions/MuRec/MuRec_extract.v
-L/Reductions/HaltMuRec_to_HaltL.v
-L/Reductions/MuRec_computable_to_L_computable.v
+#L/TM/TMEncoding.v
+#L/TM/TMinL.v
+#L/TM/TMinL/TMinL_extract.v
+#L/TM/TapeFuns.v
+#L/Reductions/TM_to_L.v
+#L/Reductions/H10_to_L.v
+#L/Reductions/PCPb_to_HaltL.v
+#L/Reductions/MuRec/MuRec_extract.v
+#L/Reductions/HaltMuRec_to_HaltL.v
+#L/Reductions/MuRec_computable_to_L_computable.v
 
-L/Computability/Acceptability.v
-L/Computability/Computability.v
-L/Computability/Decidability.v
-L/Computability/Fixpoints.v
-L/Computability/MuRec.v
-L/Computability/Por.v
-L/Computability/Synthetic.v
-L/Computability/Scott.v
-L/Computability/Rice.v
+#L/Computability/Acceptability.v
+#L/Computability/Computability.v
+#L/Computability/Decidability.v
+#L/Computability/Fixpoints.v
+#L/Computability/MuRec.v
+#L/Computability/Por.v
+#L/Computability/Synthetic.v
+#L/Computability/Scott.v
+#L/Computability/Rice.v
 
 HOU/std/tactics.v
 HOU/std/misc.v

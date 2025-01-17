@@ -17,12 +17,12 @@ Require Undecidability.L.L.
 Require Import Undecidability.StringRewriting.SSTS.
 Require Import Undecidability.LambdaCalculus.Util.term_facts.
 
-Require Import Relations List PeanoNat Lia.
+From Stdlib Require Import Relations List PeanoNat Lia.
 Import ListNotations.
 
 Import L (term, var, app, lam).
 
-Require Import ssreflect ssrfun.
+From Stdlib Require Import ssreflect ssrfun.
 
 Set Default Goal Selector "!".
 

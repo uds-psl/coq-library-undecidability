@@ -14,7 +14,7 @@
       FSCD 2022. https://drops.dagstuhl.de/opus/volltexte/2022/16297/
 *)
 
-Require Import PeanoNat Lia List.
+From Stdlib Require Import PeanoNat Lia List.
 Import ListNotations.
 
 From Undecidability.MinskyMachines Require Import MM MM_sss.
@@ -24,7 +24,7 @@ Module MPM2 := MPM2_HALT_dec.
 From Undecidability.Shared.Libs.DLW
   Require Import Vec.pos Vec.vec Code.sss.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

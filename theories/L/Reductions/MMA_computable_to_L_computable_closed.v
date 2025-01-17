@@ -9,7 +9,7 @@
   Minsky Machine combinability (MMA_computable) implies L computability (L_computable_closed)
 *)
 
-Require Import List PeanoNat Lia Relations Transitive_Closure.
+From Stdlib Require Import List PeanoNat Lia Relations Transitive_Closure.
 Import ListNotations.
 
 From Undecidability.MinskyMachines Require Import MMA Util.MMA_facts mma_defs.
@@ -22,7 +22,7 @@ From Undecidability.Shared Require Import Libs.DLW.Code.sss simulation.
 
 Require Import Undecidability.L.Reductions.MMA_HALTING_to_HaltLclosed.
 
-Require Import ssreflect.
+From Stdlib Require Import ssreflect.
 
 Unset Implicit Arguments.
 

@@ -2,7 +2,7 @@ Require Export Undecidability.FOL.Syntax.Core.
 Require Import Undecidability.FOL.Syntax.Theories.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
-Require Import Vector.
+From Stdlib Require Import Vector.
 
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.

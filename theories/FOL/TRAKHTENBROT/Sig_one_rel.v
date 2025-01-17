@@ -13,7 +13,7 @@
     reimported to this alternate syntax & framework by @DLW 
 *) 
 
-Require Import List Arith Lia.
+From Stdlib Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac.

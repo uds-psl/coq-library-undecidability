@@ -2,12 +2,12 @@ From Undecidability Require TM.TM TM.Util.TM_facts.
 From Undecidability Require Import TM.SBTM TM.Util.SBTM_facts.
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.
 
-Require Import PeanoNat Lia.
+From Stdlib Require Import PeanoNat Lia.
 
 #[local] Unset Implicit Arguments.
 #[local] Unset Strict Implicit.
 
-Require Import List ssreflect ssrbool ssrfun.
+From Stdlib Require Import List ssreflect ssrbool ssrfun.
 Import ListNotations SBTMNotations.
 
 Set Default Goal Selector "!".

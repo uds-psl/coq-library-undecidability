@@ -26,7 +26,7 @@
       TYPES 2017: 2:1-2:15. doi: 10.4230/LIPIcs.TYPES.2017.2
 *)
 
-Require Import List.
+From Stdlib Require Import List.
 Import ListNotations.
 
 (* propositional formulae s, t ::= a | s → t *)

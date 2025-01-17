@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import List Arith Lia Morphisms Init.Wf.
+From Stdlib Require Import List Arith Lia Morphisms Init.Wf.
 Import ListNotations.
 
 Definition funcomp {X Y Z} (g : Y -> Z) (f : X -> Y)  :=

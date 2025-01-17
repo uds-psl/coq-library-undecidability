@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import List Arith Lia Permutation.
+From Stdlib Require Import List Arith Lia Permutation.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_list utils_decidable fin_base.

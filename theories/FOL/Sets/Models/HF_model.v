@@ -12,7 +12,7 @@ Import ListAutomationNotations.
 #[local]
 Existing Instance ZF_func_sig.
 
-Require Import Lia.
+From Stdlib Require Import Lia.
 Locate hfs_mem_fin_t.
 Definition hfs_listing x :=
    proj1_sig (hfs_mem_fin_t x).

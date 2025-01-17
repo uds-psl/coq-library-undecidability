@@ -9,7 +9,7 @@
 
 (* ** Bitwise operations on nat *)
 
-Require Import Arith Nat Lia List Bool Setoid.
+From Stdlib Require Import Arith Nat Lia List Bool Setoid.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac utils_list utils_nat bool_list gcd sums power_decomp.

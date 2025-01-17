@@ -1,10 +1,10 @@
-Require Import List.
+From Stdlib Require Import List.
 Import ListNotations.
 
 Require Import Undecidability.PCP.PCP.
 Require Import Undecidability.Synthetic.Definitions.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

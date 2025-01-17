@@ -2,7 +2,7 @@
 (* ** Axioms of PA *)
 Require Export Undecidability.FOL.Arithmetics.Robinson.
 Import Vector.VectorNotations.
-Require Import List.
+From Stdlib Require Import List.
 
 Definition ax_induction (phi : form) :=
   phi[zero..] → (∀ phi → phi[σ $0 .: S >> var]) → ∀ phi.

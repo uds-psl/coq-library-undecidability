@@ -12,7 +12,7 @@
     Halting Problem for Weak Call-by-value lambda-Calculus (HaltLclosed)
 *)
 
-Require Import List PeanoNat Lia Relations Transitive_Closure.
+From Stdlib Require Import List PeanoNat Lia Relations Transitive_Closure.
 Import ListNotations.
 
 From Undecidability.MinskyMachines Require Import MMA Util.MMA_facts mma_defs.
@@ -23,7 +23,7 @@ Import L_facts (step).
 
 From Undecidability.Shared Require Import Libs.DLW.Code.sss simulation.
 
-Require Import ssreflect.
+From Stdlib Require Import ssreflect.
 
 Unset Implicit Arguments.
 

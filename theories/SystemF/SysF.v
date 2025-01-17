@@ -17,7 +17,7 @@
       IEEE, 1994.
 *)
 
-Require Import List.
+From Stdlib Require Import List.
 
 (* pure lambda-terms M, N, .. *)
 Inductive pure_term : Type :=

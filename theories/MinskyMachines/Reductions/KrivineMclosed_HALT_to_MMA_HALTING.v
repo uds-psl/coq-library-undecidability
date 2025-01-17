@@ -24,9 +24,9 @@ From Undecidability Require
 From Undecidability.Shared.Libs.DLW
   Require Import Vec.pos Vec.vec Code.sss.
 
-Require Import PeanoNat List Lia.
+From Stdlib Require Import PeanoNat List Lia.
 Import ListNotations.
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Import L (term, var, app, lam).
 

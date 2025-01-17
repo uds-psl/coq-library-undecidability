@@ -7,7 +7,7 @@ From Undecidability.FOL Require Import FOL.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ReducibilityFacts MoreReducibilityFacts.
 Require Import Undecidability.FOL.Reductions.PCPb_to_FOL.
 Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb.
-Require Import List.
+From Stdlib Require Import List.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations ListAutomationHints ListAutomationInstances.
 Import ListNotations.

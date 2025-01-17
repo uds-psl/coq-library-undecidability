@@ -4,7 +4,7 @@ From Undecidability.SeparationLogic Require Import MSL.
 
 From Undecidability.Shared Require Import Dec.
 Require Import Undecidability.Synthetic.DecidabilityFacts.
-Require Import List.
+From Stdlib Require Import List Lia.
 
 Set Default Goal Selector "!".
 

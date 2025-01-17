@@ -9,7 +9,7 @@
 
 (* ** Single Diophantine equations *)
 
-Require Import List Arith Lia (* Nat *).
+From Stdlib Require Import List Arith Lia (* Nat *).
 
 From Undecidability.Shared.Libs.DLW
   Require Import utils_tac utils_list sums pos vec.

@@ -1,4 +1,4 @@
-Require Import Arith Lia List. 
+From Stdlib Require Import Arith Lia List. 
 
 Ltac inv H := inversion H; subst; clear H.
 

@@ -2,7 +2,7 @@ From Undecidability.FOL Require Import Syntax.Facts Semantics.Tarski.FullFacts S
 From Undecidability.FOL.TRAKHTENBROT Require bpcp. (* keep this Require to avoid universe problems *)
 From Undecidability.FOL.TRAKHTENBROT Require Import fo_sat fo_sig fo_terms fo_logic fol_ops.
 Require Import Undecidability.Synthetic.DecidabilityFacts.
-Require Import Vector Lia.
+From Stdlib Require Import Vector Lia.
 
 Set Default Goal Selector "!".
 

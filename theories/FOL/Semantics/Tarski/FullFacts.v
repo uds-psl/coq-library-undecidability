@@ -4,7 +4,7 @@ Require Import Undecidability.FOL.Syntax.Facts.
 Require Export Undecidability.FOL.Semantics.Tarski.FullCore.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
-Require Import Vector Lia.
+From Stdlib Require Import Vector Lia.
 
 
 Local Set Implicit Arguments.

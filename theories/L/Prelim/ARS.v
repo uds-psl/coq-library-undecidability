@@ -1,7 +1,8 @@
 (* ** Abstract Reduction Systems *)
 (* from Semantics Lecture at Programming Systems Lab, https://www.ps.uni-saarland.de/courses/sem-ws13/ *)
 
-Require Export Undecidability.Shared.Libs.PSL.Base Lia Arith.
+Require Export Undecidability.Shared.Libs.PSL.Base.
+From Stdlib Require Export Lia Arith.
 
 Module ARSNotations.
   Notation "p '<=1' q" := (forall x, p x -> q x) (at level 70).
@@ -20,7 +21,7 @@ Definition rcomp X Y Z (R : X -> Y -> Prop) (S : Y -> Z -> Prop)
 
 (* Power predicates *)
 
-Require Import Arith Relations.
+From Stdlib Require Import Arith Relations.
 Definition pow X R n : X -> X -> Prop := it (rcomp R) n eq.
 
 Definition functional {X Y} (R: X -> Y -> Prop) := forall x y1 y2, R x y1 -> R x y2 -> y1 = y2.

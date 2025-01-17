@@ -1,6 +1,6 @@
 Require Import Undecidability.L.L Undecidability.L.Util.L_facts.
 Require Import Undecidability.Shared.Libs.PSL.Vectors.Vectors.
-Require Import Vector List.
+From Stdlib Require Import Vector List.
 Import ListNotations.
 Import VectorNotations.
 Import L_Notations.

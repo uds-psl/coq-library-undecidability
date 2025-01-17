@@ -9,7 +9,7 @@
 
 (* ** Definition of FRACTRAN *)
 
-Require Import List Arith Lia.
+From Stdlib Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import utils_tac utils_list utils_nat gcd rel_iter pos vec.

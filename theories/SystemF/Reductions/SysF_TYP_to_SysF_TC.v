@@ -12,12 +12,12 @@
     System F Typechecking (SysF_TC)
 *)
 
-Require Import List Lia Relation_Operators.
+From Stdlib Require Import List Lia Relation_Operators.
 Import ListNotations.
 Require Import Undecidability.SystemF.SysF.
 From Undecidability.SystemF.Util Require Import Facts poly_type_facts pure_term_facts term_facts typing_facts pure_typing_facts.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

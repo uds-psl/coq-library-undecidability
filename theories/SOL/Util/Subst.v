@@ -1,6 +1,6 @@
 (* ** Substitutions *)
 
-Require Import Arith Lia Vector.
+From Stdlib Require Import Arith Lia Vector.
 From Undecidability.Shared.Libs.PSL Require Import Vectors.
 From Undecidability.SOL.Util Require Import Syntax.
 Require Import Undecidability.SOL.SOL.

@@ -27,10 +27,10 @@ Require Import Undecidability.Shared.Libs.PSL.EqDec.
 From Undecidability Require Shared.simulation.
 Module Sim := simulation.
 
-Require Import List Lia PeanoNat Compare_dec Relations.
+From Stdlib Require Import List Lia PeanoNat Compare_dec Relations.
 Import ListNotations.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

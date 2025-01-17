@@ -8,7 +8,7 @@ Require Import Undecidability.FOL.Reductions.PCPb_to_binZF.
 Require Import Undecidability.FOL.ZF.
 Require Import Undecidability.FOL.FST.
 From Undecidability.FOL.Sets Require Import  Models.FST_model Models.ZF_model binFST binZF.
-Require Import Lia.
+From Stdlib Require Import Lia.
 
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations ListAutomationHints ListAutomationInstances.

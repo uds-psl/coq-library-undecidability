@@ -1,6 +1,7 @@
-Require Export List Undecidability.Shared.Dec.
+Require Export Undecidability.Shared.Dec.
+From Stdlib Require Import Setoid Morphisms Lia.
+From Stdlib Require Export List.
 Export List.ListNotations.
-Require Import Setoid Morphisms Lia.
 
 Module ListAutomationNotations.
 

@@ -1,6 +1,6 @@
 (* * Second-Order Logic *)
 
-Require Import Vector Arith.
+From Stdlib Require Import Vector Arith.
 Notation vec := Vector.t.
 
 

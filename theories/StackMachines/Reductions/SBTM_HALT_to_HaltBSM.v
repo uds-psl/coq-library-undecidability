@@ -3,11 +3,11 @@ From Undecidability.StackMachines Require Import BSM BSM.bsm_defs.
 From Undecidability.TM Require Import SBTM Util.SBTM_facts.
 From Undecidability.Shared.Libs.DLW Require Import vec subcode sss.
 
-Require Import PeanoNat List Lia.
+From Stdlib Require Import PeanoNat List Lia.
 Import Vector.VectorNotations ListNotations SBTMNotations.
 #[local] Open Scope list_scope.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

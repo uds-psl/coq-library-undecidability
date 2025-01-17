@@ -9,7 +9,7 @@
 
 (* ** FRACTRAN reduces to Diophantine logic *)
 
-Require Import List.
+From Stdlib Require Import List.
 
 Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Synthetic.ReducibilityFacts.

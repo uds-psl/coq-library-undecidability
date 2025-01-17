@@ -19,7 +19,7 @@
 Require Undecidability.L.L.
 Import L (term, var, app, lam).
 
-Require Import Relation_Operators.
+From Stdlib Require Import Relation_Operators.
 
 (* function composition *)
 Definition funcomp {X Y Z} (g : Y -> Z) (f : X -> Y) :=

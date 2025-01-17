@@ -34,7 +34,7 @@ Proof.
 Qed.
 
 
-Require Import FinFun.
+From Stdlib Require Import FinFun.
 
 
 

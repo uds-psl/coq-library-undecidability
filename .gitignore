@@ -5,6 +5,9 @@
 *Makefile.coq
 *Makefile.coq.d
 *Makefile.coq.conf
+*Makefile.rocq
+*Makefile.rocq.d
+*Makefile.rocq.conf
 *.coqdeps.d
 *.lia.cache
 *.nia.cache

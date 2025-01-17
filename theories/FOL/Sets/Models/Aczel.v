@@ -1,6 +1,6 @@
 (* * Consistency of ZF-Axiomatisation *)
 
-Require Import Setoid Morphisms.
+From Stdlib Require Import Setoid Morphisms.
 
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.

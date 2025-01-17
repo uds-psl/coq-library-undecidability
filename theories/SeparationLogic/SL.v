@@ -1,6 +1,6 @@
 From Undecidability Require Import SeparationLogic.MSL.
 
-Require Import List.
+From Stdlib Require Import List.
 Import ListNotations.
 
 #[local] Notation "x 'el' L" := (In x L) (at level 70).

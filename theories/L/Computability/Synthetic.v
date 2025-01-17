@@ -99,7 +99,7 @@ Qed.
 (*   extract. *)
 (* Qed. *)
 
-From Coq Require Cantor.
+From Stdlib Require Cantor.
 
 (* Instance term_nat_rec {X : Set} `{encodable X} : computable (@nat_rec (fun _ => X)). *)
 (* Proof. *)

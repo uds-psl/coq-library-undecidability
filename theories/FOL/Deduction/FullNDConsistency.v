@@ -6,7 +6,7 @@ From Undecidability.FOL Require Export Deduction.FullNDFacts.
 From Undecidability.FOL.Semantics.Tarski Require Export FullFacts FullSoundness.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
-Require Import Lia.
+From Stdlib Require Import Lia.
 Import FullSyntax.
 
 

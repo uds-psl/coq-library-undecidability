@@ -1,14 +1,14 @@
 From Undecidability.LambdaCalculus Require Import Krivine Lambda Util.term_facts.
 Require Import Undecidability.L.Util.L_facts.
 
-Require Import List Lia Relations.
+From Stdlib Require Import List Lia Relations.
 Import ListNotations.
 Import L (term, var, app, lam).
 Import Lambda (wCBN_step, subst).
 
 #[local] Notation step := wCBN_step.
 
-Require Import ssreflect.
+From Stdlib Require Import ssreflect.
 
 Set Default Goal Selector "!".
 

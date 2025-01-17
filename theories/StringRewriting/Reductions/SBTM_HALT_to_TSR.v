@@ -4,9 +4,9 @@ Module SR_facts := StringRewriting.Util.Definitions.
 From Undecidability Require Import TM.SBTM TM.Util.SBTM_facts.
 From Undecidability Require Import StringRewriting.Reductions.SBTM_HALT_to_SR.
 
-Require Import PeanoNat Lia.
+From Stdlib Require Import PeanoNat Lia.
 
-Require Import List ssreflect ssrbool ssrfun.
+From Stdlib Require Import List ssreflect ssrbool ssrfun.
 Import ListNotations SBTMNotations.
 
 Set Default Goal Selector "!".

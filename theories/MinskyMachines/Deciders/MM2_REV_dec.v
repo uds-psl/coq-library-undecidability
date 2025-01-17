@@ -14,13 +14,13 @@
       FSCD 2022. https://drops.dagstuhl.de/opus/volltexte/2022/16297/
 *)
 
-Require Import List ListDec PeanoNat Lia Operators_Properties.
+From Stdlib Require Import List ListDec PeanoNat Lia Operators_Properties.
 Import ListNotations.
 Require Import Undecidability.MinskyMachines.MM2.
 Require Import Undecidability.MinskyMachines.Util.MM2_facts.
 Import MM2Notations.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

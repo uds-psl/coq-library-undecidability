@@ -1,5 +1,5 @@
 (* * Trakhtenbrot's Theorem *)
-Require Import Lia Arith.
+From Stdlib Require Import Lia Arith.
 
 Require Import Undecidability.PCP.PCP.
 Require Import Undecidability.PCP.Util.PCP_facts.

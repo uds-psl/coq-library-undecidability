@@ -1,6 +1,6 @@
 From Undecidability.H10 Require Import H10 Dio.dio_single H10p.
 Require Import Undecidability.Synthetic.Definitions.
-Require Import Fin.
+From Stdlib Require Import Fin.
 Local Set Implicit Arguments.
 
 (** Reduction from Diophantine equations with parameters to Diophantine equations without parameters *)

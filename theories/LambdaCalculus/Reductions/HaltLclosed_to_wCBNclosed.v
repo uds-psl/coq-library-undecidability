@@ -21,10 +21,10 @@ From Undecidability.LambdaCalculus Require Import Lambda Util.term_facts Util.wC
 
 From Undecidability Require Import L.Util.L_facts.
 
-From Coq Require Import Relations Wellfounded.Transitive_Closure List Lia.
+From Stdlib Require Import Relations Wellfounded.Transitive_Closure List Lia.
 Import L (term, var, app, lam).
 Import Lambda (subst, wCBN_step, wCBN_stepSubst, wCBN_stepApp).
-From Coq Require Import ssreflect.
+From Stdlib Require Import ssreflect.
 
 Import Relation_Operators (t1n_trans).
 Import Datatypes (id).

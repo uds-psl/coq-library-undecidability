@@ -1,4 +1,4 @@
-Require Import Relations PeanoNat.
+From Stdlib Require Import Relations PeanoNat.
 
 Require Undecidability.L.L.
 Import L (term, var, app, lam).

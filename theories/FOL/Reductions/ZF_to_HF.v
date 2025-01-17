@@ -7,7 +7,7 @@ From Undecidability.FOL.Sets
      Require Import ZF.
 Require Import Undecidability.FOL.ZF.
 
-Require Import Lia.
+From Stdlib Require Import Lia.
 
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations ListAutomationHints ListAutomationInstances.

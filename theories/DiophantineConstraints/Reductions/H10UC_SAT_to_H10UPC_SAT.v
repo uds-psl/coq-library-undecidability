@@ -6,10 +6,10 @@
     Uniform Diophantine Pair Constraint Solvability (H10UPC_SAT)
 *)
 
-Require Import List Lia Cantor.
+From Stdlib Require Import List Lia Cantor.
 Import ListNotations.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Require Import Undecidability.DiophantineConstraints.H10C.
 

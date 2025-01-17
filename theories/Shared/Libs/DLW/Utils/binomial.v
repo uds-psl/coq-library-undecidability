@@ -9,7 +9,7 @@
 
 (* ** Binomial theorem *)
 
-Require Import Arith Lia.
+From Stdlib Require Import Arith Lia.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac gcd.

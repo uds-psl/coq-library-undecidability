@@ -786,7 +786,7 @@ Lemma binary_simulation Σ (M : TM Σ 1) :
 Proof.
   exists (projT1 (StateWhile (@Step Σ M) (start M))). split.
   - intros q' t t' [n H] % TM_eval_iff.
-    edestruct @Sim_Terminates with (M := (existT _ M (fun _ : state M => tt))) (T := fun tin k => tin = t /\ k >= n).
+    destruct (@Sim_Terminates _ _ (existT _ M (fun _ : state M => tt)) (fun tin k => tin = t /\ k >= n)).
     * intros tin k [-> Hk]. cbn. exists (mk_mconfig q' t').  eapply @loop_monotone. { exact H. }
       eapply Hk.
     * destruct H0 as [k H0]. cbn in H0. edestruct H0 as [[] H1].
@@ -801,7 +801,7 @@ Proof.
            cbn in H2. subst. f_equal.
            eapply loop_injective in H. 2: eassumption. now inv H.
         + clear k H0 H1. intros tin k [q'_ tout] Hter. cbn in *. exists q'_. eapply TM_eval_iff. exists k. exact Hter.
-  - intros t (q' & t' & [n H] % TM_eval_iff). 
+  - intros t (q' & t' & [n H] % TM_eval_iff).
     eapply (Sim_Realise (M := (existT _ M (fun _ : state M => tt))) (R := fun tin '(_,tout) => exists q', eval M (start M) tin q' tout)) in H.
     * rewrite (destruct_tape t) in *.
       specialize (H (Vector.hd t) eq_refl) as [t'_sig [[q'_ H1] H2]]. 

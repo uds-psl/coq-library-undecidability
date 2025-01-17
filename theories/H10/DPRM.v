@@ -9,7 +9,7 @@
 
 (* ** The DPRM theorem *)
 
-Require Import List Arith.
+From Stdlib Require Import List Arith.
 
 From Undecidability.Shared.Libs.DLW
   Require Import utils_tac utils_list sums pos vec subcode sss.

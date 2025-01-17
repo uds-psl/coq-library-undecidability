@@ -12,7 +12,7 @@
     Linear Polynomial (over N) Constraint Solvability (LPolyNC_SAT)
 *)
 
-Require Import List PeanoNat Lia Permutation.
+From Stdlib Require Import List PeanoNat Lia Permutation.
 Import ListNotations.
 
 Require Import Undecidability.SetConstraints.FMsetC.
@@ -20,7 +20,7 @@ Require Import Undecidability.PolynomialConstraints.LPolyNC.
 
 Require Import Undecidability.Synthetic.Definitions.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

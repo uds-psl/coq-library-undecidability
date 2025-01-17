@@ -4,7 +4,7 @@
 
 
 From Undecidability.Shared.Libs.PSL Require Prelim.
-From Coq.Vectors Require Import Vector Fin.
+From Stdlib.Vectors Require Import Vector Fin.
 From Undecidability.Shared.Libs.PSL Require Import FiniteTypes.FinTypes.
 
 Class inhabitedC (X : Type) :=

@@ -1,7 +1,7 @@
 From Undecidability.H10 Require Export H10.
 From Undecidability.H10.Dio Require Import dio_single.
 
-From Coq Require Import List Vector Nat.
+From Stdlib Require Import List Vector Nat.
 Import ListNotations Vector.VectorNotations.
 
 Definition Diophantine' {k} (R : Vector.t nat k -> nat -> Prop) : Prop :=

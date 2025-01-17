@@ -1,6 +1,6 @@
 From Undecidability.MuRec Require Export MuRec.
 
-From Coq Require Import List Vector Nat.
+From Stdlib Require Import List Vector Nat.
 Import ListNotations Vector.VectorNotations.
 
 Definition functional {X Y} (R : X -> Y -> Prop) :=

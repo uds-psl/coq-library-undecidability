@@ -9,7 +9,7 @@
 
 (* ** Bitwise operations on nat as list bool *)
 
-Require Import List Lia Bool Setoid.
+From Stdlib Require Import List Lia Bool Setoid.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac.

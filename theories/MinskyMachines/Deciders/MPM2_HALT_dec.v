@@ -17,7 +17,7 @@
       FSCD 2022. https://drops.dagstuhl.de/opus/volltexte/2022/16297/
 *)
 
-Require Import List ssrfun.
+From Stdlib Require Import List ssrfun.
 
 (* a configuration consists of a state and two counter values *)
 Definition Config : Set := nat * (nat * nat).
@@ -89,10 +89,10 @@ Definition terminating (M: Mpm2) (x: Config) :=
 Definition MPM2_HALT : Mpm2 * Config -> Prop :=
   fun '(M, c) => terminating M c.
 
-Require Import List PeanoNat Lia Operators_Properties.
+From Stdlib Require Import List PeanoNat Lia Operators_Properties.
 Import ListNotations.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

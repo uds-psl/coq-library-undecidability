@@ -9,7 +9,7 @@
 
 (* ** Elementary diophantine constraints *)
 
-Require Import List Arith Lia.
+From Stdlib Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_list.

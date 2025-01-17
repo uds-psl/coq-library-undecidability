@@ -2,13 +2,13 @@
 
 From Undecidability.L Require L Util.L_facts.
 From Undecidability.LambdaCalculus Require Import Lambda Util.facts Util.confluence.
-Require Import PeanoNat Lia List Relations.
+From Stdlib Require Import PeanoNat Lia List Relations.
 Import ListNotations.
 
 Import L (term, var, app, lam).
 Import L_facts (bound, closed_dcl, dclvar, dclApp, dcllam).
 
-Require Import ssreflect.
+From Stdlib Require Import ssreflect.
 
 Set Default Goal Selector "!".
 

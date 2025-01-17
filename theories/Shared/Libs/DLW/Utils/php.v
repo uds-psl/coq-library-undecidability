@@ -11,7 +11,7 @@
 
 (* * Pigeonhole principle *)
 
-Require Import Arith Lia List Permutation Relations.
+From Stdlib Require Import Arith Lia List Permutation Relations.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac utils_list.

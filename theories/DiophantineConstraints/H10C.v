@@ -18,7 +18,7 @@
     Uniform Diophantine Pair Constraint Solvability (H10UPC_SAT)
 *)
 
-Require Import List.
+From Stdlib Require Import List.
 
 (* Diophantine constraints (h10c) are of three shapes:
       x = 1 | x + y = z | x * y = z  with x, y, z in nat 

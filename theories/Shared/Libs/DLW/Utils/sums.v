@@ -11,7 +11,7 @@
 
 (* ** Finitary sums and products over monoids *)
 
-Require Import List Arith ZArith Lia.
+From Stdlib Require Import List Arith ZArith Lia.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac utils_list binomial.

@@ -2,7 +2,7 @@ From Undecidability.MinskyMachines Require Import MM_computable MM_sss.
 From Undecidability.FRACTRAN Require Import FRACTRAN_computable mm_fractran prime_seq.
 From Undecidability.Shared.Libs.DLW Require Import gcd prime vec.
 
-Require Import Nat Arith Lia List.
+From Stdlib Require Import Nat Arith Lia List.
 
 Lemma prime_qs n : prime (qs n).
 Proof.

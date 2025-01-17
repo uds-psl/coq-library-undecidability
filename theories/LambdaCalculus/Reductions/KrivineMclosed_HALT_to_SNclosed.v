@@ -16,12 +16,12 @@ Require Undecidability.L.L.
 From Undecidability.LambdaCalculus Require Import Krivine Lambda Util.Krivine_facts.
 Require Import Undecidability.LambdaCalculus.Util.term_facts.
 Require Import Undecidability.Shared.simulation.
-Require Import Relations List.
+From Stdlib Require Import Relations List.
 
 Import L (term, var, app, lam).
 Import ListNotations TermNotations.
 
-Require Import ssreflect.
+From Stdlib Require Import ssreflect.
 
 Set Default Goal Selector "!".
 

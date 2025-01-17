@@ -13,13 +13,13 @@
   - Module Reordering: change order, duplicate rules
 *)
 
-Require Import Relation_Operators Operators_Properties List Lia PeanoNat.
+From Stdlib Require Import Relation_Operators Operators_Properties List Lia PeanoNat.
 Import ListNotations.
 
 Require Import Undecidability.StackMachines.SMN.
 From Undecidability.StackMachines.Util Require Import List_facts SMN_facts.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

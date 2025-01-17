@@ -1,9 +1,9 @@
-Require Import List PeanoNat BinNat Lia.
+From Stdlib Require Import List PeanoNat BinNat Lia.
 Import ListNotations.
 
 Require Import Undecidability.CounterMachines.CM1.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

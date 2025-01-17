@@ -1,6 +1,6 @@
-Require Import Arith Lia ZArith.Znat ZArith.Zdiv.
+From Stdlib Require Import Arith Lia ZArith.Znat ZArith.Zdiv.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

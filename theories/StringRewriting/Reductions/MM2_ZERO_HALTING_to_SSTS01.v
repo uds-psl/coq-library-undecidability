@@ -12,15 +12,15 @@
     Simple Semi-Thue System 01 Rewriting (SSTS01)
 *)
 
-Require Import List Relation_Operators Operators_Properties.
-Require Import PeanoNat Lia.
+From Stdlib Require Import List Relation_Operators Operators_Properties.
+From Stdlib Require Import PeanoNat Lia.
 Import ListNotations.
 
 Require Undecidability.StringRewriting.SSTS.
 Require Undecidability.MinskyMachines.MM2.
 Require Undecidability.MinskyMachines.Util.MM2_facts.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

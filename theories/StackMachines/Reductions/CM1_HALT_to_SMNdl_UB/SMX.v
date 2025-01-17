@@ -10,9 +10,9 @@
     Stack Machines with Exchange
 *)
 
-Require Import List.
+From Stdlib Require Import List.
 Import ListNotations.
-Require Import Relation_Operators.
+From Stdlib Require Import Relation_Operators.
 
 Section SMX.
   Context {State Symbol : Set}.

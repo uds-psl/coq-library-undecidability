@@ -24,7 +24,7 @@
       Yannick Forster and Dominique Larchey-Wendling. CPP '19. http://uds-psl.github.io/ill-undecidability/ 
 *)
 
-Require Import List Relations.Relation_Operators.
+From Stdlib Require Import List Relations.Relation_Operators.
 
 #[local] Set Implicit Arguments.
 

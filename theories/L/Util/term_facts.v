@@ -1,4 +1,4 @@
-Require Import List PeanoNat Lia Relations.
+From Stdlib Require Import List PeanoNat Lia Relations.
 Import ListNotations.
 
 From Undecidability.L Require Import L.
@@ -7,7 +7,7 @@ From Undecidability.L Require Util.L_facts Prelim.ARS.
 Import L_facts (step).
 Require Import Undecidability.Shared.simulation.
 
-Require Import ssreflect.
+From Stdlib Require Import ssreflect.
 
 Unset Implicit Arguments.
 

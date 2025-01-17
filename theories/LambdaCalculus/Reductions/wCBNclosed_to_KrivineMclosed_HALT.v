@@ -14,12 +14,12 @@
 
 From Undecidability.LambdaCalculus Require Import
   Lambda Krivine Util.term_facts Util.wCBN_facts Util.Krivine_facts.
-Require Import List Relations.
+From Stdlib Require Import List Relations.
 Import Undecidability.L.L (term, var, app, lam).
 Import Undecidability.L.Util.L_facts.
 Import Lambda (subst, wCBN_step).
 
-Require Import ssreflect.
+From Stdlib Require Import ssreflect.
 
 Set Default Goal Selector "!".
 

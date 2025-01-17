@@ -5,7 +5,7 @@ From Undecidability.StackMachines Require Import BSM_computable.
 
 From Undecidability.Shared.Libs.DLW Require Import vec pos sss subcode.
 
-Require Import Lia Vector Nat Arith List.
+From Stdlib Require Import Lia Vector Nat Arith List.
 
 From Undecidability.MinskyMachines.MM
   Require Import mm_defs mm_utils mm_comp_strong. 

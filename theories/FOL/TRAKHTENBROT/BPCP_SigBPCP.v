@@ -12,7 +12,7 @@
 (* This was implemented by DLW following the ideas of 
    the reduction BPCP -> fin SAT described in a draft by DK. *)
 
-Require Import List Arith Bool Lia.
+From Stdlib Require Import List Arith Bool Lia.
 
 From Undecidability.PCP Require Import PCP Util.PCP_facts.
 

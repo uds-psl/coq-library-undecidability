@@ -1,4 +1,4 @@
-Require Import Bool List.
+From Stdlib Require Import Bool List.
 Import ListNotations.
 
 Require Import Undecidability.PCP.PCP.

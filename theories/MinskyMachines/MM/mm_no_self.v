@@ -10,7 +10,7 @@
 (* * Minsky machines to FRACTRAN programs *)
 (* ** Removal of self-loops in MMs *)
 
-Require Import List Arith Lia.
+From Stdlib Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW
   Require Import utils pos vec subcode sss.

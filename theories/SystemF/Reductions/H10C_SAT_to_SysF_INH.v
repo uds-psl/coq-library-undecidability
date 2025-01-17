@@ -18,14 +18,14 @@
       Schloss Dagstuhl-Leibniz-Zentrum fuer Informatik, 2019.
 *)
 
-Require Import PeanoNat List Lia.
+From Stdlib Require Import PeanoNat List Lia.
 Import ListNotations.
 Require Import Undecidability.SystemF.SysF Undecidability.SystemF.Autosubst.syntax.
 From Undecidability.SystemF.Util Require Import Facts poly_type_facts term_facts typing_facts iipc2_facts sn_facts.
 
 Require Import Undecidability.DiophantineConstraints.H10C.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

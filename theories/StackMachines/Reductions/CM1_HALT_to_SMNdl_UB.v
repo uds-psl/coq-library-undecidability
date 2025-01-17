@@ -11,7 +11,7 @@
     Uniform Boundedness of Deterministic, Length-preserving Stack Machines
 *)
 
-Require Import Relation_Operators Lia PeanoNat List.
+From Stdlib Require Import Relation_Operators Lia PeanoNat List.
 Import ListNotations.
 
 Require Undecidability.CounterMachines.CM1.
@@ -26,7 +26,7 @@ Require Import Undecidability.StackMachines.SMN.
 From Undecidability.StackMachines.Util Require Import Nat_facts List_facts Enumerable.
 Require Import Undecidability.StackMachines.Reductions.CM1_HALT_to_SMNdl_UB.CM1_to_SMX.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

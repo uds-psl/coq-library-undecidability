@@ -15,7 +15,7 @@
 
   *)
 
-Require Import List Arith.
+From Stdlib Require Import List Arith.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_decidable utils_nat.

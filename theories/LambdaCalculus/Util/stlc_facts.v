@@ -2,14 +2,14 @@
   facts about the simplty typed lambda-calculus
 *)
 
-Require Import Lia List Relations PeanoNat.
+From Stdlib Require Import Lia List Relations PeanoNat.
 Import ListNotations.
 
 Require Undecidability.L.L.
 Import L (term, var, app, lam).
 
 From Undecidability.LambdaCalculus Require Import Lambda HOMatching Util.facts Util.term_facts.
-Require Import ssreflect ssrbool.
+From Stdlib Require Import ssreflect ssrbool.
 
 #[local] Unset Implicit Arguments.
 

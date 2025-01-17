@@ -5,7 +5,7 @@ From Undecidability.FOL Require Import Syntax.Facts Deduction.FullNDFacts Semant
 Require Import Undecidability.FOL.PA.
 From Undecidability.FOL.Arithmetics Require Import TarskiFacts DeductionFacts NatModel.
 From Undecidability.H10 Require Import H10p.
-Require Import List Lia.
+From Stdlib Require Import List Lia.
 
 
 Fixpoint embed_poly p : term :=

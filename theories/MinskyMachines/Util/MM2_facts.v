@@ -1,9 +1,9 @@
-Require Import List PeanoNat Lia
+From Stdlib Require Import List PeanoNat Lia
   Relation_Operators Operators_Properties Wellfounded.Transitive_Closure.
 Import ListNotations.
 Require Import Undecidability.MinskyMachines.MM2.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

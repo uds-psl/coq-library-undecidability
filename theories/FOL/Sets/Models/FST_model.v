@@ -6,7 +6,7 @@ From Undecidability.Shared.Libs.DLW.Utils Require Import finite.
 
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations ListAutomationHints.
-From Coq Require Import Lia.
+From Stdlib Require Import Lia.
 
 
 

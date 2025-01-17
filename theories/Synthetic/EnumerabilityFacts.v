@@ -1,7 +1,7 @@
 From Undecidability.Synthetic Require Import DecidabilityFacts SemiDecidabilityFacts.
-Require Cantor.
+From Stdlib Require Cantor.
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.
-Require Import Vector List Lia.
+From Stdlib Require Import Vector List Lia.
 
 Local Notation "'if!' x 'is' p 'then' a 'else' b" := (match x with p => a | _ => b end) (at level 0, p pattern).
 

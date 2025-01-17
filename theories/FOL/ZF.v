@@ -4,7 +4,7 @@
 Require Export Undecidability.FOL.Utils.FullSyntax.
 From Undecidability.FOL.Sets Require Export ZF minZF binZF Signatures.
 Import Vector.VectorNotations.
-Require Import List.
+From Stdlib Require Import List.
 
 Declare Scope syn.
 Open Scope syn.

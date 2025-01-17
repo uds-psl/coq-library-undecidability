@@ -12,9 +12,9 @@
     Simple Semi-unification (SSemiU)
 *)
 
-Require Import List PeanoNat Lia.
+From Stdlib Require Import List PeanoNat Lia.
 Import ListNotations.
-Require Import Relations.Relation_Operators Relations.Operators_Properties.
+From Stdlib Require Import Relations.Relation_Operators Relations.Operators_Properties.
 
 (* uniform boundedness of confluent simple stack machines *)
 From Undecidability.StackMachines Require Import SSM.
@@ -24,7 +24,7 @@ From Undecidability.StackMachines.Util Require Import CSSM_facts.
 Require Import Undecidability.SemiUnification.SemiU. 
 From Undecidability.SemiUnification.Util Require Import Enumerable.
 
-Require Import ssreflect ssrfun ssrbool.
+From Stdlib Require Import ssreflect ssrfun ssrbool.
 
 Set Default Goal Selector "!".
 

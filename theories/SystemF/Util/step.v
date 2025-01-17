@@ -23,7 +23,7 @@ Inductive sn x : Prop :=
 
 Local Hint Constructors step normal_form head_form : core.
 
-Require Import Coq.Relations.Relation_Operators.
+From Stdlib Require Import Relations.Relation_Operators.
 
 Ltac inv_step :=
   match goal with
@@ -95,7 +95,7 @@ Proof.
     econstructor. now_asimpl.
 Qed.
 
-Require Import Coq.Program.Equality.
+From Stdlib Require Import Program.Equality.
 
 Ltac inv H := inversion H; subst; clear H.
 

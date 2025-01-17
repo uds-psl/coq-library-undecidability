@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import List Arith Nat Lia.
+From Stdlib Require Import List Arith Nat Lia.
 
 Set Implicit Arguments.
 

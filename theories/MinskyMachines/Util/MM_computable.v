@@ -1,7 +1,7 @@
 Require Export Undecidability.MinskyMachines.MM.
 Require Import Undecidability.MinskyMachines.Util.MM_sss Undecidability.MinskyMachines.MM.mm_defs.
 
-From Coq Require Import List Vector.
+From Stdlib Require Import List Vector.
 Import ListNotations Vector.VectorNotations.
 
 Lemma MM_computable_iff {k} (R : Vector.t nat k -> nat -> Prop) :

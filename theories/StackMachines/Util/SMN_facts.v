@@ -1,10 +1,10 @@
-Require Import Arith Lia Relation_Operators Operators_Properties List.
+From Stdlib Require Import Arith Lia Relation_Operators Operators_Properties List.
 Import ListNotations.
 
 From Undecidability.StackMachines.Util Require Import Nat_facts List_facts.
 Require Import Undecidability.StackMachines.SMN.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

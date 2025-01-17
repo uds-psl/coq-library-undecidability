@@ -6,7 +6,7 @@
     (1) Saarland University, Saarbrücken, Germany
 *)
 
-Require Import Arith Lia List.
+From Stdlib Require Import Arith Lia List.
 From Undecidability.DiophantineConstraints Require Import H10C.
 
 (** Utils for H10UPC *)

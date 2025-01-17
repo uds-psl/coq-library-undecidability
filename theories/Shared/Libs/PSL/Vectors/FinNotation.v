@@ -1,7 +1,7 @@
 (* * Notations for [Fin.t] *)
 (* Author: Maximilian Wuttke *)
 
-Require Vector.
+From Stdlib Require Vector.
 
 Notation "'Fin0'"  := (Fin.F1).
 Notation "'Fin1'"  := (Fin.FS Fin0).

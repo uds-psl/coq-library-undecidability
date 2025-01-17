@@ -11,7 +11,7 @@
     Halting of one counter machines (CM1_HALT)
 *)
 
-Require Import ZArith List PeanoNat Lia Relations.Relation_Operators Relations.Operators_Properties.
+From Stdlib Require Import ZArith List PeanoNat Lia Relations.Relation_Operators Relations.Operators_Properties.
 Import ListNotations.
 
 Require Import Undecidability.MinskyMachines.MM2.
@@ -20,7 +20,7 @@ Require Undecidability.Shared.simulation.
 Require Import Undecidability.CounterMachines.Util.CM1_facts.
 Require Import Undecidability.MinskyMachines.Util.MM2_facts.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

@@ -12,7 +12,7 @@
   and reflected by (terminates_reflection) strong normalization in step 2.
 *)
 
-Require Import Relations Transitive_Closure.
+From Stdlib Require Import Relations Transitive_Closure.
 
 Section Preliminaries.
 

@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import Morphisms Setoid.
+From Stdlib Require Import Morphisms Setoid.
 From Undecidability.HOU Require Import std.std.
 From Undecidability.HOU.calculus Require Import prelim terms semantics. 
 Import ArsInstances.

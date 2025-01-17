@@ -11,7 +11,7 @@
 
 (* ** Two infinite sequences of primes *)
 
-Require Import List Arith Lia Bool Permutation.
+From Stdlib Require Import List Arith Lia Bool Permutation.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import utils utils_tac utils_list utils_nat gcd rel_iter prime pos vec.

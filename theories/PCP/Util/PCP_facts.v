@@ -1,4 +1,4 @@
-Require Import List.
+From Stdlib Require Import List.
 Import ListNotations.
 
 Require Import Undecidability.PCP.PCP.
@@ -9,7 +9,7 @@ From Undecidability.Synthetic Require Import Definitions DecidabilityFacts Enume
 From Undecidability Require Export PCP.PCP.
 From Undecidability.Shared Require Export ListAutomation.
 Import ListAutomationNotations ListAutomationHints.
-Require Import Coq.Init.Wf.
+From Stdlib Require Import Init.Wf Lia.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.

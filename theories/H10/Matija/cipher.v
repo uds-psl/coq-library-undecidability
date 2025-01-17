@@ -9,7 +9,7 @@
 
 (* ** Sparse ciphers *)
 
-Require Import Arith Lia List Bool.
+From Stdlib Require Import Arith Lia List Bool.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac gcd sums rel_iter bool_nat power_decomp prime.

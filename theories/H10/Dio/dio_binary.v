@@ -9,7 +9,7 @@
 
 (* ** Object-level encoding of bounded universal quantification I *)
 
-Require Import Arith Lia List Bool Setoid.
+From Stdlib Require Import Arith Lia List Bool Setoid.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac gcd prime binomial sums bool_nat rel_iter.

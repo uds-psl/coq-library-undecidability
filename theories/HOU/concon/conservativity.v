@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import PeanoNat Lia List.
+From Stdlib Require Import PeanoNat Lia List.
 From Undecidability.HOU Require Import calculus.calculus concon.conservativity_constants
   unification.higher_order_unification unification.systemunification
   unification.nth_order_unification.

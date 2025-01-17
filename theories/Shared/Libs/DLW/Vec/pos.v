@@ -7,8 +7,8 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import List Arith Lia.
-Require Fin.
+From Stdlib Require Import List Arith Lia.
+From Stdlib Require Fin.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils.

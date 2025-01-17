@@ -1,4 +1,4 @@
-From Coq Require List Vector.
+From Stdlib Require List Vector.
 
 From Undecidability.TM Require Export TM Util.TM_facts.
 

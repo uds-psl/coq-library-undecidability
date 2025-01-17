@@ -17,7 +17,7 @@
 
  *)
 
-Require Import Arith Lia List Permutation.
+From Stdlib Require Import Arith Lia List Permutation.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac php.

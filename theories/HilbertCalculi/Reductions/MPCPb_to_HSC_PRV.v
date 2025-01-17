@@ -12,10 +12,10 @@
     Provability in a fixed Hilbert-style calculus (HSC_PRV)
 *)
 
-Require Import List Lia.
+From Stdlib Require Import List Lia.
 Import ListNotations.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Require Import Undecidability.HilbertCalculi.HSC.
 Require Import Undecidability.HilbertCalculi.Util.HSCFacts.

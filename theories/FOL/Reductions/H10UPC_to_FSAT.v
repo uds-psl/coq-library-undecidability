@@ -1,5 +1,5 @@
 (* * FOL Reductions *)
-Require Import Vector.
+From Stdlib Require Import Vector.
 From Undecidability.DiophantineConstraints Require Import H10C Util.H10UPC_facts.
 From Undecidability.FOL Require Semantics.FiniteTarski.Fragment.
 From Undecidability.FOL Require Import Syntax.Facts Deduction.FullNDFacts 
@@ -8,15 +8,15 @@ From Undecidability.FOL Require Import Syntax.Facts Deduction.FullNDFacts
 From Undecidability.Shared Require Import Dec.
 From Undecidability.Shared.Libs.PSL Require Import Numbers.
 From Undecidability.Shared.Libs.DLW.Wf Require Import wf_finite.
-From Coq Require Import Arith Lia List.
+From Stdlib Require Import Arith Lia List.
 
 From Undecidability.FOL.Semantics.FiniteTarski Require Import Full DoubleNegation.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts.
 Require Import Undecidability.Synthetic.Definitions.
 Require Import Datatypes.
-Require Import Relation_Definitions.
-Require Import Setoid.
-Require Import Relation_Definitions.
+From Stdlib Require Import Relation_Definitions.
+From Stdlib Require Import Setoid.
+From Stdlib Require Import Relation_Definitions.
 
 
 

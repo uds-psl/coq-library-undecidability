@@ -21,10 +21,10 @@ From Undecidability.Shared.Libs.DLW
 From Undecidability Require Import
   MinskyMachines.Util.MMA_pairing L.AbstractMachines.wCBV.
 
-Require Import PeanoNat List Lia Wf_nat.
+From Stdlib Require Import PeanoNat List Lia Wf_nat.
 Import ListNotations.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

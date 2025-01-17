@@ -2,7 +2,7 @@
 (* ** Axioms of Robinson Arithmetic *)
 Require Export Undecidability.FOL.Arithmetics.FA.
 Import Vector.VectorNotations.
-Require Import List.
+From Stdlib Require Import List.
 
 Definition ax_zero_succ := ∀  (zero == σ var 0 → falsity).
 Definition ax_succ_inj :=  ∀∀ (σ $1 == σ $0 → $1 == $0).

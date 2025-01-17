@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-From Coq Require Import List.
+From Stdlib Require Import List.
 
 From Undecidability.Shared.Libs.DLW Require Import pos vec.
 From Undecidability.H10.Dio Require Import dio_single.

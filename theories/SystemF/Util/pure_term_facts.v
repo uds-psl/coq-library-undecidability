@@ -5,13 +5,13 @@
     (1) Saarland University, Saarbrücken, Germany
 *)
 
-Require Import List Lia.
+From Stdlib Require Import List Lia.
 Import ListNotations.
 Require Import Undecidability.SystemF.SysF Undecidability.SystemF.Autosubst.syntax Undecidability.SystemF.Autosubst.unscoped.
 Import UnscopedNotations.
 Require Import Undecidability.SystemF.Util.Facts Undecidability.SystemF.Util.poly_type_facts.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

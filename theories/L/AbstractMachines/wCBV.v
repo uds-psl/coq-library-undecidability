@@ -12,11 +12,11 @@
   the abstract "machine" relates s with some closure y such that flatten y = t
 *)
 
-Require Import List Relations.
+From Stdlib Require Import List Relations.
 Import ListNotations.
 Require Import Undecidability.L.L Undecidability.L.Util.L_facts.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

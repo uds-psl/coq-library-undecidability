@@ -1,7 +1,7 @@
 (* * Second-Order Peano Arithmetic *)
 
 Require Import Undecidability.SOL.SOL.
-Require Import Vector.
+From Stdlib Require Import Vector.
 Import VectorNotations SOLNotations.
 
 

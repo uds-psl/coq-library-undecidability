@@ -8,7 +8,7 @@
     Higher-Order Matching wrt. beta-equivalence (HOMbeta)
 *)
 
-Require Import List PeanoNat Relations Lia.
+From Stdlib Require Import List PeanoNat Relations Lia.
 Import ListNotations.
 
 Require Undecidability.L.L.
@@ -16,7 +16,7 @@ Import L (term, var, app, lam).
 From Undecidability.LambdaCalculus Require Import Lambda HOMatching Util.facts Util.stlc_facts Util.term_facts.
 Require Undecidability.StringRewriting.SSTS.
 
-Require Import ssreflect.
+From Stdlib Require Import ssreflect.
 
 Set Default Proof Using "Type".
 

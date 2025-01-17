@@ -12,12 +12,12 @@
     Left-uniform Two-inequality Semi-unification (LU2SemiU)
 *)
 
-Require Import List.
+From Stdlib Require Import List.
 
 Require Import Undecidability.SemiUnification.SemiU.
 From Undecidability.SemiUnification.Util Require Import Enumerable.
 
-Require Import ssreflect ssrfun ssrbool.
+From Stdlib Require Import ssreflect ssrfun ssrbool.
 
 Set Default Goal Selector "!".
 

@@ -9,7 +9,7 @@
   [1] Loader, Ralph. "Higher order β-matching is undecidable." Logic Journal of the IGPL 11.1 (2003): 51-68.
 *)
 
-Require Import List Relation_Operators.
+From Stdlib Require Import List Relation_Operators.
 
 Require Undecidability.L.L Undecidability.LambdaCalculus.Lambda.
 

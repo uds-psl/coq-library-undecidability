@@ -2,9 +2,9 @@ From Undecidability.LambdaCalculus Require Import Lambda Util.term_facts.
 Import L.L (term, var, app, lam).
 Require Import Undecidability.L.Util.L_facts.
 Import Lambda (subst, wCBN_step, wCBN_stepApp, wCBN_stepSubst).
-Require Import Relations Lia.
+From Stdlib Require Import Relations Lia.
 
-Require Import ssreflect.
+From Stdlib Require Import ssreflect.
 
 Set Default Goal Selector "!".
 

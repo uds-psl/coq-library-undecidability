@@ -1,6 +1,6 @@
 (* * Second-Order Peano Arithmetic *)
 
-Require Import PeanoNat Lia Vector.
+From Stdlib Require Import PeanoNat Lia Vector.
 From Undecidability.SOL Require Import SOL PA2.
 From Undecidability.Shared.Libs.PSL Require Import Vectors.
 From Undecidability.SOL.Util Require Import Syntax Subst Tarski.

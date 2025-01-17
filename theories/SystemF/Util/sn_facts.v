@@ -1,8 +1,8 @@
 Require Import Undecidability.SystemF.SysF Undecidability.SystemF.Autosubst.syntax Undecidability.SystemF.Autosubst.unscoped.
 Import UnscopedNotations.
 From Undecidability.SystemF.Util Require Import typing_facts term_facts step.
-Require Import Setoid Morphisms.
-Require List.
+From Stdlib Require Import Setoid Morphisms.
+From Stdlib Require List.
 
 Definition pw_iff {X} p q := (forall x : X, p x <-> q x).
 Notation "p == q" := (pw_iff p q) (at level 70).

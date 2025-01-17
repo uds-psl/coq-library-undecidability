@@ -14,14 +14,14 @@
       FSCD 2022. https://drops.dagstuhl.de/opus/volltexte/2022/16297/
 *)
 
-Require Import List PeanoNat Lia Relation_Operators Operators_Properties ConstructiveEpsilon.
+From Stdlib Require Import List PeanoNat Lia Relation_Operators Operators_Properties ConstructiveEpsilon.
 Import ListNotations.
 
 Require Import Undecidability.MinskyMachines.MM2.
 Require Import Undecidability.MinskyMachines.Deciders.MM2_UBOUNDED_dec.
 Require Import Undecidability.MinskyMachines.Util.MM2_facts.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

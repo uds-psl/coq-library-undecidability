@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import List Lia.
+From Stdlib Require Import List Lia.
 Import ListNotations.
 
 Lemma list_decompose k {X} (A: list X):

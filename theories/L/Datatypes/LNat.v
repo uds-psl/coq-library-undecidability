@@ -2,7 +2,7 @@ From Undecidability.L Require Export Util.L_facts.
 From Undecidability.L.Tactics Require Export LTactics GenEncode.
 Require Import Undecidability.Shared.Libs.PSL.Numbers.
 
-Require Import Nat.
+From Stdlib Require Import Nat.
 From Undecidability.L Require Import Datatypes.LBool Functions.EqBool Datatypes.LProd. 
 Import GenEncode. Import Nat.
 (* ** Encoding of natural numbers *)

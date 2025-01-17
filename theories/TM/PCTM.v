@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import List Bool.
+From Stdlib Require Import List Bool.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import sss.

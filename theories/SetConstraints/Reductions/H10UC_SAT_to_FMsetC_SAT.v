@@ -14,8 +14,8 @@
     Finite Multiset Constraint Solvability (FMsetC_SAT)
 *)
 
-Require Import Arith Lia List Permutation.
-Require Cantor.
+From Stdlib Require Import Arith Lia List Permutation.
+From Stdlib Require Cantor.
 Import ListNotations.
 
 Require Import Undecidability.SetConstraints.FMsetC.
@@ -27,7 +27,7 @@ Require Import Undecidability.Synthetic.Definitions.
 (*
 Require Import Undecidability.Synthetic.ReducibilityFacts.
 *)
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

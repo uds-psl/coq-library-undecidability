@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import Arith Eqdep_dec.
+From Stdlib Require Import Arith Eqdep_dec.
 
 From Undecidability.Shared Require Import DLW.Utils.utils DLW.Vec.vec DLW.Vec.pos.
 From Undecidability.MuRec.Util Require Import recalg.

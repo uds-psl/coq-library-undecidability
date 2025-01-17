@@ -1,7 +1,7 @@
 Require Import Undecidability.SystemF.Autosubst.unscoped.
 Require Import Undecidability.SystemF.SysF.
 
-Require Import Morphisms.
+From Stdlib Require Import Morphisms.
 
 Set Default Goal Selector "!".
 

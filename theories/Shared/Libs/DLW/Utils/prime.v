@@ -9,7 +9,7 @@
 
 (* ** Prime numbers *)
 
-Require Import List Arith Lia Bool Permutation.
+From Stdlib Require Import List Arith Lia Bool Permutation.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac utils_list utils_nat gcd sums.

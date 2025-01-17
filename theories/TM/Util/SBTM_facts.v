@@ -1,5 +1,5 @@
 From Undecidability Require Import TM.SBTM.
-Require Import PeanoNat Lia List ssreflect ssrbool ssrfun.
+From Stdlib Require Import PeanoNat Lia List ssreflect ssrbool ssrfun.
 Import ListNotations SBTMNotations.
 
 Set Default Goal Selector "!".

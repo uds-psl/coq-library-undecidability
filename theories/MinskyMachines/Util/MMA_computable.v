@@ -2,10 +2,10 @@ Require Import Undecidability.MinskyMachines.MMA.
 Require Import Undecidability.MinskyMachines.MMA.mma_defs.
 From Undecidability.Shared.Libs.DLW Require Import Code.sss.
 
-From Coq Require Import Vector.
+From Stdlib Require Import Vector.
 Import Vector.VectorNotations.
 
-Require Import ssreflect.
+From Stdlib Require Import ssreflect.
 
 #[local] Notation "P // s ~~> t" := (sss_output (@mma_sss _) P s t).
 

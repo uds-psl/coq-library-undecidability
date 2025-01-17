@@ -29,9 +29,9 @@ From Undecidability.Shared.Libs.DLW
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.
 Require Import Undecidability.Shared.Libs.PSL.EqDec.
 
-Require Import List Vector Lia PeanoNat Compare_dec.
+From Stdlib Require Import List Vector Lia PeanoNat Compare_dec.
 Import ListNotations.
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

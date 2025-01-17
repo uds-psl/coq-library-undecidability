@@ -11,7 +11,7 @@
     Halting of Minsky machines with two counters starting from (0, 0) (MM2_ZERO_HALTING)
 *)
 
-Require Import List PeanoNat Lia Relations.Relation_Operators Relations.Operators_Properties.
+From Stdlib Require Import List PeanoNat Lia Relations.Relation_Operators Relations.Operators_Properties.
 
 Require Import Undecidability.MinskyMachines.MM2.
 Require Import Undecidability.MinskyMachines.Util.MM2_facts.
@@ -19,7 +19,7 @@ Require Import Undecidability.MinskyMachines.Util.MM2_facts.
 Require Undecidability.Shared.simulation.
 Module sim := simulation.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

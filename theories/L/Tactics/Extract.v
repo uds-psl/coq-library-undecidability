@@ -404,7 +404,7 @@ Definition tmExtractConstr (def : ident) {A : Type} (a : A) :=
   
 (* End Fix_X. *)
 
-(* *** Extracting terms from Coq to L *)
+(* *** Extracting terms From Stdlib to L *)
 
 Definition lift env := (fun n => match n with 0 => 0 | S n => S (env n) end).
 

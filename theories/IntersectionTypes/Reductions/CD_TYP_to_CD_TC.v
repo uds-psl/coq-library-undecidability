@@ -15,10 +15,10 @@
 From Undecidability.IntersectionTypes Require Import CD Util.CD_facts.
 Require Import Undecidability.LambdaCalculus.Util.term_facts.
 Require Undecidability.L.L.
-Require Import List PeanoNat Lia.
+From Stdlib Require Import List PeanoNat Lia.
 Import L (term, var, app, lam).
 
-Require Import ssreflect.
+From Stdlib Require Import ssreflect.
 
 Set Default Goal Selector "!".
 

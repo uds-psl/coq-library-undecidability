@@ -1,9 +1,9 @@
 From Undecidability Require StringRewriting.SR.
 From Undecidability Require Import TM.SBTM TM.Util.SBTM_facts.
 
-Require Import PeanoNat Lia.
+From Stdlib Require Import PeanoNat Lia.
 
-Require Import List ssreflect ssrbool ssrfun.
+From Stdlib Require Import List ssreflect ssrbool ssrfun.
 Import ListNotations SBTMNotations.
 
 Set Default Goal Selector "!".

@@ -1,5 +1,5 @@
 From Undecidability.L Require Export Datatypes.LBool Datatypes.LNat Datatypes.LTerm.
-Require Import Nat.
+From Stdlib Require Import Nat.
 From Undecidability.L Require Import Tactics.LTactics Functions.EqBool.
 Import EqBool.
 (* * Extracted Functions *)

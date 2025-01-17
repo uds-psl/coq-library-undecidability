@@ -1,6 +1,6 @@
 From Undecidability.FOL Require Import Syntax.Facts Semantics.Tarski.FullFacts Semantics.FiniteTarski.Full.
 Require Import Undecidability.Synthetic.Definitions.
-Require Import Vector Lia.
+From Stdlib Require Import Vector Lia.
 
 Set Default Goal Selector "!".
 

@@ -38,7 +38,7 @@
       LICS 1996: 466-472, doi: 10.1109/LICS.1996.561463
 *)
 
-Require Import PeanoNat List.
+From Stdlib Require Import PeanoNat List.
 Import ListNotations.
 
 (* list equality up to permutation *)

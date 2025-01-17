@@ -5,7 +5,7 @@ From Undecidability.DiophantineConstraints.Util Require Import H10UPC_facts.
 From Undecidability.FOL Require Import Syntax.Facts Deduction.FragmentNDFacts Semantics.Tarski.FragmentSoundness Semantics.Tarski.FragmentFacts Syntax.BinSig Semantics.Kripke.FragmentCore  Semantics.Kripke.FragmentSoundness Semantics.Kripke.FragmentToTarski.
 From Undecidability.Shared Require Import Dec.
 From Undecidability.Shared.Libs.PSL Require Import Numbers.
-From Coq Require Import Arith Lia List.
+From Stdlib Require Import Arith Lia List.
 From Undecidability.FOL.Reductions Require Import H10UPC_to_FOL_friedman H10UPC_to_FOL_constructions.
 
 

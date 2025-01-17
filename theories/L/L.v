@@ -43,7 +43,7 @@ Fixpoint nat_enc (n : nat) :=
 
 (* ** L-computable relations  *)
 
-Require Import Vector.
+From Stdlib Require Import Vector.
 
 Definition L_computable {k} (R : Vector.t nat k -> nat -> Prop) := 
   exists s, forall v : Vector.t nat k, 

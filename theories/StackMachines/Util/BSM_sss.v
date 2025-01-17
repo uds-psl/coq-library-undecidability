@@ -11,7 +11,7 @@
 
 Require Import Undecidability.StackMachines.BSM.
 
-Require Import List Bool Lia Nat.
+From Stdlib Require Import List Bool Lia Nat.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import list_bool pos vec sss.

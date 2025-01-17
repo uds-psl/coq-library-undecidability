@@ -10,7 +10,7 @@
 (* * Arithmetic libraries for Matiyasevich's theorems *)
 (* ** Modular arithmetic *)
 
-Require Import Arith Lia ZArith List Permutation Eqdep_dec.
+From Stdlib Require Import Arith Lia ZArith List Permutation Eqdep_dec.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac utils_list gcd prime binomial sums php.

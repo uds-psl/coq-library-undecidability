@@ -1,9 +1,9 @@
-Require Import PeanoNat List Lia.
+From Stdlib Require Import PeanoNat List Lia.
 Import ListNotations.
 
 Require Import Undecidability.StackMachines.Util.Nat_facts.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

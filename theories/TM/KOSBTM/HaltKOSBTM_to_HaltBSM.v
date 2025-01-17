@@ -2,7 +2,7 @@ Require Import Undecidability.TM.KOSBTM.KOSBTM.
 
 Require Import Undecidability.Shared.Libs.PSL.Vectors.FinNotation Undecidability.Shared.Libs.PSL.Vectors.Vectors Undecidability.Shared.Libs.PSL.EqDec.
 
-Require Import List Arith Lia Bool.
+From Stdlib Require Import List Arith Lia Bool.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import utils list_bool pos vec subcode sss.

@@ -7,7 +7,7 @@ From Undecidability.FOL.Reductions Require Import H10UPC_to_FOL_minimal H10UPC_t
 From Undecidability.Shared Require Import Dec.
 From Undecidability.Shared.Libs.PSL Require Import Numbers.
 From Undecidability.Synthetic Require Import Definitions.
-From Coq Require Import Arith Lia List.
+From Stdlib Require Import Arith Lia List.
 
 
 (* ** Validity *)

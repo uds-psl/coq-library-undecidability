@@ -1,6 +1,6 @@
 From Undecidability.L Require Import L Tactics.Computable Tactics.ComputableTactics Tactics.Extract.
 From MetaCoq Require Import Template.All TemplateMonad.Core Template.Ast.
-Require Import List.
+From Stdlib Require Import List.
 Require Export MetaCoq.Utils.bytestring.
 
 Import MCMonadNotation.

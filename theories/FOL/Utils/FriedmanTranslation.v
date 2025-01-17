@@ -1,6 +1,6 @@
 (* ** Eliminating excluded middle *)
 
-Require Import List Lia.
+From Stdlib Require Import List Lia.
 
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationFacts ListAutomationInstances.

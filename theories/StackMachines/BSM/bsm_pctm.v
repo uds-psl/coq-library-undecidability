@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import List Arith Lia Bool.
+From Stdlib Require Import List Arith Lia Bool.
 
 From Undecidability.Synthetic
   Require Import ReducibilityFacts.

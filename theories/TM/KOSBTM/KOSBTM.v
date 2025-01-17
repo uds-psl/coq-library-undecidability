@@ -1,7 +1,7 @@
 (** * Halting problem for simple binary single-tape Turing machines HaltKOSBTM *)
 
-Require Import List Bool Nat.
-Require Coq.Vectors.Fin.
+From Stdlib Require Import List Bool Nat.
+From Stdlib Require Vectors.Fin.
 Import ListNotations.
 
 Definition tape : Type := list bool * option bool * list bool.

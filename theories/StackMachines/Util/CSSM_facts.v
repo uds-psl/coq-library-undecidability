@@ -10,10 +10,10 @@
     Confluent Simple Stack Machines
 *)
 
-Require Import PeanoNat Lia Relation_Operators Operators_Properties List.
+From Stdlib Require Import PeanoNat Lia Relation_Operators Operators_Properties List.
 Import ListNotations.
 
-Require Import ssreflect ssrfun ssrbool.
+From Stdlib Require Import ssreflect ssrfun ssrbool.
 
 (* uniform boundedness of deterministic simple stack machines *)
 Require Import Undecidability.StackMachines.SSM.

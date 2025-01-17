@@ -17,10 +17,10 @@ From Undecidability.Shared.Libs.DLW
 
 Require Import Undecidability.Shared.simulation.
 
-Require Import List PeanoNat Lia Relations.
+From Stdlib Require Import List PeanoNat Lia Relations.
 Import ListNotations.
 
-Require Import ssreflect.
+From Stdlib Require Import ssreflect.
 
 Set Default Goal Selector "!".
 

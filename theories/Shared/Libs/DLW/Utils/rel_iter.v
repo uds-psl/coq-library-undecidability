@@ -9,7 +9,7 @@
 
 (* ** Iteration of binary relations *)
 
-Require Import Arith Nat Lia.
+From Stdlib Require Import Arith Nat Lia.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac gcd prime binomial sums.

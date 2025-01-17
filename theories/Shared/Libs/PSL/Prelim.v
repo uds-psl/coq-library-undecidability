@@ -5,9 +5,9 @@
    - Acknowlegments: Sigurd Schneider, Dominik Kirst, Yannick Forster, Fabian Kunze, Maximilian Wuttke
  *)
 
-Require Export Bool Lia List Setoid Morphisms Arith.
+From Stdlib Require Export Bool Lia List Setoid Morphisms Arith.
 From Undecidability.Shared.Libs.PSL Require Export Tactics.
-Require Import FinFun.
+From Stdlib Require Import FinFun.
 
 Global Set Implicit Arguments. 
 Global Unset Strict Implicit.

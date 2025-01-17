@@ -9,7 +9,7 @@
 
 (* ** Matric computation *)
 
-Require Import Arith ZArith.
+From Stdlib Require Import Arith ZArith.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac gcd prime binomial sums.

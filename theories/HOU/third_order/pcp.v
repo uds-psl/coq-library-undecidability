@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import List.
+From Stdlib Require Import List.
 From Undecidability.HOU Require Import std.std. 
 Import ListNotations.
 

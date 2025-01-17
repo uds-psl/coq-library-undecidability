@@ -26,7 +26,7 @@
     where ≃ is equality up to trailing zeroes?
 *)
 
-Require Import List.
+From Stdlib Require Import List.
 Import ListNotations.
 
 Definition poly : Set := list nat.

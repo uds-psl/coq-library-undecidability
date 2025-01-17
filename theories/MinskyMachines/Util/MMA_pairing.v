@@ -17,10 +17,10 @@ From Undecidability Require Import
 From Undecidability.Shared.Libs.DLW
   Require Import Vec.pos Vec.vec Code.sss.
 
-Require Import PeanoNat List Lia Wf_nat.
+From Stdlib Require Import PeanoNat List Lia Wf_nat.
 Import ListNotations.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

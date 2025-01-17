@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import List Arith Lia.
+From Stdlib Require Import List Arith Lia.
 From Undecidability.HOU Require Import std.std.
 From Undecidability.HOU.calculus Require Import 
   prelim terms syntax semantics typing. 
