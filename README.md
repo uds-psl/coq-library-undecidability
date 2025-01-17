@@ -1,4 +1,4 @@
-# Manual installation for Coq
+# Manual installation for Rocq
 
 ```
 opam switch create coq-library-undecidability --packages=ocaml-variants.4.14.1+options,ocaml-option-flambda
