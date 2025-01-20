@@ -51,7 +51,7 @@ Section Minsky_Machine.
   Definition mm_state := (nat*vec nat n)%type.
 
   Local Notation "e #> x" := (vec_pos e x).
-  Local Notation "e [ x := v ]" := (vec_change e x v) (no associativity, at level 50).
+  Local Notation "e [ x := v ]" := (vec_change e x v) (no associativity, at level 1).
 
   Local Reserved Notation "P // e ▷ v" (at level 50, no associativity).
 

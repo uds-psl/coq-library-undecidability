@@ -13,9 +13,9 @@ From Undecidability.Shared.Libs.DLW.Utils
 Set Implicit Arguments.
 
 Reserved Notation " e '⇢' x " (at level 58).
-Reserved Notation " e [ v / x ] " (at level 57, v at level 0, x at level 0, 
+Reserved Notation " e [ v / x ] " (at level 1, v at level 0, x at level 0, 
                                    left associativity, format "e [ v / x ]").
-Reserved Notation " e ⦃  x '⇠' v ⦄ " (at level 57, v at level 0, x at level 0, left associativity).
+Reserved Notation " e ⦃  x '⇠' v ⦄ " (at level 1, v at level 0, x at level 0, left associativity).
 
 Section env.
 
