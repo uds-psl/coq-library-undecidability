@@ -6,8 +6,8 @@
 (* ** Functional Extensionality
     We import the axiom from the Coq Standard Library and derive a utility tactic to make the assumption practically usable.
 *)
-Require Import Coq.Logic.FunctionalExtensionality.
-Require Import Program.Tactics.
+From Stdlib Require Import Logic.FunctionalExtensionality.
+From Stdlib Require Import Program.Tactics.
 
 Tactic Notation "nointr" tactic(t) :=
   let m := fresh "marker" in

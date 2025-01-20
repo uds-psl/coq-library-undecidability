@@ -7,9 +7,9 @@
 
 Require Import Undecidability.Synthetic.EnumerabilityFacts.
 
-Require Import List Lia.
-Require Cantor.
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import List Lia.
+From Stdlib Require Cantor.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

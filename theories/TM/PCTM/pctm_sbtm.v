@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import List Arith Lia Bool.
+From Stdlib Require Import List Arith Lia Bool.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import utils pos subcode sss.
@@ -39,7 +39,7 @@ Section helpers.
     + exists nil, (map pos_nxt (pos_list n)); auto.
     + exists (pos0::map pos_nxt l), (map pos_nxt r); split; simpl.
       * rewrite H1, map_app; simpl; auto.
-      * rewrite map_length, H2; auto.
+      * rewrite length_map, H2; auto.
   Qed.
 
   Fact Natiter_add a b X (f : X -> X) x : Nat.iter (a+b) f x = Nat.iter a f (Nat.iter b f x).
@@ -142,7 +142,7 @@ Section SBTM_PCTM.
     Local Fact fm_length l : length (flat_map g l) = 9*length l.
     Proof.
       induction l as [ | s l IHl ]; auto.
-      simpl flat_map; rewrite app_length, IHl, length_g; simpl; lia.
+      simpl flat_map; rewrite length_app, IHl, length_g; simpl; lia.
     Qed.
 
     Local Fact gs_sc l s r : (2+9*length l,g s) <sc (2,flat_map g (l++s::r)).
@@ -151,7 +151,7 @@ Section SBTM_PCTM.
       + rewrite flat_map_app; auto.
       + f_equal; clear s r.
         induction l as [ | s l IHl ]; simpl flat_map; auto.
-        rewrite app_length, <- IHl, length_g; simpl; lia.
+        rewrite length_app, <- IHl, length_g; simpl; lia.
     Qed.
 
     Let Q := flat_map g (pos_list _).

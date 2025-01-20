@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import List Lia.
+From Stdlib Require Import List Lia.
 Import ListNotations.
 From Undecidability.HOU Require Import calculus.terms calculus.prelim std.std.
 

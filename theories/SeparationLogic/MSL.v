@@ -1,4 +1,4 @@
-Require Import List.
+From Stdlib Require Import List.
 
 #[local] Notation "x 'el' L" := (In x L) (at level 70).
 

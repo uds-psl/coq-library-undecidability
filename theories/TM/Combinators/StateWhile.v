@@ -1,5 +1,6 @@
 From Undecidability Require Export TM.Util.TM_facts.
-Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.DepPairs EqdepFacts.
+Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.DepPairs.
+From Stdlib Require Import EqdepFacts.
 
 Set Default Goal Selector "!".
 

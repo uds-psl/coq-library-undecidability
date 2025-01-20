@@ -1,6 +1,6 @@
-From Undecidability.L Require Import LTactics.
+Require Import Undecidability.L.L Undecidability.L.Util.L_facts.
 Require Import Undecidability.Shared.Libs.PSL.Vectors.Vectors.
-Require Import Vector List.
+From Stdlib Require Import Vector List.
 Import ListNotations.
 Import VectorNotations.
 Import L_Notations.
@@ -17,8 +17,8 @@ Qed.
 
 Fixpoint many_app k s (v : Vector.t term k) := 
     match v with
-    | Vector.nil => s
-    | Vector.cons x _ v => many_app (L.app s x) v
+    | Vector.nil _ => s
+    | Vector.cons _ x _ v => many_app (L.app s x) v
     end.
 
 Lemma subst_many_app k (v : Vector.t term k) n u s :
@@ -63,7 +63,7 @@ Qed.
 Fixpoint many_subst {k} s n (v : Vector.t term k) := 
   match v with
   | [] => s
-  | Vector.cons u k v => many_subst (subst s (n + k) u) n v
+  | Vector.cons _ u k v => many_subst (subst s (n + k) u) n v
   end.
   
 Lemma beta_red s t t' : lambda t -> t' == subst s 0 t -> (lam s) t == t'.

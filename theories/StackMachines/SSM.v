@@ -12,7 +12,7 @@
     Uniform Boundedness of Confluent Simple Stack Machines (CSSM_UB)
 *)
 
-Require Import List Relation_Operators.
+From Stdlib Require Import List Relation_Operators.
 
 Definition stack : Set := list bool.
 Definition state : Set := nat.

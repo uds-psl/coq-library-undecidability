@@ -14,7 +14,7 @@
       FSCD 2022. https://drops.dagstuhl.de/opus/volltexte/2022/16297/
 *)
 
-Require Import PeanoNat Lia List.
+From Stdlib Require Import PeanoNat Lia List.
 Import ListNotations.
 
 From Undecidability.MinskyMachines Require Import MM MM_sss.
@@ -24,7 +24,7 @@ Module MPM2 := MPM2_HALT_dec.
 From Undecidability.Shared.Libs.DLW
   Require Import Vec.pos Vec.vec Code.sss.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 
@@ -84,8 +84,8 @@ Proof.
   rewrite /MPM2.step.
   have -> : nth_error M (MPM2.state (to_Config (1 + length P1, v))) = Some (to_Instruction i).
   { rewrite /M HP map_app (decompose_vec2 v) nth_error_app2.
-    { by rewrite /= map_length. }
-    by rewrite /= map_length Nat.sub_diag. }
+    { by rewrite /= length_map. }
+    by rewrite /= length_map Nat.sub_diag. }
   move Hc: (1 + length P1, v) => c H.
   case: H Hc.
   - move=> ? d w [<- <-]. rewrite [to_Instruction _]/= (decompose_vec2 v).
@@ -123,7 +123,7 @@ Proof.
     move: s HP1 => [p v] HP1.
     have Hp : p = S (p - 1).
     { move: p HP1 => [|p].
-      { rewrite (decompose_vec2 v) /= HP app_length /=. lia. }
+      { rewrite (decompose_vec2 v) /= HP length_app /=. lia. }
       move=> ? /=. lia. }
     exists (S (S (MPM2.state (to_Config (p, v)))),
       ((if c then 0 else 1) + MPM2.value1 (to_Config (p, v))) ##
@@ -149,7 +149,7 @@ Proof.
     move: s HP1 => [p v] HP1.
     have Hp : p = S (p - 1).
     { move: p HP1 => [|p].
-      { rewrite (decompose_vec2 v) /= HP app_length /=. lia. }
+      { rewrite (decompose_vec2 v) /= HP length_app /=. lia. }
       move=> ? /=. lia. }
     move: HP1. rewrite (decompose_vec2 v) Hp /= => HP1.
     move: i HP Hi => [] /=; first done.
@@ -240,7 +240,7 @@ Proof.
       move: t {Ht} H't => [[|p] w] /=; first by lia.
       rewrite (decompose_vec2 w) /to_Config /= /MPM2.step /=.
       case Hi: (nth_error M p) => [i|]; first last.
-      { move: Hi => /nth_error_None. rewrite /M map_length. lia. }
+      { move: Hi => /nth_error_None. rewrite /M length_map. lia. }
       case: i Hi; [|done..].
       move=> /(@nth_error_In MPM2.Instruction) /in_map_iff.
       by move=> [[]] => [?|??] [].
@@ -251,11 +251,11 @@ Proof.
     move: t Ht {Hn} => [[|p] w].
     + rewrite /= /MPM2.step /to_Config (decompose_vec2 w) /=.
       suff ->: nth_error M (length P) = None by done.
-      apply /nth_error_None. by rewrite /M map_length.
+      apply /nth_error_None. by rewrite /M length_map.
     + move=> /= [|?]; first by lia.
       rewrite /= /MPM2.step /to_Config (decompose_vec2 w) /=.
       suff ->: nth_error M p = None by done.
-      apply /nth_error_None. rewrite /M map_length. lia.
+      apply /nth_error_None. rewrite /M length_map. lia.
 Qed.
 
 End Construction.

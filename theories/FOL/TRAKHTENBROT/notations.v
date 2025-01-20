@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import List.
+From Stdlib Require Import List.
 
 From Undecidability.Shared.Libs.DLW.Vec 
   Require Import pos vec.
@@ -74,15 +74,15 @@ Reserved Notation "⇡ sig" (at level 1, format "⇡ sig").
 
 (* Term substitution and semantics *)
 Reserved Notation "t '⟬' σ '⟭'" (at level 1, format "t ⟬ σ ⟭").
-Reserved Notation "'⟦' t '⟧'" (at level 1, format "⟦ t ⟧").
+Reserved Notation "'⟦' t '⟧'" (at level 0, format "⟦ t ⟧").
 
 (* Formula subsitution and semantics*)
 Reserved Notation "f '⦃' σ '⦄'" (at level 1, format "f ⦃ σ ⦄").
-Reserved Notation "'⟪' f '⟫'" (at level 1, format "⟪ f ⟫").
+Reserved Notation "'⟪' f '⟫'" (at level 0, format "⟪ f ⟫").
 
 (* Unary ops *)
 
-Reserved Notation "⌞ x ⌟" (at level 1, format "⌞ x ⌟").
+Reserved Notation "⌞ x ⌟" (at level 0, format "⌞ x ⌟").
 Reserved Notation "↓ x"   (at level 1, format "↓ x").
 Reserved Notation "x †"   (at level 1, format "x †").
 
@@ -92,7 +92,7 @@ Reserved Notation "x ∙ y"  (at level 2, right associativity, format "x ∙ y")
 Reserved Notation "x ⪧ y" (at level 2, right associativity, format "x ⪧ y").
 Reserved Notation "x → y" (at level 2, right associativity, format "x → y").
 
-Reserved Notation "⟬ s , t ⟭" (at level 1, format "⟬ s , t ⟭").
+Reserved Notation "⟬ s , t ⟭" (at level 0, format "⟬ s , t ⟭").
 Reserved Notation "x ∪ y" (at level 52, left associativity).
 
 (* Infix Binary rels *)

@@ -1,6 +1,6 @@
 From Undecidability.H10 Require Import H10 H10_undec H10p Reductions.H10_to_H10p.
 From Undecidability.Synthetic Require Import Undecidability.
-Require Import Fin.
+
 Local Set Implicit Arguments.
 
 (* Solvability of Diophantine equations without parameters is undecidable *)

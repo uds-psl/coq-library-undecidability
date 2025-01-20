@@ -112,7 +112,7 @@ End red.
 Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Synthetic.ReducibilityFacts.
 Require Undecidability.TM.Reductions.Arbitrary_to_Binary.
-Require Fin.
+From Stdlib Require Fin.
 
 Lemma KOSBTM_simulation (M : TM.TM (finType_CS bool) 1) :
   {M' : KOSBTM.KOSBTM |

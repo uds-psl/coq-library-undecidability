@@ -18,7 +18,7 @@
 
 *)
 
-Require Import List Arith Lia Max Wellfounded Setoid Eqdep_dec.
+From Stdlib Require Import List Arith Lia Wellfounded Setoid Eqdep_dec.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac utils_list utils_decidable finite seteq.
@@ -934,7 +934,7 @@ Proof. intros ? ? H; apply bte_ext; intro; do 2 rewrite bt_pow_spec; rewrite H; 
 
 Definition bt_opair s t := (s⪧∅)⪧(s⪧t⪧∅)⪧∅.
 
-Local Notation "⟬ s , t ⟭" := (bt_opair s t) (at level 1, format "⟬ s , t ⟭").
+Local Notation "⟬ s , t ⟭" := (bt_opair s t) (at level 0, format "⟬ s , t ⟭").
 
 Section ordered_pairs.
  

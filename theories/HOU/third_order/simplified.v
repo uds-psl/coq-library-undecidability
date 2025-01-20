@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import RelationClasses Morphisms List Lia Init.Nat Setoid.
+From Stdlib Require Import RelationClasses Morphisms List Lia Init.Nat Setoid.
 From Undecidability.HOU Require Import std.std calculus.calculus unification.unification.
 From Undecidability.HOU Require Import third_order.pcp third_order.encoding.
 Import ListNotations ArsInstances.
@@ -55,8 +55,8 @@ Section SimplifiedReduction.
       rewrite !AppR_subst, !Enc_subst_id; trivial.
       cbn; rewrite !ren_plus_base, !ren_plus_combine;
         change (1 + 1) with 2.
-      erewrite <-map_length at 1. symmetry.
-      erewrite <-map_length at 1. erewrite !finst_equivalence.
+      erewrite <-length_map at 1. symmetry.
+      erewrite <-length_map at 1. erewrite !finst_equivalence.
       all: simplify; trivial.
       now rewrite <-!enc_app, EQ. 
   Qed.  

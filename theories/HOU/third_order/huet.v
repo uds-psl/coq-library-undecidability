@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import RelationClasses Morphisms List Arith Lia Init.Nat Setoid.
+From Stdlib Require Import RelationClasses Morphisms List Arith Lia Init.Nat Setoid.
 From Undecidability.HOU Require Import std.std calculus.calculus unification.unification.
 From Undecidability.HOU Require Import third_order.pcp third_order.encoding.
 Import ListNotations ArsInstances.
@@ -22,7 +22,7 @@ Section HuetReduction.
   Proof.
     do 4 econstructor. econstructor. econstructor; cbn; trivial; cbn; trivial.
     - eapply AppR_ordertyping with (L := repeat (alpha → alpha)  (length S) ); simplify.
-      erewrite <-map_length; eapply Enc_typing.
+      erewrite <-length_map; eapply Enc_typing.
       all: econstructor; trivial.
       simplify; cbn; eauto. 
     - eapply AppR_ordertyping. 
@@ -42,7 +42,7 @@ Section HuetReduction.
     2: do 2 econstructor...
     2 - 3: econstructor...
     eapply AppR_ordertyping with (L := repeat (alpha → alpha) (length S)); simplify.
-    erewrite <-map_length; eapply Enc_typing.
+    erewrite <-length_map; eapply Enc_typing.
     all: econstructor; trivial; simplify; cbn; lia.
   Qed.
 

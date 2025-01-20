@@ -1,6 +1,6 @@
 From Undecidability.L Require Export Util.L_facts.
 From Undecidability.L.Tactics Require Import Lproc Lbeta Lrewrite Reflection.
-Require Import ListTactics.
+From Stdlib Require Import ListTactics.
 Import L_Notations.
 
 Local Ltac wLsimpl' _n := intros;try reflexivity';try standardizeGoal _n ; try reflexivity'.

@@ -1,7 +1,7 @@
 From Undecidability.Synthetic Require Import DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts.
 From Undecidability.Shared Require Import Dec.
 
-Require Import List.
+From Stdlib Require Import List Lia.
 Import ListNotations.
 
 #[local] Coercion dec2bool P (d: dec P) := if d then true else false.

@@ -4,7 +4,7 @@
 Require Export Undecidability.FOL.Utils.FullSyntax.
 From Undecidability.Synthetic Require Import EnumerabilityFacts ListEnumerabilityFacts.
 Import Vector.VectorNotations.
-Require Import List.
+From Stdlib Require Import List.
 
 (* ** Signature for PA axiomatisation, containing function symbols for set operations *)
 

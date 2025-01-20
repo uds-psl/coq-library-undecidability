@@ -1,6 +1,6 @@
 Require Export Undecidability.FRACTRAN.FRACTRAN.
 
-From Coq Require Import List Vector Nat Arith Lia.
+From Stdlib Require Import List Vector Nat Arith Lia.
 From Undecidability.FRACTRAN Require Import prime_seq.
 Import ListNotations Vector.VectorNotations.
 From Undecidability Require Import Utils.gcd Utils.prime FRACTRAN_sss Code.sss fractran_utils.

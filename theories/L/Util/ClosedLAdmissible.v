@@ -1,6 +1,6 @@
 From Undecidability.Shared.Libs.PSL Require Import Vectors.
 
-From Coq Require Import Vector List.
+From Stdlib Require Import Vector List.
 
 From Undecidability.L Require Import L LTactics L_facts Functions.Eval.
 

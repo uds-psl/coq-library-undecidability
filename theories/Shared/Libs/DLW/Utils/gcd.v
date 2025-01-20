@@ -9,7 +9,7 @@
 
 (* ** Euclidian division and Bezout's identity *)
 
-Require Import List Arith Lia Permutation Extraction.
+From Stdlib Require Import List Arith Lia Permutation Extraction.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac utils_list.

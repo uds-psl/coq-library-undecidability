@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import Arith List Lia.
+From Stdlib Require Import Arith List Lia.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import php.

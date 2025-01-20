@@ -1,6 +1,6 @@
 From Undecidability.FOL.Arithmetics Require Import FA Signature.
 From Undecidability.FOL Require Import PA.
-Require Import Lia List Vector.
+From Stdlib Require Import Lia List Vector.
 Import Vector.VectorNotations.
 
 

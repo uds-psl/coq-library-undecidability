@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import List Arith Lia.
+From Stdlib Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import utils subcode.
@@ -147,7 +147,7 @@ Section linker.
       replace j with (length ll+fst P) by lia.
       rewrite (linker_app _ _ H1).
       red; simpl; rewrite compiler_length, H1, length_compiler_app.
-      rewrite H1, app_length in H.
+      rewrite H1, length_app in H.
       destruct mm as [ | x mm ]. 
       + simpl in H; lia.
       + simpl.

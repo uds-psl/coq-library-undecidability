@@ -15,7 +15,7 @@ From Undecidability.TM Require Import TM.
 From Undecidability.TM Require Util.TM_facts Util.TM_computable.
 
 From Undecidability.MinskyMachines Require Import
-  MM MMA.mma_defs Reductions.MMA_computable_to_MMA_mon_computable.
+  MM MMA.mma_defs Util.MMA_facts Reductions.MMA_computable_to_MMA_mon_computable.
 
 From Undecidability.Shared.Libs.DLW
   Require Import Vec.pos Vec.vec Code.sss Code.subcode.
@@ -24,13 +24,13 @@ Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.
 From Undecidability.Shared.Libs.PSL Require Import CompoundFinTypes.
 Require Import Undecidability.Shared.Libs.PSL.EqDec.
 
-From Undecidability Require Shared.deterministic_simulation.
-Module Sim := deterministic_simulation.
+From Undecidability Require Shared.simulation.
+Module Sim := simulation.
 
-Require Import List Lia PeanoNat Compare_dec Relations.
+From Stdlib Require Import List Lia PeanoNat Compare_dec Relations.
 Import ListNotations.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 
@@ -181,7 +181,7 @@ Proof.
   move=> HM. rewrite /toAddress /=.
   case: (le_lt_dec maxState (S (length l))).
   - move: HM => /(f_equal (@length _)).
-    rewrite app_length /=. lia.
+    rewrite length_app /=. lia.
   - move=> ?. by rewrite Fin.to_nat_of_nat.
 Qed.
 
@@ -371,13 +371,6 @@ Proof.
   by move=> /= [_ ->] [_ ->].
 Qed.
 
-Lemma step1_intro s : (exists t, step1 s t) \/ (Sim.stuck step1 s).
-Proof.
-  have [|] := subcode.in_out_code_dec (fst s) (1, M).
-  - move=> /in_code_step ?. by left.
-  - move=> /out_code_iff ?. by right.
-Qed.
-
 Lemma halt'_terminates s' : halt' (TM_facts.cstate s') = true -> Sim.terminates step2 s'.
 Proof.
   move:s' => [[[] p] ts] /=; [done|].
@@ -489,8 +482,8 @@ Proof.
     + move: Hst' => /syncE. rewrite (Vector.eta b's) /=.
       by move=> [_ []].
   - move=> v q ts /TM_facts.TM_eval_iff [n HPn].
-    apply: H3M. apply /sss_terminates_iff.
-    apply /(Sim.terminates_reflection (step2_det M) (fstep M H1M) (step1_intro M) sync_init).
+    apply: H3M. apply /(sss_terminates_iff (@mma_sss_total_ni _)).
+    apply /(Sim.terminates_reflection (Sim.deterministic_uniformly_confluent _ (step2_det M)) (fstep M H1M) (sss_step_or_stuck (@mma_sss_total_ni _) 1 M) sync_init).
     move: n HPn => [|n]. { done. }
     rewrite /= P_init. by apply: terminates2I.
 Qed.

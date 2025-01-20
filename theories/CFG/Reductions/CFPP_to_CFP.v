@@ -1,4 +1,4 @@
-Require Import Setoid Morphisms List Arith Lia.
+From Stdlib Require Import Setoid Morphisms List Arith Lia.
 Import ListNotations.
 
 Require Import Undecidability.CFG.CFP.

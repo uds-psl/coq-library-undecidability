@@ -21,7 +21,7 @@ Module MMA_TM := MMA_HALTING_n_to_HaltTM_n.Argument.
 Module MTM_TM := mTM_to_TM.
 Module TM_BTM := Arbitrary_to_Binary.
 
-From Coq Require Import Vector ssreflect ssrbool ssrfun.
+From Stdlib Require Import Vector ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

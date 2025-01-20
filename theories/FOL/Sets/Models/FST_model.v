@@ -6,7 +6,7 @@ From Undecidability.Shared.Libs.DLW.Utils Require Import finite.
 
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations ListAutomationHints.
-From Coq Require Import Lia.
+From Stdlib Require Import Lia.
 
 
 
@@ -283,8 +283,8 @@ Proof.
   - unshelve edestruct IHL as [n Hn].
     + intros x Hx. apply (f x). now right.
     + pose (na := f a (or_introl eq_refl)). exists ((S na) + n). intros x [->|H].
-      * unfold na. apply NPeano.Nat.lt_lt_add_r. constructor.
-      * specialize (Hn x H). cbn in Hn. now apply NPeano.Nat.lt_lt_add_l.
+      * unfold na. apply PeanoNat.Nat.lt_lt_add_r. constructor.
+      * specialize (Hn x H). cbn in Hn. now apply PeanoNat.Nat.lt_lt_add_l.
 Qed.
 
 Lemma hfs_model_standard {x} :

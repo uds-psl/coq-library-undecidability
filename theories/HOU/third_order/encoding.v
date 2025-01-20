@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import RelationClasses Morphisms List Lia
+From Stdlib Require Import RelationClasses Morphisms List Lia
       Arith Lia Init.Nat Setoid.
 From Undecidability.HOU Require Import std.std calculus.calculus third_order.pcp.
 Import ListNotations ArsInstances.

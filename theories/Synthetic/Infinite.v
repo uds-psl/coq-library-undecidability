@@ -2,7 +2,7 @@
 
 From Undecidability Require Import Shared.Dec.
 From Undecidability.Synthetic Require Import ListEnumerabilityFacts.
-Require Import List PeanoNat ConstructiveEpsilon Lia.
+From Stdlib Require Import List PeanoNat ConstructiveEpsilon Lia.
 Import ListNotations.
 
 Local Set Implicit Arguments.

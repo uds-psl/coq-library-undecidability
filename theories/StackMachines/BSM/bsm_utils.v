@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import List Arith Lia Bool.
+From Stdlib Require Import List Arith Lia Bool.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import utils list_bool pos vec subcode sss.
@@ -538,7 +538,7 @@ Section Binary_Stack_Machines.
     Definition push_exactly (l : list bool) := half_tile x (rev l).
 
     Fact push_exactly_length l : length (push_exactly l) = length l.
-    Proof. unfold push_exactly. now rewrite half_tile_length, rev_length. Qed.
+    Proof. unfold push_exactly. now rewrite half_tile_length, length_rev. Qed.
 
     Fact push_exactly_spec i l v : (i, push_exactly l) // (i,v) ->> (length (push_exactly l)+i,v[(l++v#>x)/x]).
     Proof.

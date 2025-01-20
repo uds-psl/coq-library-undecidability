@@ -70,7 +70,7 @@ Section Minsky_Machine.
 
 End Minsky_Machine.
 
-Require Import Vector.
+From Stdlib Require Import Vector.
 Import VectorNotations.
 
 Section MMA_problems.

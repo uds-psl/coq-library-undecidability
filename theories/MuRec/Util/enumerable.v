@@ -1,4 +1,4 @@
-Require Import Arith Lia List Bool Eqdep_dec EqdepFacts.
+From Stdlib Require Import Arith Lia List Bool Eqdep_dec EqdepFacts.
 From Undecidability.Shared.Libs.DLW 
   Require Import utils_tac utils_nat utils_list finite pos vec.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.

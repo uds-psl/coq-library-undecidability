@@ -1,4 +1,4 @@
-Require Import List Arith Lia Morphisms Setoid.
+From Stdlib Require Import List Arith Lia Morphisms Setoid.
 From Undecidability.HOU Require Import calculus.calculus.
 From Undecidability.HOU Require Import
         unification.higher_order_unification unification.nth_order_unification

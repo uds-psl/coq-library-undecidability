@@ -12,15 +12,15 @@
     Simple Semi-Thue System 01 Rewriting (SSTS01)
 *)
 
-Require Import List Relation_Operators Operators_Properties.
-Require Import PeanoNat Lia.
+From Stdlib Require Import List Relation_Operators Operators_Properties.
+From Stdlib Require Import PeanoNat Lia.
 Import ListNotations.
 
 Require Undecidability.StringRewriting.SSTS.
 Require Undecidability.MinskyMachines.MM2.
 Require Undecidability.MinskyMachines.Util.MM2_facts.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 
@@ -315,7 +315,7 @@ Lemma mm2_instr_at_state_bound {mm2i p} :
   mm2_instr_at mm2i p mm -> S p < state_bound /\ instr_state mm2i < state_bound.
 Proof.
   rewrite /state_bound.
-  move=> [?] [?] [-> <-]. rewrite !app_length !map_app !list_sum_app /=.
+  move=> [?] [?] [-> <-]. rewrite !length_app !map_app !list_sum_app /=.
   split; lia.
 Qed.
 
@@ -603,7 +603,7 @@ Proof.
   elim: u s.
   - move=> [|y1 [|y2 s]].
     + rewrite ?app_nil_l. move=> <-. right. right. by exists [].
-    + move=> [] <- <- /=. right. by left.
+    + move=> []. rewrite [in [] ++ _]/List.app => <- <- /=. right. by left.
     + move=> [] <- <- ->. left. by exists s.
   - move=> x1 u IH [|y1 s].
     + rewrite ?app_nil_l. move=> <-. right. right. by exists (x1 :: u).
@@ -677,7 +677,7 @@ Proof.
   rewrite -?/([_] ++ [_] ++ v). move=> [+] [H1t H2t] => /eq2_app_app.
   have : length t > 1.
   { move: H1t => /(congr1 (@length _)).
-    rewrite ?map_app ?app_length ?map_length /=. move=> ->. by lia. }
+    rewrite ?map_app ?length_app ?length_map /=. move=> ->. by lia. }
   move=> Ht /(_ Ht) {Ht}.
   case; [|case; [|case; [|case]]].
   - move=> [u'2 ->]. left.
@@ -707,7 +707,7 @@ Proof.
         ** rewrite app_nil_r /= ?map_app. move: (a) => [|?]; first done.
            move=> Hi [] H1 [<-] H2.
            move=> y [?] [/(mm2_instr_at_unique Hi) <-] Hxy.
-           inversion Hxy. subst.
+           inversion Hxy. subst. try rewrite [in LHS]/List.app in H1.
            eexists (u' ++ [sz]), v', (_ :: _).
            rewrite -?app_assoc. constructor; [done | by rewrite /= ?map_app H1 H2].
         ** rewrite ?map_app filter_app /= app_nil_r /step.

@@ -29,9 +29,9 @@ From Undecidability.Shared.Libs.DLW
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.
 Require Import Undecidability.Shared.Libs.PSL.EqDec.
 
-Require Import List Vector Lia PeanoNat Compare_dec.
+From Stdlib Require Import List Vector Lia PeanoNat Compare_dec.
 Import ListNotations.
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 
@@ -91,7 +91,7 @@ Lemma read_instr {p instr} : (p, [instr]) <sc (1, M) ->
 Proof.
   rewrite /toState. case: (le_lt_dec maxState p).
   { move=> ? [?] [?] [/(f_equal (@length _))].
-    rewrite app_length /=. by lia. }
+    rewrite length_app /=. by lia. }
   move=> Hp [l] [r] [HM H'p]. exists (length l).
   by rewrite Fin.to_nat_of_nat /= HM nth_error_app2 ?Nat.sub_diag.
 Qed.

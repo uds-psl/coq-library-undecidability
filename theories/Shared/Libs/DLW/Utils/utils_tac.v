@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import Arith List Wellfounded Extraction.
+From Stdlib Require Import Arith List Wellfounded Extraction.
 
 Set Implicit Arguments.
 

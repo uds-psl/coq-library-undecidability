@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import List Lia.
+From Stdlib Require Import List Lia.
 From Undecidability.HOU Require Import std.std axioms.
 Import ListNotations.
 

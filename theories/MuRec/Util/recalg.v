@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import Arith Lia List Bool Eqdep_dec.
+From Stdlib Require Import Arith Lia List Bool Eqdep_dec.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import utils_tac utils_nat utils_list finite pos vec.
@@ -365,7 +365,69 @@ Section relational_semantics.
     apply vec_pos_ext; intros p.
     rewrite vec_pos_set, vec_pos_map; trivial.
   Qed.
- 
+
+  Lemma vec_intro {n} (P : nat -> nat -> Prop) : (forall i, i < n -> exists m, P i m) ->
+    exists v, forall (x : Fin.t n), P (pos.pos2nat x) (vec_pos v x).
+  Proof.
+    revert P. induction n as [ | n IH].
+    - intros P _. exists (Vector.nil _). apply Fin.case0.
+    - intros P H.
+      destruct (IH (fun i m => P (S i) m)) as [v Hv].
+      { intros ??. apply H. lia. }
+      destruct (H 0) as [m Hm].
+      { lia. }
+      exists (Vector.cons _ m _ v).
+      intros x. pattern x. apply Fin.caseS'.
+      + apply Hm.
+      + intros p. cbn. apply Hv.
+  Qed.
+
+  Lemma ra_rel_spec {k} (f : recalg k) v m :
+    [| f |] v m <-> [f; v] ▹ m.
+  Proof.
+    split.
+    - revert k f v m. apply (recalg_ind (fun k f => forall v m, [|f|] v m -> [f; v] ▹ m)); cbn.
+      + intros ??? <-. now constructor.
+      + intros ?? ->. now constructor.
+      + intros ?? ->. now constructor.
+      + intros ???? <-. now constructor.
+      + intros ???? IH1 IH2 ?? [? [? IH3]]. econstructor.
+        * intros j. apply IH2.
+          specialize (IH3 j).
+          rewrite vec_pos_set in IH3.
+          eassumption.
+        * now apply IH1.
+      + intros ??? IH1 IH2 v.
+        rewrite (Vector.eta v).
+        generalize (Vector.tl v).
+        induction (Vector.hd v) as [ | ? IH].
+        * intros ?? IH3. econstructor. apply IH1.
+          apply IH3.
+        * intros ?? [? [IH4 ?]].
+          econstructor.
+          ** eapply IH. eassumption.
+          ** apply IH2. eassumption.
+      + intros ?? IH1 ?? [IH2 IH3].
+        destruct (vec_intro _ IH3) as [w Hw].
+        eapply in_ra_bs_min.
+        * intros x. apply IH1. apply Hw.
+        * now apply IH1. 
+    - intros H. induction H; cbn.
+      + now constructor.
+      + now constructor.
+      + now constructor.
+      + now constructor.
+      + eexists.
+        split; [eassumption | ].
+        intros p. now rewrite vec_pos_set.
+      + easy.
+      + eexists. split; eassumption.
+      + split; [easy | ].
+        intros i Hi.
+        destruct (pos.pos2nat_nat2pos Hi).
+        eexists. auto.
+  Qed.
+
   Section functional.
 
     Lemma s_cst_fun c : functional (s_cst c).

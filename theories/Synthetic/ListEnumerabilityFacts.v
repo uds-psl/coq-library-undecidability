@@ -1,7 +1,7 @@
 From Undecidability.Synthetic Require Import DecidabilityFacts SemiDecidabilityFacts EnumerabilityFacts.
 Require Import Undecidability.Shared.Dec.
-Require Cantor.
-Require Import List.
+From Stdlib Require Cantor.
+From Stdlib Require Import List Lia.
 Import ListNotations.
 
 #[global]

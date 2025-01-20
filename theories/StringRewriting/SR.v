@@ -1,4 +1,4 @@
-Require Import List.
+From Stdlib Require Import List.
 
 (* A string is a list of symbols. *)
 Notation string X := (list X).

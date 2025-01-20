@@ -12,7 +12,7 @@
 (* This was implemented by DLW following the ideas of 
    the reduction BPCP -> fin SAT described in a draft by DK. *)
 
-Require Import List Arith Bool Lia.
+From Stdlib Require Import List Arith Bool Lia.
 
 From Undecidability.PCP Require Import PCP Util.PCP_facts.
 
@@ -199,13 +199,13 @@ Section BPCP_FIN_DEC_EQ_SAT.
           destruct (le_lt_dec (S n) (S (length lb+length m))) as [ H3 | H3 ].
           - rew fot; unfold vec_map; simpl in IH |- *; rewrite IH; simpl.
             destruct (le_lt_dec n (length (lb++m))) as [ | C ]; auto.
-            exfalso; rewrite app_length in C; lia.
+            exfalso; rewrite length_app in C; lia.
           - assert (length ((x::lb)++m) < S n) as H4.
-            { simpl; rewrite app_length; auto. }
+            { simpl; rewrite length_app; auto. }
             exists H4; rew fot; unfold vec_map.
             simpl in IH |- *; rewrite IH; simpl.
             destruct (le_lt_dec n (length (lb++m))) as [ H5 | H5 ].
-            ++ exfalso; rewrite app_length in H5; lia.
+            ++ exfalso; rewrite length_app in H5; lia.
             ++ do 2 f_equal; apply lt_pirr.
     Qed.
 
@@ -214,7 +214,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
     Proof.
       intros H1.
       generalize (fot_sem_lb_app lb t φ); rew fot; simpl vec_map; rewrite H1.
-      rewrite <- app_length; solve ite.
+      rewrite <- length_app; solve ite.
       intros (G & ->); do 2 f_equal; apply lt_pirr.
     Qed.
 
@@ -253,9 +253,9 @@ Section BPCP_FIN_DEC_EQ_SAT.
           - destruct a as [ | v a ].
             ++ destruct H3; auto.
             ++ apply f_equal with (f := @length _) in H4.
-               simpl in H4; rewrite app_length in H4; lia.
+               simpl in H4; rewrite length_app in H4; lia.
           - apply f_equal with (f := @length _) in H4.
-            simpl in H4; do 2 rewrite app_length in H4; lia.
+            simpl in H4; do 2 rewrite length_app in H4; lia.
         * clear H1 H3; revert H2 H4.
           intros (a & <-) (b & <-).
           exists (b++a); rewrite <- app_assoc; auto.
@@ -301,8 +301,8 @@ Section BPCP_FIN_DEC_EQ_SAT.
         * apply in_map_iff; exists (x,y); split; auto.
         * unfold lt_simul; right.          
           exists (⟦p⤜e⟧ φ0), (⟦q⤜e⟧ φ0).
-          assert (length p < S n) as H5 by (rewrite app_length in Hx; lia).
-          assert (length q < S n) as H6 by (rewrite app_length in Hy; lia).
+          assert (length p < S n) as H5 by (rewrite length_app in Hx; lia).
+          assert (length q < S n) as H6 by (rewrite length_app in Hy; lia).
           rewrite fot_sem_lb_app_e with (H := H5).
           rewrite fot_sem_lb_app_e with (H := H6).
           simpl; msplit 3; simpl; auto.

@@ -1,4 +1,4 @@
-Require Import List Lia.
+From Stdlib Require Import List Lia.
 Import ListNotations.
 
 From Undecidability.HOU.calculus Require Import 

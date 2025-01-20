@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import Arith List Lia.
+From Stdlib Require Import Arith List Lia.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import utils_tac utils_nat utils_list gcd crt sums finite pos vec.

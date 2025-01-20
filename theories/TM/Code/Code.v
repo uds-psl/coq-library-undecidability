@@ -1,5 +1,5 @@
 From Undecidability Require Import TM.Util.Prelim.
-Require Import Coq.Lists.List.
+From Stdlib Require Import Lists.List.
 
 Set Default Goal Selector "!".
 

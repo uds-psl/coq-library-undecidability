@@ -2,7 +2,7 @@
 From Undecidability.FOL Require Import Syntax.Facts Semantics.Tarski.FullFacts ZF.
 From Undecidability.FOL.Sets Require Import ZF binZF.
 From Undecidability.FOL.Sets.Models Require Import Aczel Aczel_CE Aczel_TD.
-From Coq Require Import Lia.
+From Stdlib Require Import Lia.
 
 
 

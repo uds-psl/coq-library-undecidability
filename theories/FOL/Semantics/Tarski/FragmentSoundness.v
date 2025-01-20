@@ -3,7 +3,7 @@ Require Import Undecidability.FOL.Semantics.Tarski.FragmentFacts.
 Require Import Undecidability.FOL.Deduction.FragmentND.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
-Require Import Vector Lia.
+From Stdlib Require Import Vector Lia.
 
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.

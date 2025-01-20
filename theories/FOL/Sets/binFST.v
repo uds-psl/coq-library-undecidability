@@ -3,7 +3,7 @@
 Require Export Undecidability.FOL.Utils.FullSyntax.
 Require Export Undecidability.FOL.Sets.Signatures.
 Import Vector.VectorNotations.
-Require Import List.
+From Stdlib Require Import List.
 
 
  

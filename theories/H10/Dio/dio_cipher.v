@@ -9,7 +9,7 @@
 
 (* ** Object-level encoding of bounded universal quantification II *)
 
-Require Import Arith List Bool.
+From Stdlib Require Import Arith List Bool.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac gcd prime binomial sums bool_nat.

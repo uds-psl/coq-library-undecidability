@@ -9,7 +9,7 @@
 
 (** * Halting problem for FRACTRAN programs FRACTRAN_HALTING *)
 
-Require Import Vector List Arith.
+From Stdlib Require Import Vector List Arith.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import gcd rel_iter pos vec.

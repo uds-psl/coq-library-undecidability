@@ -11,7 +11,7 @@
 
 (* Require Import dio_expr dio_logic dio_elem dio_poly. *)
 
-Require Import List Arith.
+From Stdlib Require Import List Arith.
 
 From Undecidability.Shared.Libs 
   Require Import utils_tac utils_list sums rel_iter gcd pos vec.

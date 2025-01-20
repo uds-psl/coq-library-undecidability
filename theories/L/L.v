@@ -29,6 +29,11 @@ Inductive eval : term -> term -> Prop :=
 (* The L-halting problem  *)
 Definition HaltL (s : term) := exists t, eval s t.
 
+Definition closed s := forall n u, subst s n u = s.
+
+(* Halting problem for weak call-by-value lambda-calculus *)
+Definition HaltLclosed (s : {s : term | closed s}) := exists t, eval (proj1_sig s) t.
+
 (* Scott encoding of natural numbers  *)
 Fixpoint nat_enc (n : nat) := 
   match n with
@@ -38,14 +43,12 @@ Fixpoint nat_enc (n : nat) :=
 
 (* ** L-computable relations  *)
 
-Require Import Vector.
+From Stdlib Require Import Vector.
 
 Definition L_computable {k} (R : Vector.t nat k -> nat -> Prop) := 
   exists s, forall v : Vector.t nat k, 
       (forall m, R v m <-> L.eval (Vector.fold_left (fun s n => L.app s (nat_enc n)) s v) (nat_enc m)) /\
       (forall o, L.eval (Vector.fold_left (fun s n => L.app s (nat_enc n)) s v) o -> exists m, o = nat_enc m).
-
-Definition closed s := forall n u, subst s n u = s.
 
 Definition L_computable_closed {k} (R : Vector.t nat k -> nat -> Prop) := 
   exists s, closed s /\ forall v : Vector.t nat k, 

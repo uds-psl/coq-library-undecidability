@@ -3,7 +3,7 @@ From Undecidability.FOL.Semantics Require Export FiniteTarski.Listability.
 From Undecidability.FOL.Syntax Require Import Facts.
 Require Import Undecidability.Synthetic.DecidabilityFacts.
 Require Import Undecidability.Shared.Dec.
-Require Import List.
+From Stdlib Require Import List.
 
 Section DefaultSyntax. (* An alternative development of FSAT in Trakhtenbrot is "Trakhtenbrot Syntax" *)
   Context {Σ_funcs : funcs_signature}.

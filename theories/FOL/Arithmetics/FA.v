@@ -2,7 +2,7 @@
 (* ** Axioms of PA, excluding induction *)
 Require Export Undecidability.FOL.Arithmetics.Signature.
 Import Vector.VectorNotations.
-Require Import List.
+From Stdlib Require Import List.
 Import FullSyntax.
 Export FullSyntax.
 

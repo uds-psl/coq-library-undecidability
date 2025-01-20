@@ -11,7 +11,7 @@
 
 (* ** Compiler from MM to FRACTRAN *)
 
-Require Import List Arith Lia Permutation.
+From Stdlib Require Import List Arith Lia Permutation.
 
 Import ListNotations.
 

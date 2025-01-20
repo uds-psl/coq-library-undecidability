@@ -1,10 +1,10 @@
-Require Import List Lia Relation_Operators.
+From Stdlib Require Import List Lia Relation_Operators.
 Import ListNotations.
 
 From Undecidability.StackMachines.Util Require Import Nat_facts List_facts.
 Require Import Undecidability.StackMachines.Reductions.CM1_HALT_to_SMNdl_UB.SMX.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

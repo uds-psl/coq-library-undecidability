@@ -13,7 +13,7 @@
     reimported to this alternate syntax & framework by @DLW 
 *) 
 
-Require Import List Arith Lia.
+From Stdlib Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac.
@@ -30,7 +30,7 @@ Set Implicit Arguments.
 
 (* * From several relations to one, arity incremented by 1 *)
 
-Local Reserved Notation "⟪ A ⟫'" (at level 1, format "⟪ A ⟫'").
+Local Reserved Notation "⟪ A ⟫'" (at level 0, format "⟪ A ⟫'").
 
 Local Notation ø := vec_nil.
 

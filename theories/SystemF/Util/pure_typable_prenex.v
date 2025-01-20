@@ -15,13 +15,13 @@
       Proceedings Ninth Annual IEEE Symposium on Logic In Computer Science. IEEE, 1994.
 *)
 
-Require Import List Lia Relation_Definitions Relation_Operators Operators_Properties.
+From Stdlib Require Import List Lia Relation_Definitions Relation_Operators Operators_Properties.
 Import ListNotations.
 Require Import Undecidability.SystemF.SysF Undecidability.SystemF.Autosubst.syntax Undecidability.SystemF.Autosubst.unscoped.
 Import UnscopedNotations.
 From Undecidability.SystemF.Util Require Import Facts poly_type_facts pure_term_facts term_facts typing_facts iipc2_facts pure_typing_facts.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 
@@ -714,7 +714,7 @@ Proof.
     exists 0. do 3 eexists. constructor; [by reflexivity | by eassumption].
   - move=> [n s] nss IH /= Gamma ξ s' t.
     rewrite fold_right_app /= => /IH {}IH.
-    rewrite app_length repeat_app many_pure_app_app /=.
+    rewrite length_app repeat_app many_pure_app_app /=.
     move=> /pure_typingE [n1] [?] [?] [?] [+] [_] [H1C ?]. subst.
     rewrite ?map_map. under map_ext => ? do rewrite poly_type_norm.
     move=> /IH [n1s'] [n2s'] [nt'] [t'] []. case: nt'; last done. move=> /= ?. subst.
@@ -733,7 +733,7 @@ Lemma pure_typable_many_pure_app_repeat_poly_var {Gamma x y ny nss t} :
 Proof.
   move=> + Hy. elim /rev_ind: nss t; first done.
   move=> [n s] nss IH t. rewrite fold_right_app /= => Hx.
-  rewrite app_length repeat_app many_pure_app_app /=.
+  rewrite length_app repeat_app many_pure_app_app /=.
   move=> /pure_typableE [?] [?] [].
   move=> /[dup] [/pure_typableI /IH] /(_ _ Hx) Hnss.
   move=> /(pure_typing_fold_right_many_pure_app Hx) [?] [?] [[|?]] [?] []; last done.
@@ -757,7 +757,7 @@ Lemma pure_typing_trace_poly_typeE {s ns Gamma t n}:
 Proof.
   elim: s Gamma t n.
   - move=> x Gamma t n _ /= ? /pure_typingE [n1] [?] [?]. 
-    rewrite ?nth_error_map nth_error_app1; first by rewrite map_length; lia.
+    rewrite ?nth_error_map nth_error_app1; first by rewrite length_map; lia.
     rewrite nth_error_map. 
     have -> := nth_error_nth' ns 0; first by lia.
     move: (nth x ns 0) => y [[?]] []. subst.
@@ -768,8 +768,8 @@ Proof.
     move=> /pure_typingE [n1] [?] [?] [?] [+] [+] [H1C ?]. subst.
     move=> /pure_typingE' [?] [?] [+] [+] H2C.
     move=> /pure_typingE' [?] [+] H3C.
-    rewrite ?nth_error_map nth_error_app2; first by rewrite ?map_length; lia.
-    rewrite ?map_length (ltac:(lia) : length ns - length ns = 0) /=.
+    rewrite ?nth_error_map nth_error_app2; first by rewrite ?length_map; lia.
+    rewrite ?length_map (ltac:(lia) : length ns - length ns = 0) /=.
     move=> [?]. subst. move: H3C => /(contains_poly_arrE (n := 2)) => - [[|r1 [|r2 [|? ?]]]] [] //=.
     move=> _ [? ?]. subst. move: H2C => /containsE [? ?]. subst.
     move: H1C => /containsE ?. subst.
@@ -851,10 +851,10 @@ Proof.
       rewrite /Gamma'. elim /rev_ind: (nss) Hnss; first by move=> ?; exists []; eexists.
       clear=> [[n s]] nss IH /Forall_app [/IH] {}IH /Forall_cons_iff [[n0] [x0] ->] _.
       
-      rewrite fold_left_app app_length.
+      rewrite fold_left_app length_app.
       move: IH => [ss] [Gamma''] [<-] /= [->] Hss.
       eexists (_ :: map (ren_poly_type (Nat.add n)) ss), (map (ren_poly_type (Nat.add n)) Gamma'').
-      rewrite /= map_length map_app /= Forall_cons_iff Forall_map.
+      rewrite /= length_map map_app /= Forall_cons_iff Forall_map.
       constructor; first by lia.
       constructor; first done.
       constructor; first by do 2 eexists.

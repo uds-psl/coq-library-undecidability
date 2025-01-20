@@ -5,8 +5,8 @@
     (1) Saarland University, Saarbrücken, Germany
 *)
 
-Require Cantor.
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Cantor.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

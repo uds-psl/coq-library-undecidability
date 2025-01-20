@@ -1,4 +1,4 @@
-Require Import List Arith Lia. 
+From Stdlib Require Import List Arith Lia. 
 Import ListNotations.
 From Undecidability.HOU Require Import std.tactics std.lists.basics std.decidable. 
 
@@ -14,7 +14,7 @@ Section Nth.
     destruct (nth_error A n) eqn: H1.
     + eapply map_nth_error in H1. rewrite H1. reflexivity.
     + eapply nth_error_None in H1.
-      eapply nth_error_None. now rewrite map_length. 
+      eapply nth_error_None. now rewrite length_map. 
   Qed.
 
 

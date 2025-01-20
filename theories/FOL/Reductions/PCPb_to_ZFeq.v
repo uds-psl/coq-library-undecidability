@@ -6,7 +6,7 @@ Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
 From Undecidability.FOL.Sets Require Import ZF.
 Require Import Undecidability.FOL.Sets.ZF.
 Require Import Undecidability.FOL.Reductions.PCPb_to_ZF.
-Require Import Lia.
+From Stdlib Require Import Lia.
 
 From Undecidability.PCP Require Import PCP Util.PCP_facts Reductions.PCPb_iff_dPCPb.
 
@@ -16,7 +16,7 @@ Import ListAutomationNotations ListAutomationHints.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
-Require Import Morphisms.
+From Stdlib Require Import Morphisms.
 
 
 (* ** Internal axioms *)

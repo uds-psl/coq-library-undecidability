@@ -1,4 +1,4 @@
-Require Import List.
+From Stdlib Require Import List.
 Import ListNotations.
 
 Require Import Undecidability.PCP.PCP.
@@ -9,7 +9,7 @@ From Undecidability.Synthetic Require Import Definitions DecidabilityFacts Enume
 From Undecidability Require Export PCP.PCP.
 From Undecidability.Shared Require Export ListAutomation.
 Import ListAutomationNotations ListAutomationHints.
-Require Import Coq.Init.Wf.
+From Stdlib Require Import Init.Wf Lia.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.
@@ -304,7 +304,7 @@ Section pcp_hand_dec.
       apply IHP.
       intros l' m' (x & y & H & -> & ->).
       apply IH.
-      do 2 rewrite app_length.
+      do 2 rewrite length_app.
       destruct x; destruct y; simpl; try lia.
       destruct H as [ [] | [] ]; auto.
     Qed.

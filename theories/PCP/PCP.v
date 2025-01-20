@@ -2,7 +2,7 @@
 
 (* Definitions of variants of the Post correspondence problem. *)
 
-Require Import List.
+From Stdlib Require Import List.
 Import ListNotations.
 
 

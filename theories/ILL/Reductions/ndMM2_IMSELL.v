@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import List Permutation Arith Lia.
+From Stdlib Require Import List Permutation Arith Lia.
 
 From Undecidability.MinskyMachines
   Require Import ndMM2.

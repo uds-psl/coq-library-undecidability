@@ -11,15 +11,15 @@
     Halting of Minsky machines with two counters starting from (0, 0) (MM2_ZERO_HALTING)
 *)
 
-Require Import List PeanoNat Lia Relations.Relation_Operators Relations.Operators_Properties.
+From Stdlib Require Import List PeanoNat Lia Relations.Relation_Operators Relations.Operators_Properties.
 
 Require Import Undecidability.MinskyMachines.MM2.
 Require Import Undecidability.MinskyMachines.Util.MM2_facts.
 
-Require Undecidability.Shared.deterministic_simulation.
-Module sim := deterministic_simulation.
+Require Undecidability.Shared.simulation.
+Module sim := simulation.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 
@@ -48,7 +48,7 @@ Section MM2_MM2.
 
   Lemma length_M' : length M' = a0+b0+length M.
   Proof.
-    by rewrite /M' !app_length !repeat_length map_length Nat.add_assoc.
+    by rewrite /M' !length_app !repeat_length length_map Nat.add_assoc.
   Qed.
 
   Lemma init_a0 n : n <= a0 -> mm2'_reaches (1, (0, 0)) (1+n, (n, 0)).
@@ -134,7 +134,7 @@ Section MM2_MM2.
     have Hx'y' : mm2'_reaches (shift_state (1, (a0, b0))) y'.
     { have [z [/mm2_steps_stop_refl Hyz Hinitz]] := mm2_steps_confluent Hxy' Hinit.
       by rewrite -(Hyz Hy'). }
-    have Hsim := sim.terminates_reflection (@mm2_step_det M') mm2_step_sim' (mm2_exists_step_dec M).
+    have Hsim := sim.terminates_reflection (sim.deterministic_uniformly_confluent _ (@mm2_step_det M')) mm2_step_sim' (mm2_exists_step_dec M).
     apply: (Hsim _ _ erefl).
     by exists y'.
   Qed.

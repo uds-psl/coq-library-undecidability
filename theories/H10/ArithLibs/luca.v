@@ -9,7 +9,7 @@
 
 (* ** Luca's theorem *)
 
-Require Import Arith Nat Lia List.
+From Stdlib Require Import Arith Nat Lia List.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac gcd prime binomial sums rel_iter.

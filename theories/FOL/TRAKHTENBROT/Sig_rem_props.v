@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import List Arith Bool Lia Eqdep_dec.
+From Stdlib Require Import List Arith Bool Lia Eqdep_dec.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.
@@ -24,7 +24,7 @@ Set Implicit Arguments.
 
 (* * Removing constant propositions from monadic signatures *)
 
-Local Reserved Notation "⟪ A ⟫'" (at level 1, format "⟪ A ⟫'").
+Local Reserved Notation "⟪ A ⟫'" (at level 0, format "⟪ A ⟫'").
 
 Local Notation ø := vec_nil.
 

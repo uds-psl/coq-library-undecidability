@@ -9,7 +9,7 @@
 
 (* ** Object-level encoding of bounded universal quantification *)
 
-Require Import Arith Lia List Bool.
+From Stdlib Require Import Arith Lia List Bool.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac utils_list sums bounded_quantification.

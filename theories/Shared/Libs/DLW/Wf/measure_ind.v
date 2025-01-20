@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import Arith Lia Wellfounded List Extraction.
+From Stdlib Require Import Arith Lia Wellfounded List Extraction.
 
 From Undecidability.Shared.Libs.DLW.Wf Require Import acc_irr.
 
@@ -64,7 +64,8 @@ Section measure_rect.
       of Acc irrelevant functionals *)
 
   Let Fix_F_Acc_irr : forall x f g, @Fix_F x f = Fix_F g.
-  Proof using F_ext.
+  Proof.
+    clear -F_ext.
     apply Acc_irrelevance.
     intros; apply F_ext; auto.
   Qed.

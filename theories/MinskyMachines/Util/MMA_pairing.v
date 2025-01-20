@@ -17,10 +17,10 @@ From Undecidability Require Import
 From Undecidability.Shared.Libs.DLW
   Require Import Vec.pos Vec.vec Code.sss.
 
-Require Import PeanoNat List Lia Wf_nat.
+From Stdlib Require Import PeanoNat List Lia Wf_nat.
 Import ListNotations.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 
@@ -76,7 +76,7 @@ Proof.
   move=> code codes IH [|i] offset /=.
   - eexists nil, _. by rewrite /= Nat.add_0_r.
   - have [l [r [-> Hl]]] := IH i (length (code offset) + offset).
-    eexists (code offset ++ l), _. rewrite !app_length. split; [|lia].
+    eexists (code offset ++ l), _. rewrite !length_app. split; [|lia].
     rewrite -!app_assoc. do 3 congr app. congr (nth i codes). lia.
 Qed.
 
@@ -112,7 +112,7 @@ Proof.
   suff -> : list_sum (firstn i lengths) = length (compose (firstn i codes) offset) by apply: compose_sss_compute_trans.
   elim: Hcl i offset. { by case. }
   move=> c l {}codes {}lengths Hcl _ IH [|i] offset. { done. }
-  by rewrite /= app_length -IH Hcl.
+  by rewrite /= length_app -IH Hcl.
 Qed.
 
 Lemma length_compose {codes lengths offset} :
@@ -121,7 +121,7 @@ Lemma length_compose {codes lengths offset} :
 Proof.
   move=> H. elim: H offset; [done|].
   move=> c l {}codes {}lengths Hcl _ IH offset.
-  by rewrite /= app_length Hcl IH.
+  by rewrite /= length_app Hcl IH.
 Qed.
 
 Arguments compose : simpl never.

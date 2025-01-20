@@ -2,7 +2,7 @@
 (* Author: Maximilian Wuttke *)
 
 Require Import Undecidability.Shared.Libs.PSL.EqDec.
-From Coq.Vectors Require Import Fin Vector.
+From Stdlib.Vectors Require Import Fin Vector.
 
 Delimit Scope vector_scope with vector.
 Local Open Scope vector.

@@ -1,5 +1,5 @@
 From Undecidability.SeparationLogic Require Import MSL SL.
-Require Import List.
+From Stdlib Require Import List.
 Import ListNotations.
 
 Set Default Goal Selector "!".

@@ -1,7 +1,7 @@
-Require Import List Lia.
+From Stdlib Require Import List Lia.
 Import ListNotations.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

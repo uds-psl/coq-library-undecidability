@@ -16,7 +16,7 @@
       Proceedings Ninth Annual IEEE Symposium on Logic In Computer Science. IEEE, 1994.
 *)
 
-Require Import List Lia.
+From Stdlib Require Import List Lia.
 Import ListNotations.
 Require Import Undecidability.SystemF.SysF Undecidability.SystemF.Autosubst.syntax.
 From Undecidability.SystemF.Util Require Import Facts poly_type_facts pure_term_facts term_facts typing_facts pure_typing_facts pure_typable_prenex.
@@ -24,7 +24,7 @@ From Undecidability.SystemF.Util Require Import Facts poly_type_facts pure_term_
 Require Undecidability.SemiUnification.SemiU.
 Module SU := SemiU.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 
@@ -250,7 +250,7 @@ Proof using Hφψ0.
   move=> Gamma. rewrite /x_1_W. evar (t: poly_type).
   have := @typing_var (many_poly_abs n_W' (poly_arr t_x_W' t_x_W') :: Gamma) 0 t.
   subst t. move=> /(_ ltac:(reflexivity)) /typing_many_ty_appI => /(_ ts_1_W).
-  apply: unnest. { by rewrite /ts_1_W map_length rev_length seq_length. }
+  apply: unnest. { by rewrite /ts_1_W length_map length_rev length_seq. }
   congr typing => /=. apply: poly_arr_eq_eq. rewrite /ts_1_W /t_x_W' /t_x_0_W -Hφψ0.
   rewrite -map_rev rev_involutive. apply: subst_poly_type_SU_term_to_poly_type.
   rewrite /n_W' /t_x_W' -lock /=. by lia.
@@ -262,7 +262,7 @@ Proof using Hφψ1.
   move=> Gamma. rewrite /x_2_W. evar (t: poly_type).
   have := @typing_var (many_poly_abs n_W' (poly_arr t_x_W' t_x_W') :: Gamma) 0 t.
   subst t. move=> /(_ ltac:(reflexivity)) => /typing_many_ty_appI => /(_ ts_2_W).
-  apply: unnest. { by rewrite /ts_2_W map_length rev_length seq_length. }
+  apply: unnest. { by rewrite /ts_2_W length_map length_rev length_seq. }
   congr typing => /=. apply: poly_arr_eq_eq. rewrite /ts_2_W /t_x_W' /t_x_1_W -Hφψ1.
   rewrite -map_rev rev_involutive. apply: subst_poly_type_SU_term_to_poly_type.
   rewrite /n_W' /t_x_W' -lock /=. by lia. 
@@ -281,7 +281,7 @@ Proof.
     subst t. move=> /(_ ltac:(reflexivity)).
     rewrite ren_poly_type_many_poly_abs.
     move /typing_many_ty_appI => /(_ ts_0_W). apply: unnest.
-    { by rewrite /ts_0_W map_length rev_length seq_length. }
+    { by rewrite /ts_0_W length_map length_rev length_seq. }
     congr typing. rewrite /t_1_W /= -map_rev rev_involutive.
     congr poly_arr; [| congr poly_arr]; apply: poly_arr_eq_eq.
     + have := poly_var_bound_SUt0'_n_W. rewrite /t_x_0_W /SUt0' /ts_0_W.

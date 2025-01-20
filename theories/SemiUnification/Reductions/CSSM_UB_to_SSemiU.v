@@ -12,9 +12,9 @@
     Simple Semi-unification (SSemiU)
 *)
 
-Require Import List PeanoNat Lia.
+From Stdlib Require Import List PeanoNat Lia.
 Import ListNotations.
-Require Import Relations.Relation_Operators Relations.Operators_Properties.
+From Stdlib Require Import Relations.Relation_Operators Relations.Operators_Properties.
 
 (* uniform boundedness of confluent simple stack machines *)
 From Undecidability.StackMachines Require Import SSM.
@@ -24,7 +24,7 @@ From Undecidability.StackMachines.Util Require Import CSSM_facts.
 Require Import Undecidability.SemiUnification.SemiU. 
 From Undecidability.SemiUnification.Util Require Import Enumerable.
 
-Require Import ssreflect ssrfun ssrbool.
+From Stdlib Require Import ssreflect ssrfun ssrbool.
 
 Set Default Goal Selector "!".
 
@@ -168,8 +168,8 @@ Proof using confluent_M.
     rewrite ?ζ_SnP.
     case: (narrow_dec (A, B, x)); case: (narrow_dec (A', B', x'))=> /=.
     + move=> _ _. apply: (arr_eqI (s := fun=> ζ _ _) (t := fun=> ζ _ _)).
-      move=> b. have -> : n - length B' = S n - length (B' ++ [b]) by (rewrite app_length /length; lia).
-      apply: IH; [ rewrite app_length /length -/(length _); by lia | by apply: equiv_appR].
+      move=> b. have -> : n - length B' = S n - length (B' ++ [b]) by (rewrite length_app /length; lia).
+      apply: IH; [ rewrite length_app /length -/(length _); by lia | by apply: equiv_appR].
     + by move=> + /(narrow_equiv confluent_M Hxx').
     + by move=> /(narrow_equiv confluent_M ((iffLR equiv_sym) Hxx')).
     + move=> _ _. do 2 f_equal. by apply: nf_equiv_eq.
@@ -199,7 +199,7 @@ Proof using confluent_M.
     (* AxB is narrow *)
     + move=> /= /(narrow_appL (a := a)) => ?. case: (narrow_dec (A ++ [a], B, x)); last done.
       move=> _ /=. apply: (arr_eqI (s := fun => ζ _ _) (t := fun => substitute _ _)).
-      move=> b. apply: IH. rewrite app_length /length -/(length _). by lia.
+      move=> b. apply: IH. rewrite length_app /length -/(length _). by lia.
     + move=> _ /=. rewrite -(ζ_SnP (A := A ++ [a])).
       rewrite ψP. move HAxB: (nf (A, B, x)) => [[A' B'] x'].
       rewrite -Hm.

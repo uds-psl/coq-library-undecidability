@@ -1,5 +1,5 @@
 Require Import Undecidability.StringRewriting.SR.
-Require Import Setoid List Lia.
+From Stdlib Require Import Setoid List Lia.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 

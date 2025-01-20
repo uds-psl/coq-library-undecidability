@@ -249,7 +249,7 @@ Proof. erewrite VectorSpec.nth_map2; eauto. Qed.
 
 
 (* Set Notation scopes for tapes, so that the alphabet of the tape is parsed as a type (e.g. [X+Y] is parsed as the sum type, not the addition of [X] and [Y]) *)
-Arguments tapes (sig % type) (n % nat).
+Arguments tapes (sig %_ type) (n %_ nat).
 
 
 (* ** Nop Action *)

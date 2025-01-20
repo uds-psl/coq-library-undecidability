@@ -1,6 +1,6 @@
 Set Default Goal Selector "!".
 
-Require Import Lia Nat Fin.
+From Stdlib Require Import Lia Nat Fin.
 
 Require Import Undecidability.H10.Util.Diophantine.
 From Undecidability.FRACTRAN Require Import FRACTRAN_computable prime_seq.

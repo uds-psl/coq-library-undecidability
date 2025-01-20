@@ -9,12 +9,12 @@ Require Import
   Undecidability.IntersectionTypes.Util.CD_fundamental
   Undecidability.LambdaCalculus.Util.term_facts.
 
-Require Import Relations.
+From Stdlib Require Import Relations.
 
 Import L (term, var, app, lam).
 Import Lambda.
 
-Require Import ssreflect.
+From Stdlib Require Import ssreflect.
 
 Set Default Goal Selector "!".
 

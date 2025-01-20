@@ -5,7 +5,7 @@ From Undecidability Require Import Shared.ListAutomation.
 From Undecidability Require Import Shared.Libs.PSL.Vectors.Vectors.
 Import ListAutomationNotations.
 
-Import Coq.Vectors.Vector.
+From Stdlib Require Import Vectors.Vector.
 Local Notation vec := t.
 
 

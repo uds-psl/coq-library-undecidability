@@ -12,7 +12,7 @@
     Uniform Boundedness of Deterministic, Length-preserving Stack Machines (SMNdl_UB)
 *)
 
-Require Import Relation_Operators List.
+From Stdlib Require Import Relation_Operators List.
 Import ListNotations.
 
 Definition State := nat.

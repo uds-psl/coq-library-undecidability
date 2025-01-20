@@ -13,9 +13,9 @@
   - Module Reordering: change order, duplicate rules
 *)
 
-Require Import List Lia.
+From Stdlib Require Import List Lia.
 Import ListNotations.
-Require Import Relation_Operators Operators_Properties.
+From Stdlib Require Import Relation_Operators Operators_Properties.
 
 Require Import Undecidability.StackMachines.SMN.
 Require Undecidability.StackMachines.SSM.
@@ -24,7 +24,7 @@ From Undecidability.StackMachines.Util Require Import Nat_facts List_facts SMN_f
 
 Require Import Undecidability.StackMachines.Util.SMN_transform.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

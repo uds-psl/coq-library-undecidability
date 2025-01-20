@@ -1,6 +1,6 @@
 (** * Halting problem for a fixed, universal, single-tape, binary Turing machine (HaltUTM) *)
 
-From Coq Require Import Vector.
+From Stdlib Require Import Vector.
 Import VectorNotations.
 
 From Undecidability Require Import TM Shared.Libs.PSL.FiniteTypes.FinTypesDef.

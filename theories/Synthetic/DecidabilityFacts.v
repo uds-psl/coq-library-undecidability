@@ -1,6 +1,6 @@
-Require Export Undecidability.Synthetic.Definitions Lia.
+Require Export Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Shared.Dec.
-Require Import Setoid Morphisms.
+From Stdlib Require Import Setoid Morphisms Lia.
 
 Definition discrete X := decidable (fun '(x,y) => x = y :> X).
 

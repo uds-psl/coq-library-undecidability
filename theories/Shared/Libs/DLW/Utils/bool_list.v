@@ -9,7 +9,7 @@
 
 (* ** Bitwise operations on nat as list bool *)
 
-Require Import List Lia Bool Setoid.
+From Stdlib Require Import List Lia Bool Setoid.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac.
@@ -206,7 +206,7 @@ Set Implicit Arguments.
     Proof.
       revert l m; induction n as [ | n IHn ].
       + intros [] []; simpl; lia.
-      + intros [ | x l ] [ | y m ]; simpl; try rewrite map_length; auto.
+      + intros [ | x l ] [ | y m ]; simpl; try rewrite length_map; auto.
         intros; apply le_n_S, IHn; lia.
     Qed.
 

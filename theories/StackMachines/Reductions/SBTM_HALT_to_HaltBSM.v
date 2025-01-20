@@ -3,11 +3,11 @@ From Undecidability.StackMachines Require Import BSM BSM.bsm_defs.
 From Undecidability.TM Require Import SBTM Util.SBTM_facts.
 From Undecidability.Shared.Libs.DLW Require Import vec subcode sss.
 
-Require Import PeanoNat List Lia.
+From Stdlib Require Import PeanoNat List Lia.
 Import Vector.VectorNotations ListNotations SBTMNotations.
 #[local] Open Scope list_scope.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 
@@ -85,7 +85,7 @@ Section Construction.
     rewrite /P /=. congr S. have := PROG_length.
     elim: (num_states M) (PROG); first done.
     move=> n IH PROG' H. have ->: S n * c = n * c + c by lia.
-    rewrite /= app_length flat_map_concat_map map_map -flat_map_concat_map H.
+    rewrite /= length_app flat_map_concat_map map_map -flat_map_concat_map H.
     by rewrite IH; [|lia].
   Qed.
 
@@ -153,7 +153,7 @@ Section Construction.
     rewrite /= !flat_map_concat_map map_map -!flat_map_concat_map.
     move=> [l] [r] [{}IH {}IH']. exists (PROG' Fin.F1 ++ l), r. split.
     - by rewrite IH -app_assoc.
-    - move: (Fin.to_nat q) IH' => [? ?] /=. rewrite app_length H'. lia.
+    - move: (Fin.to_nat q) IH' => [? ?] /=. rewrite length_app H'. lia.
   Qed.
 
   Opaque P.

@@ -28,7 +28,7 @@ Section fix_Sigma.
     length (encode_sym s) = n.
   Proof.
     unfold encode_sym. destruct Fin.to_nat as [i Hi].
-    cbn. rewrite app_length, !repeat_length. lia.
+    cbn. rewrite length_app, !repeat_length. lia.
   Qed.
 
   Fixpoint encode_string (s : list (Fin.t n)) :=
@@ -286,7 +286,7 @@ Proof.
     eapply TestLeftof_Realise. } intros []. { instantiate (1 := fun b => if b then _ else _).
     cbn. eapply RealiseIn_Realise, WriteString_Sem. }
     pose proof (@WriteString_MoveBack (finType_CS bool) false (encode_sym c ++ [true])). cbn in H.
-    replace (|encode_sym c ++ [true]|) with (S n) in H. 2:rewrite app_length, length_encode_sym; cbn; lia. cbn.
+    replace (|encode_sym c ++ [true]|) with (S n) in H. 2:rewrite length_app, length_encode_sym; cbn; lia. cbn.
     eapply H. }
     intros t ([], t') ? ? ->. TMSimp. f_equal.
     destruct t_sig eqn:E; cbn - [skipn].
@@ -315,7 +315,7 @@ Proof.
         generalize (encode_string l0). intros ?.
         replace (S (length l1 )) with (length (l1 ++ [true])).
         { now rewrite Nat.sub_diag, skipn_all. }
-        rewrite app_length. simpl. lia. }
+        rewrite length_app. simpl. lia. }
       now rewrite <- app_assoc.
   - cbn. eapply Realise_monotone. { now auto with nocore TMdb. }
     intros t ([], t') ->. eauto.
@@ -376,9 +376,9 @@ Proof.
       { unshelve eapply (Nat.le_trans _ _ _ _ H).
       eapply Nat.le_refl. }
       intros. TMSimp. destruct yout.
-      * cbn. repeat (rewrite !app_length, ?rev_length, ?length_encode_sym; cbn). eapply Nat.le_add_r.
+      * cbn. repeat (rewrite !length_app, ?length_rev, ?length_encode_sym; cbn). eapply Nat.le_add_r.
       * repeat eexists. { eapply Nat.le_refl. }
-        { repeat (rewrite !app_length, ?rev_length, ?length_encode_sym; cbn).
+        { repeat (rewrite !length_app, ?length_rev, ?length_encode_sym; cbn).
         eapply Nat.le_add_l. }
         { eapply Nat.le_refl. } { eapply Nat.le_refl. }
         intros. eapply Nat.le_refl.
@@ -411,7 +411,7 @@ Lemma midtape_right_midtape {Σ : finType} l m r1 c r2 n :
 Proof. 
   intros ->. induction r1 in m, c, r2 |- * using rev_ind; cbn.
   - reflexivity.
-  - rewrite app_length. cbn. rewrite Nat.add_comm. cbn.
+  - rewrite length_app. cbn. rewrite Nat.add_comm. cbn.
     rewrite <- app_assoc, Nat_iter_S'. cbn.
     rewrite (IHr1 m x (c :: r2)). cbn. now rewrite rev_app_distr.
 Qed.
@@ -786,7 +786,7 @@ Lemma binary_simulation Σ (M : TM Σ 1) :
 Proof.
   exists (projT1 (StateWhile (@Step Σ M) (start M))). split.
   - intros q' t t' [n H] % TM_eval_iff.
-    edestruct @Sim_Terminates with (M := (existT _ M (fun _ : state M => tt))) (T := fun tin k => tin = t /\ k >= n).
+    destruct (@Sim_Terminates _ _ (existT _ M (fun _ : state M => tt)) (fun tin k => tin = t /\ k >= n)).
     * intros tin k [-> Hk]. cbn. exists (mk_mconfig q' t').  eapply @loop_monotone. { exact H. }
       eapply Hk.
     * destruct H0 as [k H0]. cbn in H0. edestruct H0 as [[] H1].
@@ -801,7 +801,7 @@ Proof.
            cbn in H2. subst. f_equal.
            eapply loop_injective in H. 2: eassumption. now inv H.
         + clear k H0 H1. intros tin k [q'_ tout] Hter. cbn in *. exists q'_. eapply TM_eval_iff. exists k. exact Hter.
-  - intros t (q' & t' & [n H] % TM_eval_iff). 
+  - intros t (q' & t' & [n H] % TM_eval_iff).
     eapply (Sim_Realise (M := (existT _ M (fun _ : state M => tt))) (R := fun tin '(_,tout) => exists q', eval M (start M) tin q' tout)) in H.
     * rewrite (destruct_tape t) in *.
       specialize (H (Vector.hd t) eq_refl) as [t'_sig [[q'_ H1] H2]]. 
@@ -847,7 +847,7 @@ End HaltTM_Σ_to_HaltTM_bool.
 Require Import Undecidability.Synthetic.Definitions.
 
 Theorem reduction :
-  HaltTM 1 ⪯ fun '(M,t) => @HaltsTM (finType_CS bool) 1 M t.
+  HaltTM 1 ⪯ uncurry (@HaltsTM (finType_CS bool) 1).
 Proof.
   unshelve eexists.
   - intros [Σ M t]. exact (M' M, ts' t).

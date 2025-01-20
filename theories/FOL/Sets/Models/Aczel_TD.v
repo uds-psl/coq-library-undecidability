@@ -1,7 +1,7 @@
 (* * Consistency of ZF-Axiomatisation *)
 
 From Undecidability.FOL.Sets.Models Require Import Aczel.
-Require Import Setoid Morphisms.
+From Stdlib Require Import Setoid Morphisms.
 
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.

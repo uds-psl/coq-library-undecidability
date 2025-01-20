@@ -7,8 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import List.
-Require Import Permutation.
+From Stdlib Require Import List Permutation.
 
 From Undecidability.Shared.Libs.DLW.Utils Require Import focus utils_tac.
 (*

@@ -9,7 +9,7 @@
 
 (* ** Solutions of Pell's equation *)
 
-Require Import Arith Lia ZArith.
+From Stdlib Require Import Arith Lia ZArith.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac gcd prime crt binomial sums.

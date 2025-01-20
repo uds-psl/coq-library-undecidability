@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import List Arith Bool Lia Eqdep_dec.
+From Stdlib Require Import List Arith Bool Lia Eqdep_dec.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.
@@ -86,7 +86,7 @@ Section Sign_Sig2_encoding.
          -> P v <-> mb_is_tuple_in (fun a b => a ∈ₘ b) r w.
 
   Notation "⟪ A ⟫" := (fun ψ => fol_sem M2 ψ A).
-  Notation "⟪ A ⟫'" := (fun φ => fol_sem Mn φ A) (at level 1, format "⟪ A ⟫'").
+  Notation "⟪ A ⟫'" := (fun φ => fol_sem Mn φ A) (at level 0, format "⟪ A ⟫'").
 
   (* The correctness lemma *)
  

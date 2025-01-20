@@ -2,7 +2,7 @@
 (* ** Problems in PA *)
 From Undecidability.FOL.Arithmetics Require Export Signature FA Robinson PA.
 Import Vector.VectorNotations.
-Require Import List.
+From Stdlib Require Import List.
 
 Notation extensional M :=
   (forall x y, @i_atom _ _ _ M Eq ([x ; y]) <-> x = y).

@@ -9,7 +9,7 @@ From Undecidability.FOL.Sets
 From Undecidability.FOL.Reductions
      Require Import PCPb_to_ZF PCPb_to_ZFeq PCPb_to_minZF PCPb_to_minZFeq PCPb_to_ZFD.
 
-Require Import Lia.
+From Stdlib Require Import Lia.
 
 From Undecidability.PCP Require Import PCP.
 

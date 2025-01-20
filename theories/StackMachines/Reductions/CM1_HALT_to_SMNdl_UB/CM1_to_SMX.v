@@ -11,7 +11,7 @@
     Uniform Boundedness of Deterministic, Flip-consistent, Length-preserving Stack Machines with Exchange
 *)
 
-Require Import Relation_Operators Operators_Properties Lia PeanoNat List.
+From Stdlib Require Import Relation_Operators Operators_Properties Lia PeanoNat List.
 Import ListNotations.
 
 Require Undecidability.CounterMachines.CM1.
@@ -24,7 +24,7 @@ Require Import Undecidability.StackMachines.Reductions.CM1_HALT_to_SMNdl_UB.SMX_
 Module SM := SMX.
 From Undecidability.StackMachines.Util Require Import Nat_facts List_facts.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 
@@ -367,7 +367,7 @@ Section Reduction.
   Proof. move=> /nth_error_Some_In_combineP + /nth_error_Some_In_combineP => -> [] *. by subst. Qed.
 
   Lemma length_iP : length iP = length P.
-  Proof. by rewrite /iP combine_length seq_length Nat.min_id. Qed.
+  Proof. by rewrite /iP length_combine length_seq Nat.min_id. Qed.
 
   Definition gotos_index (X Y: BasicState ) : nat :=
     match X, Y with
@@ -385,10 +385,10 @@ Section Reduction.
   Lemma gotos_indexP {i n X Y} : nth_error gotos i = Some (n, X, Y) -> i = gotos_index X Y.
   Proof.
     have ? := length_iP. case /nth_error_appP.
-    { rewrite map_length nth_error_map. by move=> [/nth_error_iP_Some [? [? ->]]] [] _ <- <-. }
-    do 4 (rewrite map_length => [[?]]; case /nth_error_appP; 
-      first by rewrite map_length nth_error_map; move=> [/nth_error_iP_Some [? [? ->]]] [] _ <- <- /=; lia).
-    rewrite map_length. move Hi': (i' in nth_error _ i') => i'. move: i' Hi' => [|i'] /=; last by (case: i' => > ? [? ?]).
+    { rewrite length_map nth_error_map. by move=> [/nth_error_iP_Some [? [? ->]]] [] _ <- <-. }
+    do 4 (rewrite length_map => [[?]]; case /nth_error_appP; 
+      first by rewrite length_map nth_error_map; move=> [/nth_error_iP_Some [? [? ->]]] [] _ <- <- /=; lia).
+    rewrite length_map. move Hi': (i' in nth_error _ i') => i'. move: i' Hi' => [|i'] /=; last by (case: i' => > ? [? ?]).
     move=> ? [?] [] _ <- <- /=. by lia.
   Qed.
 
@@ -483,7 +483,7 @@ Section Reduction.
     In ((s, t, X), (s', t', Y), b) M -> length (s ++ t) = length (s' ++ t') /\ 1 <= length (s ++ t).
   Proof using capped_P.
     move /(transition _ [] []). rewrite ?app_norm.
-    move: b => [|] /stepE [] > + [] *; move=> [] *; subst; rewrite ?app_length ?repeat_length ?/G /=.
+    move: b => [|] /stepE [] > + [] *; move=> [] *; subst; rewrite ?length_app ?repeat_length ?/G /=.
     all: try by lia.
     all: have := in_igotos_lt ltac:(eassumption); have ? := igotos_capped ltac:(eassumption); by lia.
   Qed.
@@ -786,7 +786,7 @@ Section Reduction.
       rewrite -/Y ?app_norm. move /(_ ltac:(lia)) /reachable_n_reachable.
       congr (SM.reachable). do 5 f_equal. by lia.
     }
-    rewrite /L' ?map_length seq_length. by lia.
+    rewrite /L' ?length_map length_seq. by lia.
   Qed.
 
   End Reflection.
@@ -1003,7 +1003,7 @@ Section Reduction.
     {  
       right. exists (l, §0^m, goto n X Y). constructor; first by apply: reach_refl.
       move=> y /stepE [] > []; try done.
-      - move=> ? /(f_equal (@length Symbol)). rewrite ?app_length ?repeat_length. by lia.
+      - move=> ? /(f_equal (@length Symbol)). rewrite ?length_app ?repeat_length. by lia.
       - move=> ? Hm. exfalso. have : not (In §1 (§0^m)) by move /(@repeat_spec Symbol).
         apply. rewrite Hm ?in_app_iff. clear. by firstorder done.
     }
@@ -1276,7 +1276,7 @@ Section Reduction.
   Proof.
     move=> Hijn ?. apply: terminal_maybe_reachable.
     move=> ? /(index_yes_step_shape Hijn). case; first by case: (m).
-    move /(f_equal (@length Symbol)). rewrite ?app_length ?repeat_length. by lia.
+    move /(f_equal (@length Symbol)). rewrite ?length_app ?repeat_length. by lia.
   Qed.
 
   Definition maybe_index_yes_futile_time := 2*maybe_goto_1_time + maybe_increase_time + maybe_index_try_stop_time + 5.
@@ -1387,7 +1387,7 @@ Section Reduction.
       apply: (maybe_first_step (bound_yes_spec (i, (n, X, Y))) (skipn G l) (§0^m ++ r));
         [by lia | by auto with M | done |].
       apply: maybe_reachable_refl'. have ? := igotos_capped Hi.
-      rewrite /G ?app_norm /gotos ?app_length /=. do 4 f_equal. by lia.
+      rewrite /G ?app_norm /gotos ?length_app /=. do 4 f_equal. by lia.
     (* cannot execute bound op *)
     - move=> H. exists ([], [], 0, +|, +|). apply: terminal_maybe_reachable.
       move=> y /stepE [] > [] *; subst; try done.
@@ -1395,8 +1395,8 @@ Section Reduction.
       rewrite /= ?app_norm. do 4 f_equal. rewrite ?app_assoc skipn_app.
       have ? := in_igotos_lt ltac:(eassumption).
       set s := (skipn G _). have -> : s = [].
-      { rewrite /s skipn_all2; last done. rewrite ?app_length ?repeat_length /= /G. by lia. }
-      rewrite ?app_length ?repeat_length /= /G.
+      { rewrite /s skipn_all2; last done. rewrite ?length_app ?repeat_length /= /G. by lia. }
+      rewrite ?length_app ?repeat_length /= /G.
       set k := (k in skipn k _). have -> : k = 0 by lia. done.
   Qed.
 

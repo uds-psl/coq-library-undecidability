@@ -7,8 +7,8 @@ From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 Import ListAutomationHints.
 Import ListAutomationInstances.
-Require Import Lia.
-Require Import EqdepFacts.
+From Stdlib Require Import Lia.
+From Stdlib Require Import EqdepFacts.
 Import FragmentSyntax.
 
 

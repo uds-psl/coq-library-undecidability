@@ -10,7 +10,7 @@
 (* * Arithmetic libraries for Matiyasevich's theorems *)
 (* ** Modular arithmetic *)
 
-Require Import Arith Lia ZArith List Permutation Eqdep_dec.
+From Stdlib Require Import Arith Lia ZArith List Permutation Eqdep_dec.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac utils_list gcd prime binomial sums php.
@@ -542,7 +542,7 @@ Section Zp.
   Qed.
 
   Fact Zp_list_length : length Zp_list = p.
-  Proof. unfold Zp_list; rewrite map_length, list_an_length; auto. Qed.
+  Proof. unfold Zp_list; rewrite length_map, list_an_length; auto. Qed.
 
   Fact Zp_invertible_prime x : prime p -> Zp_invertible x <-> x <> Zp.
   Proof.
@@ -1041,7 +1041,7 @@ Section Zp.
           rewrite (Zp_mul_comm _ (inv x)), Zp_invert_spec2; auto.
           rewrite Zp_mult_one, <- Zp_lprod_app.
           apply IHl.
-          * simpl; do 2 rewrite app_length; simpl; lia.
+          * simpl; do 2 rewrite length_app; simpl; lia.
           * contradict H0.
             constructor 2.
             apply perm_list_has_dup with (inv x::u++v).

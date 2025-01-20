@@ -1,10 +1,10 @@
-Require Import Vector.
+From Stdlib Require Import Vector.
 From Undecidability.FOL Require Import Syntax.Facts.
 From Undecidability.FOL.Semantics.Tarski Require Import FullFacts FragmentFacts.
 From Undecidability.FOL.Semantics.FiniteTarski Require Import Full Fragment.
 From Undecidability.Shared Require Import Dec.
 From Undecidability.Shared.Libs.PSL Require Import Numbers.
-From Coq Require Import Arith Lia List.
+From Stdlib Require Import Arith Lia List.
 From Undecidability.Shared.Libs.DLW.Wf Require Import wf_finite.
 From Undecidability.Synthetic Require Import Definitions.
 

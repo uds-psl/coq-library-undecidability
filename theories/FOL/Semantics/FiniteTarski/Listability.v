@@ -3,7 +3,7 @@ From Undecidability.FOL.Syntax Require Import Facts.
 Require Import Undecidability.Synthetic.DecidabilityFacts.
 Require Import Undecidability.Synthetic.EnumerabilityFacts.
 Require Import Undecidability.Shared.Dec.
-Require Import List.
+From Stdlib Require Import List.
 
 (* Definition of finiteness *)
 

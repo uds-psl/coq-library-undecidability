@@ -3,7 +3,7 @@
     Binary Single-tape Turing Machine Halting (SBTM_HALT)
 *)
 
-Require Coq.Vectors.Fin Coq.Vectors.Vector.
+From Stdlib Require Vectors.Fin Vectors.Vector.
 
 #[local] Open Scope list_scope.
 #[local] Open Scope type_scope.

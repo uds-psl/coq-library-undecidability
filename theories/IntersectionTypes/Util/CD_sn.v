@@ -9,14 +9,14 @@ Require Import
   Undecidability.IntersectionTypes.Util.CD_fundamental.
 
 Require Import Undecidability.LambdaCalculus.Util.term_facts.
-Require Import Relations List Wellfounded.Transitive_Closure.
+From Stdlib Require Import Relations List Wellfounded.Transitive_Closure.
 
 Import L (term, var, app, lam).
 Import Lambda.
 
 Import ListNotations TermNotations.
 
-Require Import ssreflect.
+From Stdlib Require Import ssreflect.
 
 Set Default Goal Selector "!".
 

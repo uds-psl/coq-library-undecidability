@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import List Arith Nat Lia Relations Bool.
+From Stdlib Require Import List Arith Nat Lia Relations Bool.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac utils_list fin_base.
@@ -58,7 +58,7 @@ Section finite_t_weak_dec_powerset.
       intros R HR; exists (fun _ => True); simpl; split; tauto.
     + destruct IHl as (ll & Hl & Hll).
       exists (map (fun T a => x<>a /\ T a) ll ++ map (fun T a => x=a \/ T a) ll); split.
-      1: rewrite app_length, !map_length; simpl; lia.
+      1: rewrite length_app, !length_map; simpl; lia.
       intros R HR.
       destruct (Hll R) as (T & H1 & H2); auto.
       destruct (HR x) as [ H0 | H0 ].

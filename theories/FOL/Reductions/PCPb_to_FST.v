@@ -5,7 +5,7 @@ Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
 Require Import Undecidability.FOL.FST.
 Require Import Undecidability.FOL.Sets.FST.
 Require Undecidability.FOL.Sets.Models.FST_model.
-Require Import Lia.
+From Stdlib Require Import Lia.
 
 From Undecidability.PCP Require Import PCP Util.PCP_facts Reductions.PCPb_iff_dPCPb.
 

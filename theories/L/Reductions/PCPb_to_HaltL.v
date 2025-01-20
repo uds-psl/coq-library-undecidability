@@ -2,7 +2,7 @@ Set Default Goal Selector "!".
 
 From Undecidability.Synthetic Require Import Definitions EnumerabilityFacts ListEnumerabilityFacts.
 From Undecidability Require Export PCP.PCP.
-Require Import Lia.
+From Stdlib Require Import Lia.
 
 From Undecidability.L Require Import LProd LBool LNat LOptions.
 From Undecidability.L.Datatypes.List Require Import List_basics List_eqb List_extra List_nat.
@@ -40,7 +40,7 @@ Proof.
   extract.
 Qed.
 
-From Coq Require Cantor.
+From Stdlib Require Cantor.
 
 Definition of_list_enum {X} (f : nat -> list X) := (fun n : nat => let (n0, m) := Cantor.of_nat n in nth_error (f n0) m).
 

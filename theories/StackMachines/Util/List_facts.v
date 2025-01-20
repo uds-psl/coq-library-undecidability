@@ -1,9 +1,9 @@
-Require Import PeanoNat List Lia.
+From Stdlib Require Import PeanoNat List Lia.
 Import ListNotations.
 
 Require Import Undecidability.StackMachines.Util.Nat_facts.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 
@@ -84,7 +84,7 @@ Lemma legnth_flat_map {X Y: Type} {f: X -> list Y} {l: list X} {n: nat}:
 Proof.
   move=> Hf. elim: l.
   - move=> * /=. by lia.
-  - move=> x l IH /=. rewrite app_length. have := Hf x. by lia.
+  - move=> x l IH /=. rewrite length_app. have := Hf x. by lia.
 Qed.
 
 Lemma in_split_informative {X: Type} {x: X} {l: list X} : (forall (x y: X), {x = y} + {x <> y}) ->

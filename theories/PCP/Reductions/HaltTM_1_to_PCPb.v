@@ -11,7 +11,7 @@
 
 (* Direct reductions from Halting of 1-TM to binary PCP *)
 
-Require Import List.
+From Stdlib Require Import List.
 
 From Undecidability.Shared.Libs.DLW
   Require Import utils.

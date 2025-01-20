@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import List Arith Nat Lia Max Wellfounded Coq.Setoids.Setoid.
+From Stdlib Require Import List Arith Nat Lia Wellfounded Setoids.Setoid.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac utils_list finite.
@@ -98,9 +98,9 @@ Section membership.
     + rewrite H1, H2; auto.
   Qed.
 
-  Reserved Notation "p ≋ ⦃ a , b ⦄" (at level 70, format "p  ≋  ⦃ a , b ⦄").
-  Reserved Notation "p ≋ ⦅ a , b ⦆" (at level 70, format "p  ≋  ⦅ a , b ⦆").
-  Reserved Notation "t ≋ ⦉ v ⦊" (at level 70, format "t  ≋  ⦉ v ⦊").
+  Reserved Notation "p ≋ ⦃ a , b ⦄" (at level 1, format "p  ≋  ⦃ a , b ⦄").
+  Reserved Notation "p ≋ ⦅ a , b ⦆" (at level 1, format "p  ≋  ⦅ a , b ⦆").
+  Reserved Notation "t ≋ ⦉ v ⦊" (at level 1, format "t  ≋  ⦉ v ⦊").
 
   Definition mb_is_pair p x y := forall a, a ∈ p <-> a ≈ x \/ a ≈ y.
 

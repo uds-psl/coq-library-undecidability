@@ -1,7 +1,7 @@
 From Undecidability.Synthetic Require Import 
   ReducibilityFacts DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts MoreEnumerabilityFacts.
 
-Require Import List.
+From Stdlib Require Import List Lia.
 Import ListNotations.
 From Undecidability.Shared Require Import Dec.
 

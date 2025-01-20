@@ -6,7 +6,7 @@ Require Import Undecidability.FOL.Deduction.FullND.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 Import ListNotations.
-Require Import Vector Lia.
+From Stdlib Require Import Vector Lia.
 
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.

@@ -9,7 +9,7 @@
 
 (* ** Sparse ciphers *)
 
-Require Import Arith Lia List Bool.
+From Stdlib Require Import Arith Lia List Bool.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac gcd sums rel_iter bool_nat power_decomp prime.
@@ -701,7 +701,7 @@ Section sums.
       Proof. apply Nat.mul_le_mono; auto; apply (proj2_sig g_full). Qed.
 
       Let Hg3 i : 2*g i < r.
-      Proof using Hm. apply Nat.le_lt_trans with (1 := Hg2 _); auto. Qed.
+      Proof. clear -Hm. apply Nat.le_lt_trans with (1 := Hg2 _); auto. Qed.
       
       Let Hu2 : u2 = msum nat_join 0 (2*k) (fun i => (2*g i) * power i r).  
       Proof.

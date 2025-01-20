@@ -21,10 +21,10 @@ From Undecidability.LambdaCalculus Require Import Lambda Util.term_facts Util.wC
 
 From Undecidability Require Import L.Util.L_facts.
 
-From Coq Require Import Relations Wellfounded.Transitive_Closure List Lia.
+From Stdlib Require Import Relations Wellfounded.Transitive_Closure List Lia.
 Import L (term, var, app, lam).
 Import Lambda (subst, wCBN_step, wCBN_stepSubst, wCBN_stepApp).
-From Coq Require Import ssreflect.
+From Stdlib Require Import ssreflect.
 
 Import Relation_Operators (t1n_trans).
 Import Datatypes (id).
@@ -334,28 +334,26 @@ Qed.
 
 Lemma closed_colon {s} : closed s -> forall sigma, subst sigma (colon s (lam (var 0))) = colon s (lam (var 0)).
 Proof.
-  move=> Hs sigma. rewrite subst_closed; last done.
+  move=> Hs sigma. rewrite subst_L_closed; last done.
   by apply /closed_dcl /bound_colon; apply /closed_dcl.
 Qed.
 
 End Argument.
 
 Require Import Undecidability.Synthetic.Definitions.
-Require Undecidability.L.Reductions.HaltL_to_HaltLclosed.
-Import HaltL_to_HaltLclosed (HaltLclosed).
 
 #[local] Unset Asymmetric Patterns.
 
 (* reduction from L halting to weak call-by-name leftmost outermost normalization *)
-(* note: currently HaltLclosed is defined in HaltL_to_HaltLclosed *)
 Theorem reduction : HaltLclosed ⪯ wCBNclosed.
 Proof.
   exists (fun '(exist _ s Hs) => exist _ (Argument.colon s (lam (var 0))) (Argument.closed_colon Hs)).
   move=> [s Hs]. split.
-  - move=> [t] /= /[dup] [[_ []]] t' ->.
-    move=> /eval_iff /= /Argument.simulation.
+  - move=> [t] /= /[dup] /eval_iff [_ []] t' ->.
+    move=> /= /Argument.simulation.
     move=> /(_ Hs (lam (var 0))) ?. exists (Argument.cbv_cbn t').
     apply: rt_trans; first by eassumption.
     apply: rt_step. by apply: wCBN_stepSubst.
-  - move=> [t] /Argument.inverse_simulation. by apply.
+  - move=> [t] /Argument.inverse_simulation /(_ Hs) [{}t] /eval_iff ?.
+    by exists t.
 Qed.

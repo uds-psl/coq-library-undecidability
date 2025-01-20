@@ -4,8 +4,8 @@ From Undecidability Require Import TM.Combinators.Combinators.
 From Undecidability Require Import TM.Compound.TMTac.
 From Undecidability Require Import TM.Compound.Multi.
 
-From Coq Require Import FunInd.
-From Coq Require Import Recdef.
+From Stdlib Require Import FunInd.
+From Stdlib Require Import Recdef.
 
 Set Default Goal Selector "!".
 

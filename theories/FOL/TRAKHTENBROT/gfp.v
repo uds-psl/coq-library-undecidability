@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import List Arith Nat Lia Relations.
+From Stdlib Require Import List Arith Nat Lia Relations.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac utils_list finite php.
@@ -231,7 +231,7 @@ Section gfp.
       destruct (HmR (i n)) as (T & H1 & H2).
       * intros x y; destruct (i_dec n x y); tauto.
       * exists T; auto.
-    + unfold l; rewrite map_length, list_an_length; auto.
+    + unfold l; rewrite length_map, list_an_length; auto.
     + unfold l in H1; apply map_duplicate_inv in H1.
       destruct H1 as (a' & n & b' & m & c' & H1 & H3 & H4 & H5 & H6 & H7).
       exists n, m; rewrite <- H3, <- H5; split; try (intros ? ?; apply H2).

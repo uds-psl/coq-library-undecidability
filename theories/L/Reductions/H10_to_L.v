@@ -17,7 +17,7 @@ Local Ltac in_app n :=
     end
   end) || (repeat (try right; eapply in_app_iff; right)).
 
-Require Import Nat Datatypes.
+From Stdlib Require Import Nat Datatypes.
 
 (* * Diophantine Equations *)
 

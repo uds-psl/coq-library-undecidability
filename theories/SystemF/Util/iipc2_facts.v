@@ -5,10 +5,10 @@
     (1) Saarland University, Saarbrücken, Germany
 *)
 
-Require Import List Lia.
+From Stdlib Require Import List Lia.
 Require Import Undecidability.SystemF.SysF Undecidability.SystemF.Autosubst.syntax.
 From Undecidability.SystemF.Util Require Import Facts poly_type_facts typing_facts.
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 
@@ -127,7 +127,7 @@ Lemma iipc2_poly_varI x {Gamma ts ss y} :
   iipc2 Gamma (poly_var y).
 Proof.
   move=> /typing_var /typing_many_ty_appI => /(_ ts ltac:(done)).
-  rewrite subst_poly_type_many_poly_arr /subst_poly_type -rev_length fold_right_length_ts -/subst_poly_type.
+  rewrite subst_poly_type_many_poly_arr /subst_poly_type -length_rev fold_right_length_ts -/subst_poly_type.
   move=> /iipc2I. move: (map _ ss) => {}ss. move: (poly_var y) => t.
   elim: ss t; first done.
   by move=> s ss IH t /= [?] /typing_app H /Forall_cons_iff [[?] /H{H} /iipc2I /IH].

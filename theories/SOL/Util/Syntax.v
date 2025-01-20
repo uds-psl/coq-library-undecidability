@@ -2,7 +2,7 @@ Require Import Undecidability.SOL.SOL.
 Require Import Undecidability.Shared.Dec.
 From Undecidability.Shared.Libs.PSL Require Import Vectors.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
-Require Import EqdepFacts Eqdep_dec.
+From Stdlib Require Import EqdepFacts Eqdep_dec Lia.
 
 Unset Implicit Arguments.
 
@@ -486,7 +486,7 @@ End EqDec.
 (* *** Enumerability *)
 
 
-Require Import List.
+From Stdlib Require Import List.
 Import ListNotations.
 
 #[local] Notation "x 'el' L" := (In x L) (at level 70).

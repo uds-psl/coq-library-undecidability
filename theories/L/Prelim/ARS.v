@@ -1,7 +1,8 @@
 (* ** Abstract Reduction Systems *)
 (* from Semantics Lecture at Programming Systems Lab, https://www.ps.uni-saarland.de/courses/sem-ws13/ *)
 
-Require Export Undecidability.Shared.Libs.PSL.Base Lia Arith.
+Require Export Undecidability.Shared.Libs.PSL.Base.
+From Stdlib Require Export Lia Arith.
 
 Module ARSNotations.
   Notation "p '<=1' q" := (forall x, p x -> q x) (at level 70).
@@ -20,7 +21,7 @@ Definition rcomp X Y Z (R : X -> Y -> Prop) (S : Y -> Z -> Prop)
 
 (* Power predicates *)
 
-Require Import Arith.
+From Stdlib Require Import Arith Relations.
 Definition pow X R n : X -> X -> Prop := it (rcomp R) n eq.
 
 Definition functional {X Y} (R: X -> Y -> Prop) := forall x y1 y2, R x y1 -> R x y2 -> y1 = y2.
@@ -90,6 +91,13 @@ Section FixX.
     intros A. erewrite star_pow. eauto.
   Qed.
 
+  Lemma star_clos_rt_iff R x y : star R x y <-> clos_refl_trans _ R x y.
+  Proof.
+    split.
+    - intros H; induction H; eauto using clos_refl_trans.
+    - intros H%clos_rt_rt1n_iff. induction H; eauto using star.
+  Qed.
+
   (* Equivalence closure *)
 
   Inductive ecl R : X -> X -> Prop :=
@@ -106,7 +114,8 @@ Section FixX.
   Lemma ecl_sym R :
     symmetric (ecl R).
   Proof.
-    induction 1; eauto using ecl, (@ecl_trans R).
+    pose proof (@ecl_trans R).
+    induction 1; eauto using ecl.
   Qed.
 
   Lemma star_ecl R :
@@ -164,7 +173,9 @@ Section FixX.
       + exists y. eauto using star.
                + destruct (A _ _ _ D B) as [v [E F]].
                  destruct (IH _ E) as [u [G H]].
-                 exists u. eauto using (@star_trans R).
+                 exists u.
+                 pose proof (@star_trans R).
+                 eauto.
                - apply (A x y z); eauto using star.
   Qed.
 
@@ -179,14 +190,16 @@ Section FixX.
   Proof.
     split; intros A.
     - intros x y z B C. apply A.
-      eauto using (@ecl_trans R), star_ecl, (@ecl_sym R).
+      pose proof (@ecl_trans R).
+      pose proof (@ecl_sym R).
+      eauto using star_ecl.
     - intros x y B. apply semi_confluent_confluent in A.
       induction B as [x|x x' y C B IH|x x' y C B IH].
       + exists x. eauto using star.
                + destruct IH as [z [D E]]. exists z. eauto using star.
                + destruct IH as [u [D E]].
                  destruct (A _ _ _ C D) as [z [F G]].
-                 exists z. eauto using (@star_trans R).
+                 exists z. pose proof (@star_trans R). eauto.
   Qed.
 
 

@@ -2,7 +2,7 @@ Require Import Undecidability.TM.KOSBTM.KOSBTM.
 
 Require Import Undecidability.Shared.Libs.PSL.Vectors.FinNotation Undecidability.Shared.Libs.PSL.Vectors.Vectors Undecidability.Shared.Libs.PSL.EqDec.
 
-Require Import List Arith Lia Bool.
+From Stdlib Require Import List Arith Lia Bool.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import utils list_bool pos vec subcode sss.
@@ -281,7 +281,7 @@ Section fixM.
     
     Fact PROG_length i : length (PROG i) = c.
     Proof.
-      unfold PROG. rewrite !app_length, !length_cons.
+      unfold PROG. rewrite !length_app, !length_cons.
       rewrite !uniform_match_option; [reflexivity|..].
       all: now intros [[??][]]; rewrite repeat_length.
     Qed.
@@ -299,7 +299,7 @@ Section fixM.
       match goal with
       | [ |- (?o + ?i, ?c1) <sc (?i, ?c2) ] => exists (firstn o c2); exists []; split
       end.
-      rewrite app_nil_r. 2:rewrite firstn_length, PROG_length. 2:lia.
+      rewrite app_nil_r. 2:rewrite length_firstn, PROG_length. 2:lia.
       enough (firstn 26 (PROG i) = [ POP CURR (26 + off) (51 + off) ;
       (*  1 + off *)  PUSH CURR (if! δ (i, Some true) is Some (_, Some false, _) then false else true)
    ] ++
@@ -319,7 +319,7 @@ Section fixM.
       match goal with
       | [ |- (?o + ?i, ?c1) <sc (?i, ?c2) ] => exists (firstn o c2); exists []; split
       end.
-      rewrite app_nil_r. 2:rewrite firstn_length, PROG_length. 2:lia.
+      rewrite app_nil_r. 2:rewrite length_firstn, PROG_length. 2:lia.
       enough (firstn 51 (PROG i) = [ POP CURR (26 + off) (51 + off) ;
       (*  1 + off *)  PUSH CURR (if! δ (i, Some true) is Some (_, Some false, _) then false else true)
    ] ++
@@ -543,7 +543,7 @@ Section fixM.
     Proof.
       induction n.
       - unfold sim. cbn. lia.
-      - unfold sim. fold sim. rewrite app_length. rewrite PROG_length. rewrite IHn. lia.
+      - unfold sim. fold sim. rewrite length_app. rewrite PROG_length. rewrite IHn. lia.
     Qed.
 
     Lemma SIM_length : length SIM = c * (S (num_states M)).
@@ -629,7 +629,7 @@ Section fixM.
         eapply H.
         unfold out_code. right. unfold fst, code_end, snd, fst. rewrite SIM_length. lia.
       - intros ([i out] & H1 & H2). pose proof (HS := @SIM_term pos0).
-        cbn [Fin.to_nat proj1_sig] in HS. rewrite NPeano.Nat.mul_0_r, NPeano.Nat.add_0_r in HS.
+        cbn [Fin.to_nat proj1_sig] in HS. rewrite Nat.mul_0_r, Nat.add_0_r in HS.
         eapply HS in H1 as (q' & t' & -> & -> & H).
         exists q', t'. eassumption. 
         unfold out_code, code_start, code_end, fst, snd in H2. lia.

@@ -6,13 +6,13 @@
     (1) Saarland University, Saarbrücken, Germany
 *)
 
-Require Import List Lia.
+From Stdlib Require Import List Lia.
 Import ListNotations.
 Require Import Undecidability.SystemF.SysF Undecidability.SystemF.Autosubst.syntax Undecidability.SystemF.Autosubst.unscoped.
 Import UnscopedNotations.
 From Undecidability.SystemF.Util Require Import Facts poly_type_facts term_facts.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 
@@ -101,7 +101,7 @@ Proof.
   elim: n Gamma P t ts.
   - move=> ? ? ? [|]; last done. move=> _ /=. congr typing. by rewrite subst_poly_type_poly_var.
   - move=> n IH Gamma P t. elim /rev_ind; first done.
-    move=> s ts'. rewrite app_length /many_poly_abs -iter_last -/(many_poly_abs _ _) /=.
+    move=> s ts'. rewrite length_app /many_poly_abs -iter_last -/(many_poly_abs _ _) /=.
     move=> ? ?. have /IH {}IH : length ts' = n by lia.
     move=> /IH {}IH. rewrite rev_unit many_ty_app_app /=.
     move: IH => /= => /typing_ty_app => /(_ s). congr typing.

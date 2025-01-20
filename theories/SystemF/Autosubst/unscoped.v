@@ -1,7 +1,7 @@
 (* Version: 19.09. *)
 
 Require Import Undecidability.SystemF.SysF.
-Require Import Morphisms.
+From Stdlib Require Import Morphisms.
 
 Module UnscopedNotations.
   Notation "f >> g" := (funcomp g f) (*fun x => g (f x)*) (at level 50).

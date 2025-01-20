@@ -1,7 +1,7 @@
 (* Instance declaration for dependent pairs *)
 
 From Undecidability.Shared.Libs.PSL Require Import Base FinTypes.
-From Coq Require Import EqdepFacts List.
+From Stdlib Require Import EqdepFacts List.
 
 #[global]
 Instance eqType_depPair (F : eqType) (a : F -> eqType) : eq_dec {f : F & a f}.

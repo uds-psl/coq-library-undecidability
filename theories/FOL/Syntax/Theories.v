@@ -2,9 +2,9 @@ From Undecidability.FOL.Syntax Require Import Core Facts.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 From Undecidability Require Import Shared.ListAutomation.
 From Undecidability Require Import Shared.Libs.PSL.Vectors.Vectors.
-Require Import Coq.Setoids.Setoid.
+From Stdlib Require Import Setoids.Setoid.
 Import ListAutomationNotations ListAutomationHints.
-Require Import Arith Lia List.
+From Stdlib Require Import Arith Lia List.
 
 #[global]
 Create HintDb contains_theory.

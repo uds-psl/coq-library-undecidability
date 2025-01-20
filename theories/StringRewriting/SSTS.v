@@ -17,7 +17,7 @@
       Fundamenta Informaticae 170.1-3 (2019): 93-110.
 *)
 
-Require Import List Relation_Operators.
+From Stdlib Require Import List Relation_Operators.
 
 (* A simple semi-Thue system consists of rules "ab -> cd" where a, b, c, d : nat *)
 Definition Ssts := list ((nat * nat) * (nat * nat)).

@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import List Arith Lia.
+From Stdlib Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW
   Require Import utils pos vec subcode sss.
@@ -49,6 +49,12 @@ Section Minsky_Machine.
     * exists (1+i,v[(S (v#>x))/x]); constructor.
     * exists (j,v); constructor; auto.
     * exists (1+i,v[k/x]); constructor; auto.
+  Qed.
+
+  Fact mm_sss_total_ni ii s :
+    exists t, ii // s -1> t.
+  Proof.
+    apply (ex_of_sig (mm_sss_total _ _)).
   Qed.
   
   Fact mm_sss_INC_inv x i v j w : INC x // (i,v) -1> (j,w) -> j=1+i /\ w = v[(S (v#>x))/x].

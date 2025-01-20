@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import List Arith Lia.
+From Stdlib Require Import List Arith Lia.
 From Undecidability.HOU Require Import std.std calculus.calculus.
 Import ListNotations.
 From Undecidability.HOU.second_order Require Import diophantine_equations dowek.encoding.

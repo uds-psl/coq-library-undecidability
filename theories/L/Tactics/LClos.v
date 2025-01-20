@@ -311,7 +311,7 @@ Lemma deClos_valComp a: validComp a -> closed (deClos a).
 Proof.
   intros va. induction va;simpl.
   -now apply app_closed.
-  -apply substList_closed'. intros a ain. rewrite in_map_iff in ain. destruct ain as [a' [eq a'in]];subst. now apply H0. now rewrite map_length.
+  -apply substList_closed'. intros a ain. rewrite in_map_iff in ain. destruct ain as [a' [eq a'in]];subst. now apply H0. now rewrite length_map.
 Qed.
 
 Lemma deClos_validEnv A : validEnv A -> validEnv' (map deClos A).

@@ -1,6 +1,6 @@
 (* Considered preliminaries *)
 Set Implicit Arguments.
-Require Import List Arith Lia Morphisms.
+From Stdlib Require Import List Arith Lia Morphisms.
 Import ListNotations.
 From Undecidability.HOU Require Export std.std.
 From Undecidability.HOU Require Import calculus.terms.

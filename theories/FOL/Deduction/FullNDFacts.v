@@ -7,7 +7,7 @@ From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations ListAutomationFacts ListAutomationHints ListAutomationInstances.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
-Require Import Lia.
+From Stdlib Require Import Lia.
 
 
 

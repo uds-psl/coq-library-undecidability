@@ -212,7 +212,7 @@ Qed.
 
 
 
-Require Import List Arith Lia.
+From Stdlib Require Import List Arith Lia.
 
 #[export]
 Instance In_dec (X: Type) {D: Dis X}: Dec2 (@In X).

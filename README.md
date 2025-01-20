@@ -1,16 +1,12 @@
-# Manual installation for Coq
+# Manual installation for Rocq
 
 ```
 opam switch create coq-library-undecidability --packages=ocaml-variants.4.14.1+options,ocaml-option-flambda
 eval $(opam env)
-opam pin add -k git coq-core.dev "https://github.com/coq/coq.git#master"
-opam pin add -k git coq-stdlib.dev "https://github.com/coq/coq.git#master"
-opam pin add -k git coqide-server.dev "https://github.com/coq/coq.git#master"
-opam pin add -k git coq.dev "https://github.com/coq/coq.git#master"
-opam pin add -k git coq-equations.dev "https://github.com/mattam82/Coq-Equations.git#main"
-opam pin add -k git coq-metacoq-utils.dev "https://github.com/MetaCoq/metacoq.git#main"
-opam pin add -k git coq-metacoq-common.dev "https://github.com/MetaCoq/metacoq.git#main"
-opam pin add -k git coq-metacoq-template.dev "https://github.com/MetaCoq/metacoq.git#main"
+opam pin add -k git rocq-runtime.dev "https://github.com/coq/coq.git#master"
+opam pin add -k git rocq-core.dev "https://github.com/coq/coq.git#master"
+opam pin add -k git rocq-stdlib.dev "https://github.com/coq/stdlib.git#master"
+opam pin add -k git rocq.dev "https://github.com/coq/coq.git#master"
 ```
 
 # Coq Library of Undecidability Proofs
@@ -100,6 +96,7 @@ An equivalence proof that most of the mentioned models of computation compute th
 - Strong normalization for given terms in the strong call-by-name lambda-calculus (`SNclosed` in [`LambdaCalculus/Lambda.v`](theories/LambdaCalculus/Lambda.v))
 - System F Inhabitation (`SysF_INH` in [`SystemF/SysF.v`](theories/SystemF/SysF.v)), System F Typability (`SysF_TYP` in [`SystemF/SysF.v`](theories/SystemF/SysF.v)), System F Type Checking (`SysF_TC` in [`SystemF/SysF.v`](theories/SystemF/SysF.v))
 - Intersection Type Inhabitation (`CD_INH` in [`IntersectionTypes/CD.v`](theories/IntersectionTypes/CD.v)), Intersection Type Typability (`CD_TYP` in [`IntersectionTypes/CD.v`](theories/IntersectionTypes/CD.v)), Intersection Type Type Checking (`CD_TC` in [`IntersectionTypes/CD.v`](theories/IntersectionTypes/CD.v))
+- Higher-order matching wrt. beta-equivalence (`HOMbeta` in [`LambdaCalculus/HOMatching.v`](theories/LambdaCalculus/HOMatching.v))
 
 #### Decidable Problems
 
@@ -121,14 +118,10 @@ You need the `master` branch of `Coq` built on OCAML `>= 4.09.1`, and the Templa
 ```
 opam switch create coq-library-undecidability --packages=ocaml-variants.4.14.1+options,ocaml-option-flambda
 eval $(opam env)
-opam pin add -k git coq-core.dev "https://github.com/coq/coq.git#master"
-opam pin add -k git coq-stdlib.dev "https://github.com/coq/coq.git#master"
-opam pin add -k git coqide-server.dev "https://github.com/coq/coq.git#master"
-opam pin add -k git coq.dev "https://github.com/coq/coq.git#master"
-opam pin add -k git coq-equations.dev "https://github.com/mattam82/Coq-Equations.git#main"
-opam pin add -k git coq-metacoq-utils.dev "https://github.com/MetaCoq/metacoq.git#main"
-opam pin add -k git coq-metacoq-common.dev "https://github.com/MetaCoq/metacoq.git#main"
-opam pin add -k git coq-metacoq-template.dev "https://github.com/MetaCoq/metacoq.git#main"
+opam pin add -k git rocq-runtime.dev "https://github.com/coq/coq.git#master"
+opam pin add -k git rocq-core.dev "https://github.com/coq/coq.git#master"
+opam pin add -k git rocq-stdlib.dev "https://github.com/coq/stdlib.git#master"
+opam pin add -k git rocq.dev "https://github.com/coq/coq.git#master"
 ```
 
 #### Building the undecidability library

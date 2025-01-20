@@ -18,7 +18,7 @@
 *)
 
 Require Undecidability.L.L.
-Require Import List.
+From Stdlib Require Import List.
 Import L (term, var, app, lam).
 
 (* strict types are of shape: a | (s1 /\ s2 /\ .. /\ sn -> t) *)

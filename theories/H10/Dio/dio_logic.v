@@ -12,7 +12,7 @@
     3) Tactics for the automagic recognition of Diophantine shapes
 *)
 
-Require Import Arith Nat ZArith Lia.
+From Stdlib Require Import Arith Nat ZArith Lia.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac gcd sums bounded_quantification.

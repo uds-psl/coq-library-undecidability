@@ -1,7 +1,7 @@
 Require Import Undecidability.Synthetic.EnumerabilityFacts.
 Require Import Undecidability.L.L.
-Require Cantor.
-Require Import Lia.
+From Stdlib Require Cantor.
+From Stdlib Require Import Lia.
 
 Fixpoint term_enum_rec (k n: nat) : term :=
   match k with

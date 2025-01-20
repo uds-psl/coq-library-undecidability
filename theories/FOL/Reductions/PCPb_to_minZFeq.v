@@ -11,7 +11,7 @@ Import ListAutomationNotations ListAutomationHints ListAutomationInstances.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
-Require Import Morphisms.
+From Stdlib Require Import Morphisms.
 
 
 Local Notation vec := Vector.t.

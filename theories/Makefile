@@ -1,15 +1,15 @@
-all: Makefile.coq
+all: Makefile.rocq
 	export TIMED
-	@+$(MAKE) -f Makefile.coq all
+	@+$(MAKE) -f Makefile.rocq all
 
-html: Makefile.coq
-	@+$(MAKE) -f Makefile.coq html
+html: Makefile.rocq
+	@+$(MAKE) -f Makefile.rocq html
 	mv html/*.html ../website
 	rm -rf html
 
-clean: Makefile.coq
-	@+$(MAKE) -f Makefile.coq clean
-	rm -f Makefile.coq Makefile.coq.conf
+clean: Makefile.rocq
+	@+$(MAKE) -f Makefile.rocq clean
+	rm -f Makefile.rocq Makefile.rocq.conf
 
 gitclean: 
 	git clean -Xfd
@@ -19,12 +19,12 @@ findclean:
 
 mrproper: clean gitclean findclean
 
-Makefile.coq: _CoqProject
-	coq_makefile -f _CoqProject -o Makefile.coq
+Makefile.rocq: _CoqProject
+	rocq makefile -f _CoqProject -o Makefile.rocq
 
 force _CoqProject Makefile: ;
 
-%: Makefile.coq force
-	@+$(MAKE) -f Makefile.coq $@
+%: Makefile.rocq force
+	@+$(MAKE) -f Makefile.rocq $@
 
 .PHONY: all html clean force

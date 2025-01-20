@@ -1,6 +1,6 @@
 Set Implicit Arguments.
 From Undecidability.HOU Require Import calculus.prelim calculus.terms calculus.syntax std.std.
-Require Import Morphisms Lia FinFun. 
+From Stdlib Require Import Morphisms Lia FinFun. 
 
 (* * Semantics **)
 Section Semantics.

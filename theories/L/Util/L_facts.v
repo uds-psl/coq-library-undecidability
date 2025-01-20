@@ -2,7 +2,7 @@ From Undecidability.L Require Export Prelim.ARS.
 From Undecidability.Shared.Libs.PSL Require Export Base.
 From Undecidability.L Require Export L.
 
-Require Import Lia.
+From Stdlib Require Import Lia.
 
 #[export] Hint Constructors ARS.star : cbv.
 

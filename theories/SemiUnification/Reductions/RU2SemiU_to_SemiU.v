@@ -12,12 +12,12 @@
     Semi-unification (SemiU)
 *)
 
-Require Import List.
+From Stdlib Require Import List.
 Import ListNotations.
 
 Require Import Undecidability.SemiUnification.SemiU.
 
-Require Import ssreflect ssrfun ssrbool.
+From Stdlib Require Import ssreflect ssrfun ssrbool.
 
 Require Import Undecidability.Synthetic.Definitions.
 

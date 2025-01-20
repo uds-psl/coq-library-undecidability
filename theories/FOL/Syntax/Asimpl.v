@@ -1,11 +1,11 @@
 From Undecidability.FOL.Syntax Require Import Core Facts.
 
 
-Require Import Coq.Classes.Init.
-Require Import Relation_Definitions.
-Require Export Coq.Classes.RelationClasses.
-Require Import Coq.Classes.Morphisms.
-Require Export Setoid.
+From Stdlib Require Import Classes.Init.
+From Stdlib Require Import Relation_Definitions.
+From Stdlib Require Export Classes.RelationClasses.
+From Stdlib Require Import Classes.Morphisms.
+From Stdlib Require Export Setoid.
 
 
 Section Asimpl.

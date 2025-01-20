@@ -12,13 +12,13 @@
     Square Diophantine Constraint Solvability (H10SQC_SAT)
 *)
 
-Require Import List Lia.
-Require Cantor.
+From Stdlib Require Import List Lia.
+From Stdlib Require Cantor.
 Import ListNotations.
 
 Require Import Undecidability.DiophantineConstraints.H10C.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 

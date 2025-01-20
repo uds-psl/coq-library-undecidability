@@ -17,7 +17,7 @@
       FSCD 2022. https://drops.dagstuhl.de/opus/volltexte/2022/16297/
 *)
 
-Require Import List ssrfun.
+From Stdlib Require Import List ssrfun.
 
 (* a configuration consists of a state and two counter values *)
 Definition Config : Set := nat * (nat * nat).
@@ -89,10 +89,10 @@ Definition terminating (M: Mpm2) (x: Config) :=
 Definition MPM2_HALT : Mpm2 * Config -> Prop :=
   fun '(M, c) => terminating M c.
 
-Require Import List PeanoNat Lia Operators_Properties.
+From Stdlib Require Import List PeanoNat Lia Operators_Properties.
 Import ListNotations.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 
@@ -542,7 +542,7 @@ Proof.
     { move=> [p [a b]].
       move: H1L => /Forall_forall H1L /H1L ?.
       apply /in_prod; [|apply /in_prod]; apply /in_seq; lia. }
-    move=> /H2L. rewrite ?prod_length ?seq_length. lia. }
+    move=> /H2L. rewrite ?length_prod ?length_seq. lia. }
   move=> n IH L ? p a b ? ? H1L H2L.
   have [[|]|[[p' [a' b']] [Hp ?]]] := next_small_waypoint p a b; [tauto|tauto|].
   have := In_dec _ (p, (a, b)) L. case.

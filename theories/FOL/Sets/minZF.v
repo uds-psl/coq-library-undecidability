@@ -5,7 +5,7 @@ Require Export Undecidability.FOL.Utils.FullSyntax.
 Require Export Undecidability.FOL.Sets.Signatures.
 Require Export Undecidability.FOL.Sets.ZF.
 Import Vector.VectorNotations.
-Require Import List.
+From Stdlib Require Import List.
 
 
 Declare Scope syn.

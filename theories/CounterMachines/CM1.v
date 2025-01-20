@@ -12,7 +12,7 @@
     One Counter Machine Halting (CM1_HALT)
 *)
 
-Require Import List Nat.
+From Stdlib Require Import List Nat.
 
 Definition State : Set := nat.
 (* a configuration consists of a state and a counter value *)

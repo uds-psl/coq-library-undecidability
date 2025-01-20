@@ -7,8 +7,8 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import Arith Lia List Permutation. 
-Require Vector.
+From Stdlib Require Import Arith Lia List Permutation. 
+From Stdlib Require Vector.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils. 

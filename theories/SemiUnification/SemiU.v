@@ -20,7 +20,7 @@
       https://drops.dagstuhl.de/opus/volltexte/2020/12331
 *)
 
-Require Import List.
+From Stdlib Require Import List.
 
 (* terms are built up from atoms and a binary term constructor arr *)
 Inductive term : Set :=

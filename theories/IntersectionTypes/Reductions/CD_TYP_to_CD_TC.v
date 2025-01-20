@@ -15,10 +15,10 @@
 From Undecidability.IntersectionTypes Require Import CD Util.CD_facts.
 Require Import Undecidability.LambdaCalculus.Util.term_facts.
 Require Undecidability.L.L.
-Require Import List PeanoNat Lia.
+From Stdlib Require Import List PeanoNat Lia.
 Import L (term, var, app, lam).
 
-Require Import ssreflect.
+From Stdlib Require Import ssreflect.
 
 Set Default Goal Selector "!".
 
@@ -45,7 +45,7 @@ Proof.
   move=> /type_assignment_ren_fv => /(_ _ id). rewrite ren_id_term. apply.
   apply: allfv_impl (var_bound_spec M) => x ?.
   move=> > /(@nth_error_split ty) [Gamma1] [Gamma2] [-> ?]. subst x.
-  rewrite nth_error_map nth_error_seq /=; first done.
+  rewrite nth_error_map CD_facts.nth_error_seq /=; first done.
   by rewrite nth_error_app2 ?Nat.sub_diag.
 Qed.
 
@@ -66,7 +66,7 @@ Proof.
   exists (fun M => (nil, app (lam (lam (var 0))) (Nat.iter (var_bound M) lam M), arr (atom 0) nil (atom 0))).
   move=> M. split.
   - move=> [Gamma] [t] /var_bound_spec' /abs_Gamma_spec [t'].
-    rewrite /= map_length seq_length=> ?. econstructor.
+    rewrite /= length_map length_seq=> ?. econstructor.
     + do 3 econstructor; first done. by left.
     + by eassumption.
     + by apply: Forall_nil.

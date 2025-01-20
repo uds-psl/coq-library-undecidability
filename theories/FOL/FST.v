@@ -4,7 +4,7 @@
 Require Export Undecidability.FOL.Utils.FullSyntax.
 From Undecidability.FOL.Sets Require Export FST binFST Signatures.
 Import Vector.VectorNotations.
-Require Import List.
+From Stdlib Require Import List.
 
 Declare Scope syn.
 Open Scope syn.

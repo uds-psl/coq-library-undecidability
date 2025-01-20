@@ -5,8 +5,8 @@
     (1) Saarland University, Saarbrücken, Germany
 *)
 
-Require Import ssreflect ssrbool ssrfun.
-Require Import PeanoNat Lia Permutation List.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import PeanoNat Lia Permutation List.
 Import ListNotations.
 
 Set Default Goal Selector "!".

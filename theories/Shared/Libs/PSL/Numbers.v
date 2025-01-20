@@ -1,5 +1,5 @@
 Require Import Undecidability.Shared.Libs.PSL.Prelim.
-Require Import Lia.
+From Stdlib Require Import Lia.
 
 (* ** Numbers **)
 

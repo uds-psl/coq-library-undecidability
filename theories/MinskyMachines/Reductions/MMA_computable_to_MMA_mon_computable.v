@@ -11,19 +11,19 @@
 *)
 
 From Undecidability Require Import TM.TM.
-From Undecidability.MinskyMachines Require Import MM MMA MMA.mma_defs Util.MMA_computable.
+From Undecidability.MinskyMachines Require Import MM MMA MMA.mma_defs Util.MMA_computable Util.MMA_facts.
 
 From Undecidability.Shared.Libs.DLW
   Require Import Vec.pos Vec.vec Code.sss.
 
-Require Undecidability.Shared.deterministic_simulation.
+Require Undecidability.Shared.simulation.
 
-Require Import List PeanoNat Lia Relations.
+From Stdlib Require Import List PeanoNat Lia Relations.
 Import ListNotations.
 
-Require Import ssreflect.
+From Stdlib Require Import ssreflect.
 
-Module Sim := deterministic_simulation.
+Module Sim := simulation.
 
 Set Default Goal Selector "!".
 
@@ -96,49 +96,6 @@ Qed.
 End Facts.
 Import Facts.
 
-Lemma sss_compute_iff {n P s t} : P // s ->> t <-> clos_refl_trans _ (sss_step (@mma_sss n) P) s t.
-Proof.
-  split.
-  - case=> k. elim: k s.
-    { move=> ? /sss_steps_0_inv <-. by apply: rt_refl. }
-    move=> ? IH ? H. inversion H.
-    by apply: rt_trans; [apply: rt_step|apply: IH]; eassumption.
-  - move=> /clos_rt_rt1n_iff. elim.
-    { move=> ?. exists 0. by constructor. }
-    move=> > ? _ ?. apply: sss_compute_trans; [|eassumption].
-    exists 1. by econstructor; [eassumption|constructor].
-Qed.
-
-Lemma in_code_step {n s P} :
-  subcode.in_code (fst s) P ->
-  exists t, sss_step (@mma_sss n) P s t.
-Proof.
-  move: s P => [i v] [offset P] /= ?.
-  case E: (nth_error P (i - offset)) => [instr|]; first last.
-  { move=> /nth_error_None in E. cbn in *. lia. }
-  have [t Ht] := mma_sss_total_ni instr (i, v).
-  move: E => /(nth_error_split P) [?] [?] [->] Hi.
-  eexists t, offset, _, instr, _, v.
-  split; [done|split; [|eassumption]].
-  congr pair. lia.
-Qed.
-
-Lemma out_code_iff {n s P} : subcode.out_code (fst s) P <-> Sim.stuck (sss_step (@mma_sss n) P) s.
-Proof.
-  split.
-  - move=> /sss_steps_stall H t /in_sss_steps_S H'.
-    by have /H' /H [] : sss_steps (mma_sss (n:=n)) P 0 t t by apply: in_sss_steps_0.
-  - have [|] := subcode.in_out_code_dec (fst s) P; [|done].
-    move=> /in_code_step [t] ? Hs. exfalso. by apply: (Hs t).
-Qed.
-
-Lemma sss_terminates_iff {n s P} : sss_terminates (@mma_sss n) P s <-> Sim.terminates (sss_step (@mma_sss n) P) s.
-Proof.
-  split.
-  - move=> [t] [/sss_compute_iff ? /out_code_iff ?]. by exists t.
-  - move=> [t] [/sss_compute_iff ? /out_code_iff ?]. by exists t.
-Qed.
-
 Module MMA_MMA_mon.
 
 Section FixedMMA.
@@ -181,7 +138,7 @@ Definition P' : list (mm_instr (pos num_counters')) :=
 
 Lemma length_P' : length P' = 4 + length P.
 Proof.
-  rewrite /P' app_length map_length /=. lia.
+  rewrite /P' length_app length_map /=. lia.
 Qed.
 
 Lemma P'_mon : Forall (fun instr => if instr is DEC c _ then NonZero c else True) P'.
@@ -297,10 +254,10 @@ Proof.
   eexists 1, (map shift_instr l), (shift_instr instr), (map shift_instr r ++ _), _.
   split; [|split].
   - congr pair. by rewrite map_app /= -app_assoc.
-  - congr pair. rewrite map_length shift_addr_range //.
-    rewrite HP app_length /=. lia.
+  - congr pair. rewrite length_map shift_addr_range //.
+    rewrite HP length_app /=. lia.
   - apply: simulation_mma_sss Hinstr.
-    rewrite HP app_length /=. lia.
+    rewrite HP length_app /=. lia.
 Qed.
 
 Lemma shift_addr_outcode i :
@@ -343,12 +300,12 @@ Proof.
   exists (2+m*2+1). 
   econstructor.
   { eexists 1, _, _, _, _. split; [reflexivity|split].
-    - rewrite map_length. reflexivity.
+    - rewrite length_map. reflexivity.
     - by constructor. }
   econstructor.
   { eexists 1, (map shift_instr P ++ [INC F1']), _, _, _.
     rewrite -app_assoc. split; [reflexivity|split].
-    - rewrite app_length map_length /=. congr pair. lia.
+    - rewrite length_app length_map /=. congr pair. lia.
     - apply: in_mma_sss_dec_1'; [done..|].
       by rewrite !vec_app_eq !vec_pos_app_right !vec_change_app_right !vec_pos_app_right. }
   rewrite -/(Nat.add _ _).
@@ -358,20 +315,20 @@ Proof.
     econstructor; [|econstructor].
     eexists 1, (map shift_instr P ++ [_; _; _]), _, _, _.
     rewrite -app_assoc. split; [reflexivity|split].
-    - rewrite app_length map_length /=. congr pair. lia.
+    - rewrite length_app length_map /=. congr pair. lia.
     - apply: in_mma_sss_dec_0'; [done..|].
       by rewrite (vec_pos_app_right (n ## v)) vec_pos_app_right. }
   move=> m IH n.
   econstructor.
   { eexists 1, (map shift_instr P ++ [_; _; _]), _, _, _.
     rewrite -app_assoc. split; [reflexivity|split].
-    - rewrite app_length map_length /=. congr pair. lia.
+    - rewrite length_app length_map /=. congr pair. lia.
     - apply: in_mma_sss_dec_1'; [done..|].
       by rewrite (vec_pos_app_right (n ## v)) vec_pos_app_right. }
   econstructor.
   { eexists 1, (map shift_instr P ++ [_; _]), _, _, _.
     rewrite -app_assoc. split; [reflexivity|split].
-    - rewrite app_length map_length /=. congr pair. lia.
+    - rewrite length_app length_map /=. congr pair. lia.
     - by apply: in_mma_sss_inc'. }
   have := IH (S n). rewrite -(Nat.add_succ_comm n m).
   congr sss_steps. congr pair.
@@ -400,13 +357,6 @@ Lemma step2_det s' t1' t2' :
   sss_step (@mma_sss _) (1, P') s' t2' -> t1' = t2'.
 Proof.
   apply: sss_step_fun. by apply: mma_sss_fun.
-Qed.
-
-Lemma step1_intro s : (exists t, step1 s t) \/ (Sim.stuck step1 s).
-Proof.
-  have [|] := subcode.in_out_code_dec (fst s) (1, P).
-  - move=> /in_code_step ?. by left.
-  - move=> /out_code_iff ?. by right.
 Qed.
 
 Lemma simulation v v' w' c m :
@@ -439,8 +389,8 @@ Proof.
     move=> /simulation /[apply] ?.
     eexists _, _. split; [eassumption|].
     rewrite /= length_P' /=. lia.
-  - move=> v /sss_terminates_iff Hv. apply: H2P.
-    apply /sss_terminates_iff. move: Hv.
-    apply /(Sim.terminates_reflection step2_det fstep step1_intro).
+  - move=> v /(sss_terminates_iff (@mma_sss_total_ni _)) Hv. apply: H2P.
+    apply /(sss_terminates_iff (@mma_sss_total_ni _)). move: Hv.
+    apply /(Sim.terminates_reflection (Sim.deterministic_uniformly_confluent _ step2_det) fstep (sss_step_or_stuck (@mma_sss_total_ni _) 1 P)).
     rewrite -vec_append_const. by apply: sync_intro.
 Qed.

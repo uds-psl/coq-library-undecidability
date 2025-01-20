@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import List Arith Lia Relations.
+From Stdlib Require Import List Arith Lia Relations.
 
 From Undecidability.MinskyMachines
   Require Import MMA mma_defs ndMM2.

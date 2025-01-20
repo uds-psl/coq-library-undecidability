@@ -404,7 +404,7 @@ Definition tmExtractConstr (def : ident) {A : Type} (a : A) :=
   
 (* End Fix_X. *)
 
-(* *** Extracting terms from Coq to L *)
+(* *** Extracting terms From Stdlib to L *)
 
 Definition lift env := (fun n => match n with 0 => 0 | S n => S (env n) end).
 
@@ -552,6 +552,8 @@ Fixpoint extract (env : nat -> nat) (s : Ast.term) (fuel : nat) : TemplateMonad 
   | tCoFix _ _ =>  tmFail "tCoFix is not supported"
   | tInt _ =>  tmFail "tInt is not supported"
   | tFloat _ =>  tmFail "tFloat is not supported"
+  | tString _ =>  tmFail "tString is not supported"
+  | tArray _ _ _ _ =>  tmFail "tArray is not supported"
    end end.
 
 Fixpoint head_of_const (t : term) :=

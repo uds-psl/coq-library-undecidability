@@ -5,7 +5,7 @@ Require Import Undecidability.FOL.Util.sig_bin.
 Require Import Undecidability.FOL.Util.FullTarski.
 Require Import Undecidability.FOL.Util.FullDeduction.
 Import Vector.VectorNotations.
-Require Import List.
+From Stdlib Require Import List.
 
 
  

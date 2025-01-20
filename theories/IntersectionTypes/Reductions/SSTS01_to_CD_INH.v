@@ -17,12 +17,12 @@ Require Undecidability.L.L.
 Require Import Undecidability.StringRewriting.SSTS.
 Require Import Undecidability.LambdaCalculus.Util.term_facts.
 
-Require Import Relations List PeanoNat Lia.
+From Stdlib Require Import Relations List PeanoNat Lia.
 Import ListNotations.
 
 Import L (term, var, app, lam).
 
-Require Import ssreflect ssrfun.
+From Stdlib Require Import ssreflect ssrfun.
 
 Set Default Goal Selector "!".
 
@@ -38,7 +38,7 @@ Qed.
 Lemma map_nth' {A B : Type} {f : A -> B} {l : list A} {d : B} {n : nat} (d' : A) :
   n < length l -> nth n (map f l) d = f (nth n l d').
 Proof.
-  move=> ?. rewrite -[RHS]map_nth. apply: nth_indep. by rewrite map_length.
+  move=> ?. rewrite -[RHS]map_nth. apply: nth_indep. by rewrite length_map.
 Qed.
 
 Lemma Forall_In_impl {X : Type} {P Q : X -> Prop} {l : list X} :
@@ -60,7 +60,7 @@ Proof.
 Qed.
 
 Lemma step_length_eq (rs : Ssts) v w : step rs v w -> length v = length w.
-Proof. case => > _. by rewrite !app_length. Qed.
+Proof. case => > _. by rewrite !length_app. Qed.
 
 #[local] Notation bullet := (atom 0).
 #[local] Notation star := (atom 1).
@@ -160,9 +160,9 @@ Lemma nth_Γ_common x bound i i' :
   nth_error (Γ_all bound i') x = nth_error (Γ_all bound i) x.
 Proof.
   move=> Hx. rewrite /Γ_all [LHS]nth_error_app2.
-  { move: Hx. by rewrite /Γ_lr !map_length !seq_length. }
+  { move: Hx. by rewrite /Γ_lr !length_map !length_seq. }
   rewrite [RHS]nth_error_app2; first done.
-  by rewrite /Γ_lr !map_length !seq_length.
+  by rewrite /Γ_lr !length_map !length_seq.
 Qed.
 
 Lemma In_Γ_allE bound i x s phi t :
@@ -171,10 +171,10 @@ Lemma In_Γ_allE bound i x s phi t :
   Γ_all_spec bound i x t.
 Proof.
   have [|] : x < length (Γ_lr bound i) \/ x >= length (Γ_lr bound i) by lia.
-  { rewrite /Γ_lr map_length seq_length => Hx.
+  { rewrite /Γ_lr length_map length_seq => Hx.
     have H'x : forall i', nth_error (Γ_all bound i') x = Some (s_pos i' x).
-    { move=> i'. rewrite /Γ_all nth_error_app1. { by rewrite /Γ_lr map_length seq_length. }
-      by rewrite /Γ_lr nth_error_map nth_error_seq. }
+    { move=> i'. rewrite /Γ_all nth_error_app1. { by rewrite /Γ_lr length_map length_seq. }
+      by rewrite /Γ_lr nth_error_map CD_facts.nth_error_seq. }
     rewrite H'x /s_pos. case Eix: (Nat.eqb i x) => /=.
     { move=> [<- <-]. case; last done. move=> ?. move=> /Nat.eqb_eq in Eix. subst. by apply: Γ_all_lr_l. }
     case E'ix: (Nat.eqb i (S x)).
@@ -404,7 +404,7 @@ Proof.
   - move: H' H1N1 => /type_assignmentE [>] /In_Γ_allE /[apply].
     case=> // > [?????] _ _ => [| |_]; subst.
     all: move=> /nf_hf_atom; by apply.
-  - by rewrite map_length seq_length.
+  - by rewrite length_map length_seq.
   - apply /Forall_forall => i /[dup] /in_seq [_ ?].
     move: IH' => /Forall_forall /[apply].
     move=> /type_assignmentE [>] /type_assignmentE [>] /type_assignmentE [>].
@@ -415,18 +415,18 @@ Proof.
     { move=> [<- <-]. case; last done. move=> ? _. subst.
       move: H'x => /In_s_rule_spec [] //.
       move=> [? -> ??] + _. congr type_assignment. congr symbol.
-      rewrite (map_nth' 0). { by rewrite seq_length Hv. }
+      rewrite (map_nth' 0). { by rewrite length_seq Hv. }
       rewrite seq_nth /= ?E1iy; lia. }
     case E2iy: (Nat.eqb i (S y)).
     { move=> [<- <-]. case; last done. move=> ? _. subst.
       move: H'x => /In_s_rule_spec [] //.
       move=> [? -> ??] + _. congr type_assignment. congr symbol.
-      rewrite (map_nth' 0). { by rewrite seq_length Hv. }
+      rewrite (map_nth' 0). { by rewrite length_seq Hv. }
       rewrite seq_nth /= ?E1iy ?E2iy; lia. }
     move=> [<- <-]. case; last done. move=> ? _. subst.
     move: H'x => /In_s_rule_spec [] //.
     move=> e [? -> ??] ? + _. congr type_assignment. congr symbol.
-    rewrite (map_nth' 0). { by rewrite seq_length Hv. }
+    rewrite (map_nth' 0). { by rewrite length_seq Hv. }
     rewrite seq_nth /= ?E1iy ?E2iy; lia.
 Qed.
 
@@ -466,7 +466,7 @@ Qed.
 Lemma In_Γ_all_skip_lr bound n i : 
   nth_error (Γ_all bound i) (bound + n) = nth_error (Γ_init ++ Γ_step) n.
 Proof.
-  rewrite /Γ_all /Γ_lr [nth_error _ (bound + n)]nth_error_app2 map_length seq_length. { lia. }
+  rewrite /Γ_all /Γ_lr [nth_error _ (bound + n)]nth_error_app2 length_map length_seq. { lia. }
   congr nth_error. lia.
 Qed.
 
@@ -532,8 +532,8 @@ Qed.
 
 Lemma nth_Γ_lr i j bound : j < bound -> nth_error (Γ_all bound i) j = Some (s_pos i j).
 Proof.
-  move=> ?. rewrite /Γ_all /Γ_lr nth_error_app1. { by rewrite map_length seq_length. }
-  by rewrite nth_error_map nth_error_seq.
+  move=> ?. rewrite /Γ_all /Γ_lr nth_error_app1. { by rewrite length_map length_seq. }
+  by rewrite nth_error_map CD_facts.nth_error_seq.
 Qed.
 
 Lemma In_s_id_rulesI c a b a' b' :
@@ -553,14 +553,14 @@ Lemma completeness_step (bound : nat) (N : term) (v w : list nat) :
     type_assignment (Γ_all bound (1 + bound)) N' (symbol 1) /\
     Forall (fun i => type_assignment (Γ_all bound i) N' (symbol (nth i v 0))) (seq 0 (bound + 1)).  
 Proof.
-  case=> u1 u2 a0 b0 a1 b1. rewrite !app_length /= => + ??? H1N H2N.
+  case=> u1 u2 a0 b0 a1 b1. rewrite !length_app /= => + ??? H1N H2N.
   move=> /(@In_split rule) [rs1] [rs2] Hrs.
   have ? : length u1 < bound by lia.
   pose x := bound + (length Γ_init + length rs1).
   have Hx : forall i, nth_error (Γ_all bound i) x = Some (s_rule ((a0, b0), (a1, b1))).
-  { move=> i. rewrite /x /Γ_all /Γ_step Hrs map_app nth_error_app2 map_length seq_length. { lia. }
+  { move=> i. rewrite /x /Γ_all /Γ_step Hrs map_app nth_error_app2 length_map length_seq. { lia. }
     have -> /= : forall n, bound + n - bound = n by lia.
-    by rewrite nth_error_app2 map_length ?Nat.sub_diag. }
+    by rewrite nth_error_app2 length_map ?Nat.sub_diag. }
   exists (app (app (var x) (var (length u1))) N). do ? split.
   - do ? constructor. by apply: neutral_normal_form.
   - apply: type_assignment_app; [apply: type_assignment_app| |].

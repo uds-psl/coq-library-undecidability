@@ -8,7 +8,7 @@ Require Export Undecidability.Shared.Libs.PSL.Inhabited.
 Require Export Undecidability.Shared.Libs.PSL.Base.
 Require Export Undecidability.Shared.Libs.PSL.Vectors.Vectors.
 
-Require Export Lia.
+From Stdlib Require Export Lia.
 
 #[local] Open Scope vector_scope.
 

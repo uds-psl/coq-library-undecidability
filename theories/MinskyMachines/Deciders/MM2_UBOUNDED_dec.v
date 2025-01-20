@@ -14,13 +14,13 @@
       FSCD 2022. https://drops.dagstuhl.de/opus/volltexte/2022/16297/
 *)
 
-Require Import List ListDec PeanoNat Lia Relation_Operators Operators_Properties Permutation.
+From Stdlib Require Import List ListDec PeanoNat Lia Relation_Operators Operators_Properties Permutation.
 Import ListNotations.
 Require Import Undecidability.MinskyMachines.MM2.
 Require Import Undecidability.MinskyMachines.Util.MM2_facts.
 Import MM2Notations.
 
-Require Import ssreflect ssrbool ssrfun.
+From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 
@@ -114,7 +114,7 @@ Lemma dup_seq (f : nat -> X) start len :
   not (NoDup (map f (seq start len))) ->
   exists '(i, j), f i = f j /\ (start <= i /\ i < j /\ j < start+len).
 Proof using X_eq_dec.
-  move=> /not_NoDupE [[i j]]. rewrite map_length seq_length.
+  move=> /not_NoDupE [[i j]]. rewrite length_map length_seq.
   move=> [? H]. exists (start+i, start+j). split; last lia.
   move: H. rewrite ?nth_error_map ?nth_error_seq; [lia|lia|].
   by move=> [].
@@ -223,7 +223,7 @@ Qed.
 Definition path k x := map (fun n => steps n x) (seq 0 k).
 
 Lemma path_length {k x} : length (path k x) = k.
-Proof. by rewrite /path map_length seq_length. Qed.
+Proof. by rewrite /path length_map length_seq. Qed.
 
 Lemma In_pathE K x oy : In oy (path K x) -> exists k, k < K /\ steps k x = oy.
 Proof.
@@ -309,7 +309,7 @@ Lemma loop_bounded K x : In (steps K x) (path K x) -> bounded K x.
 Proof.
   move=> /path_loopE' H. 
   exists (map (fun oy => if oy is Some y then y else x) (path K x)).
-  split. { by rewrite map_length path_length. }
+  split. { by rewrite length_map path_length. }
   move=> y /H {}H. apply /in_map_iff. by exists (Some y).
 Qed.
 
@@ -339,7 +339,7 @@ Lemma mortal_bounded {K x} : steps K x = None -> bounded K x.
 Proof.
   move=> HK.
   exists (map (fun oy => if oy is Some y then y else x) (path K x)).
-  split. { by rewrite map_length path_length. }
+  split. { by rewrite length_map path_length. }
   move=> y /reaches_steps [k]. have [?|?] : k < K \/ K <= k by lia.
   - move=> Hk. apply /in_map_iff. exists (Some y).
     split; first done.
@@ -356,7 +356,7 @@ Proof.
     { apply /in_map_iff. exists z. split; first done.
       apply: HL. by apply: (steps_reaches Hk). }
     by move: Hk Hxy => /(steps_k_monotone K) /(_ ltac:(lia)) ->.
-  - rewrite map_length path_length. lia.
+  - rewrite length_map path_length. lia.
   - done.
 Qed.
 
@@ -519,7 +519,7 @@ Proof.
   have [/pigeonhole|] := incl_dec option_mm2_state_eq_dec (path (l*n*n+1) x)
     (map Some (list_prod (seq 1 l) (list_prod (seq 0 n) (seq 0 n)))).
   { move=> H. exfalso. apply: (H _ Hx).
-    rewrite path_length map_length ?prod_length ?seq_length. lia. }
+    rewrite path_length length_map ?length_prod ?length_seq. lia. }
   move=> /(not_inclE option_mm2_state_eq_dec) [[z|]].
   - move=> H. exists z.
     move: H => [/in_map_iff] [k] [Hk] /in_seq ? H.
@@ -587,7 +587,7 @@ Proof.
   { move=> z /in_map_iff [i] [<- /in_seq ?]. rewrite H; first by lia.
     apply: in_map. apply: HL. apply: (steps_reaches (k := (i*k))). rewrite H; [lia|done]. }
   move=> /pigeonhole. apply.
-  { rewrite ?map_length seq_length. lia. }
+  { rewrite ?length_map length_seq. lia. }
   under map_ext_in.
   { move=> i /in_seq ?. rewrite H; first by lia. over. }
   apply: NoDup_map_ext; last by apply: seq_NoDup.
@@ -641,7 +641,7 @@ Proof.
     - move=> [? ?]. subst p c.
       move: H'x H => /Forall_Exists_neg /Forall_forall H /H{H} /= ?.
       apply /in_prod; apply /in_seq; lia. }
-  apply: unnest. { rewrite map_length ?prod_length ?seq_length path_length. lia. }
+  apply: unnest. { rewrite length_map ?length_prod ?length_seq path_length. lia. }
   rewrite /path map_map. move=> /(dup_seq prod_nat_nat_eq_dec) [[i j]].
   move=> [+ ?].
   case Hi: (steps i x) => [[p [a1 b1]]|]; first last.
@@ -695,7 +695,7 @@ Proof.
     have -> /=: l + 1 - k' = S (l + 1 - k' - 1) by lia.
     case: (mm2_sig_step_dec M (p, (a', b'))) => [[?]|]; [|done].
     move=> [?] [/mm2_instr_at_bounds] /=. lia. }
-  apply: unnest. { rewrite map_length ?seq_length path_length. lia. }
+  apply: unnest. { rewrite length_map ?length_seq path_length. lia. }
   rewrite /path map_map. move=> /(dup_seq Nat.eq_dec) [[i j]].
   move=> [+ ?].
   case Hi: (steps i x) => [[p [a1 b1]]|]; first last.

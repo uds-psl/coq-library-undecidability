@@ -9,7 +9,7 @@
 
 (* ** Reification for bounded quantification *)
 
-Require Import Arith Lia.
+From Stdlib Require Import Arith Lia.
 
 Set Implicit Arguments.
 

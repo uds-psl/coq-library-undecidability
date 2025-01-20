@@ -1,5 +1,5 @@
 Set Implicit Arguments. 
-Require Import FinFun.
+From Stdlib Require Import FinFun.
 From Undecidability.HOU Require Import std.decidable.
   
 Inductive diag: nat -> nat -> Type :=
@@ -72,7 +72,7 @@ Proof.
 Qed.
 
 
-Require Import Arith Lia Nat Arith.Div2.
+From Stdlib Require Import Arith Lia Nat.
 
 Definition I__S (s: nat + nat) :=
   match s with

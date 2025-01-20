@@ -1,4 +1,4 @@
-Require Import Arith Lia List.
+From Stdlib Require Import Arith Lia List.
 From Undecidability.HOU Require Import std.std calculus.prelim.
 Import ListNotations.
 

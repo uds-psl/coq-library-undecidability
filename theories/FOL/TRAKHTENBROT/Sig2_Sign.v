@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import List Arith Bool Lia Eqdep_dec.
+From Stdlib Require Import List Arith Bool Lia Eqdep_dec.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.
@@ -52,7 +52,7 @@ Section Sig2_Sig_n_encoding.
     Variable (X : Type) (M2 : fo_model Σ2 X) (Mn : fo_model Σn X).
 
     Notation "⟪ A ⟫" := (fun ψ => fol_sem M2 ψ A).
-    Notation "⟪ A ⟫'" := (fun φ => fol_sem Mn φ A) (at level 1, format "⟪ A ⟫'").
+    Notation "⟪ A ⟫'" := (fun φ => fol_sem Mn φ A) (at level 0, format "⟪ A ⟫'").
 
     Let P2 a b := fom_rels M2 tt (a##b##ø).
     Let Pn a b := fom_rels Mn tt (a##vec_set_pos (fun _ => b)).

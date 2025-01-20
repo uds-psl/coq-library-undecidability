@@ -1,4 +1,4 @@
-From Coq Require Import List Arith Lia Permutation Wf_nat.
+From Stdlib Require Import List Arith Lia Permutation Wf_nat.
 Import ListNotations.
 
 From Undecidability.Shared.Libs.DLW Require Import gcd prime.

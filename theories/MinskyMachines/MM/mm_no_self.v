@@ -10,7 +10,7 @@
 (* * Minsky machines to FRACTRAN programs *)
 (* ** Removal of self-loops in MMs *)
 
-Require Import List Arith Lia.
+From Stdlib Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW
   Require Import utils pos vec subcode sss.
@@ -267,7 +267,7 @@ Section remove_self_loops.
 
   Let Q_length : length Q = length P + 3.
   Proof. 
-    unfold Q; rewrite app_length, length_g.
+    unfold Q; rewrite length_app, length_g.
     unfold R; auto.
   Qed.
 

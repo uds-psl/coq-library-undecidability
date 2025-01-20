@@ -384,7 +384,7 @@ Section ToSingleTape.
   Notation nMax := (finMax' n).
   Local Arguments finMax' : simpl never.
 
-  Notation sigSim := (FinType(EqType(boundary + sigList (sigTape sig)))).
+  Definition sigSim := (FinType(EqType(boundary + sigList (sigTape sig)))).
 
   Implicit Types (T : tapes sig n).
 
@@ -1790,11 +1790,11 @@ Section ToSingleTape.
               rewrite <- map_vect_list_app in HCaseCons1 by lia.
               specialize HCaseCons2 with (3 := HCaseCons1).
               spec_assert HCaseCons2.
-              { apply Nat.eqb_eq. rewrite app_length. cbn.
+              { apply Nat.eqb_eq. rewrite length_app. cbn.
                 enough (fin_to_nat i' = S (fin_to_nat i)) by lia.
                 now apply finSucc_opt_Some'. }
               spec_assert HCaseCons2.
-              { apply Nat.eqb_eq. rewrite app_length. cbn. lia. }
+              { apply Nat.eqb_eq. rewrite length_app. cbn. lia. }
               rewrite <- app_assoc in HCaseCons2. cbn in *. auto.
           }
           { intros tps HNil. TMSimp. now specialize H2 with (1 := HNil). }

@@ -1,7 +1,7 @@
 From Undecidability.Shared.Libs.PSL Require Import Vectors.
 Require Import Undecidability.SOL.SOL.
 From Undecidability.SOL.Util Require Import Subst Syntax.
-Require Import Arith Lia Vector.
+From Stdlib Require Import Arith Lia Vector.
 
 Import SubstNotations.
 Unset Implicit Arguments.
