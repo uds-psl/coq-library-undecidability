@@ -23,7 +23,7 @@ Local Infix "~p" := (@Permutation _) (at level 70).
 Local Notation "X ⊆ Y" := (forall a, X a -> Y a : Prop) (at level 70).
 Local Infix "∊" := In (at level 70).
 
-Local Reserved Notation "'⟦' A '⟧'" (at level 1, format "⟦ A ⟧").
+Local Reserved Notation "'⟦' A '⟧'" (at level 0, format "⟦ A ⟧").
 
 Section IMSELL.
 
@@ -158,7 +158,7 @@ Section IMSELL.
         * intros ->; auto.
     Qed.
 
-    Reserved Notation "⟪ Γ ⟫" (at level 1, format "⟪ Γ ⟫").
+    Reserved Notation "⟪ Γ ⟫" (at level 0, format "⟪ Γ ⟫").
 
     Fixpoint imsell_tps_list Γ :=
       match Γ with
@@ -208,7 +208,7 @@ Section IMSELL.
 
     Definition imsell_sequent_tps Γ A := ⟪Γ⟫ -⊛ ⟦A⟧.
 
-    Notation "'[<' Γ '|-' A '>]'" := (imsell_sequent_tps Γ A) (at level 1, format "[<  Γ  |-  A  >]").
+    Notation "'[<' Γ '|-' A '>]'" := (imsell_sequent_tps Γ A) (at level 0, format "[<  Γ  |-  A  >]").
 
     Fact imsell_sequent_tps_mono Γ A B :
            ⟦A⟧ ⊆ ⟦B⟧ -> [< Γ |- A >] ⊆ [< Γ |- B >].
