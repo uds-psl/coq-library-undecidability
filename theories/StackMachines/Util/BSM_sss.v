@@ -49,8 +49,7 @@ Section Binary_Stack_Machine.
 
   Definition bsm_state := (nat*vec (list bool) n)%type.
 
-  Local Notation "e #> x" := (vec_pos e x).
-  Local Notation "e [ v / x ]" := (vec_change e x v).
+  Import vec_notations.
 
   Inductive bsm_sss : bsm_instr n -> bsm_state -> bsm_state -> Prop :=
     | in_bsm_sss_pop_E : forall i x p q v,    v#>x = nil      -> POP x p q // (i,v) -1> (  q,v)

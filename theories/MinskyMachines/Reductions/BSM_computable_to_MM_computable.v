@@ -45,9 +45,7 @@ Qed.
 Local Notation "P '/MM/' s '~~>' t" := (sss.sss_output (@mm_sss _) P s t) (at level 70, no associativity).
 Local Notation "P '/MM/' s '~~>' t" := (sss.sss_output (@mm_sss _) P s t) (at level 70, no associativity).
 
-
-Local Notation "e #> x" := (vec_pos e x).
-Local Notation "e [ v / x ]" := (vec_change e x v).
+Import vec_notations.
 
 Lemma vec_app_spec {X n m} (v : Vector.t X n) (w : Vector.t X m) :
   vec_app v w = Vector.append v w.

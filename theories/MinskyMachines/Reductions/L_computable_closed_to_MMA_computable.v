@@ -177,8 +177,8 @@ Context {H's0R : forall (v : Vector.t nat k0) o, eval (Vector.fold_left (fun s n
 
 #[local] Notation "P // s ->> t" := (sss_compute (@mma_sss num_counters) P s t).
 #[local] Notation "P // s -+> t" := (sss_progress (@mma_sss num_counters) P s t).
-#[local] Notation "e #> x" := (vec_pos e x).
-#[local] Notation "e [ v / x ]" := (vec_change e x v).
+
+Import vec_notations.
 
 #[local] Arguments vec_change_neq {X n v p q x}.
 #[local] Arguments vec_change_eq {X n v p q x}.
@@ -471,7 +471,7 @@ Qed.
 (* compute natural number k for a (closure of a) Scott-encoded numeral k *)
 Inductive decode_nat : list eterm -> term -> nat -> Prop :=
   | decode_nat_var n :
-      decode_nat [] (var n) 0
+      decode_nat nil (var n) 0
   | decode_nat_var0 k xs' s' xs :
       decode_nat xs' s' k ->
       decode_nat ((closure xs' s') :: xs) (var 0) k
@@ -479,7 +479,7 @@ Inductive decode_nat : list eterm -> term -> nat -> Prop :=
       decode_nat xs (var n) k ->
       decode_nat (x :: xs) (var (S n)) k
   | decode_nat_lam k s xs :
-      decode_nat ((closure [] (var 0)) :: xs) s k ->
+      decode_nat ((closure nil (var 0)) :: xs) s k ->
       decode_nat xs (lam s) k
   | decode_nat_app xs s t k :
       decode_nat xs t k ->
@@ -542,7 +542,9 @@ Proof.
       by rewrite app_nth2 repeat_length.
   - by move=> ? _ ? + ?? /= => ->.
   - move=> s IH n ts /=.
-    by rewrite [LHS]IH [RHS]IH app_assoc -repeat_app.
+    rewrite [LHS]IH.
+    rewrite [RHS]IH.
+    by rewrite app_assoc -repeat_app.
 Qed.
 
 Lemma app_depth_r_var_S x xs n :
@@ -555,7 +557,7 @@ Proof.
 Qed.
 
 Lemma app_depth_r_lam xs s :
-  app_depth_r (flatten (closure xs (lam s))) = app_depth_r (flatten (closure (closure [] (var 0) :: xs) s)).
+  app_depth_r (flatten (closure xs (lam s))) = app_depth_r (flatten (closure (closure nil (var 0) :: xs) s)).
 Proof.
   by rewrite /= app_depth_r_subst_many_repeat.
 Qed.
@@ -778,7 +780,7 @@ machine_lam xs s :
 Lemma PROG_LAM_spec offset xs s n w :
   flatten (closure xs (lam s)) = L.nat_enc n ->
   (offset, PROG offset) //
-  (offset, Vector.append w (0 ## 0 ## 0 ## enc_vs [] ## 0 ## enc_closure (closure xs (lam s)) ## vec_nil)) ->>
+  (offset, Vector.append w (0 ## 0 ## 0 ## enc_vs nil ## 0 ## enc_closure (closure xs (lam s)) ## vec_nil)) ->>
   (PROG_len+offset, vec_change (Vector.append w vec_zero) Fin.F1 n).
 Proof.
   move=> Hn.
@@ -911,7 +913,7 @@ Definition INIT offset := compose (INIT_codes offset) offset.
 Lemma INIT_spec offset ns s w :
   (offset, INIT offset) //
   (offset, Vector.append w (0 ## 0 ## 0 ## 0 ## enc_list ns ## enc_term s ## vec_nil)) ->>
-  (INIT_len+offset, Vector.append w (0 ## 0 ## 0 ## 0 ## 0 ## enc_closure (closure [] (fold_left (fun s n => app s (L.nat_enc n)) ns s)) ## vec_nil)).
+  (INIT_len+offset, Vector.append w (0 ## 0 ## 0 ## 0 ## 0 ## enc_closure (closure nil (fold_left (fun s n => app s (L.nat_enc n)) ns s)) ## vec_nil)).
 Proof.
   elim: ns s => [s|n ns IH s].
   { rewrite ?vec_simpl. apply: (compose_sss_compute_trans 0). { by apply: JZ_spec. }
@@ -991,7 +993,8 @@ Proof.
         rewrite map_pos_list_vec. by elim: w; [|move=> > /= ->]. }
   elim.
   { move=> *. cbn. apply: sss_compute_refl'. by rewrite vec_change_same'. }
-  move=> i ps IH {}offset ns {}w {}v Hv /NoDup_cons_iff [Hi /IH {}IH].
+  move=> i ps IH {}offset ns {}w {}v Hv /NoDup_cons_iff.
+  move => [Hi /IH {}IH].
   apply: (compose_sss_compute_trans 0). { apply: PACK_spec; [done..|]. apply: nesym. by apply: Fin_L_R_neq. }
   rewrite /=. apply: subcode_sss_compute. { by apply: subcode_right. }
   have := (IH (PACK_len+offset) (vec_pos w i :: ns) (vec_change w i 0) (vec_change v pos4 (enc_list (vec_pos w i :: ns)))).
@@ -1093,7 +1096,7 @@ Lemma simulation_init offset w :
   (offset, COMPUTE offset) //
     (offset, Vector.append (0 ## w) vec_zero) ->>
     ((list_sum (firstn 3 COMPUTE_lengths))+offset, Vector.append vec_zero
-      (0 ## 0 ## 0 ## 0 ## 0 ## enc_closure (closure [] (fold_left (fun s n => app s (L.nat_enc n)) (Vector.to_list w) s0)) ## vec_nil)).
+      (0 ## 0 ## 0 ## 0 ## 0 ## enc_closure (closure nil (fold_left (fun s n => app s (L.nat_enc n)) (Vector.to_list w) s0)) ## vec_nil)).
 Proof.
   have compose_trans := (compose_sss_compute_length_trans _ (COMPUTE_lengths_spec offset)).
   rewrite ?vec_simpl. apply: (compose_trans 0). { by apply: INIT_INPUT_spec. }
@@ -1107,7 +1110,7 @@ Qed.
 => COMPUTE [n1 .. nm] [s] ~> n
 *)
 Lemma simulation offset y n w :
-  machine (closure [] (fold_left (fun s n => app s (L.nat_enc n)) (Vector.to_list w) s0)) [] y ->
+  machine (closure nil (fold_left (fun s n => app s (L.nat_enc n)) (Vector.to_list w) s0)) nil y ->
   flatten y = L.nat_enc n ->
   (offset, COMPUTE offset) // (offset, Vector.append (0 ## w) vec_zero) ->> (COMPUTE_len+offset, n ## vec_zero).
 Proof.
@@ -1152,7 +1155,8 @@ Proof.
       apply: H' => ?. by apply: machine_var_S.
   - have := PROG_APP_spec offset vs xs s t vec_zero.
     move=> /(IH (((true, closure xs t) :: vs), (closure xs s))) /= {}IH.
-    move=> [/boundE [??]] ??. move: IH.
+    move=> [/boundE H ] ??; destruct H.
+    move: IH.
     apply: unnest. { done. }
     apply: unnest. { by constructor. }
     apply: H' => ?. by apply: machine_app.
@@ -1160,7 +1164,8 @@ Proof.
     + move=> *. eexists. by apply: machine_lam.
     + have := PROG_LAM_SWAP_spec offset vs xs s z vec_zero.
       move=> /(IH (((false, closure xs s) :: vs), z)) /= {}IH.
-      move=> [??] /Forall_cons_iff [??].
+      move=> [??] /Forall_cons_iff. 
+      move=> [??].
       move: IH.
       apply: unnest. { done. }
       apply: unnest. { by constructor. }
@@ -1168,7 +1173,8 @@ Proof.
     + move: z IH => [xs's s'] /= IH.
       have := PROG_LAM_SUBST_spec offset vs xs's xs s' s vec_zero.
       move=> /(IH (vs, closure (closure xs (lam s) :: xs's) s')) /= {}IH.
-      move=> [??] /Forall_cons_iff [/= [/boundE ??] ?].
+      move=> [??] /Forall_cons_iff.
+      move=> [/= [/boundE ??] ?].
       move: IH.
       apply: unnest. { done. }
       apply: unnest. { done. }
@@ -1205,7 +1211,9 @@ Proof using Hs0 Hs0R H's0R.
   have /wCBV.machine_correctness H := closed_many_app_nat_enc (Vector.to_list v) Hs0.
   split.
   - move=> /Hs0R. rewrite Vector.to_list_fold_left.
-    move=> /H [y] [/simulation] /[apply] {}H.
+    move=> /H.
+    move=> [y].
+    move=> [/simulation] /[apply] {}H.
     do 2 eexists. split. { by apply: H. }
     right. rewrite /= COMPUTE_len_spec. lia.
   - move=> [n] [v'] Hmv'. apply /Hs0R.
@@ -1213,10 +1221,12 @@ Proof using Hs0 Hs0R H's0R.
     apply /wCBV.machine_correctness. { by apply: closed_many_app_nat_enc. }
     have [t] : exists t, eval (Vector.fold_left (fun (s : term) (n : nat) => app s (nat_enc n)) s0 v) t.
     { apply: sss_terminates_COMPUTE_eval. eexists. by eassumption. }
-    move=> /[dup] /H's0R [m' ->].
+    move=> /[dup] /H's0R. 
+    move=> [m' ->].
     rewrite Vector.to_list_fold_left.
     move=> Hm'. suff: m = m' by move ->.
-    move: Hm' => /H [y] [/simulation] /[apply] /(_ 1) {}H.
+    move: Hm' => /H. 
+    move=> [y] [/simulation] /[apply] /(_ 1) {}H.
     have : sss_output (mma_sss (n:=num_counters)) (1, COMPUTE 1)
       (1, Vector.append (0 ## v) vec_zero) (COMPUTE_len + 1, m' ## vec_zero).
     { split; [done|]. right. rewrite /= COMPUTE_len_spec. lia. }

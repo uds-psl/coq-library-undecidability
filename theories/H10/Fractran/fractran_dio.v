@@ -122,7 +122,7 @@ Section exp_diophantine.
      has a diophantine representation *)
 
   Fact fractran_exp_diophantine n : 𝔻F (fun ν => ps 1 * exp 1 (fun2vec 0 n ν)).
-  Proof. dio auto. Show Proof. Defined.
+  Proof. dio auto. Defined.
 
   Fact fractran_exp_diophantine' n : 𝔻F (fun ν => ps 1 * exp 2 (fun2vec 1 n ν⭳)).
   Proof. eapply dio_fun_mult. dio auto. eapply exp_dio_lift. Qed.

@@ -18,12 +18,12 @@ From Undecidability.MinskyMachines.MMA
 From Undecidability.FRACTRAN
   Require Import FRACTRAN fractran_utils.
 
+Import vec_notations.
+
 Set Implicit Arguments.
 
 Tactic Notation "rew" "length" := autorewrite with length_db.
 
-Local Notation "e #> x" := (vec_pos e x).
-Local Notation "e [ v / x ]" := (vec_change e x v).
 Local Notation ø := vec_nil.
 
 Local Notation "P //ₐ s -+> t" := (sss_progress (@mma_sss _) P s t) (at level 70, no associativity).

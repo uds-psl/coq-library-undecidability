@@ -16,8 +16,6 @@ From Undecidability.MinskyMachines.MMA
 From Undecidability.Synthetic
   Require Import Definitions ReducibilityFacts.
 
-Local Notation "e #> x" := (vec_pos e x).
-
 Theorem reduction n : @MMA_HALTING (3+n) ⪯ @MMA_HALTING (2+n).
 Proof.
   apply reduces_dependent; exists.

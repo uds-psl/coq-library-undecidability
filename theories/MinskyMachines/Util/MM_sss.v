@@ -58,8 +58,7 @@ Section Minsky_Machine.
 
   Definition mm_state := (nat*vec nat n)%type.
 
-  Local Notation "e #> x" := (vec_pos e x).
-  Local Notation "e [ v / x ]" := (vec_change e x v).
+  Import vec_notations.
 
   (* Minsky machine small step semantics *)
 

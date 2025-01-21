@@ -18,12 +18,9 @@ From Undecidability.Shared.Libs.DLW.Vec
 From Undecidability.FOL.TRAKHTENBROT
   Require Import notations decidable gfp fol_ops fo_sig fo_terms fo_logic fo_definable fo_sat.
 
-Import fol_notations.
+Import fol_notations vec_notations.
 
 Set Implicit Arguments.
-
-Local Notation " e '#>' x " := (vec_pos e x).
-Local Notation " e [ v / x ] " := (vec_change e x v).
 
 (* ∈ and ⊆ are already used for object level syntax at too low level 59 *)
 
@@ -646,7 +643,7 @@ Section counter_model_to_class_FO_definability.
 
   (* A projection of M onto itself which swaps α/β *)
 
-  Let f : @fo_projection Σ [] [tt] _ M _ M.
+  Let f : @fo_projection Σ nil (tt::nil) _ M _ M.
   Proof.
     exists negb negb; simpl.
     + abstract now intros [].
@@ -662,7 +659,7 @@ Section counter_model_to_class_FO_definability.
     all: intros []; simpl; auto.
   Qed.
 
-  Infix "≐" := (fo_bisimilar (Σ := Σ) nil [tt] M) (at level 70, no associativity).
+  Infix "≐" := (fo_bisimilar (Σ := Σ) nil (tt::nil) M) (at level 70, no associativity).
 
   Hint Resolve finite_t_bool : core.
 
@@ -700,12 +697,12 @@ Section counter_model_to_class_FO_definability.
 
   Theorem FO_does_not_characterize_classes :
      exists (M : fo_model Σ bool) (_ : fo_model_dec M) (a b : bool), 
-              (forall x y, fo_bisimilar (Σ := Σ) nil [tt] M x y <-> x = y)
+              (forall x y, fo_bisimilar (Σ := Σ) nil (tt::nil) M x y <-> x = y)
            /\ (forall x y φ ρ, fol_vars φ ⊑ [0] -> M,x·ρ ⊨ φ <-> M,y·ρ ⊨ φ)
            /\ exists ξ, fol_vars ξ ⊑ [0;1] /\ forall ρ, M,a·a·ρ ⊨ ξ /\ ~ M,b·a·ρ ⊨ ξ.
   Proof. 
     exists M, M_dec, true, false; msplit 2; auto. 
-    exists (fo_bisimilar_formula (Σ := Σ) nil [tt] finite_t_bool M_dec); split.
+    exists (fo_bisimilar_formula (Σ := Σ) nil (tt::nil) finite_t_bool M_dec); split.
     + apply fo_bisimilar_formula_vars.
     + intro; rewrite !fo_bisimilar_formula_sem; split; auto; intro; tauto.
   Qed.

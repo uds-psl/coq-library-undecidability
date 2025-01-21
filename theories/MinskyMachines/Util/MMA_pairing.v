@@ -22,6 +22,8 @@ Import ListNotations.
 
 From Stdlib Require Import ssreflect ssrbool ssrfun.
 
+Import vec_notations.
+
 Set Default Goal Selector "!".
 
 #[local] Arguments ltof /.
@@ -34,8 +36,6 @@ Context {num_counters : nat}.
 
 #[local] Notation "P // s ->> t" := (sss_compute (@mma_sss num_counters) P s t).
 #[local] Notation "P // s -+> t" := (sss_progress (@mma_sss num_counters) P s t).
-#[local] Notation "e #> x" := (vec_pos e x).
-#[local] Notation "e [ v / x ]" := (vec_change e x v).
 
 (* simplify vec_change statements *)
 Definition vec_norm {X Y: counter} (HXY : X <> Y) := (
