@@ -15,13 +15,12 @@ From Undecidability.Shared.Libs.DLW
 From Undecidability.MinskyMachines.MMA
   Require Import mma_defs mma_utils.
 
+Import vec_notations.
+
 Set Implicit Arguments.
 Set Default Goal Selector "!".
 
 Tactic Notation "rew" "length" := autorewrite with length_db.
-
-#[local] Notation "e #> x" := (vec_pos e x).
-#[local] Notation "e [ v / x ]" := (vec_change e x v).
 
 #[local] Notation "P // s -+> t" := (sss_progress (@mma_sss _) P s t).
 #[local] Notation "P // s ->> t" := (sss_compute (@mma_sss _) P s t).

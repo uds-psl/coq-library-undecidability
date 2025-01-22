@@ -15,12 +15,11 @@ From Undecidability.Shared.Libs.DLW
 From Undecidability.MinskyMachines
   Require Export MM MM_sss.
 
+Import vec_notations.
+
 Set Implicit Arguments.
 
 Tactic Notation "rew" "length" := autorewrite with length_db.
-
-Local Notation "e #> x" := (vec_pos e x).
-Local Notation "e [ v / x ]" := (vec_change e x v).
 
 Section Minsky_Machine.
 

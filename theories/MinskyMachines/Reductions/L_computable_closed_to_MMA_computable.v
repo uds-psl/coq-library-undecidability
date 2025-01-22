@@ -177,8 +177,6 @@ Context {H's0R : forall (v : Vector.t nat k0) o, eval (Vector.fold_left (fun s n
 
 #[local] Notation "P // s ->> t" := (sss_compute (@mma_sss num_counters) P s t).
 #[local] Notation "P // s -+> t" := (sss_progress (@mma_sss num_counters) P s t).
-#[local] Notation "e #> x" := (vec_pos e x).
-#[local] Notation "e [ v / x ]" := (vec_change e x v).
 
 #[local] Arguments vec_change_neq {X n v p q x}.
 #[local] Arguments vec_change_eq {X n v p q x}.
@@ -1029,7 +1027,7 @@ Lemma INIT_s0_spec offset v :
   (INIT_s0_len+offset, vec_change v U (enc_term s0)).
 Proof.
   suff : forall j m offset v, j <= m ->
-    v#>Fin.R (1 + k0) pos5 = m-j ->
+    vec_pos v (Fin.R (1 + k0) pos5) = m-j ->
     (offset, compose (repeat (INC U) m) offset) //
     ((m-j)+offset, v) ->>
     (m + offset, vec_change v U m).

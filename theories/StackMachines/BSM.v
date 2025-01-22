@@ -41,10 +41,10 @@ Section Binary_Stack_Machine.
   Notation POP  := (bsm_pop n).
   Notation PUSH := (bsm_push n).
 
-  Local Notation "e #> x" := (vec_pos e x).
-  Local Notation "e [ x := v ]" := (vec_change e x v) (no associativity, at level 50).
+  Notation "e '#>' x" := (vec_pos e x) (at level 58, format "e #> x").
+  Notation "e [ x := v ]" := (vec_change e x v) (no associativity, at level 1).
 
-  Local Reserved Notation "P // e ▷ v" (at level 50, no associativity).
+  Reserved Notation "P // e ▷ v" (at level 50, no associativity).
 
   Inductive eval : nat * list (bsm_instr n) -> (nat*vec (list bool) n) -> (nat*vec (list bool) n) -> Prop :=
   | eval_bsm_out i P c v :
