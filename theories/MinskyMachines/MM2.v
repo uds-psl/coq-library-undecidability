@@ -45,7 +45,8 @@ Inductive mm2_instr : Set :=
 Reserved Notation "i '//' r '⇢' s" (at level 70, no associativity).
 Reserved Notation "P '//' r '→' s" (at level 70, no associativity).
 Reserved Notation "P '//' r '↠' s" (at level 70, no associativity).
-Reserved Notation "P '//' r ↓" (at level 70, no associativity).
+#[warning="-postfix-notation-not-level-1"]
+  Reserved Notation "P '//' r ↓" (at level 70, no associativity).
 
 #[local] Notation mm2_state := (nat*(nat*nat))%type.
 
