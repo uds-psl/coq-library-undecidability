@@ -30,6 +30,8 @@ From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Import L (term, var, app, lam).
 
+(* Import vec_notations. *)
+
 Set Default Goal Selector "!".
 
 Module Argument.
@@ -42,8 +44,6 @@ Module Argument.
 
 #[local] Notation "P // s ->> t" := (sss_compute (@mma_sss 5) P s t).
 #[local] Notation "P // s -+> t" := (sss_progress (@mma_sss 5) P s t).
-#[local] Notation "e #> x" := (vec_pos e x).
-#[local] Notation "e [ v / x ]" := (vec_change e x v).
 
 #[local] Arguments vec_change_neq {X n v p q x}.
 #[local] Arguments vec_change_eq {X n v p q x}.
@@ -120,7 +120,7 @@ Qed.
 (* uses uniform subproc concat structure *)
 Lemma concat_sss_compute_trans {Ps : list (list mm_instr)} {offset} (i : nat) {v st st'} :
   let j := length (concat (firstn i Ps)) in
-  (j + offset, nth i Ps []) // (j + offset, v) ->> st' ->
+  (j + offset, nth i Ps nil) // (j + offset, v) ->> st' ->
   (offset, concat Ps) // st' ->> st ->
   (offset, concat Ps) // (j + offset, v) ->> st.
 Proof.
@@ -128,14 +128,14 @@ Proof.
   have : ({(j + offset, v) = st'} + {(j + offset, v) <> st'}).
   { do ? decide equality. apply: vec_eq_dec. by apply: Nat.eq_dec. }
   move=> [<-|H']. { by apply: sss_compute_refl. }
-  apply: (subcode_sss_compute (P := (_, nth i Ps []))).
+  apply: (subcode_sss_compute (P := (_, nth i Ps nil))).
   - exists (concat (firstn i Ps)), (concat (skipn (S i) Ps)).
     split; last done.
-    have -> : nth i Ps [] = concat [nth i Ps []].
+    have -> : nth i Ps nil = concat (nth i Ps nil :: nil).
     { by rewrite /concat app_nil_r. }
     rewrite -?concat_app. congr concat.
     rewrite [LHS](esym (firstn_skipn i Ps)). congr List.app.
-    have : nth i Ps [] <> [].
+    have : nth i Ps nil <> nil.
     { move=> H''. move: H. rewrite H''.
       move=> [[|k]].
       - by move=> /sss_steps_0_inv.

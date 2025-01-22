@@ -95,7 +95,7 @@ Local Notation "x ≐ y ⨢ z" := (df_add x y z)
 Local Notation "x ≐ y ⨰ z" := (df_mul x y z) 
       (at level 49, no associativity, y at next level, format "x  ≐  y  ⨰  z").
 
-Local Reserved Notation "'⟦' t '⟧'" (at level 1, format "⟦ t ⟧").
+Local Reserved Notation "'⟦' t '⟧'" (at level 0, format "⟦ t ⟧").
 Local Reserved Notation "f '⦃' σ '⦄'" (at level 1, format "f ⦃ σ ⦄").
 
 Section diophantine_logic_basics.

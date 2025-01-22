@@ -20,8 +20,8 @@ Section mapping_ill_to_cll.
 
   (* Syntatic translations from/to ILL and CLL formulas *)
 
-  Reserved Notation "[ f ]" (at level 1).
-  Reserved Notation "⟨ f ⟩" (at level 1).
+  Reserved Notation "[ f ]" (at level 0).
+  Reserved Notation "⟨ f ⟩" (at level 0).
 
   Fixpoint ill_cll f :=
     match f with

@@ -15,11 +15,10 @@ From Undecidability.Shared.Libs.DLW
 From Undecidability.MinskyMachines.MMA
   Require Import mma_defs mma_utils.
 
+Import vec_notations.
+
 Set Implicit Arguments.
 Set Default Goal Selector "!".
-
-#[local] Notation "e #> x" := (vec_pos e x).
-#[local] Notation "e [ v / x ]" := (vec_change e x v).
 
 Section mma_k_mma_2_compiler.
 

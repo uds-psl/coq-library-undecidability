@@ -15,12 +15,11 @@ From Undecidability.Shared.Libs.DLW
 From Undecidability.StackMachines.BSM 
   Require Import tiles_solvable bsm_defs.
 
+Import vec_notations.
+
 Set Implicit Arguments.
 
 Tactic Notation "rew" "length" := autorewrite with length_db.
-
-Local Notation "e #> x" := (vec_pos e x).
-Local Notation "e [ v / x ]" := (vec_change e x v).
 
 Local Notation "P // s -[ k ]-> t" := (sss_steps (@bsm_sss _) P k s t).
 Local Notation "P // s ->> t" := (sss_compute (@bsm_sss _) P s t).

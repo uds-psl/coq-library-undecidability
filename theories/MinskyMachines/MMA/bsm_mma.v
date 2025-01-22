@@ -18,15 +18,14 @@ From Undecidability.StackMachines.BSM
 From Undecidability.MinskyMachines.MMA
   Require Import mma_defs mma_utils_bsm.
 
+Import vec_notations.
+
 Set Implicit Arguments.
 Set Default Goal Selector "!".
 
 (* ** BSM(n) reduces to MMA(1+n) *)
 
 Tactic Notation "rew" "length" := autorewrite with length_db.
-
-#[local] Notation "e #> x" := (vec_pos e x).
-#[local] Notation "e [ v / x ]" := (vec_change e x v).
 
 #[local] Notation "I '/BSM/' s -1> t" := (bsm_sss I s t) (at level 70, no associativity).
 #[local] Notation "P '/MMA/' s -+> t" := (sss_progress (@mma_sss _) P s t) (at level 70, no associativity).

@@ -41,7 +41,7 @@ Section MMA2_ndMM2.
   Definition pos2_to_bool (p : pos 2) :=
     match p with pos0 => α | _ => β end.
 
-  Notation "⌈ p ⌉" := (pos2_to_bool p) (at level 1, format "⌈ p ⌉").
+  Notation "⌈ p ⌉" := (pos2_to_bool p) (at level 0, format "⌈ p ⌉").
 
   Definition mma2_instr_enc i (ρ : mm_instr (pos 2)) :=
     match ρ with
@@ -51,7 +51,7 @@ Section MMA2_ndMM2.
 
   Notation "'⟨' i , ρ '⟩₁'" := (mma2_instr_enc i  ρ) (format "⟨ i , ρ ⟩₁").
 
-  Reserved Notation "'⟪' i , l '⟫ₗ'" (at level 1, format "⟪ i , l ⟫ₗ").
+  Reserved Notation "'⟪' i , l '⟫ₗ'" (at level 0, format "⟪ i , l ⟫ₗ").
 
   Fixpoint mma2_linstr_enc i l :=
     match l with

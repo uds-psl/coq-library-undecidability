@@ -1,3 +1,8 @@
+[![GitHub CI][gh-badge]][gh-link]
+
+[gh-badge]: https://github.com/uds-psl/coq-library-undecidability/actions/workflows/build.yml/badge.svg?branch=master
+[gh-link]: https://github.com/uds-psl/coq-library-undecidability/actions/workflows/build.yml
+
 # Manual installation for Rocq
 
 ```

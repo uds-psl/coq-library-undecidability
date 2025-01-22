@@ -16,10 +16,7 @@ From Stdlib Require Import List Arith Lia Bool Permutation.
 From Undecidability.Shared.Libs.DLW 
   Require Import utils utils_tac utils_list utils_nat gcd rel_iter prime pos vec.
 
-Set Implicit Arguments.
-
-Local Notation "e #> x" := (vec_pos e x).
-Local Notation "e [ v / x ]" := (vec_change e x v).
+Import vec_notations.
 
 Set Implicit Arguments.
 

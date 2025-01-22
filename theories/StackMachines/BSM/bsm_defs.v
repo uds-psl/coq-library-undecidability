@@ -15,14 +15,13 @@ From Undecidability.Shared.Libs.DLW
 From Undecidability.StackMachines 
   Require Export BSM Util.BSM_sss.
 
+Import vec_notations.
+
 Set Implicit Arguments.
 
 Set Default Goal Selector "!".
 
 Tactic Notation "rew" "length" := autorewrite with length_db.
-
-#[local] Notation "e #> x" := (vec_pos e x).
-#[local] Notation "e [ v / x ]" := (vec_change e x v).
 
 (* ** Semantics results for BSM *)
 

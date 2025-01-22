@@ -14,12 +14,11 @@ Require Import Undecidability.Synthetic.Definitions.
 From Undecidability.Shared.Libs.DLW Require Import utils pos vec sss subcode.
 From Undecidability.MinskyMachines Require Import MM2 mma_defs.
 
+Import vec_notations.
+
 Set Implicit Arguments.
 
 Tactic Notation "rew" "length" := autorewrite with length_db.
-
-Local Notation "e #> x" := (vec_pos e x).
-Local Notation "e [ v / x ]" := (vec_change e x v).
 
 Section MMA2_to_MM2.
 
