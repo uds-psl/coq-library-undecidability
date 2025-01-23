@@ -33,7 +33,7 @@ Inductive cll_form : Set :=
 
 (* Variables *)
 
-Notation "'£' x" := (cll_var x) (at level 1).
+Notation "£" := cll_var.
 
 (* Constants *)
 
