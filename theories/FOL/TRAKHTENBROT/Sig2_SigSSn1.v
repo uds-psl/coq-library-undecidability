@@ -45,8 +45,8 @@ Section Sig2_SigSSn1_encoding.
       | ⊥              => ⊥
       | fol_atom r v   => PSSn1 n (Σrel_var (vec_head v)) (Σrel_var (vec_head (vec_tail v))) 
       | fol_bin b A B  => fol_bin b (Σ2_ΣSSn1 d A) (Σ2_ΣSSn1 d B)
-      | fol_quant fol_fa A  => ∀ PSSn1 n (S d) 0 ⤑ Σ2_ΣSSn1 (S d) A
-      | fol_quant fol_ex A  => ∃ PSSn1 n (S d) 0 ⟑ Σ2_ΣSSn1 (S d) A
+      | fol_quant fol_fa A  => ∀₁ PSSn1 n (S d) 0 ⤑ Σ2_ΣSSn1 (S d) A
+      | fol_quant fol_ex A  => ∃₁ PSSn1 n (S d) 0 ⟑ Σ2_ΣSSn1 (S d) A
     end.
 
   Variable (X : Type) (M2  : fo_model Σ2 X).

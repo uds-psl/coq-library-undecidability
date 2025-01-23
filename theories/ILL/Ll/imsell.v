@@ -29,7 +29,7 @@ Section IMSELL.
 
   Variable bang : Type.
 
-  Notation "£ A" := (@imsell_var _ _ A) (at level 1).
+  Notation "£" := (@imsell_var _ _).
   Notation "‼ l" := (@imsell_lban nat bang l).
 
   Fact imsell_lban_perm Σ Γ : Σ ~p Γ -> ‼Σ ~p ‼Γ.

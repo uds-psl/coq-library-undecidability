@@ -56,8 +56,8 @@ Section Sign_Sig2_encoding.
       | ⊥             => ⊥
       | fol_atom _  v => r ∋ ⦉vec_map Σrel_var v⦊
       | fol_bin b A B => fol_bin b (Σn_Σ2 d r A) (Σn_Σ2 d r B)
-      | fol_quant fol_fa A  => ∀ 0 ∈ (S d) ⤑ Σn_Σ2 (S d) (S r) A
-      | fol_quant fol_ex A  => ∃ 0 ∈ (S d) ⟑ Σn_Σ2 (S d) (S r) A
+      | fol_quant fol_fa A  => ∀₁ 0 ∈ (S d) ⤑ Σn_Σ2 (S d) (S r) A
+      | fol_quant fol_ex A  => ∃₁ 0 ∈ (S d) ⟑ Σn_Σ2 (S d) (S r) A
      end.
 
   Variable (X : Type) (M2 : fo_model Σ2 X).

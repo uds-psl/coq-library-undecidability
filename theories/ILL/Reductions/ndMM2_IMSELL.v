@@ -66,7 +66,7 @@ Section ndmm2_imsell.
 
   Hint Resolve Hai Hbi Ha Hb Hi Hab Hba bang_le_refl bang_U_clos : core.
 
-  Notation "£ A" := (@imsell_var _ _ A) (at level 1).
+  Notation "£" := (@imsell_var _ _).
   Notation "‼ l" := (@imsell_lban nat sig l).
   Notation "‼∞" := (map (fun A => ![∞]A)).
 
