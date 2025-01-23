@@ -22,12 +22,11 @@ From Undecidability.Shared.Libs.DLW
 From Undecidability.MinskyMachines.MM Require Import mm_defs mm_no_self.
 From Undecidability.FRACTRAN Require Import FRACTRAN fractran_utils prime_seq FRACTRAN_sss.
 
+Import vec_notations.
+
 Set Implicit Arguments.
 
 Tactic Notation "rew" "length" := autorewrite with length_db. 
-
-Local Notation "e #> x" := (vec_pos e x).
-Local Notation "e [ v / x ]" := (vec_change e x v).
 
 Local Notation "I // s -1> t" := (mm_sss I s t).
 Local Notation "P /MM/ s → t" := (sss_step (@mm_sss _) P s t) (at level 70, no associativity). 

@@ -22,7 +22,8 @@ Reserved Notation "P '//' r '->>' s" (at level 70, no associativity).
 Reserved Notation "P '//' r '-]]' s" (at level 70, no associativity).
 Reserved Notation "P '//' r '~~>' s" (at level 70, no associativity).
 Reserved Notation "P '//' r '~[' n ']~>' s" (at level 70, no associativity, format "P  //  r  ~[ n ]~>  s").
-Reserved Notation "P '//' r ↓" (at level 70, no associativity).
+#[warning="-postfix-notation-not-level-1"]
+  Reserved Notation "P '//' r ↓" (at level 70, no associativity).
 
 (* Intented meaning of notations
 

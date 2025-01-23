@@ -11,13 +11,10 @@ From Undecidability.StackMachines.BSM
   Require Import bsm_defs.
 
 Import ListNotations.
-Import VectorNotations2.
+Import VectorNotations2 vec_notations.
 Local Open Scope vector.
 
 Set Default Proof Using "Type".
-
-Local Notation "e #> x" := (vec_pos e x).
-Local Notation "e [ v / x ]" := (vec_change e x v).
 
 Local Notation "P // s -[ k ]-> t" := (sss_steps (@bsm_sss _) P k s t).
 Local Notation "P // r -+> s" := (sss_progress(@bsm_sss _)  P r s).
@@ -106,12 +103,12 @@ Section fixi.
     Proof.
       unfold MOVE_L.
       destruct t as [[ [ | l ls] [ [] | ] ] rs].
-      - bsm sss POP one with CURR (8 + i) (5 + i) [].
+      - bsm sss POP one with CURR (8 + i) (5 + i) nil.
         bsm sss POP empty with LEFT (14 + i) (12 + i).
         bsm sss PUSH with RIGHT true.
         bsm sss POP empty with ZERO END END.
         bsm sss stop.
-      - bsm sss POP zero with CURR (8 + i) (5 + i) [].
+      - bsm sss POP zero with CURR (8 + i) (5 + i) nil.
         bsm sss POP empty with LEFT (21 + i) (19 + i). 
         bsm sss PUSH with RIGHT false.
         bsm sss POP empty with ZERO END END.
@@ -119,7 +116,7 @@ Section fixi.
       - bsm sss POP empty with CURR (8 + i) (5 + i).
         bsm sss POP empty with LEFT (17 + i) END.
         bsm sss stop.
-      - bsm sss POP one with CURR (8 + i) (5 + i) [].
+      - bsm sss POP one with CURR (8 + i) (5 + i) nil.
         destruct l.
         + bsm sss POP one with LEFT (14 + i) (12 + i) ls.
           bsm sss PUSH with CURR true.
@@ -131,7 +128,7 @@ Section fixi.
           bsm sss PUSH with RIGHT true.
           bsm sss POP empty with ZERO END END.
           bsm sss stop.
-      - bsm sss POP zero with CURR (8 + i) (5 + i) [].
+      - bsm sss POP zero with CURR (8 + i) (5 + i) nil.
         destruct l.
         + bsm sss POP one with LEFT (21 + i) (19 + i) ls.
           bsm sss PUSH with CURR true.
@@ -188,12 +185,12 @@ Section fixi.
     Proof.
       unfold MOVE_R.
       destruct t as [[ls c] rs]; destruct rs as [ | r rs], c as [ [] | ].
-      - bsm sss POP one with CURR (8 + i) (5 + i) [].
+      - bsm sss POP one with CURR (8 + i) (5 + i) nil.
         bsm sss POP empty with RIGHT (14 + i) (12 + i).
         bsm sss PUSH with LEFT true.
         bsm sss POP empty with ZERO END END.
         bsm sss stop.
-      - bsm sss POP zero with CURR (8 + i) (5 + i) [].
+      - bsm sss POP zero with CURR (8 + i) (5 + i) nil.
         bsm sss POP empty with RIGHT (21 + i) (19 + i). 
         bsm sss PUSH with LEFT false.
         bsm sss POP empty with ZERO END END.
@@ -201,7 +198,7 @@ Section fixi.
       - bsm sss POP empty with CURR (8 + i) (5 + i).
         bsm sss POP empty with RIGHT (17 + i) END.
         bsm sss stop.
-      - bsm sss POP one with CURR (8 + i) (5 + i) [].
+      - bsm sss POP one with CURR (8 + i) (5 + i) nil.
         destruct r.
         + bsm sss POP one with RIGHT (14 + i) (12 + i) rs.
           bsm sss PUSH with CURR true.
@@ -213,7 +210,7 @@ Section fixi.
           bsm sss PUSH with LEFT true.
           bsm sss POP empty with ZERO END END.
           bsm sss stop.
-      - bsm sss POP zero with CURR (8 + i) (5 + i) [].
+      - bsm sss POP zero with CURR (8 + i) (5 + i) nil.
         destruct r.
         + bsm sss POP one with RIGHT (21 + i) (19 + i) rs.
           bsm sss PUSH with CURR true.

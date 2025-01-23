@@ -1,7 +1,6 @@
 From Undecidability.MuRec Require Export MuRec.
 
 From Stdlib Require Import List Vector Nat.
-Import ListNotations Vector.VectorNotations.
 
 Definition functional {X Y} (R : X -> Y -> Prop) :=
   forall x y1 y2, R x y1 -> R x y2 -> y1 = y2.

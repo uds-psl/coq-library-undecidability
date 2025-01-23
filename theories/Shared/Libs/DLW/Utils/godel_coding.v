@@ -12,11 +12,10 @@ From Stdlib Require Import List Arith Lia.
 From Undecidability.Shared.Libs.DLW 
   Require Import utils gcd prime pos vec.
 
+Import vec_notations.
+
 Set Implicit Arguments.
 Set Default Goal Selector "!".
-
-#[local] Notation "e #> x" := (vec_pos e x).
-#[local] Notation "e [ v / x ]" := (vec_change e x v).
 
 Record godel_coding n := {
   gc_pr : pos n -> nat;

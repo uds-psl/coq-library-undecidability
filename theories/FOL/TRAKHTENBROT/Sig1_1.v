@@ -227,7 +227,7 @@ Section Σfull_mon_rem.
   (* We first deals with the non-skolemized reduction *)
 
   Definition Σfull_mon_red : fol_form Σ' :=
-    Σfull_mon_rec A ⟑ ∀ fol_lconj (map Eq lwY).
+    Σfull_mon_rec A ⟑ ∀₁ fol_lconj (map Eq lwY).
 
   Variable (K : Type).
 
@@ -393,7 +393,7 @@ Section Σfull_mon_rem.
   (* Now we skolemize the right part (equations) and show correctness *)
 
   Definition Σfull_mon_red' : fol_form Σ' :=
-    Σfull_mon_rec A ⟑ ∀ fol_mquant fol_ex n (fol_lconj (map Eq' lwY)).
+    Σfull_mon_rec A ⟑ ∀₁ fol_mquant fol_ex n (fol_lconj (map Eq' lwY)).
 
   Local Lemma Σfull_mon_red'_sound : 
           fo_form_fin_dec_SAT_in Σfull_mon_red K

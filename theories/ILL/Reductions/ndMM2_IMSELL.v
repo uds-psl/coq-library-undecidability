@@ -27,7 +27,7 @@ Local Infix "~p" := (@Permutation _) (at level 70).
 Local Notation "X ⊆ Y" := (forall a, X a -> Y a : Prop) (at level 70).
 Local Infix "∊" := In (at level 70).
 
-Local Reserved Notation "'⟦' A '⟧'" (at level 1, format "⟦ A ⟧").
+Local Reserved Notation "'⟦' A '⟧'" (at level 0, format "⟦ A ⟧").
 
 Local Fact pair_plus x1 y1 x2 y2 : 
           vec_plus (x1##y1##vec_nil) (x2##y2##vec_nil) 
@@ -66,7 +66,7 @@ Section ndmm2_imsell.
 
   Hint Resolve Hai Hbi Ha Hb Hi Hab Hba bang_le_refl bang_U_clos : core.
 
-  Notation "£ A" := (@imsell_var _ _ A) (at level 1).
+  Notation "£" := (@imsell_var _ _).
   Notation "‼ l" := (@imsell_lban nat sig l).
   Notation "‼∞" := (map (fun A => ![∞]A)).
 

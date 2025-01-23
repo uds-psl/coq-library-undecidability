@@ -98,15 +98,15 @@ Section membership.
     + rewrite H1, H2; auto.
   Qed.
 
-  Reserved Notation "p ≋ ⦃ a , b ⦄" (at level 1, format "p  ≋  ⦃ a , b ⦄").
-  Reserved Notation "p ≋ ⦅ a , b ⦆" (at level 1, format "p  ≋  ⦅ a , b ⦆").
-  Reserved Notation "t ≋ ⦉ v ⦊" (at level 1, format "t  ≋  ⦉ v ⦊").
+  Reserved Notation "p ≅ ⦃ a , b ⦄" (at level 1, format "p  ≅  ⦃ a , b ⦄").
+  Reserved Notation "p ≅ ⦅ a , b ⦆" (at level 1, format "p  ≅  ⦅ a , b ⦆").
+  Reserved Notation "t ≅ ⦉ v ⦊" (at level 1, format "t  ≅  ⦉ v ⦊").
 
   Definition mb_is_pair p x y := forall a, a ∈ p <-> a ≈ x \/ a ≈ y.
 
-  Notation "p ≋ ⦃ a , b ⦄" := (mb_is_pair p a b).
+  Notation "p ≅ ⦃ a , b ⦄" := (mb_is_pair p a b).
 
-  Fact mb_is_pair_comm p x y : p ≋ ⦃x,y⦄ -> p ≋ ⦃y,x⦄.
+  Fact mb_is_pair_comm p x y : p ≅ ⦃x,y⦄ -> p ≅ ⦃y,x⦄.
   Proof. unfold mb_is_pair; fol equiv fa; intro; tauto. Qed.
 
   Add Parametric Morphism: (mb_is_pair) with signature 
@@ -117,14 +117,14 @@ Section membership.
     rewrite H1, H2, H3; tauto.
   Qed.
 
-  Fact mb_is_pair_fun p q x y : p ≋ ⦃x,y⦄ -> q ≋ ⦃x,y⦄ -> p ≈ q.
+  Fact mb_is_pair_fun p q x y : p ≅ ⦃x,y⦄ -> q ≅ ⦃x,y⦄ -> p ≈ q.
   Proof. intros H1 H2; red in H1, H2; intro; rewrite H1, H2; tauto. Qed.
 
   (* Many cases here, automation helps !! *)
 
   Fact mb_is_pair_inj p x y x' y' : 
-         p ≋ ⦃x,y⦄  
-      -> p ≋ ⦃x',y'⦄ 
+         p ≅ ⦃x,y⦄  
+      -> p ≅ ⦃x',y'⦄ 
       -> x ≈ x' /\ y ≈ y'
       \/ x ≈ y' /\ y ≈ x'.
   Proof.
@@ -134,14 +134,14 @@ Section membership.
     intros [] [] [] []; auto.
   Qed.
 
-  Fact mb_is_pair_inj' p x y : p ≋ ⦃x,x⦄ -> p ≋ ⦃y,y⦄ -> x ≈ y.
+  Fact mb_is_pair_inj' p x y : p ≅ ⦃x,x⦄ -> p ≅ ⦃y,y⦄ -> x ≈ y.
   Proof. intros H1 H2; generalize (mb_is_pair_inj H1 H2); tauto. Qed.
 
   (* Ordered pairs (x,y) := {{x},{x,y}}, Kuratowski encoding *)
 
-  Definition mb_is_opair p x y := exists a b, a ≋ ⦃x,x⦄ /\ b ≋ ⦃x,y⦄ /\ p ≋ ⦃a,b⦄.
+  Definition mb_is_opair p x y := exists a b, a ≅ ⦃x,x⦄ /\ b ≅ ⦃x,y⦄ /\ p ≅ ⦃a,b⦄.
 
-  Notation "p ≋ ⦅ a , b ⦆" := (mb_is_opair p a b).
+  Notation "p ≅ ⦅ a , b ⦆" := (mb_is_opair p a b).
 
   Add Parametric Morphism: (mb_is_opair) with signature 
      (mb_equiv) ==> (mb_equiv) ==> (mb_equiv) ==> (iff) as mb_is_opair_congruence.
@@ -151,7 +151,7 @@ Section membership.
     rewrite H1, H2, H3; tauto.
   Qed.
 
-  Fact mb_is_opair_fun p q x y : p ≋ ⦅x,y⦆ -> q ≋ ⦅x,y⦆  -> p ≈ q.
+  Fact mb_is_opair_fun p q x y : p ≅ ⦅x,y⦆ -> q ≅ ⦅x,y⦆ -> p ≈ q.
   Proof using mb_axiom_ext.
     intros (a & b & H1 & H2 & H3) (u & v & G1 & G2 & G3).
     generalize (mb_is_pair_fun H1 G1) (mb_is_pair_fun H2 G2); intros E1 E2.
@@ -159,7 +159,7 @@ Section membership.
     revert H3 G3; apply mb_is_pair_fun.
   Qed.
 
-  Fact mb_is_opair_inj p x y x' y' : p ≋ ⦅x,y⦆  -> p ≋ ⦅x',y'⦆ -> x ≈ x' /\ y ≈ y'.
+  Fact mb_is_opair_inj p x y x' y' : p ≅ ⦅x,y⦆ -> p ≅ ⦅x',y'⦆ -> x ≈ x' /\ y ≈ y'.
   Proof using mb_axiom_ext.
     intros (a & b & H1 & H2 & H3) (u & v & G1 & G2 & G3).
     generalize (mb_is_pair_inj H3 G3); intros [ (E1 & E2) | (E1 & E2) ].
@@ -179,11 +179,11 @@ Section membership.
   Fixpoint mb_is_tuple t n (v : vec X n) :=
     match v with 
       | vec_nil => forall z, z ∉ t
-      | x##v    => exists t', t ≋ ⦅x,t'⦆ /\ t' ≋ ⦉v⦊
+      | x##v    => exists t', t ≅ ⦅x,t'⦆ /\ t' ≅ ⦉v⦊
     end
-  where "t ≋ ⦉ v ⦊" := (mb_is_tuple t v).
+  where "t ≅ ⦉ v ⦊" := (mb_is_tuple t v).
 
-  Fact mb_is_tuple_congr p q n (v : vec X n) : p ≈ q -> p ≋ ⦉v⦊ -> q ≋ ⦉v⦊ .
+  Fact mb_is_tuple_congr p q n (v : vec X n) : p ≈ q -> p ≅ ⦉v⦊ -> q ≅ ⦉v⦊ .
   Proof using mb_axiom_ext.
     revert p q; induction v as [ | n x v IHv ]; intros p q.
     + simpl; intros E H x; rewrite <- E; auto.
@@ -191,7 +191,7 @@ Section membership.
       rewrite <- E; auto.
   Qed.
 
-  Fact mb_is_tuple_fun p q n (v : vec _ n) : p ≋ ⦉v⦊  -> q ≋ ⦉v⦊  -> p ≈ q.
+  Fact mb_is_tuple_fun p q n (v : vec _ n) : p ≅ ⦉v⦊ -> q ≅ ⦉v⦊ -> p ≈ q.
   Proof using mb_axiom_ext.
     revert p q; induction v as [ | n x v IHv ]; intros p q.
     + simpl; intros H1 H2.
@@ -205,7 +205,7 @@ Section membership.
   Qed.
 
   Fact mb_is_tuple_inj t n (v w : vec _ n) p : 
-         t ≋ ⦉v⦊  -> t ≋ ⦉w⦊  -> vec_pos v p ≈ vec_pos w p.
+         t ≅ ⦉v⦊ -> t ≅ ⦉w⦊ -> vec_pos v p ≈ vec_pos w p.
   Proof using mb_axiom_ext.
     intros H1 H2; revert t w H1 H2 p; induction v as [ | n x v IHv ]; intros t w.
     + intros _ _ p; invert pos p.
@@ -220,13 +220,13 @@ Section membership.
   (* mb_has_* from elements in l *)
 
   Definition mb_has_pairs (l : X) :=
-     forall x y, x ∈ l -> y ∈ l -> exists p, p ≋ ⦃x,y⦄ .
+     forall x y, x ∈ l -> y ∈ l -> exists p, p ≅ ⦃x,y⦄ .
 
   Definition mb_has_tuples (l : X) n :=
-    forall v : vec _ n, (forall p, vec_pos v p ∈ l) -> exists t, t ≋ ⦉v⦊.
+    forall v : vec _ n, (forall p, vec_pos v p ∈ l) -> exists t, t ≅ ⦉v⦊.
 
   Definition mb_is_tuple_in r n (v : vec _ n) :=
-    exists t, t ≋ ⦉v⦊ /\ t ∈ r.
+    exists t, t ≅ ⦉v⦊ /\ t ∈ r.
 
   Notation "t ∋ ⦉ v ⦊" := (mb_is_tuple_in t v) (at level 70, format "t  ∋  ⦉ v ⦊").
 
@@ -240,13 +240,13 @@ Section membership.
 
   Definition mb_is_tot n (l s : X) :=
     forall v, (forall p : pos n, vec_pos v p ∈ l) 
-            -> exists x p t, x ∈ l /\ p ∈ s /\ p ≋ ⦅x,t⦆  /\ t ≋ ⦉v⦊.
+            -> exists x p t, x ∈ l /\ p ∈ s /\ p ≅ ⦅x,t⦆ /\ t ≅ ⦉v⦊.
 
   Definition mb_is_fun (l s : X) :=
     forall p q x x' y, x ∈ l -> x' ∈ l 
                     -> p ∈ s -> q ∈ s
-                    -> p ≋ ⦅x,y⦆ 
-                    -> q ≋ ⦅x',y⦆
+                    -> p ≅ ⦅x,y⦆ 
+                    -> q ≅ ⦅x',y⦆
                     -> x ≈ x'.
 
   (* Meta-level properties on the model *)
@@ -284,7 +284,7 @@ Section membership.
 
   Hint Resolve mb_equiv_dec : core.
 
-  Fact mb_is_pair_dec p x y : { p ≋ ⦃x,y⦄ } + { ~ p ≋ ⦃x,y⦄ }.
+  Fact mb_is_pair_dec p x y : { p ≅ ⦃x,y⦄ } + { ~ p ≅ ⦃x,y⦄ }.
   Proof using Xfin Rdec.
     unfold mb_is_pair.
     apply (fol_quant_sem_dec fol_fa); auto; intros u.
@@ -294,7 +294,7 @@ Section membership.
 
   Hint Resolve mb_is_pair_dec : core.
 
-  Fact mb_is_opair_dec p x y : { p ≋ ⦅x,y⦆  } + { ~ p ≋ ⦅x,y⦆  }.
+  Fact mb_is_opair_dec p x y : { p ≅ ⦅x,y⦆ } + { ~ p ≅ ⦅x,y⦆ }.
   Proof using Xfin Rdec.
     unfold mb_is_opair.
     do 2 (apply (fol_quant_sem_dec fol_ex); auto; intro).
@@ -303,7 +303,7 @@ Section membership.
 
   Hint Resolve mb_is_opair_dec : core.
 
-  Fact mb_is_tuple_dec t n (v : vec _ n) : { t ≋ ⦉v⦊  } + { ~ t ≋ ⦉v⦊  }.
+  Fact mb_is_tuple_dec t n (v : vec _ n) : { t ≅ ⦉v⦊ } + { ~ t ≅ ⦉v⦊ }.
   Proof using Xfin Rdec.
     revert t; induction v as [ | x n v IHv ]; intros t.
     + apply (fol_quant_sem_dec fol_fa); auto; intro.
@@ -337,21 +337,21 @@ Section FOL_encoding.
   Definition Σ2_mem x y := @fol_atom Σ2 tt (£x##£y##ø).
   Infix "∈" := Σ2_mem.
 
-  Definition Σ2_non_empty l := ∃ 0 ∈ (1+l). 
-  Definition Σ2_incl x y := ∀ 0 ∈ (S x) ⤑ 0 ∈ (S y).
-  Definition Σ2_equiv x y := ∀ 0 ∈ (S x) ↔ 0 ∈ (S y).
+  Definition Σ2_non_empty l := ∃₁ 0 ∈ (1+l). 
+  Definition Σ2_incl x y := ∀₁ 0 ∈ (S x) ⤑ 0 ∈ (S y).
+  Definition Σ2_equiv x y := ∀₁ 0 ∈ (S x) ↔ 0 ∈ (S y).
 
   Infix "⊆" := Σ2_incl.
   Infix "≈" := Σ2_equiv.
 
-  Definition Σ2_transitive t := ∀∀ 1 ∈ 0 ⤑ 0 ∈ (2+t) ⤑ 1 ∈ (2+t).
+  Definition Σ2_transitive t := ∀₁∀₁ 1 ∈ 0 ⤑ 0 ∈ (2+t) ⤑ 1 ∈ (2+t).
 
-  Definition Σ2_extensional := ∀∀∀ 2 ≈ 1 ⤑ 2 ∈ 0 ⤑ 1 ∈ 0.
+  Definition Σ2_extensional := ∀₁∀₁∀₁ 2 ≈ 1 ⤑ 2 ∈ 0 ⤑ 1 ∈ 0.
 
-  Definition Σ2_is_pair p x y := ∀ 0 ∈ (S p) ↔ 0 ≈ S x ⟇ 0 ≈ S y.
+  Definition Σ2_is_pair p x y := ∀₁ 0 ∈ (S p) ↔ 0 ≈ S x ⟇ 0 ≈ S y.
 
   Definition Σ2_is_opair p x y := 
-         ∃∃   Σ2_is_pair 1    (2+x) (2+x)
+       ∃₁∃₁   Σ2_is_pair 1    (2+x) (2+x)
             ⟑ Σ2_is_pair 0    (2+x) (2+y)
             ⟑ Σ2_is_pair (2+p) 1     0.
 
@@ -364,9 +364,9 @@ Section FOL_encoding.
 
   Fixpoint Σ2_is_tuple t n : vec nat n -> fol_form Σ2 :=
     match n with 
-      | 0       => fun _ => ∀ 0 ∈ (S t) ⤑ ⊥
-      | S n     => fun v => ∃ Σ2_is_opair (S t) (S (vec_head v)) 0 
-                            ⟑ Σ2_is_tuple 0 (vec_map S (vec_tail v))
+      | 0       => fun _ => ∀₁ 0 ∈ (S t) ⤑ ⊥
+      | S n     => fun v => ∃₁ Σ2_is_opair (S t) (S (vec_head v)) 0 
+                             ⟑ Σ2_is_tuple 0 (vec_map S (vec_tail v))
     end.
 
   Fact Σ2_is_tuple_vars t n v : fol_vars (@Σ2_is_tuple t n v) ⊑ t::vec_list v.
@@ -390,7 +390,7 @@ Section FOL_encoding.
 
   (* v is n-tuple belonging to r *) 
 
-  Definition Σ2_is_tuple_in r n v := ∃ @Σ2_is_tuple 0 n (vec_map S v) ⟑ 0 ∈ (S r).
+  Definition Σ2_is_tuple_in r n v := ∃₁ @Σ2_is_tuple 0 n (vec_map S v) ⟑ 0 ∈ (S r).
 
   Fact Σ2_is_tuple_in_vars r n v : fol_vars (@Σ2_is_tuple_in r n v) ⊑ r::vec_list v.
   Proof.
@@ -409,18 +409,18 @@ Section FOL_encoding.
 
   Definition Σ2_has_tuples l n :=
        fol_mquant fol_fa n ( (fol_vec_fa (vec_set_pos (fun p : pos n => pos2nat p ∈ (l+n))))
-                                         ⤑ ∃ Σ2_is_tuple 0 (vec_set_pos (fun p : pos n => S (pos2nat p)))).
+                                         ⤑ ∃₁ Σ2_is_tuple 0 (vec_set_pos (fun p : pos n => S (pos2nat p)))).
 
   Definition Σ2_is_tot n l s :=
        fol_mquant fol_fa n ( (fol_vec_fa (vec_set_pos (fun p : pos n => pos2nat p ∈ (l+n))))
-                                         ⤑ ∃∃∃ 2 ∈ ((3+l)+n) ⟑ 1 ∈ ((3+s)+n) ⟑ Σ2_is_opair 1 2 0 ⟑ @Σ2_is_tuple 0 n (vec_set_pos (fun p : pos n => 3+pos2nat p)) ).
+                                         ⤑ ∃₁∃₁∃₁ 2 ∈ ((3+l)+n) ⟑ 1 ∈ ((3+s)+n) ⟑ Σ2_is_opair 1 2 0 ⟑ @Σ2_is_tuple 0 n (vec_set_pos (fun p : pos n => 3+pos2nat p)) ).
 
   Definition Σ2_is_fun l s :=
-    ∀∀∀∀∀ 2 ∈ (5+l) ⤑ 1 ∈ (5+l) ⤑
-          4 ∈ (5+s) ⤑ 3 ∈ (5+s) ⤑
-          Σ2_is_opair 4 2 0 ⤑
-          Σ2_is_opair 3 1 0 ⤑
-          2 ≈ 1.
+    ∀₁∀₁∀₁∀₁∀₁ 2 ∈ (5+l) ⤑ 1 ∈ (5+l) ⤑
+               4 ∈ (5+s) ⤑ 3 ∈ (5+s) ⤑
+               Σ2_is_opair 4 2 0 ⤑
+               Σ2_is_opair 3 1 0 ⤑
+               2 ≈ 1.
 
   Definition Σ2_list_in l lv := fol_lconj (map (fun x => x ∈ l) lv).
 

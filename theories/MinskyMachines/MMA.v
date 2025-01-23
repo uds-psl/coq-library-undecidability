@@ -57,15 +57,15 @@ Section Minsky_Machine.
 
   Definition mm_state := (nat*vec nat n)%type.
 
-  Local Notation "e #> x" := (vec_pos e x).
-  Local Notation "e [ v / x ]" := (vec_change e x v).
+  Notation "e '#>' x" := (vec_pos e x) (at level 58, format "e #> x").
+  Notation "e [ x := v ]" := (vec_change e x v) (no associativity, at level 1).
 
   (* Minsky machine alternate small step semantics *)
 
   Inductive mma_sss : mm_instr (pos n) -> mm_state -> mm_state -> Prop :=
-    | in_mma_sss_inc   : forall i x v,                   INCₐ x   // (i,v) -1> (1+i,v[(S (v#>x))/x])
+    | in_mma_sss_inc   : forall i x v,                   INCₐ x   // (i,v) -1> (1+i,v[x:=S (v#>x)])
     | in_mma_sss_dec_0 : forall i x k v,   v#>x = O   -> DECₐ x k // (i,v) -1> (1+i,v)
-    | in_mma_sss_dec_1 : forall i x k v u, v#>x = S u -> DECₐ x k // (i,v) -1> (k,v[u/x])
+    | in_mma_sss_dec_1 : forall i x k v u, v#>x = S u -> DECₐ x k // (i,v) -1> (k,v[x:=u])
   where "i // s -1> t" := (mma_sss i s t).
 
 End Minsky_Machine.

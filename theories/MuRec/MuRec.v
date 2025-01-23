@@ -1,4 +1,4 @@
-From Stdlib Require Import Arith Lia List Bool Eqdep_dec .
+From Stdlib Require Import Arith Lia List Bool Eqdep_dec.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import utils_tac utils_nat utils_list finite pos vec.
@@ -24,9 +24,11 @@ Inductive recalg : nat -> Type :=
 
 Set Elimination Schemes.
 
-Reserved Notation "  '[' f ';' v ']' '▹' x " (at level 70).
+Section recalg_big_step_sem.
 
-Inductive ra_bs : forall k, recalg k -> vec nat k -> nat -> Prop :=
+  Reserved Notation "[ f ; v ] ▹ x " (at level 70, format "[ f ; v ]  ▹  x").
+
+  Inductive ra_bs : forall {k}, recalg k -> vec nat k -> nat -> Prop :=
     | in_ra_bs_cst  : forall n v,             [ra_cst n;        v] ▹ n
     | in_ra_bs_zero : forall v,               [ra_zero;         v] ▹ 0
     | in_ra_bs_succ : forall v,               [ra_succ;         v] ▹ S (vec_head v)
@@ -50,10 +52,12 @@ Inductive ra_bs : forall k, recalg k -> vec nat k -> nat -> Prop :=
                            (forall j : pos x, [f;    pos2nat j##v] ▹ S (vec_pos w j))
                                ->             [f;            x##v] ▹ 0
                                ->             [ra_min f;        v] ▹ x
-where " [ f ; v ] ▹ x " := (@ra_bs _ f v x).
+  where " [ f ; v ] ▹ x " := (@ra_bs _ f v x).
+
+End recalg_big_step_sem.
 
 Definition Halt_murec (a : { n : nat & recalg n & Vector.t nat n }) : Prop :=
-    let (n, f, v) := a in exists x, [f ; v ] ▹ x.
+  let (n, f, v) := a in exists x, ra_bs f v x.
 
 Definition MuRec_computable {k} (R : Vector.t nat k -> nat -> Prop) := 
   exists f : recalg k, forall v : Vector.t nat k, 

@@ -143,7 +143,7 @@ Section trivial_phase_semantics.
 
   Variables (n : nat) (s : ill_vars -> vec nat n -> Prop).
 
-  Reserved Notation "'⟦' A '⟧'" (at level 65).
+  Reserved Notation "'⟦' A '⟧'" (at level 0).
 
   Definition ill_tps_imp (X Y : _ -> Prop) (v : vec _ n) := forall x, X x -> Y (vec_plus x v).
   Definition ill_tps_mult (X Y : _ -> Prop) (x : vec _ n) := exists a b, x = vec_plus a b /\ X a /\ Y b. 
