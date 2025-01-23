@@ -17,9 +17,9 @@ Set Implicit Arguments.
 
 Local Infix "~p" := (@Permutation _) (at level 70).
 
-Reserved Notation "A ⊸ B" (at level 51, right associativity, format "A ⊸ B").
-Reserved Notation "'![' m ']' x" (at level 52, format "![ m ] x").
-Reserved Notation "‼ x" (at level 60, format "‼ x").
+#[local] Reserved Notation "A ⊸ B" (at level 51, right associativity, format "A ⊸ B").
+#[local] Reserved Notation "'![' m ']' x" (at level 52, format "![ m ] x").
+#[local] Reserved Notation "‼ x" (at level 60, format "‼ x").
 
 Section IMSELL.
 
@@ -85,10 +85,21 @@ Section IMSELL.
 
 End IMSELL.
 
-Infix "⊸" := imsell_imp.
-Notation "![ m ] x" := (imsell_ban m x).
-Notation "£" := imsell_var.
-Notation "‼ Γ" := (imsell_lban Γ).
+Arguments imsell_var {_ _}.
+Arguments imsell_imp {_ _}.
+Arguments imsell_ban {_ _}.
+Arguments imsell_lban {_ _}.
+
+Module IMSELL_notations.
+
+  Infix "⊸" := imsell_imp.
+  Notation "![ m ] x" := (imsell_ban m x).
+  Notation "£" := imsell_var.
+  Notation "‼ Γ" := (imsell_lban Γ).
+
+End IMSELL_notations.
+
+Import IMSELL_notations.
 
 (* An IMSELL signature is a type of modalities pre-ordered
     and an upper-closed subset of exponentials *)

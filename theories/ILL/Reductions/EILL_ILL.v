@@ -13,7 +13,11 @@ Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Synthetic.ReducibilityFacts.
 
 From Undecidability.ILL
-  Require Import EILL ILL ill eill. 
+  Require Import EILL ILL ill eill.
+
+Import ILL_notations.
+
+#[local] Notation "⦑ c ⦒" := (eill_cmd_map c) (at level 0).
 
 Theorem EILL_rILL_cf_PROVABILITY : EILL_PROVABILITY ⪯ rILL_cf_PROVABILITY.
 Proof.

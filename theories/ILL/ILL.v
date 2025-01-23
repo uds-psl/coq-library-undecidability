@@ -35,24 +35,30 @@ Inductive ill_form : Set :=
 
 (* Symbols for cut&paste ⟙   ⟘   𝝐  ﹠ ⊗  ⊕  ⊸  !   ‼  ∅  ⊢ *)
 
-Notation "⟙" := (ill_cst ill_top).
-Notation "⟘" := (ill_cst ill_bot).
-Notation "𝟙" := (ill_cst ill_1).
+Module ILL_notations.
 
-Infix "&" := (ill_bin ill_with) (at level 50).
-Infix "⊗" := (ill_bin ill_times) (at level 50).
-Infix "⊕" := (ill_bin ill_plus) (at level 50).
-Infix "⊸" := (ill_bin ill_limp) (at level 51, right associativity).
+  Notation "⟙" := (ill_cst ill_top).
+  Notation "⟘" := (ill_cst ill_bot).
+  Notation "𝟙" := (ill_cst ill_1).
 
-Notation "'!' x" := (ill_ban x) (at level 52).
+  Infix "&" := (ill_bin ill_with) (at level 50).
+  Infix "⊗" := (ill_bin ill_times) (at level 50).
+  Infix "⊕" := (ill_bin ill_plus) (at level 50).
+  Infix "⊸" := (ill_bin ill_limp) (at level 51, right associativity).
 
-Notation "£" := ill_var.
+  Notation "'!' x" := (ill_ban x) (at level 52).
 
-Notation "‼ x" := (map ill_ban x) (at level 60).
+  Notation "£" := ill_var.
 
-Notation "∅" := nil (only parsing).
+  Notation "‼ x" := (map ill_ban x) (at level 60).
 
-Reserved Notation "l '⊢' x" (at level 70, no associativity).
+  Notation "∅" := nil (only parsing).
+
+End ILL_notations.
+
+Import ILL_notations.
+
+#[local] Reserved Notation "l '⊢' x" (at level 70, no associativity).
 
 Section S_ill_restr_without_cut.
 

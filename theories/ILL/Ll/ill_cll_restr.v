@@ -37,6 +37,7 @@ Local Infix "~p" := (@Permutation _) (at level 70).
 
        derived from the work of H. Schellinx JLC 91 *)
 
+#[local] Notation "∅" := nil.
 
 Section S_ill_cll_restr.
 
