@@ -53,7 +53,7 @@ Section Minsky_Machine.
   Notation "e '#>' x" := (vec_pos e x) (at level 58, format "e #> x").
   Notation "e [ x := v ]" := (vec_change e x v) (no associativity, at level 1).
 
-  Reserved Notation "P // e ▷ v" (at level 50, no associativity).
+  Reserved Notation "P // e ▷ v" (at level 70, no associativity).
 
   (* Minsky machine small step semantics *)
 

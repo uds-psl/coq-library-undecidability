@@ -167,7 +167,7 @@ Section Sig_uniformize_rels.
            vec_fill_tail n (vec_set_pos (fun p : pos k => £(2+pos2nat p))) (£ 0).
 
       Local Definition fol_uniform_after : fol_form Σ' :=
-           fol_mquant fol_fa k (∀∀ @fol_atom Σ' r w1 ↔ @fol_atom Σ' r w2).
+           fol_mquant fol_fa k (∀₁∀₁ @fol_atom Σ' r w1 ↔ @fol_atom Σ' r w2).
 
       Local Fact fol_uniform_after_spec φ :
            fol_sem M' φ fol_uniform_after 

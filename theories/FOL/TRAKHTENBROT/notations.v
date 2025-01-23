@@ -63,7 +63,7 @@ Notation "'∑' x .. y ( z : T ) , p" := (sigT (fun x => .. (sigT (fun y => sig 
   : type_scope.
 
 Notation "'∑' z : T , p" := (sig (fun z : T => p))
-  (at level 200, right associativity,
+  (at level 200, z binder, right associativity,
    format "'[' '∑'  z  :  T ,  '/ ' p ']'", only printing)
   : type_scope.
 
