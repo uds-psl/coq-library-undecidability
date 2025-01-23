@@ -383,10 +383,10 @@ Section relational_semantics.
   Qed.
 
   Lemma ra_rel_spec {k} (f : recalg k) v m :
-    [| f |] v m <-> [f; v] ▹ m.
+    [| f |] v m <-> ra_bs f v m.
   Proof.
     split.
-    - revert k f v m. apply (recalg_ind (fun k f => forall v m, [|f|] v m -> [f; v] ▹ m)); cbn.
+    - revert k f v m. apply (recalg_ind (fun k f => forall v m, [|f|] v m -> ra_bs f v m)); cbn.
       + intros ??? <-. now constructor.
       + intros ?? ->. now constructor.
       + intros ?? ->. now constructor.
