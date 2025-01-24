@@ -8,7 +8,8 @@ From Stdlib Require Import PeanoNat Lia.
 #[local] Unset Strict Implicit.
 
 From Stdlib Require Import List ssreflect ssrbool ssrfun.
-Import ListNotations SBTMNotations.
+Import Vector.VectorNotations SBTMNotations ListNotations.
+Open Scope list.
 
 Set Default Goal Selector "!".
 
@@ -159,9 +160,8 @@ Section Construction.
   Lemma decode_encode_space (x : space) : decode_space (encode_space x) = x.
   Proof. by apply: ListFin.decode_encode. Qed.
 
-  #[local] Notation "| a |" := (Vector.cons _ a 0 (Vector.nil _)).
-
   #[local] Notation encode_state q := (encode_space (space_base q)).
+  Open Scope vector.
 
   Definition go_back (d : direction) :=
     match d with
@@ -212,7 +212,7 @@ Section Construction.
             | true => Some (encode_space (space_read q_base), true, go_left)
             (* case a = false, no symbol *)
             | false => 
-              match TM.trans M (q_base, | None |) with
+              match TM.trans M (q_base, [ None ]) with
               | (q_next, result) =>
                   match Vector.hd result with
                   (* case write b, move *)
@@ -227,7 +227,7 @@ Section Construction.
         end).
     + (* case space_read *)
       refine ( 
-        match TM.trans M (q_read, | Some a |) with
+        match TM.trans M (q_read, [ Some a ]) with
         | (q_next, result) =>
           match Vector.hd result with
           (* case write bL, Lmove *)
@@ -260,7 +260,7 @@ Section Construction.
   Lemma simulation_step q t : TM.halt M q = false ->
     exists k,
       (omap (fun '(q', t') => (q', truncate_tape t')) (steps (S k) (encode_state q, encode_tape t))) =
-        Some (encode_config (TM_step (TM_facts.mk_mconfig q (| t |)))).
+        Some (encode_config (TM_step (TM_facts.mk_mconfig q ([ t ])))).
   Proof.
     move=> Hq. case: t.
     - (* case niltape *)
