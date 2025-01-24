@@ -7,7 +7,7 @@ Import ListAutomationFacts ListAutomationInstances.
 From Undecidability.FOL Require Import FragmentSyntax.
 Import Vector.VectorNotations.
 
-Notation "I ⊨= phi" := (forall rho, sat I rho phi) (at level 20).
+(* Notation "I ⊨= phi" := (forall rho, sat I rho phi) (at level 20). *)
 Notation "I ⊨=T T" := (forall psi, T psi -> I ⊨= psi) (at level 20).
 Notation "I ⊫= Gamma" := (forall rho psi, In psi Gamma -> sat I rho psi) (at level 20).
 
@@ -187,4 +187,5 @@ Section Signature.
     - destruct binop; now solve_bounds.
     - destruct quantop; now solve_bounds.
   Qed.
+
 End Signature.
