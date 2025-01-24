@@ -127,8 +127,8 @@ Local Hint Resolve ill_cll_ill : core.
 Fact ill_cll_ill_list Γ : ⟪⟦Γ⟧⟫ = Γ.
 Proof. induction Γ; simpl; f_equal; auto. Qed.
 
-Fact ill_cll_lbang Γ : ⟦map ill_ban Γ⟧ = ‼⟦Γ⟧.
+Fact ill_cll_lbang Γ : ⟦map ill_ban Γ⟧ = map (cll_una cll_bang) ⟦Γ⟧.
 Proof. induction Γ; simpl; f_equal; auto. Qed.
 
-Fact cll_ill_lbang Γ : ⟪‼Γ⟫ = map ill_ban ⟪Γ⟫.
+Fact cll_ill_lbang Γ : ⟪map (cll_una cll_bang) Γ⟫ = map ill_ban ⟪Γ⟫.
 Proof. induction Γ; simpl; f_equal; auto. Qed.

@@ -12,8 +12,10 @@ From Stdlib Require Import List Permutation Arith Lia.
 From Undecidability.MinskyMachines
   Require Import ndMM2.
 
-From Undecidability.ILL 
+From Undecidability.ILL
   Require Import IMSELL imsell.
+
+Import IMSELL_notations.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import utils pos vec.
@@ -23,7 +25,6 @@ From Undecidability.Synthetic
 
 Set Implicit Arguments.
 
-Local Infix "~p" := (@Permutation _) (at level 70).
 Local Notation "X ⊆ Y" := (forall a, X a -> Y a : Prop) (at level 70).
 Local Infix "∊" := In (at level 70).
 
@@ -58,7 +59,7 @@ Section ndmm2_imsell.
   Hypothesis (Hai : a ≤ ∞) (Hbi : b ≤ ∞) (Hab : a ≰ b) (Hba : b ≰ a)
              (Ha : ~ U a) (Hb : ~ U b) (Hi : U ∞).
 
-  Implicit Type u v w : sig.
+  Implicit Type (u v w : sig) (l : list (sig * imsell_form nat sig)).
 
   Local Definition bang_le_refl : forall u, u ≤ u := IMSELL_refl _.
   Local Definition bang_le_trans : forall u v w, u ≤ v -> v ≤ w -> u ≤ w := IMSELL_trans _.
@@ -66,8 +67,6 @@ Section ndmm2_imsell.
 
   Hint Resolve Hai Hbi Ha Hb Hi Hab Hba bang_le_refl bang_U_clos : core.
 
-  Notation "£" := (@imsell_var _ _).
-  Notation "‼ l" := (@imsell_lban nat sig l).
   Notation "‼∞" := (map (fun A => ![∞]A)).
 
   Local Definition formA : imsell_form nat sig := ![a](£0).
@@ -370,7 +369,7 @@ Proof.
   intros (a & b & i & ?).
   apply reduces_dependent; exists.
   intros (Σ & u & x & y).
-  exists (ndmm2_imsell_ctx _ a b i Σ x y, imsell_var _ (2+u)).
+  exists (ndmm2_imsell_ctx _ a b i Σ x y, imsell_var (2+u)).
   apply ndmm2_imsell_correct; simpl; tauto.
 Qed.
 

@@ -15,6 +15,8 @@ From Undecidability.Shared.Libs.DLW
 From Undecidability.ILL
   Require Import ILL.
 
+Import ILL_notations.
+
 Set Implicit Arguments.
 
 Section obvious_links_between_fragments.

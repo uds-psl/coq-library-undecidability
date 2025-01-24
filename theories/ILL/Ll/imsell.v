@@ -12,6 +12,8 @@ From Stdlib Require Import List Permutation.
 From Undecidability.ILL 
   Require Import IMSELL.
 
+Import IMSELL_notations.
+
 From Undecidability.Shared.Libs.DLW 
   Require Import utils pos vec.
 
@@ -19,18 +21,15 @@ Set Implicit Arguments.
 
 (* * Intuionistic Multiplicative Linear Logic with several exponentials and modabilities *)
 
-Local Infix "~p" := (@Permutation _) (at level 70).
+(* Local Infix "~p" := (@Permutation _) (at level 70). *)
 Local Notation "X ⊆ Y" := (forall a, X a -> Y a : Prop) (at level 70).
 Local Infix "∊" := In (at level 70).
-
-Local Reserved Notation "'⟦' A '⟧'" (at level 0, format "⟦ A ⟧").
 
 Section IMSELL.
 
   Variable bang : Type.
 
-  Notation "£" := (@imsell_var _ _).
-  Notation "‼ l" := (@imsell_lban nat bang l).
+  Implicit Type (Σ : list (bang * imsell_form nat bang)). 
 
   Fact imsell_lban_perm Σ Γ : Σ ~p Γ -> ‼Σ ~p ‼Γ.
   Proof. apply Permutation_map. Qed.
@@ -101,6 +100,8 @@ Section IMSELL.
   Qed.
 
 *)
+
+  Reserved Notation "'⟦' A '⟧'" (at level 0, format "⟦ A ⟧").
 
   Section Trivial_Phase_semantics.
 

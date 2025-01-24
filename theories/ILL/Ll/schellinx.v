@@ -14,6 +14,8 @@ From Undecidability.Shared.Libs.DLW
 
 From Undecidability.ILL Require Import ILL CLL ill_cll.
 
+Import CLL_notations.
+
 Set Implicit Arguments.
 
 (* Small inversion lemma *)
@@ -40,13 +42,13 @@ Tactic Notation "app" "inv" "nil" "in" hyp(H) :=
 
        derived from the work of H. Schellinx JLC 91 *)
 
-Local Infix "~p" := (@Permutation _) (at level 70).
-
 (* Γ ⊢i A stands for the sequent Γ ⊢ A is cut-free ILL provable *)
 (* Γ ⊢c Δ stands for the sequent Γ ⊢ Δ is cut-free CLL provable *)
 
-Notation "Γ '⊢i' A" := (S_ill Γ A) (at level 70, no associativity).
-Notation "Γ '⊢c' Δ" := (S_cll Γ Δ) (at level 70, no associativity).
+#[local] Notation "Γ '⊢i' A" := (S_ill Γ A) (at level 70, no associativity).
+#[local] Notation "Γ '⊢c' Δ" := (S_cll Γ Δ) (at level 70, no associativity).
+
+#[local] Notation "∅" := nil.
 
 Section ill_cll_is_sound.
 

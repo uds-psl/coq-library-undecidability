@@ -7,7 +7,7 @@ From Undecidability.SOL.Util Require Import Syntax Subst Tarski.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 Require Import Undecidability.Shared.Dec.
 
-Import VectorNotations SubstNotations SOLNotations PA2Notations.
+Import VectorNotations SubstNotations SOLNotations.
 
 Arguments Vector.cons {_} _ {_} _, _ _ _ _.
 

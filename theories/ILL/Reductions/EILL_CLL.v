@@ -19,7 +19,7 @@ Theorem EILL_CLL_cf_PROVABILITY : EILL_PROVABILITY ⪯ CLL_cf_PROVABILITY.
 Proof.
   apply reduces_dependent; exists.
   intros ((Σ,Γ),u).
-  exists ( map (fun c => cll_una cll_bang [⦑c⦒]) Σ 
+  exists ( map (fun c => cll_una cll_bang [eill_cmd_map c]) Σ 
         ++ map cll_var Γ, cll_var u::nil).
   apply G_eill_S_cll.
 Qed.
