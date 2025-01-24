@@ -8,11 +8,9 @@ From Stdlib Require Import PeanoNat Lia.
 #[local] Unset Strict Implicit.
 
 From Stdlib Require Import List ssreflect ssrbool ssrfun.
-Import ListNotations SBTMNotations.
+Import ListNotations SBTMNotations Vector.VectorNotations.
 
 Set Default Goal Selector "!".
-
-#[local] Notation "| a |" := (Vector.cons _ a 0 (Vector.nil _)).
 
 Section Construction.
   (* input SBTM and initial state *)
@@ -48,12 +46,12 @@ Section Construction.
     refine (
       match q with
       | Some qM => _
-      | None => (None, | (None, TM.Nmove) | )
+      | None => (None, [ (None, TM.Nmove) ] )
       end).
     refine (
       match trans' M (qM, get_symbol (Vector.hd bs)) with
-      | None => (None, | (None, TM.Nmove) | )
-      | Some (q', a', d') => (Some q', | (Some a',encode_direction d') | )
+      | None => (None, [ (None, TM.Nmove) ] )
+      | Some (q', a', d') => (Some q', [ (Some a',encode_direction d') ] )
       end).
   Defined.
 
@@ -61,7 +59,7 @@ Section Construction.
   #[local] Notation TM_config := (@TM_facts.mconfig (finType_CS bool) (TM.state M') 1).
 
   Definition encode_config : config M -> TM_config :=
-    fun '(q, t) => TM_facts.mk_mconfig (Some q) (| encode_tape t |).
+    fun '(q, t) => TM_facts.mk_mconfig (Some q) ([ encode_tape t ]).
 
   Definition canonize_tape (t : TM.tape (finType_CS bool)) :=
     match t with
@@ -89,8 +87,8 @@ Section Construction.
 
   Lemma TM_step_canonize_tape oq oq1 t1 t'1 oq2 t2 t'2 :
     canonize_tape t1 = canonize_tape t2 ->
-    TM_step (TM_facts.mk_mconfig oq (| t1 |)) = TM_facts.mk_mconfig oq1 (| t'1 |) ->
-    TM_step (TM_facts.mk_mconfig oq (| t2 |)) = TM_facts.mk_mconfig oq2 (| t'2 |) ->
+    TM_step (TM_facts.mk_mconfig oq ([ t1 ])) = TM_facts.mk_mconfig oq1 ([ t'1 ]) ->
+    TM_step (TM_facts.mk_mconfig oq ([ t2 ])) = TM_facts.mk_mconfig oq2 ([ t'2 ]) ->
     oq1 = oq2 /\ canonize_tape t'1 = canonize_tape t'2.
   Proof.
     move=> Ht1t2.
@@ -105,8 +103,8 @@ Section Construction.
 
   Lemma TM_loopM_canonize_tape (oq : TM.state M') t1 t2 k q' t'1 :
     canonize_tape t1 = canonize_tape t2 ->
-    TM_facts.loopM (TM_facts.mk_mconfig oq (| t1 |)) k = Some (TM_facts.mk_mconfig q' t'1) ->
-    { t'2 | TM_facts.loopM (TM_facts.mk_mconfig oq (| t2 |)) k = Some (TM_facts.mk_mconfig q' t'2) }.
+    TM_facts.loopM (TM_facts.mk_mconfig oq ([ t1 ])) k = Some (TM_facts.mk_mconfig q' t'1) ->
+    { t'2 | TM_facts.loopM (TM_facts.mk_mconfig oq ([ t2 ])) k = Some (TM_facts.mk_mconfig q' t'2) }.
   Proof.
     elim: k oq t1 t2.
     { move=> > _ /=. case: (halt' _) => [|]; last done.
@@ -124,7 +122,7 @@ Section Construction.
   (* step simulation up to canonize_tape *)
   Lemma simulation_step q t q' t' : step M (q, t) = Some (q', t') ->
     { t'' |
-      TM_step (encode_config (q, t)) = TM_facts.mk_mconfig (Some q') (| t'' |) /\
+      TM_step (encode_config (q, t)) = TM_facts.mk_mconfig (Some q') ([ t'' ]) /\
       encode_tape t' = canonize_tape t'' }.
   Proof.
     rewrite /step /TM_facts.step /=.
@@ -135,7 +133,7 @@ Section Construction.
   Qed.
 
   Lemma simulation_halt q t : step M (q, t) = None ->
-    TM_step (encode_config (q, t)) = TM_facts.mk_mconfig None (| encode_tape t |).
+    TM_step (encode_config (q, t)) = TM_facts.mk_mconfig None ([ encode_tape t ]).
   Proof.
     rewrite /step /TM_facts.step /=.
     move: t => [[ls a] rs] /=.
@@ -144,7 +142,7 @@ Section Construction.
 
   Lemma simulation q t k :
     steps M k (q, t) = None ->
-    exists q' ts', TM.eval M' (Some q) (| encode_tape t |) q' ts'.
+    exists q' ts', TM.eval M' (Some q) ([ encode_tape t ]) q' ts'.
   Proof.
     elim: k q t; first done.
     move=> k IH q t.
@@ -155,7 +153,7 @@ Section Construction.
       move=> /(_ ltac:(by case: (t''))). move=> [{}t''' ?].
       exists q''', t'''. apply /TM_facts.TM_eval_iff. exists (S k').
       by rewrite /= HM'.
-    - move=> _. exists None, (| encode_tape t |).
+    - move=> _. exists None, ([ encode_tape t ]).
       apply /TM_facts.TM_eval_iff. exists 1.
       move: E.
       rewrite /= /step /TM_facts.step /=.
@@ -164,7 +162,7 @@ Section Construction.
   Qed.
 
   Lemma inverse_simulation q t q' ts' :
-    TM.eval M' (Some q) (| encode_tape t |) q' ts' ->
+    TM.eval M' (Some q) ([ encode_tape t ]) q' ts' ->
     exists k, steps M k (q, t) = None.
   Proof.
     move=> /TM_facts.TM_eval_iff => - [k Hk]. exists k.
@@ -186,7 +184,7 @@ Theorem reduction :
   SBTM_HALT ⪯ TM.HaltTM 1.
 Proof.
   exists ((fun '(existT _ M (q, t)) =>
-    existT2 _ _ (finType_CS bool) (M' M q) (| encode_tape t |)) ).
+    existT2 _ _ (finType_CS bool) (M' M q) ([ encode_tape t ])) ).
   move=> [M [q t]] /=. split.
   - by move=> [k] /simulation => /(_ q).
   - by move=> [?] [?] /inverse_simulation.
