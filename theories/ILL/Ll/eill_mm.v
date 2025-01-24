@@ -18,9 +18,12 @@ From Undecidability.MinskyMachines.MM
 From Undecidability.ILL
   Require Import ILL EILL ill eill.
 
+Import ILL_notations.
+
 Set Implicit Arguments.
 
-Local Infix "~p" := (@Permutation _) (at level 70).
+#[local] Notation "⦑ c ⦒" := (eill_cmd_map c) (at level 0).
+#[local] Notation "Σ ; Γ ⊦ u" := (G_eill Σ Γ u) (at level 70, no associativity).
 
 (* ** MM reduces to eILL *)
 

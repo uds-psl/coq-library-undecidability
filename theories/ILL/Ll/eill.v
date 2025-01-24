@@ -14,15 +14,14 @@ From Undecidability.Shared.Libs.DLW
 
 From Undecidability.ILL Require Import ILL EILL ill.
 
-Set Implicit Arguments.
+Import ILL_notations.
 
-Local Infix "~p" := (@Permutation _) (at level 70).
+Set Implicit Arguments.
 
 (* Symbols for cut&paste ⟙   ⟘   𝝐  ﹠ ⊗  ⊕  ⊸  ❗   ‼  ∅  ⊢ ⟦ ⟧ Γ Δ Σ *)
 
-Notation "⦑ c ⦒" := (eill_cmd_map c) (at level 0).
-
-Notation "Σ ; Γ ⊦ u" := (G_eill Σ Γ u) (at level 70, no associativity).
+#[local] Notation "⦑ c ⦒" := (eill_cmd_map c) (at level 0).
+#[local] Notation "Σ ; Γ ⊦ u" := (G_eill Σ Γ u) (at level 70, no associativity).
 
 Theorem g_eill_mono_Si Σ Σ' Γ u : incl Σ Σ' -> Σ; Γ ⊦ u -> Σ'; Γ ⊦ u.
 Proof.
@@ -47,7 +46,7 @@ Qed.
    the cut-free (!,&,-o) fragment
 *)
 
-Notation "Γ ⊢ A" := (S_ill_restr Γ A) (at level 70, no associativity).
+#[local] Notation "Γ ⊢ A" := (S_ill_restr Γ A) (at level 70, no associativity).
 
 Theorem G_eill_sound Σ Γ p : Σ; Γ ⊦ p -> map (fun c => !⦑c⦒) Σ ++ map £ Γ ⊢ £ p.
 Proof.

@@ -1,6 +1,6 @@
 -Q . Undecidability
 
--arg -w -arg -notation-overridden,-stdlib-vector# ,-notation-incompatible-prefix,-closed-notation-not-level-0,-postfix-notation-not-level-1
+-arg -w -arg -stdlib-vector,-notation-overridden #,-notation-incompatible-prefix,-closed-notation-not-level-0,-postfix-notation-not-level-1
 -arg "-set" -arg "'Default Proof Using = Type'"
 COQDOCFLAGS = "--charset utf-8 -s --with-header ../website/resources/header.html --with-footer ../website/resources/footer.html --index indexpage"
 

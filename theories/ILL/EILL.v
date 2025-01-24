@@ -13,6 +13,8 @@ From Stdlib Require Import List Permutation.
 
 From Undecidability.ILL Require Import ILL.
 
+Import ILL_notations.
+
 Set Implicit Arguments.
 
 Local Infix "~p" := (@Permutation _) (at level 70).

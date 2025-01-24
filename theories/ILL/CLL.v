@@ -31,42 +31,47 @@ Inductive cll_form : Set :=
 
 (* These notations replace the ILL notations *)
 
-(* Variables *)
+Module CLL_notations.
 
-Notation "£" := cll_var.
+  (* Variables *)
 
-(* Constants *)
+  Notation "£" := cll_var.
 
-Notation "⟙" := (cll_cst cll_top).
-Notation "⟘" := (cll_cst cll_bot).
-Notation "𝟙" := (cll_cst cll_1).
-Notation "𝟘" := (cll_cst cll_0).
+  (* Constants *)
 
-(* Unary connectives: linear negation and modalities *)
-(* ? cannot be used because it is reserved by Coq so we use ‽ instead *)
+  Notation "⟙" := (cll_cst cll_top).
+  Notation "⟘" := (cll_cst cll_bot).
+  Notation "𝟙" := (cll_cst cll_1).
+  Notation "𝟘" := (cll_cst cll_0).
 
-Notation "'⊖' x" := (cll_una cll_neg x) (at level 50, format "⊖ x").
-Notation "'!' x" := (cll_una cll_bang x) (at level 52).
-Notation "'‽' x" := (cll_una cll_qmrk x) (at level 52).
+  (* Unary connectives: linear negation and modalities *)
+  (* ? cannot be used because it is reserved by Coq so we use ‽ instead *)
 
-(* Binary connectives *)
+  Notation "'⊖' x" := (cll_una cll_neg x) (at level 50, format "⊖ x").
+  Notation "'!' x" := (cll_una cll_bang x) (at level 52).
+  Notation "'‽' x" := (cll_una cll_qmrk x) (at level 52).
 
-Infix "&" := (cll_bin cll_with) (at level 50).
-Infix "⅋" := (cll_bin cll_par) (at level 50).
-Infix "⊗" := (cll_bin cll_times) (at level 50).
-Infix "⊕" := (cll_bin cll_plus) (at level 50).
-Infix "⊸" := (cll_bin cll_limp) (at level 51, right associativity).
+  (* Binary connectives *)
 
-(* Modalities iterated over lists *)
+  Infix "&" := (cll_bin cll_with) (at level 50).
+  Infix "⅋" := (cll_bin cll_par) (at level 50).
+  Infix "⊗" := (cll_bin cll_times) (at level 50).
+  Infix "⊕" := (cll_bin cll_plus) (at level 50).
+  Infix "⊸" := (cll_bin cll_limp) (at level 51, right associativity).
 
-Notation "‼ x" := (map (cll_una cll_bang) x) (at level 60).
-Notation "⁇ x" := (map (cll_una cll_qmrk) x) (at level 60).
+  (* Modalities iterated over lists *)
+
+  Notation "‼ x" := (map (cll_una cll_bang) x) (at level 60).
+  Notation "⁇ x" := (map (cll_una cll_qmrk) x) (at level 60).
+
+End CLL_notations.
+
+Import CLL_notations.
 
 (* The empty list *)
 
-Notation "∅" := nil.
-
-Local Reserved Notation "Γ ⊢ Δ" (at level 70, no associativity).
+#[local] Notation "∅" := nil.
+#[local] Reserved Notation "Γ ⊢ Δ" (at level 70, no associativity).
 
 Section S_cll_restr_without_cut.
 
