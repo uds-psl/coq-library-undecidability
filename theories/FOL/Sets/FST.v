@@ -14,21 +14,21 @@ From Stdlib Require Import List.
 Import FSTSignature.
 Export FSTSignature.
 
-Declare Scope syn.
-Open Scope syn.
+Declare Scope FSTsyn.
+Open Scope FSTsyn.
 
 (* ** Axioms *)
 
-Notation "x ∈ y" := (atom _ ZFSignature.ZF_pred_sig elem ([x; y])) (at level 35) : syn.
-Notation "x ≡ y" := (atom (Σ_preds := ZFSignature.ZF_pred_sig) equal ([x; y])) (at level 35) : syn.
+Notation "x ∈ y" := (atom _ ZFSignature.ZF_pred_sig elem ([x; y])) (at level 35) : FSTsyn.
+Notation "x ≡ y" := (atom (Σ_preds := ZFSignature.ZF_pred_sig) equal ([x; y])) (at level 35) : FSTsyn.
 
-Notation "∅" := (func FST_func_sig eset ([])) : syn.
-Notation "x ::: y" := (func FST_func_sig adj ([x; y])) (at level 31) : syn.
+Notation "∅" := (func FST_func_sig eset ([])) : FSTsyn.
+Notation "x ::: y" := (func FST_func_sig adj ([x; y])) (at level 31) : FSTsyn.
 
 Definition sub x y :=
   ∀ $0 ∈ x`[↑] → $0 ∈ y`[↑].
 
-Notation "x ⊆ y" := (sub x y) (at level 34) : syn.
+Notation "x ⊆ y" := (sub x y) (at level 34) : FSTsyn.
 
 Definition ax_ext :=
   ∀ ∀ $1 ⊆ $0 → $0 ⊆ $1 → $1 ≡ $0.
@@ -73,5 +73,3 @@ Definition FSTeq :=
 Inductive FSTIeq : form -> Prop :=
 | FSTeq_base phi : In phi FSTeq -> FSTIeq phi
 | FSTeq_ind phi : FSTIeq (ax_ind phi).
-
-

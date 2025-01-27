@@ -15,8 +15,6 @@ Import ListAutomationNotations ListAutomationHints.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
-
-
 (* ** Reduction function *)
 
 Local Definition BSRS := list(card bool).

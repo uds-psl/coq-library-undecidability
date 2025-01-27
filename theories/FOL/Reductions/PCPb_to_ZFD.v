@@ -26,7 +26,7 @@ Section ZF.
 
 Context { p : peirce }.
 
-Close Scope sem.
+Close Scope ZFsem.
 
 Lemma ZF_eset x :
   ZFeq' ⊢ ¬ (x ∈ ∅).

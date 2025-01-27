@@ -8,8 +8,8 @@ Import Vector.VectorNotations.
 From Stdlib Require Import List.
 
 
-Declare Scope syn.
-Open Scope syn.
+Declare Scope minZFsyn.
+Open Scope minZFsyn.
  
 (* ** Minimal signature only containing membership and equality, no function symbols *)
 
@@ -24,8 +24,8 @@ Existing Instance ZF_pred_sig | 0.
 #[global]
 Existing Instance sig_empty | 0.
 
-Notation "x ∈' y" := (atom sig_empty ZF_pred_sig elem ([x; y])) (at level 35) : syn.
-Notation "x ≡' y" := (atom sig_empty ZF_pred_sig equal ([x; y])) (at level 35) : syn.
+Notation "x ∈' y" := (atom sig_empty ZF_pred_sig elem ([x; y])) (at level 35) : minZFsyn.
+Notation "x ≡' y" := (atom sig_empty ZF_pred_sig equal ([x; y])) (at level 35) : minZFsyn.
 
 
 

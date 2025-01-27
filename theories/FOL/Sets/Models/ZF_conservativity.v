@@ -14,7 +14,7 @@ Import ListAutomationNotations ListAutomationHints ListAutomationInstances.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
-Open Scope syn.
+Open Scope ZFsyn.
 
 Local Hint Constructors prv : core.
 
