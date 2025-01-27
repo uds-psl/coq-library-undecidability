@@ -20,15 +20,15 @@ Notation form' := (form sig_empty sig_binary _ falsity_on).
 Arguments Vector.nil {_}, _.
 Arguments Vector.cons {_} _ {_} _, _ _ _ _.
 
-Declare Scope syn'.
-Open Scope syn'.
+Declare Scope binZFsyn'.
+Open Scope binZFsyn'.
 
-Notation "x ∈' y" := (atom sig_empty sig_binary tt ([x; y])) (at level 35) : syn'.
+Notation "x ∈' y" := (atom sig_empty sig_binary tt ([x; y])) (at level 35) : binZFsyn'.
 
 Definition eq' (x y : term') :=
   ∀ x`[↑] ∈' $0 <~> y`[↑] ∈' $0.
 
-Notation "x ≡' y" := (eq' x y) (at level 35) : syn'.
+Notation "x ≡' y" := (eq' x y) (at level 35) : binZFsyn'.
 
 
 

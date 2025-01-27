@@ -96,7 +96,7 @@ Section FA_ext_Model.
   Hypothesis ext_model : extensional I.
   Hypothesis FA_model : forall ax rho, In ax FA -> rho ⊨ ax.
 
-  Notation "'iO'" := (i_func (f:=Zero) (Vector.nil D)) (at level 2) : PA_Notation.
+  (* Notation "'iO'" := (i_func (f:=Zero) (Vector.nil D)) (at level 2) : PA_Notation. *)
   
   Fact eval_poly sigma p : eval (sigma >> iμ) (embed_poly p) = iμ (dp_eval_pfree sigma p).
     Proof using ext_model FA_model.
@@ -137,7 +137,7 @@ Section FA_Model.
 
   Hypothesis FA_model : forall rho ax, In ax FAeq -> rho ⊨ ax.
 
-  Notation "'iO'" := (i_func (f:=Zero) (Vector.nil D)) (at level 2) : PA_Notation.
+  (* Notation "'iO'" := (i_func (f:=Zero) (Vector.nil D)) (at level 2) : PA_Notation. *)
   
   Lemma problem_to_model E sigma : H10p_sem E sigma -> (sigma >> iμ) ⊨ embed_problem E.
   Proof using FA_model.
