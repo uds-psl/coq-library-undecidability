@@ -11,7 +11,7 @@ eval $(opam env)
 opam pin add -k git rocq-runtime.dev "https://github.com/coq/coq.git#master"
 opam pin add -k git rocq-core.dev "https://github.com/coq/coq.git#master"
 opam pin add -k git rocq-stdlib.dev "https://github.com/coq/stdlib.git#master"
-opam pin add -k git rocq.dev "https://github.com/coq/coq.git#master"
+opam pin add -k git rocq-prover.dev "https://github.com/coq/coq.git#master"
 ```
 
 # Coq Library of Undecidability Proofs
