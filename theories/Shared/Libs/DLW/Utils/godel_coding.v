@@ -15,6 +15,7 @@ From Undecidability.Shared.Libs.DLW
 Set Implicit Arguments.
 Set Default Goal Selector "!".
 
+Import VectorNotations.
 #[local] Notation "e #> x" := (vec_pos e x).
 #[local] Notation "e [ v / x ]" := (vec_change e x v).
 

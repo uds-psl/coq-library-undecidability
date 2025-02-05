@@ -14,6 +14,8 @@ Require Import List.
 From Undecidability.Shared.Libs.DLW
   Require Import Vec.pos Vec.vec Code.sss.
 
+Export VectorNotations.
+
 Set Implicit Arguments.
 
 (** * Halting problem for Minsky machines  *)

@@ -18,6 +18,7 @@ From Undecidability.Shared.Libs.DLW
 
 Set Implicit Arguments.
 
+Import VectorNotations.
 Local Notation "e #> x" := (vec_pos e x).
 Local Notation "e [ v / x ]" := (vec_change e x v).
 

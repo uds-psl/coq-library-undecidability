@@ -41,6 +41,7 @@ Section Binary_Stack_Machine.
   Notation POP  := (bsm_pop n).
   Notation PUSH := (bsm_push n).
 
+  Import VectorNotations.
   Local Notation "e #> x" := (vec_pos e x).
   Local Notation "e [ x := v ]" := (vec_change e x v) (no associativity, at level 50).
 

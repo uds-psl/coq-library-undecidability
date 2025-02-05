@@ -16,6 +16,8 @@ Require Import List Bool Lia Nat.
 From Undecidability.Shared.Libs.DLW 
   Require Import list_bool pos vec sss.
 
+Export VectorNotations.
+
 Set Implicit Arguments.
 
 (** * Halting problem for binary stack machines BSM_HALTING  *)

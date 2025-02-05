@@ -538,9 +538,15 @@ Arguments vec_plus {n}.
 Arguments vec_zero {n}.
 Arguments vec_one {n}.
 
+Module VectorNotations.
+
 Reserved Notation " e '#>' x " (at level 58, format "e #> x").
 Reserved Notation " e [ v / x ] " (at level 57, v at level 0, x at level 0, 
                                    left associativity, format "e [ v / x ]").
+
+End VectorNotations.
+
+Import VectorNotations.
 
 Local Notation " e '#>' x " := (vec_pos e x).
 Local Notation " e [ v / x ] " := (vec_change e x v).

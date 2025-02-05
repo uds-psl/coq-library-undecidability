@@ -14,6 +14,7 @@ From Undecidability.Shared.Libs.DLW.Utils
 
 From Undecidability.Shared.Libs.DLW.Vec 
   Require Import pos vec.
+Import VectorNotations.
 
 From Undecidability.FOL.TRAKHTENBROT
   Require Import notations decidable gfp fol_ops fo_sig fo_terms fo_logic fo_definable fo_sat.
