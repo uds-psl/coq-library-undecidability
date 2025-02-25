@@ -429,6 +429,7 @@ MuRec/Util/ra_utils.v
 MuRec/Util/recalg.v
 MuRec/Util/recomp.v
 MuRec/Util/recursor.v
+MuRec/Util/eval.v
 
 MuRec/Reductions/H10_to_MUREC_HALTING.v
 MuRec/Reductions/H10C_SAT_to_RA_UNIV_HALT.v

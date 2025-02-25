@@ -26,7 +26,8 @@ install: [
   [make "install"]
 ]
 depends: [
-  "rocq-prover" {= "dev"}
+  "rocq-core" {= "dev"}
+  "rocq-stdlib" {= "dev"}
   "ocaml"
   # "coq-metacoq-template" {= "dev"}
 ]
