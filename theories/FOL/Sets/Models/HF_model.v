@@ -68,23 +68,23 @@ Defined.
 
 (* ** ZF-Models *)
 
-Declare Scope sem.
-Open Scope sem.
+Declare Scope HFsem.
+Open Scope HFsem.
 
 Arguments Vector.nil {_}, _.
 Arguments Vector.cons {_} _ {_} _, _ _ _ _.
 
-Notation "x ∈ y" := (@i_atom _ _ _ _ elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : sem.
-Notation "x ≡ y" := (@i_atom _ _ _ _ equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : sem.
-Notation "x ⊆ y" := (forall z, z ∈ x -> z ∈ y) (at level 34) : sem.
+Notation "x ∈ y" := (@i_atom _ _ _ _ elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : HFsem.
+Notation "x ≡ y" := (@i_atom _ _ _ _ equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : HFsem.
+Notation "x ⊆ y" := (forall z, z ∈ x -> z ∈ y) (at level 34) : HFsem.
 
-Notation "∅" := (@i_func ZF_func_sig ZF_pred_sig _ _ eset Vector.nil) : sem.
-Notation "{ x ; y }" := (@i_func ZF_func_sig _ _ _ pair (Vector.cons x (Vector.cons y Vector.nil))) (at level 31) : sem.
-Notation "⋃ x" := (@i_func ZF_func_sig _ _ _ union (Vector.cons x Vector.nil)) (at level 32) : sem.
-Notation "'PP' x" := (@i_func ZF_func_sig _ _ _ power (Vector.cons x Vector.nil)) (at level 31) : sem.
+Notation "∅" := (@i_func ZF_func_sig ZF_pred_sig _ _ eset Vector.nil) : HFsem.
+Notation "{ x ; y }" := (@i_func ZF_func_sig _ _ _ pair (Vector.cons x (Vector.cons y Vector.nil))) (at level 31) : HFsem.
+Notation "⋃ x" := (@i_func ZF_func_sig _ _ _ union (Vector.cons x Vector.nil)) (at level 32) : HFsem.
+Notation "'PP' x" := (@i_func ZF_func_sig _ _ _ power (Vector.cons x Vector.nil)) (at level 31) : HFsem.
 
-Notation "x ∪ y" := (⋃ {x; y}) (at level 32) : sem.
-Notation "'σ' x" := (x ∪ {x; x}) (at level 32) : sem.
+Notation "x ∪ y" := (⋃ {x; y}) (at level 32) : HFsem.
+Notation "'σ' x" := (x ∪ {x; x}) (at level 32) : HFsem.
 
 
 

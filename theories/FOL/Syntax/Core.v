@@ -220,7 +220,7 @@ Module FullSyntax.
     | psi :: A => bin _ _ full_operators _ Impl psi (impl A phi)
     end.
 
-  Notation "A ==> phi" := (impl A phi) (right associativity, at level 55).
+  Notation "A ==> phi" := (impl A phi) (right associativity, at level 55) : full_syntax.
 
   Definition exist_times {Σ_funcs : funcs_signature} {Σ_preds : preds_signature} {ff : falsity_flag} n (phi : form) := iter (fun psi => ∃ psi) n phi.
   Definition forall_times {Σ_funcs : funcs_signature} {Σ_preds : preds_signature} {ff : falsity_flag} n (phi : form) := iter (fun psi => ∀ psi) n phi.
@@ -259,7 +259,7 @@ Module FragmentSyntax.
     | psi :: A => bin _ _ frag_operators _ Impl psi (impl A phi)
     end.
 
-  Notation "A ==> phi" := (impl A phi) (right associativity, at level 55).
+  Notation "A ==> phi" := (impl A phi) (right associativity, at level 55) : fragment_syntax.
 
   Definition forall_times {Σ_funcs : funcs_signature} {Σ_preds : preds_signature} {ff : falsity_flag} n (phi : form) := iter (fun psi => ∀ psi) n phi.
 

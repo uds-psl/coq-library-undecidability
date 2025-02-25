@@ -26,7 +26,7 @@ Section HF.
 
 Context { p : peirce }.
 
-Close Scope sem.
+Close Scope HFsem.
 
 Lemma HF_eset x :
   HFeq ⊢ ¬ (x ∈ ∅).
