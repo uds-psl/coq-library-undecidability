@@ -8,13 +8,8 @@ From Undecidability.FOL Require Import FullSyntax.
 From Undecidability.FOL.Arithmetics Require Import Robinson NatModel.
 Import Vector.VectorNotations.
 
-(* Notation "I ⊨= phi" := (forall rho, sat I rho phi) (at level 20). *)
-Notation "I ⊨=T T" := (forall psi, T psi -> I ⊨= psi) (at level 20).
-Notation "I ⊫= Gamma" := (forall rho psi, In psi Gamma -> sat I rho psi) (at level 20).
-
 Section Signature.
 
-  
   (* Assume some signature and corresponding arity functions *)
   Context {Σ_funcs : funcs_signature}.
   Context {Σ_preds : preds_signature}.
@@ -245,6 +240,8 @@ Section Arithmetic.
 
   Existing Instance PA_preds_signature.
   Existing Instance PA_funcs_signature.
+
+  Notation "I ⊫= Gamma" := (forall rho psi, In psi Gamma -> sat I rho psi) (at level 20).
 
   Lemma nat_sat_Fr_Q P :
     (extend_interp interp_nat P) ⊫= Fr_ Qeq.
