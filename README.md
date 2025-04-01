@@ -8,10 +8,10 @@
 ```
 opam switch create coq-library-undecidability --packages=ocaml-variants.4.14.1+options,ocaml-option-flambda
 eval $(opam env)
-opam pin add -k git rocq-runtime.dev "https://github.com/coq/coq.git#master"
-opam pin add -k git rocq-core.dev "https://github.com/coq/coq.git#master"
-opam pin add -k git rocq-stdlib.dev "https://github.com/coq/stdlib.git#master"
-opam pin add -k git rocq-prover.dev "https://github.com/coq/coq.git#master"
+opam install coq.9.0.0
+opam pin add -k git rocq-metarocq-utils.dev "https://github.com/MetaRocq/metarocq.git#9.0"
+opam pin add -k git rocq-metarocq-common.dev "https://github.com/MetaRocq/metarocq.git#9.0"
+opam pin add -k git rocq-metarocq-template.dev "https://github.com/MetaRocq/metarocq.git#9.0"
 ```
 
 # Coq Library of Undecidability Proofs
