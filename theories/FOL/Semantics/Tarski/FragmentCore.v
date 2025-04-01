@@ -59,9 +59,13 @@ End Tarski.
 Arguments sat {_ _ _ _ _} _ _, {_ _ _} _ {_} _ _.
 Arguments interp {_ _} _, _ _ _.
 
-Notation "p ⊨ phi" := (sat _ p phi) (at level 20).
-Notation "I ⊨= phi" := (forall p, sat I p phi) (at level 20).
-Notation "p ⊫ A" := (forall psi, psi el A -> sat _ p psi) (at level 20).
+Declare Scope fragment_notations.
+
+Notation "p ⊨ phi" := (sat _ p phi) (at level 20) : fragment_notations.
+Notation "I ⊨= phi" := (forall p, sat I p phi) (at level 20) : fragment_notations.
+Notation "p ⊫ A" := (forall psi, psi el A -> sat _ p psi) (at level 20) : fragment_notations.
+
+Open Scope fragment_notations.
 
 Section Defs.
 

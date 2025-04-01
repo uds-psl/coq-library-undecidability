@@ -14,7 +14,7 @@ Require Import Undecidability.FOL.Sets.ZF Undecidability.FOL.ZF.
 
 From Undecidability.PCP
      Require Import PCP PCP_undec Util.PCP_facts Reductions.PCPb_iff_dPCPb.
-Open Scope sem.
+Open Scope ZFsem.
 
 (* Semantic entailment in full ZF restricted to extensional models *)
 

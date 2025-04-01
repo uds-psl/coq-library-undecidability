@@ -8,24 +8,24 @@ From Stdlib Require Import Lia.
 
 (* ** ZF-Models *)
 
-Declare Scope sem.
-Open Scope sem.
+Declare Scope ZFsem.
+Open Scope ZFsem.
 
 Arguments Vector.nil {_}, _.
 Arguments Vector.cons {_} _ {_} _, _ _ _ _.
 
-Notation "x ∈ y" := (@i_atom _ _ _ _ elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : sem.
-Notation "x ≡ y" := (@i_atom _ _ _ _ equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : sem.
-Notation "x ⊆ y" := (forall z, z ∈ x -> z ∈ y) (at level 34) : sem.
+Notation "x ∈ y" := (@i_atom _ _ _ _ elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : ZFsem.
+Notation "x ≡ y" := (@i_atom _ _ _ _ equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : ZFsem.
+Notation "x ⊆ y" := (forall z, z ∈ x -> z ∈ y) (at level 34) : ZFsem.
 
-Notation "∅" := (@i_func ZF_func_sig ZF_pred_sig _ _ ZFSignature.eset Vector.nil) : sem.
-Notation "'ω'" := (@i_func ZF_func_sig _ _ _ ZFSignature.om Vector.nil) : sem.
-Notation "{ x ; y }" := (@i_func ZF_func_sig _ _ _ ZFSignature.pair (Vector.cons x (Vector.cons y Vector.nil))) (at level 31) : sem.
-Notation "⋃ x" := (@i_func ZF_func_sig _ _ _ ZFSignature.union (Vector.cons x Vector.nil)) (at level 32) : sem.
-Notation "'PP' x" := (@i_func ZF_func_sig _ _ _ ZFSignature.power (Vector.cons x Vector.nil)) (at level 31) : sem.
+Notation "∅" := (@i_func ZF_func_sig ZF_pred_sig _ _ ZFSignature.eset Vector.nil) : ZFsem.
+Notation "'ω'" := (@i_func ZF_func_sig _ _ _ ZFSignature.om Vector.nil) : ZFsem.
+Notation "{ x ; y }" := (@i_func ZF_func_sig _ _ _ ZFSignature.pair (Vector.cons x (Vector.cons y Vector.nil))) (at level 31) : ZFsem.
+Notation "⋃ x" := (@i_func ZF_func_sig _ _ _ ZFSignature.union (Vector.cons x Vector.nil)) (at level 32) : ZFsem.
+Notation "'PP' x" := (@i_func ZF_func_sig _ _ _ ZFSignature.power (Vector.cons x Vector.nil)) (at level 31) : ZFsem.
 
-Notation "x ∪ y" := (⋃ {x; y}) (at level 32) : sem.
-Notation "'σ' x" := (x ∪ {x; x}) (at level 32) : sem.
+Notation "x ∪ y" := (⋃ {x; y}) (at level 32) : ZFsem.
+Notation "'σ' x" := (x ∪ {x; x}) (at level 32) : ZFsem.
 
 
 

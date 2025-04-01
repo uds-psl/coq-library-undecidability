@@ -152,7 +152,7 @@ From Undecidability.FOL Require Import Reductions.PCPb_to_ZFeq.
 
 Section Model.
 
-  Open Scope sem.
+  Open Scope ZFsem.
 
   Context {V : Type} {I : interp V}.
 
@@ -218,7 +218,7 @@ Section Model.
     erewrite sat_comp, sat_ext. reflexivity. now intros [].
   Qed.
 
-  Notation "x ≈ y" := (forall z, (x ∈ z -> y ∈ z) /\ (y ∈ z -> x ∈ z)) (at level 35) : sem.
+  Notation "x ≈ y" := (forall z, (x ∈ z -> y ∈ z) /\ (y ∈ z -> x ∈ z)) (at level 35) : ZFsem.
 
   Lemma eq_equiv x y :
     x ≈ y <-> x ≡ y.

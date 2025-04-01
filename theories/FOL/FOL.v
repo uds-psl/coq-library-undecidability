@@ -19,10 +19,12 @@ From Undecidability.FOL Require Deduction.FullND.
   | quant {b} : quantop -> form b -> form b.    
 *)
 
-
+(*
 
 Import FragmentSyntax.
 Export FragmentSyntax.
+
+*)
 
 (* ** Instantiation to signature with 1 constant, 2 unary functions, 1 prop constant, 1 binary relation *)
 
@@ -66,7 +68,7 @@ Definition FOL_prv_class := @prv _ _ falsity_on class nil.
 
 (* ** List of decision problems concerning validity, satisfiability and provability *)
 
-Import BinSig Semantics.Tarski.FullCore. 
+Import BinSig (* Semantics.Tarski.FullCore *) .
 
 (* Validity of formulas with falsity in Tarski semantics *)
 Definition binFOL_valid := @FullCore.valid sig_empty sig_binary falsity_on.

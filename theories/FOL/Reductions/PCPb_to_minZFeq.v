@@ -23,7 +23,7 @@ Local Notation vec := Vector.t.
 
 Section Model.
 
-  Open Scope sem.
+  Open Scope ZFsem.
 
   Context {V : Type} {I : interp V}.
 
