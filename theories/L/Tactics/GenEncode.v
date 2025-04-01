@@ -1,9 +1,9 @@
 From Undecidability.L Require Import L Tactics.Computable Tactics.ComputableTactics Tactics.Extract.
-From MetaCoq Require Import Template.All TemplateMonad.Core Template.Ast.
+From MetaRocq Require Import Template.All TemplateMonad.Core Template.Ast.
 From Stdlib Require Import List.
-Require Export MetaCoq.Utils.bytestring.
+Require Export MetaRocq.Utils.bytestring.
 
-Import MCMonadNotation.
+Import MRMonadNotation.
 Local Open Scope bs.
 
 (* *** Generation of encoding functions *)

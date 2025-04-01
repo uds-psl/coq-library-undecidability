@@ -1,6 +1,7 @@
-Require Import MetaCoq.Template.All Strings.Ascii.
+Require Import MetaRocq.Template.All.
+From Stdlib Require Import Strings.Ascii.
 From Undecidability.L.Tactics Require Import Lproc Computable Lsimpl Lbeta Lrewrite.
-Require Export Ring Arith Lia.
+From Stdlib Require Export Ring Arith Lia.
 Import L_Notations.
 
 (* ** Tactics proving correctness *)

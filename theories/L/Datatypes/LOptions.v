@@ -8,7 +8,7 @@ Section Fix_X.
   Context {intX : encodable X}.
 
 
-  MetaCoq Run (tmGenEncode "option_enc" (option X)).
+  MetaRocq Run (tmGenEncode "option_enc" (option X)).
   Hint Resolve option_enc_correct : Lrewrite.
 
   Global Instance encInj_option_enc {H : encInj intX} : encInj (encodable_option_enc).

@@ -9,7 +9,7 @@ Section Fix_XY.
   Variable intX : encodable X.
   Variable intY : encodable Y.
 
-  MetaCoq Run (tmGenEncode "sum_enc" (X + Y)).
+  MetaRocq Run (tmGenEncode "sum_enc" (X + Y)).
   Hint Resolve sum_enc_correct : Lrewrite.
 
   Global Instance encInj_sum_enc {H : encInj intX} {H' : encInj intY} : encInj (encodable_sum_enc).

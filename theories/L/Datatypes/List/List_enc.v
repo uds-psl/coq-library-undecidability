@@ -6,7 +6,7 @@ Section Fix_X.
   Variable (X:Type).
   Context {intX : encodable X}.
 
-  MetaCoq Run (tmGenEncode "list_enc" (list X)).
+  MetaRocq Run (tmGenEncode "list_enc" (list X)).
 
   Global Instance encInj_list_enc {H : encInj intX} : encInj (encodable_list_enc).
   Proof. register_inj. Qed. 

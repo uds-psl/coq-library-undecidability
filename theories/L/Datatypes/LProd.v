@@ -15,7 +15,7 @@ Section Fix_XY.
   Context {intX : encodable X}.
   Context {intY : encodable Y}.
 
-  MetaCoq Run (tmGenEncode "prod_enc" (X * Y)).
+  MetaRocq Run (tmGenEncode "prod_enc" (X * Y)).
   Hint Resolve prod_enc_correct : Lrewrite.
 
   Global Instance encInj_prod_enc {H : encInj intX} {H' : encInj intY} : encInj (encodable_prod_enc).

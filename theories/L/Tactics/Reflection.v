@@ -1,7 +1,7 @@
 From Undecidability.L Require Export Util.L_facts.
 From Undecidability.L.Tactics Require Import LClos.
-Require Import ZArith. (* ? *)
-Require Import FunInd.
+From Stdlib Require Import ZArith. (* ? *)
+From Stdlib Require Import FunInd.
 
 (* *** Reflexted closure calculus *)
 (* This moduel provides definitions of an symbolic simplifier for reflected L-terms used in Lbeta *)

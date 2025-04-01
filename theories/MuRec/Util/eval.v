@@ -65,7 +65,7 @@ Fixpoint eval (fuel : nat) (min : nat) (c : reccode) (v : list nat) : option (na
   | S fuel => eval_rec (eval fuel) min c v
   end.
 
-Reserved Notation "  '[' f ';' v ';' min ';' c ']' '▹' x " (at level 70).
+#[local] Reserved Notation "  '[' f ';' v ';' min ';' c ']' '▹' x " (at level 70).
 
 (* Bigstep semantics for recursive algorithms *)
    

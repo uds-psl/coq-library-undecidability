@@ -1,12 +1,12 @@
-Require Import Ascii String.
+From Stdlib Require Import Ascii String.
 From Undecidability.L Require Import Util.L_facts. 
-From MetaCoq Require Import Template.All Template.Checker.
+From MetaRocq Require Import Template.All Template.Checker.
 Require Import Undecidability.Shared.Libs.PSL.Base.
-Require Import MetaCoq.Utils.bytestring.
+From MetaRocq.Utils Require Import bytestring.
 
 Open Scope bs.
 
-Import MCMonadNotation.
+Import MRMonadNotation.
 
 Fixpoint name_after_dot' (s : String.string) (r : String.string) :=
   match s with
@@ -195,7 +195,7 @@ Arguments enc : simpl never.  (* Never unfold with cbn/simpl *)
 
 (* Construct quoted L terms and natural numbers *)
 
-MetaCoq Quote Definition tTerm := L.term.
+MetaRocq Quote Definition tTerm := L.term.
 
 Definition term_mp := MPfile ["L"; "L"; "Undecidability"].
 Definition term_kn := (term_mp, "term").
@@ -206,8 +206,8 @@ Definition mkApp x y := tApp (tConstruct (mkInd term_kn 0) 1 []) [x; y].
 
 Definition mkAppList s B := fold_left (fun a b => mkApp a b) B s.
 
-MetaCoq Quote Definition mkZero := 0.
-MetaCoq Quote Definition mkSucc := S.
+MetaRocq Quote Definition mkZero := 0.
+MetaRocq Quote Definition mkSucc := S.
 
 Fixpoint mkNat n := match n with
                    | 0 => mkZero
@@ -329,15 +329,15 @@ Definition tmEncode (A : Type) : TemplateMonad (A -> L.term) :=
 (* **** Examples *)
 (* Commented out for less printing while compiling *)
 
-(* MetaCoq Run (tmEncode unit >>= tmPrint).
+(* MetaRocq Run (tmEncode unit >>= tmPrint).
 
-MetaCoq Run (tmEncode bool >>= tmPrint).
+MetaRocq Run (tmEncode bool >>= tmPrint).
 
-MetaCoq Run (tmEncode nat >>= tmPrint).
+MetaRocq Run (tmEncode nat >>= tmPrint).
 
 Section term.
   Context { encA : encodable nat}.
-  MetaCoq Run (tmEncode L.term >>= tmPrint).
+  MetaRocq Run (tmEncode L.term >>= tmPrint).
 End term.
 
 Inductive triple (X Y Z : Type) : Type :=
@@ -350,11 +350,11 @@ Section encode.
   Context { encB : encodable B}.
   Context { encC : encodable C}.
     
-  MetaCoq Run (tmEncode (@prod A B) >>= tmPrint).
+  MetaRocq Run (tmEncode (@prod A B) >>= tmPrint).
 
-  MetaCoq Run (tmEncode (@list A) >>= tmPrint).
+  MetaRocq Run (tmEncode (@list A) >>= tmPrint).
 
-  MetaCoq Run (tmEncode (@triple A B C) >>= tmPrint).
+  MetaRocq Run (tmEncode (@triple A B C) >>= tmPrint).
 
 End encode. *)
 
@@ -394,13 +394,13 @@ Definition tmExtractConstr (def : ident) {A : Type} (a : A) :=
 
 (*   Context {X : Set}. *)
 
-(*   MetaCoq Run (tmExtractConstr "zero_term" 0 >>= tmPrint). *)
+(*   MetaRocq Run (tmExtractConstr "zero_term" 0 >>= tmPrint). *)
 
-(*   MetaCoq Run (tmExtractConstr "S_term" S >>= tmPrint). *)
+(*   MetaRocq Run (tmExtractConstr "S_term" S >>= tmPrint). *)
   
-(*   MetaCoq Run (tmExtractConstr "nil_term" (@nil X) >>= tmPrint). *)
+(*   MetaRocq Run (tmExtractConstr "nil_term" (@nil X) >>= tmPrint). *)
   
-(*   MetaCoq Run (tmExtractConstr "cons_term" (@cons X) >>= tmPrint). *)
+(*   MetaRocq Run (tmExtractConstr "cons_term" (@cons X) >>= tmPrint). *)
   
 (* End Fix_X. *)
 
@@ -595,17 +595,17 @@ Opaque extracted.
 (*             end *)
 (*   end. *)
 
-(* MetaCoq Run (tmExtractConstr "tm_zero" 0). *)
-(* MetaCoq Run (tmExtractConstr "tm_succ" S). *)
-(* (* MetaCoq Run (tmExtract (Some "tm_ack") ackermann >>= tmPrint). *) *)
+(* MetaRocq Run (tmExtractConstr "tm_zero" 0). *)
+(* MetaRocq Run (tmExtractConstr "tm_succ" S). *)
+(* (* MetaRocq Run (tmExtract (Some "tm_ack") ackermann >>= tmPrint). *) *)
 
 (* (* Print tm_ack. *) *)
 
 (* Require Import Init.Nat. *)
-(* MetaCoq Run (tmExtract (Some "add_term") add ). *)
+(* MetaRocq Run (tmExtract (Some "add_term") add ). *)
 (* Print add_term. *)
 
-(* MetaCoq Run (tmExtract (Some "mult_term") mult). *)
+(* MetaRocq Run (tmExtract (Some "mult_term") mult). *)
 
 (* Section extract. *)
 
@@ -613,10 +613,10 @@ Opaque extracted.
 (*   Context { encB : encodable B }. *)
 
   
-(*   MetaCoq Run (tmExtract (Some "map_term") (@map A B) >>= tmPrint). *)
+(*   MetaRocq Run (tmExtract (Some "map_term") (@map A B) >>= tmPrint). *)
 (*   Print map_term. *)
   
-(*   MetaCoq Run (tmExtract (Some "filter_term") (@filter A) >>= tmPrint). *)
+(*   MetaRocq Run (tmExtract (Some "filter_term") (@filter A) >>= tmPrint). *)
 (*   Print filter_term. *)
   
 (* End extract. *)

@@ -7,7 +7,7 @@ From Undecidability.L Require Import Datatypes.LBool Functions.EqBool Datatypes.
 Import GenEncode. Import Nat.
 (* ** Encoding of natural numbers *)
 
-MetaCoq Run (tmGenEncodeInj "nat_enc" nat).
+MetaRocq Run (tmGenEncodeInj "nat_enc" nat).
 #[export] Hint Resolve nat_enc_correct : Lrewrite.
 
 #[global]
@@ -114,7 +114,7 @@ Proof.
 Qed.
 
 Lemma unenc_correct2 t n : nat_unenc t = Some n -> nat_enc n = t.
-Proof with try solve [Coq.Init.Tactics.easy].
+Proof.
   revert n. eapply (size_induction (f := size) (p := (fun t => forall n, nat_unenc t = Some n -> nat_enc n = t))). clear t. intros t IHt n H.
   destruct t as [ | | t]. easy. easy.
   destruct t as [ | | t]. easy. easy.

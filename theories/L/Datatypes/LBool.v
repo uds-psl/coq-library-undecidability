@@ -6,7 +6,7 @@ From Undecidability.L.Tactics Require Import LTactics GenEncode.
 (*   Eval simpl in *)
 (*     if b then .\"t", "f"; "t" else .\"t", "f"; "f". *)
 
-MetaCoq Run (tmGenEncodeInj "bool_enc" bool).
+MetaRocq Run (tmGenEncodeInj "bool_enc" bool).
 (* For each encoding, Lrewrite must contain an lemma that solves goals like "encode b s t >* match ...end". The database Lrewrite also calls Lproc to discharge the other assumptions *)
 #[export] Hint Resolve bool_enc_correct : Lrewrite.
 

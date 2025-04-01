@@ -7,7 +7,7 @@ Import L_Notations.
 
 (* ** Extraction of Turing Machine interpreter  *)
 
-MetaCoq Run (tmGenEncodeInj "move_enc" move).
+MetaRocq Run (tmGenEncodeInj "move_enc" move).
 #[export] Hint Resolve move_enc_correct : Lrewrite.
 
 Import TM.
@@ -51,7 +51,7 @@ Section reg_tapes.
 
   Implicit Type (t : TM.tape sig).
   Import GenEncode.
-  MetaCoq Run (tmGenEncode "tape_enc" (TM.tape sig)).
+  MetaRocq Run (tmGenEncode "tape_enc" (TM.tape sig)).
   Hint Resolve tape_enc_correct : Lrewrite.
 
   #[export] Instance encInj_tape_enc {H : encInj reg_sig} : encInj (encodable_tape_enc).

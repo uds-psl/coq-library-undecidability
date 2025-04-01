@@ -209,7 +209,7 @@ Qed.
 Definition F1 {X} (T : nat -> list X) :=  (fun n => let (n, m) := Cantor.of_nat n in nth_error (T n) m).
 
 #[global]
-Instance term_F1 {X} {H : encodable X} :  @computable ((nat -> list X) -> nat -> option X) ((! nat ~> ! list X) ~> ! nat ~> ! option X) (@F1 X).
+Instance term_F1 {X} {H : encodable X} :  @computable ((nat -> list X) -> nat -> option X) ((! nat ~> ! (list X)) ~> ! nat ~> ! (option X)) (@F1 X).
 Proof.
   extract.
 Qed.

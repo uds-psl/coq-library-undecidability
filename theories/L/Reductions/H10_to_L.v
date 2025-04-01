@@ -27,7 +27,7 @@ Inductive poly : Set :=
   | poly_add : poly -> poly -> poly
   | poly_mul : poly -> poly -> poly.
 
-MetaCoq Run (tmGenEncode "enc_poly" poly).
+MetaRocq Run (tmGenEncode "enc_poly" poly).
 #[export] Hint Resolve enc_poly_correct : Lrewrite.
 
 #[export]

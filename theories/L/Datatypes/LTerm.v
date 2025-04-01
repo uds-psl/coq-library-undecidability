@@ -3,7 +3,7 @@ From Undecidability.L Require Export Util.L_facts.
 From Undecidability.L.Tactics Require Import LTactics GenEncode.
 
 (* ** Encoding for L-terms *)
-MetaCoq Run (tmGenEncodeInj "term_enc" term).
+MetaRocq Run (tmGenEncodeInj "term_enc" term).
 #[export] Hint Resolve term_enc_correct : Lrewrite.
   
 (* register the non-constant constructors *)

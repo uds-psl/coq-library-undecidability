@@ -1,5 +1,5 @@
 From Undecidability.L Require Export Util.L_facts Tactics.Extract.
-Require Import String.
+From Stdlib Require Import String.
 
 (* * Correctness and time bounds *)
 
@@ -31,7 +31,7 @@ Arguments TyArr {_} {_} _ _.
 
 #[export] Hint Mode TT + : typeclass_instances. (* treat argument as input and force evar-freeness*)
 
-Notation "! X" := (TyB X) (at level 69).
+Notation "! X" := (TyB X) (at level 0).
 Notation "X ~> Y" := (TyArr X Y) (right associativity, at level 70).
 
 
