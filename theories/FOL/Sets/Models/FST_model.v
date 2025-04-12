@@ -12,21 +12,21 @@ From Stdlib Require Import Lia.
 
 (* ** ZF-Models *)
 
-Declare Scope sem.
-Open Scope sem.
+Declare Scope FSTsem.
+Open Scope FSTsem.
 
 Arguments Vector.nil {_}, _.
 Arguments Vector.cons {_} _ {_} _, _ _ _ _.
 
-Notation "x ∈ y" := (@i_atom _ _ _ _ elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : sem.
-Notation "x ≡ y" := (@i_atom _ _ _ _ equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : sem.
-Notation "x ⊆ y" := (forall z, z ∈ x -> z ∈ y) (at level 34) : sem.
+Notation "x ∈ y" := (@i_atom _ _ _ _ elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : FSTsem.
+Notation "x ≡ y" := (@i_atom _ _ _ _ equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : FSTsem.
+Notation "x ⊆ y" := (forall z, z ∈ x -> z ∈ y) (at level 34) : FSTsem.
 
-Notation "∅" := (@i_func FST_func_sig ZFSignature.ZF_pred_sig _ _ eset Vector.nil) : sem.
-Notation "x ::: y " := (@i_func FST_func_sig _ _ _ adj (Vector.cons x (Vector.cons y Vector.nil))) (at level 31) : sem.
+Notation "∅" := (@i_func FST_func_sig ZFSignature.ZF_pred_sig _ _ eset Vector.nil) : FSTsem.
+Notation "x ::: y " := (@i_func FST_func_sig _ _ _ adj (Vector.cons x (Vector.cons y Vector.nil))) (at level 31) : FSTsem.
 
-Notation "{ x ; y }" := (x ::: (y ::: ∅)) (at level 31) : sem.
-Notation "'σ' x" := (x ::: x) (at level 32) : sem.
+Notation "{ x ; y }" := (x ::: (y ::: ∅)) (at level 31) : FSTsem.
+Notation "'σ' x" := (x ::: x) (at level 32) : FSTsem.
 
 
 
@@ -257,7 +257,7 @@ Proof.
     + intros v. exact (Vector.hd v = Vector.hd (Vector.tl v)).
 Defined.
 
-Open Scope sem.
+Open Scope FSTsem.
 
 Lemma hfs_model :
   forall rho, rho ⊫ FST.

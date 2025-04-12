@@ -53,7 +53,11 @@ Section Fr_validity.
       - exact (H10UPC_SAT h10).
       - exact (dom_rel' (Vector.hd v) (Vector.hd (Vector.tl v))).
     Defined.
+
+    (* [DLW] This one is overridden by a new definition, may be change the notation slightly
+             would be better? *)
     #[local] Notation "rho ⊨ phi" := (sat rho (Fr phi)) (at level 20).
+
     (* Now we need rewrite helpers which transform our syntactic sugar into useful statements in the model *)
     Lemma IB_sFalse rho : rho ⊨ (∀ ∀ Pr $0 $1) <-> H10UPC_SAT h10.
     Proof.

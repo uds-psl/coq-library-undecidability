@@ -6,8 +6,8 @@ Require Export Undecidability.FOL.Sets.Signatures.
 Import Vector.VectorNotations.
 From Stdlib Require Import List.
 
-Declare Scope syn.
-Open Scope syn.
+Declare Scope ZFsyn.
+Open Scope ZFsyn.
 
 (* ** Signature for ZF axiomatisation, containing function symbols for set operations *)
 
@@ -17,21 +17,21 @@ Export ZFSignature.
 
 (* ** Axioms *)
 
-Notation "x ∈ y" := (atom _ ZF_pred_sig elem ([x; y])) (at level 35) : syn.
-Notation "x ≡ y" := (atom (Σ_preds := ZF_pred_sig) equal ([x; y])) (at level 35) : syn.
+Notation "x ∈ y" := (atom _ ZF_pred_sig elem ([x; y])) (at level 35) : ZFsyn.
+Notation "x ≡ y" := (atom (Σ_preds := ZF_pred_sig) equal ([x; y])) (at level 35) : ZFsyn.
 
-Notation "∅" := (func ZF_func_sig eset ([])) : syn.
-Notation "'ω'" := (func ZF_func_sig om ([])) : syn.
-Notation "{ x ; y }" := (func ZF_func_sig pair ([x; y])) (at level 31) : syn.
-Notation "⋃ x" := (func ZF_func_sig union ([x])) (at level 32) : syn.
-Notation "'PP' x" := (func ZF_func_sig power ([x])) (at level 31) : syn.
-Notation "x ∪ y" := (⋃ {x; y}) (at level 32) : syn.
-Notation  "'σ' x" := (x ∪ {x; x}) (at level 32) : syn.
+Notation "∅" := (func ZF_func_sig eset ([])) : ZFsyn.
+Notation "'ω'" := (func ZF_func_sig om ([])) : ZFsyn.
+Notation "{ x ; y }" := (func ZF_func_sig pair ([x; y])) (at level 31) : ZFsyn.
+Notation "⋃ x" := (func ZF_func_sig union ([x])) (at level 32) : ZFsyn.
+Notation "'PP' x" := (func ZF_func_sig power ([x])) (at level 31) : ZFsyn.
+Notation "x ∪ y" := (⋃ {x; y}) (at level 32) : ZFsyn.
+Notation  "'σ' x" := (x ∪ {x; x}) (at level 32) : ZFsyn.
 
 Definition sub x y :=
   ∀ $0 ∈ x`[↑] → $0 ∈ y`[↑].
 
-Notation "x ⊆ y" := (sub x y) (at level 34) : syn.
+Notation "x ⊆ y" := (sub x y) (at level 34) : ZFsyn.
 
 Definition ax_ext :=
   ∀ ∀ $1 ⊆ $0 → $0 ⊆ $1 → $1 ≡ $0.
@@ -132,5 +132,3 @@ Inductive ZFeq : form -> Prop :=
 | ZFeq_base phi : In phi ZFeq' -> ZFeq phi
 | ZFeq_sep phi : ZFeq (ax_sep phi)
 | ZFeq_rep phi : ZFeq (ax_rep phi).
-
-
