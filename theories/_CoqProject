@@ -825,10 +825,6 @@ LambdaCalculus/Reductions/KrivineMclosed_HALT_to_SNclosed.v
 H10/Reductions/FRACTRAN_computable_to_Diophantine.v
 H10/Util/Diophantine.v
 
-TM/KOSBTM/HaltKOSBTM_to_HaltBSM.v
-TM/KOSBTM/HaltTM_1_to_HaltKOSBTM.v
-TM/KOSBTM/KOSBTM.v
-
 IntersectionTypes/CD.v
 IntersectionTypes/CD_undec.v
 IntersectionTypes/Util/CD_facts.v
