@@ -291,7 +291,7 @@ Fact pos_list_NoDup n : NoDup (pos_list n).
 Proof.
   induction n as [|n IH]; simpl; constructor.
   - now intros [? [? ?]]%in_map_iff.
-  - apply (FinFun.Injective_map_NoDup (@pos_nxt_inj n) IH).
+  - apply (Finite.Injective_map_NoDup (@pos_nxt_inj n) IH).
 Qed.
 
 Section pos_map.

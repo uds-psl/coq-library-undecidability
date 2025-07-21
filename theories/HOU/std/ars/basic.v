@@ -4,7 +4,7 @@ http://www.ps.uni-saarland.de/courses/sem-ws17/confluence.v
  *)
 
 Set Implicit Arguments.
-From Stdlib Require Import Morphisms FinFun.
+From Stdlib Require Import Morphisms Finite.
 From Undecidability.HOU Require Import std.tactics.
 
 Section ClosureRelations.

@@ -1,5 +1,5 @@
-Set Implicit Arguments. 
-From Stdlib Require Import FinFun.
+Set Implicit Arguments.
+From Stdlib Require Import Finite.
 From Undecidability.HOU Require Import std.decidable.
   
 Inductive diag: nat -> nat -> Type :=

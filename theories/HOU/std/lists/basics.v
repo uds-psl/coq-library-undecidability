@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-From Stdlib Require Import List Arith Lia Morphisms FinFun Init.Wf.
+From Stdlib Require Import List Arith Lia Morphisms Finite Init.Wf.
 From Undecidability.HOU Require Import std.decidable.
 Import ListNotations.
 
