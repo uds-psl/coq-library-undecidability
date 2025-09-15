@@ -26,13 +26,11 @@ install: [
   [make "install"]
 ]
 depends: [
-  "rocq-core" {= "dev"}
-  "rocq-stdlib" {= "dev"}
-  "ocaml"
-  # "coq-metacoq-template" {= "dev"}
+  "rocq-prover" { >= "9.0~" & != "9.0.dev" & < "10" }
+  "rocq-metarocq-template"
 ]
 
-synopsis: "A Coq Library of Undecidability Proofs"
+synopsis: "A Coq Libraryo gift Undecidability Proofs"
 url {
-  git: "https://github.com/uds-psl/coq-library-undecidability.git#master"
+  git: "https://github.com/uds-psl/coq-library-undecidability.git#rocq-9.0"
 }

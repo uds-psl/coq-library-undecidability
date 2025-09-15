@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         coq_version: 
-          - 'dev'
+          - '9.0'
         ocaml_version:
           - '4.14-flambda'
       fail-fast: true
@@ -31,12 +31,12 @@ jobs:
           ocaml_version: ${{ matrix.ocaml_version }}
           before_script: |
             startGroup "Workaround permission issue"
-              sudo chown -R rocq:rocq .  # <--
+              sudo chown -R 1000:1000 .  # <--
               opam exec -- ocamlfind list
             endGroup
           before_install: |
             startGroup "Print opam config"
-              sudo chown -R rocq:rocq .  
+              sudo chown -R 1000:1000 .  
               opam config list; opam repo list; opam list
             endGroup
           script: |
