@@ -15,12 +15,67 @@ Set Default Goal Selector "!".
 
 Module SBTM_facts.
 
-  (* remove redundante false symbol *)
-  Definition truncate (l : list bool) : list bool :=
+  Lemma almost_eq_elim l1 l2 :
+    almost_eq l1 l2 -> 
+    match l1 with
+    | [] => l2 = repeat false (length l2)
+    | a :: l1' =>
+        match l2 with
+        | [] => l1 = repeat false (length l1)
+        | b :: l2' => a = b /\ almost_eq l1' l2'
+        end
+    end.
+  Proof.
+    elim; first done.
+    move=> [|?] [|?].
+    - reflexivity.
+    - by rewrite repeat_length.
+    - by rewrite /= repeat_length.
+    - by repeat constructor.
+  Qed.
+
+  Lemma almost_eq_false_spec m l :
+    almost_eq (repeat false m) l -> l = repeat false (length l).
+  Proof.
+    elim: m l.
+    - move=> [|??]; first done.
+      move=> /almost_eq_elim /= [-> ->]. by rewrite repeat_length.
+    - move=> m IH [|??]; first done.
+      move=> /almost_eq_elim /= [<-] /IH ?.
+      by congr cons.
+  Qed.
+
+  Lemma almost_eq_trans l1 l2 l3 :
+    almost_eq l1 l2 -> almost_eq l2 l3 -> almost_eq l1 l3.
+  Proof.
+    move=> H. elim: H l3.
+    - move=> > H IH [|??] /almost_eq_elim /=.
+      + move=> [->] E.
+        move: H. rewrite E=> /almost_eq_sym /almost_eq_false_spec ->.
+        by apply: (almost_eq_false (S _) 0).
+      + move=> [<-] ?. constructor. by apply: IH.
+    - move=> > /almost_eq_false_spec ->. by constructor.
+  Qed.
+
+  Lemma almost_eq_tape_refl t :
+    almost_eq_tape t t.
+  Proof.
+    move: t => [[ls a] rs].
+    constructor; by apply: almost_eq_refl.
+  Qed.
+
+  Lemma almost_eq_tape_trans t1 t2 t3 :
+    almost_eq_tape t1 t2 -> almost_eq_tape t2 t3 -> almost_eq_tape t1 t3.
+  Proof.
+    move=> [> ??] H. inversion H. subst.
+    constructor; apply: almost_eq_trans; by eassumption.
+  Qed.
+
+  Fixpoint truncate (l : list bool) : list bool :=
+    if forallb negb l then [] else
     match l with
-    | [false] => []
-    | [a; false] => if a then [a] else []
-    | _ => l
+    | a :: l' => a :: truncate l'
+    | [] => []
     end.
 
   Definition truncate_tape (t : tape) : tape :=
@@ -30,11 +85,16 @@ Module SBTM_facts.
 
   Lemma almost_eq_truncate l : almost_eq (truncate l) l. 
   Proof.
-    have ? := almost_eq_refl.
-    have ? := almost_eq_false 0 0.
-    have ? := almost_eq_false 0 1.
-    have ? := almost_eq_false 0 2.
-    move: l => [|[] [|[] [|??]]] /=; by do ? constructor.
+    elim: l => [|[|] l IH] /=.
+    - by apply: almost_eq_false 0 0.
+    - by constructor.
+    - case E: (forallb negb l).
+      + suff: l = repeat false (length l).
+        { move=> ->. by apply: almost_eq_false 0 (S (length l)). }
+        apply /Forall_eq_repeat /Forall_forall => a.
+        move: E => /forallb_forall /[apply].
+        by case: a.
+      + by constructor.
   Qed.
 
   Lemma almost_eq_tape_truncate_tape t : almost_eq_tape (truncate_tape t) t.
@@ -42,13 +102,56 @@ Module SBTM_facts.
     move: t => [[ls a] rs]. constructor; by apply: almost_eq_truncate.
   Qed.
 
+  Lemma truncate_repeat_false n : truncate (repeat false n) = [].
+  Proof.
+    elim: n; first done.
+    move=> n IH /=.
+    case E: (forallb negb (repeat false n)); first done.
+    exfalso.
+    suff: (forallb negb (repeat false n) = true) by congruence.
+    by apply /forallb_forall => a /(@repeat_spec bool) ->.
+  Qed.
+
+  Lemma almost_eq_truncate_iff l1 l2 : almost_eq l1 l2 <-> truncate l1 = truncate l2.
+  Proof.
+    split.
+    - elim.
+      + move=> a {}l1 {}l2 IH E /=.
+        suff ->: forallb negb l1 = forallb negb l2 by rewrite E.
+        elim: IH {E}.
+        * by move=> > /= _ ->.
+        * by elim; [elim|].
+      + move=> a1 a2. by rewrite !truncate_repeat_false.
+    - move=> E.
+      have := almost_eq_truncate l2.
+      have /almost_eq_sym := almost_eq_truncate l1.
+      rewrite E.
+      by apply: almost_eq_trans.
+  Qed.
+      
+  Lemma almost_eq_truncate_tape_iff t1 t2:
+    truncate_tape t1 = truncate_tape t2 <-> almost_eq_tape t1 t2.
+  Proof.
+    split.
+    - move=> E.
+      apply: almost_eq_tape_trans; [|by apply: almost_eq_tape_truncate_tape].
+      apply: almost_eq_tape_sym.
+      apply: almost_eq_tape_trans; [|by apply: almost_eq_tape_truncate_tape].
+      rewrite E.
+      by apply: almost_eq_tape_refl.
+    - move=> E.
+      destruct E. unfold truncate_tape.
+      apply almost_eq_truncate_iff in H, H0.
+      now rewrite H H0.
+  Qed.
+
   #[local] Opaque step.
 
-  Lemma steps_truncate {M k q t} :
+  Lemma steps_truncate_tape_None {M k q t} :
     steps M k (q, truncate_tape t) = None <-> (steps M k (q, t) = None).
   Proof.
     apply: almost_eq_tape_steps_None.
-    apply: almost_eq_tape_truncate_tape.
+    by apply: almost_eq_tape_truncate_tape.
   Qed.
 
 End SBTM_facts.
@@ -345,6 +448,7 @@ Section Construction.
         * exists 1. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
   Qed.
 
+
   Lemma simulation_halt q t : TM.halt M q = true ->
     step (encode_state q, t) = None.
   Proof.
@@ -352,28 +456,79 @@ Section Construction.
     by rewrite /= /step /= construct_trans_spec decode_encode_space ?Hq.
   Qed.
 
+  Lemma almost_eq_tape_step q q' t1 t t' :
+    almost_eq_tape t' t ->
+    step (q, t) = Some (q', t1) ->
+    exists t0, step (q, t') = Some (q', t0) /\ almost_eq_tape t0 t1.
+  Proof.
+    move E: (step (q, t')) => [[q2 t2]|].
+    - move: E => /almost_eq_tape_step_Some /[apply] /[apply].
+      move=> [<-] ?. by eexists.
+    - by move: E => /almost_eq_tape_step_None /[apply] ->.
+  Qed.
+
+  Lemma almost_eq_tape_steps  k q q' t1 t t' :
+    almost_eq_tape t' t ->
+    steps k (q, t) = Some (q', t1) ->
+    exists t0, steps k (q, t') = Some (q', t0) /\ almost_eq_tape t0 t1.
+  Proof.
+    move=> Ht't.
+    elim: k q' t1.
+    - move=> ?? /= [<- <-]. by eexists.
+    - move=> k IH q' t1.
+      have ->: S k = k +1 by lia.
+      rewrite steps_plus /=.
+      move E: (steps k (q, t)) => [[??]|]; last done.
+      move: E => /IH [?] [Hk] /= /almost_eq_tape_step /[apply].
+      move=> [t''] [??].
+      exists t''. split; last done.
+      by rewrite steps_plus Hk.
+  Qed.
+
+  Lemma simulation_output q q' t t' t''':
+    TM.eval M q t q' t' ->
+    almost_eq_tape t''' (encode_tape (Vector.hd t)) ->
+    (exists k l,
+      steps k ((encode_state q), t''') = Some (encode_state q', l) /\
+      steps (S k) ((encode_state q), t''') = None /\
+      almost_eq_tape l ((encode_tape (Vector.hd t')))).
+  Proof.
+    move=> /TM_facts.TM_eval_iff [n].
+    elim: n q t q' t' t'''.
+    { move=> q t q' t' t'''. rewrite /= /TM_facts.haltConf /=.
+      case E: (TM.halt q) => [|]; last done.
+      move: E => /simulation_halt => /(_ t''') H [<- <-] ?.
+      by exists 0, t'''. }
+    move=> n IH q t q' t' t'''. rewrite /= /TM_facts.haltConf /=.
+    case E: (TM.halt q) => [|].
+    { move: E => /simulation_halt => /(_ t''') H [<- <-] ?.
+      by exists 0, t'''. }
+    rewrite (Vector.eta t).
+    move: E => /simulation_step => /(_ (Vector.hd t)) [k1].
+    move: (VectorDef.tl t). apply: Vector.case0.
+    move: (TM_step _) => [q'' ts''].
+    move E: (steps (S k1) _) => [[qk1 tk1]|]; last done.
+    move=> Hk1 /IH /= {}IH.
+    move: E => /almost_eq_tape_steps /[apply] - [t''''].
+    move: Hk1 => /= [->] /almost_eq_truncate_tape_iff /IH [k2] [t'''''].
+    move=> [/[dup] + ->].
+    move=> /almost_eq_tape_steps H'k2 /= [Hk2 ?] [Hk1].
+    move=> /[dup] /H'k2 [t8] [H''k2 ?] ?.
+    exists ((S k1) + k2), t8. rewrite (steps_plus) /= Hk1 /=.
+    split; [done|split].
+    - rewrite H''k2 /=.
+      apply: (almost_eq_tape_step_None M') Hk2.
+      by apply: almost_eq_tape_sym.
+    - apply: almost_eq_tape_trans; eassumption.
+  Qed.
+
   Lemma simulation q t :
     (exists q' t', TM.eval M q t q' t') ->
     exists k, steps k ((encode_state q), (encode_tape (Vector.hd t))) = None.
   Proof.
-    move=> [q'] [t'] /TM_facts.TM_eval_iff [n].
-    elim: n q t.
-    { move=> q t. rewrite /= /TM_facts.haltConf /=.
-      case E: (TM.halt q) => [|]; last done.
-      move: E => /simulation_halt H _.
-      exists 1. by apply: H. }
-    move=> n IH q t. rewrite /= /TM_facts.haltConf /=.
-    case E: (TM.halt q) => [|].
-    { move: E => /simulation_halt H _. exists 1. by apply: H. }
-    rewrite (Vector.eta t).
-    move: E => /simulation_step => /(_ (Vector.hd t)) [k1].
-    move: (VectorDef.tl t). apply: Vector.case0.
-    move: (TM_step _) => [q'' ts''] Hk1 /IH [k2 Hk2] /=.
-    exists ((S k1) + k2). rewrite (steps_plus).
-    move: (encode_state q, _) Hk1 Hk2 => x.
-    move Hk1: (steps (S k1) x) => [[q''' t''']|] /=; last done.
-    move=> [] <- Ht''' /(@steps_truncate M').
-    rewrite -Ht'''. by move=> /steps_truncate.
+    move=> [q'] [t'] /simulation_output => /(_ _ (almost_eq_tape_refl (encode_tape (Vector.hd t)))).
+    move=> [k] [l] [?] [??].
+    by exists (S k).
   Qed.
 
   Lemma inverse_simulation q t k :
@@ -388,9 +543,9 @@ Section Construction.
     move=> [k1].
     move Hk1: (steps (S k1) _) => [[q' t']|]; last done.
     move=> [] Hq't'.
-    move: Hk1 => /steps_sync H /H{H} /steps_truncate.
+    move: Hk1 => /steps_sync H /H{H} /steps_truncate_tape_None.
     move E: (TM_step _) Hq't' => [q'' t''].
-    move=> [] -> -> /steps_truncate /IH.
+    move=> [] -> -> /steps_truncate_tape_None /IH.
     move=> [q'''] [t'''] /TM_facts.TM_eval_iff [n Hn].
     exists q''', t'''. apply /TM_facts.TM_eval_iff. exists (S n).
     rewrite /= /TM_facts.haltConf Hq -Hn -E (Vector.eta t) /=.
@@ -403,6 +558,28 @@ Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Synthetic.ReducibilityFacts.
 Require Undecidability.TM.Reductions.Arbitrary_to_Binary.
 
+Lemma SBTM_simulation (M : TM.TM (finType_CS bool) 1) :
+  {M' : SBTM & 
+    { q_start : SBTMNotations.state M' |
+        ((forall q t t' t'', TM.eval M (TM.start M) t q t' ->
+         SBTM_facts.almost_eq_tape t'' (encode_tape (Vector.hd t)) ->
+         exists k q' t''', (SBTM.steps M' k (q_start, t'') = Some (q', t''') /\
+         SBTM.steps M' (S k) (q_start, t'') = None /\
+         almost_eq_tape t'''  (encode_tape (Vector.hd t'))))) /\
+        (forall t, (exists k, SBTM.steps M' k (q_start, (encode_tape (Vector.hd t))) = None) -> (exists q' t', TM.eval M (TM.start M) t q' t'))}}.
+Proof.
+  exists (M' M).
+  exists ((encode_space M (space_base M (TM.start M)))).
+  split.
+  - intros q t t' t'' H H0.
+    destruct (simulation_output M (TM.start M) q t t' t'' H H0) as [k [l H1]].
+    eexists _, _ , _.
+    apply H1.
+  - intros t H.
+    destruct H as [k H].
+    apply (inverse_simulation M (TM.start M) t k H).
+Qed.
+
 Theorem reduction :
   TM.HaltTM 1 ⪯ SBTM_HALT.
 Proof.
@@ -411,6 +588,6 @@ Proof.
     existT _ (M' M) (encode_config M (TM_facts.mk_mconfig (TM.start M) t))).
   move=> [M t]. split.
   - move=> /simulation [k Hk]. exists k.
-    by move: Hk => /steps_truncate.
-  - by move=> [k] /steps_truncate /inverse_simulation.
+    by move: Hk => /steps_truncate_tape_None.
+  - by move=> [k] /steps_truncate_tape_None /inverse_simulation.
 Qed.
