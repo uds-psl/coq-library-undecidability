@@ -140,9 +140,9 @@ Module SBTM_facts.
       rewrite E.
       by apply: almost_eq_tape_refl.
     - move=> E.
-      destruct E. unfold truncate_tape.
-      apply almost_eq_truncate_iff in H, H0.
-      now rewrite H H0.
+      destruct E as [????? E1 E2]. unfold truncate_tape.
+      apply almost_eq_truncate_iff in E1, E2.
+      now rewrite E1 E2.
   Qed.
 
   #[local] Opaque step.

@@ -359,19 +359,21 @@ Section Construction.
     move=> k Hk. exists (1+k). by rewrite (steps_plus 1) /= E.
   Qed.
 
-  Lemma inverse_simulation' t n i v :
-    (shift, P) // (shift, encode_tape t) -[n]-> (shift + i, v) ->
-    out_code (shift + i) (shift, P) ->
+  Lemma inverse_simulation' t i v :
+    sss_output (bsm_sss (n := 4)) (shift, P)  (shift, encode_tape t) (shift + i, v) ->
     exists k, steps M k (q0, t) = None.
   Proof.
-    case: n.
+    intros H.
+    destruct H as [[n H1] H2].
+    revert H1 H2.
+    case n.
     - move=> /sss_steps_0_inv [] <- _ /=. lia.
-    - move=> n /sss_steps_S_inv' [[q' t']] [].
+    - move=> n' /sss_steps_S_inv' [[q' t']] [].
       have := @bsm_sss_fun 4.
       have := sss_step_shift t.
       move=> /sss_step_fun /[apply] /[apply] <-.
       by apply: inverse_simulation.
-Qed.
+  Qed.
 
 End Construction.
 
