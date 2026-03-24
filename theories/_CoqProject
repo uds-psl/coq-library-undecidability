@@ -322,7 +322,8 @@ MinskyMachines/MMA.v
 
 MinskyMachines/ndMM2.v          
 MinskyMachines/MMA2_undec.v     
-MinskyMachines/ndMM2_undec.v    
+MinskyMachines/ndMM2_undec.v
+MinskyMachines/ACM2.v
 
 MinskyMachines/Util/MM_sss.v
 MinskyMachines/Util/MM_computable.v
@@ -379,7 +380,9 @@ MinskyMachines/MMenv/env.v
 MinskyMachines/MMenv/mme_defs.v     
 MinskyMachines/MMenv/mme_utils.v    
 
-MinskyMachines/ndMM2/ndmm2_utils.v  
+MinskyMachines/ndMM2/ndmm2_utils.v
+
+MinskyMachines/ACM2/acm2_utils.v
 
 ILL/EILL.v
 ILL/ILL.v
