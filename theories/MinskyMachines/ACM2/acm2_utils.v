@@ -20,6 +20,39 @@ Import ACM2_Notations ndMM2_Notations ListNotations.
 #[local] Notation α := true.
 #[local] Notation β := false.
 
+Section ACM2_sem.
+
+  Local Definition pair_add '(x1,y1) '(x2,y2) := (x1+x2,y1+y2).
+  Infix "+ₐ" := pair_add (at level 61).
+
+  Local Fact pair_add_zero_left p : (0,0) +ₐ p = p.
+  Proof. now destruct p. Qed.
+
+  Local Fact pair_add_comm p q : p +ₐ q = q +ₐ p.
+  Proof. revert p q; intros [] []; simpl; f_equal; lia. Qed.
+
+  Local Fact pair_add_zero_right p : p +ₐ (0,0) = p.
+  Proof. now rewrite pair_add_comm, pair_add_zero_left. Qed.
+
+  Local Fact pair_add_one_left x y : (1+x,y) = (x,y) +ₐ (1,0).
+  Proof. simpl; f_equal; lia. Qed.
+
+  Local Fact pair_add_one_right x y : (x,1+y) = (x,y) +ₐ (0,1).
+  Proof. simpl; f_equal; lia. Qed.
+
+  Local Fact pair_add_assoc p q r : (p +ₐ q) +ₐ r = p +ₐ (q +ₐ r).
+  Proof. revert p q r; intros [] [] []; simpl; f_equal; lia. Qed.
+
+  Local Definition acm2_tps_lolipop (X Y : nat*nat -> Prop) v := forall x, X x -> Y (x +ₐ v).
+  Local Definition acm2_tps_mult (X Y : nat*nat -> Prop) v := exists a b, v = a +ₐ b /\ X a /\ Y b. 
+  Local Definition acm2_tps_with (X Y : nat*nat -> Prop) v := X v /\ Y v.
+
+End ACM2_sem.
+
+#[local] Infix "-∘" := acm2_tps_lolipop (at level 65, right associativity).
+#[local] Infix "∘" := acm2_tps_mult (at level 64, left associativity).
+#[local] Infix "⊓" := acm2_tps_with (at level 66, left associativity). 
+
 Section ACM2_utils.
 
   Variables loc : Set.
@@ -31,44 +64,15 @@ Section ACM2_utils.
   Fact acm2_accept_mono Σ Θ a b u : incl Σ Θ → Σ ⫽ₐ a ⊕ b ⊦ u → Θ ⫽ₐ a ⊕ b ⊦ u.
   Proof. intros H; red in H; induction 1; eauto. Qed.
 
-  Local Definition pair_add '(x1,y1) '(x2,y2) := (x1+x2,y1+y2).
-  Infix "+ₐ" := pair_add (at level 61).
-
-  Fact pair_add_zero_left p : (0,0) +ₐ p = p.
-  Proof. now destruct p. Qed.
-
-  Fact pair_add_comm p q : p +ₐ q = q +ₐ p.
-  Proof. revert p q; intros [] []; simpl; f_equal; lia. Qed.
-
-  Fact pair_add_zero_right p : p +ₐ (0,0) = p.
-  Proof. now rewrite pair_add_comm, pair_add_zero_left. Qed.
-
-  Fact pair_add_one_left x y : (1+x,y) = (x,y) +ₐ (1,0).
-  Proof. simpl; f_equal; lia. Qed.
-
-  Fact pair_add_one_right x y : (x,1+y) = (x,y) +ₐ (0,1).
-  Proof. simpl; f_equal; lia. Qed.
-
-  Fact pair_add_assoc p q r : (p +ₐ q) +ₐ r = p +ₐ (q +ₐ r).
-  Proof. revert p q r; intros [] [] []; simpl; f_equal; lia. Qed.
-
-  Definition acm2_tps_lolipop (X Y : nat*nat -> Prop) v := forall x, X x -> Y (x +ₐ v).
-  Definition acm2_tps_mult (X Y : nat*nat -> Prop) v := exists a b, v = a +ₐ b /\ X a /\ Y b. 
-  Definition acm2_tps_with (X Y : nat*nat -> Prop) v := X v /\ Y v.
-
-  Infix "-∘" := acm2_tps_lolipop (at level 65, right associativity).
-  Infix "∘" := acm2_tps_mult (at level 64, left associativity).
-  Infix "⊓" := acm2_tps_with (at level 66, left associativity). 
-
-  Variables (s : loc -> nat*nat -> Prop) (v : bool -> loc).
+  Variables (s : loc -> nat*nat -> Prop) (v : bool -> nat*nat -> Prop).
 
   (** Linear logic semantics for ACM2 instructions *)
   Definition acm2_sem (i : acm2_instr loc) : nat*nat -> Prop := 
     match i with
     | STOPₐ p     => s p                      (* p *)
     | FORKₐ p q r => (s q ⊓ s r) -∘ s p       (* (q & r) -* p    *)
-    | DECₐ b p q  => s (v b) -∘ s q -∘ s p    (* b -* q -* p     *)
-    | INCₐ b p q  => (s (v b) -∘ s q) -∘ s p  (* (b -* q) -* p   *) 
+    | DECₐ b p q  => v b -∘ s q -∘ s p    (* b -* q -* p     *)
+    | INCₐ b p q  => (v b -∘ s q) -∘ s p  (* (b -* q) -* p   *) 
     end.
 
   Notation "⟦ i ⟧ᵢ" := (acm2_sem i) (at level 0).
@@ -77,6 +81,9 @@ Section ACM2_utils.
   Definition acm2_list_sem := fold_right (λ i c, ⟦i⟧ᵢ ⊓ c) (eq (0,0)).
 
   Notation "⟦ Σ ⟧𞁞" := (acm2_list_sem Σ) (at level 0).
+
+  Fact acm2_list_sem_In_zero Σ : Forall (λ i, ⟦ i ⟧ᵢ (0,0)) Σ → ⟦ Σ ⟧𞁞 (0,0).
+  Proof. induction 1; simpl; auto; split; auto. Qed.
 
   Notation "X ⊆ Y" := (∀m, X m -> Y m) (at level 70).
 
@@ -102,8 +109,8 @@ Section ACM2_utils.
   Variables (Σ : list (acm2_instr loc)).
 
   Theorem acm2_tps_sound x y u : 
-      (∀m, s (v α) m ↔ (1,0) = m)
-    → (∀m, s (v β) m ↔ (0,1) = m)
+      (∀m, v α m ↔ (1,0) = m)
+    → (∀m, v β m ↔ (0,1) = m)
     → Σ ⫽ₐ x ⊕ y ⊦ u
     → ⟦Σ⟧𞁞 ∘ (eq (x,y)) ⊆ s u.
   Proof.
@@ -141,18 +148,18 @@ Section ACM2_utils.
 
 End ACM2_utils.
 
+#[local] Notation "Σ ⫽ₙ x ⊕ y ⊦ p" := (@ndmm2_accept _ Σ x y p) (at level 70).
+
 Section ndMM2_ACM2.
 
   Variables loc : Set.
-
-  Notation "Σ ⫽ₙ x ⊕ y ⊦ p" := (@ndmm2_accept loc Σ x y p) (at level 70).
 
   Local Definition loc' := (loc + bool)%type.
 
   (* ZEROₙ α p q ->> FORKₐ p α q ; DECₐ β α α ; STOPₐ α *)
 
-  Local Definition base : list (acm2_instr loc') := [ DECₐ β (inr α) (inr α) ; STOPₐ (inr α);
-                                                      DECₐ α (inr β) (inr β) ; STOPₐ (inr β) ].
+  Let base : list (acm2_instr loc') := [ DECₐ β (inr α) (inr α) ; STOPₐ (inr α);
+                                         DECₐ α (inr β) (inr β) ; STOPₐ (inr β) ].
 
   Definition ndmm2_to_acm2 (i : ndmm2_instr loc) : acm2_instr loc' :=
     match i with
@@ -171,7 +178,7 @@ Section ndMM2_ACM2.
   Hint Constructors acm2_accept : core.
   Hint Resolve ndmm2_to_acm2_In_map ndmm2_to_acm2_In_base : core.
 
-  Theorem ndmm2_to_acm2_sound Σ x y p :
+  Lemma ndmm2_to_acm2_sound Σ x y p :
      Σ ⫽ₙ x ⊕ y ⊦ p → base ++ map ndmm2_to_acm2 Σ ⫽ₐ x ⊕ y ⊦ inl p.
   Proof.
     induction 1 as [ p H
@@ -195,4 +202,56 @@ Section ndMM2_ACM2.
         apply ndmm2_to_acm2_In_base; simpl; eauto.
   Qed.
 
+  Section completeness.
+
+    Variables (Σ : _) (x y : _) (p : _) 
+              (HΣ : base ++ map ndmm2_to_acm2 Σ ⫽ₐ x ⊕ y ⊦ inl p).
+
+    Let s (k : loc') :=
+      match k with
+      | inl p => fun '(x,y) => Σ ⫽ₙ x ⊕ y ⊦ p
+      | inr α => fun '(x,_) => x = 0
+      | inr β => fun '(_,y) => y = 0
+      end.
+
+    Let v b :=
+      match b with
+      | α => eq (1,0)
+      | β => eq (0,1)
+      end.
+
+    Hint Constructors ndmm2_accept : core.
+
+    Lemma ndmm2_to_acm2_complete : Σ ⫽ₙ x ⊕ y ⊦ p.
+    Proof using HΣ.
+      apply (acm2_tps_sound _ s v) with (m := (x,y)) in HΣ; auto.
+      1,2: intro; simpl; tauto.
+      exists (0,0), (x,y); rewrite pair_add_zero_left; split; [ | split ]; auto.
+      apply acm2_list_sem_In_zero, Forall_forall.
+      intros i [ [<-|[<-|[<-|[<-|[]]]]] | (j & <- & Hj)%in_map_iff]%in_app_iff; simpl; auto.
+      + intros m <-; rewrite pair_add_zero_right; now intros [] ->.
+      + intros m <-; rewrite pair_add_zero_right; now intros [] ->.
+      + clear x y p HΣ.
+        destruct j as [ p | b p q | b p q | b p q ]; simpl.
+        * now constructor 1.
+        * intros [] H; rewrite pair_add_zero_right.
+          destruct b.
+          - constructor 2 with q; auto; apply (H _ eq_refl).
+          - constructor 3 with q; auto; apply (H _ eq_refl).
+        * intros m H; destruct b; simpl in H; subst m; rewrite pair_add_zero_right.
+          - intros [] ?; rewrite <- pair_add_one_left; eauto.
+          - intros [] ?; rewrite <- pair_add_one_right; eauto.
+        * intros [] H; destruct b; simpl in H; destruct H; rewrite pair_add_zero_right; subst; eauto.
+    Qed.
+
+  End completeness.
+
+  Hint Resolve ndmm2_to_acm2_sound ndmm2_to_acm2_complete : core.
+
+  Theorem ndmm2_to_acm2_correctness Σ x y p :
+    Σ ⫽ₙ x ⊕ y ⊦ p <-> base ++ map ndmm2_to_acm2 Σ ⫽ₐ x ⊕ y ⊦ inl p.
+  Proof. split; auto. Qed.
+
 End ndMM2_ACM2.
+
+Check ndmm2_to_acm2_correctness.
