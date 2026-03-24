@@ -15,8 +15,7 @@ From Undecidability.Shared.Libs.DLW
 From Undecidability.MinskyMachines 
   Require Import ndMM2 ACM2.
 
-Import ACM2_Notations.
-Import ndMM2_Notations.
+Import ACM2_Notations ndMM2_Notations ListNotations.
 
 #[local] Notation α := true.
 #[local] Notation β := false.
@@ -27,11 +26,9 @@ Section ACM2_utils.
 
   Implicit Type (Σ : list (acm2_instr loc)).
 
-  Infix "⊆" := incl (at level 70).
-
   Hint Constructors acm2_accept : core.
 
-  Fact acm2_accept_mono Σ Θ a b u : Σ ⊆ Θ → Σ ⫽ₐ a ⊕ b ⊦ u → Θ ⫽ₐ a ⊕ b ⊦ u.
+  Fact acm2_accept_mono Σ Θ a b u : incl Σ Θ → Σ ⫽ₐ a ⊕ b ⊦ u → Θ ⫽ₐ a ⊕ b ⊦ u.
   Proof. intros H; red in H; induction 1; eauto. Qed.
 
   Local Definition pair_add '(x1,y1) '(x2,y2) := (x1+x2,y1+y2).
@@ -148,11 +145,54 @@ Section ndMM2_ACM2.
 
   Variables loc : Set.
 
-  Notation α := true.
-  Notation β := false.
+  Notation "Σ ⫽ₙ x ⊕ y ⊦ p" := (@ndmm2_accept loc Σ x y p) (at level 70).
 
-  Definition loc' := (loc + bool)%type.
+  Local Definition loc' := (loc + bool)%type.
 
-  (* Encoding ZERO *)
+  (* ZEROₙ α p q ->> FORKₐ p α q ; DECₐ β α α ; STOPₐ α *)
+
+  Local Definition base : list (acm2_instr loc') := [ DECₐ β (inr α) (inr α) ; STOPₐ (inr α);
+                                                      DECₐ α (inr β) (inr β) ; STOPₐ (inr β) ].
+
+  Definition ndmm2_to_acm2 (i : ndmm2_instr loc) : acm2_instr loc' :=
+    match i with
+    | STOPₙ p     => STOPₐ (inl p)
+    | INCₙ b p q  => INCₐ b (inl p) (inl q) 
+    | DECₙ b p q  => DECₐ b (inl p) (inl q)
+    | ZEROₙ b p q => FORKₐ (inl p) (inr b) (inl q)
+    end.
+
+  Fact ndmm2_to_acm2_In_map Σ i : In i Σ → In (ndmm2_to_acm2 i) (base ++ map ndmm2_to_acm2 Σ).
+  Proof. intros; apply in_or_app; right; now apply in_map. Qed.
+
+  Fact ndmm2_to_acm2_In_base Σ i : In i base → In i (base ++ map ndmm2_to_acm2 Σ).
+  Proof. intros; now apply in_or_app; left. Qed.
+
+  Hint Constructors acm2_accept : core.
+  Hint Resolve ndmm2_to_acm2_In_map ndmm2_to_acm2_In_base : core.
+
+  Theorem ndmm2_to_acm2_sound Σ x y p :
+     Σ ⫽ₙ x ⊕ y ⊦ p → base ++ map ndmm2_to_acm2 Σ ⫽ₐ x ⊕ y ⊦ inl p.
+  Proof.
+    induction 1 as [ p H
+                   | x y p q H _ IH
+                   | x y p q H _ IH
+                   | x y p q H _ IH
+                   | x y p q H _ IH
+                   | y p q H _ IH
+                   | x p q H _ IH ]; try apply ndmm2_to_acm2_In_map in H; eauto.
+    + constructor 2 with (inr α) (inl q); eauto.
+      clear H IH.
+      induction y as [ | y IHy ].
+      * constructor 1; apply ndmm2_to_acm2_In_base; simpl; eauto.
+      * constructor 6 with (inr α); auto.
+        apply ndmm2_to_acm2_In_base; simpl; eauto.
+    + constructor 2 with (inr β) (inl q); eauto.
+      clear H IH.
+      induction x as [ | x IHy ].
+      * constructor 1; apply ndmm2_to_acm2_In_base; simpl; eauto.
+      * constructor 5 with (inr β); auto.
+        apply ndmm2_to_acm2_In_base; simpl; eauto.
+  Qed.
 
 End ndMM2_ACM2.
