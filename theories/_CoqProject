@@ -409,6 +409,9 @@ ILL/Ll/ill_cll_restr.v
 ILL/Ll/schellinx.v
 ILL/Ll/imsell.v
 
+BI/BI.v
+BI/Utils/bi_utils.v
+
 MuRec/MuRec.v
 MuRec/MuRec_undec.v
 
