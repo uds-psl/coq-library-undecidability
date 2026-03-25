@@ -324,6 +324,7 @@ MinskyMachines/ndMM2.v
 MinskyMachines/MMA2_undec.v     
 MinskyMachines/ndMM2_undec.v
 MinskyMachines/ACM2.v
+MinskyMachines/ACM2_undec.v
 
 MinskyMachines/Util/MM_sss.v
 MinskyMachines/Util/MM_computable.v
@@ -353,6 +354,7 @@ MinskyMachines/Reductions/L_computable_closed_to_MMA_computable.v
 MinskyMachines/Reductions/MMA_computable_to_MMA_mon_computable.v
 MinskyMachines/Reductions/MM_computable_to_MMA_computable.v
 MinskyMachines/Reductions/MuRec_computable_to_MM_computable.v
+MinskyMachines/Reductions/ndMM2_to_ACM2_ACCEPT.v
 
 MinskyMachines/Deciders/MPM2_HALT_dec.v
 MinskyMachines/Deciders/MM_2_HALTING_dec.v
