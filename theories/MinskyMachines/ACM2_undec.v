@@ -15,7 +15,17 @@ From Undecidability.MinskyMachines
 From Undecidability.MinskyMachines
   Require ndMM2_to_ACM2_ACCEPT.
 
-(** ACM_ACCEPT2 is undecidable *)
+(** ACM_ACCEPT2 is undecidable
+
+    It should be possible to get it on the finite type
+    (fin n) for some sufficiently large n, instead of
+    on the infinite type nat. But one would need a single 
+    2-counters Minsky machine with an undecidable 
+    termination predicate. It should be possible to get 
+    it from this library using eg H10 like what is
+    done for recursive algorithms see
+ 
+        Murec/Util/RA_UNIV_HALT.v *)
 
 Lemma ACM2_undec : undecidable (@ACM2_ACCEPT nat).
 Proof.
