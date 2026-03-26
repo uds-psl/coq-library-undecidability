@@ -16,10 +16,6 @@ Import BI_notations.
 
 Set Implicit Arguments.
 
-(*
-#[local] Infix "-∘" := tps_lolipop (at level 65, right associativity).
-#[local] Infix "∘" := tps_tensor (at level 64, left associativity).
-#[local] Infix "⊓" := tps_with (at level 62, left associativity). *)
 #[local] Notation "X ⊆ Y" := (∀m, X m → Y m) (at level 70).
 #[local] Infix "∊" := In (at level 70).
 #[local] Infix "~p" := (@Permutation _) (at level 70).
@@ -175,6 +171,111 @@ Section pseudo_exponential.
   Check BI_list_mult_derilection.
 
 End pseudo_exponential.
+
+#[local] Reserved Notation "x -∘ y" (at level 67, right associativity, format "x -∘ y").
+#[local] Reserved Notation "x ⊏ y" (at level 67, right associativity, format "x ⊏ y").
+#[local] Reserved Notation "x ∘ y"  (at level 64, left associativity, format "x ∘ y").
+#[local] Reserved Notation "x ⊓ y"  (at level 62, left associativity, format "x ⊓ y"). 
+
+Section TPS.
+
+  Variables (M : Type) (plus : M → M → M) (e : M)
+            (neut : ∀x, plus e x = x)
+            (comm : ∀ x y, plus x y = plus y x)
+            (assoc : ∀ x y z, plus (plus x y) z = plus x (plus y z)).
+
+  Local Definition tps_lolipop (X Y : M → Prop) x := ∀a, X a → Y (plus a x).
+  Local Definition tps_impl (X Y : M → Prop) x := X x → Y x.
+  Local Definition tps_tensor (X Y : M → Prop) x := ∃ a b, x = plus a b ∧ X a ∧ Y b. 
+  Local Definition tps_with (X Y : M → Prop) x := X x ∧ Y x.
+
+  Infix "-∘" := tps_lolipop.
+  Infix "⊏" := tps_impl.
+  Infix "∘" := tps_tensor.
+  Infix "⊓" := tps_with.
+
+  Variables (prop : Type) (s : prop → M → Prop).
+
+  Reserved Notation "⟦ x ⟧" (at level 0, format "⟦ x ⟧").
+  Reserved Notation "⟦ x ⟧ₗ" (at level 0, format "⟦ x ⟧ₗ").
+
+  Fixpoint tps_BI_form (A : BI_form prop) : M → Prop :=
+    match A with
+    | £v   => s v
+    | ⊤    => λ _, True
+    | 1    => eq e
+    | A⇒B  => ⟦A⟧ ⊏ ⟦B⟧
+    | A-∗B => ⟦A⟧ -∘ ⟦B⟧
+    | A⩑B  => ⟦A⟧ ⊓ ⟦B⟧
+    end
+  where "⟦ A ⟧" := (tps_BI_form A).
+
+  Fixpoint tps_BI_bunch Γ :=
+    match Γ with
+    | ⟨A⟩    => ⟦A⟧
+    | øₐ     => λ _, True
+    | øₘ     => eq e
+    | Γ ⊛ₐ Δ => ⟦Γ⟧ₗ ⊓ ⟦Δ⟧ₗ
+    | Γ ⊛ₘ Δ => ⟦Γ⟧ₗ ∘ ⟦Δ⟧ₗ
+    end
+  where "⟦ Γ ⟧ₗ" := (tps_BI_bunch Γ).
+
+  Lemma tps_BI_equiv Γ Δ : Γ ≡ Δ → ∀x, ⟦Γ⟧ₗ x ↔ ⟦Δ⟧ₗ x.
+  Proof using neut assoc comm.
+    induction 1 as [ | | | [] | [] | [] | [] ]; try (firstorder; fail).
+    + intros x; split.
+      * intros (? & ? & -> & <- & ?); now rewrite neut.
+      * exists e, x; now rewrite neut.
+    + intros x; split;
+        intros (a & b & -> & []); rewrite comm; now exists b, a.
+    + intros x; split.
+      * intros (? & c & -> & (a & b & -> & []) & ?).
+        exists a, (plus b c); rewrite assoc; repeat split; auto.
+        now exists b, c.
+      * intros (a & ? & -> & ? & b & c & -> & ? & ?).
+        exists (plus a b), c; rewrite assoc; repeat split; auto.
+        now exists a, b.
+   Qed.
+
+  Lemma tps_BI_ctx_mono Σ Γ Δ : ⟦Γ⟧ₗ ⊆ ⟦Δ⟧ₗ → ⟦Σ[Γ]⟧ₗ ⊆ ⟦Σ[Δ]⟧ₗ.
+  Proof.
+    intros H.
+    induction Σ as [ | [] [] Θ ]; simpl; auto.
+    1,3: intros x (a & b & -> & ? & ?); exists a, b; auto.
+    all: intros ? []; split; auto.
+  Qed.
+
+  (** Soundness for trivial phase semantics wrt 
+      cut-free bunched sequent calculus for BI *)
+  Theorem tps_BI_sound Γ A : Γ ⊦ A → ⟦Γ⟧ₗ ⊆ ⟦A⟧.
+  Proof using assoc comm neut.
+    induction 1 as [
+                   | Γ Δ A H _ IH
+                   | Γ Δ A _ IH
+                   | Γ Δ A _ IH
+                   | Γ A _ IH
+                   |
+                   | Γ A _ IH 
+                   |
+                   | Γ A B C _ IH
+                   | Γ Δ A B _ IH1 _ IH2
+                   | Γ Δ A B C _ IH1 _ IH2
+                   | Γ A B _ IH
+                   | Γ Δ A B C _ IH1 _ IH2
+                   | Γ A B _ IH
+                   ]; simpl; eauto.
+    2-6: intros x H; apply IH; revert H; apply tps_BI_ctx_mono; now simpl.
+    + intros x ?; apply IH; now apply tps_BI_equiv with (1 := H).
+    + intros x []; split; auto.
+    + intros x H; apply IH2; revert x H; apply tps_BI_ctx_mono.
+      intros ? (?%IH1 & H); now apply H.
+    + intros ? ? ?; apply IH; now split.
+    + intros x H; apply IH2; revert x H; apply tps_BI_ctx_mono.
+      intros ? (? & ? & -> & ?%IH1 & H); apply H; auto.
+    + intros x ? y ?; apply IH; exists x, y; now rewrite comm.
+  Qed.
+
+End TPS.
 
 
 
