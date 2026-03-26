@@ -113,6 +113,11 @@ Section pseudo_exponential.
     trivial.
   Qed.
 
+  Check BI_pseudo_exp_weak.
+  Check BI_pseudo_exp_derilection.
+
 End pseudo_exponential.
+
+
 
 
