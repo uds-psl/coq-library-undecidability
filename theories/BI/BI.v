@@ -114,17 +114,17 @@ Section Logic_Bunched_Implications.
                               (*----------------------*)
                              →    Γ[Δ ⊛ₐ ⟨A⇒B⟩] ⊦ C
 
-    | BI_spcf_imp_r Γ A B :            Γ ⊦ A⇒B 
+    | BI_spcf_imp_r Γ A B :         Γ ⊛ₐ ⟨A⟩ ⊦ B
                               (*----------------------*)
-                          →          Γ ⊛ₐ ⟨A⟩ ⊦ B
+                          →           Γ ⊦ A⇒B
 
     | BI_spcf_wand_l Γ Δ A B C : Δ ⊦ A   →   Γ[⟨B⟩] ⊦ C
                               (*-----------------------*)
                              →    Γ[Δ ⊛ₘ ⟨A-∗B⟩] ⊦ C
 
-    | BI_spcf_wand_r Γ A B :          Γ ⊦ A-∗B 
+    | BI_spcf_wand_r Γ A B :         Γ ⊛ₘ ⟨A⟩ ⊦ B
                               (*----------------------*)
-                          →          Γ ⊛ₘ ⟨A⟩ ⊦ B
+                          →            Γ ⊦ A-∗B 
 
   where "Γ ⊦ A" := (BI_seq_provable_cut_free Γ A).
 

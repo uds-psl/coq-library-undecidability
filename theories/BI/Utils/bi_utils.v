@@ -22,13 +22,26 @@ Section pseudo_exponential.
 
   Variables prop : Type.
 
-  Implicit Types (φ : BI_form prop).
+  Implicit Types (φ : BI_form prop) (Γ : BI_bunch prop).
 
   Definition BI_pseudo_exp γ φ := (⊤-∗((φ-∗γ)⇒γ))⩑1.
 
   Notation "'![' γ ']' φ" := (BI_pseudo_exp γ φ) (at level 1, format "![ γ ] φ").
 
-  Fact BI_pseudo_exp_weak Γ γ φ :
+  Fact BI_top_weak Γ : Γ ⊦ ⊤.
+  Proof.
+    change (BI_ctx_hole[Γ] ⊦ ⊤).
+    apply BI_spcf_weak, BI_spcf_top_r.
+  Qed.
+
+  Fact BI_cntr_all Γ γ : Γ ⊛ₐ Γ ⊦ γ → Γ ⊦ γ.
+  Proof.
+    intros H.
+    change (BI_ctx_hole[Γ] ⊦ γ).
+    now apply BI_spcf_cntr.
+  Qed.
+
+  Lemma BI_pseudo_exp_weak Γ γ φ :
              Γ ⊦ γ 
       (*------------------*)
     →    Γ ⊛ₘ ⟨![γ]φ⟩ ⊦ γ.
@@ -51,16 +64,54 @@ Section pseudo_exponential.
           BI_bequiv_neut.
   Qed.
 
-  Fact BI_pseudo_exp_derilection Γ γ φ :
+  Fact BI_first_idea Γ γ φ : Γ ⊛ₘ ⟨φ⟩ ⊦ γ → Γ ⊛ₐ ⟨(φ-∗γ)⇒γ⟩ ⊦ γ.
+  Proof.
+    intros H.
+    change (BI_ctx_hole[Γ ⊛ₐ ⟨(φ-∗γ)⇒γ⟩] ⊦ γ).
+    apply BI_spcf_imp_l.
+    + now apply BI_spcf_wand_r.
+    + simpl; apply BI_spcf_axiom.
+  Qed.
+
+  Fact BI_second_idea Γ γ φ :
+    (Γ ⊛ₘ ⟨(⊤-∗φ)⩑1⟩) ⊛ₐ ⟨φ⟩ ⊦ γ → Γ ⊛ₘ ⟨(⊤-∗φ)⩑1⟩ ⊦ γ.
+  Proof.
+    set (Δ := Γ ⊛ₘ ⟨(⊤-∗φ)⩑1⟩).
+    intros H.
+    apply BI_cntr_all.
+    unfold Δ at 2.
+    set (Δ' := BI_ctx_comp true BI_addi Δ
+              (BI_ctx_comp true BI_mult Γ BI_ctx_hole)).
+    change (Δ'[⟨(⊤-∗φ)⩑1⟩] ⊦ γ).
+    apply BI_spcf_conj_l.
+    set (Δ'' := BI_ctx_comp true BI_addi Δ
+               (BI_ctx_comp true BI_mult Γ 
+               (BI_ctx_comp true BI_addi ⟨⊤-∗φ⟩
+                BI_ctx_hole))).
+    change (Δ''[⟨1⟩] ⊦ γ).
+    apply BI_spcf_weak.
+    change (Δ'[⟨⊤-∗φ⟩ ⊛ₐ øₐ] ⊦ γ).
+    apply BI_spcf_equiv with (Δ'[⟨⊤-∗φ⟩]).
+    1: apply BI_bequiv_congr, BI_bequiv_congr, BI_bequiv_sym,
+             BI_bequiv_trans with (1 := BI_bequiv_comm _ _ _),
+             BI_bequiv_neut.
+    set (Δ''' := BI_ctx_comp true BI_addi Δ BI_ctx_hole).
+    change (Δ'''[Γ ⊛ₘ ⟨⊤-∗φ⟩] ⊦ γ).
+    apply BI_spcf_wand_l; auto.
+    apply BI_top_weak.
+  Qed.
+
+  Lemma BI_pseudo_exp_derilection Γ γ φ :
           Γ ⊛ₘ ⟨![γ]φ⟩ ⊛ₘ ⟨φ⟩ ⊦ γ
         (*-----------------------*)
     →        Γ ⊛ₘ ⟨![γ]φ⟩ ⊦ γ.
   Proof.
     intros H.
-    set (Δ₁ := @BI_ctx_hole prop).
-    change (Δ₁[Γ ⊛ₘ ⟨![γ]φ⟩] ⊦ γ).
-    apply BI_spcf_cntr; simpl.
-  Admitted.
+    unfold BI_pseudo_exp.
+    apply BI_second_idea.
+    apply BI_first_idea.
+    trivial.
+  Qed.
 
 End pseudo_exponential.
 
