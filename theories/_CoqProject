@@ -410,7 +410,9 @@ ILL/Ll/schellinx.v
 ILL/Ll/imsell.v
 
 BI/BI.v
+BI/BI_undec.v
 BI/Utils/bi_utils.v
+BI/Reductions/ACM2_to_BI.v
 
 MuRec/MuRec.v
 MuRec/MuRec_undec.v

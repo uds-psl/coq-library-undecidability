@@ -18,25 +18,25 @@ Section TPS_sem.
 
   (** Trivial phase semantics for linear logic over nat² *)
 
-  Local Definition pair_add '(x₁,y₁) '(x₂,y₂) := (x₁+x₂,y₁+y₂).
+  Definition pair_add '(x₁,y₁) '(x₂,y₂) := (x₁+x₂,y₁+y₂).
   Infix "+ₐ" := pair_add (at level 61).
 
-  Local Fact pair_add_zero_left p : (0,0) +ₐ p = p.
+  Fact pair_add_zero_left p : (0,0) +ₐ p = p.
   Proof. now destruct p. Qed.
 
-  Local Fact pair_add_comm p q : p +ₐ q = q +ₐ p.
+  Fact pair_add_comm p q : p +ₐ q = q +ₐ p.
   Proof. revert p q; intros [] []; simpl; f_equal; lia. Qed.
 
-  Local Fact pair_add_zero_right p : p +ₐ (0,0) = p.
+  Fact pair_add_zero_right p : p +ₐ (0,0) = p.
   Proof. now rewrite pair_add_comm, pair_add_zero_left. Qed.
 
-  Local Fact pair_add_one_left x y : (1+x,y) = (x,y) +ₐ (1,0).
+  Fact pair_add_one_left x y : (1+x,y) = (x,y) +ₐ (1,0).
   Proof. simpl; f_equal; lia. Qed.
 
-  Local Fact pair_add_one_right x y : (x,1+y) = (x,y) +ₐ (0,1).
+  Fact pair_add_one_right x y : (x,1+y) = (x,y) +ₐ (0,1).
   Proof. simpl; f_equal; lia. Qed.
 
-  Local Fact pair_add_assoc p q r : (p +ₐ q) +ₐ r = p +ₐ (q +ₐ r).
+  Fact pair_add_assoc p q r : (p +ₐ q) +ₐ r = p +ₐ (q +ₐ r).
   Proof. revert p q r; intros [] [] []; simpl; f_equal; lia. Qed.
 
   Local Definition tps_lolipop (X Y : _ → Prop) m := ∀a, X a → Y (a +ₐ m).
