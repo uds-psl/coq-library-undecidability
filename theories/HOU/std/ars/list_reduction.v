@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-From Stdlib Require Import List Morphisms FinFun.
+From Stdlib Require Import List Morphisms Finite.
 From Undecidability.HOU Require Import std.tactics std.ars.basic std.ars.confluence.
 Import ListNotations ArsInstances.
 Section ListRelations.

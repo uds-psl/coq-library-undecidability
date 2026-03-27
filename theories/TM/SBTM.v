@@ -10,21 +10,6 @@ From Stdlib Require Vectors.Fin Vectors.Vector.
 
 Inductive direction : Type := go_left | go_right.
 
-(* the tape implicitly contains blanks ("false") to the left and right *)
-Definition mv (d: direction) (t: (list bool * bool * list bool)) :=
-  match d with
-  | go_left =>
-      match t with
-      | (l :: ls, a, rs) => (ls, l, a :: rs)
-      | (nil, a, rs) => (nil, false, a :: rs)
-      end
-  | go_right =>
-      match t with
-      | (ls, a, r :: rs) => (a :: ls, r, rs)
-      | (ls, a, nil) => (a :: ls, false, nil)
-      end
-  end.
-
 Record SBTM := Build_SBTM {
   num_states : nat;
   (* transition table *)
@@ -40,6 +25,21 @@ Module SBTMNotations.
 End SBTMNotations.
 
 Import SBTMNotations.
+
+(* the tape implicitly contains blanks ("false") to the left and right *)
+Definition mv (d: direction) (t: tape) :=
+  match d with
+  | go_left =>
+      match t with
+      | (l :: ls, a, rs) => (ls, l, a :: rs)
+      | (nil, a, rs) => (nil, false, a :: rs)
+      end
+  | go_right =>
+      match t with
+      | (ls, a, r :: rs) => (a :: ls, r, rs)
+      | (ls, a, nil) => (a :: ls, false, nil)
+      end
+  end.
 
 (* transition table presented as a finite function *)
 Definition trans' M : (state M) * bool -> option ((state M) * bool * direction) :=

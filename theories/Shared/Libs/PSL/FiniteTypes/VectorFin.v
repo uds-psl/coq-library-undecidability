@@ -18,7 +18,7 @@ Proof.
   cbn. intros x. eapply dupfreeCount.
   - clear x. induction n as [|n IH]; simpl; constructor.
     + now intros [? [? ?]]%in_map_iff.
-    + apply (FinFun.Injective_map_NoDup (@Fin.FS_inj n) IH).
+    + apply (Finite.Injective_map_NoDup (@Fin.FS_inj n) IH).
   - now induction x; [left|right; apply in_map].
 Defined.
 

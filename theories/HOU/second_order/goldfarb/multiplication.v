@@ -3,7 +3,7 @@ From Stdlib Require Import List Lia Program.Program.
 From Undecidability.HOU Require Import std.std axioms.
 From Stdlib Require Import RelationClasses Morphisms Init.Wf Init.Nat Setoid.
 From Undecidability.HOU Require Import calculus.calculus second_order.goldfarb.encoding.
-From Stdlib Require Import FinFun Arith.Wf_nat.
+From Stdlib Require Import Finite Arith.Wf_nat.
 Import ListNotations ArsInstances.
 
 

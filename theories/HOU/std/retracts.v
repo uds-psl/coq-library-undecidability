@@ -34,9 +34,7 @@ Proof.
 Qed.
 
 
-From Stdlib Require Import FinFun.
-
-
+From Stdlib Require Import Finite.
 
 Section Properties.
   Variable (X Y: Type).

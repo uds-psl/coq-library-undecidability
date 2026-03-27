@@ -7,12 +7,12 @@
 
 From Stdlib Require Export Bool Lia List Setoid Morphisms Arith.
 From Undecidability.Shared.Libs.PSL Require Export Tactics.
-From Stdlib Require Import FinFun.
+From Stdlib Require Import Finite.
 
 Global Set Implicit Arguments. 
 Global Unset Strict Implicit.
 Global Unset Printing Records.
 Global Unset Printing Implicit Defensive.
 
-Notation injective := FinFun.Injective.
-Notation surjective := FinFun.Surjective.
+Notation injective := Finite.Injective.
+Notation surjective := Finite.Surjective.

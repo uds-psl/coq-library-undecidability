@@ -21,7 +21,6 @@ Section Fix_Sigma.
   (* A tape is essentially a triple 〈left,current,right〉 where, however, the current symbol could be missing. This may happen for three different reasons: both tapes are empty, we are on the left extremity of a non-empty tape (left overflow), or we are on the right extremity of a non-empty tape (right overflow). *)
 
   (* Note that the alphabet has type [Type], not [finType]. *)
-  (* Print tape. *)
 
   Definition tapes n := Vector.t tape n.
 
@@ -76,8 +75,6 @@ Section Fix_Sigma.
   
   (* ** Definition of moves *)
   
-  (* Print move.  *)
-
   (* Declare discreteness of [move] *)
   #[export] Instance move_eq_dec : eq_dec move.
   Proof.

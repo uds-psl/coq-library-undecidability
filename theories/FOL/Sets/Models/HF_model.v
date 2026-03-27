@@ -494,7 +494,7 @@ Qed.
 Lemma list_numerals_nodup n :
   NoDup (list_numerals n).
 Proof.
-  apply FinFun.Injective_map_NoDup.
+  apply Finite.Injective_map_NoDup.
   - intros k k'. apply hfs_numeral_inj.
   - apply list_n_nodup.
 Qed.
