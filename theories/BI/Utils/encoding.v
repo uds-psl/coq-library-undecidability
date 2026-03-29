@@ -7,13 +7,13 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-From Stdlib Require Import Arith Lia List Utf8 Permutation.
+From Stdlib Require Import List Permutation Utf8 .
 
 From Undecidability.MinskyMachines
   Require Import ACM2 acm2_utils.
 
 From Undecidability.BI
-  Require Import BI bi_utils tps.
+  Require Import BI utils tps.
 
 Import ListNotations ACM2_Notations.
 
@@ -21,17 +21,7 @@ Set Implicit Arguments.
 
 #[local] Notation "X ⊆ Y" := (∀m, X m → Y m) (at level 70).
 #[local] Infix "∊" := In (at level 70).
-
 #[local] Infix "~p" := (@Permutation _) (at level 70).
-
-#[local] Hint Constructors Permutation : core.
-
-#[local] Fact permutation_in_head {X} (x : X) l : x ∊ l → ∃m, l ~p x::m.
-Proof.
-  induction l as [ | y l IHl ].
-  + intros [].
-  + intros [ <- | []%IHl ]; eauto.
-Qed.
 
 #[local] Notation "x ≡ y" := (BI_bunch_equiv x y) (at level 70, no associativity, format "x  ≡  y").
 #[local] Notation "C [ Δ ]" := (BI_ctx_fill C Δ) (at level 1, no associativity, format "C [ Δ ]").

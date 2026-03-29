@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-From Stdlib Require Import Arith Lia List Utf8 Permutation Eqdep_dec.
+From Stdlib Require Import List Permutation Utf8.
 
 From Undecidability.BI
   Require Import BI.

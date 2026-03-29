@@ -10,7 +10,7 @@
 From Stdlib Require Import List Utf8.
 
 From Undecidability.BI
-  Require Import BI bi_utils.
+  Require Import BI utils.
 
 Import ListNotations.
 
