@@ -75,8 +75,11 @@ Section pseudo_exponential.
   (* We simulate ⊤ using 1⇒1 *)
   Notation "⊤" := (1⇒1).
 
-  (** This is the major breakthrought that allows for the encoding
-      of the dereliction rule in BI, see BI_pseudo_exp_derilection below *)
+  (** This is the "major breakthrought" that allows for the encoding
+      of the dereliction rule in BI, see BI_pseudo_exp_derilection below,
+      see 
+          The logic of bunched implications is undecidable 
+          Galatos, Jipsen, Knudstorp & Ramanayake. arXiv 2026  *)
 
   Definition BI_pseudo_exp γ φ := (⊤-∗((φ-∗γ)⇒γ))⩑1.
   Notation "![ γ ] φ" := (BI_pseudo_exp γ φ).
