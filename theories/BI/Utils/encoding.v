@@ -414,10 +414,12 @@ Section ACM2_to_BI.
 
   Notation "![ γ ] φ" := (BI_pseudo_exp γ φ).
 
-  Definition acm2_ctx_to_BI x y := 
+  Check list_prod.
+
+  Definition acm2_ctx_to_BI x y :=
        repeat £(inr α) x
     ++ repeat £(inr β) y 
-    ++ flat_map (λ p, map (λ i, ![£(inl p)](encᵢ i)) Σ) l.
+    ++ list_prod (λ p i, ![£(inl p)](encᵢ i)) l Σ.
 
   Notation enc := acm2_ctx_to_BI.
 
@@ -430,9 +432,10 @@ Section ACM2_to_BI.
     → ![£(inl p)](encᵢ i) ∊ enc x y.
   Proof using HΣl.
     intros H1 H2.
-    unfold acm2_ctx_to_BI; rewrite !in_app_iff, in_flat_map; do 2 right.
-    exists p; split; subst; auto.
-    apply in_map_iff; eauto.
+    unfold acm2_ctx_to_BI.
+    rewrite !in_app_iff; do 2 right.
+    apply list_prod_spec.
+    exists p, i; split; subst; auto.
   Qed.
 
   (** enc x y also contains x copies of £α and y copies of £β *)
@@ -483,8 +486,7 @@ Section ACM2_to_BI.
       apply BI_unit_left_r with (k := BI_mult),
             BI_list_mult_weak.
       2: apply BI_sp_unit_r.
-      intros A; rewrite in_flat_map.
-      intros (k & ? & (i & <- & ?)%in_map_iff); eauto.
+      intros A (k & i & -> & [])%list_prod_spec; eauto.
     + apply BI_FORK; auto.
     + apply BI_INC.
       revert IH; apply BI_sp_equiv.
@@ -554,15 +556,16 @@ Section ACM2_to_BI.
       (* We reorder ⨂ₘ (enc x y) *)
       apply tps_BI_equiv with (⨂ₘ (repeat £(inr α) x)
                            ⊛ₘ (⨂ₘ (repeat £(inr β) y) 
-                           ⊛ₘ  ⨂ₘ (flat_map (λ p, map (λ i, ![£(inl p)](encᵢ i)) Σ) l)));
+                           ⊛ₘ  ⨂ₘ (list_prod (λ p i, ![£(inl p)](encᵢ i)) l Σ)));
         auto.
       + (* This is a reordering *)
         do 2 apply BI_bequiv_trans with (1 := BI_list_mult_app _ _),
                    BI_bequiv_congr; auto using BI_bequiv_refl.
       + (* (x,0) belongs to ⟦⨂ₘ (repeat £(inr α) x)⟧
            (0,y) belongs to ⟦⨂ₘ (repeat £(inr β) y)⟧
-           (0,0) belongs to the rest
-           so there sum (x,y) belongs to the semantics of this bunch *)
+           (0,0) belongs to the rest ⟦⨂ₘ (map ![_](_) l⨯Σ)⟧ 
+           so their sum (x,y) = (x,0)+(0,y)+(0,0) 
+           belongs to the semantics of this bunch *)
         exists (x,0), (0,y); split; simpl; auto; split;
           [ | exists (0,y), (0,0); split; simpl; auto; split ].
         * clear Hxyp.
@@ -572,8 +575,7 @@ Section ACM2_to_BI.
           induction y as [ | n ]; simpl; auto.
           exists (0,1)%nat, (0,n); auto.
         * apply tps_BI_bunch_list_mult; auto.
-          intro; rewrite in_flat_map.
-          intros (? & ? & (? & <- & ?)%in_map_iff).
+          intros ? (? & ? & -> & [])%list_prod_spec.
           apply tps_BI_pseudo_exp; auto.
           now apply tps_instr_sound.
     Qed.

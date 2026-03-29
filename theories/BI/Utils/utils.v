@@ -63,6 +63,26 @@ Section BI_list_mult.
 
 End BI_list_mult.
 
+#[local] Fact exists_iff_compat X (P Q : X → Prop) : (∀x, P x ↔ Q x) → (∃x, P x) ↔ ∃x, Q x.
+Proof. firstorder. Qed.
+
+Section list_prod.
+
+  Variables (X Y Z : Type) (p : X → Y → Z).
+
+  Definition list_prod l m := flat_map (fun x => (map (p x) m)) l.
+
+  Fact list_prod_spec l m z :
+    z ∊ list_prod l m ↔ ∃ x y, z = p x y ∧ x ∊ l ∧ y ∊ m.
+  Proof.
+    unfold list_prod.
+    rewrite in_flat_map.
+    apply exists_iff_compat; intros x.
+    rewrite in_map_iff; firstorder.
+  Qed.
+
+End list_prod.
+
 Section BI_map.
 
   Variables (µ µ' : BI_conn → bool)
