@@ -412,6 +412,10 @@ ILL/Ll/imsell.v
 BI/BI.v
 BI/BI_undec.v
 BI/Utils/bi_utils.v
+BI/Utils/tps.v
+BI/Utils/hil.v
+BI/Utils/hbi.v
+BI/Utils/encoding.v
 BI/Reductions/ACM2_to_BI.v
 
 MuRec/MuRec.v
