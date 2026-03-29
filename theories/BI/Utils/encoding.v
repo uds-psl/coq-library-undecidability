@@ -517,7 +517,7 @@ Section ACM2_to_BI.
 
     Let s (v : loc + bool) :=
       match v with
-      | inl p => fun '(x,y) => acm2_accept Σ x y p
+      | inl p => λ '(x,y), acm2_accept Σ x y p
       | inr α => eq (1,0)%nat 
       | inr β => eq (0,1)%nat
       end.
@@ -586,7 +586,7 @@ End ACM2_to_BI.
 
 #[local] Hint Resolve acm2_encode_sound acm2_encode_complete in_map : core.
 
-(** This establishes the correctness of the reduction 2-ACM -> LBI *)
+(** This establishes the correctness of the reduction 2-ACM ~~> LBI *)
 Theorem acm2_to_BI_correctness (loc : Set) Σ x y (p : loc) :
     acm2_accept Σ x y p
   ↔ LBI_provable BI_cut_free (BI_list_mult (acm2_ctx_to_BI Σ (map (@acm2_instr_src _) Σ) x y)) £(inl p).
