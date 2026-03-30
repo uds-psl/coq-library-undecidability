@@ -269,6 +269,8 @@ Section Hilbert_Calculus.
 
 End Hilbert_Calculus.
 
+Arguments BI_SEQ_PROVABLE _ {_}.
+
 Arguments IL_axiom {_}.
 Arguments BI_axiom {_}.
 

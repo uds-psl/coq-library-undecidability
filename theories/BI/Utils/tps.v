@@ -208,7 +208,7 @@ Section TPS.
     Theorem tps_LBI_sound b Γ (A : BI_form µ prop) : LBI_provable b Γ A → ⟦Γ⟧ₗ ⊆ ⟦A⟧.
     Proof using neut comm assoc.
       intros H.
-      apply BI_map_sound
+      apply LBI_map_sound
         with (b' := BI_with_cut)
              (Hµ := λ _ _, eq_refl)
              (φ := λ x : prop, x),

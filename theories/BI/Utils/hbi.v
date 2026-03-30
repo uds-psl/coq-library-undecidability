@@ -351,6 +351,6 @@ End LBI_full_HBI.
 About BI_form_map.
 
 Theorem LBI_to_HBI_form prop µ c (A : BI_form µ prop) : øₐ L⊦[c] A → H⊦ BI_form_map (λ _, true) (λ _ _, eq_refl) (λ p, p) A.
-Proof. now intros H%(BI_map_sound (λ _, true) (λ _ _, eq_refl) (λ p, p) (λ _, eq_refl))%LBI_full_to_HBI_form. Qed.
+Proof. now intros H%(LBI_map_sound (λ _, true) (λ _ _, eq_refl) (λ p, p) (λ _, eq_refl))%LBI_full_to_HBI_form. Qed.
 
 Check LBI_to_HBI_form.

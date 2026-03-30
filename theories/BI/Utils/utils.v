@@ -120,7 +120,7 @@ Section BI_map.
   Hint Constructors LBI_provable : core.
   Hint Resolve BI_bunch_equiv_map : core.
 
-  Theorem BI_map_sound b b' (_ : b = BI_with_cut → b' = BI_with_cut)  Γ A :
+  Theorem LBI_map_sound b b' (_ : b = BI_with_cut → b' = BI_with_cut)  Γ A :
     Γ L⊦[b] A → BI_bunch_map Γ L⊦[b'] BI_form_map A.
   Proof.
     induction 1; simpl; eauto; rewrite BI_ctx_bunch_map in * |- *; simpl in *; eauto.
@@ -136,6 +136,17 @@ Fact BI_form_map_map (µ µ' µ'' : BI_conn → bool)
     BI_form_map µ'' Hµ' ψ (BI_form_map µ' Hµ φ A)
   = BI_form_map µ'' (fun c h => Hµ' _ (Hµ c h)) (fun p => ψ (φ p)) A.
 Proof. induction A; simpl; f_equal; auto. Qed.
+
+#[local] Hint Constructors IL_axiom BI_axiom HBI_deduction : core.
+
+Theorem HBI_map_sound (prop prop' : Set) (φ : prop → prop') A :
+   H⊦ A → H⊦ BI_form_map _ (λ _ h, h) φ A.
+Proof.
+  unfold HBI_provable.
+  induction 1 as [ ? [H|H] | | | | ]; simpl; eauto; constructor 1.
+  + left; induction H; simpl; eauto.
+  + right; induction H; simpl; eauto.
+Qed.
 
 Section BI_vars.
 
@@ -174,7 +185,7 @@ Section BI_vars.
 
 End BI_vars.
 
-Section BI_embed.
+Section LBI_embed.
 
   Variables (µ : BI_conn → bool)
             (prop prop' : Set)
@@ -183,28 +194,42 @@ Section BI_embed.
 
   Hint Resolve in_or_app : core.
 
-  Fact BI_form_map_embed A : 
+  Fact BI_form_map_embed A :
       (∀v, v ∊ BI_form_vars A → ψ (φ v) = v)
     → BI_form_map µ (λ _ h, h) ψ (BI_form_map µ (λ _ h, h) φ A) = A.
   Proof. induction A; simpl; intro; f_equal; eauto. Qed.
 
   Hint Resolve BI_form_map_embed : core.
 
-  Fact BI_bunch_map_embed Γ : 
+  Fact BI_bunch_map_embed Γ :
       (∀v, v ∊ BI_bunch_vars Γ → ψ (φ v) = v)
     → BI_bunch_map µ (λ _ h, h) ψ (BI_bunch_map µ (λ _ h, h) φ Γ) = Γ.
   Proof. induction Γ; simpl; intros; f_equal; auto. Qed.
 
-  Theorem BI_embed_correctness b Σ A :
+  Theorem LBI_embed_correctness cut Σ A :
       (∀v, v ∊ BI_form_vars A → ψ (φ v) = v)
     → (∀v, v ∊ BI_bunch_vars Σ → ψ (φ v) = v)
-    → Σ L⊦[b] A ↔ BI_bunch_map µ (λ _ h, h) φ Σ L⊦[b] BI_form_map µ (λ _ h, h) φ A.
+    → Σ L⊦[cut] A ↔ BI_bunch_map µ (λ _ h, h) φ Σ L⊦[cut] BI_form_map µ (λ _ h, h) φ A.
   Proof.
     intros H1 H2; split.
-    + apply BI_map_sound; auto.
-    + intros H%(BI_map_sound µ (λ _ h, h) ψ (λ h, h)).
+    + apply LBI_map_sound; auto.
+    + intros H%(LBI_map_sound µ (λ _ h, h) ψ (λ h, h)).
       now rewrite BI_bunch_map_embed, BI_form_map_embed in H.
   Qed.
 
-End BI_embed.
+End LBI_embed.
+
+Theorem HBI_embed_correctness (prop prop' : Set) (φ : prop → prop') (ψ : prop' → prop) A :
+    (∀v, v ∊ BI_form_vars A → ψ (φ v) = v)
+  → H⊦ A ↔ H⊦ BI_form_map _ (λ _ h, h) φ A.
+Proof.
+  intros H1; split.
+  + apply HBI_map_sound.
+  + intros H%(HBI_map_sound ψ).
+    rewrite BI_form_map_embed in H; auto.
+Qed.
+
+
+
+
 

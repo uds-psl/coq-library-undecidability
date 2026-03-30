@@ -613,8 +613,9 @@ Definition acm2_to_BI_form (loc : Set) Σ x y (p : loc) µ' Hµ' :=
   BI_form_map µ' Hµ' (λ x, x) (acm2_to_BI Σ (map acm2_instr_src Σ) x y p).
 
 (** This establishes the correctness of the reductions
-    2-ACM ~~> LBI,
-    2-ACM ~~> HBI *)
+    2-ACM ~~> LBI(-∗,⇒,⩑,1) ~~> LBI ~~> HBI(full) ~~> 2-ACM 
+    where LBI is a fragment containing (-∗,⇒,⩑,1) and with
+    possibly the cut-rule *)
 Theorem acm2_to_HBI_correctness (loc : Set) Σ x y (p : loc) µ' Hµ' cut :
     (acm2_accept Σ x y p → øₐ ⊦ acm2_to_BI Σ (map acm2_instr_src Σ) x y p)
   ∧ (øₐ ⊦ acm2_to_BI Σ (map acm2_instr_src Σ) x y p → øₐ L⊦[cut] acm2_to_BI_form Σ x y p µ' Hµ')
@@ -624,16 +625,16 @@ Proof.
   split; [ | split; [ | split ] ].
   + apply acm2_encode_sound, in_map.
   + assert (BI_cut_free = BI_with_cut → cut = BI_with_cut) as C by easy.
-    intros ?%(BI_map_sound _ Hµ' (λ x, x) C); auto.
+    intros ?%(LBI_map_sound _ Hµ' (λ x, x) C); auto.
   + intros h%LBI_to_HBI_form.
-    unfold acm2_to_BI_form in h |- *.
-    now rewrite BI_form_map_map in h.
+    unfold acm2_to_BI_form in h; now rewrite BI_form_map_map in h.
   + intros h.
     apply acm2_encode_complete with (l := map acm2_instr_src Σ).
     intros c.
     apply (tps_HBI_sound pair_add (0,0)) with (s := tps Σ) (x := c) in h; auto.
-    unfold acm2_to_BI_form in h.
-    now rewrite sem_BI_form_map_id in h.
+    unfold acm2_to_BI_form in h; now rewrite sem_BI_form_map_id in h.
 Qed.
+
+Check acm2_to_HBI_correctness.
 
 
