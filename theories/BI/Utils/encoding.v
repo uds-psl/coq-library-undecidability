@@ -7,13 +7,13 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-From Stdlib Require Import List Permutation Utf8 .
+From Stdlib Require Import Arith Lia List Permutation Utf8 .
 
 From Undecidability.MinskyMachines
   Require Import ACM2 acm2_utils.
 
 From Undecidability.BI
-  Require Import BI utils tps.
+  Require Import BI utils tps hbi.
 
 Import ListNotations ACM2_Notations BI_notations.
 
@@ -326,6 +326,20 @@ Section pseudo_exponential.
     apply BI_sp_axiom.
   Qed.
 
+  Definition BI_multi_wand Δ φ := fold_right (fun x y => x-∗y) φ Δ.
+
+  Fact BI_mult_wand_app Σ Δ φ : BI_multi_wand (Σ++Δ) φ = BI_multi_wand Σ (BI_multi_wand Δ φ).
+  Proof. apply fold_right_app. Qed.
+
+  Fact BI_mult_wand_intro Γ Δ φ :  Γ ⊛ₘ ⨂ₘ Δ  ⊦ φ → Γ ⊦ BI_multi_wand Δ φ.
+  Proof.
+    induction Δ as [ | A l IHl ] in Γ |- *; simpl; auto.
+    + apply BI_sp_equiv, BI_bequiv_trans with (1 := BI_bequiv_comm _ _ _), BI_bequiv_neut.
+    + intros H.
+      apply BI_sp_impl_r, IHl.
+      revert H; apply BI_sp_equiv, BI_bequiv_sym, BI_bequiv_assoc.
+  Qed.
+
   (** We finish with study the TPS semantics 
       of the pseudo-exponential ![γ]φ *)
 
@@ -352,6 +366,8 @@ Section pseudo_exponential.
   Qed. 
 
 End pseudo_exponential.
+
+#[local] Hint Resolve pair_add_zero_left pair_add_comm pair_add_assoc : core.
 
 Section ACM2_to_BI.
 
@@ -449,14 +465,23 @@ Section ACM2_to_BI.
   Qed.
 
   Hint Resolve In_acm2_ctx_to_BI : core.
+  
+  Definition acm2_to_BI x y p := 1⇒BI_multi_wand (enc x y) £(inl p).
 
   (** We can now show that our positive encoding is sound
       wrt to cut-free provability in the (-∗,⇒,⩑,1) fragment *)
 
   Local Lemma acm2_encode_sound x y p :
       acm2_accept Σ x y p
-    → ⨂ₘ (enc x y) ⊦ £(inl p).
+    → øₐ ⊦ acm2_to_BI x y p.
   Proof using HΣl.
+    intros H.
+    apply BI_sp_impl_r,
+          BI_unit_right_l,
+          BI_sp_unit_l with (Γ := BI_ctx_hole),
+          BI_mult_wand_intro,
+          BI_unit_right_l.
+    revert H.
     induction 1 as [ p H 
                    | x y p q r H _ IH1 _ IH2
                    | x y p q H _ IH
@@ -502,12 +527,14 @@ Section ACM2_to_BI.
         where (x,y) in nat² represents the value of
         α/β. *)
 
-    Let s (v : loc + bool) :=
+    Local Definition tps (v : loc + bool) :=
       match v with
       | inl p => λ '(x,y), acm2_accept Σ x y p
       | inr α => eq (1,0)%nat 
       | inr β => eq (0,1)%nat
       end.
+      
+    Abbreviation s := tps.
 
     Notation "⟦ A ⟧" := (tps_BI_form pair_add (0,0) s A).
 
@@ -532,55 +559,81 @@ Section ACM2_to_BI.
       + intros [] []; rewrite pair_add_zero_right; eauto.
     Qed.
 
-    Variables (x y : nat) (p : loc) (Hxyp : ⨂ₘ (enc x y) ⊦ £(inl p)).
+    Local Fact tps_BI_multi_wand_α n x y A : ⟦BI_multi_wand (repeat £(inr α) n) A⟧ (x,y) → ⟦A⟧ (n+x,y).
+    Proof.
+      induction n as [ | n IHn ] in x |- *; simpl; auto.
+      intros H. 
+      replace (S (n+x)) with (n+S x) by lia.
+      apply IHn, (H _ eq_refl).
+    Qed.
 
-    Hint Resolve pair_add_zero_left pair_add_comm pair_add_assoc : core.
+    Local Fact tps_BI_multi_wand_β n x y A : ⟦BI_multi_wand (repeat £(inr β) n) A⟧ (x,y) → ⟦A⟧ (x,n+y).
+    Proof.
+      induction n as [ | n IHn ] in y |- *; simpl; auto.
+      intros H. 
+      replace (S (n+y)) with (n+S y) by lia.
+      apply IHn, (H _ eq_refl).
+    Qed.
+ 
+    Local Fact tps_BI_multi_wand_zero Δ A : (∀B, B ∊ Δ → ⟦B⟧ (0,0)) → ⟦BI_multi_wand Δ A⟧ ⊆ ⟦A⟧.
+    Proof.
+      rewrite <- Forall_forall.
+      induction 1 as [ | B Δ H1 H2 IH2 ]; simpl; auto.
+      intros [] Hx;  apply IH2, (Hx _ H1).
+    Qed.
+
+    Variables (x y : nat) (p : loc) (Hxyp : forall c, ⟦acm2_to_BI x y p⟧ c).
 
     Lemma acm2_encode_complete : acm2_accept Σ x y p.
     Proof using Hxyp.
-      (* TPS is sound for LBI *)
-      apply tps_LBI_sound with (plus := pair_add) (e := (0,0)) (s := s) (m := (x,y)) in Hxyp; auto.
-      (* We reorder ⨂ₘ (enc x y) *)
-      apply tps_BI_equiv with (⨂ₘ (repeat £(inr α) x)
-                           ⊛ₘ (⨂ₘ (repeat £(inr β) y) 
-                           ⊛ₘ  ⨂ₘ (list_prod (λ p i, ![£(inl p)](encᵢ i)) l Σ)));
-        auto.
-      + (* This is a reordering *)
-        do 2 apply BI_bequiv_trans with (1 := BI_list_mult_app _ _),
-                   BI_bequiv_congr; auto using BI_bequiv_refl.
-      + (* (x,0) belongs to ⟦⨂ₘ (repeat £(inr α) x)⟧
-           (0,y) belongs to ⟦⨂ₘ (repeat £(inr β) y)⟧
-           (0,0) belongs to the rest ⟦⨂ₘ (map ![_](_) l⨯Σ)⟧ 
-           so their sum (x,y) = (x,0)+(0,y)+(0,0) 
-           belongs to the semantics of this bunch *)
-        exists (x,0), (0,y); split; simpl; auto; split;
-          [ | exists (0,y), (0,0); split; simpl; auto; split ].
-        * clear Hxyp.
-          induction x as [ | n ]; simpl; auto.
-          exists (1,0)%nat, (n,0); auto.
-        * clear Hxyp.
-          induction y as [ | n ]; simpl; auto.
-          exists (0,1)%nat, (0,n); auto.
-        * apply tps_BI_bunch_list_mult; auto.
-          intros ? (? & ? & -> & [])%list_prod_spec.
-          apply tps_BI_pseudo_exp; auto.
-          now apply tps_instr_sound.
+      change (s (inl p) (x,y)).
+      simpl in Hxyp.
+      specialize (Hxyp eq_refl).
+      unfold enc in Hxyp.
+      rewrite !BI_mult_wand_app in Hxyp.
+      apply tps_BI_multi_wand_α,
+            tps_BI_multi_wand_β in Hxyp.
+      rewrite !Nat.add_0_r in Hxyp.
+      simpl in Hxyp.
+      apply tps_BI_multi_wand_zero in Hxyp; auto.
+      intros B (? & i & -> & [])%list_prod_spec.
+      apply tps_BI_pseudo_exp; auto.
+      now apply tps_instr_sound.
     Qed.
-
+ 
   End completeness.
 
 End ACM2_to_BI.
 
 #[local] Hint Resolve acm2_encode_sound acm2_encode_complete in_map : core.
 
-(** This establishes the correctness of the reduction 2-ACM ~~> LBI *)
-Theorem acm2_to_BI_correctness (loc : Set) Σ x y (p : loc) :
-    acm2_accept Σ x y p
-  ↔ LBI_provable BI_cut_free (BI_list_mult (acm2_ctx_to_BI Σ (map (@acm2_instr_src _) Σ) x y)) £(inl p).
-Proof. split; eauto. Qed.
+Arguments acm2_instr_src  {_}.
 
-Check acm2_to_BI_correctness.
+Definition acm2_to_BI_form (loc : Set) Σ x y (p : loc) µ' Hµ' :=
+  BI_form_map µ' Hµ' (λ x, x) (acm2_to_BI Σ (map acm2_instr_src Σ) x y p).
 
-
+(** This establishes the correctness of the reductions
+    2-ACM ~~> LBI,
+    2-ACM ~~> HBI *)
+Theorem acm2_to_HBI_correctness (loc : Set) Σ x y (p : loc) µ' Hµ' cut :
+    (acm2_accept Σ x y p → øₐ ⊦ acm2_to_BI Σ (map acm2_instr_src Σ) x y p)
+  ∧ (øₐ ⊦ acm2_to_BI Σ (map acm2_instr_src Σ) x y p → øₐ L⊦[cut] acm2_to_BI_form Σ x y p µ' Hµ')
+  ∧ (øₐ L⊦[cut] acm2_to_BI_form Σ x y p µ' Hµ' → H⊦ acm2_to_BI_form Σ x y p _ (λ _ _, eq_refl))
+  ∧ (H⊦ acm2_to_BI_form Σ x y p _ (λ _ _, eq_refl) → acm2_accept Σ x y p).
+Proof.
+  split; [ | split; [ | split ] ].
+  + apply acm2_encode_sound, in_map.
+  + assert (BI_cut_free = BI_with_cut → cut = BI_with_cut) as C by easy.
+    intros ?%(BI_map_sound _ Hµ' (λ x, x) C); auto.
+  + intros h%LBI_to_HBI_form.
+    unfold acm2_to_BI_form in h |- *.
+    now rewrite BI_form_map_map in h.
+  + intros h.
+    apply acm2_encode_complete with (l := map acm2_instr_src Σ).
+    intros c.
+    apply (tps_HBI_sound pair_add (0,0)) with (s := tps Σ) (x := c) in h; auto.
+    unfold acm2_to_BI_form in h.
+    now rewrite sem_BI_form_map_id in h.
+Qed.
 
 

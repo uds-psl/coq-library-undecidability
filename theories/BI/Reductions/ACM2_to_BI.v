@@ -13,7 +13,7 @@ From Undecidability.MinskyMachines
   Require Import ACM2.
 
 From Undecidability.BI
-  Require Import BI Utils.bi_utils.
+  Require Import BI utils encoding.
 
 From Undecidability.Synthetic
   Require Import Definitions ReducibilityFacts.

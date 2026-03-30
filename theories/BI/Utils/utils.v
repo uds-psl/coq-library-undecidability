@@ -7,7 +7,7 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-From Stdlib Require Import List Permutation Utf8.
+From Stdlib Require Import List Permutation Eqdep_dec Utf8.
 
 From Undecidability.BI
   Require Import BI.
@@ -21,6 +21,12 @@ Set Implicit Arguments.
 #[local] Infix "~p" := (@Permutation _) (at level 70).
 
 #[local] Hint Constructors Permutation : core.
+
+Fact eq_bool_pirr (a b : bool) (e f : a = b) : e = f.
+Proof. apply UIP_dec; decide equality. Qed.
+
+Fact eq_bool_pirr' (a : bool) (e : a = a) : e = eq_refl.
+Proof. apply eq_bool_pirr. Qed.
 
 #[local] Fact exists_iff_compat X (P Q : X → Prop) : (∀x, P x ↔ Q x) → (∃x, P x) ↔ ∃x, Q x.
 Proof. firstorder. Qed.
@@ -114,15 +120,22 @@ Section BI_map.
   Hint Constructors LBI_provable : core.
   Hint Resolve BI_bunch_equiv_map : core.
 
-  Theorem BI_map_sound b b' Γ A : 
-      (b = BI_with_cut → b' = BI_with_cut) 
-    → Γ L⊦[b] A 
-    → BI_bunch_map Γ L⊦[b'] BI_form_map A.
+  Theorem BI_map_sound b b' (_ : b = BI_with_cut → b' = BI_with_cut)  Γ A :
+    Γ L⊦[b] A → BI_bunch_map Γ L⊦[b'] BI_form_map A.
   Proof.
-    induction 2; simpl; eauto; rewrite BI_ctx_bunch_map in * |- *; simpl in *; eauto.
+    induction 1; simpl; eauto; rewrite BI_ctx_bunch_map in * |- *; simpl in *; eauto.
   Qed.
 
 End BI_map.
+
+Fact BI_form_map_map (µ µ' µ'' : BI_conn → bool)
+            (Hµ : ∀c, µ c = true → µ' c = true)
+            (Hµ' : ∀c, µ' c = true → µ'' c = true)
+            (prop prop' prop'' : Set)
+            (φ : prop → prop') (ψ : prop' → prop'') A : 
+    BI_form_map µ'' Hµ' ψ (BI_form_map µ' Hµ φ A)
+  = BI_form_map µ'' (fun c h => Hµ' _ (Hµ c h)) (fun p => ψ (φ p)) A.
+Proof. induction A; simpl; f_equal; auto. Qed.
 
 Section BI_vars.
 
@@ -145,18 +158,18 @@ Section BI_vars.
     | BI_bunch_comp _ Γ Δ => BI_bunch_vars Γ ++ BI_bunch_vars Δ
     end.
 
-  Hint Resolve in_or_app : core.
+  Hint Resolve in_or_app eq_bool_pirr : core.
 
-  Fact BI_form_map_id φ A :
+  Fact BI_form_map_id hµ φ A :
      (∀v, v ∊ BI_form_vars A → φ v = v)
-    → BI_form_map µ (λ _ h, h) φ A = A.
-  Proof. induction A; simpl; intro; f_equal; eauto. Qed.
+    → BI_form_map µ hµ φ A = A.
+  Proof. induction A; simpl; intro; f_equal; auto. Qed.
 
   Hint Resolve BI_form_map_id : core.
 
-  Fact BI_bunch_map_id φ Γ :
+  Fact BI_bunch_map_id hµ φ Γ :
      (∀v, v ∊ BI_bunch_vars Γ → φ v = v)
-    → BI_bunch_map µ (λ _ h, h) φ Γ = Γ.
+    → BI_bunch_map µ hµ φ Γ = Γ.
   Proof. induction Γ; simpl; intros; f_equal; auto. Qed.
 
 End BI_vars.

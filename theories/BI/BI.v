@@ -199,10 +199,9 @@ Section Logic_Bunched_Implications.
 
   where "Γ ⊦ A" := (LBI_provable Γ A).
 
-  Definition BI_sequent_problem := (BI_bunch * BI_form)%type.
+  Definition BI_sequent_problem := BI_form.
 
-  Definition BI_SEQ_PROVABLE (p : BI_sequent_problem) : Prop := 
-    match p with (Γ,A) => Γ ⊦ A end.
+  Definition BI_SEQ_PROVABLE (A : BI_sequent_problem) : Prop := ø[BI_addi] ⊦ A.
 
 End Logic_Bunched_Implications.
 

@@ -212,7 +212,7 @@ Section TPS.
         with (b' := BI_with_cut)
              (Hµ := λ _ _, eq_refl)
              (φ := λ x : prop, x),
-        LBI_to_HBI in H; auto.
+        LBI_full_to_HBI in H; auto.
       intros x.
       apply tps_HBI_sound with (s := s) (x := x) in H.
       simpl in H.

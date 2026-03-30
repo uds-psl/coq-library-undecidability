@@ -10,16 +10,13 @@
 From Stdlib Require Import Utf8 Eqdep_dec.
 
 From Undecidability.BI
-  Require Import BI hil.
+  Require Import BI utils hil.
 
 Set Implicit Arguments.
 
 Import BI_notations.
 
-#[local] Fact eq_bool_pirr (a : bool) (e : a = a) : e = eq_refl.
-Proof. apply UIP_dec; decide equality. Qed.
-
-Section LBI_HBI.
+Section LBI_full_HBI.
 
   Variables (prop : Set).
 
@@ -311,7 +308,7 @@ Section LBI_HBI.
                  HBI_bot_elim 
                  HBI_disj_intro_l HBI_disj_intro_r : core.
 
-    Theorem LBI_to_HBI Γ A : Γ L⊦wc A → H⊦ BI_bunch_form Γ⇒A.
+    Theorem LBI_full_to_HBI Γ A : Γ L⊦wc A → H⊦ BI_bunch_form Γ⇒A.
     Proof.
       induction 1 as [ 
                      | ? Γ Δ A B _ IH1 _ IH2 
@@ -330,7 +327,7 @@ Section LBI_HBI.
                      | ? Γ A B _ IH
                      ];
         try match goal with
-        | h : true = true |- _ => rewrite (eq_bool_pirr h) in *; clear h
+        | h : true = true |- _ => rewrite (eq_bool_pirr' h) in *; clear h
         end; auto.
       13: apply HBI_trans with (1 := HBI_ctx_disj _ _ _); auto.
       all: simpl in *; repeat match goal with
@@ -346,9 +343,14 @@ Section LBI_HBI.
 
   End LBI_to_HBI.
 
-  Corollary LBI_to_HBI_form A : øₐ L⊦wc A → H⊦ A.
-  Proof. intros H%LBI_to_HBI; apply HBI_MP with (2 := H), HBI_top_intro. Qed.
+  Corollary LBI_full_to_HBI_form A : øₐ L⊦wc A → H⊦ A.
+  Proof. intros H%LBI_full_to_HBI; apply HBI_MP with (2 := H), HBI_top_intro. Qed.
 
-End LBI_HBI.
+End LBI_full_HBI.
+
+About BI_form_map.
+
+Theorem LBI_to_HBI_form prop µ c (A : BI_form µ prop) : øₐ L⊦[c] A → H⊦ BI_form_map (λ _, true) (λ _ _, eq_refl) (λ p, p) A.
+Proof. now intros H%(BI_map_sound (λ _, true) (λ _ _, eq_refl) (λ p, p) (λ _, eq_refl))%LBI_full_to_HBI_form. Qed.
 
 Check LBI_to_HBI_form.
