@@ -7,27 +7,22 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-From Stdlib Require Import List Utf8.
+From Stdlib Require Import Utf8.
 
 From Undecidability.BI
   Require Import BI utils.
 
-Import ListNotations.
+Import BI_notations.
 
 Set Implicit Arguments.
 
 #[local] Notation "X ⊆ Y" := (∀m, X m → Y m) (at level 70).
-#[local] Infix "∊" := In (at level 70).
-
-#[local] Notation "x ≡ y" := (BI_bunch_equiv x y) (at level 70, no associativity, format "x  ≡  y").
-#[local] Notation "C [ Δ ]" := (BI_ctx_fill C Δ) (at level 1, no associativity, format "C [ Δ ]").
-#[local] Notation "Γ '⊦[' b ']' A" := (LBI_provable b Γ A) (at level 70, no associativity, format "Γ  ⊦[ b ]  A").
 
 Section IL.
 
   Variables (prop : Set).
 
-  Notation µ := (λ _ : BI_conn, true).
+  Abbreviation µ := (λ _ : BI_conn, true).
 
   Notation "⊥" := (@BI_form_bot _ _ eq_refl).
   Notation "⊤" := (@BI_form_unit _ _ BI_addi eq_refl).
@@ -50,59 +45,50 @@ Section IL.
   Theorem HIL_mono Φ Φ' : Φ ⊆ Φ' → HIL_deduction Φ ⊆ HIL_deduction Φ'.
   Proof. induction 2; eauto. Qed.
 
-  Section deduction_theorem.
+  Theorem HIL_deduction_theorem Φ (HΦ : IL_axiom ⊆ Φ) A B : (λ x, Φ x ∨ A = x) I⊦ B → Φ I⊦ A⇒B.
+  Proof.
+    induction 1 as [ B [] | B C _ IH1 _ IH2 ].
+    + constructor 2 with B; eauto.
+    + subst.
+      constructor 2 with (B⇒B⇒B); eauto.
+      constructor 2 with (B⇒(B⇒B)⇒B); eauto.
+    + constructor 2 with (1 := IH1).
+      constructor 2 with (1 := IH2). 
+      constructor 1; eauto.
+  Qed.
 
-    Variables (Φ : _) (HΦ : @IL_axiom prop ⊆ Φ).
+  (** From the Deduction Theorem, we develop a ND calculus
+      that is MUCH BETTER suited to prove theorems of HBI,
+      compared to Hilbert style reasonning *)
 
-    Theorem HIL_deduction_theorem A B : (λ x, Φ x ∨ A = x) I⊦ B → Φ I⊦ A⇒B.
-    Proof using HΦ.
-      induction 1 as [ B [] | B C _ IH1 _ IH2 ].
-      + constructor 2 with B; eauto.
-      + subst.
-        constructor 2 with (B⇒B⇒B); eauto.
-        constructor 2 with (B⇒(B⇒B)⇒B); eauto.
-      + constructor 2 with (1 := IH1).
-        constructor 2 with (1 := IH2). 
-        constructor 1; eauto.
-    Qed.
-
-  End deduction_theorem.
-
-  Fact HIL_imp_intro Φ A B :
-    IL_axiom ⊆ Φ → (λ x, Φ x ∨ A = x) I⊦ B → Φ I⊦ A⇒B.
+  Fact HIL_imp_intro Φ (HΦ : IL_axiom ⊆ Φ) A B : (λ x, Φ x ∨ A = x) I⊦ B → Φ I⊦ A⇒B.
   Proof. intros; apply HIL_deduction_theorem; auto. Qed.
 
-  Fact HIL_imp_elim Φ A B C :
-      IL_axiom ⊆ Φ
-    → Φ I⊦ A⇒B
+  Fact HIL_imp_elim Φ (HΦ : IL_axiom ⊆ Φ) A B C :
+      Φ I⊦ A⇒B
     → Φ I⊦ A
     → (λ x, Φ x ∨ B = x) I⊦ C
     → Φ I⊦ C.
   Proof.
-    intros HΦ H1 H2 H3.
+    intros.
     constructor 2 with B; auto.
     + constructor 2 with A; eauto.
     + apply HIL_imp_intro; eauto.
   Qed.
 
-  Fact HIL_conj_intro Φ A B :
-      IL_axiom ⊆ Φ
-    → Φ I⊦ A
-    → Φ I⊦ B
-    → Φ I⊦ A⩑B.
+  Fact HIL_conj_intro Φ (HΦ : IL_axiom ⊆ Φ) A B : Φ I⊦ A → Φ I⊦ B → Φ I⊦ A⩑B.
   Proof.
-    intros HΦ H1 H2.
+    intros.
     constructor 2 with B; auto.
     constructor 2 with A; auto.
   Qed.
  
-  Fact HIL_conj_elim Φ A B C :
-      IL_axiom ⊆ Φ
-    → Φ I⊦ A⩑B
+  Fact HIL_conj_elim Φ (HΦ : IL_axiom ⊆ Φ) A B C :
+      Φ I⊦ A⩑B
     → (λ x, Φ x ∨ A = x ∨ B = x) I⊦ C
     → Φ I⊦ C.
   Proof.
-    intros HΦ H1 H2.
+    intros H1 H2.
     constructor 2 with B.
     1: constructor 2 with (A⩑B); eauto.
     constructor 2 with A.
@@ -117,17 +103,14 @@ Section IL.
   Fact HIL_bot_elim Φ A : IL_axiom ⊆ Φ → Φ I⊦ ⊥ → Φ I⊦ A.
   Proof. intros; constructor 2 with ⊥; eauto. Qed.
 
-  Fact HIL_disj_intro_l Φ A B :
-    IL_axiom ⊆ Φ → Φ I⊦ A → Φ I⊦ A⩒B.
+  Fact HIL_disj_intro_l Φ (HΦ : IL_axiom ⊆ Φ) A B : Φ I⊦ A → Φ I⊦ A⩒B.
   Proof. constructor 2 with A; eauto. Qed.
 
-  Fact HIL_disj_intro_r Φ A B :
-    IL_axiom ⊆ Φ → Φ I⊦ B → Φ I⊦ A⩒B.
+  Fact HIL_disj_intro_r Φ (HΦ : IL_axiom ⊆ Φ) A B : Φ I⊦ B → Φ I⊦ A⩒B.
   Proof. constructor 2 with B; eauto. Qed.
 
-  Fact HIL_disj_elim Φ A B C :
-      IL_axiom ⊆ Φ
-    → Φ I⊦ A⩒B
+  Fact HIL_disj_elim Φ (HΦ : IL_axiom ⊆ Φ) A B C :
+      Φ I⊦ A⩒B
     → (λ x, Φ x ∨ A = x) I⊦ C
     → (λ x, Φ x ∨ B = x) I⊦ C
     → Φ I⊦ C.

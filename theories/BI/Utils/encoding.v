@@ -15,24 +15,13 @@ From Undecidability.MinskyMachines
 From Undecidability.BI
   Require Import BI utils tps.
 
-Import ListNotations ACM2_Notations.
+Import ListNotations ACM2_Notations BI_notations.
 
 Set Implicit Arguments.
 
 #[local] Notation "X ⊆ Y" := (∀m, X m → Y m) (at level 70).
 #[local] Infix "∊" := In (at level 70).
 #[local] Infix "~p" := (@Permutation _) (at level 70).
-
-#[local] Notation "x ≡ y" := (BI_bunch_equiv x y) (at level 70, no associativity, format "x  ≡  y").
-#[local] Notation "C [ Δ ]" := (BI_ctx_fill C Δ) (at level 1, no associativity, format "C [ Δ ]").
-
-#[local] Notation "⟨ A ⟩" := (BI_bunch_atom A) (at level 0, format "⟨ A ⟩"). 
-#[local] Notation "'ø[' k ']'" := (BI_bunch_unit _ _ k) (at level 0, no associativity, format "ø[ k ]").
-#[local] Notation "Γ '⊛[' k ']' Δ" := (BI_bunch_comp k Γ Δ) (at level 65, left associativity, format "Γ  ⊛[ k ]  Δ").
-#[local] Notation øₐ := ø[BI_addi].
-#[local] Notation øₘ := ø[BI_mult].
-#[local] Notation "Γ '⊛ₐ' Δ" := (Γ ⊛[BI_addi] Δ) (at level 65, left associativity, format "Γ  ⊛ₐ  Δ").
-#[local] Notation "Γ '⊛ₘ' Δ" := (Γ ⊛[BI_mult] Δ) (at level 65, left associativity, format "Γ  ⊛ₘ  Δ").
 
 #[local] Notation "£ v" := (@BI_form_var _ _ v) (at level 1, format "£ v").
 #[local] Notation "⊥" := (@BI_form_bot _ _ eq_refl).
@@ -58,7 +47,7 @@ Definition BI_fragment_impl_conj_unit c :=
   | _               => false  (* no other connective *)
   end.
 
-#[local] Notation µ := BI_fragment_impl_conj_unit.
+#[local] Abbreviation µ := BI_fragment_impl_conj_unit.
 
 #[local] Notation "⨂ₘ" := BI_list_mult.
 
@@ -399,8 +388,8 @@ Section ACM2_to_BI.
       while the right part is used from the two
       counters α/β *)
 
-  Notation α := true.
-  Notation β := false.
+  Abbreviation α := true.
+  Abbreviation β := false.
 
   Definition acm2_instr_to_BI i : BI_form µ (loc+bool) :=
     match i with
@@ -410,18 +399,16 @@ Section ACM2_to_BI.
     | STOPₐ p     => 1 -∗ £(inl p)
     end.
 
-  Notation encᵢ := acm2_instr_to_BI.
+  Abbreviation encᵢ := acm2_instr_to_BI.
 
   Notation "![ γ ] φ" := (BI_pseudo_exp γ φ).
-
-  Check list_prod.
 
   Definition acm2_ctx_to_BI x y :=
        repeat £(inr α) x
     ++ repeat £(inr β) y 
     ++ list_prod (λ p i, ![£(inl p)](encᵢ i)) l Σ.
 
-  Notation enc := acm2_ctx_to_BI.
+  Abbreviation enc := acm2_ctx_to_BI.
 
   (* enc x y collects all encodings of instruction 
      ![p](encᵢ i) for any location that might occur

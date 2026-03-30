@@ -12,15 +12,12 @@ From Stdlib Require Import List Utf8.
 From Undecidability.BI
   Require Import BI utils hbi.
 
-Import ListNotations.
+Import BI_notations ListNotations.
 
 Set Implicit Arguments.
 
 #[local] Notation "X ⊆ Y" := (∀m, X m → Y m) (at level 70).
 #[local] Infix "∊" := In (at level 70).
-
-#[local] Notation "x ≡ y" := (BI_bunch_equiv x y) (at level 70, no associativity, format "x  ≡  y").
-#[local] Notation "C [ Δ ]" := (BI_ctx_fill C Δ) (at level 1, no associativity, format "C [ Δ ]").
 
 #[local] Notation "£ v" := (@BI_form_var _ _ v) (at level 1, format "£ v").
 #[local] Notation "⊤" := (@BI_form_unit _ _ BI_addi _).
@@ -32,14 +29,6 @@ Set Implicit Arguments.
 #[local] Notation "A ⇒ B" := (@BI_form_impl _ _ BI_addi _ A B) (at level 63, right associativity, format "A ⇒ B").
 #[local] Notation "A ⩑ B" := (@BI_form_conj _ _ BI_addi _ A B) (at level 59, left associativity, format "A ⩑ B").
 #[local] Notation "A ⩒ B" := (@BI_form_disj _ _ _ A B) (at level 61, left associativity, format "A ⩒ B").
-
-#[local] Notation "⟨ A ⟩" := (BI_bunch_atom A) (at level 0, format "⟨ A ⟩"). 
-#[local] Notation "'ø[' k ']'" := (BI_bunch_unit _ _ k) (at level 0, no associativity, format "ø[ k ]").
-#[local] Notation "Γ '⊛[' k ']' Δ" := (BI_bunch_comp k Γ Δ) (at level 65, left associativity, format "Γ  ⊛[ k ]  Δ").
-#[local] Notation øₐ := ø[BI_addi].
-#[local] Notation øₘ := ø[BI_mult].
-#[local] Notation "Γ '⊛ₐ' Δ" := (Γ ⊛[BI_addi] Δ) (at level 65, left associativity, format "Γ  ⊛ₐ  Δ").
-#[local] Notation "Γ '⊛ₘ' Δ" := (Γ ⊛[BI_mult] Δ) (at level 65, left associativity, format "Γ  ⊛ₘ  Δ").
 
 Section TPS.
 
@@ -133,7 +122,7 @@ Section TPS.
 
   Section HBI.
 
-    Notation µ := (λ _ : BI_conn, true).
+    Abbreviation µ := (λ _ : BI_conn, true).
 
     Variables (prop : Set) (s : prop → M → Prop).
 
@@ -196,7 +185,7 @@ Section TPS.
 
     Variables (µ : BI_conn → bool) (prop : Set) (s : prop → M → Prop).
 
-    Notation µ' := (λ _ : BI_conn, true).
+    Abbreviation µ' := (λ _ : BI_conn, true).
 
     Implicit Types (A : BI_form µ prop) (Γ : BI_bunch µ prop) (s : prop → M → Prop).
 

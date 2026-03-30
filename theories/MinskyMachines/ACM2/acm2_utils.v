@@ -45,8 +45,8 @@ Section TPS_sem.
 
 End TPS_sem.
 
-#[local] Notation α := true.
-#[local] Notation β := false.
+#[local] Abbreviation α := true.
+#[local] Abbreviation β := false.
 
 #[local] Infix "-∘" := tps_lolipop (at level 65, right associativity).
 #[local] Infix "∘" := tps_tensor (at level 64, left associativity).
@@ -171,7 +171,7 @@ Section ndMM2_reduces_to_ACM2.
   (** The two bool locations in loc' are fresh locations that
       each perform nullification of the other register *)
 
-  Notation loc' := (loc + bool)%type.
+  Abbreviation loc' := (loc + bool)%type.
 
   (** All instructions except ZEROₙ are translated as is
 

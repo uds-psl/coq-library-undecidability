@@ -12,7 +12,7 @@ From Stdlib Require Import List Permutation Utf8.
 From Undecidability.BI
   Require Import BI.
 
-Import ListNotations.
+Import BI_notations ListNotations.
 
 Set Implicit Arguments.
 
@@ -22,26 +22,15 @@ Set Implicit Arguments.
 
 #[local] Hint Constructors Permutation : core.
 
+#[local] Fact exists_iff_compat X (P Q : X → Prop) : (∀x, P x ↔ Q x) → (∃x, P x) ↔ ∃x, Q x.
+Proof. firstorder. Qed.
+
 Fact permutation_in_head {X} (x : X) l : x ∊ l → ∃m, l ~p x::m.
 Proof.
   induction l as [ | y l IHl ].
   + intros [].
   + intros [ <- | []%IHl ]; eauto.
 Qed.
-
-#[local] Notation "x ≡ y" := (BI_bunch_equiv x y) (at level 70, no associativity, format "x  ≡  y").
-#[local] Notation "C [ Δ ]" := (BI_ctx_fill C Δ) (at level 1, no associativity, format "C [ Δ ]").
-#[local] Notation "Γ '⊦[' b ']' A" := (LBI_provable b Γ A) (at level 70, no associativity, format "Γ  ⊦[ b ]  A").
-
-#[local] Notation "⟨ A ⟩" := (BI_bunch_atom A) (at level 0, format "⟨ A ⟩"). 
-
-#[local] Notation "'ø[' k ']'" := (BI_bunch_unit _ _ k) (at level 0, no associativity, format "ø[ k ]").
-#[local] Notation "Γ '⊛[' k ']' Δ" := (BI_bunch_comp k Γ Δ) (at level 65, left associativity, format "Γ  ⊛[ k ]  Δ").
-
-#[local] Notation øₐ := ø[BI_addi].
-#[local] Notation øₘ := ø[BI_mult].
-#[local] Notation "Γ '⊛ₐ' Δ" := (Γ ⊛[BI_addi] Δ) (at level 65, left associativity, format "Γ  ⊛ₐ  Δ").
-#[local] Notation "Γ '⊛ₘ' Δ" := (Γ ⊛[BI_mult] Δ) (at level 65, left associativity, format "Γ  ⊛ₘ  Δ").
 
 Section BI_list_mult.
 
@@ -62,9 +51,6 @@ Section BI_list_mult.
   Proof. simpl; apply BI_bequiv_comm. Qed.
 
 End BI_list_mult.
-
-#[local] Fact exists_iff_compat X (P Q : X → Prop) : (∀x, P x ↔ Q x) → (∃x, P x) ↔ ∃x, Q x.
-Proof. firstorder. Qed.
 
 Section list_prod.
 
@@ -130,8 +116,8 @@ Section BI_map.
 
   Theorem BI_map_sound b b' Γ A : 
       (b = BI_with_cut → b' = BI_with_cut) 
-    → Γ ⊦[b] A 
-    → BI_bunch_map Γ ⊦[b'] BI_form_map A.
+    → Γ L⊦[b] A 
+    → BI_bunch_map Γ L⊦[b'] BI_form_map A.
   Proof.
     induction 2; simpl; eauto; rewrite BI_ctx_bunch_map in * |- *; simpl in *; eauto.
   Qed.
@@ -199,7 +185,7 @@ Section BI_embed.
   Theorem BI_embed_correctness b Σ A :
       (∀v, v ∊ BI_form_vars A → ψ (φ v) = v)
     → (∀v, v ∊ BI_bunch_vars Σ → ψ (φ v) = v)
-    → Σ ⊦[b] A ↔ BI_bunch_map µ (λ _ h, h) φ Σ ⊦[b] BI_form_map µ (λ _ h, h) φ A.
+    → Σ L⊦[b] A ↔ BI_bunch_map µ (λ _ h, h) φ Σ L⊦[b] BI_form_map µ (λ _ h, h) φ A.
   Proof.
     intros H1 H2; split.
     + apply BI_map_sound; auto.

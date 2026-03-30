@@ -47,13 +47,13 @@ Section And_Branching_Two_Counter_Machines.
     | acm2_dec     : bool → loc → loc → acm2_instr
     | acm2_fork    : loc  → loc → loc → acm2_instr.
 
-  Notation α := true.
-  Notation β := false.
+  Abbreviation α := true.
+  Abbreviation β := false.
 
-  Notation FORKₐ := acm2_fork.
-  Notation INCₐ  := acm2_inc.
-  Notation DECₐ  := acm2_dec.
-  Notation STOPₐ := acm2_stop.
+  Abbreviation FORKₐ := acm2_fork.
+  Abbreviation INCₐ  := acm2_inc.
+  Abbreviation DECₐ  := acm2_dec.
+  Abbreviation STOPₐ := acm2_stop.
 
   Infix "∊" := In (at level 70).
 
@@ -124,10 +124,10 @@ Arguments acm2_dec {_}.
 
 Module ACM2_Notations.
 
-  Notation FORKₐ := acm2_fork.
-  Notation INCₐ  := acm2_inc.
-  Notation DECₐ  := acm2_dec.
-  Notation STOPₐ := acm2_stop.
+  Abbreviation FORKₐ := acm2_fork.
+  Abbreviation INCₐ  := acm2_inc.
+  Abbreviation DECₐ  := acm2_dec.
+  Abbreviation STOPₐ := acm2_stop.
 
   Notation "s ⫽ₐ x ⊕ y ⊦ p" := (@acm2_accept _ s x y p) (at level 70).
 

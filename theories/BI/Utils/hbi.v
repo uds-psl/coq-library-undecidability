@@ -14,25 +14,19 @@ From Undecidability.BI
 
 Set Implicit Arguments.
 
-Local Fact eq_bool_pirr (a : bool) (e : a = a) : e = eq_refl.
+Import BI_notations.
+
+#[local] Fact eq_bool_pirr (a : bool) (e : a = a) : e = eq_refl.
 Proof. apply UIP_dec; decide equality. Qed.
 
 Section LBI_HBI.
 
   Variables (prop : Set).
 
-  Notation µ := (λ _ : BI_conn, true).
-
-  Notation "x ≡ y" := (BI_bunch_equiv x y) (at level 70, no associativity, format "x  ≡  y").
-  Notation "C [ Δ ]" := (BI_ctx_fill C Δ) (at level 1, no associativity, format "C [ Δ ]").
-
-  Notation "⟨ A ⟩" := (BI_bunch_atom A) (at level 0, format "⟨ A ⟩"). 
-  Notation "'ø[' k ']'" := (BI_bunch_unit _ _ k) (at level 0, no associativity, format "ø[ k ]").
-  Notation "Γ '⊛[' k ']' Δ" := (BI_bunch_comp k Γ Δ) (at level 65, left associativity, format "Γ  ⊛[ k ]  Δ").
-  Notation øₐ := ø[BI_addi].
-  Notation øₘ := ø[BI_mult].
-  Notation "Γ '⊛ₐ' Δ" := (Γ ⊛[BI_addi] Δ) (at level 65, left associativity, format "Γ  ⊛ₐ  Δ").
-  Notation "Γ '⊛ₘ' Δ" := (Γ ⊛[BI_mult] Δ) (at level 65, left associativity, format "Γ  ⊛ₘ  Δ").
+  Abbreviation µ := (λ _ : BI_conn, true).
+  
+  (** We show that what can be proved in the full fragment of LBI
+     (incl. with the cut-rule) can also be proved in HBI *)
 
   Notation "⊥" := (@BI_form_bot _ _ eq_refl).
   Notation "⊤" := (@BI_form_unit _ _ BI_addi eq_refl).
@@ -43,12 +37,11 @@ Section LBI_HBI.
   Notation "A ⩑ B" := (@BI_form_conj _ _ BI_addi eq_refl A B) (at level 59, left associativity, format "A ⩑ B").
   Notation "A ⩒ B" := (@BI_form_disj _ _ eq_refl A B) (at level 61, left associativity, format "A ⩒ B").
 
-  Implicit Types (K : BI_form µ prop).
+  Implicit Types (A B : BI_form µ prop).
 
   Hint Constructors HBI_deduction IL_axiom BI_axiom : core.
 
   Notation "Σ 'L⊦wc' A" := (@LBI_provable µ prop BI_with_cut Σ A) (at level 70, format "Σ  L⊦wc  A").
-  Notation "H⊦ A" := (@HBI_provable prop A) (at level 70).
 
   (* We start by importing the proof theory of HIL into HBI *)
 
@@ -152,7 +145,7 @@ Section LBI_HBI.
   Fact HBI_imp_anti_mono A B C D : H⊦ (A⇒B)⇒(C⇒D)⇒(B⇒C)⇒(A⇒D).
   Proof. solve with HIL_imp_anti_mono. Qed.
 
-  Fact HBI_top_intro : H⊦ ⊤.
+  Fact HBI_top_intro : H⊦ (⊤ : BI_form µ prop).
   Proof. solve with HIL_top_r. Qed.
 
   Fact HBI_bot_elim A : H⊦ ⊥⇒A.
@@ -353,6 +346,9 @@ Section LBI_HBI.
 
   End LBI_to_HBI.
 
+  Corollary LBI_to_HBI_form A : øₐ L⊦wc A → H⊦ A.
+  Proof. intros H%LBI_to_HBI; apply HBI_MP with (2 := H), HBI_top_intro. Qed.
+
 End LBI_HBI.
 
-Check LBI_to_HBI.
+Check LBI_to_HBI_form.
