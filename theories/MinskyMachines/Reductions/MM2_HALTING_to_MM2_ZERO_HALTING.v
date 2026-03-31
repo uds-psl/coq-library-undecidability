@@ -27,8 +27,8 @@ Module Argument.
 Section MM2_MM2.
   Variables (M : list mm2_instr) (a0 b0 : nat).
 
-  Local Notation mm2_state := (nat*(nat*nat))%type.
-  Local Notation mm2_reaches x y := (clos_refl_trans mm2_state (mm2_step M) x y).
+  Local Abbreviation mm2_state := (nat*(nat*nat))%type.
+  Local Abbreviation mm2_reaches x y := (clos_refl_trans mm2_state (mm2_step M) x y).
 
   Definition shift_instr (mm2i : mm2_instr) : mm2_instr :=
     match mm2i with
@@ -44,7 +44,7 @@ Section MM2_MM2.
 
   Definition M' := repeat mm2_inc_a a0 ++ repeat mm2_inc_b b0 ++ map shift_instr M.
 
-  Local Notation mm2'_reaches x y := (clos_refl_trans mm2_state (mm2_step M') x y).
+  Local Abbreviation mm2'_reaches x y := (clos_refl_trans mm2_state (mm2_step M') x y).
 
   Lemma length_M' : length M' = a0+b0+length M.
   Proof.

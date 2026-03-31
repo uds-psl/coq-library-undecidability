@@ -48,11 +48,11 @@ Proof.
   move=> x [y Hy]. exists (y+x+1). nia.
 Qed.
 
-#[local] Notation c2 x := (sval (c2_full x)).
-#[local] Notation c2_spec x := (svalP (c2_full x)).
+#[local] Abbreviation c2 x := (sval (c2_full x)).
+#[local] Abbreviation c2_spec x := (svalP (c2_full x)).
 
 (* fresh variable space *)
-Notation var x t := (Cantor.to_nat (x, t)).
+Abbreviation var x t := (Cantor.to_nat (x, t)).
 Opaque Cantor.to_nat Cantor.of_nat.
 
 Section Reduction.

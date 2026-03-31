@@ -21,7 +21,7 @@ Section Construction.
     | (ls, a, rs) => TM.midtape ls a rs
     end.
 
-  #[local] Notation state' := (option (Fin.t ((num_states M)))).
+  #[local] Abbreviation state' := (option (Fin.t ((num_states M)))).
 
   Definition finTypeC_state' : finType := 
     @finType_CS state' _ (CompoundFinTypes.finTypeC_Option _).
@@ -55,8 +55,8 @@ Section Construction.
       end).
   Defined.
 
-  #[local] Notation TM_step x := (@TM_facts.step _ _ M' x).
-  #[local] Notation TM_config := (@TM_facts.mconfig (finType_CS bool) (TM.state M') 1).
+  #[local] Abbreviation TM_step x := (@TM_facts.step _ _ M' x).
+  #[local] Abbreviation TM_config := (@TM_facts.mconfig (finType_CS bool) (TM.state M') 1).
 
   Definition encode_config : config M -> TM_config :=
     fun '(q, t) => TM_facts.mk_mconfig (Some q) ([ encode_tape t ]).

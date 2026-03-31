@@ -26,31 +26,31 @@ Arguments pos_nxt {n}.
 
 *)
 
-Notation pos := Fin.t.
-Notation pos_fst := Fin.F1.
-Notation pos_nxt := Fin.FS.
+Abbreviation pos := Fin.t.
+Abbreviation pos_fst := Fin.F1.
+Abbreviation pos_nxt := Fin.FS.
 
-Notation pos0  := (@pos_fst _).
-Notation pos1  := (pos_nxt pos0).
-Notation pos2  := (pos_nxt pos1).
-Notation pos3  := (pos_nxt pos2).
-Notation pos4  := (pos_nxt pos3).
-Notation pos5  := (pos_nxt pos4).
-Notation pos6  := (pos_nxt pos5).
-Notation pos7  := (pos_nxt pos6).
-Notation pos8  := (pos_nxt pos7).
-Notation pos9  := (pos_nxt pos8).
-Notation pos10 := (pos_nxt pos9).
-Notation pos11 := (pos_nxt pos10).
-Notation pos12 := (pos_nxt pos11).
-Notation pos13 := (pos_nxt pos12).
-Notation pos14 := (pos_nxt pos13).
-Notation pos15 := (pos_nxt pos14).
-Notation pos16 := (pos_nxt pos15).
-Notation pos17 := (pos_nxt pos16).
-Notation pos18 := (pos_nxt pos17).
-Notation pos19 := (pos_nxt pos18).
-Notation pos20 := (pos_nxt pos19).
+Abbreviation pos0  := (@pos_fst _).
+Abbreviation pos1  := (pos_nxt pos0).
+Abbreviation pos2  := (pos_nxt pos1).
+Abbreviation pos3  := (pos_nxt pos2).
+Abbreviation pos4  := (pos_nxt pos3).
+Abbreviation pos5  := (pos_nxt pos4).
+Abbreviation pos6  := (pos_nxt pos5).
+Abbreviation pos7  := (pos_nxt pos6).
+Abbreviation pos8  := (pos_nxt pos7).
+Abbreviation pos9  := (pos_nxt pos8).
+Abbreviation pos10 := (pos_nxt pos9).
+Abbreviation pos11 := (pos_nxt pos10).
+Abbreviation pos12 := (pos_nxt pos11).
+Abbreviation pos13 := (pos_nxt pos12).
+Abbreviation pos14 := (pos_nxt pos13).
+Abbreviation pos15 := (pos_nxt pos14).
+Abbreviation pos16 := (pos_nxt pos15).
+Abbreviation pos17 := (pos_nxt pos16).
+Abbreviation pos18 := (pos_nxt pos17).
+Abbreviation pos19 := (pos_nxt pos18).
+Abbreviation pos20 := (pos_nxt pos19).
 
 Definition pos_iso n m : n = m -> pos n -> pos m.
 Proof. intros []; auto. Defined.

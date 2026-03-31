@@ -5,7 +5,7 @@ Definition stack (X : Type) := list (list X * list X).
 
 (* ** Post Grammars *)
 
-Notation sig := nat.
+Abbreviation sig := nat.
 (* a rule maps a non-terminal symbol to a word *)
 Definition rule : Type := sig * list sig.
 (* a context-free grammar consist of a start symbol and a list of rules *)

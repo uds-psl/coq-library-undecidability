@@ -23,7 +23,7 @@ Set Implicit Arguments.
   Local Reserved Notation "x ↓ y" (at level 40, left associativity).
   Local Reserved Notation "x ↑ y" (at level 41, left associativity).
 
-  Local Notation lb := (list bool).
+  Local Abbreviation lb := (list bool).
   Local Notation "⟘" := false.
   Local Notation "⟙" := true.
   Local Infix "⪦" := Bool.le (at level 70, no associativity).
@@ -113,7 +113,7 @@ Set Implicit Arguments.
       transitivity proved by lb_mask_equiv_trans
     as lb_mask_equiv_rst.
 
-  Local Notation lbeq := lb_mask_equiv (only parsing).
+  Local Abbreviation lbeq := lb_mask_equiv (only parsing).
 
   Add Parametric Morphism: (lb_mask) with signature (lbeq) ==> (lbeq) ==> (iff) as lb_mask_le_iff.
   Proof. 

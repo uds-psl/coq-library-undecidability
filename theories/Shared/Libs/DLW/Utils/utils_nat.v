@@ -203,8 +203,8 @@ Section new.
 
 End new.
 
-Local Notation Zero := false.
-Local Notation One  := true.
+Local Abbreviation Zero := false.
+Local Abbreviation One  := true.
 
 Fixpoint div2 n : nat * bool :=
   match n with
