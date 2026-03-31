@@ -26,7 +26,7 @@ Idea: The relation (#&#35;#) has the following properties:#<ul>#
 Set Default Goal Selector "!".
 
 
-Notation Pr t t' := (@atom _ sig_binary _ _ tt (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))).
+Abbreviation Pr t t' := (@atom _ sig_binary _ _ tt (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))).
 
 (* The validity reduction.
     We assume a generic falsity flag and a list h10 for which we build a formula.

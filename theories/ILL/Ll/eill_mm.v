@@ -184,7 +184,7 @@ Section Minsky.
 
   (* This is a notation for the trivial phase semantics *)
  
-  Notation "'[[' A ']]'" := (ill_tps s A) (at level 65).
+  Notation "'[[' A ']]'" := (ill_tps s A) (at level 0).
 
   (* i -o (_j_ -o _j_) *)
   

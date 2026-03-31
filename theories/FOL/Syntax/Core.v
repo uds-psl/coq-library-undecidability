@@ -103,6 +103,9 @@ Section fix_signature.
 
   Set Elimination Schemes.
 
+  #[global] Register Scheme term_rect as rect_dep for term.
+  #[global] Register Scheme term_ind as ind_dep for term.
+
   Fixpoint subst_term (σ : nat -> term) (t : term) : term :=
     match t with
     | var t => σ t

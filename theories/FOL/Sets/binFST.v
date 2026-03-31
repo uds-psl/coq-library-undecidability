@@ -14,8 +14,8 @@ Existing Instance falsity_on.
 Import BinSig.
 Export BinSig.
 
-Notation term' := (term sig_empty).
-Notation form' := (form sig_empty sig_binary _ falsity_on).
+Abbreviation term' := (term sig_empty).
+Abbreviation form' := (form sig_empty sig_binary _ falsity_on).
 
 Arguments Vector.nil {_}, _.
 Arguments Vector.cons {_} _ {_} _, _ _ _ _.

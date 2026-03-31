@@ -44,7 +44,7 @@ Section Various_definitions_of_recursive_enum.
 
   Definition mu_recursive_n := { f | forall v, P v <-> f ⇓ v }.
 
-  Notation vec2val := (fun v => vec2fun v 0).
+  Abbreviation vec2val := (fun v => vec2fun v 0).
 
   (* There is a Diophantine logic formula satisfied exactly on P *)
 
@@ -157,7 +157,7 @@ Proof. lsplit 4; auto. Qed.
 (* Check DPRM_n. *)
 
 
-Local Notation ø := vec_nil.
+Local Abbreviation ø := vec_nil.
 
 Section Various_definitions_of_recursive_enum_1.
 

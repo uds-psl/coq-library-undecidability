@@ -93,13 +93,13 @@ Section ndmm2_imsell.
       | ZEROₙ x p q => (![bool2bang_op x]⌊q⌋) ⊸ ⌊p⌋
     end.
 
-  Notation "⟬ c ⟭" := (ndmm2_imsell_form c) (at level 1, format "⟬ c ⟭").
+  Notation "⟬ c ⟭" := (ndmm2_imsell_form c) (at level 0, format "⟬ c ⟭").
 
   Definition ndmm2_imsell_ctx Σ x y := ‼∞ (map (fun c => ⟬c⟭) Σ)
                                     ++ repeat α x 
                                     ++ repeat β y.
 
-  Notation "⟬ Σ , x , y ⟭" := (ndmm2_imsell_ctx Σ x y) (at level 1, format "⟬ Σ , x , y ⟭").
+  Notation "⟬ Σ , x , y ⟭" := (ndmm2_imsell_ctx Σ x y) (at level 0, format "⟬ Σ , x , y ⟭").
 
   Fact ndmm2_imsell_eq1 Σ : map (fun c => ![∞]⟬c⟭) Σ = ‼(map (fun c => (∞,⟬c⟭)) Σ).
   Proof. unfold imsell_lban; rewrite map_map; auto. Qed.

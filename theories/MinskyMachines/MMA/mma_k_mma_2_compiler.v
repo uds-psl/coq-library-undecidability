@@ -26,8 +26,8 @@ Section mma_k_mma_2_compiler.
 
   (* s and r are the first two registers in pos (2+n) *)
 
-  Notation s := (pos0 : pos (2+n)).  (* spare register *)
-  Notation r := (pos1 : pos (2+n)).  (* register storing ⦉a,b,c⦊ *)
+  Abbreviation s := (pos0 : pos (2+n)).  (* spare register *)
+  Abbreviation r := (pos1 : pos (2+n)).  (* register storing ⦉a,b,c⦊ *)
 
   Let simul (v : vec nat (k+n)) (w : vec nat (2+n)) : Prop :=
         let (v1,v2) := vec_split _ _ v in 
@@ -36,7 +36,7 @@ Section mma_k_mma_2_compiler.
 
   Infix "⋈" := simul (at level 70, no associativity).
 
-  Notation "⟨ x ⟩" := (gc_pr gc x) (at level 1, format "⟨ x ⟩").
+  Notation "⟨ x ⟩" := (gc_pr gc x) (at level 0, format "⟨ x ⟩").
 
   Local Fact pr_not_zero x : 0 < ⟨x⟩.
   Proof. apply gc_pr_nz. Qed.

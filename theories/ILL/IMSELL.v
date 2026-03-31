@@ -19,7 +19,7 @@ Local Infix "~p" := (@Permutation _) (at level 70).
 
 #[local] Reserved Notation "A ⊸ B" (at level 51, right associativity, format "A ⊸ B").
 #[local] Reserved Notation "'![' m ']' x" (at level 52, format "![ m ] x").
-#[local] Reserved Notation "‼ x" (at level 60, format "‼ x").
+#[local] Reserved Notation "‼ x" (at level 1, format "‼ x").
 
 Section IMSELL.
 
@@ -28,7 +28,7 @@ Section IMSELL.
             (bang_U : bang -> Prop)            (* universal modalities have structural rules *)
             .
 
-  Notation Λ := bang.
+  Abbreviation Λ := bang.
 
   Inductive imsell_form : Type :=
     | imsell_var  : var -> imsell_form
@@ -43,7 +43,7 @@ Section IMSELL.
 
   Notation "‼ Γ" := (imsell_lban Γ).
   Notation "u ≼ l" := (forall '(v,A), In (v,A) l -> bang_le u v) (at level 70).
-  Notation U := bang_U.
+  Abbreviation U := bang_U.
 
   Reserved Notation "l ⊢ x" (at level 70, no associativity).
 
@@ -140,7 +140,7 @@ End imsell3.
 
 Local Infix "≤" := (@IMSELL_le _) (at level 70).
 Local Notation "u ≰ v" := (~ u ≤ v) (at level 70).
-Local Notation U := (@IMSELL_U _).
+Local Abbreviation U := (@IMSELL_U _).
 
 Definition IMSELL_sig3 := 
   { S : IMSELL_sig | exists a b i : S, a ≤ i /\ b ≤ i /\ a ≰ b /\ b ≰ a 

@@ -36,7 +36,7 @@ Set Default Goal Selector "!".
 
 #[local] Unset Implicit Arguments.
 
-#[local] Notation enc := (encNatTM true false).
+#[local] Abbreviation enc := (encNatTM true false).
 
 (* generic auxiliary facts *)
 Module Facts.
@@ -92,7 +92,7 @@ Section HaltTM_MMA_HALTING.
 Context {n : nat} (M : list (mm_instr (Fin.t (S n)))).
 Context (M_mon : forall l x q r, M = l ++ DEC x q :: r -> x <> pos0).
 
-#[local] Notation maxState := (S (length M)).
+#[local] Abbreviation maxState := (S (length M)).
 
 Definition Σ : finType := finType_CS bool.
 
@@ -145,10 +145,10 @@ Definition P : TM Σ (S n) :=
 Inductive encodes_counter (c : nat) : tape Σ -> Prop :=
   | encodes_counter_intro m : encodes_counter c (midtape (repeat false m) false (repeat true c)).
 
-#[local] Notation encodes_counters cs ts := (Vector.Forall2 encodes_counter cs ts).
+#[local] Abbreviation encodes_counters cs ts := (Vector.Forall2 encodes_counter cs ts).
 
-#[local] Notation step1 := (sss_step (@mma_sss (S n)) (1, M)).
-#[local] Notation step2 := (fun x y => halt' (TM_facts.cstate x) = false /\ y = @TM_facts.step _ _ P x).
+#[local] Abbreviation step1 := (sss_step (@mma_sss (S n)) (1, M)).
+#[local] Abbreviation step2 := (fun x y => halt' (TM_facts.cstate x) = false /\ y = @TM_facts.step _ _ P x).
 
 #[local] Notation "P // s ->> t" := (sss_compute (@mma_sss _) P s t).
 

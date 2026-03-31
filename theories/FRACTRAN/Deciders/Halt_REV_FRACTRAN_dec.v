@@ -9,7 +9,7 @@ Set Default Goal Selector "!".
 (* necessary facts on prime factorization *)
 Module Prime_factors.
 
-#[local] Notation lprod := (fold_right mult 1).
+#[local] Abbreviation lprod := (fold_right mult 1).
 
 Lemma prime_divides_lt {lc ld} :
   ~ (divides (lprod ld) (lprod lc)) ->

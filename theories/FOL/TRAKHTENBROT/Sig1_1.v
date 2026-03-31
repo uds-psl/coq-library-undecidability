@@ -39,7 +39,7 @@ Proof.
   + left; exists s, w; left; auto.
 Qed.
 
-Local Notation ø := vec_nil.
+Local Abbreviation ø := vec_nil.
 
 Section fot_word_var.
 
@@ -126,7 +126,7 @@ Section Σfull_mon_rem.
   Variable (Y : Type) (HY : finite_t Y)
            (n m : nat).
 
-  Notation X := (pos n).
+  Abbreviation X := (pos n).
 
   (* Bounded lists *)
 
@@ -146,8 +146,8 @@ Section Σfull_mon_rem.
       but this of no impact on decidability. However,
       the signature is discrete, if Y is discrete *)
 
-  Notation Σ := (Σ11 X Y).
-  Notation Σ' := (Σ11 X (list X*Y + Y)).
+  Abbreviation Σ := (Σ11 X Y).
+  Abbreviation Σ' := (Σ11 X (list X*Y + Y)).
 
   Let f s v := @in_fot _ (ar_syms Σ') s v##ø.
   Let P r v : fol_form Σ' := @fol_atom Σ' (inr r) v.
@@ -186,7 +186,7 @@ Section Σfull_mon_rem.
       | fol_quant q A => fol_quant q (encode A)
     end.
 
-  Notation Σfull_mon_rec := encode.
+  Abbreviation Σfull_mon_rec := encode.
 
   (* The reduction function does not map to a signature void of
      functions to simplify the above expression. However, the
@@ -513,7 +513,7 @@ Section Σ11_reduction.
 
   Local Definition max_depth := lmax (map (@length _) (Σ11_words A)).
 
-  Notation m := max_depth.
+  Abbreviation m := max_depth.
 
   Let Hmd w : w ∊ Σ11_words A -> length w < S m.
   Proof.
