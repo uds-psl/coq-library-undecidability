@@ -221,8 +221,8 @@ Section preprocess.
 
   Variables k n : nat.
 
-  Notation reg p := (@pos_left (1 + k + n) 3 (pos_left n (pos_right 1 p))).
-  Notation tmp p := (@pos_right (1 + k + n) 3 p).
+  Abbreviation reg p := (@pos_left (1 + k + n) 3 (pos_left n (pos_right 1 p))).
+  Abbreviation tmp p := (@pos_right (1 + k + n) 3 p).
 
   Lemma tmp0_tmp1 : tmp pos0 <> tmp pos1. Proof. intros H % pos_right_inj. congruence. Qed.
   Lemma tmp0_tmp2 : tmp pos0 <> tmp pos2. Proof. intros H % pos_right_inj. congruence. Qed.

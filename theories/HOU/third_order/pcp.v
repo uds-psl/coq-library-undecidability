@@ -4,15 +4,15 @@ From Undecidability.HOU Require Import std.std.
 Import ListNotations.
 
 (* * PCP and MPCP *)
-Notation symbol := bool.
-Notation word   := (list symbol).
-Notation card   := (word * word)%type.
-Notation stack  := (list card).
+Abbreviation symbol := bool.
+Abbreviation word   := (list symbol).
+Abbreviation card   := (word * word)%type.
+Abbreviation stack  := (list card).
 
-Notation hd := fst.
-Notation tl := snd. 
-Notation heads S := (map hd S).
-Notation tails S := (map tl S).
+Abbreviation hd := fst.
+Abbreviation tl := snd. 
+Abbreviation heads S := (map hd S).
+Abbreviation tails S := (map tl S).
 
 
 

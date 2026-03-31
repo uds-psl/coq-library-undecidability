@@ -51,10 +51,10 @@ Section SM.
 Context {M : ssm}.
 Variable confluent_M : confluent M.
 
-Notation equiv := (@equiv M).
-Notation equiv_dec := (@equiv_dec M).
-Notation narrow_dec := (@narrow_dec M).
-Notation bounded' := (@bounded' M).
+Abbreviation equiv := (@equiv M).
+Abbreviation equiv_dec := (@equiv_dec M).
+Abbreviation narrow_dec := (@narrow_dec M).
+Abbreviation bounded' := (@bounded' M).
 
 (* bounded (by i) search for normal form of X *)
 Fixpoint nf_aux (i: nat) (X: config) : config :=

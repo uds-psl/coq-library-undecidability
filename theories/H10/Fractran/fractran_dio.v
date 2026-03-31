@@ -88,7 +88,7 @@ Proof. apply FRACTRAN_HALTING_on_diophantine; dio auto. Defined.
 
 Section exp_diophantine.
 
-  Notation power := (mscal mult 1).
+  Abbreviation power := (mscal mult 1).
 
   Fact power_expo x y : power x y = y^x.
   Proof.

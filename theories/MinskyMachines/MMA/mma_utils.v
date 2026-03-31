@@ -42,7 +42,7 @@ Section Minsky_Machine_alt_utils.
 
     Definition mma_jump := INCₐ x :: DECₐ x j :: nil.
 
-    Notation JUMPₐ := mma_jump.
+    Abbreviation JUMPₐ := mma_jump.
 
     Fact mma_jump_length : length JUMPₐ = 2.
     Proof. auto. Qed.
@@ -61,7 +61,7 @@ Section Minsky_Machine_alt_utils.
 
   End mma_jump.
 
-  Notation JUMPₐ := mma_jump.
+  Abbreviation JUMPₐ := mma_jump.
 
   Hint Rewrite mma_jump_length : length_db.
 
@@ -101,7 +101,7 @@ Section Minsky_Machine_alt_utils.
 
   End mma_null.
 
-  Notation NULLₐ := mma_null.
+  Abbreviation NULLₐ := mma_null.
 
   Hint Rewrite mma_null_length : length_db.
 
@@ -194,7 +194,7 @@ Section Minsky_Machine_alt_utils.
 
   End mma_incs.
 
-  Notation INCSₐ := mma_incs.
+  Abbreviation INCSₐ := mma_incs.
 
   Hint Rewrite mma_incs_length : length_db.
 
@@ -204,7 +204,7 @@ Section Minsky_Machine_alt_utils.
 
     Definition mma_isempty := DECₐ x (3+i) :: JUMPₐ p x ++ INCₐ x :: nil.
 
-    Notation EMPTYₐ := mma_isempty.
+    Abbreviation EMPTYₐ := mma_isempty.
 
     Fact mma_isempty_length : length EMPTYₐ = 4.
     Proof. auto. Qed.
@@ -235,7 +235,7 @@ Section Minsky_Machine_alt_utils.
 
   End mma_isempty.
 
-  Notation EMPTYₐ := mma_isempty.
+  Abbreviation EMPTYₐ := mma_isempty.
 
   Hint Rewrite mma_isempty_length : length_db.
 
@@ -283,7 +283,7 @@ Section Minsky_Machine_alt_utils.
 
   End mma_transfert.
 
-  Notation TRANSFERTₐ := mma_transfert.
+  Abbreviation TRANSFERTₐ := mma_transfert.
 
   Hint Rewrite mma_transfert_length : length_db.
  
@@ -338,7 +338,7 @@ Section Minsky_Machine_alt_utils.
 
   End mma_mult_cst.
 
-  Notation MULT_CSTₐ := mma_mult_cst.
+  Abbreviation MULT_CSTₐ := mma_mult_cst.
 
   Hint Rewrite mma_mult_cst_length : length_db.
 
@@ -375,7 +375,7 @@ Section Minsky_Machine_alt_utils.
 
   End mma_mult_cst_with_zero.
 
-  Notation MULT_CST_WZₐ := mma_mult_cst_with_zero.
+  Abbreviation MULT_CST_WZₐ := mma_mult_cst_with_zero.
 
   Hint Rewrite mma_mult_cst_with_zero_length : length_db.
 
@@ -463,7 +463,7 @@ Section Minsky_Machine_alt_utils.
 
   End mma_decs.
 
-  Notation DECSₐ := mma_decs.
+  Abbreviation DECSₐ := mma_decs.
 
   Section mma_decs_copy.
 
@@ -547,7 +547,7 @@ Section Minsky_Machine_alt_utils.
 
   End mma_decs_copy.
 
-  Notation DECS_COPYₐ := mma_decs_copy.
+  Abbreviation DECS_COPYₐ := mma_decs_copy.
 
   Hint Rewrite mma_decs_length mma_decs_copy_length : length_db.
 
@@ -638,7 +638,7 @@ Section Minsky_Machine_alt_utils.
   
   End mma_mod_cst.
 
-  Notation MOD_CSTₐ := mma_mod_cst.
+  Abbreviation MOD_CSTₐ := mma_mod_cst.
 
   Hint Rewrite mma_decs_length mma_mod_cst_length : length_db.
 
@@ -696,7 +696,7 @@ Section Minsky_Machine_alt_utils.
 
   End mma_div_cst.
 
-  Notation DIV_CSTₐ := mma_div_cst.
+  Abbreviation DIV_CSTₐ := mma_div_cst.
 
   Hint Rewrite mma_div_cst_length : length_db.
 
@@ -796,6 +796,6 @@ Section Minsky_Machine_alt_utils.
 
   End mma_loop.
 
-  Notation LOOPₐ := mma_loop.
+  Abbreviation LOOPₐ := mma_loop.
 
 End Minsky_Machine_alt_utils.

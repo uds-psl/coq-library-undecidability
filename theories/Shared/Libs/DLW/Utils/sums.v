@@ -253,11 +253,11 @@ Section binomial_Newton.
   Infix "⊕" := sum (at level 50, left associativity).
   Infix "⊗" := times (at level 40, left associativity).
   
-  Notation z := zero.
-  Notation o := one.
+  Abbreviation z := zero.
+  Abbreviation o := one.
 
-  Notation scal := (mscal sum zero).
-  Notation expo := (mscal times one).
+  Abbreviation scal := (mscal sum zero).
+  Abbreviation expo := (mscal times one).
 
   Hypothesis (M_sum : monoid_theory sum zero) 
              (sum_comm : forall x y, x ⊕ y = y ⊕ x)
@@ -383,7 +383,7 @@ End binomial_Newton.
 
 Section Newton_nat.
 
-  Notation power := (mscal mult 1).
+  Abbreviation power := (mscal mult 1).
   Notation "∑" := (msum plus 0).
 
   Fact sum_fold_map n f : ∑ n f = fold_right plus 0 (map f (list_an 0 n)).

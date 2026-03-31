@@ -14,10 +14,10 @@ Local Unset Strict Implicit.
 From Stdlib Require Import Morphisms.
 
 
-Local Notation vec := Vector.t.
+Local Abbreviation vec := Vector.t.
 
-#[local] Notation term' := (term sig_empty).
-#[local] Notation form' := (form sig_empty _ _ falsity_on).
+#[local] Abbreviation term' := (term sig_empty).
+#[local] Abbreviation form' := (form sig_empty _ _ falsity_on).
 
 (* ** Semantics *)
 

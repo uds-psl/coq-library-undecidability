@@ -30,11 +30,11 @@ Inductive pctm_instr : Set :=
 
 Module PCTMNotations.
 
-  Notation MV  := pctm_mv.
-  Notation WR  := pctm_wr.
-  Notation BR  := pctm_br.
+  Abbreviation MV  := pctm_mv.
+  Abbreviation WR  := pctm_wr.
+  Abbreviation BR  := pctm_br.
 
-  Notation JMP j := (BR j j).
+  Abbreviation JMP j := (BR j j).
 
   Definition rd (t : tape) : bool   := let '(_,b,_) := t in b.
   Definition wr (t : tape) b : tape := let '(l,_,r) := t in (l,b,r).

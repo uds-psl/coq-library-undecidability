@@ -214,7 +214,7 @@ Coercion app : exp >-> Funclass.
 Notation "'lambda' s" := (lam s) (at level 65, right associativity).
 
 Arguments var_exp {_} _.
-Notation var := var_exp.
+Abbreviation var := var_exp.
  
 Notation "A → B" := (arr A B) (at level 65, right associativity).
 
@@ -222,5 +222,5 @@ Coercion typevar : nat >-> type.
 Definition alpha : type := 0.
 
 Notation "gamma • s" := (subst_exp gamma s) (at level 69, right associativity).
-Notation ren := ren_exp.
-Notation up := up_exp_exp. 
+Abbreviation ren := ren_exp.
+Abbreviation up := up_exp_exp. 

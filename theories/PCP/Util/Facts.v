@@ -9,7 +9,8 @@ Unset Strict Implicit.
 Module PCPListNotation.
 Notation "x 'el' A" := (In x A) (at level 70).
 Notation "A <<= B" := (incl A B) (at level 70).
-Notation "| A |" := (length A) (at level 65).
+#[warning="-closed-notation-not-level-0"]
+  Notation "| A |" := (length A) (at level 65).
 End PCPListNotation.
 
 Import PCPListNotation.
@@ -134,7 +135,7 @@ Section Positions.
         * rewrite IH. now exists (S n).
   Qed.
 
-  Notation nthe n A := (nth_error A n).
+  Abbreviation nthe n A := (nth_error A n).
   
   Lemma nthe_length A n :
     length A > n -> { x | nthe n A = Some x }.
@@ -171,7 +172,7 @@ Section Positions.
 
 End Positions.
 
-Notation nthe n A := (nth_error A n).
+Abbreviation nthe n A := (nth_error A n).
 
 Lemma pos_nth X d (x : X) l n def : pos d x l = Some n -> nth n l def = x.
 Proof.

@@ -124,15 +124,15 @@ Lemma clos_trans_flip {X : Type} {R : X -> X -> Prop} {x y} : clos_trans _ R x y
   clos_trans _ (fun y x => R x y) y x.
 Proof. by elim; eauto using clos_trans. Qed.
 
-#[local] Notation lams k M := (Nat.iter k lam M).
-#[local] Notation apps M Ns := (fold_left app Ns M).
+#[local] Abbreviation lams k M := (Nat.iter k lam M).
+#[local] Abbreviation apps M Ns := (fold_left app Ns M).
 
 Section MMA_HALTING_to_HaltLclosed.
 
 Opaque Nat.add Nat.sub.
 
 Context {num_regs : nat}. (* number of registers - 1 *)
-Notation N := (S num_regs).
+Abbreviation N := (S num_regs).
 Context (P : list (MM.mm_instr (Fin.t N))). (* program *)
 
 #[local] Hint Rewrite subst_apps : subst.

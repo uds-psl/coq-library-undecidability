@@ -6,7 +6,7 @@ From Undecidability Require Import Shared.Libs.PSL.Vectors.Vectors.
 Import ListAutomationNotations.
 
 From Stdlib Require Import Vectors.Vector.
-Local Notation vec := t.
+Local Abbreviation vec := t.
 
 
 

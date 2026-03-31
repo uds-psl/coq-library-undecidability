@@ -25,7 +25,7 @@ Set Implicit Arguments.
 
 (* * The syntax and semantics of FO logic *)
 
-Local Notation ø := vec_nil.
+Local Abbreviation ø := vec_nil.
 
 Local Infix "∊" := In (at level 70, no associativity).
 Local Infix "⊑" := incl (at level 70, no associativity). 
@@ -65,8 +65,8 @@ Section fol_subst.
 
   Variable (Σ : fo_signature).
 
-  Notation 𝕋 := (fol_term Σ).
-  Notation 𝔽 := (fol_form Σ).
+  Abbreviation 𝕋 := (fol_term Σ).
+  Abbreviation 𝔽 := (fol_form Σ).
 
   Implicit Type A : 𝔽.
 
@@ -306,8 +306,8 @@ End fol_subst.
 
 Notation "A ⦃ σ ⦄" := (fol_subst σ A).
 
-Notation fol_lconj := (@fol_bigop _ fol_conj (⊥⤑⊥)).
-Notation fol_ldisj := (@fol_bigop _ fol_disj ⊥).
+Abbreviation fol_lconj := (@fol_bigop _ fol_conj (⊥⤑⊥)).
+Abbreviation fol_ldisj := (@fol_bigop _ fol_disj ⊥).
 
 Section fol_semantics.
 
@@ -316,8 +316,8 @@ Section fol_semantics.
 
   Implicit Type φ : nat -> X.
 
-  Notation 𝕋 := (fol_term Σ).
-  Notation 𝔽 := (fol_form Σ).
+  Abbreviation 𝕋 := (fol_term Σ).
+  Abbreviation 𝔽 := (fol_form Σ).
 
   Notation "⟦ t ⟧" := (fun φ => fo_term_sem M φ t).
 

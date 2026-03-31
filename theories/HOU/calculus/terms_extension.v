@@ -8,8 +8,8 @@ Import ArsInstances.
 (* * Terms Extension *)
 
 Notation "sigma •₊ A" := (map (subst_exp sigma) A) (at level 69).
-Notation renL delta A := (map (ren delta) A).
-Notation Vars := (flat_map vars).
+Abbreviation renL delta A := (map (ren delta) A).
+Abbreviation Vars := (flat_map vars).
 
 
 Lemma tab_subst {X} sigma (f: nat -> exp X) n:

@@ -64,6 +64,11 @@ Section Recursive_algorithms.
 
   Definition recalg_rec (P : forall k, recalg k -> Set) := recalg_rect P.
   Definition recalg_ind (P : forall k, recalg k -> Prop) := recalg_rect P.
+  
+  (* Print Registered Schemes *)
+  #[global] Register Scheme recalg_rect as rect_dep for recalg.
+  #[global] Register Scheme recalg_rec as rec_dep for recalg.
+  #[global] Register Scheme recalg_ind as ind_dep for recalg.
 
   Section recalg_rec_type.
 
@@ -299,7 +304,7 @@ Section relational_semantics.
 
   (* Recursive functions can be interpreted in Coq as (functional) relations *)
 
-  Notation natfun := (fun k => vec nat k -> nat -> Prop).
+  Abbreviation natfun := (fun k => vec nat k -> nat -> Prop).
 
   Section defs.
 

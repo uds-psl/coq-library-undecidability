@@ -32,7 +32,7 @@ Set Implicit Arguments.
 
 Local Reserved Notation "⟪ A ⟫'" (at level 0, format "⟪ A ⟫'").
 
-Local Notation ø := vec_nil.
+Local Abbreviation ø := vec_nil.
 
 Section Uniform_arities_to_one.
 
@@ -47,13 +47,13 @@ Section Uniform_arities_to_one.
     + exact (fun _ => S a).
   Defined.
 
-  Notation Σ' := Σone_rel.
+  Abbreviation Σ' := Σone_rel.
 
-  Notation 𝕋 := (fol_term Σ).
-  Notation 𝔽 := (fol_form Σ).
+  Abbreviation 𝕋 := (fol_term Σ).
+  Abbreviation 𝔽 := (fol_form Σ).
 
-  Notation 𝕋' := (fol_term Σ').
-  Notation 𝔽' := (fol_form Σ').
+  Abbreviation 𝕋' := (fol_term Σ').
+  Abbreviation 𝔽' := (fol_form Σ').
 
   Let convert_t (t : 𝕋) : 𝕋' :=
     match t with
@@ -71,7 +71,7 @@ Section Uniform_arities_to_one.
     | fol_quant q A  => fol_quant q (Σunif_one_rel A)
     end.
 
-  Notation encode := Σunif_one_rel.
+  Abbreviation encode := Σunif_one_rel.
   
   Variable X : Type.
 
@@ -79,7 +79,7 @@ Section Uniform_arities_to_one.
 
     Variable (M : fo_model Σ X) (x0 : X).
 
-    Notation X' := (X + rels Σ)%type.
+    Abbreviation X' := (X + rels Σ)%type.
 
     Let fX (x : X') : X := 
       match x with 
@@ -105,7 +105,7 @@ Section Uniform_arities_to_one.
           end).
     Defined.
 
-    Notation M' := Σunif_one_rel_model.
+    Abbreviation M' := Σunif_one_rel_model.
 
     Let convert_env (φ : nat -> X) n : X' := inl (φ n).
     Let env_fill (ψ : nat -> X') n : X' := inl (fX (ψ n)).
@@ -185,7 +185,7 @@ Section Uniform_arities_to_one.
       + exact (fun r v => fom_rels M' tt (fom_syms M' r ø##cast v (Ha _))).
     Defined.
 
-    Notation M := Σone_unif_rel_model.
+    Abbreviation M := Σone_unif_rel_model.
 
     Notation "⟪ A ⟫" := (fun φ => fol_sem M φ A).
     Notation "⟪ A ⟫'" := (fun ψ => fol_sem M' ψ A).

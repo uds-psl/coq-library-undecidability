@@ -54,6 +54,11 @@ Section first_order_terms.
 
   Definition fo_term_rec (P : _ -> Set) := @fo_term_rect P.
   Definition fo_term_ind (P : _ -> Prop) := @fo_term_rect P.
+  
+  (* Print Registered Schemes *)
+  #[global] Register Scheme fo_term_rect as rect_dep for fo_term.
+  #[global] Register Scheme fo_term_rec as rec_dep for fo_term.
+  #[global] Register Scheme fo_term_ind as ind_dep for fo_term.
 
   Fixpoint fo_term_size t : nat :=
     match t with
@@ -189,7 +194,7 @@ Section first_order_terms.
 
 End first_order_terms.
 
-Notation fol_term := (fun Σ => fo_term (ar_syms Σ)).
+Abbreviation fol_term := (fun Σ => fo_term (ar_syms Σ)).
 
 Arguments in_var { _ _ }.
 Arguments in_fot { _ _ }.
@@ -209,7 +214,7 @@ Section fo_term_extra.
 
   Variable (Σ : fo_signature).
 
-  Notation 𝕋 := (fol_term Σ).
+  Abbreviation 𝕋 := (fol_term Σ).
 
   Implicit Type t : 𝕋.
 
@@ -340,7 +345,7 @@ Section semantics.
   Variable (Σ : fo_signature) 
            (X : Type) (M : fo_model Σ X).
 
-  Notation 𝕋 := (fol_term Σ).
+  Abbreviation 𝕋 := (fol_term Σ).
 
   Implicit Type φ : nat -> X.
 

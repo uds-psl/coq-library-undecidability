@@ -120,7 +120,7 @@ Section mma_mma0_sim.
 
   Definition mma_mma0_sim := Q ++ mma_null_all _ (length Q+1) ++ mma_jump 0 pos0.
 
-  Notation R := mma_mma0_sim.
+  Abbreviation R := mma_mma0_sim.
 
   Hint Rewrite mma_null_all_length : length_db.
 

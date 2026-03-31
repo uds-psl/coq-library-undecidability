@@ -14,8 +14,8 @@ From Undecidability.Shared.Libs.DLW
 
 Set Implicit Arguments.
 
-Notation Zero := false.
-Notation One  := true.
+Abbreviation Zero := false.
+Abbreviation One  := true.
 
 Fact list_bool_dec (l m : list bool) : { l = m } + { l <> m }.
 Proof. apply list_eq_dec, bool_dec. Qed.

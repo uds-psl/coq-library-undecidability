@@ -28,8 +28,8 @@ Unset Implicit Arguments.
 
 Set Default Goal Selector "!".
 
-#[local] Notation lams k M := (Nat.iter k lam M).
-#[local] Notation apps M Ns := (fold_left app Ns M).
+#[local] Abbreviation lams k M := (Nat.iter k lam M).
+#[local] Abbreviation apps M Ns := (fold_left app Ns M).
 
 Fixpoint fin_seq n : list (Fin.t n) :=
   match n with

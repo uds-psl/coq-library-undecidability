@@ -131,7 +131,7 @@ Section Pell.
     + apply Nat.mul_le_mono; lia.
   Qed.
 
-  Notation power := (mscal mult 1).
+  Abbreviation power := (mscal mult 1).
 
   Fact alpha_nat_power n : 2 < b_nat -> power n (b_nat-1) <= alpha_nat (S n) <= power n b_nat.
   Proof using Hb_nat.
@@ -167,7 +167,7 @@ Section Pell.
       | S n   => Z.of_nat (alpha_nat n)
     end.
 
-  Notation α := alpha_Z.
+  Abbreviation α := alpha_Z.
 
   Hint Resolve alpha_nat_le : core.
 
@@ -203,6 +203,7 @@ Section Pell.
 
   Create HintDb alpha_db.
 
+  (** DLW: the warning here is likely a bug because the declaration is just above *)
   Hint Rewrite alpha_fix_0 alpha_fix_1 alpha_fix_2 alpha_fix_3 : alpha_db.
 
   Ltac alpha := autorewrite with alpha_db.
@@ -215,16 +216,16 @@ Section Pell.
     do 2 (rewrite IHn; try lia).
   Qed.
 
-  Notation MZ := (M22 Z).
+  Abbreviation MZ := (M22 Z).
 
-  Notation MZ_opp := (MI22 Z.opp).
-  Notation MZ_plus := (PL22 Zplus).
-  Notation MZ_mult := (MU22 Zplus Zmult).
-  Notation MZ_zero := (ZE_22 0).
-  Notation MZ_one := (ID_22 0 1).
-  Notation MZ_scal := (M22scal Zmult).
-  Notation MZ_expo := (mscal MZ_mult MZ_one).
-  Notation MZ_det := (Det22 Zplus Zmult Z.opp).
+  Abbreviation MZ_opp := (MI22 Z.opp).
+  Abbreviation MZ_plus := (PL22 Zplus).
+  Abbreviation MZ_mult := (MU22 Zplus Zmult).
+  Abbreviation MZ_zero := (ZE_22 0).
+  Abbreviation MZ_one := (ID_22 0 1).
+  Abbreviation MZ_scal := (M22scal Zmult).
+  Abbreviation MZ_expo := (mscal MZ_mult MZ_one).
+  Abbreviation MZ_det := (Det22 Zplus Zmult Z.opp).
 
   Local Fact MZ_plus_monoid : monoid_theory MZ_plus MZ_zero.
   Proof. apply M22plus_monoid with (1 := Zring). Qed.
@@ -249,7 +250,7 @@ Section Pell.
   (* b -1   *   0  1 
      1  0      -1  b  *)
 
-  Notation mI := (-1,0,0,-1).
+  Abbreviation mI := (-1,0,0,-1).
 
   (* B has an inverse *)
 
@@ -380,7 +381,7 @@ Section Pell.
 
   (* ⊕  ⊗  ∸    ⊞ ⊠ ⊟ *)
  
-  Notation expoZ := (mscal Zmult 1).
+  Abbreviation expoZ := (mscal Zmult 1).
 
   Fact expoZ_power n x : expoZ n (Z.of_nat x) = Z.of_nat (power n x).
   Proof. 
@@ -439,11 +440,11 @@ Section Pell.
       generalize (alpha_inc m) (alpha_inc (S m)); lia.
     Qed.
 
-    Notation Hv' := alpha_SSm_m_neq_0.
+    Abbreviation Hv' := alpha_SSm_m_neq_0.
 
     Let Z2Zp_morph := Z2Zp_morphishm Hv'.
 
-    Notation f := (Z2Zp Hv').
+    Abbreviation f := (Z2Zp Hv').
     Notation "〚 x 〛" :=  (f x).
     Notation "〘 x 〙" := (morph22 f x). 
     Local Notation "⊟" := (MI22 (Zp_opp Hv')). 
@@ -562,7 +563,7 @@ Section Pell.
 
     Variable (q : nat). 
    
-    Notation m := (b_nat*q-q*q-1)%nat.
+    Abbreviation m := (b_nat*q-q*q-1)%nat.
 
     Hypothesis Hm : m <> 0%nat.
 
@@ -571,11 +572,11 @@ Section Pell.
 
     Let VP : MZ := (Z.of_nat q,0,1,0).
 
-    Notation Zm_ring := (Zp_is_ring Hm).
+    Abbreviation Zm_ring := (Zp_is_ring Hm).
 
     Add Ring m_ring : Zm_ring.
 
-    Notation qz := (Z.of_nat q).
+    Abbreviation qz := (Z.of_nat q).
 
     Let Z2Zp_morph := Z2Zp_morphishm Hm.
 
@@ -584,7 +585,7 @@ Section Pell.
     Infix "⊕" := (Zp_plus Hm) (at level 50, left associativity).
     Infix "⊗" := (Zp_mult Hm) (at level 40, left associativity).
     Notation "∸" := (Zp_opp Hm).
-    Notation f := (Z2Zp Hm).
+    Abbreviation f := (Z2Zp Hm).
     Notation "〚 x 〛" :=  (f x).
  
     Let qz_eq :〚b〛⊗〚qz〛 ⊕ ∸ (〚qz〛⊗〚qz〛 ⊕〚1〛) = Zp_zero Hm.
@@ -601,7 +602,7 @@ Section Pell.
 
     Notation "〘 x 〙" := (morph22 f x).
     Local Infix "⊠" := (MU22 (Zp_plus Hm) (Zp_mult Hm)) (at level 40, left associativity).
-    Notation scal := (M22scal (Zp_mult Hm)).
+    Abbreviation scal := (M22scal (Zp_mult Hm)).
 
     Let BVP : 〘 B 〙 ⊠ 〘 VP 〙= scal〚qz〛〘 VP 〙.
     Proof.
@@ -821,7 +822,7 @@ Section divisibility_1.
     Variable (m n l : nat) (Hm : m = n+l*k).
 
     Infix "⊗" := (Zp_mult Hak) (at level 40, left associativity).
-    Notation expo := (mscal (Zp_mult Hak) (Zp_one Hak)).
+    Abbreviation expo := (mscal (Zp_mult Hak) (Zp_one Hak)).
 
     Hint Resolve Zle_0_nat : core.
 
@@ -939,7 +940,7 @@ Section divisibility_2.
 
     Infix "⊕" := (Zp_plus Hak2) (at level 50, left associativity).
     Infix "⊗" := (Zp_mult Hak2) (at level 40, left associativity).
-    Notation expoZp := (mscal (Zp_mult Hak2) (Zp_one Hak2)).
+    Abbreviation expoZp := (mscal (Zp_mult Hak2) (Zp_one Hak2)).
 
     Hint Resolve Zle_0_nat : core.
 
@@ -954,13 +955,13 @@ Section divisibility_2.
       Let Zmult_monoid : monoid_theory Zmult 1.
       Proof. exists; intros; ring. Qed.
 
-      Notation MZp := (M22 ak2).
+      Abbreviation MZp := (M22 ak2).
       Infix "⊞" := (PL22 (Zp_plus Hak2)) (at level 50, left associativity).
       Infix "⊠" := (MU22 (Zp_plus Hak2) (Zp_mult Hak2)) (at level 40, left associativity).
-      Notation MZp_Z := (ZE_22 (Zp_zero Hak2)).
-      Notation MZp_I := (ID_22 (Zp_zero Hak2) (Zp_one Hak2)).
-      Notation MZp_expo := (mscal (fun u v => u⊠v) MZp_I).
-      Notation MZp_scal := (M22scal (Zp_mult Hak2)).
+      Abbreviation MZp_Z := (ZE_22 (Zp_zero Hak2)).
+      Abbreviation MZp_I := (ID_22 (Zp_zero Hak2) (Zp_one Hak2)).
+      Abbreviation MZp_expo := (mscal (fun u v => u⊠v) MZp_I).
+      Abbreviation MZp_scal := (M22scal (Zp_mult Hak2)).
 
       Fact A_m_morph22 : morph22 (Z2Zp Hak2) (A b m) 
                        = MZp_scal (expoZp l〚-1〛⊗ expoZp l〚alpha_Z b k〛) MZp_I

@@ -16,7 +16,7 @@ Export FSTSignature.
 
 (* ** Problems *)
 
-Notation extensional M :=
+Abbreviation extensional M :=
   (forall x y, @i_atom _ ZFSignature.ZF_pred_sig _ M equal ([x; y]) <-> x = y).
 
 Definition entailment_FST phi :=

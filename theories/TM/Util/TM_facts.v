@@ -14,7 +14,7 @@ Section Fix_Sigma.
 
   Variable sig : Type.
 
-  Notation tape := (tape sig).
+  Abbreviation tape := (tape sig).
 
   (* ** Definition of the tape *)
   
@@ -219,12 +219,15 @@ Tactic Notation "simpl_vector" "in" "*" :=
          end;
   simpl_vector.
 
+(** DLW: This is not enough to remove the warning below in Rocq 9.2.dev *)
+Create HintDb tape.
 
 #[export] Hint Rewrite tapeToList_move : tape.
 #[export] Hint Rewrite tapeToList_move_R : tape.
 #[export] Hint Rewrite tapeToList_move_L : tape.
 #[export] Hint Rewrite tape_move_right_left using eauto : tape.
 #[export] Hint Rewrite tape_move_left_right using eauto : tape.
+
 
 Arguments current_chars : simpl never.
 #[export] Hint Unfold current_chars : tape.
@@ -701,7 +704,7 @@ Section Semantics.
 
   Variable sig : finType.
   
-  Notation TM := (TM sig).
+  Abbreviation TM := (TM sig).
   (* Labelled Multi-Tape Turing Machines *)
   Definition pTM (F: Type) (n:nat) := { M : TM n & state M -> F }.
   

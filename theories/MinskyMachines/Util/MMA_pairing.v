@@ -30,9 +30,9 @@ Set Default Goal Selector "!".
 
 Section FixCounters.
 Context {num_counters : nat}.
-#[local] Notation counter := (pos num_counters).
-#[local] Notation mm_instr := (mm_instr counter).
-#[local] Notation mm_state := (mm_state num_counters).
+#[local] Abbreviation counter := (pos num_counters).
+#[local] Abbreviation mm_instr := (mm_instr counter).
+#[local] Abbreviation mm_state := (mm_state num_counters).
 
 #[local] Notation "P // s ->> t" := (sss_compute (@mma_sss num_counters) P s t).
 #[local] Notation "P // s -+> t" := (sss_progress (@mma_sss num_counters) P s t).

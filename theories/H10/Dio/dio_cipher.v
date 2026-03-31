@@ -23,7 +23,7 @@ From Undecidability.H10.Dio
 Set Implicit Arguments.
 
 Local Infix "≲" := binary_le (at level 70, no associativity).
-Local Notation power := (mscal mult 1).
+Local Abbreviation power := (mscal mult 1).
 Local Notation "∑" := (msum plus 0).
 Local Infix "⇣" := nat_meet (at level 40, left associativity).
 Local Infix "⇡" := nat_join (at level 50, left associativity).

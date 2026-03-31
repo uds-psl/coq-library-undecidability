@@ -14,7 +14,8 @@ Definition fractran_steps l := rel_iter (fractran_step l).
 Definition fractran_compute l x y := exists n, fractran_steps l n x y.
 Definition fractran_terminates l x := exists y, fractran_compute l x y /\ fractran_stop l y.
 
-Notation "l '/F/' x ↓ " := (fractran_terminates l x) (at level 70, no associativity).
+#[warning="-postfix-notation-not-level-1"]
+  Notation "l '/F/' x ↓ " := (fractran_terminates l x) (at level 70, no associativity).
 
 (* The Halting problem for a FRACTRAN instance (l,x) is determining if
    there is y related via (fractran_step l)* to x and maximal for (fractran_step l) *) 

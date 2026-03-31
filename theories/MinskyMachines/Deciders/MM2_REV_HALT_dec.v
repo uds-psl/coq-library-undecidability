@@ -69,11 +69,11 @@ Definition step' (x: mm2_state) : option mm2_state :=
 Definition steps' n x : option mm2_state :=
   Nat.iter n (obind step') (Some x).
 
-#[local] Notation step := (mm2_step M).
-#[local] Notation terminating := (mm2_terminates M).
-#[local] Notation non_terminating x := (not (terminating x)).
-#[local] Notation reaches := (clos_refl_trans _ step).
-#[local] Notation reaches_plus := (clos_trans _ step).
+#[local] Abbreviation step := (mm2_step M).
+#[local] Abbreviation terminating := (mm2_terminates M).
+#[local] Abbreviation non_terminating x := (not (terminating x)).
+#[local] Abbreviation reaches := (clos_refl_trans _ step).
+#[local] Abbreviation reaches_plus := (clos_trans _ step).
 
 #[local] Arguments Acc_clos_trans {A R x}.
 #[local] Arguments rt_trans {A R x y z}.

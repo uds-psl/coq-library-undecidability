@@ -19,7 +19,7 @@ From Undecidability.H10.Dio
 
 Set Implicit Arguments.
 
-Local Notation power := (mscal mult 1).
+Local Abbreviation power := (mscal mult 1).
 
 Section df_seq.
 

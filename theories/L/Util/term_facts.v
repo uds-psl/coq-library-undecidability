@@ -13,8 +13,8 @@ Unset Implicit Arguments.
 
 Set Default Goal Selector "!".
 
-#[local] Notation lams k M := (Nat.iter k lam M).
-#[local] Notation apps M Ns := (fold_left app Ns M).
+#[local] Abbreviation lams k M := (Nat.iter k lam M).
+#[local] Abbreviation apps M Ns := (fold_left app Ns M).
 
 Lemma subst_apps s k t ts : subst (apps t ts) k s = apps (subst t k s) (map (fun u => subst u k s) ts).
 Proof.

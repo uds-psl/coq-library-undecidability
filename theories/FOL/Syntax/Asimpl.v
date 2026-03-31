@@ -15,7 +15,7 @@ Section Asimpl.
 
   Definition feq {A} {B} (s t : A -> B) := forall x, s x = t x.
   #[local] Notation "a ≡ b" := (feq a b) (at level 51).
-  #[local] Notation id := (fun x => x).
+  #[local] Abbreviation id := (fun x => x).
   #[global]
   Program Instance feq_reflexive {A} {B}  : Reflexive (@feq A B) | 1.
   Next Obligation. now intros ?. Qed.

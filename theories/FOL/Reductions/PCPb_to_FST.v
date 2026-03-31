@@ -149,16 +149,16 @@ Section FST.
   Hypothesis M_FST : forall rho, rho ⊫ FST.
   Hypothesis VIEQ : extensional M.
  
-  Notation M_pair := (@M_pair _ _ M_FST VIEQ).
-  Notation opair_inj := (@opair_inj _ _ M_FST VIEQ).
-  Notation sigma_el := (@sigma_el _ _ M_FST VIEQ).
-  Notation sigma_eq := (@sigma_eq _ _ M_FST VIEQ).
-  Notation sing_el := (@sing_el _ _ M_FST VIEQ).
-  Notation numeral_inj := (@numeral_inj _ _ M_FST VIEQ).
-  Notation M_ext := (@M_ext _ _ M_FST VIEQ).
-  Notation M_adj := (@M_adj _ _ M_FST VIEQ).
-  Notation M_eset := (@M_eset _ _ M_FST VIEQ).
-  Notation numeral_htrans := (@numeral_htrans _ _ M_FST VIEQ).
+  Abbreviation M_pair := (@M_pair _ _ M_FST VIEQ).
+  Abbreviation opair_inj := (@opair_inj _ _ M_FST VIEQ).
+  Abbreviation sigma_el := (@sigma_el _ _ M_FST VIEQ).
+  Abbreviation sigma_eq := (@sigma_eq _ _ M_FST VIEQ).
+  Abbreviation sing_el := (@sing_el _ _ M_FST VIEQ).
+  Abbreviation numeral_inj := (@numeral_inj _ _ M_FST VIEQ).
+  Abbreviation M_ext := (@M_ext _ _ M_FST VIEQ).
+  Abbreviation M_adj := (@M_adj _ _ M_FST VIEQ).
+  Abbreviation M_eset := (@M_eset _ _ M_FST VIEQ).
+  Abbreviation numeral_htrans := (@numeral_htrans _ _ M_FST VIEQ).
 
   (* ** Encodings *)
 

@@ -19,8 +19,8 @@ From Undecidability.H10.ArithLibs
 
 Set Implicit Arguments.
 
-Local Notation power := (mscal mult 1).
-Local Notation expo := (mscal mult 1).
+Local Abbreviation power := (mscal mult 1).
+Local Abbreviation expo := (mscal mult 1).
 
 Section fact.
 
@@ -30,9 +30,9 @@ Section fact.
     generalize (fact_gt_0 n); intro; lia.
   Qed.
   
-  Notation Π := (msum mult 1).
+  Abbreviation Π := (msum mult 1).
 
-  Notation mprod_an := (fun a n => Π n (fun i => i+a)).
+  Abbreviation mprod_an := (fun a n => Π n (fun i => i+a)).
 
   Fact mprod_factorial n : fact n = mprod_an 1 n.
   Proof.
@@ -67,8 +67,8 @@ Section fact.
       * apply divides_mult, divides_refl.
   Qed.
 
-  Notation φ := (fun n r => mprod_an (n*p+1) r).
-  Notation Ψ := (fun n => Π n (fun i => mprod_an (i*p+1) (p-1))).
+  Abbreviation φ := (fun n r => mprod_an (n*p+1) r).
+  Abbreviation Ψ := (fun n => Π n (fun i => mprod_an (i*p+1) (p-1))).
 
   Let phi_Zp_eq n r :〚φ n r〛=〚fact r〛.
   Proof. apply mprod_factorial_Zp. Qed.
@@ -109,11 +109,11 @@ Section fact.
     rewrite mprod_factorial_mult; auto; ring.
   Qed.
 
-  Notation Zp := (Zp_zero Hp).
-  Notation Op := (Zp_one Hp).
+  Abbreviation Zp := (Zp_zero Hp).
+  Abbreviation Op := (Zp_one Hp).
   Notation "∸" := (Zp_opp Hp).
   Infix "⊗" := (Zp_mult Hp) (at level 40, left associativity).
-  Notation expoZp := (mscal (Zp_mult Hp) (Zp_one Hp)).
+  Abbreviation expoZp := (mscal (Zp_mult Hp) (Zp_one Hp)).
 
   Hint Resolve Nat_mult_monoid : core.
 
@@ -407,7 +407,7 @@ Section lucas_theorem.
 
   (* base_p [x0;x1;x2;...] =  x0 + x1*p + x2*p² ...*)
 
-  Notation base_p := (expand p).
+  Abbreviation base_p := (expand p).
 
   Fixpoint binomial_p l :=
     match l with

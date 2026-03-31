@@ -16,7 +16,7 @@ From Undecidability.Shared.Libs.DLW.Utils
 
 Set Implicit Arguments.
 
-Local Notation power := (mscal mult 1).
+Local Abbreviation power := (mscal mult 1).
 Local Notation "∑" := (msum plus 0).
 
 Local Reserved Notation "x ≲ y" (at level 70, no associativity).
@@ -96,7 +96,7 @@ Proof. intros []; auto. Qed.
 
 Local Hint Resolve power2_gt_0 : core.
 
-Local Notation lb := (list bool).
+Local Abbreviation lb := (list bool).
 
 Local Infix "⪦" := Bool.le (at level 70, no associativity).
 Local Infix "⪯" := lb_mask (at level 70, no associativity).
@@ -326,7 +326,7 @@ Local Reserved Notation "'⟬' x '⟭'".
     rewrite lb_mask_equiv_equal, lb_nat_lb, lb_nat_lb; tauto.
   Qed.
 
-  Local Notation lbeq := lb_mask_equiv (only parsing).
+  Local Abbreviation lbeq := lb_mask_equiv (only parsing).
 
   Add Parametric Morphism: (lb_nat) with signature (lbeq) ==> (eq) as lb_nat_eq.
   Proof. apply lb_mask_equiv_equal. Qed.
@@ -376,7 +376,7 @@ Local Reserved Notation "'⟬' x '⟭'".
      | ⟙, ⟙, ⟙ => (⟙,⟙)
     end.
 
-  Notation bin_add := bool_add_with_rem.
+  Abbreviation bin_add := bool_add_with_rem.
   
   Fact bin_add_eq_00x x : bin_add ⟘ ⟘  x = (⟘,x).
   Proof. destruct x; auto. Qed.
@@ -1103,7 +1103,7 @@ Local Reserved Notation "'⟬' x '⟭'".
     apply lb_ortho_plus_join.
   Qed.
 
-  Local Notation sum_powers := (fun r n f e => ∑ n (fun i => f i * power (e i) r)).
+  Local Abbreviation sum_powers := (fun r n f e => ∑ n (fun i => f i * power (e i) r)).
 
   Fact sum_powers_bound r n f e :
                  r <> 0

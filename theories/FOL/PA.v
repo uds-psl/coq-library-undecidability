@@ -4,7 +4,7 @@ From Undecidability.FOL.Arithmetics Require Export Signature FA Robinson PA.
 Import Vector.VectorNotations.
 From Stdlib Require Import List.
 
-Notation extensional M :=
+Abbreviation extensional M :=
   (forall x y, @i_atom _ _ _ M Eq ([x ; y]) <-> x = y).
 
 

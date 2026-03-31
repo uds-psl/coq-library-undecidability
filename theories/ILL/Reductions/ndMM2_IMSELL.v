@@ -42,11 +42,11 @@ Local Tactic Notation "intro" "pair" "as" ident(x) ident (y) :=
   let v := fresh in intro v; pair split v as x y.
 
 Local Notation "⦳" := vec_zero.
-Local Notation ø := vec_nil.
+Local Abbreviation ø := vec_nil.
 
 Local Infix "≤" := (@IMSELL_le _) (at level 70).
 Local Notation "u ≰ v" := (~ u ≤ v) (at level 70).
-Local Notation U := (@IMSELL_U _).
+Local Abbreviation U := (@IMSELL_U _).
 
 Section ndmm2_imsell.
 
@@ -54,7 +54,7 @@ Section ndmm2_imsell.
 
   Notation "∞" := i.
 
-  Notation bang_le := (IMSELL_le sig).
+  Abbreviation bang_le := (IMSELL_le sig).
 
   Hypothesis (Hai : a ≤ ∞) (Hbi : b ≤ ∞) (Hab : a ≰ b) (Hba : b ≰ a)
              (Ha : ~ U a) (Hb : ~ U b) (Hi : U ∞).
@@ -73,17 +73,17 @@ Section ndmm2_imsell.
   Local Definition formB : imsell_form nat sig := ![b](£1).
   Local Definition var2pc p : imsell_form nat sig := £ (2+p).
 
-  Notation α := formA.
-  Notation β := formB.
+  Abbreviation α := formA.
+  Abbreviation β := formB.
   Notation "⌊ p ⌋" := (var2pc p) (format "⌊ p ⌋"). 
 
   Local Definition bool2form (x : bool) := if x then α else β.
   Local Definition bool2bang_op (x : bool) := if x then b else a.
 
-  Notation STOPₙ := (@ndmm2_stop _).
-  Notation INCₙ  := (@ndmm2_inc _).
-  Notation DECₙ  := (@ndmm2_dec _).
-  Notation ZEROₙ := (@ndmm2_zero _).
+  Abbreviation STOPₙ := (@ndmm2_stop _).
+  Abbreviation INCₙ  := (@ndmm2_inc _).
+  Abbreviation DECₙ  := (@ndmm2_dec _).
+  Abbreviation ZEROₙ := (@ndmm2_zero _).
 
   Definition ndmm2_imsell_form c :=
     match c with

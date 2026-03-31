@@ -32,7 +32,9 @@ Local Notation "I // s -1> t" := (mm_sss I s t).
 Local Notation "P /MM/ s → t" := (sss_step (@mm_sss _) P s t) (at level 70, no associativity). 
 Local Notation "P /MM/ s -[ k ]-> t" := (sss_steps (@mm_sss _) P k s t) (at level 70, no associativity).
 Local Notation "P /MM/ s ▹ t" := (sss_output (@mm_sss _) P s t) (at level 70, no associativity).
-Local Notation "P /MM/ s ↓" := (sss_terminates (@mm_sss _) P s) (at level 70, no associativity).
+
+#[warning="-postfix-notation-not-level-1"]
+  Local Notation "P /MM/ s ↓" := (sss_terminates (@mm_sss _) P s) (at level 70, no associativity).
 
 Local Notation "l /F/ x → y" := (fractran_step l x y) (at level 70, no associativity).
 Local Notation "l /F/ x -[ k ]-> y" := (fractran_steps l k x y) (at level 70, no associativity).
@@ -107,7 +109,7 @@ Proof.
       rewrite <- H1; apply in_or_app; simpl; auto.
 Qed.
 
-Local Notation divides_mult_inv := prime_div_mult.
+Local Abbreviation divides_mult_inv := prime_div_mult.
 
 Local Ltac inv H := inversion H; subst; clear H.
 
@@ -134,7 +136,7 @@ Lemma skip_steps m k l r k' (v v' : vec _ m) :
       @mm_no_self_loops m (k, l ++ r) 
    -> encode_mm_instr (k + length l) r /F/ encode_state (k + length l,v) → encode_state (k',v') 
    -> encode_mm_instr k (l ++ r)       /F/ encode_state (k + length l,v) → encode_state (k',v').
-Proof with eauto; try lia.
+Proof.
   revert k. induction l; cbn - [subcode] in *; intros.
   - revert H0. ring_simplify (k + 0). eauto.
   - revert H0. ring_simplify (k + S (length l)). intros H1. destruct a.
@@ -148,13 +150,13 @@ Proof with eauto; try lia.
         intros ? ? ?. eapply H. eapply subcode_cons. eassumption.
     + repeat econstructor 2. 2:unfold encode_dec2.
       2,3: cbn- [subcode]. 1: intros [] % divides_mult_inv_l.
-      2: intros [ | ] % divides_mult_inv...
-      * eapply divides_mult_inv in H0 as [? | ?]...
-        eapply primestream_divides in H0...
-        eapply divides_encode_state in H0... 
-      * eapply primestream_divides in H0... subst.
+      2: intros [ | ] % divides_mult_inv; eauto; try lia.
+      * eapply divides_mult_inv in H0 as [? | ?]; eauto; try lia.
+        eapply primestream_divides in H0; eauto; try lia.
+        eapply divides_encode_state in H0; eauto; try lia.
+      * eapply primestream_divides in H0; eauto; try lia; subst.
         eapply (H n t). eauto.
-      * eapply divides_encode_state in H0...
+      * eapply divides_encode_state in H0; eauto; try lia.
       * specialize (IHl (S k)). revert IHl.
         cbn - [subcode]. ring_simplify (S (k + length l)).
         intros IHl. eapply IHl. 2:exact H1.
@@ -206,20 +208,20 @@ Lemma one_step_forward m i P i1 v1 i2 v2 :
      @mm_no_self_loops m (i,P) 
   -> (i, P)              /MM/ (i1, v1)           → (i2,v2) 
   -> encode_mm_instr i P /F/  encode_state (i1,v1) → encode_state (i2,v2).
-Proof with eauto; try lia.
+Proof.
   intros HP (k & l & [ u | u j ] & r & v & ? & ? & ?); inversion H; subst; clear H.
   - inversion H0; inversion H1; subst; clear H0 H1. 
-    eapply skip_steps...
+    eapply skip_steps; eauto; try lia.
     econstructor. cbn. ring_simplify.
     replace (1 + (k + length l)) with (k + length l + 1) by lia. unfold encode_state, fst, snd. 
     rewrite vec_prod_mult.
     rewrite Nat.add_0_r; ring.
   - inversion H0; inversion H1; subst; clear H0 H1.
-    all:eapply skip_steps...
+    all:eapply skip_steps; eauto; try lia.
     + cbn. econstructor 2.
-      intros [] % divides_mult_inv_l...
-      eapply divides_mult_inv in H0 as [ | ]...
-      * now eapply qs_ps_div in H0.          
+      intros [] % divides_mult_inv_l; eauto; try lia.
+      eapply divides_mult_inv in H0 as [ | ]; eauto; try lia.
+      * now eapply qs_ps_div in H0.
       * eapply qs_encode_state in H0. lia.
       * unfold encode_dec2. econstructor. unfold encode_state, fst, snd. ring.
     + econstructor. cbn. unfold encode_state, fst, snd. ring_simplify.
@@ -367,6 +369,7 @@ Proof.
       as (i2 & v2 & -> & ?); auto.
     revert H; apply sss_out_step_stall; auto.
 Qed.
+
 Lemma encode_state_inj n st1 st2 :
   @encode_state n st1 = @encode_state n st2 -> st1 = st2.
 Proof.
@@ -424,6 +427,7 @@ Proof.
     - intros v w [j H % mm_fractran_simulation_forward] % H3; eauto. cbn in H. rewrite Nat.add_0_r in H. eauto.
     - intros v H. eapply H4. eapply mm_fractran_simulation; [ auto | ]. cbn. now rewrite Nat.add_0_r.
 Qed.
+
 (* 
 Theorem mm_fractran_n_strong' n (P : list (mm_instr (pos n))) : 
         { l |  Forall (fun c => snd c <> 0) l

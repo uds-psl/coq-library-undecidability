@@ -27,7 +27,8 @@ From Undecidability.MinskyMachines Require Import mma_defs fractran_mma.
 
 Set Implicit Arguments.
 
-Local Notation "P //ₐ s ↓" := (sss_terminates (@mma_sss 2) P s) (at level 70, no associativity).
+#[warning="-postfix-notation-not-level-1"]
+  Local Notation "P //ₐ s ↓" := (sss_terminates (@mma_sss 2) P s) (at level 70, no associativity).
 
 Section FRACTRAN_REG_MMA2_and_ON_ZERO.
 

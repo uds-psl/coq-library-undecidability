@@ -48,7 +48,7 @@ Reserved Notation "P '//' r '↠' s" (at level 70, no associativity).
 #[warning="-postfix-notation-not-level-1"]
   Reserved Notation "P '//' r ↓" (at level 70, no associativity).
 
-#[local] Notation mm2_state := (nat*(nat*nat))%type.
+#[local] Abbreviation mm2_state := (nat*(nat*nat))%type.
 
 (* Instruction step semantics:
 
@@ -159,10 +159,10 @@ Definition MM2_UMORTAL : list mm2_instr -> Prop :=
   fun P => mm2_uniformly_mortal P.
 
 Module MM2Notations.
-  Notation mm2_state := (nat*(nat*nat))%type.
-  Notation index x := (@fst nat (nat*nat) x).
-  Notation value1 x := (fst (@snd nat (nat*nat) x)).
-  Notation value2 x := (snd (@snd nat (nat*nat) x)).
+  Abbreviation mm2_state := (nat*(nat*nat))%type.
+  Abbreviation index x := (@fst nat (nat*nat) x).
+  Abbreviation value1 x := (fst (@snd nat (nat*nat) x)).
+  Abbreviation value2 x := (snd (@snd nat (nat*nat) x)).
   Notation "ρ // x ⇢ y" := (mm2_atom ρ x y).
   Notation "P // x → y" := (mm2_step P x y).
   Notation "P // x ↠ y" := (clos_refl_trans _ (mm2_step P) x y).

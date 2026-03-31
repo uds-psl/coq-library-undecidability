@@ -54,7 +54,7 @@ Proof.
   - intros _. auto.
 Qed.
 
-#[local] Notation vector_to_list := Vector.to_list.
+#[local] Abbreviation vector_to_list := Vector.to_list.
 
 Lemma vector_to_list_eta (X : Type) (n : nat) (v : Vector.t X (S n)) :
   Vector.hd v :: vector_to_list (Vector.tl v) = vector_to_list v.
@@ -381,7 +381,7 @@ Section ToSingleTape.
   Variable (sig F : finType).
   Variable n : nat.
   (* Hypothesis (nNeq0 : n <> 0). (* This really makes no sense for [0] tapes. *) *)
-  Notation nMax := (finMax' n).
+  Abbreviation nMax := (finMax' n).
   Local Arguments finMax' : simpl never.
 
   Definition sigSim := (FinType(EqType(boundary + sigList (sigTape sig)))).

@@ -252,7 +252,7 @@ Section Construction.
     intros. do ? decide equality; by apply: H.
   Qed.
 
-  #[local] Notation size := (length (sval listable_space)).
+  #[local] Abbreviation size := (length (sval listable_space)).
 
   Definition encode_space : space -> Fin.t size :=
     fun x => ListFin.encode eqdec_space (svalP listable_space) x.
@@ -263,7 +263,7 @@ Section Construction.
   Lemma decode_encode_space (x : space) : decode_space (encode_space x) = x.
   Proof. by apply: ListFin.decode_encode. Qed.
 
-  #[local] Notation encode_state q := (encode_space (space_base q)).
+  #[local] Abbreviation encode_state q := (encode_space (space_base q)).
   Open Scope vector.
 
   Definition go_back (d : direction) :=
@@ -347,13 +347,14 @@ Section Construction.
         end).
   Defined.
 
-  #[local] Notation step := (step M').
-  #[local] Notation steps := (steps M').
-  #[local] Notation state := (state M').
-  #[local] Notation config := (config M').
+  (** Notation/Abbreviation should not escape the scope of sections ... *)
+  #[local] Abbreviation step := (step M').
+  #[local] Abbreviation steps := (steps M').
+  #[local] Abbreviation state := (state M').
+  #[local] Abbreviation config := (config M').
 
-  #[local] Notation TM_step x := (@TM_facts.step _ _ M x).
-  #[local] Notation TM_config := (@TM_facts.mconfig (finType_CS bool) (TM.state M) 1).
+  #[local] Abbreviation TM_step x := (@TM_facts.step _ _ M x).
+  #[local] Abbreviation TM_config := (@TM_facts.mconfig (finType_CS bool) (TM.state M) 1).
 
   Definition encode_config : TM_config -> config :=
     fun '(TM_facts.mk_mconfig q ctapes) =>

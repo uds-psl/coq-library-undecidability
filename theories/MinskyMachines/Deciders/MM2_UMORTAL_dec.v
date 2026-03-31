@@ -29,9 +29,9 @@ Section Construction.
 
 Variable M : list mm2_instr.
 
-#[local] Notation steps := (steps M).
-#[local] Notation mortal := (MM2.mm2_mortal M).
-#[local] Notation bounded := (MM2.mm2_bounded M).
+#[local] Abbreviation steps := (steps M).
+#[local] Abbreviation mortal := (MM2.mm2_mortal M).
+#[local] Abbreviation bounded := (MM2.mm2_bounded M).
 
 (* uniform bound *)
 Variable K : nat.

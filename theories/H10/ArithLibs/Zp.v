@@ -160,8 +160,8 @@ Section Zp.
 
 *)
 
-  Notation Zp := Zp_zero.
-  Notation Op := Zp_one.
+  Abbreviation Zp := Zp_zero.
+  Abbreviation Op := Zp_one.
 
   Fact Zp_plus_zero : forall x, Zp ⊕ x = x.
   Proof.
@@ -915,7 +915,7 @@ Section Zp.
 
       End inv.
 
-      Notation inv := Zp_invert.
+      Abbreviation inv := Zp_invert.
 
       Fact Zp_invert_eq_not_zero x y : x <> Zp -> inv x = y <-> y ⊗ x = Op.
       Proof.

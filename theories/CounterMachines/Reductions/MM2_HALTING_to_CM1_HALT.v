@@ -362,7 +362,7 @@ Section MM2_CM1.
       simulation.terminates (mm2_step P) (1, (a, b)).
   Proof. done. Qed.
 
-  Notation cm1_step := (fun x y => CM1.step M x = y /\ x <> y).
+  Abbreviation cm1_step := (fun x y => CM1.step M x = y /\ x <> y).
 
   Lemma cm1_steps n x : clos_refl_trans _ cm1_step x (Nat.iter n (CM1.step M) x).
   Proof.

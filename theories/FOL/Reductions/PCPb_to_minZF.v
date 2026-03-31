@@ -13,15 +13,15 @@ Local Unset Strict Implicit.
 
 
 
-Local Notation vec := Vector.t.
+Local Abbreviation vec := Vector.t.
 
 Local Hint Constructors prv : core.
 
 (* ** Trivial embedding into rich signature *)
 
 
-#[local] Notation term' := (term sig_empty).
-#[local] Notation form' := (form sig_empty _ _ falsity_on).
+#[local] Abbreviation term' := (term sig_empty).
+#[local] Abbreviation form' := (form sig_empty _ _ falsity_on).
 
 Definition embed_t (t : term') : term :=
   match t with

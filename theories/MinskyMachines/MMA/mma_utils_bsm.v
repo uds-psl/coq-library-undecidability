@@ -35,9 +35,9 @@ Section Minsky_Machine_alt_utils_BSM.
 
   Hint Resolve subcode_refl : core.
 
-  Notation JUMPₐ := mma_jump.
-  Notation TRANSFERTₐ := mma_transfert.
-  Notation MULT_CSTₐ := mma_mult_cst.
+  Abbreviation JUMPₐ := mma_jump.
+  Abbreviation TRANSFERTₐ := mma_transfert.
+  Abbreviation MULT_CSTₐ := mma_mult_cst.
 
   Hint Rewrite mma_jump_length 
                mma_transfert_length 
@@ -118,7 +118,7 @@ Section Minsky_Machine_alt_utils_BSM.
 
   End mma_div2_branch.
 
-  Notation DIV2ₐ := mma_div2_branch.
+  Abbreviation DIV2ₐ := mma_div2_branch.
 
   Hint Rewrite mma_div2_branch_length : length_db.
 

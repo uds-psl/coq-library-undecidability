@@ -134,16 +134,16 @@ Section ZF.
   Hypothesis M_ZF : forall rho, rho ⊫ ZF'.
   Hypothesis VIEQ : extensional M.
 
-  Notation binunion_el := (@binunion_el _ _ M_ZF VIEQ).
-  Notation sing_el := (@sing_el _ _ M_ZF VIEQ).
-  Notation M_pair := (@M_pair _ _ M_ZF VIEQ).
-  Notation opair_inj := (@opair_inj _ _ M_ZF VIEQ).
-  Notation binunion_assoc := (@binunion_assoc _ _ M_ZF VIEQ).
-  Notation sigma_el := (@sigma_el _ _ M_ZF VIEQ).
-  Notation sigma_eq := (@sigma_eq _ _ M_ZF VIEQ).
-  Notation numeral_inj := (@numeral_inj _ _ M_ZF VIEQ).
-  Notation M_ext := (@M_ext _ _ M_ZF VIEQ).
-  Notation numeral_omega := (@numeral_omega _ _ M_ZF).
+  Abbreviation binunion_el := (@binunion_el _ _ M_ZF VIEQ).
+  Abbreviation sing_el := (@sing_el _ _ M_ZF VIEQ).
+  Abbreviation M_pair := (@M_pair _ _ M_ZF VIEQ).
+  Abbreviation opair_inj := (@opair_inj _ _ M_ZF VIEQ).
+  Abbreviation binunion_assoc := (@binunion_assoc _ _ M_ZF VIEQ).
+  Abbreviation sigma_el := (@sigma_el _ _ M_ZF VIEQ).
+  Abbreviation sigma_eq := (@sigma_eq _ _ M_ZF VIEQ).
+  Abbreviation numeral_inj := (@numeral_inj _ _ M_ZF VIEQ).
+  Abbreviation M_ext := (@M_ext _ _ M_ZF VIEQ).
+  Abbreviation numeral_omega := (@numeral_omega _ _ M_ZF).
 
   (* ** Encodings *)
 

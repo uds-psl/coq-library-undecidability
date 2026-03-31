@@ -20,7 +20,7 @@ Section Encoding.
     lambda (AppL (renL shift (map encb w)) (var 0)).
 
   (* Encoding of words *)
-  Notation Enc := (map enc).
+  Abbreviation Enc := (map enc).
 
 
   (* ** Encoding Typing *)
@@ -317,7 +317,7 @@ Section Encoding.
 End Encoding.
 
 #[export] Hint Rewrite @enc_app @enc_nil: simplify. 
-Notation Enc u v := (map (enc u v)).
+Abbreviation Enc u v := (map (enc u v)).
 
 
 

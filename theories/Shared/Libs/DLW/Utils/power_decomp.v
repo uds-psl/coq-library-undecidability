@@ -16,7 +16,7 @@ From Undecidability.Shared.Libs.DLW.Utils
 
 Set Implicit Arguments.
 
-Local Notation power := (mscal mult 1).
+Local Abbreviation power := (mscal mult 1).
 Local Notation "∑" := (msum plus 0).
 
 Fact sum_0n_distr_in_out n a b f :

@@ -19,8 +19,8 @@ Definition ag : Const :=
 
   |}.
 
-Notation g := (@const ag None).
-Notation a := (@const ag (Some None)).
+Abbreviation g := (@const ag None).
+Abbreviation a := (@const ag (Some None)).
 
 Lemma typing_a Gamma: Gamma ⊢(2) a : alpha.
 Proof. econstructor; cbn; auto. Qed.
@@ -97,7 +97,7 @@ End Linearization.
 
 Section Encoding.
 
-  Notation Succ := (g a).
+  Abbreviation Succ := (g a).
   Definition enc n s := lin (repeat a n) s.
   Definition encodes s n :=  forall t delta, (ren delta s) t ≡ enc n t.
 
@@ -233,7 +233,7 @@ End Encoding.
 
 
 Arguments enc : simpl never.
-Notation Succ := (g a).
+Abbreviation Succ := (g a).
 
 (* ** Characteristic Equation **)
 Lemma normal_forms_encodes s:
@@ -434,7 +434,7 @@ Section Equations.
   Qed.
 
 End Equations.
-Notation Eqs E  := (flat_map eqs E).
+Abbreviation Eqs E  := (flat_map eqs E).
 Notation "s ::: t" := (Cons s t) (at level 62).
 Notation "⟨ s , t ⟩" := (Pair s t) (at level 60).
 

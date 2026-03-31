@@ -40,7 +40,7 @@ Section HaltTM_MMA_HALTING.
 
 Context {n : nat} (M : list (mm_instr (Fin.t n))).
 
-#[local] Notation maxState := (S (length M)).
+#[local] Abbreviation maxState := (S (length M)).
 
 Definition Σ : finType := finType_CS bool.
 
@@ -78,7 +78,7 @@ Inductive encodes_counter : nat -> tape Σ -> Prop :=
   | encodes_counter_right_1 : encodes_counter 1 (rightof true [])
   | encodes_counter_right_S c : encodes_counter (S (S c)) (rightof false (repeat false c ++ [true])).
 
-#[local] Notation encodes_counters cs ts := (Vector.Forall2 encodes_counter cs ts).
+#[local] Abbreviation encodes_counters cs ts := (Vector.Forall2 encodes_counter cs ts).
 
 Definition encode_counter (c : nat) : tape Σ :=
   if c is S m then midtape (repeat false m ++ [true]) false [] else midtape [] true [].

@@ -72,18 +72,18 @@ Proof.
 Qed.
 
 
-Notation i_f b x := (@i_func _ _ _ _ (f b) (Vector.cons _ x _ (Vector.nil _))).
+Abbreviation i_f b x := (@i_func _ _ _ _ (f b) (Vector.cons _ x _ (Vector.nil _))).
 Definition i_f' {domain:Type} {i:interp domain} (b:bool) (x:domain) := i_f b x.
 
-Notation i_e := (@i_func _ _ _ _ e (Vector.nil _)).
+Abbreviation i_e := (@i_func _ _ _ _ e (Vector.nil _)).
 
-Notation i_dum := (@i_func _ _ _ _ dum (Vector.nil _)).
+Abbreviation i_dum := (@i_func _ _ _ _ dum (Vector.nil _)).
 
-Notation i_P x y := (@i_atom _ _ _ _ P (Vector.cons _ x _ (Vector.cons _ y _ (Vector.nil _)))).
+Abbreviation i_P x y := (@i_atom _ _ _ _ P (Vector.cons _ x _ (Vector.cons _ y _ (Vector.nil _)))).
 
-Notation i_less x y := (@i_atom _ _ _ _ less (Vector.cons _ x _ (Vector.cons _ y _ (Vector.nil _)))).
+Abbreviation i_less x y := (@i_atom _ _ _ _ less (Vector.cons _ x _ (Vector.cons _ y _ (Vector.nil _)))).
 
-Notation i_equiv x y := (@i_atom _ _ _ _ equiv (Vector.cons _ x _ (Vector.cons _ y _ (Vector.nil _)))).
+Abbreviation i_equiv x y := (@i_atom _ _ _ _ equiv (Vector.cons _ x _ (Vector.cons _ y _ (Vector.nil _)))).
 
 Fixpoint iprep domain {I : interp domain} (x : list bool) (y : domain) :=
   match x with

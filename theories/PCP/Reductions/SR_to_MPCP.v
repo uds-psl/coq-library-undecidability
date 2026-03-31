@@ -28,7 +28,7 @@ Section SR_to_MPCP.
   Notation "x ≻ y" := (rew R x y) (at level 70).
   Notation "x ≻* y" := (rewt R x y) (at level 70).
 
-  Notation Sigma := (x0 ++ y0 ++ sym R).
+  Abbreviation Sigma := (x0 ++ y0 ++ sym R).
 
   Definition dollar := fresh Sigma.
   Notation "$" := dollar.
