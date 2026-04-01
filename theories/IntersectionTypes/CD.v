@@ -21,13 +21,15 @@ Require Undecidability.L.L.
 From Stdlib Require Import List.
 Import L (term, var, app, lam).
 
+(* Unset Elimination Schemes. *)
+
 (* strict types are of shape: a | (s1 /\ s2 /\ .. /\ sn -> t) *)
 Inductive sty : Type :=
   | atom : nat -> sty
   | arr : sty -> list sty -> sty -> sty.
 
 (* a type is a (non-empty) list of strict types *)
-Notation ty := (sty * list sty)%type.
+Abbreviation ty := (sty * list sty)%type.
 
 (* Coppo-Dezani Intersection Type System *)
 Inductive type_assignment (Gamma : list ty) : term -> sty -> Prop :=
@@ -43,6 +45,8 @@ Inductive type_assignment (Gamma : list ty) : term -> sty -> Prop :=
   | type_assignment_arr M s phi t :
       type_assignment ((s, phi) :: Gamma) M t ->
       type_assignment Gamma (lam M) (arr s phi t).
+
+(* Set Elimination Schemes. *)
 
 (* Intersection Type Type Checking *)
 Definition CD_TC : (list ty) * term * sty -> Prop :=

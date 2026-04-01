@@ -15,10 +15,10 @@ From Stdlib Require Import ssreflect ssrbool.
 
 Set Default Goal Selector "!".
 
-#[local] Notation lams k M := (Nat.iter k lam M).
-#[local] Notation apps M Ns := (fold_left app Ns M).
-#[local] Notation arrs ss t := (fold_right arr t ss).
-#[local] Notation steps := (clos_refl_trans _ step).
+#[local] Abbreviation lams k M := (Nat.iter k lam M).
+#[local] Abbreviation apps M Ns := (fold_left app Ns M).
+#[local] Abbreviation arrs ss t := (fold_right arr t ss).
+#[local] Abbreviation steps := (clos_refl_trans _ step).
 
 Fixpoint ty_size (t : ty) : nat :=
   match t with
@@ -170,7 +170,7 @@ Module Fundamental.
 
 Definition Arr (P Q : term -> Prop) (M : term) := forall N, P N -> Q (app M N).
 
-#[local] Notation all P l := (fold_right and True (map P l)).
+#[local] Abbreviation all P l := (fold_right and True (map P l)).
 
 Fixpoint interp (P : term -> Prop) (M : term) (s : ty) : Prop :=
   match s with

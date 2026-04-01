@@ -33,7 +33,7 @@ Definition sing a :=
 Definition upair a b :=
   a ::: (b ::: ∅).
 
-Notation "{ a ; b }" := (upair a b) (at level 31) : syn.
+Notation "{ a ; b }" := (upair a b) (at level 0) : syn.
 Notation  "'σ' x" := (x ::: x) (at level 32) : syn.
 
 Definition opair a b :=

@@ -70,8 +70,8 @@ Proof.
   + split; intros ? k; apply H; auto. 
 Qed.
 
-Notation forall_equiv := (@fol_quant_sem_ext _ fol_fa).
-Notation exists_equiv := (@fol_quant_sem_ext _ fol_ex).
+Abbreviation forall_equiv := (@fol_quant_sem_ext _ fol_fa).
+Abbreviation exists_equiv := (@fol_quant_sem_ext _ fol_ex).
 
 Tactic Notation "fol" "equiv" "fa" := apply forall_equiv.
 Tactic Notation "fol" "equiv" "ex" := apply exists_equiv.
@@ -123,6 +123,7 @@ Fact fol_quant_sem_dec X q (P : X -> Prop) :
 Proof.
   intros (lX & HlX). 
   revert q; intros [] H; simpl.
-  + destruct exists_list_sem_dec with (l := lX) (1 := H); firstorder.
+  + destruct exists_list_sem_dec with (l := lX) (1 := H)
+      as [ H' | ]; [ left; destruct H' as (? & []); eauto | firstorder ].
   + destruct forall_list_sem_dec with (l := lX) (1 := H); firstorder.
 Qed.

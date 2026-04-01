@@ -79,7 +79,7 @@ Notation "x ≡ y" := (@i_atom _ _ _ _ equal (Vector.cons x (Vector.cons y Vecto
 Notation "x ⊆ y" := (forall z, z ∈ x -> z ∈ y) (at level 34) : HFsem.
 
 Notation "∅" := (@i_func ZF_func_sig ZF_pred_sig _ _ eset Vector.nil) : HFsem.
-Notation "{ x ; y }" := (@i_func ZF_func_sig _ _ _ pair (Vector.cons x (Vector.cons y Vector.nil))) (at level 31) : HFsem.
+Notation "{ x ; y }" := (@i_func ZF_func_sig _ _ _ pair (Vector.cons x (Vector.cons y Vector.nil))) (at level 0) : HFsem.
 Notation "⋃ x" := (@i_func ZF_func_sig _ _ _ union (Vector.cons x Vector.nil)) (at level 32) : HFsem.
 Notation "'PP' x" := (@i_func ZF_func_sig _ _ _ power (Vector.cons x Vector.nil)) (at level 31) : HFsem.
 

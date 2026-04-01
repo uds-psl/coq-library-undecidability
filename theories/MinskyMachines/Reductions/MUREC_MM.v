@@ -19,6 +19,8 @@ From Undecidability.MuRec.Util
   Require Import recalg ra_simul.
 
 Local Notation "'⟦' f '⟧'"  := (@ra_rel _ f) (at level 0).
+
+#[warning="-postfix-notation-not-level-1"]
 Local Notation "P /MM/ s ↓" := (sss_terminates (@mm_sss _) P s) (at level 70, no associativity).
 
 Section MUREC_MM_HALTING.

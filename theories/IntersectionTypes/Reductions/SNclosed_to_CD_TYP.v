@@ -46,7 +46,7 @@ Qed.
 Inductive typable (M : term): Prop :=
   typable_intro Gamma t : type_assignment Gamma M t -> typable M.
 
-#[local] Notation is_nonzero := (fun n : nat => match n with 0 => False | S _ => True end).
+#[local] Abbreviation is_nonzero := (fun n : nat => match n with 0 => False | S _ => True end).
 
 (* has_var_zero M means that ((lam M) N) is a lambda-I redex *)
 Definition has_var_zero M := not (allfv is_nonzero M).
@@ -68,9 +68,9 @@ Inductive stepK : term -> term -> Prop :=
   | stepKAAppL s1 s2 s' t : stepK (app s1 s2) s' -> stepK (app (app s1 s2) t) (app s' t).
 
 (* union of stepI and stepK, which is a class of perpetual reduction strategies [1] *)
-#[local] Notation step' M N := (stepI M N \/ stepK M N).
+#[local] Abbreviation step' M N := (stepI M N \/ stepK M N).
 (* reflexive, transitive closure of step' *)
-#[local] Notation steps' M N := (clos_refl_trans term (fun M N => step' M N) M N).
+#[local] Abbreviation steps' M N := (clos_refl_trans term (fun M N => step' M N) M N).
 
 Fixpoint merge (Gamma1 Gamma2 : list ty) :=
   match Gamma1 with

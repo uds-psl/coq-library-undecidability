@@ -44,6 +44,7 @@ Section Sign_Sig2_encoding.
   Infix "≈" := Σ2_equiv.
   Infix "⊆" := Σ2_incl.
 
+  #[warning="-postfix-notation-not-level-1"]
   Notation "t ∋ ⦉ v ⦊" := (Σ2_is_tuple_in t v) (at level 70, format "t  ∋  ⦉ v ⦊").
 
   (* We bound quantification inside hf-set l ∈ p and r ∈ p represent a set 

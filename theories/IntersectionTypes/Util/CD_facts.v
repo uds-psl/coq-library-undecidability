@@ -12,7 +12,7 @@ Set Default Goal Selector "!".
 
 Unset Implicit Arguments.
 
-#[local] Notation steps := (clos_refl_trans term step).
+#[local] Abbreviation steps := (clos_refl_trans term step).
 
 Lemma nth_error_seq start len n : n < len -> nth_error (seq start len) n = Some (start+n).
 Proof.

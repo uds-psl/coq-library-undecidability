@@ -18,7 +18,7 @@ Set Default Goal Selector "!".
 
 Definition Arr (P Q : term -> Prop) (M : term) := forall N, P N -> Q (app M N).
 
-#[local] Notation all P l := (fold_right and True (map P l)).
+#[local] Abbreviation all P l := (fold_right and True (map P l)).
 
 Fixpoint interp (P : term -> Prop) (M : term) (s : sty) : Prop :=
   match s with
@@ -80,10 +80,14 @@ Proof.
     apply: (Saturated_neutral IHt). by constructor.
 Qed.
 
+(** DLW: it seems that induction/elimination is performed on t : sty
+         without actually having a strong eliminator. Would a simple
+         match/destruct be enough for the task ? *)
+
 Lemma interp_head_exp {P : term -> Prop} {M N t} : Admissible P ->
   head_exp P M N -> interp P M t -> interp P N t.
 Proof.
-  move=> HP. have HQ := Admissible_Saturated_interp HP. elim: t M N.
+  move=> HP. have HQ := Admissible_Saturated_interp HP. elim: t M N. (* DLW: no strong elimination scheme here *)
   { move=> *. apply: (Admissible_head_exp _ HP); eassumption. }
   move=> s ? phi t IH M N /= ? IH' N' [Hs Hphi].
   apply: IH. { constructor; [|apply: (Saturated_incl (HQ _))]; eassumption. }

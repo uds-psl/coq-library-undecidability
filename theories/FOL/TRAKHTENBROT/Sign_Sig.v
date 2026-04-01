@@ -26,13 +26,13 @@ Set Implicit Arguments.
 
 Tactic Notation "iff" "equal" := apply fol_equiv_ext.
 
-Local Notation ø := vec_nil.
+Local Abbreviation ø := vec_nil.
 
 Section Sig_n_Sig.
 
   Variable (Σ : fo_signature) (r : rels Σ).
 
-  Notation Σn := (Σrel (ar_rels _ r)).
+  Abbreviation Σn := (Σrel (ar_rels _ r)).
 
   Local Fixpoint enc (A : fol_form Σn) : fol_form Σ :=
     match A with

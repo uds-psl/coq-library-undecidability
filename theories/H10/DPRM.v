@@ -22,8 +22,12 @@ From Undecidability.MuRec.Util Require Import recalg ra_utils recomp ra_recomp r
 
 Set Implicit Arguments.
 
+#[warning="-postfix-notation-not-level-1"]
 Local Notation "P /MM/ s ↓" := (sss_terminates (@mm_sss _) P s) (at level 70, no associativity).
+
+#[warning="-postfix-notation-not-level-1"]
 Local Notation "l '/F/' x ↓" := (fractran_terminates l x) (at level 70, no associativity).
+
 Local Notation "'⟦' p '⟧'" := (fun φ ν => dp_eval φ ν p).
 Local Notation "f ⇓ v" := (ex (@ra_rel _ f v)) (at level 70, no associativity).
 
