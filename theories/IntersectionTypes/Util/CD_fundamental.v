@@ -5,7 +5,7 @@
 
 Require Import Undecidability.IntersectionTypes.CD Undecidability.IntersectionTypes.Util.CD_facts.
 Require Import Undecidability.LambdaCalculus.Util.term_facts.
-From Stdlib Require Import List.
+From Stdlib Require Import PeanoNat List Lia.
 
 Import L (term, var, app, lam).
 Import Lambda (scons, funcomp, ren, subst).
@@ -18,7 +18,7 @@ Set Default Goal Selector "!".
 
 Definition Arr (P Q : term -> Prop) (M : term) := forall N, P N -> Q (app M N).
 
-#[local] Notation all P l := (fold_right and True (map P l)).
+#[local] Abbreviation all P l := (fold_right and True (map P l)).
 
 Fixpoint interp (P : term -> Prop) (M : term) (s : sty) : Prop :=
   match s with
@@ -83,11 +83,13 @@ Qed.
 Lemma interp_head_exp {P : term -> Prop} {M N t} : Admissible P ->
   head_exp P M N -> interp P M t -> interp P N t.
 Proof.
-  move=> HP. have HQ := Admissible_Saturated_interp HP. elim: t M N.
-  { move=> *. apply: (Admissible_head_exp _ HP); eassumption. }
-  move=> s ? phi t IH M N /= ? IH' N' [Hs Hphi].
-  apply: IH. { constructor; [|apply: (Saturated_incl (HQ _))]; eassumption. }
-  by apply: IH'.
+  move=> HP. have HQ := Admissible_Saturated_interp HP.
+  elim /(Nat.measure_induction _ sty_size): t M N => - [?|s phi t] IH M N.
+  - move=> *. apply: (Admissible_head_exp _ HP); eassumption.
+  - move=> /= ? IH' N' [Hs Hphi] /=.
+    apply: (IH); last by apply: (IH' N').
+    + cbn. lia.
+    + constructor; [|apply: (Saturated_incl (HQ _))]; eassumption.
 Qed.
 
 Definition satis (P : term -> Prop) (Gamma : list ty) M t :=
@@ -126,5 +128,5 @@ Proof.
   have HQ := Admissible_Saturated_interp HP.
   move=> H. apply: (Saturated_incl (HQ _)).
   apply: H=> i *. have : neutral P (var i) by constructor.
-  by split; [|apply /Forall_forall]=> *; apply: (Saturated_neutral (HQ _)).
+  split; [|apply /Forall_forall]; move=> *; by apply: (Saturated_neutral (HQ _)).
 Qed.
