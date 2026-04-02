@@ -245,13 +245,7 @@ Section Hilbert_Calculus.
     | BI_axiom_assoc A B C : ⊦ᴮ A∗(B∗C)⇒(A∗B)∗C
   where "⊦ᴮ A" := (BI_axiom A).
 
-  Reserved Notation "Φ I⊦ A" (at level 70, format "Φ  I⊦  A").
   Reserved Notation "Φ ⊦ A" (at level 70, format "Φ  ⊦  A").
-
-  Inductive HIL_deduction Φ : BI_form µ prop → Prop :=
-    | HIL_axiom A : Φ A → Φ I⊦ A
-    | HIL_modus_ponens A B : Φ I⊦ A → Φ I⊦ A⇒B → Φ I⊦ B
-  where "Φ I⊦ A" := (HIL_deduction Φ A).
 
   Inductive HBI_deduction Φ : BI_form µ prop → Prop :=
     | HBI_axiom A : Φ A → Φ ⊦ A

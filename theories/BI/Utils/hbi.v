@@ -12,16 +12,20 @@ From Stdlib Require Import Utf8 Eqdep_dec.
 From Undecidability.BI
   Require Import BI utils hil.
 
+Import BI_notations.
+
 Set Implicit Arguments.
 
-Import BI_notations.
+#[local] Notation "X ⊆ Y" := (∀m, X m → Y m) (at level 70).
 
 Section LBI_full_HBI.
 
   Variables (prop : Set).
 
   Abbreviation µ := (λ _ : BI_conn, true).
-  
+
+  Implicit Type (Φ : BI_form µ prop → Prop).
+
   (** We show that what can be proved in the full fragment of LBI
      (incl. with the cut-rule) can also be proved in HBI *)
 
@@ -37,6 +41,9 @@ Section LBI_full_HBI.
   Implicit Types (A B : BI_form µ prop).
 
   Hint Constructors HBI_deduction IL_axiom BI_axiom : core.
+
+  Theorem HIL_incl_HBI Φ : HIL_deduction Φ ⊆ HBI_deduction Φ.
+  Proof. induction 1; eauto. Qed.
 
   Notation "Σ 'L⊦wc' A" := (@LBI_provable µ prop BI_with_cut Σ A) (at level 70, format "Σ  L⊦wc  A").
 
@@ -346,9 +353,118 @@ Section LBI_full_HBI.
   Corollary LBI_full_to_HBI_form A : øₐ L⊦wc A → H⊦ A.
   Proof. intros H%LBI_full_to_HBI; apply HBI_MP with (2 := H), HBI_top_intro. Qed.
 
-End LBI_full_HBI.
+  Arguments BI_ctx_hole { _ _ }.
 
-About BI_form_map.
+  Section HBI_to_LBI_wc.
+  
+    Hint Constructors LBI_provable : core.
+    
+    Notation "A '-⊙[' h ']' B" := (@BI_form_impl _ _ h eq_refl A B) (at level 62, right associativity, format "A -⊙[ h ] B").
+
+    Fact LBI_wc_impl_left k A B : ⟨A⟩ ⊛[k] ⟨A-⊙[k]B⟩ L⊦wc B.
+    Proof. apply BI_sp_impl_l with (Γ := BI_ctx_hole); simpl; auto. Qed.
+
+    Hint Resolve LBI_wc_impl_left : core.
+
+    Fact LBI_wc_impl_inv k Γ A B : Γ L⊦wc A-⊙[k]B → ⟨A⟩ ⊛[k] Γ L⊦wc B.
+    Proof.
+      intros H.
+      apply BI_sp_cut with (Δ := BI_ctx_comp BI_left k _ BI_ctx_hole) (2 := H); simpl; auto.
+    Qed.
+
+    Fact LBI_wc_impl_inv' k A B : ø[k] L⊦wc A-⊙[k]B → ⟨A⟩ L⊦wc B.
+    Proof.
+      intros H%LBI_wc_impl_inv.
+      revert H; apply BI_sp_equiv.
+      apply BI_bequiv_trans with (1 := BI_bequiv_comm _ _ _), BI_bequiv_neut.
+    Qed.
+
+    Fact LBI_wc_neut_l k Γ A : Γ L⊦wc A → ø[k] ⊛[k] Γ L⊦wc A.
+    Proof. apply BI_sp_equiv, BI_bequiv_sym, BI_bequiv_neut. Qed.
+
+    Fact LBI_wc_neut_r k Γ A : Γ L⊦wc A → Γ ⊛[k] ø[k] L⊦wc A.
+    Proof. apply BI_sp_equiv, BI_bequiv_sym, BI_bequiv_trans with (1 := BI_bequiv_comm _ _ _), BI_bequiv_neut. Qed.
+
+    Hint Resolve LBI_wc_neut_l LBI_wc_neut_r : core.
+
+    Theorem HBI_to_LBI_full A : H⊦ A → øₐ L⊦wc A.
+    Proof.
+      induction 1 as [ A [ H | H ] 
+                     | A B _ IH1 _ IH2 
+                     | A B C D _ IH1 _ IH2 
+                     | A B C _ IH
+                     | A B C _ IH
+                     ].
+      + destruct H as [ A B | A B C | A B | A B | A B | A B | A B | A B C | A | ]; eauto.
+        * apply BI_sp_impl_r, LBI_wc_neut_l.
+          apply BI_sp_impl_r, BI_sp_weak with (Γ := BI_ctx_comp BI_left _ _ BI_ctx_hole); simpl; auto.
+        * apply BI_sp_impl_r, BI_sp_equiv with (1 := BI_bequiv_sym (BI_bequiv_neut _ _)).
+          do 2 apply BI_sp_impl_r.
+          apply BI_sp_cntr with (Γ := BI_ctx_comp BI_left _ _ BI_ctx_hole); simpl.
+          apply BI_sp_equiv with ((⟨A⟩ ⊛ₐ ⟨A⇒B⟩) ⊛ₐ (⟨A⟩ ⊛ₐ ⟨A⇒B⇒C⟩)).
+          - apply BI_bequiv_trans with (1 := BI_bequiv_comm _ _ _).
+            apply BI_bequiv_trans with (1 := BI_bequiv_assoc _ _ _ _).
+            apply BI_bequiv_trans with (1 := BI_bequiv_comm _ _ _).
+            apply BI_bequiv_trans with (1 := BI_bequiv_assoc _ _ _ _).
+            apply BI_bequiv_trans with (2 := BI_bequiv_sym (BI_bequiv_assoc _ _ _ _)).
+            apply BI_bequiv_congr.
+            apply BI_bequiv_trans with (1 := BI_bequiv_comm _ _ _).
+            apply BI_bequiv_trans with (1 := BI_bequiv_sym (BI_bequiv_assoc _ _ _ _)).
+            apply BI_bequiv_comm.
+          - apply BI_sp_impl_l with (Γ := BI_ctx_comp BI_right _ _ BI_ctx_hole); auto; simpl.
+            apply BI_sp_impl_l with (Γ := BI_ctx_comp BI_left _ _ BI_ctx_hole); auto; simpl.
+            apply BI_sp_impl_l with (Γ := BI_ctx_hole); simpl; auto.
+        * apply BI_sp_impl_r, LBI_wc_neut_l.
+          apply BI_sp_conj_l with (Γ := BI_ctx_hole); simpl.
+          apply BI_sp_weak with (Γ := BI_ctx_comp BI_left _ _ BI_ctx_hole); simpl; auto.
+        * apply BI_sp_impl_r, LBI_wc_neut_l.
+          apply BI_sp_conj_l with (Γ := BI_ctx_hole); simpl.
+          apply BI_sp_weak with (Γ := BI_ctx_comp BI_right _ _ BI_ctx_hole); simpl; auto.
+        * apply BI_sp_impl_r, LBI_wc_neut_l, BI_sp_impl_r, BI_sp_impl_r.
+          apply BI_sp_disj_l with (Γ := BI_ctx_comp BI_left _ _ BI_ctx_hole); simpl.
+          - apply BI_sp_weak with (Γ := BI_ctx_comp BI_right _ _ (BI_ctx_comp BI_left _ _ BI_ctx_hole)); simpl.
+            apply BI_sp_equiv with (⟨A⟩ ⊛ₐ ⟨A⇒C⟩); auto.
+            apply BI_bequiv_trans with (2 := BI_bequiv_comm _ _ _), BI_bequiv_congr.
+            apply BI_bequiv_trans with (2 := BI_bequiv_comm _ _ _), BI_bequiv_sym, BI_bequiv_neut.
+          - apply BI_sp_equiv with (1 := BI_bequiv_sym (BI_bequiv_assoc _ _ _ _)).
+            apply BI_sp_weak with (Γ := BI_ctx_comp BI_right _ _ BI_ctx_hole); simpl.
+            apply LBI_wc_neut_l.
+            apply BI_sp_equiv with (1 := BI_bequiv_comm _ _ _); auto.
+      + destruct H as [ A | A | A B | A B C ].
+        * apply BI_sp_impl_r, LBI_wc_neut_l.
+          apply BI_sp_equiv with (1 := BI_bequiv_neut BI_mult _); auto. 
+        * apply BI_sp_impl_r, LBI_wc_neut_l.
+          apply BI_sp_conj_l with (Γ := BI_ctx_hole); simpl; auto.
+          apply BI_sp_unit_l with (Γ := BI_ctx_comp BI_right _ _ BI_ctx_hole); simpl; auto.
+        * apply BI_sp_impl_r, LBI_wc_neut_l.
+          apply BI_sp_conj_l with (Γ := BI_ctx_hole); simpl; auto.
+          apply BI_sp_equiv with (1 := BI_bequiv_comm _ _ _); auto.
+        * apply BI_sp_impl_r, LBI_wc_neut_l.
+          apply BI_sp_conj_l with (Γ := BI_ctx_hole); simpl; auto.
+          apply BI_sp_conj_l with (Γ := BI_ctx_comp BI_left _ _ BI_ctx_hole); simpl; auto.
+          apply BI_sp_equiv with (1 := BI_bequiv_assoc _ _ _ _); auto.
+      + apply LBI_wc_impl_inv' in IH2.
+        apply BI_sp_cut with (Δ := BI_ctx_hole) (2 := IH1); simpl; auto.
+      + apply LBI_wc_impl_inv' in IH1, IH2.
+        apply BI_sp_impl_r, BI_sp_equiv with (1 := BI_bequiv_sym (BI_bequiv_neut _ _)).
+        now apply BI_sp_conj_l with (Γ := BI_ctx_hole), BI_sp_conj_r.
+      + apply LBI_wc_impl_inv', LBI_wc_impl_inv in IH.
+        apply BI_sp_impl_r, BI_sp_equiv with (1 := BI_bequiv_sym (BI_bequiv_neut _ _)).
+        now apply BI_sp_conj_l with (Γ := BI_ctx_hole), BI_sp_equiv with (1 := BI_bequiv_comm _ _ _).
+      + apply LBI_wc_impl_inv' in IH.
+        apply BI_sp_impl_r, BI_sp_equiv with (1 := BI_bequiv_sym (BI_bequiv_neut _ _)).
+        apply BI_sp_impl_r.
+        apply BI_sp_cut with (Δ := BI_ctx_hole) (3 := IH); simpl; auto.
+    Qed.
+
+  End HBI_to_LBI_wc.
+
+  Hint Resolve LBI_full_to_HBI_form HBI_to_LBI_full : core.
+
+  Corollary LBI_wc_equiv_HBI A :  øₐ L⊦wc A ↔ H⊦ A.
+  Proof. split; auto. Qed.
+
+End LBI_full_HBI.
 
 Theorem LBI_to_HBI_form prop µ c (A : BI_form µ prop) : øₐ L⊦[c] A → H⊦ BI_form_map (λ _, true) (λ _ _, eq_refl) (λ p, p) A.
 Proof. now intros H%(LBI_map_sound (λ _, true) (λ _ _, eq_refl) (λ p, p) (λ _, eq_refl))%LBI_full_to_HBI_form. Qed.

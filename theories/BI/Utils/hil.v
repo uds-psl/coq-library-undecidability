@@ -24,25 +24,28 @@ Section IL.
 
   Abbreviation µ := (λ _ : BI_conn, true).
 
+  Implicit Type (Φ : BI_form µ prop → Prop).
+
   Notation "⊥" := (@BI_form_bot _ _ eq_refl).
   Notation "⊤" := (@BI_form_unit _ _ BI_addi eq_refl).
   Notation "A ⇒ B" := (@BI_form_impl _ _ BI_addi eq_refl A B) (at level 63, right associativity, format "A ⇒ B").
   Notation "A ⩑ B" := (@BI_form_conj _ _ BI_addi eq_refl A B) (at level 59, left associativity, format "A ⩑ B").
   Notation "A ⩒ B" := (@BI_form_disj _ _ eq_refl A B) (at level 61, left associativity, format "A ⩒ B").
 
+  Reserved Notation "Φ I⊦ A" (at level 70, format "Φ  I⊦  A").
+
+  Inductive HIL_deduction Φ : BI_form µ prop → Prop :=
+    | HIL_axiom A : Φ A → Φ I⊦ A
+    | HIL_mp A B : Φ I⊦ A → Φ I⊦ A⇒B → Φ I⊦ B
+  where "Φ I⊦ A" := (HIL_deduction Φ A).
+
   Arguments IL_axiom {_}.
 
-  Notation "Φ 'I⊦' A" := (@HIL_deduction prop Φ A) (at level 70).
-  Notation "'I⊦' A" := (@HIL_deduction prop IL_axiom A) (at level 70).
+  Notation "'I⊦' A" := (HIL_deduction IL_axiom A) (at level 70).
 
-  Implicit Type (Φ : BI_form µ prop → Prop).
+  Hint Constructors IL_axiom HIL_deduction : core.
 
-  Hint Constructors IL_axiom HIL_deduction HBI_deduction : core.
-
-  Theorem HIL_incl_HBI Φ : HIL_deduction Φ ⊆ HBI_deduction Φ.
-  Proof. induction 1; eauto. Qed.
-
-  Theorem HIL_mono Φ Φ' : Φ ⊆ Φ' → HIL_deduction Φ ⊆ HIL_deduction Φ'.
+  Fact HIL_mono Φ Φ' : Φ ⊆ Φ' → HIL_deduction Φ ⊆ HIL_deduction Φ'.
   Proof. induction 2; eauto. Qed.
 
   Theorem HIL_deduction_theorem Φ (HΦ : IL_axiom ⊆ Φ) A B : (λ x, Φ x ∨ A = x) I⊦ B → Φ I⊦ A⇒B.
