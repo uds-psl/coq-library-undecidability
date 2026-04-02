@@ -41,17 +41,77 @@ Lemma type_assignmentE Gamma M t : type_assignment Gamma M t ->
   end.
 Proof. by case=> * //; econstructor; eassumption. Qed.
 
+Section strong_sty_eliminators.
+
+  (* DLW: these are unused ATM but might eventually
+          be useful later on ... I let them here *)
+
+  Fact sty_ind (P : sty -> Prop) :
+       (forall n, P (atom n))
+    -> (forall t1 (_ : P t1) l (_ : forall t, In t l -> P t) t2 (_ : P t2), P (arr t1 l t2))
+    -> forall t, P t.
+  Proof.
+    intros H1 H2.
+    refine (fix loop t := _).
+    destruct t as [ n | t1 l t2 ].
+    + apply H1.
+    + apply H2.
+      1,3: apply loop.
+      clear t1 t2.
+      intros t.
+      induction l as [ | x l IH ].
+      * intros [].
+      * intros [ <- | ].
+        - apply loop.
+        - now apply IH.
+  Qed.
+
+  Local Fact sty_In_wf : well_founded (fun s t => match t with 
+                  | arr t1 l t2 => s = t1 \/ In s l \/ s = t2 
+                  | _ => False
+                  end).
+  Proof.
+    intros t.
+    induction t as [ n | t1 IH1 l IHl t2 IH2 ]
+      using sty_ind; constructor.
+    + intros ? [].
+    + intros ? [ -> | [ | -> ] ]; auto.
+  Qed.
+
+  Fact sty_rect (P : sty -> Type) :
+      (forall n, P (atom n))
+   -> (forall t1 (_ : P t1) l (_ : forall t, In t l -> P t) t2 (_ : P t2), P (arr t1 l t2))
+   -> (forall t, P t).
+  Proof.
+    intros ? ? t.
+    induction t as [ [] ] using (well_founded_induction_type sty_In_wf); auto.
+  Qed.
+
+End strong_sty_eliminators.
+
+Definition sty_rec (P : _ -> Set) := sty_rect P.
+
+#[global] Register Scheme sty_rect as rect_dep for sty.
+#[global] Register Scheme sty_rec as rec_dep for sty.
+#[global] Register Scheme sty_ind as ind_dep for sty.
+
 Fixpoint sty_size (t : sty) :=
   match t with
   | atom a => 1
   | arr s phi t => 1 + sty_size s + list_sum (map sty_size phi) + sty_size t
   end.
+  
+(** DLW: sty_ind' is just another formulation of sty_ind above
+         except using Forall instead of forall _, In _ _ -> 
+         Notice that the second form is compatible with the
+         _rect Type bounded eliminator (see sty_rect), while the 
+         Forall form is Prop bounded only *)
 
 Lemma sty_ind' (P : sty -> Prop) :
   (forall x, P (atom x)) ->
   (forall s phi t, P s -> Forall P phi -> P t -> P (arr s phi t)) ->
   forall s, P s.
-Proof.
+Proof. 
   move=> IH1 IH2. elim /(Nat.measure_induction _ sty_size). case.
   - move=> *. apply: IH1.
   - move=> s phi t IH'. apply: IH2.
@@ -61,6 +121,11 @@ Proof.
       * apply: IH2'=> /=. lia.
       * apply: IH1'=> /= *. apply: IH2'=> /=. lia.
     + apply: IH'=> /=. lia.
+  (* DLW: this is an alternate proof using sty_ind implicitly
+          used as an eliminator via the Registration above:
+           
+     intros ? ? s; induction s as [ | ? ? ? ?%Forall_forall ]; auto. 
+  *)
 Qed.
 
 Lemma type_assignment_fv Gamma Delta t M :
