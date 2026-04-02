@@ -797,7 +797,7 @@ Lemma PROG_simulation offset x vs y n w : machine x vs y -> flatten y = L.nat_en
     (offset, Vector.append w (0 ## 0 ## 0 ## enc_vs vs ## 0 ## enc_closure x ## vec_nil)) ->>
     (PROG_len+offset, vec_change (Vector.append w vec_zero) Fin.F1 n).
 Proof.
-  elim=> > ?; [..|by apply: PROG_LAM_spec] => IH ?.
+  elim=> > ?; [..|by apply: PROG_LAM_spec]; move=> IH ?.
   all: apply: sss_compute_trans; [|by apply: IH].
   all: apply: sss_progress_compute.
   - by apply: PROG_VAR0_spec.

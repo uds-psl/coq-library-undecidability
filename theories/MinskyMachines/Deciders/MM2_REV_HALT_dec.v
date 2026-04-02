@@ -792,7 +792,7 @@ Lemma uniform_transition ab :
 Proof using HM.
   rewrite /representatives /=.
   have HE := @eq_or_inf (nat * nat) ltac:(by do ? decide equality).
-  case /HE; [|case /HE; [|case /HE; [|case /HE; last done]]] => <-.
+  case /HE; [|case /HE; [|case /HE; [|case /HE; last done]]]; move=> <-.
   - have [[[[|]|]|]|] := transition_0_0.
     + move=> ?. left. left=> - [a' b'] /= ?.
       have ->: a' = 0 by lia. have ->: b' = 0 by lia. done.

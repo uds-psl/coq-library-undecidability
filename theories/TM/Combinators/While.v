@@ -293,7 +293,7 @@ Section OtherWhileRel.
   Variable R : Rel (tapes sig n) (option F * tapes sig n).
 
   Definition While_Rel' : pRel sig F n :=
-    (star (R |_ None)) ∘ ⋃_y (R |_(Some y)) ||_y.
+    (star (R |_ None)) ∘ (⋃_y (R |_(Some y)) ||_y).
 
   Goal While_Rel R =2 While_Rel'.
   Proof.

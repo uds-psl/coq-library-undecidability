@@ -135,6 +135,8 @@ Context {num_regs : nat}. (* number of registers - 1 *)
 Abbreviation N := (S num_regs).
 Context (P : list (MM.mm_instr (Fin.t N))). (* program *)
 
+Create HintDb subst.
+
 #[local] Hint Rewrite subst_apps : subst.
 
 Lemma eval_lams_S n s : eval (lams (S n) s) (lams (S n) s).

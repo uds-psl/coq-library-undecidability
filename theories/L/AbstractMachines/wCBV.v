@@ -20,8 +20,12 @@ From Stdlib Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 
+#[local] Unset Elimination Schemes.
+
 (* (closure ctx t) is a L-term t in the environment ctx *)
 Inductive eterm := closure : list eterm -> term -> eterm.
+
+#[local] Set Elimination Schemes.
 
 Inductive machine : eterm -> list (bool * eterm) -> eterm -> Prop :=
   | machine_var_0 x xs vs y :

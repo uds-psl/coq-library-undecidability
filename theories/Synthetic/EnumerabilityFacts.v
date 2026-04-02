@@ -10,7 +10,7 @@ Lemma enumerable_semi_decidable {X} {p : X -> Prop} :
 Proof.
   unfold enumerable, enumerator.
   intros [d Hd] [f Hf].
-  exists (fun x n => if! f n is Some y then d (x,y) else false).
+  exists (fun x n => if! f n is (Some y) then d (x,y) else false).
   intros x. rewrite Hf. split.
   - intros [n Hn]. exists n.
     rewrite Hn. now eapply Hd.
@@ -28,7 +28,7 @@ Lemma semi_decider_enumerator {X} {p : X -> Prop} {e f} :
 Proof.
   unfold semi_decider. intros He Hf.
   exists (fun p => let (n, m) := Cantor.of_nat p in
-           if! e n is Some x then if f x m then Some x else None else None).
+           if! e n is (Some x) then if f x m then Some x else None else None).
   intros x. rewrite Hf. split.
   - intros [n Hn]. destruct (He x) as [m Hm].
     exists (Cantor.to_nat (m,n)). now rewrite Cantor.cancel_of_to, Hm, Hn.
@@ -71,7 +71,11 @@ Qed.
 Module RoseTree.
 Opaque Cantor.of_nat Cantor.to_nat.
 
+#[local] Unset Elimination Schemes.
+
 Inductive t : Type := mk : list t -> t.
+
+#[local] Set Elimination Schemes.
 
 Section Auxiliary.
 
