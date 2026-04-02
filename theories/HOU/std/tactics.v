@@ -41,6 +41,8 @@ Proof.
   now rewrite Nat.add_comm, Nat.add_sub.
 Qed.
 
+Create Rewrite HintDb simplify.
+
 #[export] Hint Rewrite
      Nat.sub_0_l Nat.sub_0_r Nat.sub_diag
      Nat.add_sub add_sub' Nat.sub_succ

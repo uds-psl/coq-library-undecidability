@@ -219,8 +219,7 @@ Tactic Notation "simpl_vector" "in" "*" :=
          end;
   simpl_vector.
 
-(** DLW: This is not enough to remove the warning below in Rocq 9.2.dev *)
-Create HintDb tape.
+Create Rewrite HintDb tape.
 
 #[export] Hint Rewrite tapeToList_move : tape.
 #[export] Hint Rewrite tapeToList_move_R : tape.
@@ -241,6 +240,8 @@ Proof. erewrite VectorSpec.nth_map; eauto. Qed.
 Lemma nth_map2' (A B C : Type) (f : A -> B -> C) (n : nat) (v1 : Vector.t A n) (v2 : Vector.t B n) (k : Fin.t n) :
   (VectorDef.map2 f v1 v2)[@k] = f v1[@k] v2[@k].
 Proof. erewrite VectorSpec.nth_map2; eauto. Qed.
+
+Create Rewrite HintDb vector.
 
 #[export] Hint Rewrite @nth_map' : vector.
 #[export] Hint Rewrite @nth_map2' : vector.
