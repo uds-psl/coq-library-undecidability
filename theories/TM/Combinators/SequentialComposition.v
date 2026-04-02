@@ -54,11 +54,10 @@ Section Composition.
     - intros tin i (i1&HT1&H). exists i1; repeat split; eauto.
   Qed.
 
-
   Lemma Seq_RealiseIn (R1 : Rel _ _) (R2 : Rel _ (F2 * _)) k1 k2:
-    pM1 ⊨c(k1) R1 ->
-    pM2 ⊨c(k2) R2 ->
-    Seq ⊨c(1 + k1 + k2) ⋃_y ((R1 |_y) ∘ R2).
+    (pM1 ⊨c(k1) R1) ->
+    (pM2 ⊨c(k2) R2) ->
+    (Seq ⊨c(1 + k1 + k2) (⋃_y ((R1 |_y) ∘ R2))).
   Proof.
     intros H1 H2.
     eapply RealiseIn_monotone.

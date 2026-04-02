@@ -176,7 +176,7 @@ Section Post_CFG.
         eapply sym_word_l in H1. unfold Sigma. eauto. 
       + unfold Sigma. simpl_list. rewrite <- !countSplit in *. cbn in *.
         rewrite Nat.eqb_refl in *.
-        assert (S =? a = false) as ->. { eapply Nat.eqb_neq. intros D.
+        assert ((S =? a) = false) as ->. { eapply Nat.eqb_neq. intros D.
         edestruct fresh_spec with (l := Sigma); try reflexivity.
         unfold S in *. rewrite D. unfold Sigma; eauto. }
         enough (count l S = 0) as ->. { enough (count l0 S = 0) as ->. { lia. }

@@ -4,6 +4,7 @@ From Undecidability.L Require Export L.
 
 From Stdlib Require Import Lia.
 
+Create HintDb cbv.
 #[export] Hint Constructors ARS.star : cbv.
 
 (* * The call-by-value lambda calculus L *)
@@ -53,7 +54,7 @@ Module HOAS_Notations.
 
   Coercion hv : nat >-> hoas.
   Coercion ha : hoas >-> Funclass.
-  Notation "'!!' s" := (hter s) (at level 0).
+  Notation "'!!' s" := (hter s) (at level 1).
 
   Notation "[ 'L_HOAS' p ]" := (convert p) (at level 0, format  "[ 'L_HOAS'  p ]").
 
@@ -134,11 +135,11 @@ Inductive bound : nat -> term -> Prop :=
   | dcllam k s : bound (S k) s -> bound k (lam s).
 
 Lemma bound_closed_k s k u : bound k s -> subst s k u = s.
-Proof with eauto.
+Proof.
   intros H; revert u; induction H; intros u; simpl.
-  - destruct (Nat.eqb_spec n k)... lia.
-  - rewrite IHbound1, IHbound2...
-  - f_equal...
+  - destruct (Nat.eqb_spec n k); eauto; lia.
+  - now rewrite IHbound1, IHbound2.
+  - now f_equal.
 Qed.
 
 Lemma bound_ge k s : bound k s -> forall m, m >= k -> bound m s.
@@ -193,13 +194,14 @@ Qed.
 
 #[export]
 Instance bound_dec k s : dec (bound k s).
-Proof with try ((left; econstructor; try lia; tauto) || (right; inversion 1; try lia; tauto)).
+Proof.
   revert k; induction s; intros k.
-  - destruct (le_lt_dec n k) as [Hl | Hl]... destruct (le_lt_eq_dec _ _ Hl)...
-  - destruct (IHs1 k), (IHs2 k)...
+  - destruct (le_lt_dec n k) as [Hl | Hl]; try ((left; econstructor; try lia; tauto) || (right; inversion 1; try lia; tauto)).
+    destruct (le_lt_eq_dec _ _ Hl); try ((left; econstructor; try lia; tauto) || (right; inversion 1; try lia; tauto)).
+  - destruct (IHs1 k), (IHs2 k); try ((left; econstructor; try lia; tauto) || (right; inversion 1; try lia; tauto)).
   - induction k.
-    + destruct (IHs 1)...
-    + destruct (IHs (S (S k)))...
+    + destruct (IHs 1); try ((left; econstructor; try lia; tauto) || (right; inversion 1; try lia; tauto)).
+    + destruct (IHs (S (S k))); try ((left; econstructor; try lia; tauto) || (right; inversion 1; try lia; tauto)).
 Defined. (* because instance *)
 
 #[export]
@@ -248,10 +250,10 @@ Proof.
 Qed.
 
 Lemma comb_proc_red s : closed s -> proc s \/ exists t, s ≻ t.
-Proof with try tauto.
+Proof.
   intros cls_s. induction s.
   - eapply closed_dcl in cls_s. inv cls_s. lia.
-  - eapply closed_app in cls_s. destruct IHs1 as [[C [t A]] | A], IHs2 as [[D [t' B]] | B]...
+  - eapply closed_app in cls_s. destruct IHs1 as [[C [t A]] | A], IHs2 as [[D [t' B]] | B]; try tauto.
     + right. subst. eexists. eauto.
     + right; subst. firstorder; eexists. eapply stepAppR. eassumption.
     + right; subst. firstorder; eexists. eapply stepAppL. eassumption.
@@ -262,20 +264,20 @@ Qed.
 (* Properties of the reduction relation *)
 
 Theorem uniform_confluence : uniform_confluent step.
-Proof with repeat inv_step; eauto using step.
+Proof.
   intros s; induction s; intros t1 t2 step_s_t1 step_s_t2; try now inv step_s_t2.
   inv step_s_t1.
   - inv step_s_t2; try eauto; inv_step.
-  - inv step_s_t2...
+  - inv step_s_t2; repeat inv_step; eauto using step.
     + destruct (IHs2 _ _ H2 H3).
       * left. congruence.
-      * right. destruct H as [u [A B]]...
-    + right... 
-  - inv step_s_t2...
-    + right...
+      * right. destruct H as [u [A B]]; repeat inv_step; eauto using step.
+    + right; repeat inv_step; eauto using step. 
+  - inv step_s_t2; repeat inv_step; eauto using step.
+    + right; repeat inv_step; eauto using step.
     + destruct (IHs1 _ _ H2 H3).
       * left. congruence.
-      * right. destruct H as [u [A B]]... 
+      * right. destruct H as [u [A B]]; repeat inv_step; eauto using step.
 Qed.
 
 Notation "s '>(' l ')' t" := (pow step l s t) (at level 50, format "s  '>(' l ')'  t").
@@ -406,10 +408,10 @@ Proof.
 Qed.
 
 Lemma equiv_ecl s t : s == t <-> ecl step s t.
-Proof with eauto using ecl, equiv.
-  split; induction 1...
-  - eapply ecl_sym... 
-  - eapply ecl_trans... 
+Proof.
+  split; induction 1; eauto using ecl, equiv.
+  - eapply ecl_sym; eauto using ecl, equiv.
+  - eapply ecl_trans; eauto using ecl, equiv.
 Qed.
 
 Lemma church_rosser s t : s == t -> exists u, s >* u /\ t >* u.
@@ -449,11 +451,11 @@ Proof.
 Qed.
 
 Lemma eqApp s s' u u' : s == s' -> u == u' -> app s u == app s' u'.
-Proof with eauto using equiv, step.
-  intros H; revert u u'; induction H; intros z z' H'...
+Proof.
+  intros H; revert u u'; induction H; intros z z' H'; eauto using equiv, step.
   - eapply eqTrans. eapply eqStep. eapply stepAppL. eassumption.
-    induction H'...
-  - induction H'...   
+    induction H'; eauto using equiv, step.
+  - induction H'; eauto using equiv, step.
 Qed.
 
 #[export]

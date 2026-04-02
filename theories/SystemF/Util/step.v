@@ -101,17 +101,17 @@ Ltac inv H := inversion H; subst; clear H.
 
 Lemma step_subst_inv P Q σ τ :
   step (subst_term σ (τ >> var) P) Q -> exists P', step P P' /\ subst_term σ (τ >> var) P' = Q.
-Proof with eexists; split; [eauto | now_asimpl].
+Proof.
   intros H. dependent induction H; rename x into Eqn.
-  - destruct P; inv Eqn. destruct P1; inv H0...
-  - destruct P; inv Eqn. destruct P; inv H0... 
-  - destruct P; inv Eqn. destruct (IHstep _ _ _ eq_refl) as (P1' & H1 & <-)...
-  - destruct P; inv Eqn. destruct (IHstep _ _ _ eq_refl) as (P1' & H1 & <-)...
-  - destruct P; inv Eqn. destruct (IHstep _ _ _ eq_refl) as (P1' & H1 & <-)...
+  - destruct P; inv Eqn. destruct P1; inv H0; eexists; split; [eauto | now_asimpl].
+  - destruct P; inv Eqn. destruct P; inv H0; eexists; split; [eauto | now_asimpl].
+  - destruct P; inv Eqn. destruct (IHstep _ _ _ eq_refl) as (P1' & H1 & <-); eexists; split; [eauto | now_asimpl].
+  - destruct P; inv Eqn. destruct (IHstep _ _ _ eq_refl) as (P1' & H1 & <-); eexists; split; [eauto | now_asimpl].
+  - destruct P; inv Eqn. destruct (IHstep _ _ _ eq_refl) as (P1' & H1 & <-); eexists; split; [eauto | now_asimpl].
   - destruct P; inv Eqn.
     edestruct (IHstep P (up_term_poly_type σ) (0 .: τ >> shift))  as (P1' & H1 & <-).
     now_asimpl. exists (abs p P1'). split. eauto. now_asimpl. 
-  - destruct P; inv Eqn.  destruct (IHstep _ _ _ eq_refl) as (P1' & H1 & <-)...
+  - destruct P; inv Eqn.  destruct (IHstep _ _ _ eq_refl) as (P1' & H1 & <-); eexists; split; [eauto | now_asimpl].
 Qed.
 
 Definition nf P := match P with abs s P => normal_form P

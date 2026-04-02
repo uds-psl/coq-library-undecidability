@@ -24,8 +24,12 @@ Import L (term, var, app, lam).
 Require Undecidability.LambdaCalculus.Lambda.
 Import Lambda (closed).
 
+#[local] Unset Elimination Schemes.
+
 (* (closure ctx t) is a lambda-term t in the environment ctx *)
 Inductive eterm := closure : list eterm -> term -> eterm.
+
+#[local] Set Elimination Schemes.
 
 (* (halt_cbn ts ctx t) is the Krivine machine halting problem
    for the lambda-term t applied to closures ts in the environment ctx;

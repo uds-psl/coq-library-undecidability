@@ -453,7 +453,7 @@ Lemma sync_init {k k'} {M : list (mm_instr (pos (1+k+k')))} {v : Vector.t nat k}
   (1, Vector.append (0 ## v) (Vector.const 0 k'))
   (TM_facts.mk_mconfig (toState M false 1) (Vector.append ((enc 0) ## Vector.map enc v) (Vector.const (enc 0) k'))).
 Proof.
-  apply: sync_intro; [|done] => /=.
+  apply: sync_intro; [|done]; move=> /=.
   constructor. { by apply: (encodes_counter_intro _ 0). }
   apply: vec_Forall2_append.
   - elim: v. { by constructor. }

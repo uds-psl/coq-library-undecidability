@@ -265,6 +265,7 @@ Section Reduction.
   Lemma in_bound_gotos : In (0, +|, +|) gotos.
   Proof. do 5 (apply /in_app_r). by left. Qed.
 
+  Local Create HintDb M.
   Local Hint Immediate 
     in_goto_spec_1_M in_goto_spec_G_M
     in_index_try_spec_M in_index_no_spec_M in_index_yes_spec_1_M in_index_yes_spec_n1_M
