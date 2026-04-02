@@ -13,7 +13,7 @@ From Undecidability.TM Require Import Single.EncodeTapes.
 From Undecidability.TM Require Import SBTM.
 From Undecidability.StackMachines Require Import BSM BSM.bsm_defs.
 
-Create HintDb vec_simpl discriminated.
+Create Rewrite HintDb vec_simpl.
 
 Hint Rewrite vec_change_eq using easy : vec_simpl.
 Hint Rewrite vec_change_neq using easy : vec_simpl.
