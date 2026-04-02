@@ -137,8 +137,8 @@ Section diophantine_polynomial.
     | dp_par : P   -> dio_polynomial                  (* parameter *)
     | dp_comp : dio_op -> dio_polynomial -> dio_polynomial -> dio_polynomial.
 
-  Notation dp_add := (dp_comp do_add).
-  Notation dp_mul := (dp_comp do_mul).
+  Abbreviation dp_add := (dp_comp do_add).
+  Abbreviation dp_mul := (dp_comp do_mul).
 
   Fixpoint dp_var_list p :=
     match p with
@@ -205,8 +205,8 @@ Arguments dp_var {V P}.
 Arguments dp_par {V P}.
 Arguments dp_comp {V P}.
 
-Notation dp_add := (dp_comp do_add).
-Notation dp_mul := (dp_comp do_mul).
+Abbreviation dp_add := (dp_comp do_add).
+Abbreviation dp_mul := (dp_comp do_mul).
 
 Section dio_elem_dio_poly.
 

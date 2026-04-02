@@ -40,11 +40,11 @@ Hint Resolve stlc_app Forall2_repeat_r' : stlc.
 Lemma unnest : forall (A B C : Type), A -> (B -> C) -> (A -> B) -> C.
 Proof. auto. Qed.
 
-#[local] Notation lams k M := (Nat.iter k lam M).
-#[local] Notation apps M Ns := (fold_left app Ns M).
-#[local] Notation arrs ss t := (fold_right arr t ss).
-#[local] Notation closed M := (forall (P : nat -> Prop), allfv P M).
-#[local] Notation steps := (clos_refl_trans _ step).
+#[local] Abbreviation lams k M := (Nat.iter k lam M).
+#[local] Abbreviation apps M Ns := (fold_left app Ns M).
+#[local] Abbreviation arrs ss t := (fold_right arr t ss).
+#[local] Abbreviation closed M := (forall (P : nat -> Prop), allfv P M).
+#[local] Abbreviation steps := (clos_refl_trans _ step).
 
 #[local] Arguments nth_error_In {A l n x}.
 
@@ -57,7 +57,7 @@ Context {rules : list ((nat*nat)*(nat*nat))}.
 Definition symbols := 2 + list_sum (map (fun '((a, b), (c, d)) => a+b+c+d) rules).
 
 (* upper bound on all symbols *)
-Notation n := (symbols + 6). (* bot, top, bullet, $, 0, 1 *)
+Abbreviation n := (symbols + 6). (* bot, top, bullet, $, 0, 1 *)
 
 Definition sym a := 4 + a.
 

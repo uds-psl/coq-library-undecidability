@@ -6,7 +6,7 @@ Import ListNotations.
 Import L (term, var, app, lam).
 Import Lambda (wCBN_step, subst).
 
-#[local] Notation step := wCBN_step.
+#[local] Abbreviation step := wCBN_step.
 
 From Stdlib Require Import ssreflect.
 
@@ -161,7 +161,7 @@ Proof.
     apply: halt_app. by apply: IH.
 Qed.
 
-#[local] Notation all := (fold_right and True).
+#[local] Abbreviation all := (fold_right and True).
 
 Fixpoint eclosed (u : eterm) :=
   let '(closure ctx t) := u in bound (length ctx) t /\ all (map eclosed ctx).

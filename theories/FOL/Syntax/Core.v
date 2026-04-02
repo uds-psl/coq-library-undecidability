@@ -6,7 +6,7 @@ From Undecidability Require Import Shared.Libs.PSL.Vectors.Vectors.
 Import ListAutomationNotations.
 
 From Stdlib Require Import Vectors.Vector.
-Local Notation vec := t.
+Local Abbreviation vec := t.
 
 
 
@@ -102,6 +102,9 @@ Section fix_signature.
   Qed.
 
   Set Elimination Schemes.
+
+  #[global] Register Scheme term_rect as rect_dep for term.
+  #[global] Register Scheme term_ind as ind_dep for term.
 
   Fixpoint subst_term (σ : nat -> term) (t : term) : term :=
     match t with

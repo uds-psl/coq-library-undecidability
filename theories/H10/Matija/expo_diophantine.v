@@ -22,7 +22,7 @@ From Undecidability.H10.Matija
 
 Set Implicit Arguments.
 
-Local Notation expo := (mscal mult 1).
+Local Abbreviation expo := (mscal mult 1).
 
 Section expo_diophantine.
 
@@ -114,7 +114,7 @@ Section expo_diophantine.
   Infix "⊕" := (Zp_plus _) (at level 50, left associativity).
   Infix "⊗" := (Zp_mult _) (at level 40, left associativity).
   Notation "∸" := (Zp_opp _).
-  Notation f := (nat2Zp _).
+  Abbreviation f := (nat2Zp _).
   Notation "〚 x 〛" :=  (f x).
 
   Ltac fold_nat2Zp := 

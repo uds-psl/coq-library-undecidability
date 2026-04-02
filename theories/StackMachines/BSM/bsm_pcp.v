@@ -57,7 +57,7 @@ Section Simulator.
         (* 27+lML *) POP  s 0 0 :: 
                      nil.
                      
-  Notation simulator := pcp_bsm.
+  Abbreviation simulator := pcp_bsm.
 
   Fact simulator_length : length simulator = 27+lML.
   Proof. unfold simulator; rew length; unfold lML; lia. Qed.

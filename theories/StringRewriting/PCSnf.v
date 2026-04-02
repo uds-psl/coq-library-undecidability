@@ -2,13 +2,13 @@ From Stdlib Require Import List.
 Require Import Undecidability.PCP.PCP.
 
 (* A string is a list of symbols. *)
-Notation string X := (list X).
+Abbreviation string X := (list X).
 
 Notation "x / y" := (x, y).
 
 (* A string rewriting system SRS is a list of rules x / y 
   such that x rewrites to y. *)
-Notation SRS X := (list (string X * string X)).
+Abbreviation SRS X := (list (string X * string X)).
 
 (* If u / v is a rewriting rule, then u ++ x rewrites to x ++ u. *)
 Inductive der {X : Type} (R : SRS X) : string X -> string X -> Prop :=

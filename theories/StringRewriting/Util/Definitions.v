@@ -27,8 +27,8 @@ Qed.
 
 (* * Definitions *)
 
-#[local] Notation string := (string nat).
-#[local] Notation SRS := (SRS nat).
+#[local] Abbreviation string := (string nat).
+#[local] Abbreviation SRS := (SRS nat).
 Implicit Types a b : nat.
 Implicit Types x y z : string.
 Implicit Types d e : (string * string).

@@ -110,7 +110,7 @@ Proof.
   intros H. by inversion H.
 Qed.
 
-#[local] Notation all := (fold_right and True).
+#[local] Abbreviation all := (fold_right and True).
 
 Fixpoint eclosed (u : eterm) :=
   let '(closure ctx t) := u in bound (length ctx) t /\ all (map eclosed ctx).
@@ -510,7 +510,7 @@ Proof.
     exists y'. by split; [|apply: machine_app].
 Qed.
 
-#[local] Notation steps' := (clos_refl_trans term step').
+#[local] Abbreviation steps' := (clos_refl_trans term step').
 
 Lemma steps'AppL {s s' t} : steps' s s' -> steps' (app s t) (app s' t).
 Proof.

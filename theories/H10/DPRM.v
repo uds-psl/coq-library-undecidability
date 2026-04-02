@@ -22,8 +22,12 @@ From Undecidability.MuRec.Util Require Import recalg ra_utils recomp ra_recomp r
 
 Set Implicit Arguments.
 
+#[warning="-postfix-notation-not-level-1"]
 Local Notation "P /MM/ s ↓" := (sss_terminates (@mm_sss _) P s) (at level 70, no associativity).
+
+#[warning="-postfix-notation-not-level-1"]
 Local Notation "l '/F/' x ↓" := (fractran_terminates l x) (at level 70, no associativity).
+
 Local Notation "'⟦' p '⟧'" := (fun φ ν => dp_eval φ ν p).
 Local Notation "f ⇓ v" := (ex (@ra_rel _ f v)) (at level 70, no associativity).
 
@@ -44,7 +48,7 @@ Section Various_definitions_of_recursive_enum.
 
   Definition mu_recursive_n := { f | forall v, P v <-> f ⇓ v }.
 
-  Notation vec2val := (fun v => vec2fun v 0).
+  Abbreviation vec2val := (fun v => vec2fun v 0).
 
   (* There is a Diophantine logic formula satisfied exactly on P *)
 
@@ -157,7 +161,7 @@ Proof. lsplit 4; auto. Qed.
 (* Check DPRM_n. *)
 
 
-Local Notation ø := vec_nil.
+Local Abbreviation ø := vec_nil.
 
 Section Various_definitions_of_recursive_enum_1.
 

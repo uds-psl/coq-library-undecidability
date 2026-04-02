@@ -24,8 +24,8 @@ Set Implicit Arguments.
 
 (* * From binary singleton to a n-ary function and a unary relation *)
 
-Local Notation ø := vec_nil.
-Local Notation Σ2 := (Σrel 2).
+Local Abbreviation ø := vec_nil.
+Local Abbreviation Σ2 := (Σrel 2).
 
 Definition Σn1 (n : nat) : fo_signature.
 Proof.

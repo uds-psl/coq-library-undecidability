@@ -61,6 +61,8 @@ Section comp.
   Notation "P '/X/' s '-+>' t" := (sss_progress step_X P s t) (at level 70, no associativity).
   Notation "P '/X/' s ->> t" := (sss_compute step_X P s t) (at level 70, no associativity).
   Notation "P '/X/' s '~~>' t" := (sss_output step_X P s t) (at level 70, no associativity).
+
+  #[warning="-postfix-notation-not-level-1"]
   Notation "P '/X/' s ↓" := (sss_terminates step_X P s)(at level 70, no associativity).
 
   Notation "ρ '/Y/' s -1> t" := (step_Y ρ s t) (at level 70, no associativity).
@@ -68,6 +70,8 @@ Section comp.
   Notation "P '/Y/' s '-+>' t" := (sss_progress step_Y P s t) (at level 70, no associativity).
   Notation "P '/Y/' s ->> t" := (sss_compute step_Y P s t) (at level 70, no associativity).
   Notation "P '/Y/' s '~~>' t" := (sss_output step_Y P s t) (at level 70, no associativity).
+
+  #[warning="-postfix-notation-not-level-1"]
   Notation "P '/Y/' s ↓" := (sss_terminates step_Y P s)(at level 70, no associativity).
 
   (* We assume totality of X semantics, i.e. no instruction can block the computation

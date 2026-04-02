@@ -37,7 +37,7 @@ Section IMSELL.
   Variable (bang_le : bang -> bang -> Prop) (bang_U : bang -> Prop).
 
   Infix "≤" := bang_le (at level 70).
-  Notation U := bang_U. 
+  Abbreviation U := bang_U. 
 
   Notation "u ≼ l" := (forall '(v,A), (v,A) ∊ l -> u ≤ v) (at level 70).
   Notation "Γ ⊢ A" := (@S_imsell nat _ bang_le bang_U Γ A) (at level 70).
@@ -110,7 +110,7 @@ Section IMSELL.
     Variables (n : nat) (s : nat -> vec nat n -> Prop).
 
     Notation "⦳" := vec_zero.
-    Notation ø := vec_nil.
+    Abbreviation ø := vec_nil.
 
     Definition imsell_tps_mult (X Y : _ -> Prop) (x : vec _ n) := exists a b, x = vec_plus a b /\ X a /\ Y b.
     Definition imsell_tps_imp (X Y : _ -> Prop) (v : vec _ n) := forall x, X x -> Y (vec_plus x v).

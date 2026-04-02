@@ -238,7 +238,7 @@ Arguments While : simpl never.
 Arguments While {n sig F} pM {defF}.
 
 (* Deprecated name *)
-Notation WHILE := While (only parsing).
+Abbreviation WHILE := While (only parsing).
 
 
 (* ** (Co-) Induction Principle for Correctness (Running Time) of [While] *)

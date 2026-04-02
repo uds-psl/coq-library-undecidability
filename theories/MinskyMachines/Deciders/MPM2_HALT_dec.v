@@ -132,10 +132,10 @@ Import Facts.
 Section Construction.
 Variable M : Mpm2.
 
-#[local] Notation step := (step M).
-#[local] Notation steps := (steps M).
-#[local] Notation terminating := (terminating M).
-#[local] Notation l := (length M).
+#[local] Abbreviation step := (step M).
+#[local] Abbreviation steps := (steps M).
+#[local] Abbreviation terminating := (terminating M).
+#[local] Abbreviation l := (length M).
 
 (* after k steps values change at most by k (or are reset and at most k) *)
 Lemma steps_bound {k p a b p' a' b'} : steps k (p, (a, b)) = Some (p', (a', b')) -> 

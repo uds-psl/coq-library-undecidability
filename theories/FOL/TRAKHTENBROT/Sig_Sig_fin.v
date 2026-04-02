@@ -24,7 +24,7 @@ Set Implicit Arguments.
 
 (* * Mapping a formula into a finitary signature *)
 
-Local Notation ø := vec_nil.
+Local Abbreviation ø := vec_nil.
 
 Section discrete_to_finite_fix.
 
@@ -55,7 +55,7 @@ Section discrete_to_finite_fix.
     + exact (fun r => ar_rels _ (proj1_sig r)).
   Defined.
 
-  Notation Σ' := Σ_fin.
+  Abbreviation Σ' := Σ_fin.
 
   Fact Σ_fin_syms : forall s : syms Σ', In (proj1_sig s) ls.
   Proof. intros (s & Hs); apply HFn, Hs. Qed.
@@ -134,7 +134,7 @@ Section discrete_to_finite_fix.
         * intro; exact True.
     Defined.
 
-    Notation M := Σ_finite_rev_model1.
+    Abbreviation M := Σ_finite_rev_model1.
 
     Local Fact fo_term_fin_rev_sound t phi : fo_term_sem M' phi t = fo_term_sem M phi (fo_term_fin_rev t).
     Proof.
@@ -178,7 +178,7 @@ Section discrete_to_finite_fix.
       + intros (r & ?); apply (fom_rels M r).
     Defined.
 
-    Notation M' := Σ_finite_rev_model2.
+    Abbreviation M' := Σ_finite_rev_model2.
 
     Local Fact fo_term_fin_rev_complete t phi : fo_term_sem M' phi t = fo_term_sem M phi (fo_term_fin_rev t).
     Proof.
@@ -357,7 +357,7 @@ Section discr_finite_to_pos.
   Let Hjir r : jr (ir r) = r.
   Proof. apply (proj2_sig (projT2 (projT2 H6))). Qed.
 
-  Notation Σ' := (Σpos Σ js jr).
+  Abbreviation Σ' := (Σpos Σ js jr).
 
   Local Fixpoint convert_t (t : fo_term (ar_syms Σ)) : fo_term (ar_syms Σ').
   Proof.

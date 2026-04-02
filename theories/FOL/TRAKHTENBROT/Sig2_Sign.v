@@ -24,7 +24,7 @@ Set Implicit Arguments.
 
 (* * From binary singleton to n-ary singleton with n >= 2 *)
 
-Local Notation ø := vec_nil.
+Local Abbreviation ø := vec_nil.
 
 (* The reduction could be made to work for (infinite) SAT only *)
 
@@ -32,8 +32,8 @@ Section Sig2_Sig_n_encoding.
 
   Variable (n : nat).
 
-  Notation Σ2 := (Σrel 2).
-  Notation Σn := (Σrel (S (S n))).
+  Abbreviation Σ2 := (Σrel 2).
+  Abbreviation Σn := (Σrel (S (S n))).
 
   (* The encoding is trivial here : replace R2(x,y) with Rn(x,y,...,y) *)
 

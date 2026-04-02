@@ -62,7 +62,7 @@ Section Small_Step_Semantics.
 
   (* A state contain the PC (current instruction) and data *)
   
-  Notation state := (nat * data)%type.
+  Abbreviation state := (nat * data)%type.
   
   Variable one_step : instr -> state -> state -> Prop.
   
@@ -74,7 +74,7 @@ Section Small_Step_Semantics.
   
   (* A code is a contiguous list of instructions starting at some position *)
   
-  Notation code := (nat * list instr)%type.
+  Abbreviation code := (nat * list instr)%type.
   
   (* ** Semantics *)
   

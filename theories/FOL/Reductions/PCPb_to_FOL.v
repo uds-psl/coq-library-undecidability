@@ -14,15 +14,15 @@ Import ListAutomationNotations ListAutomationHints ListAutomationInstances.
 Local Definition BSRS := list(card bool).
 Local Notation "x / y" := (x, y).
 
-Notation t_f b t := (func (s_f b) (Vector.cons _ t _ (Vector.nil _))).
-Notation t_e := (func s_e (Vector.nil _)).
-Notation Pr t t' := (@atom _ sig_pred _ _ sPr (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))).
-Notation Q := (atom sQ (Vector.nil _)).
+Abbreviation t_f b t := (func (s_f b) (Vector.cons _ t _ (Vector.nil _))).
+Abbreviation t_e := (func s_e (Vector.nil _)).
+Abbreviation Pr t t' := (@atom _ sig_pred _ _ sPr (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))).
+Abbreviation Q := (atom sQ (Vector.nil _)).
 
-Notation i_f b i :=
+Abbreviation i_f b i :=
   (@i_func _ _ _ _ (s_f b) (Vector.cons _ i _ (Vector.nil _))).
 
-Notation i_Pr i i' :=
+Abbreviation i_Pr i i' :=
   (@i_atom _ _ _ _ sPr (Vector.cons _ i _ (Vector.cons _ i' _ (Vector.nil _)))).
 
 Section validity.

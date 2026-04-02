@@ -31,19 +31,20 @@ Local Infix "⊑" := incl (at level 70, no associativity).
 
 (* * From Σ=(ø;{R^n}) to Σ=(ø;{R^2}) *)
 
-Local Notation ø := vec_nil.
+Local Abbreviation ø := vec_nil.
 
 Section Sign_Sig2_encoding.
 
   Variable (n : nat).
 
-  Notation Σ2 := (Σrel 2).
-  Notation Σn := (Σrel n).
+  Abbreviation Σ2 := (Σrel 2).
+  Abbreviation Σn := (Σrel n).
 
   Infix "∈" := Σ2_mem.
   Infix "≈" := Σ2_equiv.
   Infix "⊆" := Σ2_incl.
 
+  #[warning="-postfix-notation-not-level-1"]
   Notation "t ∋ ⦉ v ⦊" := (Σ2_is_tuple_in t v) (at level 70, format "t  ∋  ⦉ v ⦊").
 
   (* We bound quantification inside hf-set l ∈ p and r ∈ p represent a set 
@@ -64,7 +65,7 @@ Section Sign_Sig2_encoding.
   Variable (Y : Type) (Mn : fo_model Σn Y).
 
   Notation "a ∈ₘ b" := (fom_rels M2 tt (a##b##ø)) (at level 59, no associativity).
-  Notation P := (fun v => fom_rels Mn tt v).
+  Abbreviation P := (fun v => fom_rels Mn tt v).
 
   Variable R : Y -> X -> Prop.
 
@@ -202,7 +203,7 @@ Section SAT2_SATn.
         intro; apply bool_dec.
     Qed.
 
-    Notation π1 := (@proj1_sig _ _).
+    Abbreviation π1 := (@proj1_sig _ _).
 
     Let Mn : fo_model (Σrel n) (sig P).
     Proof.
@@ -282,7 +283,7 @@ Section SATn_SAT2.
               (φ : nat -> X)
               (HA : fol_sem Mn φ A).
 
-    Notation P := (fom_rels Mn tt).
+    Abbreviation P := (fom_rels Mn tt).
 
     Local Lemma SATn_to_SAT2 : exists Y, fo_form_fin_dec_SAT_in (@Σn_Σ2_enc n A) Y.
     Proof using All.

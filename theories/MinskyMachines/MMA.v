@@ -45,9 +45,8 @@ Inductive mm_instr (X : Set) : Set :=
   | mm_dec : X -> nat -> mm_instr X
   . *)
 
-Notation INCₐ := mm_inc.
-Notation DECₐ := mm_dec.
-
+Abbreviation INCₐ := mm_inc.
+Abbreviation DECₐ := mm_dec.
 
 (* ** Semantics for MM, restricted to X = pos n for some n *)
 

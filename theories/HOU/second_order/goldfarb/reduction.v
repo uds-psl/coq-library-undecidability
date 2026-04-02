@@ -245,7 +245,7 @@ Definition conseqs e1 e2 :=
   | _, _ => nileq
   end.
 
-Notation foldeqs := (fold_right conseqs nileq).
+Abbreviation foldeqs := (fold_right conseqs nileq).
 
 
 Lemma conseqs_combine sigma s1 s2 t1 t2:

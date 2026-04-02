@@ -42,13 +42,13 @@ Section Non_deterministic_Minsky_Machines.
     | ndmm2_dec     : bool -> loc -> loc -> ndmm2_instr
     | ndmm2_zero    : bool -> loc -> loc -> ndmm2_instr.
 
-  Notation α := true. 
-  Notation β := false.
+  Abbreviation α := true. 
+  Abbreviation β := false.
 
-  Notation STOPₙ := ndmm2_stop.
-  Notation INCₙ  := ndmm2_inc.
-  Notation DECₙ  := ndmm2_dec.
-  Notation ZEROₙ := ndmm2_zero.
+  Abbreviation STOPₙ := ndmm2_stop.
+  Abbreviation INCₙ  := ndmm2_inc.
+  Abbreviation DECₙ  := ndmm2_dec.
+  Abbreviation ZEROₙ := ndmm2_zero.
 
   Infix "∊" := In (at level 70).
 

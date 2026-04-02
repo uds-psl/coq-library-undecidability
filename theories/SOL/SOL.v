@@ -1,7 +1,7 @@
 (* * Second-Order Logic *)
 
 From Stdlib Require Import Vector Arith.
-Notation vec := Vector.t.
+Abbreviation vec := Vector.t.
 
 
 (* ** Syntax *)

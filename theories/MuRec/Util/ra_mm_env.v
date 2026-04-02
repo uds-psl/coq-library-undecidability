@@ -342,16 +342,16 @@ Section ra_compiler.
               (H2 : ~ p <= o < S (n + p))
               (H3 : S (n + p) <= m).
 
-    Notation v0   := (2+n+m).
-    Notation zero := (3+n+m).
-    Notation tmp  := (4+n+m).
+    Abbreviation v0   := (2+n+m).
+    Abbreviation zero := (3+n+m).
+    Abbreviation tmp  := (4+n+m).
 
     Local Definition rec_Q1 := 
               mm_multi_copy tmp zero n (1+p) (2+m) i
            ++ mm_copy p v0 tmp zero (9*n+i)
            ++ mm_erase m zero (9+9*n+i).
 
-    Notation Q1 := rec_Q1.
+    Abbreviation Q1 := rec_Q1.
 
     Local Fact rec_Q1_length : length Q1 = 11+9*n.
     Proof using H1 H2 H3. unfold Q1; rew length; lia. Qed.
@@ -359,20 +359,20 @@ Section ra_compiler.
     Local Fact rec_F_full : ra_compiler_spec f (11+9*n+i) (2+m) o zero.
     Proof using Hf H1 H2 H3. apply Hf; lia. Qed.
 
-    Notation F := (proj1_sig rec_F_full).
+    Abbreviation F := (proj1_sig rec_F_full).
     Local Definition rec_HF1 x v e H1 H2 := proj1 (proj2_sig rec_F_full v e H1 H2) x.
     Local Definition rec_HF2 v e H1 H2 := proj2 (proj2_sig rec_F_full v e H1 H2).
 
     Local Fact rec_G_full : ra_compiler_spec g (21+length F+9*n+i) m o zero.
     Proof using Hg H1 H2 H3. apply Hg; lia. Qed.
 
-    Notation G := (proj1_sig rec_G_full).
+    Abbreviation G := (proj1_sig rec_G_full).
     Local Definition rec_HG1 x v e H1 H2 := proj1 (proj2_sig rec_G_full v e H1 H2) x.
     Local Definition rec_HG2 v e H1 H2 := proj2 (proj2_sig rec_G_full v e H1 H2).
 
     Local Definition rec_s2 := 11+length F+9*n+i.
 
-    Notation s2 := rec_s2.
+    Abbreviation s2 := rec_s2.
 
     Local Definition rec_Q2 := 
               DEC v0 (23+length F+length G+9*n+i)
@@ -380,7 +380,7 @@ Section ra_compiler.
            ++ G
            ++ INC m :: DEC zero rec_s2 :: nil.
 
-    Notation Q2 := rec_Q2.
+    Abbreviation Q2 := rec_Q2.
 
     Local Fact rec_Q2_progress_O e :
                e⇢v0 = 0
@@ -589,7 +589,7 @@ Section ra_compiler.
 
     Local Definition rec_Q3 := mm_multi_erase m zero (2+n) (23+length F+length G+9*n+i).
 
-    Notation Q3 := rec_Q3.
+    Abbreviation Q3 := rec_Q3.
 
     Local Fact rec_Q3_length : length Q3 = 4+2*n.
     Proof. unfold Q3; rew length; ring. Qed.
@@ -636,7 +636,7 @@ Section ra_compiler.
           apply subcode_sss_progress; auto. }
     Qed.
 
-    Notation Q4 := (Q1++F++Q2++Q3).
+    Abbreviation Q4 := (Q1++F++Q2++Q3).
 
     Local Fact rec_Q4_progress (v : vec nat (S n)) x e :
                  (forall j, m <= j -> e⇢j = 0)
@@ -814,26 +814,26 @@ Section ra_compiler.
               (H2 : ~ p <= o < n + p)
               (H3 : n + p <= m).
 
-    Notation zero := (1+n+m).
-    Notation tmp  := (2+n+m).
+    Abbreviation zero := (1+n+m).
+    Abbreviation tmp  := (2+n+m).
 
     Local Definition min_Q1 := 
               mm_multi_copy tmp zero n p (1+m) i
            ++ mm_erase m zero (9*n+i).
 
-    Notation Q1 := min_Q1.
+    Abbreviation Q1 := min_Q1.
 
     Local Fact min_Q1_length : length Q1 = 2+9*n.
     Proof using H1 H2 H3. unfold Q1; rew length; lia. Qed.
 
     Local Definition min_s1 := length Q1 + i.
 
-    Notation s1 := min_s1.
+    Abbreviation s1 := min_s1.
 
     Local Fact min_F_full : ra_compiler_spec f s1 m o zero.
     Proof using Hf H1 H2 H3. apply Hf; lia. Qed.
 
-    Notation F := (proj1_sig min_F_full).
+    Abbreviation F := (proj1_sig min_F_full).
     Local Definition min_HF1 x v e H1 H2 H3 := proj1 (proj2_sig min_F_full v e H2 H3) x H1.
     Local Definition min_HF2 v e H1 H2 H3 := proj2 (proj2_sig min_F_full v e H2 H3) H1.
 
@@ -844,7 +844,7 @@ Section ra_compiler.
            :: DEC zero s1 
            :: nil.
 
-    Notation Q2 := min_Q2.
+    Abbreviation Q2 := min_Q2.
 
     Local Fact min_Q2_length : length Q2 = 3+length F.
     Proof. unfold Q2; rew length; lia. Qed.
@@ -1025,14 +1025,14 @@ Section ra_compiler.
 
     Local Definition min_s4 := length Q1+length Q2+i.
 
-    Notation s4 := min_s4.
+    Abbreviation s4 := min_s4.
 
     Local Definition min_Q4 := 
               Q1 ++ Q2 
            ++ mm_copy m o tmp zero s4
            ++ mm_multi_erase m zero (1+n) (9+s4).
 
-    Notation Q4 := min_Q4.
+    Abbreviation Q4 := min_Q4.
 
     Local Fact min_Q4_progress v e x :
                  (forall j, m <= j -> e⇢j = 0)

@@ -27,7 +27,7 @@ Set Implicit Arguments.
 
 Local Infix "∊" := In (at level 70, no associativity).
 Local Infix "⊑" := incl (at level 70, no associativity). 
-Local Notation ø := vec_nil.
+Local Abbreviation ø := vec_nil.
 
 (* * First order theory of congruences *)
 
@@ -53,8 +53,8 @@ Section fol_congruence.
             (ls : list (syms Σ)) (lr : list (rels Σ))
             (He : e ∊ lr). 
 
-  Notation 𝕋 := (fol_term Σ).
-  Notation 𝔽 := (fol_form Σ).
+  Abbreviation 𝕋 := (fol_term Σ).
+  Abbreviation 𝔽 := (fol_form Σ).
 
   Notation "x ≡ y" := (@fol_atom Σ e (cast (x##y##ø) (eq_sym H_ae))) (at level 59).
 

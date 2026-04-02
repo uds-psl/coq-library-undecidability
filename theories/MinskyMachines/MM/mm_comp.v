@@ -32,11 +32,15 @@ Local Notation "I '/BSM/' s -1> t" := (bsm_sss I s t) (at level 70, no associati
 Local Notation "P '/BSM/' s -+> t" := (sss_progress (@bsm_sss _) P s t) (at level 70, no associativity).
 Local Notation "P '/BSM/' s ->> t" := (sss_compute (@bsm_sss _) P s t) (at level 70, no associativity).
 Local Notation "P '/BSM/' s ~~> t" := (sss_output (@bsm_sss _) P s t) (at level 70, no associativity).
+
+#[warning="-postfix-notation-not-level-1"]
 Local Notation "P '/BSM/' s ↓" := (sss_terminates (@bsm_sss _) P s)(at level 70, no associativity).
 
 Local Notation "P '/MM/' s -+> t" := (sss_progress (@mm_sss _) P s t) (at level 70, no associativity).
 Local Notation "P '/MM/' s ->> t" := (sss_compute (@mm_sss _) P s t) (at level 70, no associativity).
 Local Notation "P '/MM/' s '~~>' t" := (sss_output (@mm_sss _) P s t) (at level 70, no associativity).
+
+#[warning="-postfix-notation-not-level-1"]
 Local Notation "P '/MM/' s ↓" := (sss_terminates (@mm_sss _) P s)(at level 70, no associativity).
 
 Section bsm_mm0_simulator.
@@ -133,24 +137,24 @@ Section bsm_mm0_simulator.
         apply mm_pop_void_progress; auto using Hv12, Hvr1, Hvr2.
         rewrite H3, Hv; auto.
 
-      + exists (w1[(stack_enc ll)/reg p]); repeat split; auto; rew vec.
+      + exists (w1[(stack_enc ll)/(reg p)]); repeat split; auto; rew vec.
         * apply mm_pop_Zero_progress; auto using Hv12, Hvr1, Hvr2.
           rewrite H3, Hll; auto.
         * intros q; dest p q.
           assert (reg p <> reg q); rew vec.
     
-      + exists (w1[(stack_enc ll)/reg p]); repeat split; auto; rew vec.
+      + exists (w1[(stack_enc ll)/(reg p)]); repeat split; auto; rew vec.
         * apply mm_pop_One_progress; auto using Hv12, Hvr1, Hvr2.
           rewrite H3, Hll; auto.
         * intros q; dest p q.
           assert (reg p <> reg q); rew vec.
    
-      + exists (w1[(stack_enc (One::v#>p))/reg p]); repeat split; auto; rew vec.
+      + exists (w1[(stack_enc (One::v#>p))/(reg p)]); repeat split; auto; rew vec.
         1: rewrite H0; apply mm_push_One_progress; auto using Hv12, Hvr1, Hvr2.
         intros q; dest p q.
         assert (reg p <> reg q); rew vec.
 
-      + exists (w1[(stack_enc (Zero::v#>p))/reg p]); repeat split; auto; rew vec.
+      + exists (w1[(stack_enc (Zero::v#>p))/(reg p)]); repeat split; auto; rew vec.
         1: rewrite H0; apply mm_push_Zero_progress; auto using Hv12, Hvr1, Hvr2.
         intros q; dest p q.
         assert (reg p <> reg q); rew vec.
@@ -196,7 +200,7 @@ Section bsm_mm0_simulator.
 
     Definition bsm_mm0_sim := Q ++ mm_zeroify tmp1 (code_end (1,Q)).
 
-    Notation R := bsm_mm0_sim.
+    Abbreviation R := bsm_mm0_sim.
 
     Theorem bsm_mm0_sim_spec v w : 
            v ⋈ w 

@@ -19,9 +19,9 @@ Record SBTM := Build_SBTM {
     num_states }.
 
 Module SBTMNotations.
-  Notation tape := (list bool * bool * list bool).
-  Notation state M := (Fin.t (num_states M)).
-  Notation config M := ((state M) * tape).
+  Abbreviation tape := (list bool * bool * list bool).
+  Abbreviation state M := (Fin.t (num_states M)).
+  Abbreviation config M := ((state M) * tape).
 End SBTMNotations.
 
 Import SBTMNotations.

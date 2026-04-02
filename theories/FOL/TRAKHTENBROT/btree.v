@@ -111,8 +111,8 @@ where "s ≈ t" := (bt_equiv s t).
 #[export] Hint Constructors bt_equiv : core.
 
 Local Notation "s ≉ t" := (~ s ≈ t).
-Notation bte_refl := in_bte_refl.
-Notation bte_trans := in_bte_tran.
+Abbreviation bte_refl := in_bte_refl.
+Abbreviation bte_trans := in_bte_tran.
  
 Fact bte_sym x y : x ≈ y <-> y ≈ x.
 Proof. split; auto. Qed.
@@ -806,7 +806,7 @@ Qed.
 
 (* And idempotent *)
 
-Fact bt_tc_idem t : (↓↓t) ⊆ ↓t.
+Fact bt_tc_idem t : ↓(↓t) ⊆ ↓t.
 Proof. apply bt_tc_incl_transitive; auto. Qed.
 
 #[export] Hint Resolve bt_tc_mono bt_tc_idem : core.

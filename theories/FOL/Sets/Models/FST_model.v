@@ -25,7 +25,7 @@ Notation "x ⊆ y" := (forall z, z ∈ x -> z ∈ y) (at level 34) : FSTsem.
 Notation "∅" := (@i_func FST_func_sig ZFSignature.ZF_pred_sig _ _ eset Vector.nil) : FSTsem.
 Notation "x ::: y " := (@i_func FST_func_sig _ _ _ adj (Vector.cons x (Vector.cons y Vector.nil))) (at level 31) : FSTsem.
 
-Notation "{ x ; y }" := (x ::: (y ::: ∅)) (at level 31) : FSTsem.
+Notation "{ x ; y }" := (x ::: (y ::: ∅)) (at level 0) : FSTsem.
 Notation "'σ' x" := (x ::: x) (at level 32) : FSTsem.
 
 

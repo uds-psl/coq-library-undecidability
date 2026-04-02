@@ -91,7 +91,7 @@ Section godel_coding_235.
 
   Definition combi_235 a b c := 2^a*(3^b*5^c).
 
-  Notation "⦉ x , y , z ⦊ " := (combi_235 x y z) (at level 1, format "⦉ x , y , z ⦊ ").
+  Notation "⦉ x , y , z ⦊ " := (combi_235 x y z) (at level 0, format "⦉ x , y , z ⦊ ").
 
   Ltac combi_235_x_0 := unfold combi_235; rewrite Nat.pow_0_r; ring.
 
@@ -136,7 +136,7 @@ Section godel_coding_2357.
 
   Definition combi_2357 a b c d := 2^a*(3^b*(5^c*7^d)).
 
-  Notation "⦉ x , y , z , u ⦊" := (combi_2357 x y z u) (at level 1, format "⦉ x , y , z , u ⦊").
+  Notation "⦉ x , y , z , u ⦊" := (combi_2357 x y z u) (at level 0, format "⦉ x , y , z , u ⦊").
 
   Ltac combi_2357_x_0 := unfold combi_2357; rewrite Nat.pow_0_r; ring.
 

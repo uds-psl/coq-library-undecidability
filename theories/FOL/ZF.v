@@ -15,7 +15,7 @@ Import ZFSignature.
 Export ZFSignature.
 (* ** Problems *)
 
-Notation extensional M :=
+Abbreviation extensional M :=
   (forall x y, @i_atom _ ZF_pred_sig _ M equal ([x; y]) <-> x = y).
 
 (* Semantic entailment restricted to core axioms (without sep and rep) with equality axioms. *)

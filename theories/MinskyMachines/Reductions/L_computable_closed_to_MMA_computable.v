@@ -171,9 +171,9 @@ Context {Hs0R : forall (v : Vector.t nat k0) m, R v m <-> eval (Vector.fold_left
 (* s0 computes numerals *)
 Context {H's0R : forall (v : Vector.t nat k0) o, eval (Vector.fold_left (fun s n => app s (nat_enc n)) s0 v) o -> exists m, o = nat_enc m}.
 
-#[local] Notation num_counters := ((1+k0)+6).
-#[local] Notation counter := (pos num_counters).
-#[local] Notation mm_instr := (mm_instr counter).
+#[local] Abbreviation num_counters := ((1+k0)+6).
+#[local] Abbreviation counter := (pos num_counters).
+#[local] Abbreviation mm_instr := (mm_instr counter).
 
 #[local] Notation "P // s ->> t" := (sss_compute (@mma_sss num_counters) P s t).
 #[local] Notation "P // s -+> t" := (sss_progress (@mma_sss num_counters) P s t).
@@ -185,13 +185,13 @@ Context {H's0R : forall (v : Vector.t nat k0) o, eval (Vector.fold_left (fun s n
 #[local] Arguments flatten : simpl never.
 
 (* auxiliary counters *)
-#[local] Notation A := (Fin.R (1+k0) (Fin.F1) : counter).
-#[local] Notation B := (Fin.R (1+k0) (Fin.FS (Fin.F1)) : counter).
-#[local] Notation C := (Fin.R (1+k0) (Fin.FS (Fin.FS (Fin.F1))) : counter).
+#[local] Abbreviation A := (Fin.R (1+k0) (Fin.F1) : counter).
+#[local] Abbreviation B := (Fin.R (1+k0) (Fin.FS (Fin.F1)) : counter).
+#[local] Abbreviation C := (Fin.R (1+k0) (Fin.FS (Fin.FS (Fin.F1))) : counter).
 (* data counters *)
-#[local] Notation TS := (Fin.R (1+k0) (Fin.FS (Fin.FS (Fin.FS (Fin.F1)))) : counter).
-#[local] Notation CTX := (Fin.R (1+k0) (Fin.FS (Fin.FS (Fin.FS (Fin.FS (Fin.F1))))) : counter).
-#[local] Notation U := (Fin.R (1+k0) (Fin.FS (Fin.FS (Fin.FS (Fin.FS (Fin.FS (Fin.F1)))))) : counter).
+#[local] Abbreviation TS := (Fin.R (1+k0) (Fin.FS (Fin.FS (Fin.FS (Fin.F1)))) : counter).
+#[local] Abbreviation CTX := (Fin.R (1+k0) (Fin.FS (Fin.FS (Fin.FS (Fin.FS (Fin.F1))))) : counter).
+#[local] Abbreviation U := (Fin.R (1+k0) (Fin.FS (Fin.FS (Fin.FS (Fin.FS (Fin.FS (Fin.F1)))))) : counter).
 
 Lemma sss_terminates_sss_compute_inv P x y :
   P // x ->> y ->

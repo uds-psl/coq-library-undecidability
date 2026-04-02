@@ -48,8 +48,8 @@ Section dio_poly.
 
     Variable (v : vec nat (n+m)).
 
-    Notation φ := (fun i => vec_pos v (pos_left _ i)).
-    Notation ν := (fun i => vec_pos v (pos_right _ i)).
+    Abbreviation φ := (fun i => vec_pos v (pos_left _ i)).
+    Abbreviation ν := (fun i => vec_pos v (pos_right _ i)).
 
     Fact ra_dio_poly_val p : ⟦ra_dio_poly p⟧ v (dp_eval φ ν p).
     Proof.
@@ -121,8 +121,8 @@ Section dio_poly.
 
   End ra_dio_poly_eval.
 
-  Notation φ := (fun x w i => vec_pos (vec_app (project n x) w) (pos_left _ i)).
-  Notation ν := (fun x w i => vec_pos (vec_app (project n x) w) (pos_right _ i)).
+  Abbreviation φ := (fun x w i => vec_pos (vec_app (project n x) w) (pos_left _ i)).
+  Abbreviation ν := (fun x w i => vec_pos (vec_app (project n x) w) (pos_right _ i)).
 
   Variable (p q : dio_polynomial (pos n) (pos m)).
 

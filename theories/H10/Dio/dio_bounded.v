@@ -22,7 +22,7 @@ From Undecidability.H10.Dio
 
 Set Implicit Arguments.
 
-Local Notation power := (mscal mult 1).
+Local Abbreviation power := (mscal mult 1).
 Local Notation "∑" := (msum plus 0).
 
 (* We show the elimination of bounded universal quantification. The proof is
@@ -70,8 +70,8 @@ Section dio_rel_bounded_fall.
        for i = k+2, ω contains the value l   
        for k+2 < i, ω represents the value of parameter i-k-2>0  *)
 
-    Notation iq := (k+1).  (* The index of q in ω *)
-    Notation il := (k+2).  (* The index of l in ω *)
+    Abbreviation iq := (k+1).  (* The index of q in ω *)
+    Abbreviation il := (k+2).  (* The index of l in ω *)
 
     Let dc_Code (c : dio_constraint) ω :=
       match c with

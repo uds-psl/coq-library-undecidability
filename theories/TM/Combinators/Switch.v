@@ -18,9 +18,9 @@ Section Switch.
   Variable pMf : F -> pTM sig F' n.
 
   (* The (unlabelled) machine [M] *)
-  Notation M1 := (projT1 pM1).
+  Abbreviation M1 := (projT1 pM1).
   (* The labelling function of the machine [M] *)
-  Notation p1 := (projT2 pM1).
+  Abbreviation p1 := (projT2 pM1).
 
   (* The (unlabelled) case-machine [M' y] *)
   Notation "'Mf' y" := (projT1 (pMf y)) (at level 10).
@@ -257,5 +257,5 @@ End Switch.
 Arguments Switch : simpl never.
 
 (* Deprecated names *)
-Notation MATCH := Switch (only parsing).
-Notation Match := Switch (only parsing).
+Abbreviation MATCH := Switch (only parsing).
+Abbreviation Match := Switch (only parsing).

@@ -77,16 +77,17 @@ Inductive dio_formula : Set :=
   | df_bin  : forall (o : dio_op) (f g : dio_formula), dio_formula
   | df_exst : dio_formula -> dio_formula.
 
-Notation df_add := (df_op do_add).
-Notation df_mul := (df_op do_mul).
-Notation df_conj := (df_bin do_mul).
-Notation df_disj := (df_bin do_add).
+Abbreviation df_add := (df_op do_add).
+Abbreviation df_mul := (df_op do_mul).
+Abbreviation df_conj := (df_bin do_mul).
+Abbreviation df_disj := (df_bin do_add).
 
 Notation "∃ x" := (df_exst x) (at level 54, right associativity).
 Notation "x ∧ y" := (df_conj x y) (at level 51, right associativity, format "x  ∧  y").
 Notation "x ∨ y" := (df_disj x y) (at level 52, right associativity, format "x  ∨  y").
 
-Local Notation "x ≐ ⌞ n ⌟" := (df_cst x n) 
+#[warning="-postfix-notation-not-level-1"]
+  Local Notation "x ≐ ⌞ n ⌟" := (df_cst x n) 
       (at level 49, no associativity, format "x  ≐  ⌞ n ⌟").
 Local Notation "x ≐ y" := (df_eq x y) 
       (at level 49, no associativity, format "x  ≐  y").
@@ -219,7 +220,7 @@ Local Notation "f ⦃ ρ ⦄" := (df_ren ρ f).
     equivalent *)
 
 Definition dio_rel R := { f | forall ν, ⟦f⟧ ν <-> R ν }.
-Notation 𝔻R := dio_rel.
+Abbreviation 𝔻R := dio_rel.
 
 (* We establish closure properties of dio_rel / 𝔻R
     These are proved by explicitely giving the witnesses.
@@ -306,7 +307,7 @@ End dio_rel_closure_properties.
 *)
 
 Definition dio_fun t := 𝔻R (fun ν => ν 0 = t ν⭳).
-Notation 𝔻F := dio_fun.
+Abbreviation 𝔻F := dio_fun.
 
 Fact dio_fun_var x : 𝔻F (fun ν => ν x).
 Proof. apply dio_rel_eq. Defined.

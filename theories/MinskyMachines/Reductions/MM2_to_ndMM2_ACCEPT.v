@@ -22,13 +22,13 @@ Set Implicit Arguments.
 
 Section MM2_ndMM2.
 
-  Notation STOP := (@ndmm2_stop _).
-  Notation INC  := (@ndmm2_inc _).
-  Notation DEC  := (@ndmm2_dec _).
-  Notation ZERO := (@ndmm2_zero _).
+  Abbreviation STOP := (@ndmm2_stop _).
+  Abbreviation INC  := (@ndmm2_inc _).
+  Abbreviation DEC  := (@ndmm2_dec _).
+  Abbreviation ZERO := (@ndmm2_zero _).
 
-  Notation α := true. 
-  Notation β := false.
+  Abbreviation α := true. 
+  Abbreviation β := false.
 
   Definition mm2_instr_enc i ρ :=
     match ρ with
@@ -109,7 +109,7 @@ Section MM2_ndMM2.
 
   Definition mm2_prog_enc := STOP 0 :: mm2_linstr_enc 1 P.
 
-  Notation Σ := mm2_prog_enc.
+  Abbreviation Σ := mm2_prog_enc.
 
   Local Lemma mm2_prog_enc_compute s1 s2 : 
           P // s1 ↠ s2 

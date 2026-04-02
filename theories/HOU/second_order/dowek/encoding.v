@@ -277,7 +277,7 @@ Section Encoding.
     | x *ₑ y =ₑ z => [varEQ x; varEQ y; varEQ z; mulEQ x y z]
     end.
 
-  Notation Eqs E := (flat_map eqs E). 
+  Abbreviation Eqs E := (flat_map eqs E). 
 
   Lemma in_Equations q E:
     q ∈ Eqs E <-> (exists e, e ∈ E /\ q ∈ eqs e).
@@ -355,7 +355,7 @@ Section Encoding.
 End Encoding.
 #[export] Hint Rewrite @enc_ren @enc_subst : asimpl.
 
-Notation Eqs E := (flat_map eqs E). 
+Abbreviation Eqs E := (flat_map eqs E). 
 
 
 (* ** Reduction Function *)

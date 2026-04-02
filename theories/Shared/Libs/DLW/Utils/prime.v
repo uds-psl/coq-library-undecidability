@@ -296,7 +296,7 @@ Section prime.
 
   (* Every positive number is the product of a list of primes *)
 
-  Notation lprod := (fold_right mult 1).
+  Abbreviation lprod := (fold_right mult 1).
 
   Fact lprod_ge_1 l : Forall prime l -> 1 <= lprod l.
   Proof.
@@ -382,7 +382,7 @@ Section base_decomp.
       | x::l => x+p*expand p l
     end.
 
-  Notation power := (mscal mult 1).
+  Abbreviation power := (mscal mult 1).
 
   Fact expand_app p l m : expand p (l++m) = expand p l + power (length l) p * expand p m.
   Proof.

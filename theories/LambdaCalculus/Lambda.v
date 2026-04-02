@@ -47,7 +47,7 @@ Fixpoint subst (sigma: nat -> term) (s: term) : term :=
   | lam s => lam (subst (scons (var 0) (funcomp (ren S) sigma)) s)
   end.
 
-Notation closed t := (forall (sigma: nat -> term), subst sigma t = t).
+Abbreviation closed t := (forall (sigma: nat -> term), subst sigma t = t).
 
 (* beta-reduction (strong call-by-name reduction) *)
 Inductive step : term -> term -> Prop :=

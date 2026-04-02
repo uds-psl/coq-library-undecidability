@@ -224,8 +224,8 @@ Proof.
     by rewrite vec_change_app_right !vec_change_app_left.
 Qed.
 
-#[local] Notation step1 := (sss_step (@mm_sss _) (1, M)).
-#[local] Notation step2 := (sss_step (@mm_sss _) (1, M')).
+#[local] Abbreviation step1 := (sss_step (@mm_sss _) (1, M)).
+#[local] Abbreviation step2 := (sss_step (@mm_sss _) (1, M')).
 
 Definition sync (st : nat * _) st' := st' = (fst st, shift_regs (snd st)).
 

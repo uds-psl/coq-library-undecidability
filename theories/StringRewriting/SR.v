@@ -1,7 +1,7 @@
 From Stdlib Require Import List.
 
 (* A string is a list of symbols. *)
-Notation string X := (list X).
+Abbreviation string X := (list X).
 
 Module RuleNotation.
 Notation "x / y" := (x, y).
@@ -10,7 +10,7 @@ Import RuleNotation.
 
 (* A string rewriting system SRS is a list of rules x / y 
   such that x rewrites to y. *)
-Notation SRS X := (list (string X * string X)).
+Abbreviation SRS X := (list (string X * string X)).
 
 (* If u / v is a rewriting rule, then x ++ u ++ y rewrites to x ++ v ++ y. *)
 Inductive rew {X : Type} (R : SRS X) : string X -> string X -> Prop :=

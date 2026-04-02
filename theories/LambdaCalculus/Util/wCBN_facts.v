@@ -8,8 +8,8 @@ From Stdlib Require Import ssreflect.
 
 Set Default Goal Selector "!".
 
-#[local] Notation step := wCBN_step.
-#[local] Notation steps := (clos_refl_trans _ step).
+#[local] Abbreviation step := wCBN_step.
+#[local] Abbreviation steps := (clos_refl_trans _ step).
 
 Inductive stepLam_spec s t : term -> Prop :=
   | stepLam_spec_intro : stepLam_spec s t (subst (scons t var) s).

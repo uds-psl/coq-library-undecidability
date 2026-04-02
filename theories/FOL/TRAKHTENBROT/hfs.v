@@ -50,8 +50,8 @@ Section hfs.
   Fact hfs_repr_bt_cls t : hfs_repr (bt_cls t) ≈ t.
   Proof. apply bt_norm_eq. Qed.
 
-  Notation cls := bt_cls.
-  Notation repr := hfs_repr.
+  Abbreviation cls := bt_cls.
+  Abbreviation repr := hfs_repr.
 
   Fact bt_cls_eq_norm s t : bt_cls s = bt_cls t <-> bt_norm s = bt_norm t.
   Proof.

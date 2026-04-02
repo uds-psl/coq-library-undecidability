@@ -26,11 +26,15 @@ Section MMA2_to_MM2.
   Notation "P '/A/' r '→' s" := (sss_step (@mma_sss 2) P r s) (at level 70, no associativity).
   Notation "P '/A/' r '↠' s" := (sss_compute (@mma_sss 2) P r s) (at level 70, no associativity).
   Notation "P '/A/' r '~~>' s" := (sss_output (@mma_sss 2) P r s) (at level 70, no associativity).
+
+  #[warning="-postfix-notation-not-level-1"]
   Notation "P '/A/' s ↓" := (sss_terminates (@mma_sss 2) P s) (at level 70, no associativity).
 
   Notation "i '/2/' r '⇢' s" := (mm2_atom i r s) (at level 70, no associativity).
   Notation "P '/2/' r '→' s" := (mm2_step P r s) (at level 70, no associativity).
   Notation "P '/2/' x ↠ y" := (clos_refl_trans _ (mm2_step P) x y) (at level 70, no associativity).
+
+  #[warning="-postfix-notation-not-level-1"]
   Notation "P '/2/' s ↓" := (mm2_terminates P s) (at level 70, no associativity).
 
   Definition mma_mm2_instr : mm_instr (pos 2) -> mm2_instr.

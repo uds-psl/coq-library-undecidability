@@ -19,7 +19,7 @@ Set Implicit Arguments.
 
 Local Notation "'⟦' f '⟧'" := (@ra_rel _ f) (at level 0).
 
-Local Notation power := (mscal mult 1).
+Local Abbreviation power := (mscal mult 1).
 
 Ltac fill_vec := 
   match goal with 

@@ -22,8 +22,8 @@ From Undecidability.H10.Dio
 
 Set Implicit Arguments.
 
-Local Notation power := (mscal mult 1).
-Local Notation expo := (mscal mult 1).
+Local Abbreviation power := (mscal mult 1).
+Local Abbreviation expo := (mscal mult 1).
 
 (* Here one can witness how workable is automation of recognition
     of Diophantine shapes.
@@ -32,7 +32,8 @@ Local Notation expo := (mscal mult 1).
     from the new Diophantine shapes that include Diophantine
     functions. *)
 
-Local Notation "x ≐ ⌞ n ⌟" := (df_cst x n) 
+#[warning="-postfix-notation-not-level-1"]
+  Local Notation "x ≐ ⌞ n ⌟" := (df_cst x n) 
       (at level 49, no associativity, format "x  ≐  ⌞ n ⌟").
 Local Notation "x ≐ y" := (df_eq x y) 
       (at level 49, no associativity, format "x  ≐  y").

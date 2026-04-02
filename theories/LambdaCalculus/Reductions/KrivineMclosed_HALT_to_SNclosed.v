@@ -41,7 +41,7 @@ Inductive step' : term -> term -> Prop :=
   | step'Lam s t    : normal_form s -> normal_form t -> step' (app (lam s) t) (subst (scons t (fun x => var x)) s)
   | step'App s s' t : normal_form t -> step' s s' -> step' (app s t) (app s' t).
 
-#[local] Notation steps' := (clos_trans _ step').
+#[local] Abbreviation steps' := (clos_trans _ step').
 
 Lemma step'E M N : step' M N ->
   match M with
@@ -98,10 +98,10 @@ Proof.
   move=> ??? /step'_det /[apply] <-. by left.
 Qed.
 
-#[local] Notation I := (lam (var 0)).
+#[local] Abbreviation I := (lam (var 0)).
 
 (* all encodings get I as a final argument to ensure redex uniqueness *)
-#[local] Notation call Ns := (lam (many_app (var 0) (Ns ++ [var 0]))).
+#[local] Abbreviation call Ns := (lam (many_app (var 0) (Ns ++ [var 0]))).
 
 Fixpoint enc_nat (n : nat) : term :=
   match n with
@@ -361,7 +361,7 @@ Definition simpl_term := (
 Opaque enc_halt_cbn_var0 enc_halt_cbn_varS enc_halt_cbn_app enc_halt_cbn_lam.
 Opaque enc_eterm enc_list.
 
-#[local] Notation enc_state ts ctx t :=
+#[local] Abbreviation enc_state ts ctx t :=
   (many_app enc_halt_cbn [enc_list enc_eterm ts; enc_list enc_eterm ctx; enc_term t; enc_halt_cbn; I]).
 
 Inductive sync : (list eterm * list eterm * term) -> term -> Prop :=

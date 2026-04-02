@@ -27,7 +27,7 @@ Set Implicit Arguments.
 
 (* * Converting functions symbols into relations symbols *) 
 
-Local Notation ø := vec_nil.
+Local Abbreviation ø := vec_nil.
 
 Section Sig_remove_symbols.
 
@@ -46,7 +46,7 @@ Section Sig_remove_symbols.
       * exact (ar_rels _ r).
   Defined.
 
-  Notation Σ' := Σnosyms.
+  Abbreviation Σ' := Σnosyms.
 
   Let e : rels Σ' := inl tt. 
 
@@ -60,11 +60,11 @@ Section Sig_remove_symbols.
       * exact (R r).
   Defined. 
 
-  Notation 𝕋 := (fol_term Σ).
-  Notation 𝔽 := (fol_form Σ).
+  Abbreviation 𝕋 := (fol_term Σ).
+  Abbreviation 𝔽 := (fol_form Σ).
 
-  Notation 𝕋' := (fol_term Σ').
-  Notation 𝔽' := (fol_form Σ').
+  Abbreviation 𝕋' := (fol_term Σ').
+  Abbreviation 𝔽' := (fol_form Σ').
 
   Section removing_symbols_from_terms.
 
@@ -382,7 +382,7 @@ Section completeness.
            (Hls : forall s, { In s ls } + { ~ In s ls })
            (HAls : incl (fol_syms A) ls).
 
-  Notation Σ' := (Σnosyms Σ).
+  Abbreviation Σ' := (Σnosyms Σ).
 
   Let e : rels Σ' := inl tt.
 

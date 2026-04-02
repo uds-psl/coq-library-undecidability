@@ -225,7 +225,7 @@ Section bt_model_n.
 
   Local Definition Y := sig (fun x => p_bool x = true).
 
-  Notation π1 := (@proj1_sig _ (fun x => p_bool x = true)).
+  Abbreviation π1 := (@proj1_sig _ (fun x => p_bool x = true)).
 
   Hint Resolve p_bool_spec p_bool_spec1 p_bool_spec2 : core.
 

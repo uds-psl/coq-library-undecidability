@@ -30,9 +30,9 @@ Section Multiplication.
   Proof. injection 1; eauto. Qed.
 
 
-  Notation r := (var 2).
-  Notation A := (var 1).
-  Notation B := (var 0).
+  Abbreviation r := (var 2).
+  Abbreviation A := (var 1).
+  Abbreviation B := (var 0).
 
   Let σ p q :=  B .: A .: ⟨enc p A, enc q B⟩ ::: Nil .: (add 2) >> var.
   Let τ :=  Succ B .: enc n A .: Nil .:((add 2) >> var).

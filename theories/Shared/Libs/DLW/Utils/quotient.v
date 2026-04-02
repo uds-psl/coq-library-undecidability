@@ -20,7 +20,7 @@ Set Implicit Arguments.
 Definition nat_enum_cls X (R : X -> X -> Prop) := 
   { f : nat -> option X | forall x, exists y n, f n = Some y /\ R y x }. 
 
-Notation dec := ((fun X Y (R : X -> Y -> Prop) => forall x y, { R x y } + { R x y -> False }) _ _).
+Abbreviation dec := ((fun X Y (R : X -> Y -> Prop) => forall x y, { R x y } + { R x y -> False }) _ _).
 
 (* A class function and its inverse, a function that computes representatives
     with two equations characterizing the quotient *)

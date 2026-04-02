@@ -15,7 +15,7 @@ Local Unset Strict Implicit.
 From Stdlib Require Import Morphisms.
 
 
-Local Notation vec := Vector.t.
+Local Abbreviation vec := Vector.t.
 
 Local Hint Constructors prv : core.
 
@@ -27,8 +27,8 @@ Existing Instance ZF_func_sig.
 Existing Instance ZF_pred_sig.
 
 
-#[local] Notation term' := (term sig_empty).
-#[local] Notation form' := (form sig_empty sig_binary _ falsity_on).
+#[local] Abbreviation term' := (term sig_empty).
+#[local] Abbreviation form' := (form sig_empty sig_binary _ falsity_on).
 
 (* ** Trivial embedding into rich signature *)
 

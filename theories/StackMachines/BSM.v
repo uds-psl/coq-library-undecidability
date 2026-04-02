@@ -38,8 +38,8 @@ Section Binary_Stack_Machine.
 
   Variable (n : nat).
 
-  Notation POP  := (bsm_pop n).
-  Notation PUSH := (bsm_push n).
+  Abbreviation POP  := (bsm_pop n).
+  Abbreviation PUSH := (bsm_push n).
 
   Notation "e '#>' x" := (vec_pos e x) (at level 58, format "e #> x").
   Notation "e [ x := v ]" := (vec_change e x v) (no associativity, at level 1).

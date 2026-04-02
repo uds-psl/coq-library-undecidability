@@ -30,9 +30,9 @@ Set Implicit Arguments.
 Local Reserved Notation "x ≡ y" (at level 70, no associativity).
 Local Reserved Notation "x ⪼ y" (at level 70, no associativity).
 
-Local Notation lhd := list_has_dup.
+Local Abbreviation lhd := list_has_dup.
 Local Infix "~p" := Permutation (at level 70, no associativity).
-Local Notation "⌊ l ⌋" := (length l) (at level 1, format "⌊ l ⌋").
+Local Notation "⌊ l ⌋" := (length l) (at level 0, format "⌊ l ⌋").
 
 Local Infix "∈" := In (at level 70, no associativity).
 Local Infix "⊆" := incl (at level 70, no associativity).
@@ -221,7 +221,7 @@ Section seteq.
  
   Hint Resolve list_has_dup_swap in_eq in_cons in_list_hd0 in_list_hd1 : core.
 
-  Notation lhd_cons_iff := list_has_dup_cons_iff.
+  Abbreviation lhd_cons_iff := list_has_dup_cons_iff.
 
   Fact lc_lhd l m : l ⪼ m -> lhd m -> lhd l.
   Proof.
