@@ -430,7 +430,7 @@ Section MoveToSymbol_Sem.
   - destruct t; cbn in HEnc; try congruence. inv HEnc.
     rewrite MoveToSymbol_steps_equation. cbn. destruct (stop a).
     + lia.
-    + apply Nat.add_le_mono_l. replace (4 * S (|r1|)) with (4 + 4 * |r1|) by lia.
+    + apply Nat.add_le_mono_l. replace (4 * S (|r1|)) with (4 + 4 * (|r1|)) by lia.
       eapply IHr1; eauto. cbn. now simpl_tape.
   Qed.
 
@@ -490,7 +490,7 @@ Section MoveToSymbol_Sem.
   - destruct t; cbn in HEnc; try congruence. inv HEnc.
     rewrite MoveToSymbol_L_steps_equation. cbn. destruct (stop a).
     + lia.
-    + apply Nat.add_le_mono_l. replace (4 * S (|r1|)) with (4 + 4 * |r1|) by lia.
+    + apply Nat.add_le_mono_l. replace (4 * S (|r1|)) with (4 + 4 * (|r1|)) by lia.
       eapply IHr1; eauto. cbn. now simpl_tape.
   Qed.
 

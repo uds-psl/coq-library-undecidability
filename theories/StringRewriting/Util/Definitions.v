@@ -5,6 +5,7 @@ Local Unset Strict Implicit.
 
 Import ListNotations RuleNotation.
 
+Create HintDb list.
 #[local] Hint Resolve in_cons incl_refl incl_appr incl_appl : list.
 
 Lemma list_prefix_inv'' X (a : X) x u y v :

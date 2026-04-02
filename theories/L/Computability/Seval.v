@@ -21,12 +21,13 @@ Inductive seval : nat -> term -> term -> Prop :=
 Local Notation "s '⇓' n t" := (seval n s t) (at level 51).
 
 Lemma seval_eval n s t : seval n s t -> eval s t.
-Proof with eauto using star_trans, star_trans_l, star_trans_r.
+Proof.
   intros. induction H as [ | n s t u v w _ [IHe1 _] _ [IHe2 _] _ [IHe3 lam_w]].
   - repeat econstructor.
-  - split...
-    transitivity ((lam u) t)... 
-    transitivity ((lam u) (lam v))... now rewrite stepApp.
+  - split; eauto using star_trans, star_trans_l, star_trans_r.
+    transitivity ((lam u) t); eauto using star_trans, star_trans_l, star_trans_r.
+    transitivity ((lam u) (lam v)); eauto using star_trans, star_trans_l, star_trans_r.
+    now rewrite stepApp.
 Qed.
 
 #[export] Hint Resolve seval_eval : core.
@@ -39,10 +40,10 @@ Proof.
 Qed.
 
 Lemma eval_step s s' t n : s ≻ s' -> seval n s' t -> seval (S n) s t.
-Proof with eauto using seval_S, seval.
-  intros H; revert n t; induction H; intros n u A...
-  - inv A... 
-  - inv A... 
+Proof.
+  intros H; revert n t; induction H; intros n u A; eauto using seval_S, seval.
+  - inv A; eauto using seval_S, seval.
+  - inv A; eauto using seval_S, seval.
 Qed.
 
 Lemma eval_seval s t : eval s t -> exists n, seval n s t.

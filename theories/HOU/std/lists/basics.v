@@ -13,6 +13,8 @@ Notation "A ⊊ B" := (strict_incl A B) (at level 70).
 Notation "A === B" := (seteq A B) (at level 70).
 Notation "| A |" := (length A) (at level 65).
 
+Create HintDb listdb.
+Create Rewrite HintDb listdb.
 
 Section BasicLemmas.
 

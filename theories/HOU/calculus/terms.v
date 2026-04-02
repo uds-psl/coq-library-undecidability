@@ -185,7 +185,7 @@ Proof. exact (FunctionalExtensionality.functional_extensionality _ _ (fun n => c
 
 End Terms.
 
-
+Create Rewrite HintDb asimpl.
 
 (* CUSTOM CHANGES *)
 Definition beta {X} (s: exp) (t: exp) := @subst_exp X (t .: var_exp) s.

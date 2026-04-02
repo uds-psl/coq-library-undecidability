@@ -23,7 +23,7 @@ Instance boundary_fin : finTypeC (EqType boundary).
 Proof. split with (enum := [START; STOP; UNKNOWN]). cbn. intros []; cbn; reflexivity. Defined. (* because definition *)
 
 (* Because every machine is defined on an alphabet [Σ^+], the notation adds the discreteness and finiteness constructors, to cast [Σ^+ : finType]. *)
-Notation "sig '^+'" := (FinType (EqType (boundary + sig) % type)) (at level 0) : type_scope.
+Notation "sig '^+'" := (FinType (EqType (boundary + sig) % type)) (at level 1) : type_scope.
 
 Inductive sigTape (sig : Type) : Type :=
 | LeftBlank (marked : bool)

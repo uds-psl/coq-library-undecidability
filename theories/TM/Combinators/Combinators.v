@@ -29,7 +29,7 @@ Section Relabel.
 
   Lemma Relabel_RealiseIn R k :
     pM ⊨c(k) R ->
-    Relabel ⊨c(k) ⋃_y (R |_ y) ||_(p y).
+    Relabel ⊨c(k) (⋃_y (R |_ y) ||_(p y)).
   Proof. firstorder easy. Qed.
 
   Lemma Relabel_Terminates T :
