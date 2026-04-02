@@ -22,7 +22,7 @@ Import fol_notations.
 
 Set Implicit Arguments.
 
-Local Notation ø := vec_nil.
+Local Abbreviation ø := vec_nil.
 Local Infix "∊" := In (at level 70, no associativity).
 Local Infix "⊑" := incl (at level 70, no associativity). 
 
@@ -328,7 +328,7 @@ Section FOL_encoding.
 
   (* Maybe we can redo the whole devel here with fo_definable.v *)
 
-  Notation Σ2 := (Σrel 2).
+  Abbreviation Σ2 := (Σrel 2).
   Variable (Y : Type) (M2 : fo_model Σ2 Y).
 
   Let mem a b := fom_rels M2 tt (a##b##ø).

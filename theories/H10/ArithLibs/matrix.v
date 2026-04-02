@@ -24,8 +24,8 @@ Section rings.
   Infix "⊕" := Rplus (at level 50, left associativity).
   Infix "⊗" := Rmult (at level 40, left associativity).
 
-  Notation z := Rzero.
-  Notation o := Rone.
+  Abbreviation z := Rzero.
+  Abbreviation o := Rone.
   Notation "∸" := Ropp.
 
   (* ⊕  ⊗  ∸ *)
@@ -190,8 +190,8 @@ Section rings.
   Fact Det22_mult : forall x y, Det22 (x⊠y) = Det22 x ⊗ Det22 y.
   Proof using R_is_ring. intros (((?,?),?),?) (((?,?),?),?); simpl; ring. Qed.
 
-  Notation expo22 := (mscal MU22 ID_22).
-  Notation expoR := (mscal Rmult o).
+  Abbreviation expo22 := (mscal MU22 ID_22).
+  Abbreviation expoR := (mscal Rmult o).
 
   Fact expo22_scal k n U : expo22 n (M22scal k U) = M22scal (expoR n k) (expo22 n U).
   Proof using R_is_ring.

@@ -85,7 +85,7 @@ Import MM2 MM2_facts.
 
 Local Arguments rt_trans {A R x y z}.
 Local Arguments in_combine_l {A B l l' x y}.
-Local Notation mm2_state := (nat*(nat*nat))%type.
+Local Abbreviation mm2_state := (nat*(nat*nat))%type.
 
 Section Reduction.
 (* given two-counter machine *)
@@ -124,19 +124,19 @@ Local Arguments Nat.sub : simpl never.
 Local Arguments repeat : simpl never.
 Local Arguments app_inj_tail {A x y a b}.
 
-Local Notation sb := ((0, @None nat)). (* blank *)
-Local Notation sl := ((1, @None nat)). (* left marker *)
-Local Notation sr := ((2, @None nat)). (* right marker *)
-Local Notation sm := ((3, @None nat)). (* middle marker *)
+Local Abbreviation sb := ((0, @None nat)). (* blank *)
+Local Abbreviation sl := ((1, @None nat)). (* left marker *)
+Local Abbreviation sr := ((2, @None nat)). (* right marker *)
+Local Abbreviation sm := ((3, @None nat)). (* middle marker *)
 
-Local Notation sz := ((4, @None nat)). (* 0 *)
-Local Notation so := ((5, @Some nat 0)). (* 1 *)
-Local Notation st := ((6, @None nat)). (* temporary marker *)
+Local Abbreviation sz := ((4, @None nat)). (* 0 *)
+Local Abbreviation so := ((5, @Some nat 0)). (* 1 *)
+Local Abbreviation st := ((6, @None nat)). (* temporary marker *)
 
-Local Notation sb' p := ((0, @Some nat p)). (* blank *)
-Local Notation sl' p := ((1, @Some nat p)). (* left marker *)
-Local Notation sr' p := ((2, @Some nat p)). (* right marker *)
-Local Notation sm' p := ((3, @Some nat p)). (* middle marker *)
+Local Abbreviation sb' p := ((0, @Some nat p)). (* blank *)
+Local Abbreviation sl' p := ((1, @Some nat p)). (* left marker *)
+Local Abbreviation sr' p := ((2, @Some nat p)). (* right marker *)
+Local Abbreviation sm' p := ((3, @Some nat p)). (* middle marker *)
 
 Definition instr_state (mm2i : mm2_instr) :=
   match mm2i with
@@ -285,7 +285,7 @@ Proof.
   apply: stepI_nil. by eauto with in_srs_db nocore.
 Qed.
 
-Local Notation mm2_reaches x y := (clos_refl_trans _ (mm2_step mm) x y).
+Local Abbreviation mm2_reaches x y := (clos_refl_trans _ (mm2_step mm) x y).
 
 Section Transport.
 

@@ -128,8 +128,8 @@ Qed.
 Definition sync : nat * Vector.t nat num_counters -> nat * Vector.t nat num_counters -> Prop :=
   fun s s' => s' = (addr (fst s), snd s).
 
-#[local] Notation step1 := (sss_step (@mm_sss num_counters) (1, P)).
-#[local] Notation step2 := (sss_step (@mma_sss num_counters) (1, P')).
+#[local] Abbreviation step1 := (sss_step (@mm_sss num_counters) (1, P)).
+#[local] Abbreviation step2 := (sss_step (@mma_sss num_counters) (1, P')).
 
 Lemma fstep s t s' : step1 s t -> sync s s' ->
   exists t', clos_trans _ step2 s' t' /\ sync t t'.

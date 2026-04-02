@@ -24,6 +24,8 @@ Tactic Notation "rew" "length" := autorewrite with length_db.
 Local Notation "P //ₐ s -+> t" := (sss_progress (@mma_sss _) P s t) (at level 70, no associativity).
 Local Notation "P //ₐ s ->> t" := (sss_compute (@mma_sss _) P s t) (at level 70, no associativity).
 Local Notation "P //ₐ s ~~> t" := (sss_output (@mma_sss _) P s t) (at level 70, no associativity).
+
+#[warning="-postfix-notation-not-level-1"]
 Local Notation "P //ₐ s ↓" := (sss_terminates (@mma_sss _) P s) (at level 70, no associativity). 
 
 (* We use the generic compiler with an identity map on instructions
@@ -120,7 +122,7 @@ Section mma_mma0_sim.
 
   Definition mma_mma0_sim := Q ++ mma_null_all _ (length Q+1) ++ mma_jump 0 pos0.
 
-  Notation R := mma_mma0_sim.
+  Abbreviation R := mma_mma0_sim.
 
   Hint Rewrite mma_null_all_length : length_db.
 

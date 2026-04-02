@@ -62,16 +62,16 @@ Qed.
 Lemma step_length_eq (rs : Ssts) v w : step rs v w -> length v = length w.
 Proof. case => > _. by rewrite !length_app. Qed.
 
-#[local] Notation bullet := (atom 0).
-#[local] Notation star := (atom 1).
+#[local] Abbreviation bullet := (atom 0).
+#[local] Abbreviation star := (atom 1).
 (*indicates second symbol*)
-#[local] Notation hash := (atom 2).
+#[local] Abbreviation hash := (atom 2).
 (*indicates first symbol*)
-#[local] Notation dollar := (atom 3).
+#[local] Abbreviation dollar := (atom 3).
 (*indicates very first split, used once*)
-#[local] Notation triangle := (atom 4).
-#[local] Notation isl := (atom 5).
-#[local] Notation isr := (atom 6).
+#[local] Abbreviation triangle := (atom 4).
+#[local] Abbreviation isl := (atom 5).
+#[local] Abbreviation isr := (atom 6).
 
 Section Argument.
 
@@ -107,7 +107,7 @@ Definition s_0 : ty := mk_ty
 
 Definition s_1 : ty := mk_ty [symbol 1].
 
-#[local] Notation rule := ((nat * nat) * (nat * nat))%type.
+#[local] Abbreviation rule := ((nat * nat) * (nat * nat))%type.
 
 Context (rs : list rule).
 

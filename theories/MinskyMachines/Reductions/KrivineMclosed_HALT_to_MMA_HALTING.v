@@ -38,9 +38,9 @@ Module Argument.
 
 #[local] Unset Implicit Arguments.
 
-#[local] Notation mm_instr := (mm_instr (pos 5)).
-#[local] Notation counter := (pos 5).
-#[local] Notation mm_state := (mm_state 5).
+#[local] Abbreviation mm_instr := (mm_instr (pos 5)).
+#[local] Abbreviation counter := (pos 5).
+#[local] Abbreviation mm_state := (mm_state 5).
 
 #[local] Notation "P // s ->> t" := (sss_compute (@mma_sss 5) P s t).
 #[local] Notation "P // s -+> t" := (sss_progress (@mma_sss 5) P s t).
@@ -54,12 +54,12 @@ Lemma vec_change_same' {X : Type} {n : nat} (v : vec X n) (p : pos n) (x : X) :
 Proof. move=> <-. by apply: vec_change_same. Qed.
 
 (* auxiliary counters *)
-#[local] Notation A := (Fin.F1 : counter).
-#[local] Notation B := (Fin.FS (Fin.F1) : counter).
+#[local] Abbreviation A := (Fin.F1 : counter).
+#[local] Abbreviation B := (Fin.FS (Fin.F1) : counter).
 (* data counters *)
-#[local] Notation TS := (Fin.FS (Fin.FS (Fin.F1)) : counter).
-#[local] Notation CTX := (Fin.FS (Fin.FS (Fin.FS (Fin.F1))) : counter).
-#[local] Notation U := (Fin.FS (Fin.FS (Fin.FS (Fin.FS (Fin.F1)))) : counter).
+#[local] Abbreviation TS := (Fin.FS (Fin.FS (Fin.F1)) : counter).
+#[local] Abbreviation CTX := (Fin.FS (Fin.FS (Fin.FS (Fin.F1))) : counter).
+#[local] Abbreviation U := (Fin.FS (Fin.FS (Fin.FS (Fin.FS (Fin.F1)))) : counter).
 
 (* simplify vec_change statements *)
 Definition vec_norm {X Y: counter} (HXY : X <> Y) := (
@@ -699,7 +699,7 @@ Proof.
     + by left.
 Qed.
 
-#[local] Notation all := (fold_right and True).
+#[local] Abbreviation all := (fold_right and True).
 
 Lemma boundS m n : L_facts.bound (S m) (var (S n)) -> L_facts.bound m (var n).
 Proof. move=> /term_facts.boundE ?. constructor. lia. Qed.

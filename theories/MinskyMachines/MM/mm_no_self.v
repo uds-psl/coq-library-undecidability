@@ -192,7 +192,7 @@ Section remove_self_loops.
 
   Variable P : list (mm_instr (pos n)).
 
-  Notation lP := (length P).
+  Abbreviation lP := (length P).
 
   Let R : list (mm_instr (pos (S n))) := 
                                    DEC pos0 0 
@@ -362,13 +362,13 @@ Section remove_self_loops.
               unfold snd in Eq. rewrite Eq.
               split; simpl; auto.
               apply subcode_sss_compute_instr with (2 := H6) (st2 := (1+i,0##w)); auto.
-              ** replace (0##w) with ((0##v)[u/pos_nxt x]); subst; auto; constructor; auto.
+              ** replace (0##w) with ((0##v)[u/(pos_nxt x)]); subst; auto; constructor; auto.
               ** subst i; mm sss DEC zero with pos0 0; mm sss stop.
            -- spec in H5. { simpl in H4 |- *; lia. }
               split. 2: eapply H5.
               eapply subcode_sss_compute_instr with (2 := H6); auto.
               2: eapply H5.
-              replace (0##w) with ((0##v)[u/pos_nxt x]); subst; auto; constructor; auto.
+              replace (0##w) with ((0##v)[u/(pos_nxt x)]); subst; auto; constructor; auto.
   Qed.
 
   Let P_imp_Q s s0 : in_code (fst s) (1,P) -> (1,P) // s ~~> s0 -> (1,Q) // (fst s, 0##snd s) ↓.

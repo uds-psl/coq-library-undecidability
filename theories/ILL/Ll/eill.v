@@ -152,7 +152,7 @@ Section g_eill_complete_bound.
  
   Variable (Σ : list eill_cmd) (Γ : list eill_vars) (n : nat).
 
-  Notation vars := (flat_map eill_cmd_vars Σ ++ Γ).
+  Abbreviation vars := (flat_map eill_cmd_vars Σ ++ Γ).
 
   (* This is a surjection from [0,n-1] into the vars of Si,Ga *)
 
@@ -180,8 +180,8 @@ Section g_eill_complete_bound.
 
   Let s x v := Σ; vec_map_list v rx ⊦ x.
 
-  Notation "⟦ A ⟧" := (ill_tps s A) (at level 65).
-  Notation "'[<' Γ '|-' A '>]'" := (ill_sequent_tps s Γ A) (at level 65).
+  Notation "⟦ A ⟧" := (ill_tps s A) (at level 0).
+  Notation "'[<' Γ '|-' A '>]'" := (ill_sequent_tps s Γ A) (at level 0).
 
   Theorem G_eill_complete_bound x : 
             [< map (fun c => !⦑c⦒) Σ ++ map £ Γ |- £ x >] vec_zero 
@@ -249,7 +249,7 @@ Section g_eill_complete.
  
   Variable (Σ : list eill_cmd) (Γ : list eill_vars).
 
-  Notation vars := (flat_map eill_cmd_vars Σ ++ Γ).
+  Abbreviation vars := (flat_map eill_cmd_vars Σ ++ Γ).
 
   Let vv := nat_sort vars.
 
@@ -293,13 +293,13 @@ Section correctness_results_for_the_reduction.
 
   Variables (Σ : list eill_cmd) (Γ : list eill_vars) (u : nat).
 
-  Notation Σi := (map (fun c => ill_ban ⦑c⦒) Σ).
-  Notation Γi := (map ill_var Γ).
-  Notation ui := (ill_var u).
+  Abbreviation Σi := (map (fun c => ill_ban ⦑c⦒) Σ).
+  Abbreviation Γi := (map ill_var Γ).
+  Abbreviation ui := (ill_var u).
 
-  Notation Σc := (map (fun c => cll_una cll_bang [⦑c⦒]) Σ).
-  Notation Γc := (map cll_var Γ).
-  Notation uc := (cll_var u). 
+  Abbreviation Σc := (map (fun c => cll_una cll_bang [⦑c⦒]) Σ).
+  Abbreviation Γc := (map cll_var Γ).
+  Abbreviation uc := (cll_var u). 
 
   Theorem G_eill_correct : (Σ; Γ ⊦ u -> S_ill_restr (Σi++Γi) ui)
                         /\ (S_ill_restr (Σi++Γi) ui -> S_ill_restr_wc (Σi++Γi) ui)

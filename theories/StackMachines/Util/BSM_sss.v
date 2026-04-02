@@ -38,8 +38,8 @@ Set Implicit Arguments.
 Arguments bsm_pop {n}.
 Arguments bsm_push {n}.
 
-Notation POP  := bsm_pop.
-Notation PUSH := bsm_push.
+Abbreviation POP  := bsm_pop.
+Abbreviation PUSH := bsm_push.
 
 (* ** Semantics for BSM *)
 

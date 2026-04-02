@@ -27,8 +27,8 @@ Set Default Goal Selector "!".
 Section Construction.
 Variable M : list mm2_instr.
 
-#[local] Notation step := (mm2_step M).
-#[local] Notation l := (length M).
+#[local] Abbreviation step := (mm2_step M).
+#[local] Abbreviation l := (length M).
 
 (* characterize reversibility via a finite number of configurations *)
 Lemma finite_characterization : let t := list_prod (seq 1 l) (list_prod [0;1;2] [0;1;2]) in

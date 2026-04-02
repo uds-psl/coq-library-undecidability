@@ -31,7 +31,7 @@ Import Datatypes (id).
 
 Set Default Goal Selector "!".
 
-#[local] Notation step := wCBN_step.
+#[local] Abbreviation step := wCBN_step.
 
 Module Argument.
 

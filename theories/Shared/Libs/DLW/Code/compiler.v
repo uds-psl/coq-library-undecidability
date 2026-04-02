@@ -45,7 +45,7 @@ Section linker.
     rewrite IH; lia.
   Qed.
     
-  Notation lsum := length_compiler.
+  Abbreviation lsum := length_compiler.
 
   Fixpoint link i ll j : list (nat*nat) :=
     match ll with

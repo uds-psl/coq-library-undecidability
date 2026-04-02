@@ -25,7 +25,7 @@ Set Implicit Arguments.
 
 Local Infix "∊" := In (at level 70, no associativity).
 Local Infix "⊑" := incl (at level 70, no associativity). 
-Local Notation ø := vec_nil.
+Local Abbreviation ø := vec_nil.
 
 (* * FSATEQ reduces to FSAT *)
 
@@ -60,8 +60,8 @@ Section remove_interpreted_symbol.
   Variables (Σ : fo_signature) (ls : list (syms Σ)) (lr : list (rels Σ))
             (e : rels Σ) (H_ae : ar_rels _ e = 2) (He : e ∊ lr). 
 
-  Notation 𝕋 := (fol_term Σ).
-  Notation 𝔽 := (fol_form Σ).
+  Abbreviation 𝕋 := (fol_term Σ).
+  Abbreviation 𝔽 := (fol_form Σ).
 
   Notation "x ≡ y" := (@fol_atom Σ e (cast (x##y##ø) (eq_sym H_ae))) (at level 59).
 

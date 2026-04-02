@@ -20,7 +20,7 @@ Notation "x ⊆ y" := (forall z, z ∈ x -> z ∈ y) (at level 34) : ZFsem.
 
 Notation "∅" := (@i_func ZF_func_sig ZF_pred_sig _ _ ZFSignature.eset Vector.nil) : ZFsem.
 Notation "'ω'" := (@i_func ZF_func_sig _ _ _ ZFSignature.om Vector.nil) : ZFsem.
-Notation "{ x ; y }" := (@i_func ZF_func_sig _ _ _ ZFSignature.pair (Vector.cons x (Vector.cons y Vector.nil))) (at level 31) : ZFsem.
+Notation "{ x ; y }" := (@i_func ZF_func_sig _ _ _ ZFSignature.pair (Vector.cons x (Vector.cons y Vector.nil))) (at level 0) : ZFsem.
 Notation "⋃ x" := (@i_func ZF_func_sig _ _ _ ZFSignature.union (Vector.cons x Vector.nil)) (at level 32) : ZFsem.
 Notation "'PP' x" := (@i_func ZF_func_sig _ _ _ ZFSignature.power (Vector.cons x Vector.nil)) (at level 31) : ZFsem.
 

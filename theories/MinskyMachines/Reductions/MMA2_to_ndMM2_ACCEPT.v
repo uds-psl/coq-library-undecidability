@@ -25,18 +25,18 @@ Local Tactic Notation "vec2" hyp(v) "into" ident(x) ident(y) :=
 
 Section MMA2_ndMM2.
 
-  Notation STOPₙ := (@ndmm2_stop _).
-  Notation INCₙ  := (@ndmm2_inc _).
-  Notation DECₙ  := (@ndmm2_dec _).
-  Notation ZEROₙ := (@ndmm2_zero _).
+  Abbreviation STOPₙ := (@ndmm2_stop _).
+  Abbreviation INCₙ  := (@ndmm2_inc _).
+  Abbreviation DECₙ  := (@ndmm2_dec _).
+  Abbreviation ZEROₙ := (@ndmm2_zero _).
 
-  Notation α := true. 
-  Notation β := false.
+  Abbreviation α := true. 
+  Abbreviation β := false.
 
   Infix "∊" := In (at level 70).
   Infix "⊆" := incl (at level 70).
 
-  Notation ø := vec_nil.
+  Abbreviation ø := vec_nil.
 
   Definition pos2_to_bool (p : pos 2) :=
     match p with pos0 => α | _ => β end.
@@ -133,7 +133,8 @@ Section MMA2_ndMM2.
   Variable P : list (mm_instr (pos 2)).
 
   Definition mma2_prog_enc := STOPₙ 0 :: ⟪1,P⟫ₗ.
-  Notation ΣP := mma2_prog_enc.
+
+  Abbreviation ΣP := mma2_prog_enc.
 
   Local Lemma mma2_compute_linstr_sound i a b j a' b'  : 
           (1,P) //ₐ (i,a##b##ø) ->> (j,a'##b'##ø)

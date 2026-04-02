@@ -26,7 +26,7 @@ Set Implicit Arguments.
 
 Local Reserved Notation "⟪ A ⟫'" (at level 0, format "⟪ A ⟫'").
 
-Local Notation ø := vec_nil.
+Local Abbreviation ø := vec_nil.
 
 Section remove_constants.
 
@@ -40,13 +40,13 @@ Section remove_constants.
     + apply ar_rels.
   Defined.
 
-  Notation Σ' := Σrem_cst.
+  Abbreviation Σ' := Σrem_cst.
 
-  Notation 𝕋 := (fol_term Σ).
-  Notation 𝔽 := (fol_form Σ).
+  Abbreviation 𝕋 := (fol_term Σ).
+  Abbreviation 𝔽 := (fol_form Σ).
 
-  Notation 𝕋' := (fol_term Σ').
-  Notation 𝔽' := (fol_form Σ').
+  Abbreviation 𝕋' := (fol_term Σ').
+  Abbreviation 𝔽' := (fol_form Σ').
 
   Implicit Type σ : syms Σ -> nat.
 
@@ -75,7 +75,7 @@ Section remove_constants.
       + apply (fom_rels M).
     Defined.
 
-    Notation M' := Σrem_cst_model.
+    Abbreviation M' := Σrem_cst_model.
 
     Notation "⟪ A ⟫" := (fun φ => fol_sem M φ A).
     Notation "⟪ A ⟫'" := (fun ψ => fol_sem M' ψ A).
@@ -139,7 +139,7 @@ Section remove_constants.
       + apply (fom_rels M').
     Defined.
 
-    Notation M := Σadd_cst_model.
+    Abbreviation M := Σadd_cst_model.
 
     Local Fact completeness σ (A : 𝔽) φ ψ :
             (forall s, In s ls -> In (σ s) (fol_vars A) -> False)

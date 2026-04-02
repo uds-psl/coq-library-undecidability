@@ -19,7 +19,7 @@ From Undecidability.MuRec.Util Require Import recalg recomp prim_min ra_utils.
 Set Implicit Arguments.
 
 Local Notation "'⟦' f '⟧'" := (@ra_rel _ f) (at level 0).
-Local Notation power := (mscal mult 1).
+Local Abbreviation power := (mscal mult 1).
 
 Opaque ra_cst_n ra_iter_n ra_iter ra_prim_min ra_prim_max.
 Opaque ra_plus ra_pred ra_minus ra_mult ra_exp ra_div ra_rem.

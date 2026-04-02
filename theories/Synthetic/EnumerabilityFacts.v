@@ -3,7 +3,7 @@ From Stdlib Require Cantor.
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.
 From Stdlib Require Import Vector List Lia.
 
-Local Notation "'if!' x 'is' p 'then' a 'else' b" := (match x with p => a | _ => b end) (at level 0, p pattern).
+Local Notation "'if!' x 'is' p 'then' a 'else' b" := (match x with p => a | _ => b end) (at level 1, p pattern).
 
 Lemma enumerable_semi_decidable {X} {p : X -> Prop} :
   discrete X -> enumerable p -> semi_decidable p.
@@ -20,7 +20,7 @@ Proof.
 Qed.
 
 Definition enumerator__T' X f := forall x : X, exists n : nat, f n = Some x.
-Notation enumerator__T f X := (enumerator__T' X f).
+Abbreviation enumerator__T f X := (enumerator__T' X f).
 Definition enumerable__T X := exists f : nat -> option X, enumerator__T f X.
 
 Lemma semi_decider_enumerator {X} {p : X -> Prop} {e f} :

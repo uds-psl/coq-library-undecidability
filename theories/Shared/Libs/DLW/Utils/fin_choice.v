@@ -111,7 +111,7 @@ Proof.
   apply pos_eq_dec.
 Qed.
 
-Notation pos_reif := pos_reification.
+Abbreviation pos_reif := pos_reification.
 
 Fact vec_reif X n (R : pos n -> X -> Prop) : (forall p, ex (R p)) -> exists v, forall p, R p (vec_pos v p).
 Proof.
@@ -157,7 +157,7 @@ Section finite_t_dec_choose_one.
   Proof using HX Pdec.
     clear Q HQ.
     revert HX; intros (l & Hl) H.
-    destruct (list_dec_choose_one l) as (x & H1 & H2); firstorder.
+    destruct (list_dec_choose_one l) as (x & H1 & H2); [ firstorder | eauto ].
   Qed.
 
 End finite_t_dec_choose_one.

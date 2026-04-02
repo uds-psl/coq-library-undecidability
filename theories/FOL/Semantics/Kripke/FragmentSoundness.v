@@ -8,7 +8,7 @@ Import ListAutomationNotations ListAutomationHints.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
-Local Notation vec := Vector.t.
+Local Abbreviation vec := Vector.t.
 
 #[local] Ltac comp := repeat (progress (cbn in *; autounfold in *)).
 

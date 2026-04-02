@@ -24,8 +24,8 @@ Set Default Goal Selector "!".
 
 Module Argument.
 
-Notation encode := Cantor.to_nat.
-Notation decode := Cantor.of_nat.
+Abbreviation encode := Cantor.to_nat.
+Abbreviation decode := Cantor.of_nat.
 Opaque Cantor.to_nat Cantor.of_nat.
 
 Section Reduction.

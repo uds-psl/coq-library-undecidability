@@ -164,7 +164,7 @@ Section Fsat.
     Context (decP : forall a b, dec ((a .: b.: rho) ⊨ Pr $0 $1)).
     Context (fini : cListable D).
     
-    Notation iPr t t' := (@i_atom sig_empty sig_binary D _ tt (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))).
+    Abbreviation iPr t t' := (@i_atom sig_empty sig_binary D _ tt (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))).
     Notation "a # b" := (iPr a b) (at level 50).
     (* First, we re-state our syntactic sugar and prove conversion helpers *)
     Definition iN a := a # a.
@@ -986,10 +986,10 @@ Section result.
     + exact H.
   Qed.
 
-  Notation FSAT_frag := Fragment.FSAT.
-  Notation FSATd_frag := Fragment.FSATd.
-  Notation FSATdc_frag := Fragment.FSATdc.
-  Notation FVAL_frag := Fragment.FVAL.
+  Abbreviation FSAT_frag := Fragment.FSAT.
+  Abbreviation FSATd_frag := Fragment.FSATd.
+  Abbreviation FSATdc_frag := Fragment.FSATdc.
+  Abbreviation FVAL_frag := Fragment.FVAL.
 
 
   (* Reduce from FSAT to FSAT_frag using double negation translation. *)

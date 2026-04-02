@@ -19,14 +19,14 @@ From Undecidability.Shared.Libs.DLW.Vec
 Set Implicit Arguments.
 Set Default Goal Selector "!".
 
-Notation vec_nil := (@Vector.nil _).
+Abbreviation vec_nil := (@Vector.nil _).
 Notation "x ## v" := (@Vector.cons _ x _ v) (at level 60, right associativity).
 
 Section vector.
 
   Variable X : Type.
 
-  Notation vec := (@Vector.t X).
+  Abbreviation vec := (@Vector.t X).
 
 (* @DLW: former definition
 
@@ -262,8 +262,8 @@ Section vector.
 
 End vector.
 
-Notation vec := Vector.t.
-Notation vec_cons := (fun x => @Vector.cons _ x _).
+Abbreviation vec := Vector.t.
+Abbreviation vec_cons := (fun x => @Vector.cons _ x _).
 
 Fact in_vec_pos X n (v : vec X n) p : in_vec (vec_pos v p) v.
 Proof. revert p; induction v; intros p; invert pos p; auto. Qed.

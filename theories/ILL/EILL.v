@@ -19,16 +19,16 @@ Set Implicit Arguments.
 
 Local Infix "~p" := (@Permutation _) (at level 70).
 
-Notation eill_vars := nat.
+Abbreviation eill_vars := nat.
 
 Inductive eill_cmd : Set :=
   | in_eill_cmd_inc  : eill_vars -> eill_vars -> eill_vars -> eill_cmd
   | in_eill_cmd_dec  : eill_vars -> eill_vars -> eill_vars -> eill_cmd
   | in_eill_cmd_fork : eill_vars -> eill_vars -> eill_vars -> eill_cmd.
 
-Notation LL_INC  := in_eill_cmd_inc.
-Notation LL_DEC  := in_eill_cmd_dec.
-Notation LL_FORK := in_eill_cmd_fork.
+Abbreviation LL_INC  := in_eill_cmd_inc.
+Abbreviation LL_DEC  := in_eill_cmd_dec.
+Abbreviation LL_FORK := in_eill_cmd_fork.
 
 Definition eill_cmd_vars c := 
   match c with

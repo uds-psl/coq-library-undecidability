@@ -21,8 +21,8 @@ Local Unset Strict Implicit.
 
 Local Hint Constructors prv : core.
 
-#[local] Notation term' := (term sig_empty).
-#[local] Notation form' := (form sig_empty _ _ falsity_on).
+#[local] Abbreviation term' := (term sig_empty).
+#[local] Abbreviation form' := (form sig_empty _ _ falsity_on).
 
 Definition embed_t' (t : term') : term :=
   match t with

@@ -70,7 +70,7 @@ Section gfp.
 
   Definition gfp x y := forall n, i n x y.
 
-  Notation I := (@eq M).
+  Abbreviation I := (@eq M).
 
   Hypothesis HF1 : I ⊆ F I.    (* Reflexivity *)
 

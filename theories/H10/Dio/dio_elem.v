@@ -143,8 +143,8 @@ Section diophantine_system.
     | dee_par  : nat -> dio_elem_expr   (* p : parameter *)
     | dee_comp : dio_op -> nat -> nat -> dio_elem_expr. (* v1 op v2 *)
 
-  Notation dee_add := (dee_comp do_add).
-  Notation dee_mul := (dee_comp do_mul).
+  Abbreviation dee_add := (dee_comp do_add).
+  Abbreviation dee_mul := (dee_comp do_mul).
 
   Definition dee_eval φ ν e := 
     match e with

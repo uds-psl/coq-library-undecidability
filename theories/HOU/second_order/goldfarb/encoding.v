@@ -19,8 +19,8 @@ Definition ag : Const :=
 
   |}.
 
-Notation g := (@const ag None).
-Notation a := (@const ag (Some None)).
+Abbreviation g := (@const ag None).
+Abbreviation a := (@const ag (Some None)).
 
 Lemma typing_a Gamma: Gamma ⊢(2) a : alpha.
 Proof. econstructor; cbn; auto. Qed.
@@ -97,7 +97,7 @@ End Linearization.
 
 Section Encoding.
 
-  Notation Succ := (g a).
+  Abbreviation Succ := (g a).
   Definition enc n s := lin (repeat a n) s.
   Definition encodes s n :=  forall t delta, (ren delta s) t ≡ enc n t.
 
@@ -233,7 +233,7 @@ End Encoding.
 
 
 Arguments enc : simpl never.
-Notation Succ := (g a).
+Abbreviation Succ := (g a).
 
 (* ** Characteristic Equation **)
 Lemma normal_forms_encodes s:
@@ -403,7 +403,7 @@ Section Equations.
   Notation "s ::: t" := (Cons s t) (at level 62).
   Definition Nil := a.
   Definition Pair s t := g s t.
-  Notation "⟨ s , t ⟩" := (Pair s t) (at level 60).
+  Notation "⟨ s , t ⟩" := (Pair s t) (at level 0).
 
   Definition varEQ x: eq ag :=
     (lambda lambda var (2 + F x) (Succ (var 1)), lambda lambda Succ (var (2 + F x) (var 1))).
@@ -425,7 +425,7 @@ Section Equations.
     | x *ₑ y =ₑ z => [varEQ x; varEQ y; varEQ z; mulEQ x y z]
     end.
 
-  Notation Eqs E  := (flat_map eqs E).
+  Abbreviation Eqs E  := (flat_map eqs E).
 
   Lemma in_Equations q E:
     q ∈ Eqs E <-> (exists e, e ∈ E /\ q ∈ eqs e).
@@ -434,9 +434,9 @@ Section Equations.
   Qed.
 
 End Equations.
-Notation Eqs E  := (flat_map eqs E).
+Abbreviation Eqs E  := (flat_map eqs E).
 Notation "s ::: t" := (Cons s t) (at level 62).
-Notation "⟨ s , t ⟩" := (Pair s t) (at level 60).
+Notation "⟨ s , t ⟩" := (Pair s t) (at level 0).
 
 Section Typing.
 

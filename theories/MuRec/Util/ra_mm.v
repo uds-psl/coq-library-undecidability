@@ -26,12 +26,16 @@ Local Notation "i /e/ s '-1>' t" := (mm_sss_env eq_nat_dec i s t)  (at level 70,
 Local Notation "P /e/ s ->> t" := (sss_compute (mm_sss_env eq_nat_dec) P s t) (at level 70, no associativity).
 Local Notation "P /e/ s ~~> t" := (sss_output (mm_sss_env eq_nat_dec) P s t) (at level 70, no associativity).
 Local Notation "P /e/ s -[ k ]-> t" := (sss_steps (mm_sss_env eq_nat_dec) P k s t) (at level 70, no associativity).
+
+#[warning="-postfix-notation-not-level-1"]
 Local Notation "P /e/ s ↓" := (sss_terminates (mm_sss_env eq_nat_dec) P s) (at level 70, no associativity).
 
 Local Notation "i /v/ s '-1>' t" := (@mm_sss _ i s t)  (at level 70, no associativity).
 Local Notation "P /v/ s ->> t" := (sss_compute (@mm_sss _) P s t) (at level 70, no associativity).
 Local Notation "P /v/ s ~~> t" := (sss_output (@mm_sss _) P s t) (at level 70, no associativity).
 Local Notation "P /v/ s -[ k ]-> t" := (sss_steps (@mm_sss _) P k s t) (at level 70, no associativity).
+
+#[warning="-postfix-notation-not-level-1"]
 Local Notation "P /v/ s ↓" := (sss_terminates (@mm_sss _) P s) (at level 70, no associativity). 
 
 Local Notation " e ⇢ x " := (@get_env _ _ e x).

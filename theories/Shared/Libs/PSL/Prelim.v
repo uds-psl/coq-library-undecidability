@@ -14,5 +14,5 @@ Global Unset Strict Implicit.
 Global Unset Printing Records.
 Global Unset Printing Implicit Defensive.
 
-Notation injective := Finite.Injective.
-Notation surjective := Finite.Surjective.
+Abbreviation injective := Finite.Injective.
+Abbreviation surjective := Finite.Surjective.

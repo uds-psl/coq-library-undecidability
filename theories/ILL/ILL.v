@@ -22,7 +22,7 @@ Local Infix "~p" := (@Permutation _) (at level 70).
     - full fragment with or without cut
 *)
 
-Notation ill_vars := nat.
+Abbreviation ill_vars := nat.
 
 Inductive ill_connective := ill_with | ill_limp | ill_times | ill_plus.
 Inductive ill_constant := ill_1 | ill_bot | ill_top.
@@ -46,11 +46,11 @@ Module ILL_notations.
   Infix "⊕" := (ill_bin ill_plus) (at level 50).
   Infix "⊸" := (ill_bin ill_limp) (at level 51, right associativity).
 
-  Notation "'!' x" := (ill_ban x) (at level 52).
+  Notation "'!' x" := (ill_ban x) (at level 1).
 
   Notation "£" := ill_var.
 
-  Notation "‼ x" := (map ill_ban x) (at level 60).
+  Notation "‼ x" := (map ill_ban x) (at level 1).
 
   Notation "∅" := nil (only parsing).
 

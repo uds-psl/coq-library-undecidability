@@ -130,9 +130,9 @@ Defined.
 
 (* Instance equiv_D : equiv D. *)
 
-Notation V s ρ := (eval D ρ s).
-Notation K s ρ := (M (V s ρ)).
-Notation E s ρ := (R (V s ρ)).
+Abbreviation V s ρ := (eval D ρ s).
+Abbreviation K s ρ := (M (V s ρ)).
+Abbreviation E s ρ := (R (V s ρ)).
 
 (* ** Reducibility Candidates  *)
 

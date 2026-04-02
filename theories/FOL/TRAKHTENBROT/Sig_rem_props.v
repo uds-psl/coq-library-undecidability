@@ -26,7 +26,7 @@ Set Implicit Arguments.
 
 Local Reserved Notation "⟪ A ⟫'" (at level 0, format "⟪ A ⟫'").
 
-Local Notation ø := vec_nil.
+Local Abbreviation ø := vec_nil.
 
 Section remove_constants.
 
@@ -39,7 +39,7 @@ Section remove_constants.
     + exact (fun _ => 1).
   Defined.
 
-  Notation Σ' := Σno_props.
+  Abbreviation Σ' := Σno_props.
 
   Implicit Type (A : fol_form Σ).
 

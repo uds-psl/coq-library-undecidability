@@ -31,7 +31,7 @@ Import fol_notations.
 
 Local Infix "∊" := In (at level 70, no associativity).
 Local Infix "⊑" := incl (at level 70, no associativity).
-Local Notation ø := vec_nil.
+Local Abbreviation ø := vec_nil.
 
 Local Infix "≢" := discernable (at level 70, no associativity).
 Local Infix "≡" := undiscernable (at level 70, no associativity).

@@ -183,7 +183,7 @@ Qed.
 Fact nthprime_0 : nthprime 0 = 2.
 Proof. auto. Qed.
 
-Local Ltac nth_prime_tac H := 
+#[local] Ltac nth_prime_tac H := 
   apply nthprime_nxt with (1 := H);
   apply nxtprime_bool_spec; auto.
 
@@ -266,7 +266,7 @@ Proof.
     replace (n+S i) with (S (n+i)) by lia; ring.
 Qed.
 
-Local Notation divides_mult_inv := prime_div_mult.
+#[local] Abbreviation divides_mult_inv := prime_div_mult.
 
 Lemma not_prime_1 : ~ prime 1.
 Proof. intros [ [] ]; auto. Qed.

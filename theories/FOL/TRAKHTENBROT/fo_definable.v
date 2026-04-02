@@ -24,7 +24,7 @@ Set Implicit Arguments.
 
 (* * First order definability and closure properties *)
 
-Notation ø := vec_nil.
+Abbreviation ø := vec_nil.
 
 Opaque fo_term_subst fo_term_map fo_term_sem.
 

@@ -80,8 +80,8 @@ Arguments dp_comp {V P}.
 
 Module dionat := dio_single.
 
-Notation dp_sq a := (dp_comp do_mul a a).
-Notation sq a := (a * a)%Z.
+Abbreviation dp_sq a := (dp_comp do_mul a a).
+Abbreviation sq a := (a * a)%Z.
 
 Fixpoint to_Z_poly E n (p : dionat.dio_polynomial (pos n) E) : dio_polynomial (pos (n * 4)) E :=
   match p with

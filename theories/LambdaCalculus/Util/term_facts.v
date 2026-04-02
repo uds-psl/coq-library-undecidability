@@ -39,11 +39,11 @@ Fixpoint term_size (M : term) :=
   | lam M' => 1 + term_size M'
   end.
 
-#[local] Notation sn := (Acc (fun x y => step y x)).
-#[local] Notation rt_steps := (clos_refl_trans _ step).
-#[local] Notation t_steps := (clos_trans _ step).
-#[local] Notation many_app M Ns := (fold_left app Ns M).
-#[local] Notation lams k M := (Nat.iter k lam M).
+#[local] Abbreviation sn := (Acc (fun x y => step y x)).
+#[local] Abbreviation rt_steps := (clos_refl_trans _ step).
+#[local] Abbreviation t_steps := (clos_trans _ step).
+#[local] Abbreviation many_app M Ns := (fold_left app Ns M).
+#[local] Abbreviation lams k M := (Nat.iter k lam M).
 
 Lemma P_equal {X : Type} (P : X -> Prop) x1 x2 : P x1 -> x2 = x1 -> P x2.
 Proof. congruence. Qed.
@@ -1078,11 +1078,11 @@ Qed.
 
 Module TermNotations.
 (* strong normalization *)
-Notation sn := (Acc (fun x y => step y x)).
+Abbreviation sn := (Acc (fun x y => step y x)).
 (* reflexive, transite closure of step *)
-Notation rt_steps := (clos_refl_trans _ step).
+Abbreviation rt_steps := (clos_refl_trans _ step).
 (* transite closure of step *)
-Notation t_steps := (clos_trans _ step).
+Abbreviation t_steps := (clos_trans _ step).
 (* iterated term application *)
-Notation many_app M Ns := (fold_left app Ns M).
+Abbreviation many_app M Ns := (fold_left app Ns M).
 End TermNotations.

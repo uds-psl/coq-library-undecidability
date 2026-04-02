@@ -14,7 +14,7 @@ From Undecidability.Shared.Libs.DLW
 
 Set Implicit Arguments.
 
-Local Notation power := (mscal mult 1).
+Local Abbreviation power := (mscal mult 1).
 
 Section div_mult.
 

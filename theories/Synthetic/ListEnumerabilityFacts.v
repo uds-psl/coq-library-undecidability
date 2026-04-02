@@ -36,7 +36,7 @@ Definition list_enumerable {X} (p : X -> Prop) :=
   exists L, list_enumerator L p.
 
 Definition list_enumerator__T' X f := forall x : X, exists n : nat, In x (f n).
-Notation list_enumerator__T f X := (list_enumerator__T' X f).
+Abbreviation list_enumerator__T f X := (list_enumerator__T' X f).
 Definition list_enumerable__T X := exists f : nat -> list X, list_enumerator__T f X.
 Definition inf_list_enumerable__T X := { f : nat -> list X | list_enumerator__T f X }.
 
@@ -188,7 +188,7 @@ Proof.
   intros. now rewrite <- to_cumul_spec.
 Qed.
 
-Notation cumul := (to_cumul).
+Abbreviation cumul := to_cumul.
 
 Section L_list_def.
   Context {X : Type}.

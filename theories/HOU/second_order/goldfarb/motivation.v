@@ -10,7 +10,7 @@ Section Motivation.
   Implicit Type (m p: nat) (M N: list (nat * nat)).
 
   Definition step '(a, b) := (n + a, 1 + b).
-  Notation Step X := (map step X).
+  Abbreviation Step X := (map step X).
   Definition t k := (k * n, k).
   Definition T k := tab t k.
   Definition Mrel m p M := M ++ [(p, m)] = t 0 :: Step M.

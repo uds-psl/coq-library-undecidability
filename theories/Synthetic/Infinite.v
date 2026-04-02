@@ -16,7 +16,7 @@ Proof.
   apply constructive_indefinite_ground_description_nat. 
 Defined.
 
-Notation mu' d H := (proj1_sig (mu d H)).
+Abbreviation mu' d H := (proj1_sig (mu d H)).
 
 Lemma mu_least (p : nat -> Prop) (d : forall x, dec (p x)) (H : ex p) :
   forall n, p n -> mu' d H <= n.

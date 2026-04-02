@@ -23,7 +23,7 @@ Section Semantics.
   Hint Constructors step star : core.
   
   Notation "s ▷ t" := (evaluates step s t) (at level 60).
-  Notation normal := (Normal step).
+  Abbreviation normal := (Normal step).
 
 
   (* ** Compatibility Properties *)
@@ -273,7 +273,7 @@ End Semantics.
 Notation "s > t" := (step s t) (at level 70).
 Notation "s >* t" := (star step s t) (at level 70).
 Notation "s ▷ t" := (evaluates step s t) (at level 60).
-Notation normal := (Normal step).
+Abbreviation normal := (Normal step).
 
 #[export] Hint Constructors step star : core.
 

@@ -13,17 +13,17 @@ Set Default Goal Selector "!".
 
 #[local] Notation "P // s -[ k ]-> t" := (sss_steps (@bsm_sss _) P k s t).
 #[local] Notation "P // s ->> t" := (sss_compute (@bsm_sss _) P s t).
-#[local] Notation CURR := (@Fin.FS 3 (@Fin.F1 2)).
-#[local] Notation LEFT := (@Fin.F1 3).
-#[local] Notation RIGHT := (@Fin.FS 3 (@Fin.FS 2 (@Fin.F1 1))).
-#[local] Notation ZERO := (@Fin.FS 3 (@Fin.FS 2 (@Fin.FS 1 (@Fin.F1 0)))).
+#[local] Abbreviation CURR := (@Fin.FS 3 (@Fin.F1 2)).
+#[local] Abbreviation LEFT := (@Fin.F1 3).
+#[local] Abbreviation RIGHT := (@Fin.FS 3 (@Fin.FS 2 (@Fin.F1 1))).
+#[local] Abbreviation ZERO := (@Fin.FS 3 (@Fin.FS 2 (@Fin.FS 1 (@Fin.F1 0)))).
 
 Section Construction.
 
   (* Shift by shift to the right*)
   Context (M : SBTM) (q0 : state M) (shift : nat).
 
-  #[local] Notation δ := (trans' M).
+  #[local] Abbreviation δ := (trans' M).
 
   Definition c := 13.
 
@@ -42,12 +42,12 @@ Section Construction.
 
   Definition encode_config '(q, t) : bsm_state 4 := (!q, encode_tape t).
 
-  #[local] Notation JMP i := (POP ZERO i i).
+  #[local] Abbreviation JMP i := (POP ZERO i i).
 
   (* Jump to after Program *)
-  Notation POST_TRUE := (1 + shift + c * (num_states M)).
-  Notation POST_FALSE := (3 + shift + c * (num_states M)).
-  Notation END := (5 + shift + c * (num_states M)).
+  Abbreviation POST_TRUE := (1 + shift + c * (num_states M)).
+  Abbreviation POST_FALSE := (3 + shift + c * (num_states M)).
+  Abbreviation END := (5 + shift + c * (num_states M)).
 
   Definition box '(q, a) (f : (state M * bool * direction) -> bsm_instr 4) : bsm_instr 4 :=
     match δ (q, a) with

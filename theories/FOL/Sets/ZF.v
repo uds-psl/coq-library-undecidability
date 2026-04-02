@@ -22,7 +22,7 @@ Notation "x ≡ y" := (atom (Σ_preds := ZF_pred_sig) equal ([x; y])) (at level 
 
 Notation "∅" := (func ZF_func_sig eset ([])) : ZFsyn.
 Notation "'ω'" := (func ZF_func_sig om ([])) : ZFsyn.
-Notation "{ x ; y }" := (func ZF_func_sig pair ([x; y])) (at level 31) : ZFsyn.
+Notation "{ x ; y }" := (func ZF_func_sig pair ([x; y])) (at level 0) : ZFsyn.
 Notation "⋃ x" := (func ZF_func_sig union ([x])) (at level 32) : ZFsyn.
 Notation "'PP' x" := (func ZF_func_sig power ([x])) (at level 31) : ZFsyn.
 Notation "x ∪ y" := (⋃ {x; y}) (at level 32) : ZFsyn.

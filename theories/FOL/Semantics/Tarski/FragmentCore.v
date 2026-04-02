@@ -8,7 +8,7 @@ Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
 
-Local Notation vec := Vector.t.
+Local Abbreviation vec := Vector.t.
 
 Import FragmentSyntax.
 Export FragmentSyntax.

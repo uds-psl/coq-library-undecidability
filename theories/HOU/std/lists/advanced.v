@@ -3,7 +3,8 @@ Import ListNotations.
 From Undecidability.HOU Require Import std.tactics std.lists.basics std.decidable. 
 
 (* nth *)
-Notation nth := nth_error. 
+Abbreviation nth := nth_error. 
+
 Section Nth.
 
   Variable (X Y: Type).

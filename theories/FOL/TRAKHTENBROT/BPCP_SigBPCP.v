@@ -34,16 +34,16 @@ Set Implicit Arguments.
 
 (* * Reduction from BPCP to specialized FSAT *)
 
-Local Notation ø := vec_nil.
+Local Abbreviation ø := vec_nil.
 
 Section BPCP_FIN_DEC_EQ_SAT.
 
   Variable lc : list (list bool * list bool).  (* A BPCP instance *)
 
-  Notation 𝕋 := (fol_term Σbpcp).
-  Notation 𝔽 := (fol_form Σbpcp).
+  Abbreviation 𝕋 := (fol_term Σbpcp).
+  Abbreviation 𝔽 := (fol_form Σbpcp).
 
-  Notation e := (@in_fot _ (ar_syms Σbpcp) Σbpcp_unit ø).
+  Abbreviation e := (@in_fot _ (ar_syms Σbpcp) Σbpcp_unit ø).
   Notation "∗" := (@in_fot _ (ar_syms Σbpcp) Σbpcp_undef ø).
   Notation "b ⤚ x" := (@in_fot _ (ar_syms Σbpcp) (Σbpcp_bool b) (x##ø)) (at level 51, right associativity, format "b ⤚ x").
 
@@ -66,7 +66,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
     simpl; rewrite app_nil_r; auto.
   Qed.
 
-  Notation lb2term := (fun l => l⤜e).
+  Abbreviation lb2term := (fun l => l⤜e).
 
   Local Definition phi_P      := ∀₁∀₁ £1 ⧓ £0 ⤑ £1 ≢ ∗ ⟑ £0 ≢ ∗.
 
@@ -167,8 +167,8 @@ Section BPCP_FIN_DEC_EQ_SAT.
 
     Hint Resolve Σbpcp_model_dec : core.
 
-    Notation sem_sym  := (fom_syms Σbpcp_model).
-    Notation sem_pred := (fom_rels Σbpcp_model).
+    Abbreviation sem_sym  := (fom_syms Σbpcp_model).
+    Abbreviation sem_pred := (fom_rels Σbpcp_model).
 
     Notation "⟦ t ⟧" := (fun φ => fo_term_sem Σbpcp_model φ t).
     Notation "⟪ A ⟫" := (fun φ => fol_sem Σbpcp_model φ A).
@@ -355,8 +355,8 @@ Section BPCP_FIN_DEC_EQ_SAT.
              (He : forall x y, fom_rels M Σbpcp_eq (x##y##ø) <-> x = y)
              .
 
-    Notation sem_sym := (fom_syms M).
-    Notation sem_pred := (fom_rels M).
+    Abbreviation sem_sym := (fom_syms M).
+    Abbreviation sem_pred := (fom_rels M).
 
     Notation "⟦ t ⟧" := (fun φ => fo_term_sem M φ t).
     Notation "⟪ A ⟫" := (fun φ => fol_sem M φ A).
@@ -370,7 +370,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
 
     Variable (φ : nat -> X) (model : ⟪ Σbpcp_encode ⟫ φ).
 
-    Notation ε := (@sem_sym Σbpcp_unit ø).
+    Abbreviation ε := (@sem_sym Σbpcp_unit ø).
     Notation "⋇" := (@sem_sym Σbpcp_undef ø).
 
     Let f b x := (@sem_sym (Σbpcp_bool b) (x##ø)).

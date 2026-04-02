@@ -43,7 +43,10 @@ From Undecidability.FRACTRAN Require Import fractran_utils prime_seq mm_fractran
 (* This is somewhat for direct proof that does not involve
     testing for (0,_) in the intermediate Fractran program *)
 
+#[warning="-postfix-notation-not-level-1"]
 Local Notation "P /MM/ s ↓" := (sss_terminates (@mm_sss _) P s) (at level 70, no associativity). 
+
+#[warning="-postfix-notation-not-level-1"]
 Local Notation "P /MMA/ s ↓" := (sss_terminates (@mma_sss 2) P s) (at level 70, no associativity). 
 
 Theorem mm_mma2 n (P : list (mm_instr (pos n))) : 

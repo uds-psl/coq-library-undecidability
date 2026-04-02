@@ -576,7 +576,7 @@ Section discrete_quotient.
     
     Definition fo_bisimilar_formula := fol_subst (fun n => match n with 0 => £1 | _ => £0 end) A.
 
-    Notation ξ := fo_bisimilar_formula.
+    Abbreviation ξ := fo_bisimilar_formula.
 
     Fact fo_bisimilar_formula_vars : fol_vars ξ ⊑ 0::1::nil.
     Proof.
@@ -638,8 +638,8 @@ Section counter_model_to_class_FO_definability.
   Let M_dec : fo_model_dec M.
   Proof. intros [] ?; apply bool_dec. Qed.
 
-  Notation α := true.
-  Notation β := false.
+  Abbreviation α := true.
+  Abbreviation β := false.
 
   (* A projection of M onto itself which swaps α/β *)
 

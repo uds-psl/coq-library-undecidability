@@ -142,6 +142,8 @@ Section Elimination.
         * constructor. apply term_ind. exact IHv.
   Qed.
 
+  #[global] Register Scheme term_ind as ind_dep for term.
+
   Lemma term_ind' (p : term -> Prop) :
     (forall n, p (var_indi n))
     -> (forall ar (f : function ar) v (IH : Forall p v), p (func f v))

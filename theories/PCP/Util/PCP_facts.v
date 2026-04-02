@@ -261,7 +261,7 @@ Section pcp_hand_dec.
 
   Variable (X : Type) (lc : list (list X * list X)).
 
-  Notation pcp_hand := (fun s t => lc ⊳ s∕t).
+  Abbreviation pcp_hand := (fun s t => lc ⊳ s∕t).
 
   (* Any hand is either a card or of the for x++p/y++q where
       x/y is a non-void card and p/q is a hand *)

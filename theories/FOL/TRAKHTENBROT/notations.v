@@ -28,7 +28,7 @@ Definition de_bruijn_ext {X} (ν : nat -> X) x :=
   end.
 
 Notation "x · ν" := (de_bruijn_ext ν x) (at level 2, format "x · ν", right associativity).
-Notation "ν ⭳" := (fun n => ν (S n)) (at level 2, format "ν ⭳", no associativity).
+Notation "ν ⭳" := (fun n => ν (S n)) (at level 1, format "ν ⭳", no associativity).
 
 Fact de_bruijn_ext_proj X (ν : nat -> X) x n : (x·ν)⭳ n = ν n.
 Proof. reflexivity. Qed.

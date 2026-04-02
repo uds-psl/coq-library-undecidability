@@ -129,10 +129,10 @@ Import Facts.
 Section Construction.
 Variable M : list mm2_instr.
 
-#[local] Notation bounded := (MM2.mm2_bounded M).
-#[local] Notation step := (MM2.mm2_step M).
-#[local] Notation reaches := (clos_refl_trans _ step).
-#[local] Notation trace := (MM2.mm2_trace M).
+#[local] Abbreviation bounded := (MM2.mm2_bounded M).
+#[local] Abbreviation step := (MM2.mm2_step M).
+#[local] Abbreviation reaches := (clos_refl_trans _ step).
+#[local] Abbreviation trace := (MM2.mm2_trace M).
 
 #[local] Arguments Nat.min !n !m /.
 
@@ -452,7 +452,7 @@ Proof.
   rewrite shift_path_b. by apply: NoDup_map_inv.
 Qed.
 
-#[local] Notation l := (length M).
+#[local] Abbreviation l := (length M).
 
 Lemma fixed_decision K :
   {forall x : mm2_state, bounded K x} + {~ (forall x : mm2_state, bounded K x)}.

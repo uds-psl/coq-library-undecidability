@@ -101,13 +101,13 @@ Module MMA_MMA_mon.
 Section FixedMMA.
 Context {k k' : nat}.
 
-#[local] Notation num_counters := ((1 + k) + k').
-#[local] Notation num_counters' := ((1 + k) + (k' + 1)).
+#[local] Abbreviation num_counters := ((1 + k) + k').
+#[local] Abbreviation num_counters' := ((1 + k) + (k' + 1)).
 
 Context {P : list (mm_instr (pos num_counters))}.
 
 (* auxiliary result counter *)
-#[local] Notation F1' := (pos_right (1 + k) (pos_right k' Fin.F1)).
+#[local] Abbreviation F1' := (pos_right (1 + k) (pos_right k' Fin.F1)).
 
 Definition shift_counter (X : pos num_counters) : pos num_counters' :=
   match pos_both _ _ X with
@@ -335,8 +335,8 @@ Proof.
   by rewrite vec_change_F1' -!vec_app_eq.
 Qed.
 
-#[local] Notation step1 := (sss_step (@mma_sss num_counters) (1, P)).
-#[local] Notation step2 := (sss_step (@mma_sss num_counters') (1, P')).
+#[local] Abbreviation step1 := (sss_step (@mma_sss num_counters) (1, P)).
+#[local] Abbreviation step2 := (sss_step (@mma_sss num_counters') (1, P')).
 
 Lemma fstep s t s' : step1 s t -> sync s s' ->
   exists t', clos_trans _ step2 s' t' /\ sync t t'.

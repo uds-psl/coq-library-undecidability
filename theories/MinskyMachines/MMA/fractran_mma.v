@@ -24,15 +24,19 @@ Set Implicit Arguments.
 
 Tactic Notation "rew" "length" := autorewrite with length_db.
 
-Local Notation ø := vec_nil.
+Local Abbreviation ø := vec_nil.
 
 Local Notation "P //ₐ s -+> t" := (sss_progress (@mma_sss _) P s t) (at level 70, no associativity).
 Local Notation "P //ₐ s ->> t" := (sss_compute (@mma_sss _) P s t) (at level 70, no associativity).
 Local Notation "P //ₐ s ~~> t" := (sss_output (@mma_sss _) P s t) (at level 70, no associativity).
-Local Notation "P //ₐ s ↓" := (sss_terminates (@mma_sss _) P s) (at level 70, no associativity). 
+
+#[warning="-postfix-notation-not-level-1"]
+  Local Notation "P //ₐ s ↓" := (sss_terminates (@mma_sss _) P s) (at level 70, no associativity). 
 
 Local Notation "Q /F/ x ≻ y" := (fractran_step Q x y) (at level 70, no associativity).
-Local Notation "Q /F/ x ⊁ *" := (fractran_stop Q x) (at level 70, no associativity).
+
+#[warning="-postfix-notation-not-level-1"]
+  Local Notation "Q /F/ x ⊁ *" := (fractran_stop Q x) (at level 70, no associativity).
 
 (* FRACTRAN with two counter *)
 
@@ -42,16 +46,16 @@ Section Fractran_with_two_counters.
   Hint Rewrite mma_jump_length mma_null_length mma_transfert_length mma_incs_length mma_decs_copy_length 
                mma_mult_cst_length mma_decs_length mma_mod_cst_length mma_div_cst_length : length_db.
 
-  Notation JUMPₐ := mma_jump.
-  Notation NULLₐ := mma_null.
-  Notation TRANSFERTₐ := mma_transfert.
-  Notation INCSₐ := mma_incs.
-  Notation DECSₐ := mma_decs.
-  Notation DECS_COPYₐ := mma_decs_copy.
-  Notation MULT_CSTₐ := mma_mult_cst.
-  Notation MOD_CSTₐ := mma_mod_cst.
-  Notation DIV_CSTₐ := mma_div_cst.
-  Notation LOOPₐ := mma_loop.
+  Abbreviation JUMPₐ := mma_jump.
+  Abbreviation NULLₐ := mma_null.
+  Abbreviation TRANSFERTₐ := mma_transfert.
+  Abbreviation INCSₐ := mma_incs.
+  Abbreviation DECSₐ := mma_decs.
+  Abbreviation DECS_COPYₐ := mma_decs_copy.
+  Abbreviation MULT_CSTₐ := mma_mult_cst.
+  Abbreviation MOD_CSTₐ := mma_mod_cst.
+  Abbreviation DIV_CSTₐ := mma_div_cst.
+  Abbreviation LOOPₐ := mma_loop.
 
   Let src : pos 2 := pos0.
   Let dst : pos 2 := pos1.
@@ -67,13 +71,13 @@ Section Fractran_with_two_counters.
 
     Variables (p q : nat) (j i : nat).
 
-    Notation i0 := i.
-    Notation i1 := (5+p+i0).
-    Notation i2 := (6+4*q+i1).
-    Notation i3 := (5+3*q+i2). 
-    Notation i4 := (3+i3).
-    Notation i5 := (2+i4). 
-    Notation i6 := (5+3*p+i5). 
+    Abbreviation i0 := i.
+    Abbreviation i1 := (5+p+i0).
+    Abbreviation i2 := (6+4*q+i1).
+    Abbreviation i3 := (5+3*q+i2). 
+    Abbreviation i4 := (3+i3).
+    Abbreviation i5 := (2+i4). 
+    Abbreviation i6 := (5+3*p+i5). 
 
     Definition mma_fractran_one :=
            MULT_CSTₐ src dst p i0
@@ -158,7 +162,7 @@ Section Fractran_with_two_counters.
 
   End mma_fractran_one.
 
-  Notation FRAC_ONEₐ := mma_fractran_one.
+  Abbreviation FRAC_ONEₐ := mma_fractran_one.
 
   Hint Rewrite mma_fractran_one_length : length_db.
 
@@ -175,7 +179,7 @@ Section Fractran_with_two_counters.
                       in  P ++ mma_fractran_step Q (length P+i)
       end.
 
-    Notation FRAC_STEPₐ := mma_fractran_step.
+    Abbreviation FRAC_STEPₐ := mma_fractran_step.
 
     Fact mma_fractran_step_success_progress Q i x y : 
             fractran_regular Q
@@ -284,7 +288,7 @@ Section Fractran_with_two_counters.
 
     Definition fractran_mma0 := P ++ NULLₐ src (length P + 1) ++ JUMPₐ 0 src.
 
-    Notation FRAC_MMAₐ := fractran_mma0.
+    Abbreviation FRAC_MMAₐ := fractran_mma0.
 
     Let fmma0_1 x : (1,FRAC_MMAₐ) //ₐ (length P+1,x##0##ø) -+> (0,0##0##ø).
     Proof.

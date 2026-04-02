@@ -19,7 +19,7 @@ Inductive cll_connective := cll_with | cll_plus | cll_limp | cll_times | cll_par
 Inductive cll_constant := cll_1 | cll_0 | cll_bot | cll_top.
 Inductive cll_modality := cll_bang | cll_qmrk | cll_neg.
 
-Notation cll_vars := nat.
+Abbreviation cll_vars := nat.
 
 Inductive cll_form : Set :=
   | cll_var  : cll_vars -> cll_form

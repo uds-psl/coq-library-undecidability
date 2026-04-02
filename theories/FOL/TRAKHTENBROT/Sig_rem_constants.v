@@ -24,7 +24,7 @@ Set Implicit Arguments.
 
 (* * Removing constant functions from monadic signatures *)
 
-Local Notation ø := vec_nil.
+Local Abbreviation ø := vec_nil.
 
 Section remove_constants.
 
@@ -37,7 +37,7 @@ Section remove_constants.
     + apply ar_rels.
   Defined.
 
-  Notation Σ' := Σno_constants.
+  Abbreviation Σ' := Σno_constants.
 
   Implicit Type (t : fo_term (ar_syms Σ))
                 (A : fol_form Σ).

@@ -375,7 +375,7 @@ Proof.
     now apply Nat.mul_le_mono.
 Qed.
 
-Local Notation four_squares := (fun a b c d => a*a+b*b+c*c+d*d)%Z.
+Local Abbreviation four_squares := (fun a b c d => a*a+b*b+c*c+d*d)%Z.
 
 Fact Euler_squares x y a1 b1 c1 d1 a2 b2 c2 d2 :
          (x = four_squares a1 b1 c1 d1

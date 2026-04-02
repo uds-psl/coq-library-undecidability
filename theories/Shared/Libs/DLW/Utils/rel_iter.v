@@ -76,7 +76,7 @@ Section rel_iter.
 
 End rel_iter.
 
-Local Notation power := (mscal mult 1).
+#[local] Abbreviation power := (mscal mult 1).
 
 Definition is_digit c q i y := y < q /\ exists a b, c = (a*q+y)*power i q+b /\ b < power i q.
 
@@ -137,7 +137,7 @@ Section rel_iter_bound.
                 is_digit_fun with (1 := H6) (2 := G1); auto.
   Qed.
 
-  Notation power := (mscal mult 1).
+  Abbreviation power := (mscal mult 1).
   Notation "∑" := (msum plus 0).
 
   Lemma rel_iter_iter_bound n x y : rel_iter R n x y -> rel_iter_bound n x y.
@@ -236,7 +236,7 @@ Section rel_iter_seq.
                 is_digit_fun with (1 := H6) (2 := G1); auto.
   Qed.
 
-  Notation power := (mscal mult 1).
+  Abbreviation power := (mscal mult 1).
   Notation "∑" := (msum plus 0).
 
   Lemma rel_iter_iter_seq n x y : rel_iter R n x y -> rel_iter_seq n x y.

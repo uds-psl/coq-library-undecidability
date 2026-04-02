@@ -26,7 +26,7 @@ Idea: The relation (#&#35;#) has the following properties:#<ul>#
 Set Default Goal Selector "!".
 
 
-Notation Pr t t' := (@atom _ sig_binary _ _ tt (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))).
+Abbreviation Pr t t' := (@atom _ sig_binary _ _ tt (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))).
 
 (* The validity reduction.
     We assume a generic falsity flag and a list h10 for which we build a formula.
@@ -106,7 +106,7 @@ Section validity.
     }.
     Context (valid_in : model).
     Instance II : interp D. exact I. Defined.
-    Notation i_Pr i i' :=
+    Abbreviation i_Pr i i' :=
       (@i_atom _ _ _ I tt (Vector.cons _ i _ (Vector.cons _ i' _ (Vector.nil _)))).
     
     Definition isNum (d:D) := i_Pr d d.

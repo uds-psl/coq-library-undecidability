@@ -26,13 +26,13 @@ Set Implicit Arguments.
 
 Tactic Notation "iff" "equal" := apply fol_equiv_ext.
 
-Local Notation ø := vec_nil.
+Local Abbreviation ø := vec_nil.
 
 Section Sig_n1_Sig.
 
   Variable (n : nat) (Σ' : fo_signature) (f : syms Σ') (p : rels Σ').
 
-  Notation Σ := (Σn1 n).
+  Abbreviation Σ := (Σn1 n).
 
   Hypothesis (Hf : ar_syms _ f = n).
   Hypothesis (Hp : ar_rels _ p = 1).
@@ -55,7 +55,7 @@ Section Sig_n1_Sig.
      end); now simpl.
   Defined.
 
-  Notation convert := Σn1_Σ.
+  Abbreviation convert := Σn1_Σ.
 
   Section soundness.
 

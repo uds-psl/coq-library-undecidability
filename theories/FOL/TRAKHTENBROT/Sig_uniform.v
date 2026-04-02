@@ -24,7 +24,7 @@ Set Implicit Arguments.
 
 (* * Uniformize the arity of relations *)
 
-Local Notation ø := vec_nil.
+Local Abbreviation ø := vec_nil.
 
 Section vec_fill_tail.
 
@@ -103,7 +103,7 @@ Section Sig_uniformize_rels.
     + exact (fun _ => n).
   Defined.
 
-  Notation Σ' := Σunif.
+  Abbreviation Σ' := Σunif.
 
   Fixpoint fol_uniformize (A : fol_form Σ) : fol_form Σ' :=
     match A with
@@ -126,7 +126,7 @@ Section Sig_uniformize_rels.
       + intros r v; exact (fom_rels M r (vec_first_half (Hn r) v)).
     Defined.
 
-    Notation M' := fom_uniformize.
+    Abbreviation M' := fom_uniformize.
 
     Theorem fol_uniformize_sound A φ : 
         fol_sem M φ A <-> fol_sem M' φ (fol_uniformize A).
@@ -153,7 +153,7 @@ Section Sig_uniformize_rels.
       + intros r v; exact (fom_rels M' r (vec_fill_tail n v e)).
     Defined.
 
-    Notation M := fom_specialize.
+    Abbreviation M := fom_specialize.
 
     Section uniform_after.
 

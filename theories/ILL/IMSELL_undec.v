@@ -17,7 +17,7 @@ From Undecidability.ILL
 
 Local Infix "≤" := (@IMSELL_le _) (at level 70).
 Local Notation "u ≰ v" := (~ u ≤ v) (at level 70).
-Local Notation U := (@IMSELL_U _).
+Local Abbreviation U := (@IMSELL_U _).
 
 (* Undecidability of IMSELL3, ie IMSELL with
    3 modalities {a,b,∞} with a,b < ∞ and 

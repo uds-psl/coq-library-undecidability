@@ -35,6 +35,17 @@ Fixpoint target (k: nat) (t: formula) :=
     end
   end.
 
+Unset Elimination Schemes.
+
+(* DLW: it seems this nested predicate (via Forall) 
+        has no associated strong induction principle.
+        Possibly induction in performed in the depth
+        and then inverting the predicate with derE
+        below. 
+
+        Possibly a strong induction principle could
+        be preferable? *) 
+
 (* Hilbert-style calculus with derivation depth *)
 Inductive der (Gamma: list formula) : nat -> formula -> Prop :=
   | der_var {ζ: nat -> formula} {s t: formula} {k n: nat} :
@@ -42,6 +53,8 @@ Inductive der (Gamma: list formula) : nat -> formula -> Prop :=
       Forall (der Gamma n) (arguments k (substitute ζ s)) ->
       target k (substitute ζ s) = t ->
       der Gamma (S n) t.
+
+Set Elimination Schemes.
 
 Lemma derE {n Gamma t} : der Gamma n t ->
   match n with

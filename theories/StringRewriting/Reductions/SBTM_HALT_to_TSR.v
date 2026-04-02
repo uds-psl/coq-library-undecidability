@@ -18,11 +18,11 @@ Section Construction.
   #[local] Notation "⦇" := 0.
   #[local] Notation "⦈" := 1.
   #[local] Notation "# a" := (encode_symbol a) (at level 1).
-  #[local] Notation encode_state q := (encode_state M q).
-  #[local] Notation encode_config q t := (encode_config M q t).
-  #[local] Notation encode_rule qa := (encode_rule M qa).
+  #[local] Abbreviation encode_state q := (encode_state M q).
+  #[local] Abbreviation encode_config q t := (encode_config M q t).
+  #[local] Abbreviation encode_rule qa := (encode_rule M qa).
 
-  #[local] Notation srs := (srs M).
+  #[local] Abbreviation srs := (srs M).
 
   Lemma simulation q t k :
     steps M k (q, t) = None ->

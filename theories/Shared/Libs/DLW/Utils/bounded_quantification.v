@@ -60,31 +60,31 @@ Defined.
 Theorem fmap_bound n P : 
            (forall x, x < n -> ex (P x)) 
         -> exists m, forall x, x < n -> exists y, y < m /\ P x y.
-Proof with try lia.
+Proof.
   revert P; induction n as [ | n IHn ]; intros P HP.
-  + exists 0; intros...
-  + destruct (HP 0) as (m0 & H0)...
+  + exists 0; intros; lia.
+  + destruct (HP 0) as (m0 & H0); try lia.
     destruct (IHn (fun n => P (S n))) as (m1 & Hm1).
-    - intros; apply HP...
+    - intros; apply HP; lia.
     - exists (1+m0+m1); intros [ | x ] Hx.
-      * exists m0; split; auto...
-      * destruct (Hm1 x) as (y & H1 & H2)...
-        exists y; split; auto...
+      * exists m0; split; auto; lia.
+      * destruct (Hm1 x) as (y & H1 & H2); try lia.
+        exists y; split; auto; lia.
 Qed.
 
 Theorem fmap_reifier_default X n (P : nat -> X -> Prop) : 
            inhabited X 
         -> (forall x, x < n -> ex (P x)) 
         -> exists f, forall x, x < n -> P x (f x).
-Proof with try lia.
+Proof.
   intros [ u ].
   revert P; induction n as [ | n IHn ]; intros P HP.
-  + exists (fun _ => u); intros...
+  + exists (fun _ => u); intros; lia.
   + destruct (IHn (fun i => P (S i))) as (f & Hf).
-    { intros; apply HP... }
-    destruct (HP 0) as (x & Hx)...
+    { intros; apply HP; lia. }
+    destruct (HP 0) as (x & Hx); try lia.
     exists (fun i => match i with 0 => x | S i => f i end).
-    intros [|] ?; auto; apply Hf...
+    intros [|] ?; auto; apply Hf; lia.
 Qed. 
 
 Theorem fmap_reifer_bound n P : 
@@ -99,7 +99,7 @@ Qed.
 
 (* equal_upto m f g means f 0 = g 0, ... f (m-1) = g (m-1) *)
 
-Local Notation equal_upto := (fun m (f g : nat -> nat) => forall n, n < m -> f n = g n).
+Local Abbreviation equal_upto := (fun m (f g : nat -> nat) => forall n, n < m -> f n = g n).
 
 (* Given a predicate P over nat * (nat -> nat), which is supposed to be finitary 
 

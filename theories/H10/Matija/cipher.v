@@ -16,7 +16,7 @@ From Undecidability.Shared.Libs.DLW.Utils
 
 Set Implicit Arguments.
 
-Local Notation power := (mscal mult 1).
+Local Abbreviation power := (mscal mult 1).
 Local Notation "∑" := (msum plus 0).
 Local Infix "≲" := binary_le (at level 70, no associativity).
 Local Infix "⇣" := nat_meet (at level 40, left associativity).
@@ -1162,7 +1162,7 @@ Section sums.
 
   Variable (l q : nat).
 
-  Notation r := (power (4*q) 2).
+  Abbreviation r := (power (4*q) 2).
 
   Definition seqs_of_ones u u1 :=
                    l+1 < q 
@@ -1387,8 +1387,8 @@ Section sums.
 
   End plus.
 
-  Notation u := (∑ l (fun i => power (power (S i) 2) r)).
-  Notation u1 := (∑ l (fun i => power (power (S (S i)) 2) r)).
+  Abbreviation u := (∑ l (fun i => power (power (S i) 2) r)).
+  Abbreviation u1 := (∑ l (fun i => power (power (S (S i)) 2) r)).
 
   Section mult_utils.
  

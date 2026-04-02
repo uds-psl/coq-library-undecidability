@@ -8,7 +8,7 @@ From Stdlib Require Import Eqdep_dec Vectors.Vector Lia.
 From Undecidability.Shared.Libs.PSL.Vectors Require Import Vectors.
 From Stdlib Require Import EqdepFacts.
 
-Local Notation vec := t.
+Local Abbreviation vec := t.
 
 From Undecidability.FOL.Syntax Require Export Core Subst Bounded.
 

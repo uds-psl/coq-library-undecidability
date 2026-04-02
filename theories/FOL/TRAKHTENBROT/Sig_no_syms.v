@@ -24,7 +24,7 @@ Set Implicit Arguments.
 
 (* * Signature reduction for symbol free formulas *) 
 
-Local Notation ø := vec_nil.
+Local Abbreviation ø := vec_nil.
 
 Section no_syms.
 
@@ -37,7 +37,7 @@ Section no_syms.
     + exact (ar_rels Σ).
   Defined.
 
-  Notation Σ' := Σ_empty_syms.
+  Abbreviation Σ' := Σ_empty_syms.
 
   Implicit Types (t : fo_term (ar_syms Σ)) (A : fol_form Σ).
 
