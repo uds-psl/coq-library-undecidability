@@ -7,12 +7,12 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-From Stdlib Require Import Utf8 Eqdep_dec.
+From Stdlib Require Import List Utf8 Eqdep_dec.
 
 From Undecidability.BI
   Require Import BI utils hil.
 
-Import BI_notations.
+Import ListNotations BI_notations.
 
 Set Implicit Arguments.
 
@@ -366,9 +366,41 @@ Section LBI_full_HBI.
 
     Hint Resolve LBI_wc_impl_left : core.
 
+    Ltac analyse_bunch G l :=
+      match l with
+      | nil => constr:(BI_ctx_hole)
+      | ?n::?l =>
+        match G with
+        | ?L ⊛[?k] ?R =>
+          match n with
+          | 0 => let c := analyse_bunch L l
+                 in constr:(BI_ctx_comp BI_right k R c)
+          | _ => let c := analyse_bunch R l
+                 in constr:(BI_ctx_comp BI_left k L c)
+          end 
+        end
+      end.
+
+    Ltac trav l :=
+      match l with
+      | nil => constr:(@nil bool)
+      | ?n::?l =>
+        let m := trav l in 
+        let b := match n with
+                 | 0 => constr:(true)
+                 | _ => constr:(false)
+                 end in
+        let k := constr:(b::m)
+        in k
+      end.
+
     Fact LBI_wc_impl_inv k Γ A B : Γ L⊦wc A-⊙[k]B → ⟨A⟩ ⊛[k] Γ L⊦wc B.
     Proof.
+      let k := trav (0::2::3::0::nil) in idtac k.
       intros H.
+(*      match goal with 
+      | |- ?C L⊦wc _ => let c := analyse_bunch C (0::nil) in idtac c
+      end. *)
       apply BI_sp_cut with (Δ := BI_ctx_comp BI_left k _ BI_ctx_hole) (2 := H); simpl; auto.
     Qed.
 
