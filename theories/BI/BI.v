@@ -267,53 +267,10 @@ Section Hilbert_Calculus.
 
 End Hilbert_Calculus.
 
-Arguments BI_SEQ_PROVABLE _ {_}.
+Arguments BI_SEQ_PROVABLE : clear implicits.
 
 Arguments IL_axiom {_}.
 Arguments BI_axiom {_}.
-
-Module BI_notations.
-
-  Notation "x ≡ y" := (BI_bunch_equiv x y) (at level 70, no associativity, format "x  ≡  y").
-  Notation "C [ Δ ]" := (BI_ctx_fill C Δ) (at level 1, no associativity, format "C [ Δ ]").
-  Notation "Γ 'L⊦[' b ']' A" := (LBI_provable b Γ A) (at level 70, no associativity, format "Γ  L⊦[ b ]  A").
-
-  Notation "⟨ A ⟩" := (BI_bunch_atom A) (at level 0, format "⟨ A ⟩"). 
-
-  Notation "'ø[' k ']'" := (BI_bunch_unit _ _ k) (at level 0, no associativity, format "ø[ k ]").
-  Notation "Γ '⊛[' k ']' Δ" := (BI_bunch_comp k Γ Δ) (at level 65, left associativity, format "Γ  ⊛[ k ]  Δ").
-
-  Abbreviation øₐ := ø[BI_addi].
-  Abbreviation øₘ := ø[BI_mult].
-  Notation "Γ '⊛ₐ' Δ" := (Γ ⊛[BI_addi] Δ) (at level 65, left associativity, format "Γ  ⊛ₐ  Δ").
-  Notation "Γ '⊛ₘ' Δ" := (Γ ⊛[BI_mult] Δ) (at level 65, left associativity, format "Γ  ⊛ₘ  Δ").
-
-  Notation "'H⊦' A" := (HBI_provable A) (at level 70, no associativity, format "H⊦  A").
-
-(*
-  Notation "⊤" := (@BI_form_unit _ BI_addi).
-  Notation "1" := (@BI_form_unit _ BI_mult).
-  Notation "£ v" := (@BI_form_var _ v) (at level 1, format "£ v").
-  Notation "A '-∗' B" := (@BI_form_imp _ BI_mult A B) (at level 60, right associativity, format "A -∗ B").
-  Notation "A ⇒ B" := (@BI_form_imp _ BI_addi A B) (at level 60, right associativity, format "A ⇒ B").
-  Notation "A ⩑ B" := (@BI_form_conj _ A B) (at level 59, left associativity, format "A ⩑ B").
-
-  Notation "⟨ A ⟩" := (@BI_bunch_atom _ A) (at level 0, format "⟨ A ⟩"). 
-  Notation "'ø[' k ']'" := (@BI_bunch_unit _ k) (at level 0, format "ø[ k ]").
-  Abbreviation øₐ := ø[BI_addi].
-  Abbreviation øₘ := ø[BI_mult].
-
-  Notation "Γ '⊛[' k ']' Δ" := (@BI_bunch_comp _ k Γ Δ) (at level 65, left associativity, format "Γ  ⊛[ k ]  Δ").
-  Notation "Γ '⊛ₐ' Δ" := (@BI_bunch_comp _ BI_addi Γ Δ) (at level 65, left associativity, format "Γ  ⊛ₐ  Δ").
-  Notation "Γ '⊛ₘ' Δ" := (@BI_bunch_comp _ BI_mult Γ Δ) (at level 65, left associativity, format "Γ  ⊛ₘ  Δ").
-
-  Notation "Γ ≡ Δ" := (@BI_bunch_equiv _ Γ Δ) (at level 70, no associativity, format "Γ  ≡  Δ").
-  Notation "Γ [ Δ ]" := (@BI_ctx_fill _ Γ Δ) (at level 1, no associativity, format "Γ [ Δ ]").
-  Notation "Γ ⊦ A" := (BI_seq_provable_cut_free Γ A) (at level 70).
-  
-  *)
-
-End BI_notations.
 
   
    

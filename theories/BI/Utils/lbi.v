@@ -12,7 +12,7 @@ From Stdlib Require Import List Utf8 Eqdep_dec.
 From Undecidability.BI
   Require Import BI utils hil.
 
-Import ListNotations BI_notations.
+Import BI_notations ListNotations.
 
 Module LBI_tactics.
 

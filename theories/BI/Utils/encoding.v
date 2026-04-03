@@ -37,6 +37,7 @@ Arguments BI_ctx_hole {_ _}.
 #[local] Reserved Notation "'![' γ ']' φ" (at level 1, format "![ γ ] φ").
 #[local] Reserved Notation "Γ ⊦ A" (at level 70, no associativity, format "Γ  ⊦  A").
 #[local] Reserved Notation "⟦ A ⟧" (at level 0, format "⟦ A ⟧").
+#[local] Reserved Notation "Δ '--∗' φ" (at level 63, right associativity, format "Δ --∗ φ").
 
 (* The (-∗,⇒,⩑,1) fragment of LBI *)
 Definition BI_fragment_impl_conj_unit c :=
@@ -76,63 +77,14 @@ Section pseudo_exponential.
   (** We study the LBI proof theory of the pseudo-exponential ![γ]φ, 
       restricted to the (-∗,⇒,⩑,1) cut-free fragment of LBI. *)
 
-  (** First some tools to facilitate LBI proofs *)
-
-(*
-  Local Fact BI_unit_right_l k Γ γ :
-             Γ ⊦ γ 
-    → (*-----------------*)
-         ø[k] ⊛[k] Γ ⊦ γ.
-  Proof.
-    apply BI_sp_equiv,
-          BI_bequiv_sym,
-          BI_bequiv_neut.
-  Qed.
-
-  Local Fact BI_unit_left_r k Γ γ :
-          Γ ⊛[k] ø[k] ⊦ γ
-    →  (*-----------------*)
-             Γ ⊦ γ.
-  Proof.
-    apply BI_sp_equiv,
-          BI_bequiv_trans with (1 := BI_bequiv_comm _ _ _),
-          BI_bequiv_neut.
-  Qed.
-  
-  *)
-  
   Hint Constructors LBI_provable BI_bunch_equiv : core.
   Hint Resolve LBI_neut_l : core.
 
+  (* Our encoding of ⊤ as 1⇒1 is correct *)
   Local Fact LBI_top_weak Γ : Γ ⊦ ⊤.
   Proof. rule LBI_weak at []. Qed.
 
-  (*
-
-  Local Fact BI_cntr_all Γ γ : Γ ⊛ₐ Γ ⊦ γ → Γ ⊦ γ.
-  Proof.
-    intro.
-    change (BI_ctx_hole[Γ] ⊦ γ).
-    now apply BI_sp_cntr.
-  Qed.
-
-  Local Fact BI_simpl_imp_l Γ A B C :
-          Γ ⊦ A    →     ⟨B⟩ ⊦ C
-    →  (*------------------------*)
-             Γ ⊛ₐ ⟨A⇒B⟩ ⊦ C.
-  Proof. apply BI_sp_impl_l with (Γ := BI_ctx_hole). Qed.
-
-  Local Fact BI_simpl_wand_l Γ A B C :
-          Γ ⊦ A    →     ⟨B⟩ ⊦ C
-    →  (*------------------------*)
-             Γ ⊛ₘ ⟨A-∗B⟩ ⊦ C.
-  Proof. apply BI_sp_impl_l with (Γ := BI_ctx_hole). Qed.
-  
-  *)
-  
- 
-
-  (** Now the "weakening" rule for ![γ]φ *)
+  (* The "weakening" rule for ![γ]φ *)
 
   Proposition LBI_pseudo_exp_weak Γ γ φ ψ :
              Γ ⊦ ψ 
@@ -169,14 +121,14 @@ Section pseudo_exponential.
     induction HΣ as [ | A Σ (γ & φ & ->) _ ]; simpl; eauto.
   Qed.
 
-  (** Now we explain the "dereliction" rule as the combination of
-      two ideas 1) & 2), leading to 3) when combined:
+  (* We explain the "dereliction" rule as the combination of
+     two ideas 1) & 2), leading to 3) when combined:
       1) recover φ in multiplicative context 
          from φ-∗γ)⇒γ in additive context
       2) extract of "copy" of φ in additive context 
          from (⊤-∗φ)⩑1 in multiplicative context
-      3) Hence combined, we can extract a copy in multiplicative
-         context. *)
+     Hence combined, we can extract a copy in multiplicative
+     context. *)
 
   Local Proposition LBI_first_idea Γ γ φ :
 
@@ -185,7 +137,7 @@ Section pseudo_exponential.
          Γ ⊛ₐ ⟨(φ-∗γ)⇒γ⟩ ⊦ γ.
 
   Proof. intro; apply LBI_impl_root; auto. Qed.
-  
+
   Hint Resolve LBI_top_weak : core.
 
   Local Proposition LBI_second_idea Γ γ φ :
@@ -217,8 +169,8 @@ Section pseudo_exponential.
   Proof.
     intro.
     unfold BI_pseudo_exp.
-    apply LBI_second_idea.
-    apply LBI_first_idea.
+    apply LBI_second_idea. (* Now φ in additive context *)
+    apply LBI_first_idea.  (* Now φ back in multiplicative context *)
     trivial.
   Qed.
 
@@ -235,8 +187,7 @@ Section pseudo_exponential.
 
   Proof.
     revert HΣ; intros (Σ' & H'%BI_list_mult_perm_bequiv)%permutation_in_head H.
-    apply LBI_equiv with (1 := BI_bequiv_sym H').
-    simpl.
+    apply LBI_equiv with (1 := BI_bequiv_sym H'); simpl.
     apply LBI_equiv with (1 := BI_bequiv_comm _ _ _).
     apply LBI_pseudo_exp_derilection.
     revert H; apply LBI_equiv.
@@ -285,18 +236,21 @@ Section pseudo_exponential.
               Γ ⊦ 1
     → (*-----------------*)
          Γ ⊛ₘ ⟨1-∗γ⟩ ⊦ γ.
+
   Proof. intros; apply LBI_impl_root; auto. Qed.
 
-  Definition BI_multi_wand Δ φ := fold_right (λ x y, x-∗y) φ Δ.
+  (* [Δ₁;...;Δₙ]--∗φ := Δ₁-∗...-∗Δₙ-∗φ *)
+  Definition BI_multi_wand Δ (φ : BI_form µ prop) := fold_right (λ x y, x-∗y) φ Δ.
+  Notation "Δ --∗ φ" := (BI_multi_wand Δ φ).
 
-  Fact BI_mult_wand_app Σ Δ φ : BI_multi_wand (Σ++Δ) φ = BI_multi_wand Σ (BI_multi_wand Δ φ).
+  Fact BI_mult_wand_app Σ Δ φ : (Σ++Δ)--∗φ = Σ--∗Δ--∗φ.
   Proof. apply fold_right_app. Qed.
 
   Fact LBI_mult_wand_intro Γ Δ φ :
 
-            Γ ⊛ₘ ⨂ₘ Δ ⊦ φ 
-    → (*----------------------*)
-        Γ ⊦ BI_multi_wand Δ φ.
+        Γ ⊛ₘ ⨂ₘ Δ ⊦ φ 
+    → (*-------------*)
+          Γ ⊦ Δ--∗φ.
 
   Proof.
     induction Δ as [ | A l IHl ] in Γ |- *; simpl; auto.
@@ -306,7 +260,7 @@ Section pseudo_exponential.
       revert H; apply LBI_equiv; auto.
   Qed.
 
-  (** We finish with study the TPS semantics 
+  (** We finish with the study of the TPS semantics 
       of the pseudo-exponential ![γ]φ *)
 
   Variables (M : Type) (plus : M → M → M) (e : M)
@@ -318,8 +272,8 @@ Section pseudo_exponential.
 
   Notation "⟦ A ⟧" := (tps_BI_form plus e s A).
 
-  (* Semantically, ![γ]φ behaves much like φ⩑1 wrt TPS, hence
-     irrelevant of the choice of γ *)
+  (* Semantically, ![γ]φ behaves much like φ⩑1 wrt TPS,
+     hence irrelevant of the choice of γ *)
   Proposition tps_BI_pseudo_exp γ φ : ⟦φ⟧ e → ∀x, ⟦![γ]φ⟧ x ↔ e = x.
   Proof using comm neut.
     intros Hφ x; split.
@@ -341,25 +295,30 @@ Section ACM2_to_BI.
 
   Implicit Type (i : acm2_instr loc).
 
+  (* The source location of a 2-ACM instruction *)
   Definition acm2_instr_src i :=
     match i with
     | STOPₐ p     => p
-    | INCₐ b p q  => p
-    | DECₐ b p q  => p
-    | FORKₐ p q r => p
+    | INCₐ _ p _  => p
+    | DECₐ _ p _  => p
+    | FORKₐ p _ _ => p
     end.
+    
+  Abbreviation src := acm2_instr_src.
 
   (** We start from a list of instructions Σ
       and a list of location over approximating
       the source location of instructions 
       occuring in Σ *)
 
-  Variables (Σ : list (@acm2_instr loc))
-            (l : list loc)
-            (HΣl : ∀i, i ∊ Σ → acm2_instr_src i ∊ l).
+  Variables (Σ : _) (l : _) (HΣl : ∀i, i ∊ Σ → src i ∊ l).
+
+  (* Names for the two counters *)
+  Abbreviation α := true.
+  Abbreviation β := false.
 
   (** This is a "positive" encoding of 2-ACM in
-      the (⩑,-∗) linear fragment of ILL/BI
+      the (⩑,-∗) linear fragment of BI (ie IMLL)
         FORKₐ p q r --> q⩑r -∗ p
         INCₐ α p q  --> (α -∗ q) -∗ p
         DECₐ β p q  --> β -∗ q -∗ p
@@ -369,10 +328,7 @@ Section ACM2_to_BI.
       variables in the left part of loc+bool
       while the right part is used from the two
       counters α/β *)
-
-  Abbreviation α := true.
-  Abbreviation β := false.
-
+      
   Definition acm2_instr_to_BI i : BI_form µ (loc+bool) :=
     match i with
     | FORKₐ p q r => (£(inl q) ⩑ £(inl r)) -∗ £(inl p)
@@ -382,7 +338,6 @@ Section ACM2_to_BI.
     end.
 
   Abbreviation encᵢ := acm2_instr_to_BI.
-
   Notation "![ γ ] φ" := (BI_pseudo_exp γ φ).
 
   Definition acm2_ctx_to_BI x y :=
@@ -397,7 +352,7 @@ Section ACM2_to_BI.
      in any computation *)
   Local Fact In_acm2_ctx_to_BI x y i p :
       i ∊ Σ 
-    → p = acm2_instr_src i
+    → p = src i
     → ![£(inl p)](encᵢ i) ∊ enc x y.
   Proof using HΣl.
     intros H1 H2.
@@ -431,12 +386,14 @@ Section ACM2_to_BI.
   Qed.
 
   Hint Resolve In_acm2_ctx_to_BI : core.
-  
-  Definition acm2_to_BI x y p := 1⇒BI_multi_wand (enc x y) £(inl p).
+
+  Notation "Δ --∗ φ" := (BI_multi_wand Δ φ).
+
+  Definition acm2_to_BI x y p := 1⇒enc x y--∗£(inl p).
 
   (** We can now show that our positive encoding is sound
       wrt to cut-free provability in the (-∗,⇒,⩑,1) fragment *)
-      
+
   Hint Constructors LBI_provable BI_bunch_equiv : core.
 
   Local Lemma acm2_encode_sound x y p :
@@ -495,10 +452,8 @@ Section ACM2_to_BI.
       | inr α => eq (1,0)%nat 
       | inr β => eq (0,1)%nat
       end.
-      
-    Abbreviation s := tps.
 
-    Notation "⟦ A ⟧" := (tps_BI_form pair_add (0,0) s A).
+    Notation "⟦ A ⟧" := (tps_BI_form pair_add (0,0) tps A).
 
     Hint Constructors acm2_accept : core.
 
@@ -521,7 +476,7 @@ Section ACM2_to_BI.
       + intros [] []; rewrite pair_add_zero_right; eauto.
     Qed.
 
-    Local Fact tps_BI_multi_wand_α n x y A : ⟦BI_multi_wand (repeat £(inr α) n) A⟧ (x,y) → ⟦A⟧ (n+x,y).
+    Local Fact tps_BI_multi_wand_α n x y A : ⟦repeat £(inr α) n--∗A⟧ (x,y) → ⟦A⟧ (n+x,y).
     Proof.
       induction n as [ | n IHn ] in x |- *; simpl; auto.
       intros H. 
@@ -529,7 +484,7 @@ Section ACM2_to_BI.
       apply IHn, (H _ eq_refl).
     Qed.
 
-    Local Fact tps_BI_multi_wand_β n x y A : ⟦BI_multi_wand (repeat £(inr β) n) A⟧ (x,y) → ⟦A⟧ (x,n+y).
+    Local Fact tps_BI_multi_wand_β n x y A : ⟦repeat £(inr β) n--∗A⟧ (x,y) → ⟦A⟧ (x,n+y).
     Proof.
       induction n as [ | n IHn ] in y |- *; simpl; auto.
       intros H. 
@@ -537,18 +492,19 @@ Section ACM2_to_BI.
       apply IHn, (H _ eq_refl).
     Qed.
  
-    Local Fact tps_BI_multi_wand_zero Δ A : (∀B, B ∊ Δ → ⟦B⟧ (0,0)) → ⟦BI_multi_wand Δ A⟧ ⊆ ⟦A⟧.
+    Local Fact tps_BI_multi_wand_zero Δ A : (∀B, B ∊ Δ → ⟦B⟧ (0,0)) → ⟦Δ--∗A⟧ ⊆ ⟦A⟧.
     Proof.
       rewrite <- Forall_forall.
       induction 1 as [ | B Δ H1 H2 IH2 ]; simpl; auto.
       intros [] Hx;  apply IH2, (Hx _ H1).
     Qed.
 
-    Variables (x y : nat) (p : loc) (Hxyp : forall c, ⟦acm2_to_BI x y p⟧ c).
+    Variables (x y : nat) (p : loc)
+              (Hxyp : ∀c, ⟦acm2_to_BI x y p⟧ c).
 
     Lemma acm2_encode_complete : acm2_accept Σ x y p.
     Proof using Hxyp.
-      change (s (inl p) (x,y)).
+      change (tps (inl p) (x,y)).
       simpl in Hxyp.
       specialize (Hxyp eq_refl).
       unfold enc in Hxyp.
@@ -556,13 +512,12 @@ Section ACM2_to_BI.
       apply tps_BI_multi_wand_α,
             tps_BI_multi_wand_β in Hxyp.
       rewrite !Nat.add_0_r in Hxyp.
-      simpl in Hxyp.
       apply tps_BI_multi_wand_zero in Hxyp; auto.
       intros B (? & i & -> & [])%list_prod_spec.
       apply tps_BI_pseudo_exp; auto.
       now apply tps_instr_sound.
     Qed.
- 
+
   End completeness.
 
 End ACM2_to_BI.
@@ -575,10 +530,10 @@ Definition acm2_to_BI_form (loc : Set) Σ x y (p : loc) µ' Hµ' :=
   BI_form_map µ' Hµ' (λ x, x) (acm2_to_BI Σ (map acm2_instr_src Σ) x y p).
 
 (** This establishes the correctness of the reductions
-    2-ACM ~~> LBI(-∗,⇒,⩑,1) ~~> LBI ~~> HBI(full) ~~> 2-ACM 
+    2-ACM ⪯ LBI(-∗,⇒,⩑,1) ⪯ LBI ⪯ HBI(full) ⪯ 2-ACM 
     where LBI is a fragment containing (-∗,⇒,⩑,1) and with
     possibly the cut-rule *)
-Theorem acm2_to_HBI_correctness (loc : Set) Σ x y (p : loc) µ' Hµ' cut :
+Theorem acm2_to_BI_correctness (loc : Set) Σ x y (p : loc) µ' Hµ' cut :
     (acm2_accept Σ x y p → øₐ ⊦ acm2_to_BI Σ (map acm2_instr_src Σ) x y p)
   ∧ (øₐ ⊦ acm2_to_BI Σ (map acm2_instr_src Σ) x y p → øₐ L⊦[cut] acm2_to_BI_form Σ x y p µ' Hµ')
   ∧ (øₐ L⊦[cut] acm2_to_BI_form Σ x y p µ' Hµ' → H⊦ acm2_to_BI_form Σ x y p _ (λ _ _, eq_refl))
@@ -586,7 +541,7 @@ Theorem acm2_to_HBI_correctness (loc : Set) Σ x y (p : loc) µ' Hµ' cut :
 Proof.
   split; [ | split; [ | split ] ].
   + apply acm2_encode_sound, in_map.
-  + assert (BI_cut_free = BI_with_cut → cut = BI_with_cut) as C by easy.
+  + assert (BI_cut_free = BI_with_cut → cut = BI_with_cut) as C by discriminate.
     intros ?%(LBI_map_sound _ Hµ' (λ x, x) C); auto.
   + intros h%LBI_to_HBI_form.
     unfold acm2_to_BI_form in h; now rewrite BI_form_map_map in h.
@@ -597,6 +552,6 @@ Proof.
     unfold acm2_to_BI_form in h; now rewrite sem_BI_form_map_id in h.
 Qed.
 
-Check acm2_to_HBI_correctness.
+Check acm2_to_BI_correctness.
 
 

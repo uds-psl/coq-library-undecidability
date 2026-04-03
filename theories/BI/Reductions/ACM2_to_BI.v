@@ -83,10 +83,10 @@ Section LBI_Fragment.
     intros (Σ & p & (x,y)).
     exists (acm2_to_BI_form Σ x y p µ Hµ); split; intros H.
     + red in H.
-      apply acm2_to_HBI_correctness with (Hµ' := Hµ) in H; trivial.
-      apply acm2_to_HBI_correctness; trivial.
-    + apply acm2_to_HBI_correctness in H.
-      red; apply acm2_to_HBI_correctness with (Hµ' := Hµ); trivial. 
+      apply acm2_to_BI_correctness with (Hµ' := Hµ) in H; trivial.
+      apply acm2_to_BI_correctness; trivial.
+    + apply acm2_to_BI_correctness in H.
+      red; apply acm2_to_BI_correctness with (Hµ' := Hµ); trivial. 
   Qed.
 
   Hint Resolve reduces_transitive embed_reduction_LBI relative_reduction_LBI : core.
@@ -105,8 +105,8 @@ Section HBI.
     apply reduces_dependent; exists.
     intros (Σ & p & (x,y)).
     exists (acm2_to_BI_form Σ x y p (λ _, true) (λ _ _, eq_refl)); split; intros H; red in H |- *.
-    + do 3 apply acm2_to_HBI_correctness with (Hµ' := λ _ _, eq_refl) (cut := BI_with_cut) in H; trivial.
-    + do 1 apply acm2_to_HBI_correctness with (Hµ' := λ _ _, eq_refl) (cut := BI_with_cut); trivial.
+    + do 3 apply acm2_to_BI_correctness with (Hµ' := λ _ _, eq_refl) (cut := BI_with_cut) in H; trivial.
+    + do 1 apply acm2_to_BI_correctness with (Hµ' := λ _ _, eq_refl) (cut := BI_with_cut); trivial.
   Qed.
 
   Hint Resolve reduces_transitive embed_reduction_HBI relative_reduction_HBI : core.

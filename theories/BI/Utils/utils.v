@@ -12,7 +12,7 @@ From Stdlib Require Import List Permutation Eqdep_dec Utf8.
 From Undecidability.BI
   Require Import BI.
 
-Import BI_notations ListNotations.
+Import (* BI_notations *) ListNotations.
 
 Set Implicit Arguments.
 
@@ -28,9 +28,6 @@ Proof. apply UIP_dec; decide equality. Qed.
 Fact eq_bool_pirr' (a : bool) (e : a = a) : e = eq_refl.
 Proof. apply eq_bool_pirr. Qed.
 
-#[local] Fact exists_iff_compat X (P Q : X → Prop) : (∀x, P x ↔ Q x) → (∃x, P x) ↔ ∃x, Q x.
-Proof. firstorder. Qed.
-
 Fact permutation_in_head {X} (x : X) l : x ∊ l → ∃m, l ~p x::m.
 Proof.
   induction l as [ | y l IHl ].
@@ -38,31 +35,14 @@ Proof.
   + intros [ <- | []%IHl ]; eauto.
 Qed.
 
-Section BI_list_mult.
-
-  Variable (µ : BI_conn → bool) (prop : Set).
-
-  Definition BI_list_mult : _ → BI_bunch µ prop := fold_right (λ φ Γ, ⟨φ⟩ ⊛ₘ Γ) øₘ.
-
-  Hint Constructors BI_bunch_equiv : core.
-
-  Fact BI_list_mult_perm_bequiv l m :
-    l ~p m → BI_list_mult l ≡ BI_list_mult m.
-  Proof. induction 1; simpl; eauto. Qed.
-
-  Fact BI_list_mult_app Σ Δ : BI_list_mult (Σ++Δ) ≡ (BI_list_mult Σ) ⊛ₘ (BI_list_mult Δ).
-  Proof. induction Σ; simpl; eauto. Qed.
-
-  Fact BI_list_mult_snoc Σ A : (BI_list_mult Σ) ⊛ₘ ⟨A⟩ ≡ BI_list_mult (A::Σ).
-  Proof. simpl; apply BI_bequiv_comm. Qed.
-
-End BI_list_mult.
-
 Section list_prod.
 
+  Local Fact exists_iff_compat X (P Q : X → Prop) : (∀x, P x ↔ Q x) → (∃x, P x) ↔ ∃x, Q x.
+  Proof. firstorder. Qed.
+  
   Variables (X Y Z : Type) (p : X → Y → Z).
 
-  Definition list_prod l m := flat_map (fun x => (map (p x) m)) l.
+  Definition list_prod l m := flat_map (λ x, map (p x) m) l.
 
   Fact list_prod_spec l m z :
     z ∊ list_prod l m ↔ ∃ x y, z = p x y ∧ x ∊ l ∧ y ∊ m.
@@ -75,12 +55,52 @@ Section list_prod.
 
 End list_prod.
 
+Module BI_notations.
+
+  Notation "x ≡ y" := (BI_bunch_equiv x y) (at level 70, no associativity, format "x  ≡  y").
+  Notation "C [ Δ ]" := (BI_ctx_fill C Δ) (at level 1, no associativity, format "C [ Δ ]").
+  Notation "Γ 'L⊦[' b ']' A" := (LBI_provable b Γ A) (at level 70, no associativity, format "Γ  L⊦[ b ]  A").
+
+  Notation "⟨ A ⟩" := (BI_bunch_atom A) (at level 0, format "⟨ A ⟩"). 
+
+  Notation "'ø[' k ']'" := (BI_bunch_unit _ _ k) (at level 0, no associativity, format "ø[ k ]").
+  Notation "Γ '⊛[' k ']' Δ" := (BI_bunch_comp k Γ Δ) (at level 65, left associativity, format "Γ  ⊛[ k ]  Δ").
+
+  Abbreviation øₐ := ø[BI_addi].
+  Abbreviation øₘ := ø[BI_mult].
+  Notation "Γ '⊛ₐ' Δ" := (Γ ⊛[BI_addi] Δ) (at level 65, left associativity, format "Γ  ⊛ₐ  Δ").
+  Notation "Γ '⊛ₘ' Δ" := (Γ ⊛[BI_mult] Δ) (at level 65, left associativity, format "Γ  ⊛ₘ  Δ").
+
+  Notation "'H⊦' A" := (HBI_provable A) (at level 70, no associativity, format "H⊦  A").
+
+End BI_notations.
+
+Import BI_notations.
+
+Section BI_list_mult.
+
+  Variable (µ : BI_conn → bool) (prop : Set).
+
+  Definition BI_list_mult : _ → BI_bunch µ prop := fold_right (λ φ Γ, ⟨φ⟩ ⊛ₘ Γ) øₘ.
+  Notation "⨂ₘ" := BI_list_mult.
+
+  Hint Constructors BI_bunch_equiv : core.
+
+  Fact BI_list_mult_perm_bequiv l m : l ~p m → ⨂ₘ l ≡ ⨂ₘ m.
+  Proof. induction 1; simpl; eauto. Qed.
+
+  Fact BI_list_mult_app Σ Δ : ⨂ₘ (Σ++Δ) ≡ (⨂ₘ Σ) ⊛ₘ (⨂ₘ Δ).
+  Proof. induction Σ; simpl; eauto. Qed.
+
+  Fact BI_list_mult_snoc Σ A : (⨂ₘ Σ) ⊛ₘ ⟨A⟩ ≡ ⨂ₘ (A::Σ).
+  Proof. simpl; apply BI_bequiv_comm. Qed.
+
+End BI_list_mult.
+
 Section BI_map.
 
-  Variables (µ µ' : BI_conn → bool)
-            (Hµ : ∀c, µ c = true → µ' c = true)
-            (prop prop' : Set)
-            (φ : prop → prop').
+  Variables (µ µ' : BI_conn → bool) (Hµ : ∀c, µ c = true → µ' c = true)
+            (prop prop' : Set) (φ : prop → prop').
 
   Fixpoint BI_form_map (A : BI_form µ prop) : BI_form µ' prop' :=
     match A with
@@ -102,7 +122,7 @@ Section BI_map.
   Section BI_bunch_equiv.
 
     Hint Constructors BI_bunch_equiv : core.
- 
+
     Fact BI_bunch_equiv_map Γ Δ : Γ ≡ Δ → BI_bunch_map Γ ≡ BI_bunch_map Δ.
     Proof. induction 1; simpl; eauto. Qed.
 
@@ -134,7 +154,7 @@ Fact BI_form_map_map (µ µ' µ'' : BI_conn → bool)
             (prop prop' prop'' : Set)
             (φ : prop → prop') (ψ : prop' → prop'') A : 
     BI_form_map µ'' Hµ' ψ (BI_form_map µ' Hµ φ A)
-  = BI_form_map µ'' (fun c h => Hµ' _ (Hµ c h)) (fun p => ψ (φ p)) A.
+  = BI_form_map µ'' (λ c h, Hµ' _ (Hµ c h)) (λ p, ψ (φ p)) A.
 Proof. induction A; simpl; f_equal; auto. Qed.
 
 #[local] Hint Constructors IL_axiom BI_axiom HBI_deduction : core.
@@ -206,6 +226,8 @@ Section LBI_embed.
     → BI_bunch_map µ (λ _ h, h) ψ (BI_bunch_map µ (λ _ h, h) φ Γ) = Γ.
   Proof. induction Γ; simpl; intros; f_equal; auto. Qed.
 
+  (* If φ is an embedding of the variables in Σ ⊦ A then
+     it conserves its provability *)
   Theorem LBI_embed_correctness cut Σ A :
       (∀v, v ∊ BI_form_vars A → ψ (φ v) = v)
     → (∀v, v ∊ BI_bunch_vars Σ → ψ (φ v) = v)
@@ -219,6 +241,7 @@ Section LBI_embed.
 
 End LBI_embed.
 
+(* If φ is an embedding of the variables then it conserves its HBI provability *)
 Theorem HBI_embed_correctness (prop prop' : Set) (φ : prop → prop') (ψ : prop' → prop) A :
     (∀v, v ∊ BI_form_vars A → ψ (φ v) = v)
   → H⊦ A ↔ H⊦ BI_form_map _ (λ _ h, h) φ A.
