@@ -114,84 +114,84 @@ Section Logic_Bunched_Implications.
 
   Inductive LBI_provable : BI_bunch → BI_form → Prop :=
 
-    | BI_sp_axiom A :             (*-------*)
+    | LBI_axiom A :               (*-------*)
                                     ⟨A⟩ ⊦ A
 
-    | BI_sp_cut (_ : with_cut = BI_with_cut) Γ Δ A B :
+    | LBI_cut (_ : with_cut = BI_with_cut) Γ Δ A B :
 
                               Γ ⊦ A   →   Δ[⟨A⟩] ⊦ B
                             (*----------------------*)
                           →          Δ[Γ] ⊦ B
 
-    | BI_sp_equiv Γ Δ A :
+    | LBI_equiv Γ Δ A :
                                 Γ ≡ Δ   →   Γ ⊦ A
                               (*-----------------*)
                           →           Δ ⊦ A
 
-    | BI_sp_weak Γ Δ A :
+    | LBI_weak Γ Δ A :
                                    Γ[øₐ] ⊦ A 
                                  (*---------*)
                          →         Γ[Δ] ⊦ A
 
-    | BI_sp_cntr Γ Δ A :
+    | LBI_cntr Γ Δ A :
                                   Γ[Δ ⊛ₐ Δ] ⊦ A
                                 (*-------------*)
                          →           Γ[Δ] ⊦ A
 
-    | BI_sp_unit_l k (hk : µ (BI_unit k) = true) Γ A :
+    | LBI_unit_l k (hk : µ (BI_unit k) = true) Γ A :
 
                                     Γ[ø[k]] ⊦ A
                                 (*--------------*) 
                            →      Γ[⟨u[hk]⟩] ⊦ A
 
-    | BI_sp_unit_r k (hk : µ (BI_unit k) = true) :
+    | LBI_unit_r k (hk : µ (BI_unit k) = true) :
 
                               (*------------*)
                                 ø[k] ⊦ u[hk]
 
-    | BI_sp_conj_l k (hk : µ (BI_conj k) = true) Γ A B C :
+    | LBI_conj_l k (hk : µ (BI_conj k) = true) Γ A B C :
 
                                 Γ[⟨A⟩ ⊛[k] ⟨B⟩] ⊦ C
                               (*-------------------*)
                              →     Γ[⟨A⊙[hk]B⟩] ⊦ C
 
-    | BI_sp_conj_r k (hk : µ (BI_conj k) = true) Γ Δ A B :
+    | LBI_conj_r k (hk : µ (BI_conj k) = true) Γ Δ A B :
 
                                 Γ ⊦ A   →   Δ ⊦ B 
                               (*-------------------*)
                              →   Γ ⊛[k] Δ ⊦ A⊙[hk]B
 
-    | BI_sp_impl_l k (hk : µ (BI_impl k) = true) Γ Δ A B C :
+    | LBI_impl_l k (hk : µ (BI_impl k) = true) Γ Δ A B C :
 
                                 Δ ⊦ A   →   Γ[⟨B⟩] ⊦ C
                               (*----------------------*)
                              →    Γ[Δ ⊛[k] ⟨A-⊙[hk]B⟩] ⊦ C
 
 
-    | BI_sp_impl_r k (hk : µ (BI_impl k) = true) Γ A B :
+    | LBI_impl_r k (hk : µ (BI_impl k) = true) Γ A B :
 
                                  Γ ⊛[k] ⟨A⟩ ⊦ B
                                (*--------------*)
                           →       Γ ⊦ A-⊙[hk]B
 
-    | BI_sp_bot_l (h : µ BI_bot = true) A :
+    | LBI_bot_l (h : µ BI_bot = true) A :
 
                                 (*--------------*)
                                    ⟨⊥[h]⟩ ⊦ A
 
-    | BI_sp_disj_l (h : µ BI_disj = true) Γ A B C :
+    | LBI_disj_l (h : µ BI_disj = true) Γ A B C :
 
                              Γ[⟨A⟩] ⊦ C   →   Γ[⟨B⟩] ⊦ C
                            (*---------------------------*)
                           →        Γ[⟨A⩒[h]B⟩] ⊦ C
 
-    | BI_sp_disj_r1 (h : µ BI_disj = true) Γ A B :
+    | LBI_disj_r1 (h : µ BI_disj = true) Γ A B :
 
                                      Γ ⊦ A
                                  (*----------*)
                          →         Γ ⊦ A⩒[h]B
 
-    | BI_sp_disj_r2 (h : µ BI_disj = true) Γ A B :
+    | LBI_disj_r2 (h : µ BI_disj = true) Γ A B :
 
                                      Γ ⊦ B
                                  (*----------*)
@@ -225,6 +225,7 @@ Section Hilbert_Calculus.
   Reserved Notation "'⊦ᴵ' A" (at level 70, format "⊦ᴵ  A").
   Reserved Notation "'⊦ᴮ' A" (at level 70, format "⊦ᴮ  A").
 
+  (* Axioms of Intuitionistic Propositional Logic IL *)
   Inductive IL_axiom : BI_form µ prop → Prop :=
     | IL_axiom_K A B : ⊦ᴵ A⇒B⇒A
     | IL_axiom_S A B C : ⊦ᴵ (A⇒B⇒C)⇒(A⇒B)⇒(A⇒C)
@@ -238,6 +239,7 @@ Section Hilbert_Calculus.
     | IL_axiom_T : ⊦ᴵ ⊤
   where "⊦ᴵ A" := (IL_axiom A).
 
+  (* Specific Axioms for extending IL to BI *)
   Inductive BI_axiom : BI_form µ prop → Prop :=
     | BI_axiom_1_r A : ⊦ᴮ A⇒1∗A
     | BI_axiom_1_l A : ⊦ᴮ 1∗A⇒A
@@ -247,6 +249,8 @@ Section Hilbert_Calculus.
 
   Reserved Notation "Φ ⊦ A" (at level 70, format "Φ  ⊦  A").
 
+  (* IL only has the M(odus) P(onens) rule,
+     BI has 3 more rules *)
   Inductive HBI_deduction Φ : BI_form µ prop → Prop :=
     | HBI_axiom A : Φ A → Φ ⊦ A
     | HBI_mp A B : Φ ⊦ A → Φ ⊦ A⇒B → Φ ⊦ B

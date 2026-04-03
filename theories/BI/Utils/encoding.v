@@ -13,9 +13,9 @@ From Undecidability.MinskyMachines
   Require Import ACM2 acm2_utils.
 
 From Undecidability.BI
-  Require Import BI utils tps hbi.
+  Require Import BI utils tps lbi hbi.
 
-Import ListNotations ACM2_Notations BI_notations.
+Import ListNotations ACM2_Notations BI_notations LBI_tactics.
 
 Set Implicit Arguments.
 
@@ -78,6 +78,7 @@ Section pseudo_exponential.
 
   (** First some tools to facilitate LBI proofs *)
 
+(*
   Local Fact BI_unit_right_l k Γ γ :
              Γ ⊦ γ 
     → (*-----------------*)
@@ -97,15 +98,16 @@ Section pseudo_exponential.
           BI_bequiv_trans with (1 := BI_bequiv_comm _ _ _),
           BI_bequiv_neut.
   Qed.
+  
+  *)
+  
+  Hint Constructors LBI_provable BI_bunch_equiv : core.
+  Hint Resolve LBI_neut_l : core.
 
-  Local Fact BI_top_weak Γ : Γ ⊦ ⊤.
-  Proof.
-    change (BI_ctx_hole[Γ] ⊦ ⊤).
-    apply BI_sp_weak,
-          BI_sp_impl_r,
-          BI_unit_right_l,
-          BI_sp_axiom.
-  Qed.
+  Local Fact LBI_top_weak Γ : Γ ⊦ ⊤.
+  Proof. rule LBI_weak at []. Qed.
+
+  (*
 
   Local Fact BI_cntr_all Γ γ : Γ ⊛ₐ Γ ⊦ γ → Γ ⊦ γ.
   Proof.
@@ -125,57 +127,46 @@ Section pseudo_exponential.
     →  (*------------------------*)
              Γ ⊛ₘ ⟨A-∗B⟩ ⊦ C.
   Proof. apply BI_sp_impl_l with (Γ := BI_ctx_hole). Qed.
+  
+  *)
+  
+ 
 
   (** Now the "weakening" rule for ![γ]φ *)
 
-  Proposition BI_pseudo_exp_weak Γ γ φ ψ :
+  Proposition LBI_pseudo_exp_weak Γ γ φ ψ :
              Γ ⊦ ψ 
       (*------------------*)
     →    Γ ⊛ₘ ⟨![γ]φ⟩ ⊦ ψ.
   Proof.
     intros H.
 
-    set (Σ := BI_ctx_comp BI_left BI_mult Γ BI_ctx_hole).
-    change (Σ[⟨![γ]φ⟩] ⊦ ψ).
-    apply BI_sp_conj_l.
+    rule LBI_conj_l at [rt].
+    rule LBI_weak at [rt;lft].
+    rule LBI_unit_l at [rt;rt].
 
-    set (Σ' := BI_ctx_comp BI_left BI_mult Γ (BI_ctx_comp BI_right BI_addi ⟨1⟩ BI_ctx_hole)).
-    change (Σ'[⟨⊤-∗(φ-∗γ)⇒γ⟩] ⊦ ψ).
-    apply BI_sp_weak.
-
-    change (Σ[øₐ ⊛ₐ ⟨1⟩] ⊦ ψ).
-    apply BI_sp_equiv with Σ[⟨1⟩].
-    1: apply BI_bequiv_congr, BI_bequiv_sym, BI_bequiv_neut.
-
-    apply BI_sp_unit_l.
-    simpl.
-
-    revert H; apply BI_sp_equiv.
-    apply BI_bequiv_sym,
-          BI_bequiv_trans with (1 := BI_bequiv_comm _ _ _),
-          BI_bequiv_neut.
+    revert H; apply LBI_equiv.
+    apply BI_bequiv_trans with (1 := BI_bequiv_sym (BI_bequiv_neut BI_mult _)),
+          BI_bequiv_trans with (1 := BI_bequiv_comm _ _ _); auto. 
   Qed.
 
-  Check BI_pseudo_exp_weak.
+  Check LBI_pseudo_exp_weak.
+
+  Hint Resolve LBI_pseudo_exp_weak : core.
 
   (* We generalize the weakening rule to lists of ![γ]φ 
 
      Notice that ⨂ₘ[A₁;...;Aₙ] := A₁ ⊛ₘ (... ⊛ₘ (Aₙ ⊛ₘ 1)...) *)
-  Lemma BI_list_mult_weak Σ Γ ψ (HΣ : ∀A, A ∊ Σ → ∃ γ φ, A = ![γ]φ) :
+  Lemma LBI_list_mult_weak Σ Γ ψ (HΣ : ∀A, A ∊ Σ → ∃ γ φ, A = ![γ]φ) :
+
              Γ ⊦ ψ 
     →  (*---------------*)
           ⨂ₘ Σ ⊛ₘ Γ ⊦ ψ.
+
   Proof.
     rewrite <- Forall_forall in HΣ.
-    intros H.
-    induction HΣ as [ | A Σ (γ & φ & ->) _ IH ]; simpl.
-    + revert H.
-      apply BI_sp_equiv,
-            BI_bequiv_sym,
-            BI_bequiv_neut.
-    + apply BI_sp_equiv with (1 := BI_bequiv_sym (BI_bequiv_assoc _ _ _ _)),
-            BI_sp_equiv with (1 := BI_bequiv_comm _ _ _),
-            BI_pseudo_exp_weak; trivial.
+    intro.
+    induction HΣ as [ | A Σ (γ & φ & ->) _ ]; simpl; eauto.
   Qed.
 
   (** Now we explain the "dereliction" rule as the combination of
@@ -187,157 +178,132 @@ Section pseudo_exponential.
       3) Hence combined, we can extract a copy in multiplicative
          context. *)
 
-  Local Proposition BI_first_idea Γ γ φ :
+  Local Proposition LBI_first_idea Γ γ φ :
+
             Γ ⊛ₘ ⟨φ⟩ ⊦ γ
     → (*---------------------*)
          Γ ⊛ₐ ⟨(φ-∗γ)⇒γ⟩ ⊦ γ.
-  Proof.
-    intro.
-    apply BI_simpl_imp_l.
-    + now apply BI_sp_impl_r.
-    + simpl; apply BI_sp_axiom.
-  Qed.
 
-  Local Proposition BI_second_idea Γ γ φ :
+  Proof. intro; apply LBI_impl_root; auto. Qed.
+  
+  Hint Resolve LBI_top_weak : core.
+
+  Local Proposition LBI_second_idea Γ γ φ :
+
          (Γ ⊛ₘ ⟨(⊤-∗φ)⩑1⟩) ⊛ₐ ⟨φ⟩ ⊦ γ
     → (*------------------------------*)
             Γ ⊛ₘ ⟨(⊤-∗φ)⩑1⟩ ⊦ γ.
+
   Proof.
     set (Δ := Γ ⊛ₘ ⟨(⊤-∗φ)⩑1⟩).
     intros H.
-    apply BI_cntr_all.
+    apply LBI_cntr_root.
     unfold Δ at 2.
 
-    set (Σ := BI_ctx_comp BI_left BI_addi Δ
-             (BI_ctx_comp BI_left BI_mult Γ BI_ctx_hole)).
-    change (Σ[⟨(⊤-∗φ)⩑1⟩] ⊦ γ).
-    apply BI_sp_conj_l.
-    simpl.
-
-    set (Σ' := BI_ctx_comp BI_left BI_addi Δ
-              (BI_ctx_comp BI_left BI_mult Γ 
-              (BI_ctx_comp BI_left BI_addi ⟨⊤-∗φ⟩
-               BI_ctx_hole))).
-    change (Σ'[⟨1⟩] ⊦ γ).
-    apply BI_sp_weak.
-    simpl.
-
-    change (Σ[⟨⊤-∗φ⟩ ⊛ₐ øₐ] ⊦ γ).
-    apply BI_sp_equiv with (Σ[⟨⊤-∗φ⟩]).
-    1: apply BI_bequiv_congr,
-             BI_bequiv_congr,
-             BI_bequiv_sym,
-             BI_bequiv_trans with (1 := BI_bequiv_comm _ _ _),
-             BI_bequiv_neut.
-    simpl.
-
-    set (Σ'' := BI_ctx_comp BI_left BI_addi Δ BI_ctx_hole).
-    change (Σ''[Γ ⊛ₘ ⟨⊤-∗φ⟩] ⊦ γ).
-    apply BI_sp_impl_l; auto.
-
-    apply BI_top_weak.
+    rule LBI_conj_l at [rt;rt].
+    rule LBI_weak at [rt;rt;rt].
+    focus at [rt;rt] as Σ.
+    apply LBI_equiv with (Σ[⟨⊤-∗φ⟩]).
+    1: apply BI_bequiv_congr; eauto.
+    simpl; rule LBI_impl_l at [rt].
   Qed.
 
-  Proposition BI_pseudo_exp_derilection Γ γ φ :
+  Proposition LBI_pseudo_exp_derilection Γ γ φ :
+
           Γ ⊛ₘ ⟨![γ]φ⟩ ⊛ₘ ⟨φ⟩ ⊦ γ
     →  (*-------------------------*)
             Γ ⊛ₘ ⟨![γ]φ⟩ ⊦ γ.
+
   Proof.
     intro.
     unfold BI_pseudo_exp.
-    apply BI_second_idea.
-    apply BI_first_idea.
+    apply LBI_second_idea.
+    apply LBI_first_idea.
     trivial.
   Qed.
 
-  Check BI_pseudo_exp_derilection.
+  Check LBI_pseudo_exp_derilection.
 
   (* We generalize the dereliction rule to lists 
      containing a pseudo exponential ![γ]φ *)
 
-  Lemma BI_list_mult_derilection Σ γ φ (HΣ : ![γ]φ ∊ Σ) :
-         ⨂ₘ Σ ⊛ₘ ⟨φ⟩ ⊦ γ 
-    → (*-----------------*)
-           ⨂ₘ Σ ⊦ γ.
+  Lemma LBI_list_mult_derilection Σ γ φ (HΣ : ![γ]φ ∊ Σ) :
+
+        ⨂ₘ Σ ⊛ₘ ⟨φ⟩ ⊦ γ 
+    → (*---------------*)
+          ⨂ₘ Σ ⊦ γ.
+
   Proof.
     revert HΣ; intros (Σ' & H'%BI_list_mult_perm_bequiv)%permutation_in_head H.
-    apply BI_sp_equiv with (1 := BI_bequiv_sym H').
+    apply LBI_equiv with (1 := BI_bequiv_sym H').
     simpl.
-    apply BI_sp_equiv with (1 := BI_bequiv_comm _ _ _).
-    apply BI_pseudo_exp_derilection.
-    revert H; apply BI_sp_equiv.
+    apply LBI_equiv with (1 := BI_bequiv_comm _ _ _).
+    apply LBI_pseudo_exp_derilection.
+    revert H; apply LBI_equiv.
     do 2 apply BI_bequiv_sym,
-               BI_bequiv_trans with (1 := BI_bequiv_comm _ _ _).
-    apply BI_bequiv_congr,
-          BI_bequiv_trans with (1 := H'),
-          BI_bequiv_comm.
+               BI_bequiv_trans with (1 := BI_bequiv_comm _ _ _); eauto.
   Qed.
 
   (** Now we recall the encoding of 2-ACM counter machines,
       (ie with FORK, INC, DEC and STOP but no zero test)
       in the (⩑,-∗) linear fragment of BI. *)
 
-  Local Fact BI_FORK Γ φ ψ γ :
+  Local Fact LBI_FORK Γ φ ψ γ :
+
          Γ ⊦ φ    →    Γ ⊦ ψ 
     → (*---------------------*)
          Γ ⊛ₘ ⟨(φ⩑ψ)-∗γ⟩ ⊦ γ.
+
   Proof.
     intros.
-    apply BI_simpl_wand_l.
-    + now apply BI_cntr_all, BI_sp_conj_r.
-    + apply BI_sp_axiom.
+    apply LBI_impl_root; auto.
+    now apply LBI_cntr_root, LBI_conj_r.
   Qed.
 
-  Local Fact BI_INC Γ φ ψ γ :
+  Local Fact LBI_INC Γ φ ψ γ :
+
              Γ ⊛ₘ ⟨φ⟩ ⊦ ψ
     → (*----------------------*)
          Γ ⊛ₘ ⟨(φ-∗ψ)-∗γ⟩ ⊦ γ.
-  Proof.
-    intros.
-    apply BI_simpl_wand_l.
-    + now apply BI_sp_impl_r.
-    + apply BI_sp_axiom.
-  Qed.
 
-  Local Fact BI_DEC Γ φ ψ γ :
+  Proof. intros; apply LBI_impl_root; auto. Qed.
+
+  Local Fact LBI_DEC Γ φ ψ γ :
+
                 Γ ⊦ ψ
     → (*---------------------------*)
          Γ ⊛ₘ ⟨φ⟩ ⊛ₘ ⟨φ-∗ψ-∗γ⟩ ⊦ γ.
+
   Proof.
     intros H.
-    apply BI_sp_equiv with (1 := BI_bequiv_sym (BI_bequiv_assoc _ _ _ _)).
-
-    set (Σ := BI_ctx_comp BI_left BI_mult Γ BI_ctx_hole).
-    change (Σ[⟨φ⟩ ⊛ₘ ⟨φ-∗ψ-∗γ⟩] ⊦ γ).
-    apply BI_sp_impl_l with (1 := BI_sp_axiom _ _).
-    simpl.
-
-    apply BI_simpl_wand_l; auto.
-    apply BI_sp_axiom.
+    apply LBI_equiv with (1 := BI_bequiv_sym (BI_bequiv_assoc _ _ _ _)).
+    rule LBI_impl_l at [rt].
+    apply LBI_impl_root; auto.
   Qed.
 
-  Local Fact BI_STOP Γ γ :
+  Local Fact LBI_STOP Γ γ :
               Γ ⊦ 1
     → (*-----------------*)
          Γ ⊛ₘ ⟨1-∗γ⟩ ⊦ γ.
-  Proof.
-    intros.
-    apply BI_simpl_wand_l; auto.
-    apply BI_sp_axiom.
-  Qed.
+  Proof. intros; apply LBI_impl_root; auto. Qed.
 
-  Definition BI_multi_wand Δ φ := fold_right (fun x y => x-∗y) φ Δ.
+  Definition BI_multi_wand Δ φ := fold_right (λ x y, x-∗y) φ Δ.
 
   Fact BI_mult_wand_app Σ Δ φ : BI_multi_wand (Σ++Δ) φ = BI_multi_wand Σ (BI_multi_wand Δ φ).
   Proof. apply fold_right_app. Qed.
 
-  Fact BI_mult_wand_intro Γ Δ φ :  Γ ⊛ₘ ⨂ₘ Δ  ⊦ φ → Γ ⊦ BI_multi_wand Δ φ.
+  Fact LBI_mult_wand_intro Γ Δ φ :
+
+            Γ ⊛ₘ ⨂ₘ Δ ⊦ φ 
+    → (*----------------------*)
+        Γ ⊦ BI_multi_wand Δ φ.
+
   Proof.
     induction Δ as [ | A l IHl ] in Γ |- *; simpl; auto.
-    + apply BI_sp_equiv, BI_bequiv_trans with (1 := BI_bequiv_comm _ _ _), BI_bequiv_neut.
+    + apply LBI_equiv, BI_bequiv_trans with (1 := BI_bequiv_comm _ _ _); auto.
     + intros H.
-      apply BI_sp_impl_r, IHl.
-      revert H; apply BI_sp_equiv, BI_bequiv_sym, BI_bequiv_assoc.
+      apply LBI_impl_r, IHl.
+      revert H; apply LBI_equiv; auto.
   Qed.
 
   (** We finish with study the TPS semantics 
@@ -470,17 +436,17 @@ Section ACM2_to_BI.
 
   (** We can now show that our positive encoding is sound
       wrt to cut-free provability in the (-∗,⇒,⩑,1) fragment *)
+      
+  Hint Constructors LBI_provable BI_bunch_equiv : core.
 
   Local Lemma acm2_encode_sound x y p :
       acm2_accept Σ x y p
     → øₐ ⊦ acm2_to_BI x y p.
   Proof using HΣl.
     intros H.
-    apply BI_sp_impl_r,
-          BI_unit_right_l,
-          BI_sp_unit_l with (Γ := BI_ctx_hole),
-          BI_mult_wand_intro,
-          BI_unit_right_l.
+    apply LBI_impl_r, LBI_neut_l.
+    rule LBI_unit_l at [].
+    apply LBI_mult_wand_intro, LBI_neut_l.
     revert H.
     induction 1 as [ p H 
                    | x y p q r H _ IH1 _ IH2
@@ -490,23 +456,19 @@ Section ACM2_to_BI.
                    | 
                    ];
         match goal with
-        | _ : ?i ∊ Σ |- _ => apply BI_list_mult_derilection
+        | _ : ?i ∊ Σ |- _ => apply LBI_list_mult_derilection
                                with (φ := acm2_instr_to_BI i)
         end; auto; simpl acm2_instr_to_BI.
-    + apply BI_STOP.
+    + apply LBI_STOP.
       unfold acm2_ctx_to_BI; simpl.
-      apply BI_unit_left_r with (k := BI_mult),
-            BI_list_mult_weak.
-      2: apply BI_sp_unit_r.
+      apply LBI_neut_r_inv with (k := BI_mult),
+            LBI_list_mult_weak; auto.
       intros A (k & i & -> & [])%list_prod_spec; eauto.
-    + apply BI_FORK; auto.
-    + apply BI_INC.
-      revert IH; apply BI_sp_equiv.
-      apply BI_bequiv_sym, 
-            BI_bequiv_trans with (1 := BI_list_mult_snoc _ _),
-            BI_list_mult_perm_bequiv; auto.
-    + apply BI_INC.
-      revert IH; apply BI_sp_equiv.
+    + apply LBI_FORK; auto.
+    + apply LBI_INC.
+      revert IH; apply LBI_equiv; auto.
+    + apply LBI_INC.
+      revert IH; apply LBI_equiv; auto.
       apply BI_bequiv_sym, 
             BI_bequiv_trans with (1 := BI_list_mult_snoc _ _),
             BI_list_mult_perm_bequiv.
@@ -514,10 +476,10 @@ Section ACM2_to_BI.
       apply perm_trans with (2 := Permutation_app_swap_app _ _ _),
             perm_skip,
             Permutation_app_swap_app.
-    + apply BI_sp_equiv with (1 := BI_bequiv_sym (acm2_ctx_to_BI_x _ _ _)).
-      now apply BI_DEC.
-    + apply BI_sp_equiv with (1 := BI_bequiv_sym (acm2_ctx_to_BI_y _ _ _)).
-      now apply BI_DEC.
+    + apply LBI_equiv with (1 := BI_bequiv_sym (acm2_ctx_to_BI_x _ _ _)).
+      now apply LBI_DEC.
+    + apply LBI_equiv with (1 := BI_bequiv_sym (acm2_ctx_to_BI_y _ _ _)).
+      now apply LBI_DEC.
   Qed.
 
   Section completeness.
