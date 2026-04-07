@@ -156,7 +156,7 @@ Section ACM2_TPS_sound.
 
 End ACM2_TPS_sound.
 
-Arguments acm2_sem {_}.
+#[local] Arguments acm2_sem {_}.
 
 #[local] Notation "Σ ⫽ₙ x ⊕ y ⊦ p" := (@ndmm2_accept _ Σ x y p) (at level 70).
 
@@ -322,7 +322,7 @@ Section ACM2_map.
 
 End ACM2_map.
 
-Arguments acm2_instr_map {_ _}.
+#[global] Arguments acm2_instr_map {_ _}.
 
 Section ACM2_embed.
 

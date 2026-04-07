@@ -9,7 +9,7 @@
 
 From Stdlib Require Import List Utf8.
 
-Set Implicit Arguments.
+#[local] Set Implicit Arguments.
 
 Section And_Branching_Two_Counter_Machines.
 
@@ -108,19 +108,19 @@ Section And_Branching_Two_Counter_Machines.
   (* A problem is a list of instructions Σ, a start location p 
      and initial values (x,y) for α/β *)
 
-  Definition ACM2_problem := { Σ : list acm2_instr & loc * (nat * nat) }%type.
+  Definition ACM2_problem := ( list acm2_instr * loc * (nat * nat) )%type.
 
   (* The question is Σ ⫽ₐ x ⊕ y ⊦ p ? *)
 
-  Definition ACM2_ACCEPT (i : ACM2_problem) : Prop := 
-    match i with existT _ Σ (p,(x,y)) => Σ ⫽ₐ x ⊕ y ⊦ p end.
+  Definition ACM2_ACCEPT (i : ACM2_problem) : Prop :=
+    match i with (Σ,p,(x,y)) => Σ ⫽ₐ x ⊕ y ⊦ p end.
 
 End And_Branching_Two_Counter_Machines.
 
-Arguments acm2_fork {_}.
-Arguments acm2_stop {_}.
-Arguments acm2_inc {_}.
-Arguments acm2_dec {_}.
+#[global] Arguments acm2_fork {_}.
+#[global] Arguments acm2_stop {_}.
+#[global] Arguments acm2_inc {_}.
+#[global] Arguments acm2_dec {_}.
 
 Module ACM2_Notations.
 
