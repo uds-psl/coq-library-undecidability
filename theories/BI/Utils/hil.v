@@ -14,11 +14,11 @@ From Undecidability.BI
 
 Import BI_notations.
 
-Set Implicit Arguments.
-
-#[local] Notation "X ⊆ Y" := (∀m, X m → Y m) (at level 70).
+#[local] Set Implicit Arguments.
 
 Section IL.
+
+  Notation "X ⊆ Y" := (∀m, X m → Y m) (at level 70).
 
   Variables (prop : Set).
 

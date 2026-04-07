@@ -16,30 +16,34 @@ Import BI_notations ListNotations.
 
 Module LBI_tactics.
 
-  Ltac analyse_bunch G l :=
-    match type of G with
+  Abbreviation lft := BI_left (only parsing).
+  Abbreviation rt := BI_right (only parsing).
+
+  (* Given a bunch Γ and a list l (eg [lft;rt;lft ... ]) of
+     left or right choices, outputs the context Δ[_] and the
+     bunch Σ such that Δ[Σ] = Γ, corresponding to position
+     of Σ in Γ given by the list of left/right choices l *)
+  Ltac analyse_bunch Γ l :=
+    match type of Γ with
     | BI_bunch ?mu ?pr =>
       match l with
-      | nil => constr:((@BI_ctx_hole mu pr,G))
+      | nil => constr:((@BI_ctx_hole mu pr,Γ))
       | ?s::?l =>
-        match G with
+        match Γ with
         | ?L ⊛[?k] ?R =>
           match s with
-          | BI_left  => match analyse_bunch L l with
-                        | (?c,?f) => constr:((BI_ctx_comp BI_right k R c,f))
-                        end
-          | BI_right => match analyse_bunch R l with
-                        | (?c,?f) => constr:((BI_ctx_comp BI_left k L c,f))
-                        end
+          | lft => match analyse_bunch L l with
+                   | (?c,?f) => constr:((BI_ctx_comp BI_right k R c,f))
+                   end
+          | rt  => match analyse_bunch R l with
+                   | (?c,?f) => constr:((BI_ctx_comp BI_left k L c,f))
+                   end
           end 
         end
       end
     end.
 
-  Abbreviation lft := BI_left (only parsing).
-  Abbreviation rt := BI_right (only parsing).
-
-  (* Use l as a list of lft/rt choice to put the sequent into
+  (* Use l as a list of left/right choice to put the sequent into
      the shape Δ[_] ⊦ _ depending on l *)
   Tactic Notation "focus" "at" uconstr(l) :=
     let m := constr:(l : list BI_side)
@@ -50,15 +54,20 @@ Module LBI_tactics.
       end
     end.
 
+  (* Put a bunch sequent Γ ⊦ A in the shape Δ[Σ] ⊦ A using
+     the location of Σ in Γ given by l, and defines
+     i := Δ *)
   Tactic Notation "focus" "at" uconstr(l) "as" ident(i) :=
     focus at l;
     match goal with
     | |- @LBI_provable _ _ _ ?C[_] _ => set (i := C)
     end. 
 
+  (* Apply a left on the hole Δ[_] given by l *)
   Tactic Notation "rule" constr(R) "at" uconstr(l) :=
     focus at l; apply R; simpl; auto.
 
+  (* try a cut rule on the hole given by l *)
   Tactic Notation "cut" "at" uconstr(l) :=
     focus at l;
     match goal with

@@ -12,21 +12,21 @@ From Stdlib Require Import List Permutation Eqdep_dec Utf8.
 From Undecidability.BI
   Require Import BI.
 
-Import (* BI_notations *) ListNotations.
+Import ListNotations.
 
-Set Implicit Arguments.
+#[local] Set Implicit Arguments.
 
 #[local] Notation "X ⊆ Y" := (∀m, X m → Y m) (at level 70).
 #[local] Infix "∊" := In (at level 70).
 #[local] Infix "~p" := (@Permutation _) (at level 70).
-
-#[local] Hint Constructors Permutation : core.
 
 Fact eq_bool_pirr (a b : bool) (e f : a = b) : e = f.
 Proof. apply UIP_dec; decide equality. Qed.
 
 Fact eq_bool_pirr' (a : bool) (e : a = a) : e = eq_refl.
 Proof. apply eq_bool_pirr. Qed.
+
+#[local] Hint Constructors Permutation : core.
 
 Fact permutation_in_head {X} (x : X) l : x ∊ l → ∃m, l ~p x::m.
 Proof.
@@ -39,7 +39,7 @@ Section list_prod.
 
   Local Fact exists_iff_compat X (P Q : X → Prop) : (∀x, P x ↔ Q x) → (∃x, P x) ↔ ∃x, Q x.
   Proof. firstorder. Qed.
-  
+
   Variables (X Y Z : Type) (p : X → Y → Z).
 
   Definition list_prod l m := flat_map (λ x, map (p x) m) l.

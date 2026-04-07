@@ -17,7 +17,7 @@ From Undecidability.BI
 
 Import ListNotations ACM2_Notations BI_notations LBI_tactics.
 
-Set Implicit Arguments.
+#[local] Set Implicit Arguments.
 
 #[local] Notation "X ⊆ Y" := (∀m, X m → Y m) (at level 70).
 #[local] Infix "∊" := In (at level 70).
@@ -102,8 +102,6 @@ Section pseudo_exponential.
           BI_bequiv_trans with (1 := BI_bequiv_comm _ _ _); auto. 
   Qed.
 
-  Check LBI_pseudo_exp_weak.
-
   Hint Resolve LBI_pseudo_exp_weak : core.
 
   (* We generalize the weakening rule to lists of ![γ]φ 
@@ -173,8 +171,6 @@ Section pseudo_exponential.
     apply LBI_first_idea.  (* Now φ back in multiplicative context *)
     trivial.
   Qed.
-
-  Check LBI_pseudo_exp_derilection.
 
   (* We generalize the dereliction rule to lists 
      containing a pseudo exponential ![γ]φ *)
@@ -551,7 +547,5 @@ Proof.
     apply (tps_HBI_sound pair_add (0,0)) with (s := tps Σ) (x := c) in h; auto.
     unfold acm2_to_BI_form in h; now rewrite sem_BI_form_map_id in h.
 Qed.
-
-Check acm2_to_BI_correctness.
 
 

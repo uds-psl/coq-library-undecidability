@@ -14,23 +14,23 @@ From Undecidability.BI
 
 Import BI_notations ListNotations.
 
-Set Implicit Arguments.
-
-#[local] Notation "X ⊆ Y" := (∀m, X m → Y m) (at level 70).
-#[local] Infix "∊" := In (at level 70).
-
-#[local] Notation "£ v" := (@BI_form_var _ _ v) (at level 1, format "£ v").
-#[local] Notation "⊤" := (@BI_form_unit _ _ BI_addi _).
-#[local] Notation "1" := (@BI_form_unit _ _ BI_mult _).
-#[local] Notation "⊥" := (@BI_form_bot _ _ _).
-
-#[local] Notation "A ∗ B" := (@BI_form_conj _ _ BI_mult _ A B) (at level 59, left associativity, format "A ∗ B").
-#[local] Notation "A '-∗' B" := (@BI_form_impl _ _ BI_mult _ A B) (at level 63, right associativity, format "A -∗ B").
-#[local] Notation "A ⇒ B" := (@BI_form_impl _ _ BI_addi _ A B) (at level 63, right associativity, format "A ⇒ B").
-#[local] Notation "A ⩑ B" := (@BI_form_conj _ _ BI_addi _ A B) (at level 59, left associativity, format "A ⩑ B").
-#[local] Notation "A ⩒ B" := (@BI_form_disj _ _ _ A B) (at level 61, left associativity, format "A ⩒ B").
+#[local] Set Implicit Arguments.
 
 Section TPS.
+
+  Notation "X ⊆ Y" := (∀m, X m → Y m) (at level 70).
+  Infix "∊" := In (at level 70).
+
+  Notation "£ v" := (@BI_form_var _ _ v) (at level 1, format "£ v").
+  Notation "⊤" := (@BI_form_unit _ _ BI_addi _).
+  Notation "1" := (@BI_form_unit _ _ BI_mult _).
+  Notation "⊥" := (@BI_form_bot _ _ _).
+
+  Notation "A ∗ B" := (@BI_form_conj _ _ BI_mult _ A B) (at level 59, left associativity, format "A ∗ B").
+  Notation "A '-∗' B" := (@BI_form_impl _ _ BI_mult _ A B) (at level 63, right associativity, format "A -∗ B").
+  Notation "A ⇒ B" := (@BI_form_impl _ _ BI_addi _ A B) (at level 63, right associativity, format "A ⇒ B").
+  Notation "A ⩑ B" := (@BI_form_conj _ _ BI_addi _ A B) (at level 59, left associativity, format "A ⩑ B").
+  Notation "A ⩒ B" := (@BI_form_disj _ _ _ A B) (at level 61, left associativity, format "A ⩒ B").
 
   Variables (M : Type) (plus : M → M → M) (e : M)
             (neut : ∀x, plus e x = x)
@@ -159,9 +159,7 @@ Section TPS.
 
     Hint Resolve tps_IL_ax_sound tps_BI_ax_sound : core.
 
-    (** Soundness for trivial phase semantics wrt
-        Hilbert proof system HBI *) 
-
+    (** Soundness for trivial phase semantics wrt Hilbert proof system HBI *) 
     Theorem tps_HBI_sound A : HBI_provable A → ∀x, ⟦A⟧ x.
     Proof using assoc comm neut.
       induction 1 as [ ? []
@@ -202,9 +200,7 @@ Section TPS.
       ⟦BI_bunch_form (BI_bunch_map µ' (λ _ _, eq_refl) (λ x : prop, x) Γ)⟧ = ⟦Γ⟧ₗ.
     Proof. induction Γ as [ | [] | [] [] ]; simpl; f_equal; auto. Qed. 
 
-    (** Soundness for trivial phase semantics wrt
-        any version of LBI *) 
-
+    (** Soundness for trivial phase semantics wrt any version of LBI *) 
     Theorem tps_LBI_sound b Γ (A : BI_form µ prop) : LBI_provable b Γ A → ⟦Γ⟧ₗ ⊆ ⟦A⟧.
     Proof using neut comm assoc.
       intros H.
@@ -224,6 +220,4 @@ Section TPS.
 
 End TPS.
 
-Check tps_HBI_sound.
-Check tps_LBI_sound.
 

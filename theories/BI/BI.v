@@ -7,28 +7,32 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-From Stdlib Require Import List Utf8.
+From Stdlib Require Import Utf8.
 
-Set Implicit Arguments.
-
-Import ListNotations.
-
-#[local] Infix "∊" := In (at level 70).
+#[local] Set Implicit Arguments.
 
 Section Logic_Bunched_Implications.
 
+  (** We consider parameterized fragements of BI using a map
+      µ from BI connectives to bool, and also we can include
+      or exclude the cut rule from the bunched sequent calculus *)
+
+  (* Two kinds of connectives, (addi)tives and mult(iplicatives) *)
   Inductive BI_kind :=
     | BI_mult
     | BI_addi.
 
+  (* For BI contexts, ie bunches with a single hole *)
   Inductive BI_side :=
     | BI_left
     | BI_right.
 
+  (* Do we include the cut rule ? *)
   Inductive BI_cut :=
     | BI_with_cut
     | BI_cut_free.
 
+  (* BI connectives *)
   Inductive BI_conn :=
     | BI_unit : BI_kind → BI_conn  (* 1  or ⊤ *)
     | BI_conj : BI_kind → BI_conn  (* ∗  or ⩑ *)
@@ -40,6 +44,7 @@ Section Logic_Bunched_Implications.
   Variables (µ : BI_conn → bool)   (* fragment selection *)
             (prop : Set).          (* type for propositional variables *)
 
+  (* BI formulas, depending on µ and prop *)
   Inductive BI_form :=
     | BI_form_var    : prop → BI_form
     | BI_form_unit k : µ (BI_unit k) = true → BI_form
@@ -49,32 +54,24 @@ Section Logic_Bunched_Implications.
     | BI_form_disj   : µ BI_disj = true → BI_form → BI_form → BI_form
     .
 
-  Definition BI_form_subst (ρ : prop → BI_form) :=
-    fix loop A :=
-      match A with
-      | BI_form_var v => ρ v
-      | BI_form_unit hk => BI_form_unit hk
-      | BI_form_conj hk A B => BI_form_conj hk (loop A) (loop B)
-      | BI_form_impl hk A B => BI_form_impl hk (loop A) (loop B)
-      | BI_form_bot h => BI_form_bot h
-      | BI_form_disj h A B => BI_form_disj h (loop A) (loop B)
-      end.
-
+  (* BI bunches *)
   Inductive BI_bunch :=
     | BI_bunch_atom : BI_form → BI_bunch
     | BI_bunch_unit : BI_kind → BI_bunch
     | BI_bunch_comp : BI_kind → BI_bunch → BI_bunch → BI_bunch
     .
 
+  Notation "'ø[' k ']'" := (BI_bunch_unit k) (at level 0, no associativity, format "ø[ k ]").
+  Notation "Γ '⊛[' k ']' Δ" := (BI_bunch_comp k Γ Δ) (at level 65, left associativity, format "Γ  ⊛[ k ]  Δ").
+
+  (* BI contexts, ie bunches with a single hole *)
   Inductive BI_ctx :=
     | BI_ctx_hole : BI_ctx
     | BI_ctx_comp : BI_side → BI_kind → BI_bunch → BI_ctx → BI_ctx.
 
-  Notation "'ø[' k ']'" := (BI_bunch_unit k) (at level 0, no associativity, format "ø[ k ]").
-  Notation "Γ '⊛[' k ']' Δ" := (BI_bunch_comp k Γ Δ) (at level 65, left associativity, format "Γ  ⊛[ k ]  Δ").
-
   Reserved Notation "x ≡ y" (at level 70, no associativity, format "x  ≡  y").
 
+  (* BI bunch equivalences defines two superposed free monoids *)
   Inductive BI_bunch_equiv : BI_bunch → BI_bunch → Prop :=
     | BI_bequiv_refl Γ : Γ ≡ Γ
     | BI_bequiv_sym Γ Δ : Γ ≡ Δ → Δ ≡ Γ
@@ -87,6 +84,7 @@ Section Logic_Bunched_Implications.
 
   Reserved Notation "C [ Δ ]" (at level 1, no associativity, format "C [ Δ ]").
 
+  (* Filling the hole with a bunch in a BI context *)
   Fixpoint BI_ctx_fill C Γ :=
     match C with
     | BI_ctx_hole                => Γ
@@ -108,16 +106,18 @@ Section Logic_Bunched_Implications.
   Notation "Γ '⊛ₐ' Δ" := (Γ ⊛[BI_addi] Δ) (at level 65, left associativity, format "Γ  ⊛ₐ  Δ").
   Notation "Γ '⊛ₘ' Δ" := (Γ ⊛[BI_mult] Δ) (at level 65, left associativity, format "Γ  ⊛ₘ  Δ").
 
+  (* Do we include the cut rule, or not *)
+  Variable cut : BI_cut.
+
   Reserved Notation "Γ ⊦ A" (at level 70, no associativity, format "Γ  ⊦  A").
 
-  Variable with_cut : BI_cut.
-
+  (* The rules of BI bunched sequent calculus, parameterized by µ, prop and cut *)
   Inductive LBI_provable : BI_bunch → BI_form → Prop :=
 
     | LBI_axiom A :               (*-------*)
                                     ⟨A⟩ ⊦ A
 
-    | LBI_cut (_ : with_cut = BI_with_cut) Γ Δ A B :
+    | LBI_cut (_ : cut = BI_with_cut) Γ Δ A B :
 
                               Γ ⊦ A   →   Δ[⟨A⟩] ⊦ B
                             (*----------------------*)
@@ -201,7 +201,12 @@ Section Logic_Bunched_Implications.
 
   Definition BI_sequent_problem := BI_form.
 
-  Definition BI_SEQ_PROVABLE (A : BI_sequent_problem) : Prop := ø[BI_addi] ⊦ A.
+  (* The problem øₐ ⊦ A is enough to recover the overall 
+     expressivity of BI problems Γ ⊦ A (thanks to eg 
+     cut-elimination which is not formally established herein). 
+     Anyway, the restricted question øₐ ⊦ A it is already 
+     undecidable on its own. *) 
+  Definition BI_SEQ_PROVABLE (A : BI_sequent_problem) : Prop := øₐ ⊦ A.
 
 End Logic_Bunched_Implications.
 
@@ -209,7 +214,12 @@ Section Hilbert_Calculus.
 
   Variables (prop : Set).
 
-  (* We only consider the full fragment for HBI *)
+  (** We only consider the full fragment for HBI because
+      Hilbert style axioms are not really connective specific.
+      ie you cannot remove ⇒ or -∗ (and their axioms/rules)
+      in a conservative way, that is without impacting the rest 
+      of the logic *)
+ 
   Abbreviation µ := (λ _ : BI_conn, true).
 
   Notation "⊤" := (@BI_form_unit µ _ BI_addi eq_refl).
@@ -239,7 +249,7 @@ Section Hilbert_Calculus.
     | IL_axiom_T : ⊦ᴵ ⊤
   where "⊦ᴵ A" := (IL_axiom A).
 
-  (* Specific Axioms for extending IL to BI *)
+  (* Specific axioms for extending IL to BI *)
   Inductive BI_axiom : BI_form µ prop → Prop :=
     | BI_axiom_1_r A : ⊦ᴮ A⇒1∗A
     | BI_axiom_1_l A : ⊦ᴮ 1∗A⇒A
@@ -249,14 +259,41 @@ Section Hilbert_Calculus.
 
   Reserved Notation "Φ ⊦ A" (at level 70, format "Φ  ⊦  A").
 
-  (* IL only has the M(odus) P(onens) rule,
-     BI has 3 more rules *)
+  (* IL only has one deduction rule, the M(odus) P(onens) rule,
+     while BI has 3 more deduction rules, for monotonicity and
+     the adjunction ∗/-∗ *)
   Inductive HBI_deduction Φ : BI_form µ prop → Prop :=
-    | HBI_axiom A : Φ A → Φ ⊦ A
-    | HBI_mp A B : Φ ⊦ A → Φ ⊦ A⇒B → Φ ⊦ B
-    | HBI_mult A B C D : Φ ⊦ A⇒C → Φ ⊦ B⇒D → Φ ⊦ (A∗B)⇒(C∗D)
-    | HBI_wand_1 A B C : Φ ⊦ A⇒(B-∗C) → Φ ⊦ (A∗B)⇒C
-    | HBI_wand_2 A B C : Φ ⊦ (A∗B)⇒C → Φ ⊦ A⇒(B-∗C)
+
+    | HBI_axiom A :
+
+                  Φ A 
+          →    (*-----*)
+                 Φ ⊦ A
+
+    | HBI_mp A B :
+
+                Φ ⊦ A   →   Φ ⊦ A⇒B
+          →   (*-------------------*)
+                      Φ ⊦ B
+
+    | HBI_mult A B C D :
+
+                Φ ⊦ A⇒C   →   Φ ⊦ B⇒D 
+          →   (*---------------------*)
+                   Φ ⊦ (A∗B)⇒(C∗D)
+
+    | HBI_wand_1 A B C :
+
+                 Φ ⊦ A⇒(B-∗C)
+          →    (*------------*)
+                 Φ ⊦ (A∗B)⇒C
+
+    | HBI_wand_2 A B C :
+
+                 Φ ⊦ (A∗B)⇒C
+          →    (*------------*)
+                 Φ ⊦ A⇒(B-∗C)
+
   where "Φ ⊦ A" := (HBI_deduction Φ A).
 
   Definition HBI_provable := HBI_deduction (λ A, ⊦ᴵ A ∨ ⊦ᴮ A).

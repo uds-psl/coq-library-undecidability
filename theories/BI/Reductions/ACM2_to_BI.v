@@ -20,7 +20,7 @@ From Undecidability.Synthetic
 
 Import BI_notations.
 
-Set Implicit Arguments.
+#[local] Set Implicit Arguments.
 
 Section embed_reduction.
 
@@ -74,13 +74,13 @@ Section LBI_Fragment.
 
   Local Fact Hµ c : BI_fragment_impl_conj_unit c = true → µ c = true.
   Proof using Hµ1 Hµ2 Hµ3 Hµ4. 
-    destruct c as [ k | k | k | | ]; try destruct k; simpl; now auto. 
+    destruct c as [ k | k | k | | ]; try destruct k; simpl; now auto.
   Qed.
 
   Local Theorem relative_reduction_LBI loc : @ACM2_ACCEPT loc ⪯ @BI_SEQ_PROVABLE µ (loc + bool) cut.
   Proof using Hµ1 Hµ2 Hµ3 Hµ4.
     apply reduces_dependent; exists.
-    intros (Σ & p & (x,y)).
+    intros ((Σ,p),(x,y)).
     exists (acm2_to_BI_form Σ x y p µ Hµ); split; intros H.
     + red in H.
       apply acm2_to_BI_correctness with (Hµ' := Hµ) in H; trivial.
@@ -103,7 +103,7 @@ Section HBI.
   Local Theorem relative_reduction_HBI loc : @ACM2_ACCEPT loc ⪯ @BI_HILBERT_PROVABLE (loc + bool).
   Proof.
     apply reduces_dependent; exists.
-    intros (Σ & p & (x,y)).
+    intros ((Σ,p),(x,y)).
     exists (acm2_to_BI_form Σ x y p (λ _, true) (λ _ _, eq_refl)); split; intros H; red in H |- *.
     + do 3 apply acm2_to_BI_correctness with (Hµ' := λ _ _, eq_refl) (cut := BI_with_cut) in H; trivial.
     + do 1 apply acm2_to_BI_correctness with (Hµ' := λ _ _, eq_refl) (cut := BI_with_cut); trivial.

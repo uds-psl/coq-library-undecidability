@@ -40,6 +40,8 @@ Proof.
   now apply ACM2_to_BI.reduction_LBI.
 Qed.
 
+Check LBI_undec.
+
 (* The notion of fragment is harder to manipulate
    for Hilbert style proof systems because axioms
    may relate connectives to each other. *)
@@ -50,5 +52,4 @@ Proof.
   now apply ACM2_to_BI.reduction_HBI.
 Qed.
 
-Check LBI_undec.
 Check HBI_undec.

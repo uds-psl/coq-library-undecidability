@@ -14,11 +14,11 @@ From Undecidability.BI
 
 Import ListNotations BI_notations LBI_tactics.
 
-Set Implicit Arguments.
-
-#[local] Notation "X ⊆ Y" := (∀m, X m → Y m) (at level 70).
+#[local] Set Implicit Arguments.
 
 Section LBI_full_HBI.
+
+  Notation "X ⊆ Y" := (∀m, X m → Y m) (at level 70).
 
   Variables (prop : Set).
 
@@ -48,7 +48,6 @@ Section LBI_full_HBI.
   Notation "Σ 'L⊦wc' A" := (@LBI_provable µ prop BI_with_cut Σ A) (at level 70, format "Σ  L⊦wc  A").
 
   (* We start by importing the proof theory of HIL into HBI *)
-
   Tactic Notation "solve" "with" constr(H) :=
      apply HIL_incl_HBI;
      apply HIL_mono with (@IL_axiom _); eauto using H.
@@ -429,9 +428,6 @@ Section LBI_full_HBI.
 
 End LBI_full_HBI.
 
-Check LBI_wc_equiv_HBI.
-
 Theorem LBI_to_HBI_form prop µ c (A : BI_form µ prop) : øₐ L⊦[c] A → H⊦ BI_form_map (λ _, true) (λ _ _, eq_refl) (λ p, p) A.
 Proof. now intros H%(LBI_map_sound (λ _, true) (λ _ _, eq_refl) (λ p, p) (λ _, eq_refl))%LBI_full_to_HBI_form. Qed.
 
-Check LBI_to_HBI_form.
