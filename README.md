@@ -1,18 +1,7 @@
 [![GitHub CI][gh-badge]][gh-link]
 
-[gh-badge]: https://github.com/uds-psl/coq-library-undecidability/actions/workflows/build.yml/badge.svg?branch=master
+[gh-badge]: https://github.com/uds-psl/coq-library-undecidability/actions/workflows/build.yml/badge.svg?branch=rocq-9.0
 [gh-link]: https://github.com/uds-psl/coq-library-undecidability/actions/workflows/build.yml
-
-# Manual installation for Rocq
-
-```
-opam switch create coq-library-undecidability --packages=ocaml-variants.4.14.1+options,ocaml-option-flambda
-eval $(opam env)
-opam pin add -k git rocq-runtime.dev "https://github.com/coq/coq.git#master"
-opam pin add -k git rocq-core.dev "https://github.com/coq/coq.git#master"
-opam pin add -k git rocq-stdlib.dev "https://github.com/coq/stdlib.git#master"
-opam pin add -k git rocq-prover.dev "https://github.com/coq/coq.git#master"
-```
 
 # Coq Library of Undecidability Proofs
 
@@ -116,17 +105,40 @@ An equivalence proof that most of the mentioned models of computation compute th
 - Halting problem for the call-by-value lambda-calculus (`HaltL` in [`L/L.v`](theories/L/L.v))
 - Validity, provability, and satisfiability in First-Order Logic (all problems in [`FOL/FOL.v`](theories/FOL/FOL.v))
 
+
 ## Manual Installation Instructions
 
-You need the `master` branch of `Coq` built on OCAML `>= 4.09.1`, and the Template-Coq (part of [MetaCoq](https://metacoq.github.io/)) package for Coq. If you are using opam 2 you can use the following commands to install the dependencies on a new switch:
+If you can use `opam 2` on your system, you can follow the instructions here.
+
+### Install from git via opam
+
+You can use `opam` to install the current state of this branch as follows.
+
+We recommend creating a fresh opam switch:
 
 ```
 opam switch create coq-library-undecidability --packages=ocaml-variants.4.14.1+options,ocaml-option-flambda
 eval $(opam env)
-opam pin add -k git rocq-runtime.dev "https://github.com/coq/coq.git#master"
-opam pin add -k git rocq-core.dev "https://github.com/coq/coq.git#master"
-opam pin add -k git rocq-stdlib.dev "https://github.com/coq/stdlib.git#master"
-opam pin add -k git rocq.dev "https://github.com/coq/coq.git#master"
+```
+
+Then the following commands install the library:
+
+```
+opam repo add coq-released https://coq.inria.fr/opam/released
+opam update
+opam pin add coq-library-undecidability.dev+9.0 "https://github.com/uds-psl/coq-library-undecidability.git#rocq-9.0"
+```
+
+### Manual installation
+
+You need `Rocq 9.0` built on OCAML `>= 4.09.1` (but we recommend and test OCaml version `4.14.1+flambda`) and the Template-Coq part of the [MetaCoq](https://metacoq.github.io/) package for Coq. If you are using `opam 2` you can use the following commands to install the dependencies on a new switch:
+
+```
+opam switch create coq-library-undecidability --packages=ocaml-variants.4.14.1+options,ocaml-option-flambda
+eval $(opam env)
+opam repo add rocq-released https://rocq-prover.org/opam/released
+opam update
+opam install . --deps-only
 ```
 
 #### Building the undecidability library

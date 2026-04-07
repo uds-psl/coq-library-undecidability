@@ -112,6 +112,21 @@ Section Non_deterministic_Minsky_Machines.
 
 End Non_deterministic_Minsky_Machines.
 
+Arguments ndmm2_stop {_}.
+Arguments ndmm2_inc {_}.
+Arguments ndmm2_dec {_}.
+Arguments ndmm2_zero {_}.
+
+Module ndMM2_Notations.
+
+  Abbreviation STOPₙ := ndmm2_stop.
+  Abbreviation INCₙ  := ndmm2_inc.
+  Abbreviation DECₙ  := ndmm2_dec.
+  Abbreviation ZEROₙ := ndmm2_zero.
+
+End ndMM2_Notations.
+
+
 
 
 
