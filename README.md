@@ -1,6 +1,6 @@
 [![GitHub CI][gh-badge]][gh-link]
 
-[gh-badge]: https://github.com/uds-psl/coq-library-undecidability/actions/workflows/build.yml/badge.svg?branch=rocq-9.0
+[gh-badge]: https://github.com/uds-psl/coq-library-undecidability/actions/workflows/build.yml/badge.svg?branch=rocq-9.2
 [gh-link]: https://github.com/uds-psl/coq-library-undecidability/actions/workflows/build.yml
 
 # Coq Library of Undecidability Proofs
@@ -131,7 +131,7 @@ opam pin add coq-library-undecidability.dev+9.0 "https://github.com/uds-psl/coq-
 
 ### Manual installation
 
-You need `Rocq 9.0` built on OCAML `>= 4.09.1` (but we recommend and test OCaml version `4.14.1+flambda`) and the Template-Coq part of the [MetaCoq](https://metacoq.github.io/) package for Coq. If you are using `opam 2` you can use the following commands to install the dependencies on a new switch:
+You need `Rocq 9.2` built on OCAML `>= 4.09.1` (but we recommend and test OCaml version `4.14.1+flambda`) and the Template-Coq part of the [MetaCoq](https://metacoq.github.io/) package for Coq. If you are using `opam 2` you can use the following commands to install the dependencies on a new switch:
 
 ```
 opam switch create coq-library-undecidability --packages=ocaml-variants.4.14.1+options,ocaml-option-flambda
