@@ -69,6 +69,8 @@ An equivalence proof that most of the mentioned models of computation compute th
 - Entailment in Intuitionistic Linear Logic (`ILL_PROVABILITY` in [`ILL/ILL.v`](theories/ILL/ILL.v))
 - Entailment in Classical Linear Logic (`CLL_cf_PROVABILITY` in [`ILL/CLL.v`](theories/ILL/CLL.v))
 - Entailment in Intuitionistic Multiplicative Sub-Exponential Linear Logic (`IMSELL_cf_PROVABILITY3` in [`ILL/IMSELL.v`](theories/ILL/IMSELL.v))
+- Entailment in the Bunched sequent calculus for the logic BI of bunched implications (`BI_SEQ_PROVABLE`) and 
+  of provability in its Hilbert calculus (`BI_HILBERT_PROVABLE`) in [`BI/BI.v`](theories/BI/BI.v); see also the [_undecidability of BI_](theories/BI/BI.md)
 - Provability in Hilbert-style calculi (`HSC_PRV` in [`HilbertCalculi/HSC.v`](theories/HilbertCalculi/HSC.v))
 - Recognizing axiomatizations of Hilbert-style calculi (`HSC_AX` in [`HilbertCalculi/HSC.v`](theories/HilbertCalculi/HSC.v))
 - Satisfiability in Separation Logic (`SLSAT` in [SeparationLogic/SL.v](theories/SeparationLogic/SL.v) and `MSLSAT` in [SeparationLogic/MSL.v](theories/SeparationLogic/MSL.v))
@@ -78,6 +80,7 @@ An equivalence proof that most of the mentioned models of computation compute th
 #### Other Problems
 
 - Acceptance problem for two counters non-deterministic Minsky machines (`ndMM2_ACCEPT` in [`MinskyMachines/ndMM2.v`](theories/MinskyMachines/ndMM2.v))
+- Acceptance problem for [_two counters And branching machines_](https://doi.org/10.1016/0168-0072(92)90075-B) (`ACM2_ACCEPT` in [`MinskyMachines/ACM2.v`](theories/MinskyMachines/ACM2.v)), see also the [_undecidability of BI_](theories/BI/BI.md)
 - String rewriting in Semi-Thue and Thue-systems (`SR` and `TSR` in [`StringRewriting/SR.v`](theories/StringRewriting/SR.v))
 - String rewriting in Post canonical systems in normal form (`PCSnf` in [`StringRewriting/PCSnf.v`](theories/StringRewriting/PCSnf.v))
 - Hilbert's 10th problem, i.e. solvability of a single diophantine equation (`H10` in [`H10/H10.v`](theories/H10/H10.v))
