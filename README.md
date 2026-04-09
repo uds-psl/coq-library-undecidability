@@ -69,8 +69,8 @@ An equivalence proof that most of the mentioned models of computation compute th
 - Entailment in Intuitionistic Linear Logic (`ILL_PROVABILITY` in [`ILL/ILL.v`](theories/ILL/ILL.v))
 - Entailment in Classical Linear Logic (`CLL_cf_PROVABILITY` in [`ILL/CLL.v`](theories/ILL/CLL.v))
 - Entailment in Intuitionistic Multiplicative Sub-Exponential Linear Logic (`IMSELL_cf_PROVABILITY3` in [`ILL/IMSELL.v`](theories/ILL/IMSELL.v))
-- Entailment in the Bunched sequent calculus for the logic BI of bunched implications (`BI_SEQ_PROVABLE`) and 
-  of provability in its Hilbert calculus (`BI_HILBERT_PROVABLE`) in [`BI/BI.v`](theories/BI/BI.v); see also the [_undecidability of BI_](theories/BI/BI.md)
+- Entailment in the (bunched) sequent calculus for the logic of Bunched Implications (BI) (`BI_SEQ_PROVABLE`) and 
+  of provability in its Hilbert calculus (`BI_HILBERT_PROVABLE`), to be found in [`BI/BI.v`](theories/BI/BI.v); see also the [_undecidability of BI_](theories/BI/BI.md)
 - Provability in Hilbert-style calculi (`HSC_PRV` in [`HilbertCalculi/HSC.v`](theories/HilbertCalculi/HSC.v))
 - Recognizing axiomatizations of Hilbert-style calculi (`HSC_AX` in [`HilbertCalculi/HSC.v`](theories/HilbertCalculi/HSC.v))
 - Satisfiability in Separation Logic (`SLSAT` in [SeparationLogic/SL.v](theories/SeparationLogic/SL.v) and `MSLSAT` in [SeparationLogic/MSL.v](theories/SeparationLogic/MSL.v))
