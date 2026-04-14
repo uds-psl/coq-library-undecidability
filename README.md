@@ -1,6 +1,6 @@
 [![GitHub CI][gh-badge]][gh-link]
 
-[gh-badge]: https://github.com/uds-psl/coq-library-undecidability/actions/workflows/build.yml/badge.svg?branch=rocq-9.2
+[gh-badge]: https://github.com/uds-psl/coq-library-undecidability/actions/workflows/build.yml/badge.svg?branch=rocq-9.0
 [gh-link]: https://github.com/uds-psl/coq-library-undecidability/actions/workflows/build.yml
 
 # Coq Library of Undecidability Proofs
