@@ -294,7 +294,19 @@ Section LBI_full_HBI.
  
   End HBI_ctx_equiv.
 
-  Fact HBI_ctx_disj Δ A B : H⊦ BI_bunch_form Δ[⟨A⩒B⟩] ⇒ BI_bunch_form Δ[⟨A⟩]⩒BI_bunch_form Δ[⟨B⟩].
+  Fact HBI_ctx_bot_bot Δ : H⊦ ⟪Δ[⟨⊥⟩]⟫ ⇒ ⊥.
+  Proof.
+    induction Δ as [ | [] [] ]; simpl; auto.
+    + eapply HBI_trans with (2 := HBI_bot_mult_r _); eauto.
+    + eapply HBI_trans with (2 := HBI_bot_conj_r _); eauto.
+    + eapply HBI_trans with (2 := HBI_bot_mult_l _); eauto.
+    + eapply HBI_trans with (2 := HBI_bot_conj_l _); eauto.
+  Qed. 
+
+  Fact HBI_ctx_bot Δ A : H⊦ ⟪Δ[⟨⊥⟩]⟫ ⇒ A.
+  Proof. apply HBI_trans with (1 := HBI_ctx_bot_bot _), HBI_bot_elim. Qed.
+
+  Fact HBI_ctx_disj Δ A B : H⊦ ⟪Δ[⟨A⩒B⟩]⟫ ⇒ ⟪Δ[⟨A⟩]⟫⩒⟪Δ[⟨B⟩]⟫.
   Proof.
     induction Δ as [ | [] [] ]; simpl; auto.
     + apply HBI_trans with (2 := HBI_mult_disj_r _ _ _); auto.
@@ -311,10 +323,10 @@ Section LBI_full_HBI.
                  HBI_wand_adj HBI_imp_adj
                  HBI_wand_adj_2 HBI_imp_adj_2
                  HBI_disj_lub
-                 HBI_bot_elim 
+                 HBI_ctx_bot
                  HBI_disj_intro_l HBI_disj_intro_r : core.
 
-    Theorem LBI_full_to_HBI Γ A : Γ L⊦wc A → H⊦ BI_bunch_form Γ⇒A.
+    Theorem LBI_full_to_HBI Γ A : Γ L⊦wc A → H⊦ ⟪Γ⟫⇒A.
     Proof.
       induction 1 as [ 
                      | ? Γ Δ A B _ IH1 _ IH2 
@@ -394,6 +406,8 @@ Section LBI_full_HBI.
             apply BI_bequiv_trans with (2 := BI_bequiv_comm _ _ _), BI_bequiv_sym, BI_bequiv_neut.
           - apply LBI_equiv with (1 := BI_bequiv_sym (BI_bequiv_assoc _ _ _ _)).
             rule LBI_weak at [lft]; eauto.
+        * apply LBI_impl_r, LBI_neut_l.
+          rule LBI_bot_l at [].
       + destruct H as [ A | A | A B | A B C ].
         * apply LBI_impl_r, LBI_neut_l.
           apply LBI_equiv with (1 := BI_bequiv_neut BI_mult _); auto. 
@@ -423,7 +437,7 @@ Section LBI_full_HBI.
 
   Hint Resolve LBI_full_to_HBI_form HBI_to_LBI_full : core.
 
-  Corollary LBI_wc_equiv_HBI A :  øₐ L⊦wc A ↔ H⊦ A.
+  Corollary LBI_wc_equiv_HBI A : øₐ L⊦wc A ↔ H⊦ A.
   Proof. split; auto. Qed.
 
 End LBI_full_HBI.
