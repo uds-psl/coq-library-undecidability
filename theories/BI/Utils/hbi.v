@@ -326,7 +326,7 @@ Section LBI_full_HBI.
                  HBI_ctx_bot
                  HBI_disj_intro_l HBI_disj_intro_r : core.
 
-    Theorem LBI_full_to_HBI Γ A : Γ L⊦wc A → H⊦ BI_bunch_form Γ⇒A.
+    Theorem LBI_full_to_HBI Γ A : Γ L⊦wc A → H⊦ ⟪Γ⟫⇒A.
     Proof.
       induction 1 as [ 
                      | ? Γ Δ A B _ IH1 _ IH2 
@@ -437,7 +437,7 @@ Section LBI_full_HBI.
 
   Hint Resolve LBI_full_to_HBI_form HBI_to_LBI_full : core.
 
-  Corollary LBI_wc_equiv_HBI A :  øₐ L⊦wc A ↔ H⊦ A.
+  Corollary LBI_wc_equiv_HBI A : øₐ L⊦wc A ↔ H⊦ A.
   Proof. split; auto. Qed.
 
 End LBI_full_HBI.
