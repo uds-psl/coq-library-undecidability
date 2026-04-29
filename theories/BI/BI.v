@@ -174,10 +174,10 @@ Section Logic_Bunched_Implications.
                                (*--------------*)
                           →       Γ ⊦ A-⊙[hk]B
 
-    | LBI_bot_l (h : µ BI_bot = true) A :
+    | LBI_bot_l (h : µ BI_bot = true) Γ A :
 
-                                (*--------------*)
-                                   ⟨⊥[h]⟩ ⊦ A
+                               (*-------------*)
+                                 Γ[⟨⊥[h]⟩] ⊦ A
 
     | LBI_disj_l (h : µ BI_disj = true) Γ A B C :
 
