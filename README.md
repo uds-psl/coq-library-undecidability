@@ -77,6 +77,11 @@ An equivalence proof that most of the mentioned models of computation compute th
 - Validity and satisfiability in Second-Order Peano Arithmetic ([`SOL/PA2.v`](theories/SOL/PA2.v))
 - Validity and satisfiability in Second-Order Logic in the empty signature ([`SOL/SOL.v`](theories/SOL/SOL.v))
 
+#### Problems in Formal Languages and Automata
+
+- Context-Free Grammar intersection inhabitedness (`CFI` in [`CFG/CFG.v`](theories/CFG/CFG.v))
+- Presence of palindromes in the language of a Context-Free Grammar (`CFP` in [`CFG/CFG.v`](theories/CFG/CFG.v))
+
 #### Other Problems
 
 - Acceptance problem for two counters non-deterministic Minsky machines (`ndMM2_ACCEPT` in [`MinskyMachines/ndMM2.v`](theories/MinskyMachines/ndMM2.v))
@@ -137,7 +142,7 @@ opam pin add coq-library-undecidability.dev+9.2 "https://github.com/uds-psl/coq-
 You need `Rocq 9.2` built on OCAML `>= 4.09.1` (but we recommend and test OCaml version `4.14.2+flambda`) and the Template-Coq part of the [MetaCoq](https://metacoq.github.io/) package for Coq. If you are using `opam 2` you can use the following commands to install the dependencies on a new switch:
 
 ```
-opam switch create coq-library-undecidability --packages=ocaml-variants.4.14.2+opthons,ocaml-option-flambda
+opam switch create coq-library-undecidability --packages=ocaml-variants.4.14.2+options,ocaml-option-flambda
 eval $(opam env)
 opam repo add rocq-released https://rocq-prover.org/opam/released
 opam update
