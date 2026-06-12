@@ -3,7 +3,7 @@ Import ListNotations.
 
 Definition stack (X : Type) := list (list X * list X).
 
-(* ** Post Grammars *)
+(* ** Context-Free Grammars *)
 
 Abbreviation sig := nat.
 (* a rule maps a non-terminal symbol to a word *)
