@@ -120,7 +120,7 @@ You can use `opam` to install the current state of this branch as follows.
 We recommend creating a fresh opam switch:
 
 ```
-opam switch create coq-library-undecidability --packages=ocaml-variants.4.14.1+options,ocaml-option-flambda
+opam switch create coq-library-undecidability --packages=ocaml-variants.4.14.2+options,ocaml-option-flambda
 eval $(opam env)
 ```
 
@@ -129,15 +129,15 @@ Then the following commands install the library:
 ```
 opam repo add coq-released https://coq.inria.fr/opam/released
 opam update
-opam pin add coq-library-undecidability.dev+9.0 "https://github.com/uds-psl/coq-library-undecidability.git#rocq-9.0"
+opam pin add coq-library-undecidability.dev+9.2 "https://github.com/uds-psl/coq-library-undecidability.git#rocq-9.2"
 ```
 
 ### Manual installation
 
-You need `Rocq 9.0` built on OCAML `>= 4.09.1` (but we recommend and test OCaml version `4.14.1+flambda`) and the Template-Coq part of the [MetaCoq](https://metacoq.github.io/) package for Coq. If you are using `opam 2` you can use the following commands to install the dependencies on a new switch:
+You need `Rocq 9.2` built on OCAML `>= 4.09.1` (but we recommend and test OCaml version `4.14.2+flambda`) and the Template-Coq part of the [MetaCoq](https://metacoq.github.io/) package for Coq. If you are using `opam 2` you can use the following commands to install the dependencies on a new switch:
 
 ```
-opam switch create coq-library-undecidability --packages=ocaml-variants.4.14.1+options,ocaml-option-flambda
+opam switch create coq-library-undecidability --packages=ocaml-variants.4.14.2+options,ocaml-option-flambda
 eval $(opam env)
 opam repo add rocq-released https://rocq-prover.org/opam/released
 opam update
@@ -162,7 +162,7 @@ The library is compatible with Coq's compiled interfaces ([`vos`](https://coq.in
 
 #### Coq version
 
-Be careful that this branch only compiles under `Coq 8.16`. If you want to use a different Coq version you have to change to a different branch.
+Be careful that this branch only compiles under `Rocq 9.2`. If you want to use a different Coq version you have to change to a different branch.
 Due to compatibility issues, not every branch contains exactly the same problems. 
 We recommend to use the newest branch if possible.
 

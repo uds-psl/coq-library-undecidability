@@ -130,7 +130,7 @@ Section enumerable_definitions.
 
     Theorem type_enum_t_by_measure : type_enum_t.
     Proof using Hm.
-      apply constructive_choice in Hm; destruct Hm as (f & Hf); clear Hm.
+      apply constructive_choice in Hm; destruct Hm as (f & Hf).
       exists (fun j => let (a,n) := surj j in f a n).
       intros x.
       destruct (proj1 (Hf _ x) (Nat.le_refl _)) as (a & Ha).

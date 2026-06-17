@@ -920,7 +920,7 @@ Section FirstOrderDecidable.
   
 
 
-  Let free (k: nat) (x: nat) := x >= k.
+  Local Definition free (k: nat) (x: nat) := x >= k.
 
   Instance dec_free k: Dec1 (free k).
   Proof. unfold free; typeclasses eauto. Qed.
@@ -1024,7 +1024,7 @@ Section FirstOrderDecidable.
       * specialize decr_typing with (L := rev L) as H9; simplify in H9; eauto. 
       * eapply decr_unifies; eauto.
         specialize (unify_unifiable H' (AppR s T, AppR t T0)); cbn; auto.
-      * eapply lambda_free_normal. pose proof (free := fun (k: nat) (x: nat) => x >= k).
+      * eapply lambda_free_normal.
         eapply decr_lambda_free; intros; eapply LF.
     + intros (Delta & sigma & E1 & E2 & E3).  asimpl in E2. 
       eapply Lambda_injective in E2.
