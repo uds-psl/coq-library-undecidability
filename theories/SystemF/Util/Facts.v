@@ -34,7 +34,7 @@ Qed.
 
 Lemma Forall_seqP {P : nat -> Prop} {m n: nat} : 
   Forall P (seq m n) <-> (forall i, m <= i < m + n -> P i).
-Proof. rewrite Forall_forall. constructor; move=> H ? ?; apply H; by apply /in_seq. Qed.
+Proof. rw Forall_forall. constructor; move=> H ? ?; apply H; by apply /in_seq. Qed.
 
 Lemma in_app_l {X: Type} {x: X} {l1 l2: list X} : In x l1 -> In x (l1 ++ l2).
 Proof. move=> ?. apply /in_app_iff. by left. Qed.

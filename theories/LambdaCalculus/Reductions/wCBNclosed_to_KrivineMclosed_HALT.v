@@ -43,7 +43,7 @@ Definition many_app s ts := fold_left app ts s.
 Lemma step_many_app s t ts : step s t -> step (many_app s ts) (many_app t ts).
 Proof.
   elim /rev_ind: ts. { done. }
-  move=> ?? IH /= ?. rewrite !fold_left_app /=.
+  move=> ?? IH /= ?. rw !fold_left_app /=.
   by auto using step with nocore.
 Qed.
 
@@ -53,18 +53,18 @@ Proof.
   elim.
   - move=> > ? [t'] /= Ht'. exists t'.
     move: Ht'. congr clos_refl_trans.
-    congr fold_left. rewrite !simpl_term.
-    apply: ext_subst_term => n. by rewrite /= !simpl_term.
+    congr fold_left. rw !simpl_term.
+    apply: ext_subst_term => n. by rw /= !simpl_term.
   - done.
   - done.
   - move=> [? ?] > ? [t'] /= Ht'. exists t'.
     apply: rt_trans; last by eassumption.
     apply: rt_step. apply: step_many_app.
-    apply: stepLam'. rewrite !simpl_term /=.
+    apply: stepLam'. rw !simpl_term /=.
     apply: ext_subst_term. move=> [|n] /=.
-    + rewrite !simpl_term. apply: ext_subst_term => n.
-      by rewrite /= !simpl_term.
-    + by rewrite !simpl_term ren_as_subst_term.
+    + rw !simpl_term. apply: ext_subst_term => n.
+      by rw /= !simpl_term.
+    + by rw !simpl_term ren_as_subst_term.
   - move=> >. eexists. by apply: rt_refl.
 Qed.
 
@@ -77,10 +77,10 @@ Theorem reduction : wCBNclosed ⪯ KrivineMclosed_HALT.
 Proof.
   exists id.
   move=> [s Hs].
-  have H's : closed s. { apply: closed_I => k. by rewrite L_subst_Lambda_subst. }
+  have H's : closed s. { apply: closed_I => k. by rw L_subst_Lambda_subst. }
   split.
   - move=> [t]. move: H's => /Argument.simulation /[apply].
     apply. by constructor.
-  - move=> /Argument.inverse_simulation [t'] /=. rewrite Hs.
+  - move=> /Argument.inverse_simulation [t'] /=. rw Hs.
     move=> ?. by exists t'.
 Qed.

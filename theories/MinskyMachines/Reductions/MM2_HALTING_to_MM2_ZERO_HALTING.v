@@ -48,7 +48,7 @@ Section MM2_MM2.
 
   Lemma length_M' : length M' = a0+b0+length M.
   Proof.
-    by rewrite /M' !length_app !repeat_length length_map Nat.add_assoc.
+    by rw /M' !length_app !repeat_length length_map Nat.add_assoc.
   Qed.
 
   Lemma init_a0 n : n <= a0 -> mm2'_reaches (1, (0, 0)) (1+n, (n, 0)).
@@ -57,21 +57,21 @@ Section MM2_MM2.
     move=> n IH ?. apply: rt_trans; [|apply: rt_step].
     - apply: IH. lia.
     - exists mm2_inc_a. split; [|constructor].
-      rewrite /M'. apply /nth_error_Some_mm2_instr_at_iff.
-      rewrite nth_error_app1. { by rewrite repeat_length. }
+      rw /M'. apply /nth_error_Some_mm2_instr_at_iff.
+      rw nth_error_app1. { by rw repeat_length. }
       by apply: nth_error_repeat.
   Qed.
 
   Lemma init_b0 n : n <= b0 -> mm2'_reaches (1+a0, (a0, 0)) (1+a0+n, (a0, n)).
   Proof.
-    elim: n. { move=> _. rewrite Nat.add_0_r. by apply: rt_refl. }
+    elim: n. { move=> _. rw Nat.add_0_r. by apply: rt_refl. }
     move=> n IH ?. apply: rt_trans; [|apply: rt_step].
     - apply: IH. lia.
     - exists mm2_inc_b. have ->: 1 + a0 + S n = S (1 + a0 + n) by lia.
       split; [|constructor].
-      rewrite /M' /=. apply /nth_error_Some_mm2_instr_at_iff.
-      rewrite nth_error_app2 repeat_length. { lia. }
-      rewrite nth_error_app1. { rewrite repeat_length. lia. }
+      rw /M' /=. apply /nth_error_Some_mm2_instr_at_iff.
+      rw nth_error_app2 repeat_length. { lia. }
+      rw nth_error_app1. { rw repeat_length. lia. }
       apply: nth_error_repeat. lia.
   Qed.
 
@@ -84,11 +84,11 @@ Section MM2_MM2.
   Proof.
     move=> /[dup] /mm2_instr_at_pos -> /nth_error_Some_mm2_instr_at_iff Hp /=.
     apply /nth_error_Some_mm2_instr_at_iff.
-    rewrite /M'.
-    rewrite nth_error_app2 repeat_length. { lia. }
-    rewrite nth_error_app2 repeat_length. { lia. }
+    rw /M'.
+    rw nth_error_app2 repeat_length. { lia. }
+    rw nth_error_app2 repeat_length. { lia. }
     have -> : Nat.pred p + a0 + b0 - a0 - b0 = Nat.pred p by lia.
-    by rewrite nth_error_map Hp.
+    by rw nth_error_map Hp.
   Qed.
 
   Lemma mm2_step_sim x y :
@@ -106,17 +106,17 @@ Section MM2_MM2.
   Lemma mm2_step_sim' x y x' :
     mm2_step M x y -> sync x x' -> exists y', clos_trans _ (mm2_step M') x' y' /\ sync y y'.
   Proof.
-    move=> /mm2_step_sim Hxy. rewrite /sync => <-.
+    move=> /mm2_step_sim Hxy. rw /sync => <-.
     exists (shift_state y). by split; [apply: t_step|].
   Qed.
 
   Lemma mm2_stuck_sim' x x' :
     sim.stuck (mm2_step M) x -> sync x x' -> sim.terminates (mm2_step M') x'.
   Proof.
-    rewrite /sync => /mm2_stop_index_iff Hx <-. exists (shift_state x).
+    rw /sync => /mm2_stop_index_iff Hx <-. exists (shift_state x).
     split; [apply: rt_refl|].
     apply /mm2_stop_index_iff.
-    rewrite length_M'.
+    rw length_M'.
     move: x Hx => [[|p] [a b]] /=; lia.
   Qed.
 
@@ -133,7 +133,7 @@ Section MM2_MM2.
     move=> [y'] [Hxy' Hy']. have Hinit := init_a0b0.
     have Hx'y' : mm2'_reaches (shift_state (1, (a0, b0))) y'.
     { have [z [/mm2_steps_stop_refl Hyz Hinitz]] := mm2_steps_confluent Hxy' Hinit.
-      by rewrite -(Hyz Hy'). }
+      by rw -(Hyz Hy'). }
     have Hsim := sim.terminates_reflection (sim.deterministic_uniformly_confluent _ (@mm2_step_det M')) mm2_step_sim' (mm2_exists_step_dec M).
     apply: (Hsim _ _ erefl).
     by exists y'.

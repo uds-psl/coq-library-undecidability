@@ -108,7 +108,7 @@ Proof.
       * move=> *. by do 3 econstructor; eassumption.
     + move=> [|?] /=.
       * move=> > [] *. subst. do 3 econstructor; [done|].
-        rewrite in_app_iff. tauto.
+        rw in_app_iff. tauto.
       * by apply: IH.
 Qed.
 
@@ -218,7 +218,7 @@ Lemma type_assignment_allfv_substE Gamma1 Gamma2 M N s phi t :
 Proof.
   move=> HM /(type_assignment_ren_fv _ (Gamma1 ++ (s, phi) :: Gamma2)
     (fun n => match (length Gamma1) - n with 0 => S n | _ => n end)).
-  rewrite !simpl_term.
+  rw !simpl_term.
   have : forall (A B C : Prop), A -> (B -> C) -> (A -> B) -> C by auto.
   apply.
   { apply: allfv_subst. apply: allfv_impl HM.
@@ -229,12 +229,12 @@ Proof.
       apply: allfv_impl H'.
       move=> x' /= {}IH > /IH <-.
       by case: (_ - _). }
-  congr type_assignment. rewrite -[RHS]subst_var_term.
+  congr type_assignment. rw -[RHS]subst_var_term.
   apply: ext_allfv_subst_term.
   apply: allfv_impl HM.
   elim: (length Gamma1). { by case. }
   move=> x IH [|?] /=; [done|].
-  move=> /IH. rewrite !simpl_term /=.
+  move=> /IH. rw !simpl_term /=.
   move: (Nat.iter _ _ _ _) => [? []|??|?] /=; [|done..].
   move=> <-. congr var. by case: (_ - _).
 Qed.
@@ -263,18 +263,18 @@ Proof.
     move=> HN. exists (t, nil). clear H.
     split; [|split; [|done]].
     + econstructor; [|by left].
-      by rewrite nth_error_app2 ?Nat.sub_diag; [lia|].
+      by rw nth_error_app2 ?Nat.sub_diag; [lia|].
     + elim: Gamma1 HN; [done|].
       move=> ? Gamma1 IH /= H. apply: IH.
       move: H=> /(type_assignment_ren_fv _ (Gamma1 ++ Gamma2) Nat.pred).
-      rewrite !simpl_term. apply. apply: allfv_ren.
+      rw !simpl_term. apply. apply: allfv_ren.
       by apply: allfv_trivial=> - [|?] /=.
   - move=> M1 + M2 + Gamma1 t.
     move=> /(_ Gamma1) + /(_ Gamma1).
     set P := (Nat.iter (length Gamma1) (scons True) is_nonzero).
     move=> IH1 IH2 H /=.
     have HP : forall n, Decidable.decidable (P n).
-    { rewrite /P /Decidable.decidable /=.
+    { rw /P /Decidable.decidable /=.
       elim: (Gamma1) => /=.
       - case; by auto.
       - move=> ?? IH [|?] /=; by auto. }
@@ -292,13 +292,13 @@ Proof.
       * econstructor.
         ** by apply: H'M1.
         ** apply: type_assignment_weaken_assumption; [|by eassumption].
-            move=> ?. do ? rewrite  /= in_app_iff; tauto. 
+            move=> ?. do ? rw  /= in_app_iff; tauto. 
         ** move: Hphi'. elim; [done|].
             move=> ? [??] > /= [?] [??] _ H'. constructor.
             *** apply: type_assignment_weaken_assumption; [|by eassumption].
-                move=> ?. do ? rewrite  /= in_app_iff; tauto. 
+                move=> ?. do ? rw  /= in_app_iff; tauto. 
             *** apply: Forall_impl H' => ?. apply: type_assignment_weaken_assumption.
-                move=> ?. do ? rewrite  /= in_app_iff; tauto.
+                move=> ?. do ? rw  /= in_app_iff; tauto.
       * by eassumption.
       * apply /Forall_app. split; [by eassumption|].
         apply /Forall_concat /Forall_map. elim: Hphi'; [done|].
@@ -317,16 +317,16 @@ Proof.
       split; [|split].
       * econstructor.
         ** apply: type_assignment_weaken_assumption; [|by eassumption].
-            move=> ?. do ? rewrite  /= in_app_iff; tauto. 
+            move=> ?. do ? rw  /= in_app_iff; tauto. 
         ** apply: type_assignment_weaken_assumption; [|by eassumption].
-            move=> ?. do ? rewrite  /= in_app_iff; tauto.
+            move=> ?. do ? rw  /= in_app_iff; tauto.
         ** move: Hphi'. elim; [done|].
             move=> ? [??] > [?] [??] _ H'. constructor.
             *** apply: type_assignment_weaken_assumption; [|by eassumption].
-                move=> ?. do ? rewrite  /= in_app_iff; tauto.
+                move=> ?. do ? rw  /= in_app_iff; tauto.
             *** apply: Forall_impl H' => ?.
                 apply: type_assignment_weaken_assumption.
-                move=> ?. do ? rewrite  /= in_app_iff; tauto.
+                move=> ?. do ? rw  /= in_app_iff; tauto.
       * eassumption.
       * apply /Forall_app. split; [done|].
         apply: Forall_cons; [done|].
@@ -362,15 +362,15 @@ Proof.
   case.
   - elim; by auto using step.
   - elim; [|by auto using step..].
-    move=> > _. apply: stepSubst'. by rewrite !simpl_term.
+    move=> > _. apply: stepSubst'. by rw !simpl_term.
 Qed.
 
 Lemma has_var_zero_dec M : has_var_zero M \/ exists M', M = ren S M'.
 Proof.
   case: (@allfv_dec (fun n => match n with 0 => False | _ => True end) M).
   - move=> [|?]; tauto.
-  - move=> H. right. exists (ren Nat.pred M). rewrite simpl_term.
-    rewrite -[LHS]ren_id_term. apply: ext_allfv_ren_term.
+  - move=> H. right. exists (ren Nat.pred M). rw simpl_term.
+    rw -[LHS]ren_id_term. apply: ext_allfv_ren_term.
     by apply: allfv_impl H => - [|?].
   - move=> ?. by left.
 Qed.

@@ -81,10 +81,10 @@ Local Notation "§0^ n" := (repeat §0 n) (at level 10, format "§0^ n").
 
 Opaque Nat.add Nat.mul List.app List.repeat.
 
-(* rewrite rules to simplify nat expressions *)
+(* rw rules to simplify nat expressions *)
 Definition nat_norm := (Nat.add_0_r, Nat.add_0_l, Nat.sub_0_r, Nat.sub_diag, Nat.mul_1_r, Nat.mul_1_l, Nat.mod_1_r).
 
-(* rewrite rules to simplify list app expressions *)
+(* rw rules to simplify list app expressions *)
 Definition app_norm := 
   (app_nil_l, app_nil_r, @app_assoc', @repeat_app', @repeat_app_appP, @repeat_singP _ §0, @cons_repeat_app _ §0).
 
@@ -203,49 +203,49 @@ Section Reduction.
 
   (* infrastructure hints *)
   Lemma in_index_try_spec_M {i j n} : In (i, (j, n)) iP -> In (index_try_spec (i, (j, n))) M.
-  Proof. move=> ?. rewrite /M -[locked index_ops]lock. apply /in_app_l /in_app_l /in_map_iff. by eexists. Qed.
+  Proof. move=> ?. rw /M -[locked index_ops]lock. apply /in_app_l /in_app_l /in_map_iff. by eexists. Qed.
   
   Lemma in_index_no_spec_M {i j n} : In (i, (j, n)) iP -> In (index_no_spec (i, (j, n))) M.
-  Proof. move=> ?. rewrite /M -[locked index_ops]lock. apply /in_app_l /in_app_r /in_app_l /in_map_iff. by eexists. Qed.
+  Proof. move=> ?. rw /M -[locked index_ops]lock. apply /in_app_l /in_app_r /in_app_l /in_map_iff. by eexists. Qed.
   
   Lemma in_index_yes_spec_1_M {i j n} : In (i, (j, n)) iP -> In (index_yes_spec_1 (i, (j, n))) M.
-  Proof. move=> ?. rewrite /M -[locked index_ops]lock. apply /in_app_l /in_app_r /in_app_r /in_app_l /in_map_iff. by eexists. Qed.
+  Proof. move=> ?. rw /M -[locked index_ops]lock. apply /in_app_l /in_app_r /in_app_r /in_app_l /in_map_iff. by eexists. Qed.
   
   Lemma in_index_yes_spec_n1_M {i j n} : In (i, (j, n)) iP -> In (index_yes_spec_n1 (i, (j, n))) M.
-  Proof. move=> ?. rewrite /M -[locked index_ops]lock. apply /in_app_l /in_app_r /in_app_r /in_app_r /in_map_iff. by eexists. Qed.
+  Proof. move=> ?. rw /M -[locked index_ops]lock. apply /in_app_l /in_app_r /in_app_r /in_app_r /in_map_iff. by eexists. Qed.
 
   Lemma in_bound_try_spec_1_M : In bound_try_spec_1 M.
-  Proof. rewrite /M -[locked bound_ops]lock. do 4 (apply /in_app_r). apply /in_app_l. by left. Qed.
+  Proof. rw /M -[locked bound_ops]lock. do 4 (apply /in_app_r). apply /in_app_l. by left. Qed.
 
   Lemma in_bound_try_spec_01_M : In bound_try_spec_01 M.
-  Proof. rewrite /M -[locked bound_ops]lock. do 5 (apply /in_app_r). apply /in_app_l. by left. Qed.
+  Proof. rw /M -[locked bound_ops]lock. do 5 (apply /in_app_r). apply /in_app_l. by left. Qed.
 
   Lemma in_bound_try_spec_00_M : In bound_try_spec_00 M.
-  Proof. rewrite /M -[locked bound_ops]lock. do 6 (apply /in_app_r). by left. Qed.
+  Proof. rw /M -[locked bound_ops]lock. do 6 (apply /in_app_r). by left. Qed.
 
   Lemma in_bound_yes_spec_M {i n X Y} : In (i, (n, X, Y)) igotos -> In (bound_yes_spec (i, (n, X, Y))) M.
-  Proof. move=> ?. rewrite /M -[locked bound_ops]lock. do 3 (apply /in_app_r). apply /in_app_l /in_map_iff. by eexists. Qed.
+  Proof. move=> ?. rw /M -[locked bound_ops]lock. do 3 (apply /in_app_r). apply /in_app_l /in_map_iff. by eexists. Qed.
     
   Lemma in_increase_try_spec_0_M {i j n} : In (i, (j, n)) iP -> In (increase_try_spec_0 (i, (j, n))) M.
-  Proof. move=> ?. rewrite /M -[locked increase_ops]lock. apply /in_app_r /in_app_l /in_app_l /in_map_iff. by eexists. Qed.
+  Proof. move=> ?. rw /M -[locked increase_ops]lock. apply /in_app_r /in_app_l /in_app_l /in_map_iff. by eexists. Qed.
 
   Lemma in_increase_try_spec_1_M {i j n} : In (i, (j, n)) iP -> In (increase_try_spec_1 (i, (j, n))) M.
-  Proof. move=> ?. rewrite /M -[locked increase_ops]lock. apply /in_app_r /in_app_l /in_app_r /in_app_l /in_map_iff. by eexists. Qed.
+  Proof. move=> ?. rw /M -[locked increase_ops]lock. apply /in_app_r /in_app_l /in_app_r /in_app_l /in_map_iff. by eexists. Qed.
 
   Lemma in_increase_yes_spec_M {i j n} : In (i, (j, n)) iP -> In (increase_yes_spec (i, (j, n))) M.
-  Proof. move=> ?. rewrite /M -[locked increase_ops]lock. apply /in_app_r /in_app_l /in_app_r /in_app_r /in_app_l /in_map_iff. by eexists. Qed.
+  Proof. move=> ?. rw /M -[locked increase_ops]lock. apply /in_app_r /in_app_l /in_app_r /in_app_r /in_app_l /in_map_iff. by eexists. Qed.
   
   Lemma in_increase_no_spec_M {i j n} : In (i, (j, n)) iP -> In (increase_no_spec (i, (j, n))) M.
-  Proof. move=> ?. rewrite /M -[locked increase_ops]lock. apply /in_app_r /in_app_l /in_app_r /in_app_r /in_app_r /in_map_iff. by eexists. Qed.
+  Proof. move=> ?. rw /M -[locked increase_ops]lock. apply /in_app_r /in_app_l /in_app_r /in_app_r /in_app_r /in_map_iff. by eexists. Qed.
 
   Lemma in_goto_spec_1_M {m i n X Y} : m < G -> In (i, (n, X, Y)) igotos -> In (goto_spec_1 m (i, (n, X, Y))) M.
   Proof.
-    move=> ? ?. apply /in_app_r /in_app_r /in_app_l. rewrite -lock. 
+    move=> ? ?. apply /in_app_r /in_app_r /in_app_l. rw -lock. 
     apply /in_app_r /in_flat_map. exists m. constructor; [by apply /in_seq; lia | by apply /in_map]. 
   Qed.
 
   Lemma in_goto_spec_G_M {i n X Y} : In (i, (n, X, Y)) igotos -> In (goto_spec_G (i, (n, X, Y))) M.
-  Proof. move=> ?. rewrite /M -[locked goto_ops]lock. do 2 (apply /in_app_r). apply /in_app_l /in_app_l /in_map_iff. by eexists. Qed.
+  Proof. move=> ?. rw /M -[locked goto_ops]lock. do 2 (apply /in_app_r). apply /in_app_l /in_app_l /in_map_iff. by eexists. Qed.
 
   Lemma in_scan_gotos {i j n} : In (i, (j, n)) iP -> In (n, #+i, #-i) gotos.
   Proof. move=> ?. apply /in_app_l /in_map_iff. eexists. by constructor; last by eassumption. Qed.
@@ -317,18 +317,18 @@ Section Reduction.
 
   Lemma stepE X Y : SM.step M X Y -> step_spec X Y.
   Proof.
-    case=> >. rewrite /M ?in_app_iff -?lock. move=> [|[|[|]]].
-    - rewrite /index_ops ?in_app_iff ?in_map_iff. 
+    case=> >. rw /M ?in_app_iff -?lock. move=> [|[|[|]]].
+    - rw /index_ops ?in_app_iff ?in_map_iff. 
       move=> [|[|[|]]] [[? [? ?]]] [[]] *; subst; by eauto using step_spec.
-    - rewrite /increase_ops ?in_app_iff ?in_map_iff. 
-      move=> [|[|[|]]] [[? [? ?]]] [[]] *; subst; rewrite ?app_norm; by eauto using step_spec.
-    - rewrite /goto_ops ?in_app_iff in_flat_map ?in_map_iff. move=> [|].
-      + move=> [[? [[? ?] ?]]] [[]] *. subst. rewrite ?app_norm. by eauto using step_spec.
-      + move=> [?]. rewrite in_seq in_map_iff. move=> [[? ?]] [[? [[? ?] ?]]] [[]] *. subst.
-        rewrite ?app_norm. by eauto using step_spec.
-    - rewrite /bound_ops ?in_app_iff in_map_iff. move=> [|].
-      + move=> [[? [[? ?] ?]]] [[]] *. subst. rewrite ?app_norm. by eauto using step_spec.
-      + move=> [|[|]]; (case; last done); move=> [] *; subst; rewrite -?app_assoc; by eauto using step_spec.
+    - rw /increase_ops ?in_app_iff ?in_map_iff. 
+      move=> [|[|[|]]] [[? [? ?]]] [[]] *; subst; rw ?app_norm; by eauto using step_spec.
+    - rw /goto_ops ?in_app_iff in_flat_map ?in_map_iff. move=> [|].
+      + move=> [[? [[? ?] ?]]] [[]] *. subst. rw ?app_norm. by eauto using step_spec.
+      + move=> [?]. rw in_seq in_map_iff. move=> [[? ?]] [[? [[? ?] ?]]] [[]] *. subst.
+        rw ?app_norm. by eauto using step_spec.
+    - rw /bound_ops ?in_app_iff in_map_iff. move=> [|].
+      + move=> [[? [[? ?] ?]]] [[]] *. subst. rw ?app_norm. by eauto using step_spec.
+      + move=> [|[|]]; (case; last done); move=> [] *; subst; rw -?app_assoc; by eauto using step_spec.
   Qed.
 
   Local Definition reachable_n := reachable_n M.
@@ -341,7 +341,7 @@ Section Reduction.
 
   Lemma igotos_capped {i n X Y} : In (i, (n, X, Y)) igotos -> n < 4.
   Proof using capped_P.
-    move /in_combine_r. rewrite /gotos ?in_app_iff ?in_map_iff.
+    move /in_combine_r. rw /gotos ?in_app_iff ?in_map_iff.
     case; first by (move=> [[? [? ?]]] [[]] *; subst; apply: iP_capped; eassumption).
     do 4 (case; first by (move=> [[? [? ?]]] [[]] *; subst; lia)).
     case; last done. case=> *. by lia.
@@ -368,7 +368,7 @@ Section Reduction.
   Proof. move=> /nth_error_Some_In_combineP + /nth_error_Some_In_combineP => -> [] *. by subst. Qed.
 
   Lemma length_iP : length iP = length P.
-  Proof. by rewrite /iP length_combine length_seq Nat.min_id. Qed.
+  Proof. by rw /iP length_combine length_seq Nat.min_id. Qed.
 
   Definition gotos_index (X Y: BasicState ) : nat :=
     match X, Y with
@@ -381,15 +381,15 @@ Section Reduction.
     end.
 
   Lemma nth_error_iP_Some {i} : i < length iP -> exists j n, nth_error iP i = Some (i, (j, n)).
-  Proof. rewrite length_iP. move /in_iPI => [j [n /nth_error_Some_In_combineP /nth_error_combine_SomeP ?]]. by exists j, n. Qed.
+  Proof. rw length_iP. move /in_iPI => [j [n /nth_error_Some_In_combineP /nth_error_combine_SomeP ?]]. by exists j, n. Qed.
   
   Lemma gotos_indexP {i n X Y} : nth_error gotos i = Some (n, X, Y) -> i = gotos_index X Y.
   Proof.
     have ? := length_iP. case /nth_error_appP.
-    { rewrite length_map nth_error_map. by move=> [/nth_error_iP_Some [? [? ->]]] [] _ <- <-. }
-    do 4 (rewrite length_map => [[?]]; case /nth_error_appP; 
-      first by rewrite length_map nth_error_map; move=> [/nth_error_iP_Some [? [? ->]]] [] _ <- <- /=; lia).
-    rewrite length_map. move Hi': (i' in nth_error _ i') => i'. move: i' Hi' => [|i'] /=; last by (case: i' => > ? [? ?]).
+    { rw length_map nth_error_map. by move=> [/nth_error_iP_Some [? [? ->]]] [] _ <- <-. }
+    do 4 (rw length_map => [[?]]; case /nth_error_appP; 
+      first by rw length_map nth_error_map; move=> [/nth_error_iP_Some [? [? ->]]] [] _ <- <- /=; lia).
+    rw length_map. move Hi': (i' in nth_error _ i') => i'. move: i' Hi' => [|i'] /=; last by (case: i' => > ? [? ?]).
     move=> ? [?] [] _ <- <- /=. by lia.
   Qed.
 
@@ -403,13 +403,13 @@ Section Reduction.
     | _ => b = true
     end.
   Proof.
-    rewrite /M ?in_app_iff -?lock. move=> [|[|[|]]].
-    - rewrite /index_ops ?in_app_iff ?in_map_iff.
+    rw /M ?in_app_iff -?lock. move=> [|[|[|]]].
+    - rw /index_ops ?in_app_iff ?in_map_iff.
       by move=> [|[|[|]]] [[? [? ?]]] [[]] *; subst.
-    - rewrite /increase_ops ?in_app_iff ?in_map_iff.
+    - rw /increase_ops ?in_app_iff ?in_map_iff.
       by move=> [|[|[|]]] [[? [? ?]]] [[]] *; subst.
-    - rewrite /goto_ops ?in_app_iff in_flat_map. 
-      move=> [| [?] [_]]; rewrite in_map_iff; move=> [[? [[? ?] ?]]] [[]] *; by subst.
+    - rw /goto_ops ?in_app_iff in_flat_map. 
+      move=> [| [?] [_]]; rw in_map_iff; move=> [[? [[? ?] ?]]] [[]] *; by subst.
     - case /in_app_iff.
       + move=> /in_map_iff [[? [[? ?] ?]]] [[]] *. by subst.
       + case; [| case; [| case; [|done]]]; move=> [] *; by subst.
@@ -422,8 +422,8 @@ Section Reduction.
   Proof.
     elim: m n; first by lia.
     move=> m IH [|n]; first done.
-    have H : forall k, §0^(S k) = [§0] ++ §0^k by (move=> ?; rewrite ?app_norm).
-    rewrite ?H -?app_assoc. move /app_inv_head /IH. by lia.
+    have H : forall k, §0^(S k) = [§0] ++ §0^k by (move=> ?; rw ?app_norm).
+    rw ?H -?app_assoc. move /app_inv_head /IH. by lia.
   Qed.
 
   Lemma zero_prefix_eq {n m v1 v2} : §0^n ++ [§1] ++ v1 = §0^m ++ [§1] ++ v2 -> n = m.
@@ -476,15 +476,15 @@ Section Reduction.
   Theorem deterministic_M : SM.deterministic M. 
   Proof.
     move=> X Y Z + /stepE [] > H2X -> * => /stepE [] > H1X -> *; 
-      move: H2X H1X => -> []; rewrite ?app_singP ?app_repeat_cons /=; try congruence; move=> *; subst.
+      move: H2X H1X => -> []; rw ?app_singP ?app_repeat_cons /=; try congruence; move=> *; subst.
     all: (do ? unify_iP); (do ? unify_app); (do ? unify_igotos); try by [| congruence].
   Qed.
 
   Theorem length_preserving_M {s t X s' t' Y b} :
     In ((s, t, X), (s', t', Y), b) M -> length (s ++ t) = length (s' ++ t') /\ 1 <= length (s ++ t).
   Proof using capped_P.
-    move /(transition _ [] []). rewrite ?app_norm.
-    move: b => [|] /stepE [] > + [] *; move=> [] *; subst; rewrite ?length_app ?repeat_length ?/G /=.
+    move /(transition _ [] []). rw ?app_norm.
+    move: b => [|] /stepE [] > + [] *; move=> [] *; subst; rw ?length_app ?repeat_length ?/G /=.
     all: try by lia.
     all: have := in_igotos_lt ltac:(eassumption); have ? := igotos_capped ltac:(eassumption); by lia.
   Qed.
@@ -510,31 +510,31 @@ Section Reduction.
     suff: reachable_n ((c+1-G)*(N+2)+1) (* actual inductive lemma *)
       (l, §0^c ++ [§1] ++ r, goto n X Y) 
       ([§1] ++ r, §0^c ++ l, basic_state (if c mod (n+1) is 0 then X else Y)).
-    { apply: reachable_n_mon'; [ by (rewrite /goto_time; nia) | done ]. }
+    { apply: reachable_n_mon'; [ by (rw /goto_time; nia) | done ]. }
     
     elim /(Nat.measure_induction _ id): c l r HC => c IH l r HcC.
     have [HcG | HcG]: c < G \/ c >= G by lia.
       (* case c < G *)
     { apply: (first_step (goto_spec_1 c (i, (n, X, Y))) l r);
-        [by lia | by auto with M | by rewrite ?app_norm | by apply: reach_refl ]. }
+        [by lia | by auto with M | by rw ?app_norm | by apply: reach_refl ]. }
     (* case c >= G *)
     apply: (first_step (goto_spec_G (i, (n, X, Y))) l (§0^(c-G) ++ [§1] ++ r));
-      [ by nia | by auto with M | by rewrite ?app_norm; do 4 f_equal; lia | ].
+      [ by nia | by auto with M | by rw ?app_norm; do 4 f_equal; lia | ].
 
     have := HN (c - G) (§0^i ++ [§1] ++ §0^(G - 2 - i) ++ l) r ltac:(lia).
-    apply: (reachable_n_trans' ((c-G)*(N+2)+2)); [ by nia | by rewrite ?app_norm | ].
+    apply: (reachable_n_trans' ((c-G)*(N+2)+2)); [ by nia | by rw ?app_norm | ].
 
     apply: (first_step (bound_yes_spec (i, (n, X, Y))) l (§0^(c - G) ++ [§1] ++ r));
-      [ by nia | by auto with M | by rewrite ?app_norm | ].
+      [ by nia | by auto with M | by rw ?app_norm | ].
 
-    have ? : G >= 4 by rewrite /G; lia.
+    have ? : G >= 4 by rw /G; lia.
     have := IH (c - (n+1)) ltac:(lia) (§0^(n+1) ++ l) r ltac:(lia).
     apply: reachable_n_mon'; first by lia.
     
-    rewrite ?app_norm. have ? := igotos_capped Hi.
+    rw ?app_norm. have ? := igotos_capped Hi.
     do 5 f_equal; [lia ..|].
     have Hcn : c - (n + 1) + (n + 1) = c by lia.
-    by rewrite -[in RHS]Hcn add_mod mod_same Nat.add_0_r mod_mod.
+    by rw -[in RHS]Hcn add_mod mod_same Nat.add_0_r mod_mod.
   Qed.
 
   (* goto 1 and switch to X/Y depending on c mod (n+1) *)
@@ -561,27 +561,27 @@ Section Reduction.
   Proof using capped_P.
     move=> HN l r i j n k m Hijn. elim: k m l r.
       (* case k = 0 *)
-    { move=> m l r _. rewrite ?app_norm ?nat_norm. by apply: reach_refl. }
+    { move=> m l r _. rw ?app_norm ?nat_norm. by apply: reach_refl. }
     (* case k > 0 *)
     move=> k IH m l r HmkC. have ? := iP_capped Hijn.
     pose N' := (k+1)*(2 * goto_time C N + 3).
     apply: (first_step (index_yes_spec_n1 (i, (j, n))) (§0^m ++ [§1] ++ §0^(1+k) ++ l) (§0^(k * (1 + n)) ++ r));
-      [by lia | by auto with M | by rewrite ?app_norm |].
+      [by lia | by auto with M | by rw ?app_norm |].
 
-    rewrite ?app_norm. apply: (first_goto_1 HN (N' + goto_time C N + 2)); 
+    rw ?app_norm. apply: (first_goto_1 HN (N' + goto_time C N + 2)); 
       [ by eauto with M | by lia | by lia |].
 
     apply: (first_step (increase_try_spec_0 (i, (j, n))) (§0^k ++ l) (§0^(n + m) ++ [§1] ++ §0^(k * (1 + n)) ++ r));
-      [by lia | by auto with M | by rewrite ?app_norm |].
+      [by lia | by auto with M | by rw ?app_norm |].
 
-    rewrite ?app_norm. apply: (first_goto_1 HN (N' + 1));
+    rw ?app_norm. apply: (first_goto_1 HN (N' + 1));
       [ by eauto with M | by lia | by lia |].
 
     apply: (first_step (increase_yes_spec (i, (j, n))) (§0^(k * (1 + n)) ++ r) (§0^(1 + (n + m)) ++ [§1] ++ §0^k ++ l));
-      [by lia | by auto with M | by rewrite ?app_norm |].
+      [by lia | by auto with M | by rw ?app_norm |].
 
     have := IH (m + n + 2) l r ltac:(lia). apply: reachable_n_mon'; 
-      [by lia | by rewrite ?app_norm; do 5 f_equal; lia].
+      [by lia | by rw ?app_norm; do 5 f_equal; lia].
   Qed.
 
   Arguments do_increase {C N} _ l r {i j n} k m.
@@ -593,20 +593,20 @@ Section Reduction.
       ([§1] ++ §0^k ++ [§1] ++ l, §0^((k+1)*(1+n)) ++ r, '#+i) 
       ([§1] ++ l, §0^((k+1)*(1+n) + k) ++ [§1] ++ r, goto 0 ($-i) ($-i)).
   Proof using capped_P.
-    move=> HN l r i j n k Hijn HC. rewrite /increase_time.
+    move=> HN l r i j n k Hijn HC. rw /increase_time.
     have := do_increase HN ([§1] ++ l) (§0^(1 + n) ++ r) k 0 Hijn ltac:(lia).
     apply: (reachable_n_trans' (2 * goto_time C N + 3)); first by ((suff: k+1 <= C + G + 1 by nia); lia).
-    { rewrite ?app_norm ?nat_norm. do 4 f_equal. by lia. }
+    { rw ?app_norm ?nat_norm. do 4 f_equal. by lia. }
 
     apply: (first_step (index_yes_spec_n1 (i, (j, n))) (§0^(k * (2 + n)) ++ [§1] ++ [§1] ++ l) r);
-      [by lia | by auto with M | by rewrite ?app_norm |].
+      [by lia | by auto with M | by rw ?app_norm |].
 
-    rewrite ?app_norm. apply: (first_goto_1 HN (goto_time C N + 2));
+    rw ?app_norm. apply: (first_goto_1 HN (goto_time C N + 2));
       [ by eauto with M | by lia | by lia | ].
 
     apply: (first_step (increase_try_spec_1 (i, (j, n))) l (§0^(n + k * (2 + n)) ++ [§1] ++ r));
-      [by lia | by auto with M | by rewrite ?app_norm | ].
-    apply: reachable_n_refl'. rewrite ?app_norm. do 4 f_equal. by lia.
+      [by lia | by auto with M | by rw ?app_norm | ].
+    apply: reachable_n_refl'. rw ?app_norm. do 4 f_equal. by lia.
   Qed.
 
   Definition step_time (C N: nat) := goto_time C N + increase_time C N + 1.
@@ -619,39 +619,39 @@ Section Reduction.
     move=> HN l r [i [|c]] /= HpC; first by apply: reach_refl.
     (* case c > 0 *)
     move H: (nth_error P i) HpC => oi. case: oi H; first last.
-    { move=> _ _ /=. rewrite ?nat_norm ?app_norm. by apply: reach_refl. }
-    move=> [j n] /nth_error_Some_In_iP. rewrite /step_time.
+    { move=> _ _ /=. rw ?nat_norm ?app_norm. by apply: reach_refl. }
+    move=> [j n] /nth_error_Some_In_iP. rw /step_time.
     move Hm: (S c mod (n + 1)) => m. move: m Hm => [|m] Hcn /= Hijn.
     (* case n+1 divides c *)
     - have := CM_facts.mod_frac_lt Hcn. move Hd: (S c * (n + 2) / (n + 1)) => d Hcd HC.
 
       apply: (first_step (index_try_spec (i, (j, n))) l (§0^c ++ [§1] ++ §0^(d - S c) ++ r)); 
-        [ by lia | by auto with M | by rewrite ?app_norm | ].
+        [ by lia | by auto with M | by rw ?app_norm | ].
 
-      rewrite ?app_norm. apply: (first_goto_1 HN (increase_time C N)); 
+      rw ?app_norm. apply: (first_goto_1 HN (increase_time C N)); 
         [ by eauto with M | by lia | by lia |].
-      rewrite Hcn. have ? := divides_frac_diff Hcn.
+      rw Hcn. have ? := divides_frac_diff Hcn.
       
       have := do_increase HN r ([§1] ++ l) (d - S c) 0 Hijn ltac:(lia).
       apply: (reachable_n_trans' 1); 
-        [ by rewrite /increase_time; nia | by rewrite ?app_norm; do 4 f_equal; lia |].
+        [ by rw /increase_time; nia | by rw ?app_norm; do 4 f_equal; lia |].
       
       apply: (first_step (index_yes_spec_1 (i, (j, n))) (§0^((d - S c) * (2 + n)) ++ [§1] ++ r) l);
-        [ by lia | by auto with M | by rewrite ?app_norm | ].
+        [ by lia | by auto with M | by rw ?app_norm | ].
         
-      apply: reachable_n_refl'. rewrite ?app_norm. by do 4 f_equal; lia.
+      apply: reachable_n_refl'. rw ?app_norm. by do 4 f_equal; lia.
     (* case n+1 does not divide c *)
     - move=> ?.
       apply: (first_step (index_try_spec (i, (j, n))) l (§0^c ++ [§1] ++ r));
-        [by lia | by auto with M | by rewrite ?app_norm ?nat_norm | ].
+        [by lia | by auto with M | by rw ?app_norm ?nat_norm | ].
 
-      rewrite ?app_norm. apply: (first_goto_1 HN (increase_time C N)); 
-        [ by eauto with M | by lia | by lia | rewrite Hcn /increase_time ].
+      rw ?app_norm. apply: (first_goto_1 HN (increase_time C N)); 
+        [ by eauto with M | by lia | by lia | rw Hcn /increase_time ].
       
       apply: (first_step (index_no_spec (i, (j, n))) ([§1] ++ r) (§0^c ++ [§1] ++ l));
         [ by lia | by auto with M | done |].
 
-      rewrite ?app_norm. apply: (first_goto_1 HN 0); 
+      rw ?app_norm. apply: (first_goto_1 HN 0); 
         [ by eauto with M | by lia | by lia | by apply: reach_refl].
   Qed.
     
@@ -665,11 +665,11 @@ Section Reduction.
     move=> HN l r n. elim: n l r => [l r _ _ | n] /=; first by apply: reach_refl.
     have := CM_facts.run_value_monotone P cm_start n.
     set p := (Nat.iter n (CM1.step P) cm_start) => Hp IH l r ?.
-    rewrite /cm_start /= in Hp.
+    rw /cm_start /= in Hp.
     have ? : CM.value p <= CM.value (CM1.step P p) by apply: CM_facts.step_value_monotone.
     have := IH l (§0^(CM.value (CM1.step P p) - CM.value p) ++ r) ltac:(lia).
     apply: (reachable_n_trans' (step_time C N)); 
-      [by lia | by rewrite ?app_norm; do 6 f_equal; lia |].
+      [by lia | by rw ?app_norm; do 6 f_equal; lia |].
     by have := do_cm_step HN l r p ltac:(lia).
   Qed.
 
@@ -678,42 +678,42 @@ Section Reduction.
   Proof using capped_P.
     elim: C.
     { 
-      rewrite /bound_reachable_n. move=> _. exists 1.
+      rw /bound_reachable_n. move=> _. exists 1.
       move=> m l r ?. have ->: m = 0 by lia.
       apply: (first_step bound_try_spec_1 r l);
-        [by lia | by auto with M | by rewrite ?app_norm | by apply: reach_refl ].
+        [by lia | by auto with M | by rw ?app_norm | by apply: reach_refl ].
     }
     move=> C IH HC. have [N HN] := IH ltac:(lia).
 
     (* time bound *)
     exists (n * step_time C N + increase_time C N + 3 * goto_time C N + 3).
-    rewrite /bound_reachable_n. move=> [|[|m]] l r Hm.
+    rw /bound_reachable_n. move=> [|[|m]] l r Hm.
     - apply: (first_step bound_try_spec_1 r l);
         [by lia | by auto with M | done | by apply: reach_refl ].
     - apply: (first_step bound_try_spec_01 r l);
         [by lia | by auto with M | done | by apply: reach_refl ].
     - apply: (first_step bound_try_spec_00 (§0^m ++ [§1] ++ r) l);
-        [by lia | by auto with M | by rewrite ?app_norm | ].
+        [by lia | by auto with M | by rw ?app_norm | ].
 
       have := transition_le_gt (fun n => CM.value (Nat.iter n (CM1.step P) cm_start)) (S m) 0 n.
-      move=> /(_ ltac:(lia) ltac:(rewrite /cm_start /=; lia) ltac:(lia)) [n' [?]].
+      move=> /(_ ltac:(lia) ltac:(rw /cm_start /=; lia) ltac:(lia)) [n' [?]].
 
       have := CM_facts.run_value_monotone P cm_start n'.
       set p' := (Nat.iter n' (CM1.step P) cm_start).
       have -> : Nat.iter (1 + n') (CM1.step P) cm_start = CM1.step P p' by done.
-      move=> H1p' [? ?]. rewrite /cm_start /= in H1p'.
+      move=> H1p' [? ?]. rw /cm_start /= in H1p'.
       have := iter_cm_step HN l (§0^(m - (CM.value p' - 1)) ++ [§1] ++ r) n'.
-      rewrite -/p'. move /(_ ltac:(lia)).
+      rw -/p'. move /(_ ltac:(lia)).
       apply: (reachable_n_trans' (increase_time C N + 3 * goto_time C N + 2)); 
-        [by nia | by rewrite ?app_norm; do 6 f_equal; lia |].
+        [by nia | by rw ?app_norm; do 6 f_equal; lia |].
 
       have Hp' : CM.value p' < CM.value (CM.step P p') by lia.
       have [[p'j p'n] [/nth_error_Some_In_iP Hp'iP] /= Hp'n] := CM_facts.inc_value_mod Hp'.
       apply: (first_step (index_try_spec (CM.state p', (p'j, p'n))) 
         l (§0^(CM.value p' - 1) ++ [§1] ++ §0^(m - (CM.value p' - 1)) ++ [§1] ++ r));
-          [by lia | by auto with M | by rewrite ?app_norm; do 4 f_equal; lia |].
+          [by lia | by auto with M | by rw ?app_norm; do 4 f_equal; lia |].
 
-      rewrite ?app_norm. have ->: (1 + (CM.value p' - 1)) = CM.value p' by lia.
+      rw ?app_norm. have ->: (1 + (CM.value p' - 1)) = CM.value p' by lia.
       apply: (first_goto_1 HN (increase_time C N + 2 * goto_time C N + 1)); 
         [ by eauto with M | by lia | by lia | ].
         
@@ -723,20 +723,20 @@ Section Reduction.
         suff: (CM.value (CM1.step P p') - CM.value p') * (1 + p'n) = CM.value p' by nia.
         suff: CM.value (CM1.step P p') = (CM.value p') * (p'n + 2) / (p'n + 1).
         { move=> ->. by have := divides_frac_diff Hp'n. }
-        rewrite /CM1.step. have {1}->: CM1.value p' = S (CM1.value p' - 1) by lia.
-        move: Hp'iP => /nth_error_Some_In_iP ->. by rewrite Hp'n.
+        rw /CM1.step. have {1}->: CM1.value p' = S (CM1.value p' - 1) by lia.
+        move: Hp'iP => /nth_error_Some_In_iP ->. by rw Hp'n.
       }
       have -> : CM.value p' = (k+1)*(1+p'n)+(CM.value p' - (k+1)*(1+p'n)) by lia.
 
       move: (Hp'iP) => /(fail_increase HN r (§0^(CM.value p' - (k + 1) * (1 + p'n)) ++ [§1] ++ l)) => /(_ k).
-      have ? := iP_capped Hp'iP. have ? : 4 <= G by (rewrite /G; lia).
+      have ? := iP_capped Hp'iP. have ? : 4 <= G by (rw /G; lia).
       have ? : (k + 1) * (2 + p'n) - (G + 1) <= C by lia.
       move /(_ ltac:(lia)).
       apply: (reachable_n_trans' (2 * goto_time C N + 1)); first by lia.
       { 
-        rewrite ?app_norm.
+        rw ?app_norm.
         have ->: ((k + 1) * (1 + p'n) + (CM.value p' - (k + 1) * (1 + p'n))) = CM.value p' by lia.
-        by rewrite Hp'n.
+        by rw Hp'n.
       }
 
       apply: (first_goto_1 HN (goto_time C N + 1)); [ by eauto with M | by lia | by lia |].
@@ -746,7 +746,7 @@ Section Reduction.
           [by lia | by auto with M | done | ].
 
       apply: (first_goto_1 HN 0); [by eauto with M | by move: ((k + 1) * (1 + p'n)); lia | by lia |].
-      apply: reachable_n_refl'. rewrite ?app_norm ?nat_norm. do 4 f_equal. by lia.
+      apply: reachable_n_refl'. rw ?app_norm ?nat_norm. do 4 f_equal. by lia.
   Qed.  
 
   Section Reflection.
@@ -758,36 +758,36 @@ Section Reduction.
   (* if stack machine is uniformly bounded, then counter machine halts *)
   Theorem bounded_M_to_terminating_P : CM.halting P (Nat.iter NM (CM.step P) cm_start).
   Proof using NM NM_spec capped_P.
-    rewrite /CM.halting.
+    rw /CM.halting.
     move HNM: (Nat.iter NM (CM.step P) cm_start) => cm_end.
     have : CM.step P cm_end = cm_end \/ CM.step P cm_end <> cm_end by do 2 (decide equality).
     case; first done. move=> He. exfalso.
-    have /CM_facts.acyclicity : not (CM.halting P (Nat.iter NM (CM.step P) cm_start)) by rewrite HNM.
+    have /CM_facts.acyclicity : not (CM.halting P (Nat.iter NM (CM.step P) cm_start)) by rw HNM.
     set f := (fun i : nat => Nat.iter i (CM1.step P) cm_start).
     have ->: 2 + NM = S NM + 1 by lia.
-    rewrite seq_app map_app. move /(@NoDup_remove CM1.Config) => [+ _]. rewrite app_nil_r.
+    rw seq_app map_app. move /(@NoDup_remove CM1.Config) => [+ _]. rw app_nil_r.
     have [L [H1L H2L]] := NM_spec ([§1], [§0] ++ [§1] ++ §0^(CM.value cm_end - 1), '#?0).
     set g : _ -> SM.Config := (fun X => ([§1], §0^(CM.value X) ++ [§1] ++ §0^(CM.value cm_end - (CM.value X)), '#? (CM.state X))).
     have /(NoDup_map (f := g)) /[apply]: injective g.
-    { move=> [p1 v1] [p2 v2]. rewrite /g /=. by move=> [] /zero_prefix_eq => -> ->. }
+    { move=> [p1 v1] [p2 v2]. rw /g /=. by move=> [] /zero_prefix_eq => -> ->. }
     set L' := (map g (map f (seq 0 (1 + NM)))). move=> HL'.
     have /(NoDup_incl_length HL') : incl L' L.
     { (* show that every encoded reachable in P configuration is reachable in M *)
-      move=> x + /ltac:(apply: H1L). rewrite /L' in_map_iff.
-      move=> [X] [<-]. rewrite in_map_iff. 
-      move=> [i] [<-]. rewrite in_seq.
-      move=> [_ ?]. rewrite /f /g.
-      have [N HN] := search_bound (CM.value cm_end) NM ltac:(rewrite HNM; lia).
+      move=> x + /ltac:(apply: H1L). rw /L' in_map_iff.
+      move=> [X] [<-]. rw in_map_iff. 
+      move=> [i] [<-]. rw in_seq.
+      move=> [_ ?]. rw /f /g.
+      have [N HN] := search_bound (CM.value cm_end) NM ltac:(rw HNM; lia).
       have := CM_facts.run_value_monotone P cm_start i.
       set Y := (Nat.iter i (CM1.step P) cm_start).
       have ? : CM.value Y <= CM.value cm_end.
-      { rewrite /Y -HNM. apply: CM_facts.value_monotone. by lia. }
-      move=> H1Y. rewrite /cm_start /= in H1Y.
+      { rw /Y -HNM. apply: CM_facts.value_monotone. by lia. }
+      move=> H1Y. rw /cm_start /= in H1Y.
       have /= := iter_cm_step HN [] (§0^(CM.value cm_end - CM.value Y)) i.
-      rewrite -/Y ?app_norm. move /(_ ltac:(lia)) /reachable_n_reachable.
+      rw -/Y ?app_norm. move /(_ ltac:(lia)) /reachable_n_reachable.
       congr (SM.reachable). do 5 f_equal. by lia.
     }
-    rewrite /L' ?length_map length_seq. by lia.
+    rw /L' ?length_map length_seq. by lia.
   Qed.
 
   End Reflection.
@@ -802,7 +802,7 @@ Section Reduction.
   Definition CP : nat := CM.value cm_end. (* final counter value *)
   
   Lemma bound_reachable_n_CP : {N | bound_reachable_n CP N}.
-  Proof using capped_P. apply: (search_bound _ NP). rewrite /CP /cm_end. by lia. Qed.
+  Proof using capped_P. apply: (search_bound _ NP). rw /CP /cm_end. by lia. Qed.
 
   Definition TP : nat := sval (bound_reachable_n_CP). (* maximal time to reach bound *)
   Definition HTP : bound_reachable_n CP TP := svalP (bound_reachable_n_CP).
@@ -827,8 +827,8 @@ Section Reduction.
     - by left.
     - right. move Hn': (n' in §0^(1 + n') ++ _) => n'. 
       have [_ <-] := in_iP_unique (n := n) (n' := n') ltac:(eassumption) ltac:(subst; eassumption).
-      rewrite skipn_app repeat_length (_ : n + 1 - (1 + n) = 0); first by lia.
-      by rewrite skipn_all2; first by (rewrite repeat_length; lia).
+      rw skipn_app repeat_length (_ : n + 1 - (1 + n) = 0); first by lia.
+      by rw skipn_all2; first by (rw repeat_length; lia).
   Qed.
 
   Lemma index_no_step_shape {y l r i} :
@@ -870,12 +870,12 @@ Section Reduction.
   Lemma maybe_index_try_run l r z :
     maybe_reachable (NP * step_time CP TP) ([§1] ++ l, [§0] ++ [§1] ++ §0^(CP-1) ++ r, '#?0) z.
   Proof using NP_spec.
-    right. have := iter_cm_step HTP l r NP. rewrite -/cm_end /= -/CP. move /(_ ltac:(lia)) => ?.
+    right. have := iter_cm_step HTP l r NP. rw -/cm_end /= -/CP. move /(_ ltac:(lia)) => ?.
     eexists. constructor; first by eassumption.
     apply: large_index_terminal.
     suff : not (CM.state cm_end < length P) by lia.
     move /CM_facts.step_progress => /(_ CP_pos).
-    move: (NP_spec). rewrite -/cm_end /CM.halting. move=> -> [|]; last by lia.
+    move: (NP_spec). rw -/cm_end /CM.halting. move=> -> [|]; last by lia.
     move /(f_equal CM.state) => /=. by lia.
   Qed.
 
@@ -883,20 +883,20 @@ Section Reduction.
     maybe_reachable T (l, §0^m ++ r, goto n X Y) z.
   Proof using NP_spec.
     move=> ? ?. suff: maybe_reachable (NP * step_time CP TP + 2) (l, §0^(G + (CP+1)) ++ §0^(m-(G + (CP + 1))) ++ r, goto n X Y) z.
-    { apply maybe_reachable_mon'; first by lia. rewrite ?app_norm. do 5 f_equal. by lia. }
+    { apply maybe_reachable_mon'; first by lia. rw ?app_norm. do 5 f_equal. by lia. }
     have := in_dec _ (n, X, Y) gotos. 
     move=> /(_ ltac:(do 4 (decide equality))) [/gotos_igotos [i ?]| ?]; first last.
       (* case (n, X, Y) not in gotos *)
     { apply: terminal_maybe_reachable. by apply: not_in_gotos_terminal. }
     (* case (n, X, Y) in gotos *)
     apply: (maybe_first_step (goto_spec_G (i, (n, X, Y))) l (§0^(CP + 1) ++ §0^(m-(G + (CP + 1))) ++ r));
-      [by lia | by auto with M | by rewrite ?app_norm |].
+      [by lia | by auto with M | by rw ?app_norm |].
     have ? := CP_pos.
     apply: (maybe_first_step bound_try_spec_00 (§0^(CP - 1 + (m - (G + (CP + 1)))) ++ r) (§0^i ++ [§1] ++ §0^(G - 2 - i) ++ l));
-      [by lia | by auto with M | rewrite ?app_norm; do 4 f_equal; lia |].
+      [by lia | by auto with M | rw ?app_norm; do 4 f_equal; lia |].
 
     have := maybe_index_try_run ((§0^i ++ [§1] ++ §0^(G - 2 - i)) ++ l) (§0^(m - (G + (CP + 1))) ++ r) z.
-    apply: maybe_reachable_mon'; [by lia | by rewrite ?app_norm].
+    apply: maybe_reachable_mon'; [by lia | by rw ?app_norm].
   Qed.
 
   Definition maybe_goto_1_time := (goto_time CP TP + NP * step_time CP TP + 2).
@@ -906,7 +906,7 @@ Section Reduction.
       (l, §0^m ++ [§1] ++ r, goto n X Y) 
       ([§1] ++ r, §0^m ++ l, basic_state (if m mod (n+1) is 0 then X else Y)).
   Proof using NP_spec.
-    rewrite /maybe_goto_1_time. have := in_dec _ (n, X, Y) gotos. 
+    rw /maybe_goto_1_time. have := in_dec _ (n, X, Y) gotos. 
     move=> /(_ ltac:(do 4 decide equality)) [| ?]; first last.
       (* case invalid goto instruction *)
     { apply: terminal_maybe_reachable. by apply: not_in_gotos_terminal. }
@@ -934,36 +934,36 @@ Section Reduction.
   Lemma maybe_index_try_stop l m z T : maybe_index_try_stop_time <= T ->
     maybe_reachable T ([§1] ++ l, §0^1 ++ [§1] ++ §0^m, '#?0) z.
   Proof using NP_spec.
-    move /maybe_reachable_mon'. apply; first by reflexivity. rewrite /maybe_index_try_stop_time.
+    move /maybe_reachable_mon'. apply; first by reflexivity. rw /maybe_index_try_stop_time.
     have [? | Hm]: CP - 1 <= m \/ m < CP - 1 by lia.
     { 
       have := maybe_index_try_run l (§0^(m - (CP - 1))) z. 
-      apply: maybe_reachable_mon'; [by nia | by rewrite ?app_norm; do 6 f_equal; lia ].
+      apply: maybe_reachable_mon'; [by nia | by rw ?app_norm; do 6 f_equal; lia ].
     }
     
     set T' := ((G + CP + 2) * (2 * goto_time CP TP + 3)).
     have [n [?]] := transition_le_gt 
       (fun n => CM.value (Nat.iter n (CM1.step P) cm_start)) (m + 1) 0 NP 
-      ltac:(lia) ltac:(rewrite /cm_start /=; lia) ltac:(rewrite /cm_end -/CP; lia).
+      ltac:(lia) ltac:(rw /cm_start /=; lia) ltac:(rw /cm_end -/CP; lia).
 
     have := CM_facts.run_value_monotone P cm_start n.
     set p := (Nat.iter n (CM1.step P) cm_start).
     have -> : Nat.iter (1 + n) (CM1.step P) cm_start = CM1.step P p by done.
-    move=> H1p [? ?]. rewrite /cm_start /= in H1p.
+    move=> H1p [? ?]. rw /cm_start /= in H1p.
 
     have := iter_cm_step HTP l (§0^(m - (CM.value p - 1))) n.
-    rewrite -/p. move=> /(_ ltac:(lia)) /reachable_n_maybe_reachable.
+    rw -/p. move=> /(_ ltac:(lia)) /reachable_n_maybe_reachable.
     apply: (maybe_reachable_trans' (2*maybe_goto_1_time + 1 + T')); 
-      [ by nia | rewrite ?app_norm; do 6 f_equal; by lia | ].
+      [ by nia | rw ?app_norm; do 6 f_equal; by lia | ].
     
     have Hp : CM.value p < CM.value (CM.step P p) by lia.
     have [[pj pn] [/nth_error_Some_In_iP HpiP] /= Hpn] := CM_facts.inc_value_mod Hp.
     apply: (maybe_first_step (index_try_spec (CM.state p, (pj, pn)))
       l (§0^(CM.value p - 1) ++ [§1] ++ §0^(m - (CM.value p - 1))));
-        [by nia | by auto with M | by rewrite ?app_norm; do 4 f_equal; lia |].
+        [by nia | by auto with M | by rw ?app_norm; do 4 f_equal; lia |].
 
-    rewrite ?app_norm. have ->: (1 + (CM.value p - 1)) = CM.value p by lia.
-    apply: (maybe_first_goto_1 (maybe_goto_1_time + T')); [by lia | rewrite Hpn].
+    rw ?app_norm. have ->: (1 + (CM.value p - 1)) = CM.value p by lia.
+    apply: (maybe_first_goto_1 (maybe_goto_1_time + T')); [by lia | rw Hpn].
 
     set k := (m - (CM.value p - 1)).
     have ?: (k + 1) * (1 + pn) <= CM.value p.
@@ -971,20 +971,20 @@ Section Reduction.
       suff: (CM.value (CM1.step P p) - CM.value p) * (1 + pn) = CM.value p by nia.
       suff: CM.value (CM1.step P p) = (CM.value p) * (pn + 2) / (pn + 1).
       { move=> ->. by have := divides_frac_diff Hpn. }
-      rewrite /CM1.step. have {1}->: CM1.value p = S (CM1.value p - 1) by lia.
-      move: HpiP => /nth_error_Some_In_iP ->. by rewrite Hpn.
+      rw /CM1.step. have {1}->: CM1.value p = S (CM1.value p - 1) by lia.
+      move: HpiP => /nth_error_Some_In_iP ->. by rw Hpn.
     }
     have -> : CM.value p = (k+1)*(1+pn)+(CM.value p - (k+1)*(1+pn)) by lia.
 
     have := do_increase HTP [] (§0^((1 + pn) + (CM.value p - (k + 1) * (1 + pn))) ++ [§1] ++ l) k 0 HpiP ltac:(lia).
     move /reachable_n_maybe_reachable. apply: (maybe_reachable_trans' (maybe_goto_1_time + goto_time CP TP + 1)); first by nia.
-    { rewrite ?app_norm. do 4 f_equal. by lia. }
+    { rw ?app_norm. do 4 f_equal. by lia. }
 
     apply: (maybe_first_step (index_yes_spec_n1 (CM1.state p, (pj, pn))) (§0^(k * (2 + pn)) ++ [§1]) (§0^(CM.value p - (k + 1) * (1 + pn)) ++ [§1] ++ l));
-      [by lia | by auto with M | by rewrite ?app_norm; do 4 f_equal; lia |].
+      [by lia | by auto with M | by rw ?app_norm; do 4 f_equal; lia |].
     
-    rewrite ?app_norm. apply: (maybe_first_goto_1 0); first by lia.
-    rewrite ?app_norm. right. eexists. constructor; first by apply: reach_refl.
+    rw ?app_norm. apply: (maybe_first_goto_1 0); first by lia.
+    rw ?app_norm. right. eexists. constructor; first by apply: reach_refl.
     by move=> ? /increase_try_step_shape [|].
   Qed.
 
@@ -993,26 +993,26 @@ Section Reduction.
   Proof using NP_spec.
     move=> ?. suff: maybe_reachable (maybe_index_try_stop_time + 2) (l, §0^m, goto n X Y) z 
       by apply: maybe_reachable_mon'.
-    rewrite /maybe_index_try_stop_time.
+    rw /maybe_index_try_stop_time.
     have /(_ ltac:(do 4 decide equality)) [HnXY | /not_in_gotos_terminal ?] := 
       in_dec _ (n, X, Y) gotos; last by apply: terminal_maybe_reachable.
     have [? | ?]: G+CP+1 <= m \/ m <= G+CP by lia.
       (* case m too large *)
-    { have := @maybe_goto_1_far l [] m. rewrite ?app_norm. apply; by lia. }
+    { have := @maybe_goto_1_far l [] m. rw ?app_norm. apply; by lia. }
     have [? | ?]: m < G \/ G <= m by lia.
       (* case m is too small *)
     {  
       right. exists (l, §0^m, goto n X Y). constructor; first by apply: reach_refl.
       move=> y /stepE [] > []; try done.
-      - move=> ? /(f_equal (@length Symbol)). rewrite ?length_app ?repeat_length. by lia.
+      - move=> ? /(f_equal (@length Symbol)). rw ?length_app ?repeat_length. by lia.
       - move=> ? Hm. exfalso. have : not (In §1 (§0^m)) by move /(@repeat_spec Symbol).
-        apply. rewrite Hm ?in_app_iff. clear. by firstorder done.
+        apply. rw Hm ?in_app_iff. clear. by firstorder done.
     }
     (* case m is large enough to try bound search *) 
     move: (HnXY) => /gotos_igotos => [[i ?]].
 
     apply: (maybe_first_step (goto_spec_G (i, (n, X, Y))) l (§0^(m - G)));
-      [by lia | by auto with M | by rewrite ?app_norm; do 4 f_equal; lia |].
+      [by lia | by auto with M | by rw ?app_norm; do 4 f_equal; lia |].
 
     have [? | ?] : m - G < 2 \/ 2 <= m - G by lia.
       (* case m is too small to continue *)
@@ -1023,8 +1023,8 @@ Section Reduction.
     }
     (* case m is large enough to start bound search *)  
     apply: (maybe_first_step bound_try_spec_00 (§0^(m - G - 2)) (§0^i ++ [§1] ++ §0^(G - 2 - i) ++ l));
-      [by lia | by auto with M | by rewrite ?app_norm; do 3 f_equal; lia |].
-    rewrite ?app_norm. apply: maybe_index_try_stop. rewrite /maybe_index_try_stop_time. by lia.
+      [by lia | by auto with M | by rw ?app_norm; do 3 f_equal; lia |].
+    rw ?app_norm. apply: maybe_index_try_stop. rw /maybe_index_try_stop_time. by lia.
   Qed.
 
   Arguments maybe_first_goto_1 T {l r T' n X Y c Z}. 
@@ -1036,41 +1036,41 @@ Section Reduction.
       (§0^m ++ [§1] ++ §0^k ++ l, §0^(k * (1+n)) ++ r, '#+i) 
       (§0^(m + k * (2+n)) ++ [§1] ++ l, r, '#+i).
   Proof using NP_spec.
-    rewrite /maybe_increase_time. move=> Hijn. move: l r k m.
+    rw /maybe_increase_time. move=> Hijn. move: l r k m.
     have H : forall k m l r, maybe_reachable ((k+1)*(2 * maybe_goto_1_time + 3))
       (§0^m ++ [§1] ++ §0^k ++ l, §0^(k * (1+n)) ++ r, '#+i) 
       (§0^(m + k * (2+n)) ++ [§1] ++ l, r, '#+i).
     {
       elim.
         (* case k = 0 *)
-      { move=> m l r. rewrite ?app_norm ?nat_norm. by apply: maybe_reachable_refl'. }
+      { move=> m l r. rw ?app_norm ?nat_norm. by apply: maybe_reachable_refl'. }
       (* case k > 0 *)
       move=> k IH m l r. have ? := iP_capped Hijn.
       pose N' := (k+1)*(2 * maybe_goto_1_time + 3).
       apply: (maybe_first_step (index_yes_spec_n1 (i, (j, n))) (§0^m ++ [§1] ++ §0^(1+k) ++ l) (§0^(k * (1 + n)) ++ r));
-        [by lia | by auto with M | by rewrite ?app_norm |].
+        [by lia | by auto with M | by rw ?app_norm |].
 
-      rewrite ?app_norm. apply: (maybe_first_goto_1 (N' + maybe_goto_1_time + 2)); first by lia.
+      rw ?app_norm. apply: (maybe_first_goto_1 (N' + maybe_goto_1_time + 2)); first by lia.
       apply: (maybe_first_step (increase_try_spec_0 (i, (j, n))) (§0^k ++ l) (§0^(n + m) ++ [§1] ++ §0^(k * (1 + n)) ++ r));
-        [by lia | by auto with M | by rewrite ?app_norm |].
+        [by lia | by auto with M | by rw ?app_norm |].
 
-      rewrite ?app_norm. apply: (maybe_first_goto_1 (N' + 1)); first by lia.
+      rw ?app_norm. apply: (maybe_first_goto_1 (N' + 1)); first by lia.
       apply: (maybe_first_step (increase_yes_spec (i, (j, n))) (§0^(k * (1 + n)) ++ r) (§0^(1 + (n + m)) ++ [§1] ++ §0^k ++ l));
-        [by lia | by auto with M | by rewrite ?app_norm |].
+        [by lia | by auto with M | by rw ?app_norm |].
 
       have := IH (m + n + 2) l r. apply: maybe_reachable_mon'; first by lia.
-      rewrite ?app_norm. by do 5 f_equal; lia.
+      rw ?app_norm. by do 5 f_equal; lia.
     }
     move=> l r k m. have [? | ?] : k <= G + CP \/ G + CP < k by lia.
     { have := H k m l r. by apply: maybe_reachable_mon'; first by nia. }
     pose k' := G + CP. have := H k' m (§0^(k-k') ++ l) (§0^((k-k') * (1 + n)) ++ r).
     apply: (maybe_reachable_trans' (maybe_goto_1_time + 1)); first by lia.
-    { rewrite ?app_norm. (do 4 f_equal); last by lia. do 2 f_equal. by lia. }
+    { rw ?app_norm. (do 4 f_equal); last by lia. do 2 f_equal. by lia. }
     apply: (maybe_first_step (index_yes_spec_n1 (i, (j, n)))
       (§0^(m + k' * (2 + n)) ++ [§1] ++ §0^(k - k') ++ l) (§0^((k - k' - 1) * (1 + n)) ++ r));
-      [ by lia | by auto with M | by rewrite ?app_norm; do 4 f_equal; nia | ].
-    rewrite ?app_norm /k'. have ? := CP_pos.
-    rewrite /maybe_goto_1_time. apply: maybe_goto_1_far; by lia.
+      [ by lia | by auto with M | by rw ?app_norm; do 4 f_equal; nia | ].
+    rw ?app_norm /k'. have ? := CP_pos.
+    rw /maybe_goto_1_time. apply: maybe_goto_1_far; by lia.
   Qed.
 
   Arguments maybe_increase l r {i j n} k m.
@@ -1086,18 +1086,18 @@ Section Reduction.
     move=> ? Hijn ?.
     have := maybe_increase (§0^(k-k') ++ l) (§0^(c mod (1 + n)) ++ [§1] ++ r) k' m Hijn.
     apply: (maybe_reachable_trans' 1); first by lia.
-    { rewrite ?app_norm. do 4 f_equal; last by lia. do 2 f_equal. by lia. }
+    { rw ?app_norm. do 4 f_equal; last by lia. do 2 f_equal. by lia. }
     have ? := Nat.mod_upper_bound c (1+n) ltac:(lia).
     have [Hc | Hc]: c mod (1 + n) = 0 \/ c mod (1 + n) = 1 + (c mod (1 + n) - 1) by lia.
       (* case 1+n divides c *)
     {
-      rewrite Hc.
+      rw Hc.
       apply: (maybe_first_step (index_yes_spec_1 (i, (j, n))) (§0^(m + k' * (2 + n)) ++ [§1] ++ §0^(k - k') ++ l) r);
         [ by lia | by auto with M | done | ].
-      apply: maybe_reachable_refl'. rewrite ?nat_norm ?app_norm. do 4 f_equal. by lia.
+      apply: maybe_reachable_refl'. rw ?nat_norm ?app_norm. do 4 f_equal. by lia.
     }
     (* case 1+n does not divide c *)
-    rewrite Hc. apply: terminal_maybe_reachable.
+    rw Hc. apply: terminal_maybe_reachable.
     move=> ? /(index_yes_step_shape Hijn) [| /zero_prefix_lt]; by [| lia].
   Qed.
 
@@ -1109,12 +1109,12 @@ Section Reduction.
     move: (c / (1 + n)) => k'. move: (c mod (1 + n)) => k'' -> Hijn ?.
     have := maybe_increase [] (§0^((1 + n) * (k'-k) + k'') ++ [§1] ++ r) k m Hijn.
     apply: (maybe_reachable_trans' (maybe_goto_1_time + 1)); first by lia.
-    { rewrite ?app_norm. do 4 f_equal. by lia. }
+    { rw ?app_norm. do 4 f_equal. by lia. }
     move: ((m + k * (2 + n))) => {}m.
     apply: (maybe_first_step (index_yes_spec_n1 (i, (j, n))) 
       (§0^m ++ [§1]) (§0^((1 + n) * (k' - k - 1) + k'') ++ [§1] ++ r));
-        [ by lia | by auto with M | by rewrite ?app_norm; do 4 f_equal; nia |].
-    rewrite ?app_norm. apply: (maybe_first_goto_1 0); first by lia.
+        [ by lia | by auto with M | by rw ?app_norm; do 4 f_equal; nia |].
+    rw ?app_norm. apply: (maybe_first_goto_1 0); first by lia.
     by apply: terminal_maybe_reachable => ? /increase_try_step_shape [|].
   Qed.
   
@@ -1127,18 +1127,18 @@ Section Reduction.
     move: (c / (1 + n)) => k'. move: (c mod (1 + n)) => k'' -> Hijn ?.
     have := maybe_increase ([§1] ++ l) (§0^((1 + n) * (k'-k) + k'') ++ [§1] ++ r) k m Hijn.
     apply: (maybe_reachable_trans' (3*maybe_goto_1_time + 3)); first by lia.
-    { rewrite ?app_norm. do 4 f_equal. by lia. }
+    { rw ?app_norm. do 4 f_equal. by lia. }
     apply: (maybe_first_step (index_yes_spec_n1 (i, (j, n))) 
       (§0^((m + k * (2 + n))) ++ [§1] ++ [§1] ++ l) (§0^((1 + n) * (k' - k - 1) + k'') ++ [§1] ++ r));
-        [ by lia | by auto with M | by rewrite ?app_norm; do 4 f_equal; nia |].
-    rewrite ?app_norm. apply: (maybe_first_goto_1 (2*maybe_goto_1_time + 2)); first by lia.
+        [ by lia | by auto with M | by rw ?app_norm; do 4 f_equal; nia |].
+    rw ?app_norm. apply: (maybe_first_goto_1 (2*maybe_goto_1_time + 2)); first by lia.
     apply: (maybe_first_step (increase_try_spec_1 (i, (j, n))));
-      [by lia | by auto with M | by rewrite ?app_norm; reflexivity |].
-    rewrite ?app_norm. apply: (maybe_first_goto_1 (maybe_goto_1_time + 1)); first by lia.
+      [by lia | by auto with M | by rw ?app_norm; reflexivity |].
+    rw ?app_norm. apply: (maybe_first_goto_1 (maybe_goto_1_time + 1)); first by lia.
     apply: (maybe_first_step (increase_no_spec (i, (j, n))));
-      [ by lia | by auto with M | by rewrite ?app_norm; reflexivity |].
-    rewrite ?app_norm. apply: (maybe_first_goto_1 0); first by lia.
-    apply: maybe_reachable_refl'. rewrite ?app_norm. do 4 f_equal. by nia.
+      [ by lia | by auto with M | by rw ?app_norm; reflexivity |].
+    rw ?app_norm. apply: (maybe_first_goto_1 0); first by lia.
+    apply: maybe_reachable_refl'. rw ?app_norm. do 4 f_equal. by nia.
   Qed.
 
   Definition maybe_index_try_step_time := 2*maybe_goto_1_time + maybe_increase_time +2.
@@ -1148,12 +1148,12 @@ Section Reduction.
       ([§1] ++ l, §0^(CM.value p) ++ [§1] ++ §0^(CM.value (CM1.step P p) - CM.value p) ++ r, '#?(CM.state p))
       ([§1] ++ l, §0^(CM.value (CM1.step P p)) ++ [§1] ++ r, '#?(CM.state (CM1.step P p))).
   Proof using NP_spec.
-    rewrite /maybe_index_try_step_time. move: p => [i [|c]] /=.
+    rw /maybe_index_try_step_time. move: p => [i [|c]] /=.
       (* case c = 0 *)
     { by apply: maybe_reachable_refl'. }
     (* case c > 0 *)
     move H: (nth_error P i) => oi. case: oi H; first last.
-    { move=> _ /=. rewrite ?nat_norm ?app_norm. by apply: maybe_reachable_refl'. }
+    { move=> _ /=. rw ?nat_norm ?app_norm. by apply: maybe_reachable_refl'. }
     move=> [j n] /nth_error_Some_In_iP /=.
     move Hm: (S c mod (n + 1)) => m. move: m Hm => [|m] Hcn /= Hijn.
     (* case n+1 divides c *)
@@ -1161,30 +1161,30 @@ Section Reduction.
       move Hd: (S c * (n + 2) / (n + 1)) => d Hcd.
 
       apply: (maybe_first_step (index_try_spec (i, (j, n))) l (§0^c ++ [§1] ++ §0^(d - S c) ++ r)); 
-        [ by lia | by auto with M | by rewrite ?app_norm | ].
+        [ by lia | by auto with M | by rw ?app_norm | ].
 
-      rewrite ?app_norm. apply: (maybe_first_goto_1 (maybe_goto_1_time + maybe_increase_time + 1)); first by lia.
-      rewrite Hcn.
+      rw ?app_norm. apply: (maybe_first_goto_1 (maybe_goto_1_time + maybe_increase_time + 1)); first by lia.
+      rw Hcn.
       have ? : (d - S c) * (1 + n) = S c.
-      { rewrite -Hd. by apply: divides_frac_diff. }
+      { rw -Hd. by apply: divides_frac_diff. }
       have := maybe_increase r ([§1] ++ l) (d - S c) 0 Hijn.
 
       apply: (maybe_reachable_trans' (maybe_goto_1_time + 1)); first by lia.
-      { rewrite ?app_norm. do 4 f_equal. by lia. }
+      { rw ?app_norm. do 4 f_equal. by lia. }
 
       apply: (maybe_first_step (index_yes_spec_1 (i, (j, n))));
-        [by lia | by auto with M | by rewrite ?app_norm; reflexivity | ].
-      apply: maybe_reachable_refl'. rewrite ?app_norm. do 4 f_equal. by lia.
+        [by lia | by auto with M | by rw ?app_norm; reflexivity | ].
+      apply: maybe_reachable_refl'. rw ?app_norm. do 4 f_equal. by lia.
     (* case n+1 does not divide c *)
     - apply: (maybe_first_step (index_try_spec (i, (j, n))) l (§0^c ++ [§1] ++ r));
-        [by lia | by auto with M | by rewrite ?app_norm ?nat_norm | ].
-      rewrite ?app_norm. apply: (maybe_first_goto_1 (maybe_goto_1_time + 1)); first by lia.
-      rewrite Hcn.
+        [by lia | by auto with M | by rw ?app_norm ?nat_norm | ].
+      rw ?app_norm. apply: (maybe_first_goto_1 (maybe_goto_1_time + 1)); first by lia.
+      rw Hcn.
 
       apply: (maybe_first_step (index_no_spec (i, (j, n))) ([§1] ++ r) (§0^c ++ [§1] ++ l));
         [ by lia | by auto with M | done |].
 
-      rewrite ?app_norm. apply: (maybe_first_goto_1 0); [by lia | by apply: maybe_reachable_refl'].
+      rw ?app_norm. apply: (maybe_first_goto_1 0); [by lia | by apply: maybe_reachable_refl'].
   Qed.
 
   Definition maybe_index_try_futile_time := maybe_index_try_stop_time + 3.
@@ -1192,7 +1192,7 @@ Section Reduction.
   Lemma maybe_index_try_futile l m i z : 
     maybe_reachable maybe_index_try_futile_time (l, §0^m, '#?i) z.
   Proof using NP_spec.
-    rewrite /maybe_index_try_futile_time.
+    rw /maybe_index_try_futile_time.
     move: l => [|a l].
       (* case l is empty *)
     { by apply: terminal_maybe_reachable => ? /index_try_step_shape [? ?]. }
@@ -1208,15 +1208,15 @@ Section Reduction.
     { apply: terminal_maybe_reachable. by apply: large_index_terminal. }
     (* case i is a valid instruction index *)
     apply: (maybe_first_step (index_try_spec (i, (j, n))) l (§0^(m-1)));
-      [ by lia | by auto with M | by rewrite ?app_norm; do 4 f_equal; lia | ].
-    rewrite ?app_norm. apply: maybe_goto_1_futile. by lia.
+      [ by lia | by auto with M | by rw ?app_norm; do 4 f_equal; lia | ].
+    rw ?app_norm. apply: maybe_goto_1_futile. by lia.
   Qed.
 
   Definition maybe_bounded_try_time := TP + maybe_index_try_stop_time + 1.
 
   Lemma maybe_bounded_try l r : maybe_reachable maybe_bounded_try_time (r, l, '?|) (l, r, '+|).
   Proof using NP_spec.
-    rewrite /maybe_bounded_try_time.
+    rw /maybe_bounded_try_time.
     move: l => [|a l]. 
       (* case l is empty *)
     { right. eexists. constructor; first by apply: reach_refl.
@@ -1245,31 +1245,31 @@ Section Reduction.
         have [[m ->]|] := list_symbol_shape r.
           (* case r has no 1 *)
         { apply: (maybe_first_step bound_try_spec_00 (§0^m) l); 
-            [ by lia | by auto with M | by rewrite ?app_norm | ].
-          rewrite ?app_norm. apply: maybe_index_try_stop. by lia. }
+            [ by lia | by auto with M | by rw ?app_norm | ].
+          rw ?app_norm. apply: maybe_index_try_stop. by lia. }
         (* case r has an 1 *)
         move=> [m [+ ->]] => {}r.
         have [| ?]: m + 2 <= CP \/ CP < m + 2 by lia.
           (* case m is small *)
         { move /(HTP (m+2) l r) => + /ltac:(left).
           apply: reachable_n_mon'; first by lia.
-            rewrite ?app_norm. do 5 f_equal; by lia. }
+            rw ?app_norm. do 5 f_equal; by lia. }
         (* case m is large enough *)
         apply: (maybe_first_step bound_try_spec_00 (§0^m ++ [§1] ++ r) l); 
-          [ by lia | by auto with M | by rewrite ?app_norm; do 4 f_equal; lia | ].
+          [ by lia | by auto with M | by rw ?app_norm; do 4 f_equal; lia | ].
         have := maybe_index_try_run l (§0^(m - (CP - 1)) ++ [§1] ++ r) (§1 :: l, §0 :: §0 :: §0^m ++ [§1] ++ r, '+|).
-        apply: maybe_reachable_mon'; first by (rewrite /maybe_index_try_stop_time; nia).
-        rewrite ?app_norm. do 7 f_equal. by lia.
+        apply: maybe_reachable_mon'; first by (rw /maybe_index_try_stop_time; nia).
+        rw ?app_norm. do 7 f_equal. by lia.
       }
       (* case r starts with 0; 1 *)
       apply: (maybe_first_step bound_try_spec_01 r l);
-        [ by lia | by auto with M | by rewrite ?app_norm |].
-      apply: maybe_reachable_refl'. by rewrite ?app_norm.
+        [ by lia | by auto with M | by rw ?app_norm |].
+      apply: maybe_reachable_refl'. by rw ?app_norm.
     }
     (* case r starts with 1 *)
     apply: (maybe_first_step bound_try_spec_1 r l);
-      [ by lia | by auto with M | by rewrite ?app_norm |].
-    apply: maybe_reachable_refl'. by rewrite ?app_norm.
+      [ by lia | by auto with M | by rw ?app_norm |].
+    apply: maybe_reachable_refl'. by rw ?app_norm.
   Qed.
 
   Lemma maybe_index_yes_near_futile l m i j n z : In (i, (j, n)) iP -> m <= n ->
@@ -1277,7 +1277,7 @@ Section Reduction.
   Proof.
     move=> Hijn ?. apply: terminal_maybe_reachable.
     move=> ? /(index_yes_step_shape Hijn). case; first by case: (m).
-    move /(f_equal (@length Symbol)). rewrite ?length_app ?repeat_length. by lia.
+    move /(f_equal (@length Symbol)). rw ?length_app ?repeat_length. by lia.
   Qed.
 
   Definition maybe_index_yes_futile_time := 2*maybe_goto_1_time + maybe_increase_time + maybe_index_try_stop_time + 5.
@@ -1285,7 +1285,7 @@ Section Reduction.
   Lemma maybe_index_yes_futile l m i z : 
     maybe_reachable maybe_index_yes_futile_time (l, §0^m, '#+i) z.
   Proof using NP_spec.
-    rewrite /maybe_index_yes_futile_time.
+    rw /maybe_index_yes_futile_time.
     have [? | /in_iPI [j [n Hijn]]] : length P <= i \/ i < length P by lia.
       (* case i is not a valid instruction index *)
     { apply: terminal_maybe_reachable. by apply: large_index_terminal. }
@@ -1298,8 +1298,8 @@ Section Reduction.
     have [[m' ->]|]:= list_symbol_shape l.
       (* case l contains only 0s *)
     { apply: (maybe_first_step (index_yes_spec_n1 (i, (j, n))) (§0^m') (§0^(m-(n+1))));
-        [ by lia | by auto with M | by rewrite ?app_norm; do 5 f_equal; lia |].
-        rewrite ?app_norm. apply: maybe_goto_1_futile. by lia. }
+        [ by lia | by auto with M | by rw ?app_norm; do 5 f_equal; lia |].
+        rw ?app_norm. apply: maybe_goto_1_futile. by lia. }
     (* case l contains at least one 1 *)
     move=> [k1 [+ ->]] => {}l.
     have [[k2 ->]|] := list_symbol_shape l.
@@ -1312,7 +1312,7 @@ Section Reduction.
         move Hk: (m / (1+n)) => k Hm ?.
         have := maybe_increase (§0^(k2-k)) (§0^(m mod (1 + n))) k k1 Hijn.
         apply: (maybe_reachable_trans' 0); first by lia.
-        { rewrite ?app_norm. do 5 f_equal; by lia. }
+        { rw ?app_norm. do 5 f_equal; by lia. }
 
         apply: (maybe_reachable_mon' (n := 0)); [by lia | by reflexivity |].
         move: (Hijn) => /maybe_index_yes_near_futile. apply.
@@ -1321,7 +1321,7 @@ Section Reduction.
       (* case k2 is too small *)
       have := maybe_increase [] (§0^(m - k2 * (1+n))) k2 k1 Hijn.
       apply: (maybe_reachable_trans' (maybe_goto_1_time + 1)); first by lia.
-      { rewrite ?app_norm. do 5 f_equal.
+      { rw ?app_norm. do 5 f_equal.
         have ? := div_mul_le m (1+n). by nia. }
       move: (m - k2 * (1 + n)). move: (k1 + k2 * (2 + n)) => k1' m'.
       have [? | ?]: m' <= n \/ n < m' by lia.
@@ -1330,9 +1330,9 @@ Section Reduction.
         apply: maybe_index_yes_near_futile; by eassumption. }
       (* case m' is large enough *)
       apply: (maybe_first_step (index_yes_spec_n1 (i, (j, n))) (§0^k1' ++ [§1]) (§0^(m' - (n+1))));
-        [ by lia | by auto with M | by rewrite ?app_norm; do 4 f_equal; lia |].
+        [ by lia | by auto with M | by rw ?app_norm; do 4 f_equal; lia |].
   
-      rewrite ?app_norm. apply: (maybe_first_goto_1 0); first by lia.
+      rw ?app_norm. apply: (maybe_first_goto_1 0); first by lia.
       by apply: terminal_maybe_reachable => ? /increase_try_step_shape [|].
     }
     (* case l is 0s; 1; 0s; 1; ... *)
@@ -1344,7 +1344,7 @@ Section Reduction.
       move Hk: (m / (1+n)) => k Hm ?.
       have := maybe_increase (§0^(k2-k) ++ [§1] ++ l) (§0^(m mod (1 + n))) k k1 Hijn.
       apply: (maybe_reachable_trans' 0); first by lia.
-      { rewrite ?app_norm. do 5 f_equal; last by lia. f_equal. by lia. }
+      { rw ?app_norm. do 5 f_equal; last by lia. f_equal. by lia. }
       apply: (maybe_reachable_mon' (n := 0)); first by lia.
       { by reflexivity. }
       move: (Hijn) => /maybe_index_yes_near_futile. apply.
@@ -1353,7 +1353,7 @@ Section Reduction.
     (* case k2 is small *)
     have := maybe_increase ([§1] ++ l) (§0^(m - k2 * (1+n))) k2 k1 Hijn.
     apply: (maybe_reachable_trans' (2*maybe_goto_1_time + maybe_index_try_stop_time + 5)); first by lia.
-    { rewrite ?app_norm. do 5 f_equal. have ? := div_mul_le m (1+n). by nia. }
+    { rw ?app_norm. do 5 f_equal. have ? := div_mul_le m (1+n). by nia. }
     move: (m - k2 * (1 + n)). move: (k1 + k2 * (2 + n)) => k1' m'.
     have [? | ?]: m' <= n \/ n < m' by lia.
       (* case m' is too small *)
@@ -1361,16 +1361,16 @@ Section Reduction.
       apply: maybe_index_yes_near_futile; by eassumption. }
     (* case m' is large enough *)
     apply: (maybe_first_step (index_yes_spec_n1 (i, (j, n))) (§0^k1' ++ [§1] ++ [§1] ++ l) (§0^(m' - (n+1))));
-      [ by lia | by auto with M | by rewrite ?app_norm; do 4 f_equal; lia |].
+      [ by lia | by auto with M | by rw ?app_norm; do 4 f_equal; lia |].
 
-    rewrite ?app_norm. apply: (maybe_first_goto_1 (maybe_goto_1_time + maybe_index_try_stop_time + 4)); first by lia.
+    rw ?app_norm. apply: (maybe_first_goto_1 (maybe_goto_1_time + maybe_index_try_stop_time + 4)); first by lia.
     apply: (maybe_first_step (increase_try_spec_1 (i, (j, n))) l (§0^(n + k1') ++ [§1] ++ §0^(m' - (n + 1))));
-      [ by lia | by auto with M | by rewrite ?app_norm |].
+      [ by lia | by auto with M | by rw ?app_norm |].
 
-    rewrite ?app_norm. apply: (maybe_first_goto_1 (maybe_index_try_stop_time + 3)); first by lia.
+    rw ?app_norm. apply: (maybe_first_goto_1 (maybe_index_try_stop_time + 3)); first by lia.
     apply: (maybe_first_step (increase_no_spec (i, (j, n))) (§0^(m' - (n + 1))) (§0^(1 + (n + k1')) ++ [§1] ++ l));
-      [ by lia | by auto with M | by rewrite ?app_norm |].
-    rewrite ?app_norm. apply: maybe_goto_1_futile. by lia.
+      [ by lia | by auto with M | by rw ?app_norm |].
+    rw ?app_norm. apply: maybe_goto_1_futile. by lia.
   Qed.
 
   (* Grow Lemmas: lX0^mr ->> lX0^(m+1)r *)
@@ -1382,22 +1382,22 @@ Section Reduction.
     case.
     { move=> [i] [[n X] Y]. by do 2 (decide equality). }
     (* can execute bound op *)
-    - rewrite Exists_exists. move=> [[i] [[n X] Y]] [Hi ->].
+    - rw Exists_exists. move=> [[i] [[n X] Y]] [Hi ->].
       exists ((§0^(n + 1) ++ skipn G l), (§0^(G - (n + 2)) ++ r), n, X, Y).
 
       apply: (maybe_first_step (bound_yes_spec (i, (n, X, Y))) (skipn G l) (§0^m ++ r));
         [by lia | by auto with M | done |].
       apply: maybe_reachable_refl'. have ? := igotos_capped Hi.
-      rewrite /G ?app_norm /gotos ?length_app /=. do 4 f_equal. by lia.
+      rw /G ?app_norm /gotos ?length_app /=. do 4 f_equal. by lia.
     (* cannot execute bound op *)
     - move=> H. exists ([], [], 0, +|, +|). apply: terminal_maybe_reachable.
       move=> y /stepE [] > [] *; subst; try done.
       apply: H. apply /Exists_exists. eexists. constructor; first by eassumption.
-      rewrite /= ?app_norm. do 4 f_equal. rewrite ?app_assoc skipn_app.
+      rw /= ?app_norm. do 4 f_equal. rw ?app_assoc skipn_app.
       have ? := in_igotos_lt ltac:(eassumption).
       set s := (skipn G _). have -> : s = [].
-      { rewrite /s skipn_all2; last done. rewrite ?length_app ?repeat_length /= /G. by lia. }
-      rewrite ?length_app ?repeat_length /= /G.
+      { rw /s skipn_all2; last done. rw ?length_app ?repeat_length /= /G. by lia. }
+      rw ?length_app ?repeat_length /= /G.
       set k := (k in skipn k _). have -> : k = 0 by lia. done.
   Qed.
 
@@ -1406,7 +1406,7 @@ Section Reduction.
   Lemma maybe_increase_no_grow l r m i : exists '(l', r', n, X, Y), 
     maybe_reachable maybe_increase_no_grow_time (l, §0^m ++ r, '$-i) (l', §0^(m+1) ++ r', goto n X Y).
   Proof using NP_spec.
-    pose dummy := ([§0], [§0], 0, +|, +|). rewrite /maybe_increase_no_grow_time.
+    pose dummy := ([§0], [§0], 0, +|, +|). rw /maybe_increase_no_grow_time.
     have [? | /in_iPI [j [n Hjn]]]: length P <= i \/ i < length P by lia.
       (* case i is not a valid instruction index *)
     { exists dummy. apply: terminal_maybe_reachable. by apply: large_increase_terminal. }
@@ -1422,17 +1422,17 @@ Section Reduction.
       (* case l is 1; 0; 0; 0; ... *)
     { exists dummy.
       apply: (maybe_first_step (increase_no_spec (i, (j, n))) (§0^m') (§0^m ++ r));
-        [ by lia | by auto with M | by rewrite ?app_norm | ].
-      rewrite ?app_norm. apply: maybe_goto_1_futile. by lia. }
+        [ by lia | by auto with M | by rw ?app_norm | ].
+      rw ?app_norm. apply: maybe_goto_1_futile. by lia. }
     (* case: l contains a second 1 *)
     move=> [m' [+ ->]] => {}l.
     have [e He] := maybe_bounded_yes_grow ([§1] ++ l) (§0^(m'+1) ++ r) m.
     exists e. move: e He => [[[[l' r'] n'] X'] Y'] He.
     apply: (maybe_first_step (increase_no_spec (i, (j, n))) (§0^m' ++ [§1] ++ l) (§0^m ++ r));
-      [by lia | by auto with M | by rewrite ?app_norm | ].
-    rewrite ?app_norm. apply: (maybe_first_goto_1 1); first by lia.
+      [by lia | by auto with M | by rw ?app_norm | ].
+    rw ?app_norm. apply: (maybe_first_goto_1 1); first by lia.
     move: He. apply: maybe_reachable_mon'; first by lia.
-    rewrite ?app_norm. do 5 f_equal. by lia.
+    rw ?app_norm. do 5 f_equal. by lia.
   Qed.
 
   Definition maybe_index_yes_grow_time := maybe_index_yes_futile_time + maybe_increase_time + 3 * maybe_goto_1_time + maybe_index_try_stop_time + 4.
@@ -1440,26 +1440,26 @@ Section Reduction.
   Lemma maybe_index_yes_grow l r m i: exists '(l', r', n, X, Y), 
     maybe_reachable maybe_index_yes_grow_time (l, §0^m ++ r, '#+i) (l', §0^(m+1) ++ r', goto n X Y).
   Proof using NP_spec.
-    rewrite /maybe_index_yes_grow_time. pose dummy := ([§0], [§0], 0, +|, +|).
+    rw /maybe_index_yes_grow_time. pose dummy := ([§0], [§0], 0, +|, +|).
     have [[n ->] | ] := list_symbol_shape r.
       (* case r contains only 0s *)
     { exists dummy. 
       apply: (maybe_reachable_mon' (n := maybe_index_yes_futile_time)); 
-        [ by lia | by rewrite ?app_norm; reflexivity | by apply: maybe_index_yes_futile]. }
+        [ by lia | by rw ?app_norm; reflexivity | by apply: maybe_index_yes_futile]. }
     move=> [m' [+ ->]] => {}r.
     have [Hi | /in_iPI [j [n Hijn]]]: length P <= i \/ i < length P by lia.
       (* case i is not a valid instruction index *)
     { exists dummy. apply: terminal_maybe_reachable. by apply: large_index_terminal. }
     (* case i is a valid instruction index *)
-    rewrite ?app_norm.
+    rw ?app_norm.
     suff: exists '(l', r', n, X, Y), maybe_reachable maybe_index_yes_grow_time
       (l, §0^(m+m') ++ [§1] ++ r, '#+i) (l', §0^((m+m')+1) ++ r', goto n X Y).
     {
       move=> [[[[[l' r'] n'] X'] Y'] H]. exists (l', §0^m' ++ r', n', X', Y').
-      move: H. apply: maybe_reachable_mon'; first by (rewrite /maybe_index_yes_grow_time; lia).
-      rewrite ?app_norm. do 5 f_equal. by lia.
+      move: H. apply: maybe_reachable_mon'; first by (rw /maybe_index_yes_grow_time; lia).
+      rw ?app_norm. do 5 f_equal. by lia.
     }
-    move: (m + m') => {}m {m'}. rewrite /maybe_index_yes_grow_time.
+    move: (m + m') => {}m {m'}. rw /maybe_index_yes_grow_time.
     move: m => [|m].
       (* case m = 0 *)
     { 
@@ -1496,8 +1496,8 @@ Section Reduction.
       have [? | ?]: S m < n + 1 \/ n + 1 <= S m by lia.
       { apply: terminal_maybe_reachable=> ? /(index_yes_step_shape Hijn) [|/zero_prefix_lt]; [ done | by lia]. }
       apply: (maybe_first_step (index_yes_spec_n1 (i, (j, n))) (§0^k) (§0^(m-n) ++ [§1] ++ r));
-        [by lia | by auto with M | by rewrite ?app_norm; do 4 f_equal; lia | ].
-      rewrite ?app_norm. apply: maybe_goto_1_futile. by lia.
+        [by lia | by auto with M | by rw ?app_norm; do 4 f_equal; lia | ].
+      rw ?app_norm. apply: maybe_goto_1_futile. by lia.
     }
     (* case l contains at least one 1 *)
     move=> [k1] [l' ->]. have [|]:= list_symbol_shape l'.
@@ -1516,15 +1516,15 @@ Section Reduction.
           have ? := @div_mod_pos n m.
           exists (([§1] ++ r), (§0^(m' - (S m + 1)) ++ [§1] ++ §0^m''), n', (#+j), (#-j)).
           move: H.
-          apply: (maybe_reachable_trans' 1); [by lia | by rewrite ?app_norm |].
+          apply: (maybe_reachable_trans' 1); [by lia | by rw ?app_norm |].
           apply: (maybe_first_step (index_try_spec (j, (j', n'))) r (§0^(m'-1) ++ [§1] ++ §0^m''));
-            [by lia | by auto with M | by rewrite ?app_norm; do 4 f_equal; lia |].
-          apply: maybe_reachable_refl'. rewrite ?app_norm. do 4 f_equal. by lia.
+            [by lia | by auto with M | by rw ?app_norm; do 4 f_equal; lia |].
+          apply: maybe_reachable_refl'. rw ?app_norm. do 4 f_equal. by lia.
         }
         (* case j is not a valid instruction index *)
         exists dummy.
         have := maybe_increase_next [] r i j n (S m) k2 k1 Hijn ltac:(lia).
-        apply: (maybe_reachable_trans' 0); [by lia | by rewrite ?app_norm |].
+        apply: (maybe_reachable_trans' 0); [by lia | by rw ?app_norm |].
         apply: terminal_maybe_reachable. by apply: large_index_terminal.
       }
       (* case k2 is too small *)
@@ -1547,15 +1547,15 @@ Section Reduction.
         have ? := @div_mod_pos n m.
         exists (([§1] ++ r), (§0^(m' - (S m + 1)) ++ [§1] ++ §0^m'' ++ [§1] ++ l'), n', (#+j), (#-j)).
         move: H.
-        apply: (maybe_reachable_trans' 1); [by lia | by rewrite ?app_norm |].
+        apply: (maybe_reachable_trans' 1); [by lia | by rw ?app_norm |].
         apply: (maybe_first_step (index_try_spec (j, (j', n'))) r (§0^(m'-1) ++ [§1] ++ §0^m'' ++ [§1] ++ l'));
-          [by lia | by auto with M | by rewrite ?app_norm; do 4 f_equal; lia |].
-        apply: maybe_reachable_refl'. rewrite ?app_norm. do 4 f_equal. by lia.
+          [by lia | by auto with M | by rw ?app_norm; do 4 f_equal; lia |].
+        apply: maybe_reachable_refl'. rw ?app_norm. do 4 f_equal. by lia.
       }
       (* case j is not a valid instruction index *)
       exists dummy.
       have := maybe_increase_next ([§1] ++ l') r i j n (S m) k2 k1 Hijn ltac:(lia).
-      apply: (maybe_reachable_trans' 0); [by lia | by rewrite ?app_norm |].
+      apply: (maybe_reachable_trans' 0); [by lia | by rw ?app_norm |].
       apply: terminal_maybe_reachable. by apply: large_index_terminal.
     }
     (* case k2 is too small *)
@@ -1565,7 +1565,7 @@ Section Reduction.
     have := maybe_increase_fail l' r i j n (S m) k2 k1 Hijn ltac:(lia).
     apply: (maybe_reachable_trans' 1); [by lia | done |].
     move: Hz. apply: maybe_reachable_mon'; first by lia.
-    rewrite ?app_norm. do 5 f_equal. by lia.
+    rw ?app_norm. do 5 f_equal. by lia.
   Qed.
 
   Definition maybe_index_try_grow_time := maybe_index_try_futile_time + (length P) * maybe_index_try_step_time + maybe_index_yes_grow_time + maybe_goto_1_time + 1.
@@ -1573,17 +1573,17 @@ Section Reduction.
   Lemma maybe_index_try_grow l r m i : exists '(l', r', n, X, Y), 
     maybe_reachable maybe_index_try_grow_time (l, §0^m ++ r, '#?i) (l', §0^(m+1) ++ r', goto n X Y).
   Proof using NP_spec.
-    rewrite /maybe_index_try_grow_time. pose dummy := ([§0], [§0], 0, +|, +|).
+    rw /maybe_index_try_grow_time. pose dummy := ([§0], [§0], 0, +|, +|).
     have [[n ->]|] := list_symbol_shape r.
     { exists dummy. apply: (maybe_reachable_mon' (n := maybe_index_try_futile_time)); 
-        [by lia | by rewrite ?app_norm; reflexivity | by apply: maybe_index_try_futile]. }
+        [by lia | by rw ?app_norm; reflexivity | by apply: maybe_index_try_futile]. }
     move=> [n [+ ->]] => {}r. move Hk: (length P - i) => k.
     suff: exists '(l', r', n', X', Y'), maybe_reachable 
       (maybe_index_try_futile_time + k * maybe_index_try_step_time + maybe_index_yes_grow_time + maybe_goto_1_time + 1)
       (l, §0^(m+n) ++ [§1] ++ r, '#? i) (l', §0^((m+n)+1) ++ r', goto n' X' Y').
     { move=> [[[[[l' r'] n'] X'] Y'] H]. exists (l', §0^n ++ r', n', X', Y').
-      move: H. apply: maybe_reachable_mon'; first by (rewrite /maybe_index_try_grow_time; lia).
-      rewrite ?app_norm. do 5 f_equal. by lia. }
+      move: H. apply: maybe_reachable_mon'; first by (rw /maybe_index_try_grow_time; lia).
+      rw ?app_norm. do 5 f_equal. by lia. }
     move: (m + n) l => {}m {n} [|a l]. 
       (* case l is empty *)
     { exists dummy. by apply: terminal_maybe_reachable => ? /index_try_step_shape [? ?]. }
@@ -1601,14 +1601,14 @@ Section Reduction.
     pose x := {| CM.state := i; CM.value := S m |}.
     move Hi'm': (CM.step P x) => [i' m'].
     have := CM_facts.step_progress P x.
-    move /(_ ltac:(rewrite /x /=; lia) ltac:(rewrite /x /=; lia)). case.
+    move /(_ ltac:(rw /x /=; lia) ltac:(rw /x /=; lia)). case.
       (* counter value did not increase *)
     {
-      rewrite Hi'm'. move=> [? ?]. subst i' m'.
+      rw Hi'm'. move=> [? ?]. subst i' m'.
       have [e He] := IH (1+i) r ltac:(lia).
       exists e. move: e He => [[[[? ?] ?] ?] ?] He.
       have := maybe_index_try_step l r x.
-      rewrite /x Hi'm' /= ?nat_norm ?app_norm.
+      rw /x Hi'm' /= ?nat_norm ?app_norm.
       by apply: (maybe_reachable_trans' 
         (maybe_index_try_futile_time + k * maybe_index_try_step_time + maybe_index_yes_grow_time + maybe_goto_1_time + 1)); first by lia.
     }
@@ -1618,11 +1618,11 @@ Section Reduction.
     have [e He] := maybe_index_yes_grow ([§1] ++ r) ([§1] ++ l) (S m) i.
     exists e. move: e He => [[[[? ?] ?] ?] ?] He.
     apply: (maybe_first_step (index_try_spec (i, (j, n))) l (§0^m ++ [§1] ++ r)); 
-      [ by nia  | by auto with M | by rewrite ?app_norm | ]. 
+      [ by nia  | by auto with M | by rw ?app_norm | ]. 
 
-    rewrite ?app_norm. apply: (maybe_first_goto_1 maybe_index_yes_grow_time); first by nia.
+    rw ?app_norm. apply: (maybe_first_goto_1 maybe_index_yes_grow_time); first by nia.
     subst x. have [_ ->]:= in_iP_unique (n := n) (n' := n') ltac:(eassumption) ltac:(eassumption).
-    rewrite Hmn'. move: He. by apply: maybe_reachable_mon'; first by lia.
+    rw Hmn'. move: He. by apply: maybe_reachable_mon'; first by lia.
   Qed.
   
   Lemma maybe_increase_try_grow l r m i :
@@ -1644,12 +1644,12 @@ Section Reduction.
       * exists (([§1] ++ l), r, 0, ($+i), ($+i)).
         apply: (maybe_first_step (increase_try_spec_0 (i, (j, n))) l (§0^m ++ r));
           [by lia | by auto with M | done |].
-        rewrite ?app_norm. apply: maybe_reachable_refl'. do 4 f_equal. by lia.
+        rw ?app_norm. apply: maybe_reachable_refl'. do 4 f_equal. by lia.
       (* use increase_try_spec_1 *)
       * exists (([§1] ++ l), r, 0, ($-i), ($-i)).
         apply: (maybe_first_step (increase_try_spec_1 (i, (j, n))) l (§0^m ++ r));
           [by lia | by auto with M | done |].
-        rewrite ?app_norm. apply: maybe_reachable_refl'. do 4 f_equal. by lia.
+        rw ?app_norm. apply: maybe_reachable_refl'. do 4 f_equal. by lia.
   Qed.  
 
   Definition maybe_increase_yes_grow_time := maybe_index_try_grow_time + maybe_index_yes_futile_time + 2.
@@ -1657,7 +1657,7 @@ Section Reduction.
   Lemma maybe_increase_yes_grow l r m i : exists '(l', r', n, X, Y), 
     maybe_reachable maybe_increase_yes_grow_time (l, §0^m ++ r, '$+i) (l', §0^(m+1) ++ r', goto n X Y).
   Proof using NP_spec.
-    pose dummy := ([§0], [§0], 0, +|, +|). rewrite /maybe_increase_yes_grow_time.
+    pose dummy := ([§0], [§0], 0, +|, +|). rw /maybe_increase_yes_grow_time.
     have [? | /in_iPI [j [n Hijn]]]: length P <= i \/ i < length P by lia.
       (* case i is not a valid instruction index *)
     { exists dummy. apply: terminal_maybe_reachable. by apply: large_increase_terminal. }
@@ -1674,10 +1674,10 @@ Section Reduction.
     {
       move=> [m' ->]. exists dummy.
       apply: (maybe_first_step (increase_yes_spec (i, (j, n))) (§0^m') (§0^m ++ r));
-        [ by lia | by auto with M | by rewrite ?app_norm | ].
+        [ by lia | by auto with M | by rw ?app_norm | ].
 
       apply: (maybe_reachable_mon' (n := maybe_index_yes_futile_time)); 
-        [by lia | by rewrite ?app_norm; reflexivity | by apply: maybe_index_yes_futile].
+        [by lia | by rw ?app_norm; reflexivity | by apply: maybe_index_yes_futile].
     }
     (* case: l contains a second 1 *)
     move=> [m' [+ ->]] => {}l.
@@ -1687,33 +1687,33 @@ Section Reduction.
       have [e He] := maybe_index_try_grow ([§1] ++ l) (§0^1 ++ r) m j.
       exists e. move: e He => [[[[l' r'] n'] X'] Y'] He.
       apply: (maybe_first_step (increase_yes_spec (i, (j, n))) ([§1] ++ l) (§0^m ++ r));
-        [by lia | by auto with M | by rewrite ?app_norm | ].
+        [by lia | by auto with M | by rw ?app_norm | ].
       
       apply: (maybe_first_step (index_yes_spec_1 (i, (j, n))) (§0^(1 + m) ++ r) l);
-        [by lia | by auto with M | by rewrite ?app_norm | ].
+        [by lia | by auto with M | by rw ?app_norm | ].
 
       move: He. apply: maybe_reachable_mon'; first by lia.
-      rewrite ?app_norm. do 5 f_equal. by lia.
+      rw ?app_norm. do 5 f_equal. by lia.
     }
     case=> Hm'.
       (* case l starts with is 1; 0s; 1 with too few 0s *)
     {
       exists dummy.
       apply: (maybe_first_step (increase_yes_spec (i, (j, n))) (§0^m' ++ [§1] ++ l) (§0^m ++ r));
-        [ by lia | by auto with M | by rewrite ?app_norm |].
+        [ by lia | by auto with M | by rw ?app_norm |].
 
-      apply: terminal_maybe_reachable. rewrite ?app_norm. have ->: m' = 1+(m'-1) by lia.
+      apply: terminal_maybe_reachable. rw ?app_norm. have ->: m' = 1+(m'-1) by lia.
       move=> ? /(index_yes_step_shape Hijn) [| /zero_prefix_lt]; by [| lia].
     }
     (* case l starts with is 1; 0s with enough 0s *)
     exists (([§1] ++ §0^(m' - (n + 1)) ++ [§1] ++ l), (§0^n ++ r), 0, $?i, $?i).
     apply: (maybe_first_step (increase_yes_spec (i, (j, n))) (§0^m' ++ [§1] ++ l) (§0^m ++ r));
-      [ by lia | by auto with M | by rewrite ?app_norm |].
+      [ by lia | by auto with M | by rw ?app_norm |].
 
     apply: (maybe_first_step (index_yes_spec_n1 (i, (j, n))) (§0^(1+m) ++ r) (§0^(m'-(n+1)) ++ [§1] ++ l));
-      [ by lia | by auto with M | by rewrite ?app_norm; do 4 f_equal; lia |].
+      [ by lia | by auto with M | by rw ?app_norm; do 4 f_equal; lia |].
     
-    apply: maybe_reachable_refl'. rewrite ?app_norm. do 4 f_equal. by lia.
+    apply: maybe_reachable_refl'. rw ?app_norm. do 4 f_equal. by lia.
   Qed.
 
   Definition maybe_index_no_grow_time := maybe_index_try_grow_time + maybe_goto_1_time + maybe_index_try_stop_time + 3.
@@ -1721,7 +1721,7 @@ Section Reduction.
   Lemma maybe_index_no_grow l r m i : exists '(l', r', n, X, Y), 
     maybe_reachable maybe_index_no_grow_time (l, §0^m ++ r, '#-i) (l', §0^(m+1) ++ r', goto n X Y).
   Proof using NP_spec.
-    pose dummy := ([§0], [§0], 0, +|, +|). rewrite /maybe_index_no_grow_time.
+    pose dummy := ([§0], [§0], 0, +|, +|). rw /maybe_index_no_grow_time.
     have [? | /in_iPI [j [n Hjn]]] : length P <= i \/ i < length P by lia.
       (* case i is not a valid instruction index *)
     { exists dummy. apply: terminal_maybe_reachable. by apply: large_index_terminal. }
@@ -1729,17 +1729,17 @@ Section Reduction.
     case: (list_symbol_shape r).
       (* case r contains only 0s *)
     {
-      move=> [m' ->]. exists dummy. rewrite ?app_norm. case: (m + m').
+      move=> [m' ->]. exists dummy. rw ?app_norm. case: (m + m').
         (* case r is empty *)
       { by apply: terminal_maybe_reachable => ? /index_no_step_shape. }
       (* case r starts with 0 *)
       move=> {}m'.
       apply: (maybe_first_step (index_no_spec (i, (j, n))) l (§0^m'));
-        [by lia | by auto with M | by rewrite ?app_norm |].
-      rewrite ?app_norm. apply: maybe_goto_1_futile. by lia.
+        [by lia | by auto with M | by rw ?app_norm |].
+      rw ?app_norm. apply: maybe_goto_1_futile. by lia.
     }
     (* case r contains an 1 *)
-    move=> [m' [+ ->]] => {}r. rewrite ?app_norm.
+    move=> [m' [+ ->]] => {}r. rw ?app_norm.
     move Hm'': (m + m') => m''. move: m'' Hm'' => [|m''] Hm''.
       (* case r starts with 1 *)
     { exists dummy. by apply: terminal_maybe_reachable => ? /index_no_step_shape. }
@@ -1747,9 +1747,9 @@ Section Reduction.
     have [e He] := maybe_index_try_grow ([§1] ++ r) (§0^m' ++ l) m (1+i).
     exists e. move: e He => [[[[l' r'] n'] X'] Y'] He.
     apply: (maybe_first_step (index_no_spec (i, (j, n))) l (§0^m'' ++ [§1] ++ r));
-      [by lia | by auto with M | by rewrite ?app_norm | ].
-    rewrite ?app_norm. apply: (maybe_first_goto_1 maybe_index_try_grow_time); first by lia.
-    move: He. apply: maybe_reachable_mon'; [by lia | by rewrite ?app_norm Hm''].
+      [by lia | by auto with M | by rw ?app_norm | ].
+    rw ?app_norm. apply: (maybe_first_goto_1 maybe_index_try_grow_time); first by lia.
+    move: He. apply: maybe_reachable_mon'; [by lia | by rw ?app_norm Hm''].
   Qed.
 
   Definition maybe_bounded_try_grow_time := maybe_bounded_try_time+1.
@@ -1757,7 +1757,7 @@ Section Reduction.
   Lemma maybe_bounded_try_grow l r m : exists '(l', r', n, X, Y), 
     maybe_reachable maybe_bounded_try_grow_time (l, §0^m ++ r, '?|) (l', §0^(m+1) ++ r', goto n X Y).
   Proof using NP_spec.
-    rewrite /maybe_bounded_try_grow_time.
+    rw /maybe_bounded_try_grow_time.
     move: m => [|m]; first last.
     { exists ([], [], 0, +|, +|). by apply: terminal_maybe_reachable => ? /bound_try_step_shape [? ?]. }
     have [e He] := maybe_bounded_yes_grow r l 0.
@@ -1775,7 +1775,7 @@ Section Reduction.
   Lemma maybe_basic_state_grow l r m X : exists '(l', r', n', X', Y'), 
     maybe_reachable maybe_basic_state_grow_time (l, §0^m ++ r, basic_state X) (l', §0^(m+1) ++ r', goto n' X' Y').
   Proof using NP_spec.
-    rewrite /maybe_basic_state_grow_time.
+    rw /maybe_basic_state_grow_time.
     case: X.
     - case. 
       + have [e He] := maybe_bounded_yes_grow l r m.
@@ -1812,26 +1812,26 @@ Section Reduction.
   Lemma maybe_goto_1_grow l r m n X Y : exists '(l', r', n', X', Y'), 
     maybe_reachable maybe_goto_1_grow_time (l, §0^m ++ r, goto n X Y) (l', §0^(m+1) ++ r', goto n' X' Y').
   Proof using NP_spec.
-    rewrite /maybe_goto_1_grow_time.
+    rw /maybe_goto_1_grow_time.
     case: (list_symbol_shape r).
       (* case r has only 0s *)
     { move=> [m' ->]. exists ([], [], 0, +|, +|).
-      rewrite /maybe_basic_state_grow_time ?app_norm. apply: maybe_goto_1_futile. by lia. }
+      rw /maybe_basic_state_grow_time ?app_norm. apply: maybe_goto_1_futile. by lia. }
     (* case r hast at least one 1 *)
-    move=> [m' [+ ->]] => {}r. rewrite ?app_norm.
+    move=> [m' [+ ->]] => {}r. rw ?app_norm.
     move Hk: ((m + m') mod (n + 1)) => k. move: k Hk => [|k] Hk.
       (* case goto produces X *)
     {
       have [e He] := maybe_basic_state_grow ([§1] ++ r) (§0^m' ++ l) m X.
       exists e. move: e He => [[[[l' r'] n'] X'] Y'] He.
       apply: (maybe_first_goto_1 maybe_basic_state_grow_time); first by lia.
-      rewrite Hk. move: He. apply: maybe_reachable_mon'; [by lia | by rewrite ?app_norm].
+      rw Hk. move: He. apply: maybe_reachable_mon'; [by lia | by rw ?app_norm].
     }
     (* case goto produces Y *)
     have [e He] := maybe_basic_state_grow ([§1] ++ r) (§0^m' ++ l) m Y.
     exists e. move: e He => [[[[l' r'] n'] X'] Y'] He.
     apply: (maybe_first_goto_1 maybe_basic_state_grow_time); first by lia.
-    rewrite Hk. move: He. apply: maybe_reachable_mon'; [by lia | by rewrite ?app_norm].
+    rw Hk. move: He. apply: maybe_reachable_mon'; [by lia | by rw ?app_norm].
   Qed.
 
   Lemma maybe_goto_1_grow_iter l r m n X Y : exists '(l', r', n', X', Y'), 
@@ -1854,7 +1854,7 @@ Section Reduction.
   Theorem uniform_termination x: exists z, 
     reachable_n uniform_termination_time x z /\ terminal M z.
   Proof using NP_spec.
-    apply: universal_maybe_reachable_terminal => z. rewrite /uniform_termination_time.
+    apply: universal_maybe_reachable_terminal => z. rw /uniform_termination_time.
     move: x => [[l r] [X|n X Y]].
     {
       have [[[[[l' r'] n'] X'] Y']] := maybe_basic_state_grow l r 0 X.
@@ -1894,7 +1894,7 @@ Section Reduction.
     move=> {}T' {}x y {}z Hxy Hyz ?.
     have ?: T = T' by lia. subst T'.
     move /(IH y _ Hyz) => [L [H1L H2L]]. exists (x :: L). constructor; first last.
-    { rewrite /length -/(length _). by lia. }
+    { rw /length -/(length _). by lia. }
     move=> y'. move HT': (1 + T) => T' /clos_rt_rt1n_iff Hxy'. 
     case: Hxy' HT' Hxy; first by (move=> *; left).
     move=> {}y' z' Hxy' Hy'z' ? Hxy. right.
@@ -1905,7 +1905,7 @@ Section Reduction.
   (* if counter machine halts, then stack machine is uniformly bounded *)
   Theorem terminating_P_to_bounded_M : SM.bounded M (1+uniform_termination_time).
   Proof using NP_spec.
-    rewrite /SM.bounded. move=> x.
+    rw /SM.bounded. move=> x.
     have [z [Hz]]:= uniform_termination x.
     by move /(reachable_configurations Hz).
   Qed.

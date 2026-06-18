@@ -10,7 +10,7 @@ Proof. elim: k; [done | by move=> /= ? ->]. Qed.
 Lemma steps_plus {M} k1 k2 {x} :
   steps M (k1 + k2) x = obind (fun y => steps M k2 y) (steps M k1 x).
 Proof.
-  rewrite /steps Nat.add_comm /Nat.iter nat_rect_plus /= -!/(Nat.iter _ _ _).
+  rw /steps Nat.add_comm /Nat.iter nat_rect_plus /= -!/(Nat.iter _ _ _).
   move: (Nat.iter k1 _ (Some x)) => [y|] /=; first done.
   apply: oiter_None.
 Qed.
@@ -20,7 +20,7 @@ Proof.
   elim: k2 k1 x.
   { move=> [|k1]; [done|lia]. }
   move=> k2 IH [|k1] x + ?; first done.
-  rewrite (steps_plus 1 k1) (steps_plus 1 k2).
+  rw (steps_plus 1 k1) (steps_plus 1 k2).
   move: (steps M 1 x) => [y|]; last done.
   move=> /IH. apply. lia.
 Qed.
@@ -29,9 +29,9 @@ Lemma steps_sync {M k1 x k2 y} :
   steps M (S k1) x = None -> steps M (S k2) x = Some y -> steps M k1 y = None.
 Proof.
   elim: k1 k2 x.
-  { move=> k2 x. rewrite (steps_plus 1 k2). by move=> ->. }
+  { move=> k2 x. rw (steps_plus 1 k2). by move=> ->. }
   move=> k1 IH k2 x.
-  rewrite (steps_plus 1 (S k1)) (steps_plus 1 k2).
+  rw (steps_plus 1 (S k1)) (steps_plus 1 k2).
   move: (steps M 1 x) => [z|]; last done.
   move: k2 => [|k2].
   { by move=> /= <- [<-]. }
@@ -58,15 +58,15 @@ Proof.
   have ? := almost_eq_false 0 _.
   have ? := almost_eq_false _ 0.
   case=> a ???? [] => [????|n1 n2] [].
-  - move=> ????. rewrite /step /=. case: (trans' M _); last done.
+  - move=> ????. rw /step /=. case: (trans' M _); last done.
     move=> [[? ?] []] [] <- <- [] <- <- /=; by do ? constructor.
-  - move=> n'1 n'2. rewrite /step /=. case: (trans' M _); last done.
+  - move=> n'1 n'2. rw /step /=. case: (trans' M _); last done.
     move=> [[? ?] []] [] <- <- [] <- <- /=; first by do ? constructor.
     move: n'1 n'2 => [|?] [|?] /=; by do ? constructor.
-  - move=> ????. rewrite /step /=. case: (trans' M _); last done.
+  - move=> ????. rw /step /=. case: (trans' M _); last done.
     move=> [[? ?] []] [] <- <- [] <- <- /=; last by do ? constructor.
     move: n1 n2 => [|?] [|?] /=; by do ? constructor.
-  - move=> n'1 n'2. rewrite /step /=. case: (trans' M _); last done.
+  - move=> n'1 n'2. rw /step /=. case: (trans' M _); last done.
     move=> [[? ?] []] [] <- <- [] <- <- /=.
     + move: n1 n2 => [|?] [|?] /=; by do ? constructor.
     + move: n'1 n'2 => [|?] [|?] /=; by do ? constructor.
@@ -78,7 +78,7 @@ Lemma almost_eq_tape_step_None M q t1 t2 :
   step M (q, t2) = None.
 Proof.
   case=> a ???? [] => [????|n1 n2] [] >.
-  all: rewrite /step /=.
+  all: rw /step /=.
   all: case: (trans' M _); last done.
   all: by move=> [[? ?] ?].
 Qed.
@@ -101,7 +101,7 @@ Lemma almost_eq_tape_steps_None {M k q t1 t2} :
   (steps M k (q, t1) = None <-> steps M k (q, t2) = None).
 Proof.
   elim: k q t1 t2; first done.
-  move=> k IH q t1 t2. rewrite !(steps_plus 1 k) /=.
+  move=> k IH q t1 t2. rw !(steps_plus 1 k) /=.
   case E1: (step M (q, t1)) => [[q2 t'1]|];
     case E2: (step M (q, t2)) => [[q'2 t'2]|].
   - move: E1 E2 => /almost_eq_tape_step_Some /[apply] /[apply].
@@ -124,7 +124,7 @@ Lemma seq_Vector_spec {n} (q : Fin.t n) :
 Proof.
   elim: q; first done.
   move=> {}n q IH /=. 
-  by rewrite (Vector.nth_map _ _ q q erefl) IH.
+  by rw (Vector.nth_map _ _ q q erefl) IH.
 Qed.
 
 (* build transition table from transition function *)
@@ -139,7 +139,7 @@ Lemma construct_trans_spec {n : nat}
   (f : (Fin.t n) * bool -> option ((Fin.t n) * bool * direction)) :
   forall x, trans' (Build_SBTM n (construct_trans f)) x = f x.
 Proof.
-  move=> /= [q a]. rewrite /trans' /construct_trans /=.
-  rewrite (Vector.nth_map _ _ q q erefl) seq_Vector_spec.
+  move=> /= [q a]. rw /trans' /construct_trans /=.
+  rw (Vector.nth_map _ _ q q erefl) seq_Vector_spec.
   by case: a.
 Qed.

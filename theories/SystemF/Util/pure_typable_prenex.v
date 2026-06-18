@@ -38,17 +38,17 @@ Qed.
 Lemma pure_typing_K'E {Gamma M N t} : pure_typing Gamma (K' M N) t -> 
   pure_typing Gamma M t /\ pure_typable Gamma N.
 Proof.
-  rewrite /K'.
+  rw /K'.
   move=> /pure_typingE [n] [?] [?] [?] [+] [+] [H1C ->] => /pure_typingE'.
   move=> /(pure_typing_ren_pure_term_allfv_pure_term Nat.pred (Delta := (map (ren_poly_type (Nat.add n)) Gamma))).
   apply: unnest.
-  { rewrite allfv_pure_term_ren_pure_term /=. by apply: allfv_pure_term_TrueI. }
-  rewrite renRen_pure_term ren_pure_term_id.
+  { rw allfv_pure_term_ren_pure_term /=. by apply: allfv_pure_term_TrueI. }
+  rw renRen_pure_term ren_pure_term_id.
   move=> /(pure_typing_contains H1C) /pure_typing_many_poly_absI HM.
   move=> /(pure_typing_ren_poly_type (fun x => x - n)) /pure_typableI HN.
   constructor; first done.
-  congr pure_typable: HN. rewrite map_map (map_ext _ id).
-  { move=> ?. rewrite ?poly_type_norm ren_poly_type_id' /=; by [|lia]. }
+  congr pure_typable: HN. rw map_map (map_ext _ id).
+  { move=> ?. rw ?poly_type_norm ren_poly_type_id' /=; by [|lia]. }
   apply: map_id.
 Qed.
 
@@ -87,7 +87,7 @@ Proof.
   elim: t σ; [done | by move=> ? + ? _ ? /= => -> |].
   move=> t + σ /= => ->. case: (leftmost_poly_var t); last done.
   move=> [|x] /=; first done.
-  rewrite /funcomp /= leftmost_poly_var_ren_poly_type.
+  rw /funcomp /= leftmost_poly_var_ren_poly_type.
   by case: (leftmost_poly_var _).
 Qed.
 
@@ -97,7 +97,7 @@ Lemma leftmost_poly_var_many_poly_abs {n t x} :
 Proof.
   elim: n x; first done.
   move=> n /= IH x. have ->: S (n + x) = n + S x by lia.
-  rewrite -IH. case: (leftmost_poly_var (many_poly_abs n t)); last done.
+  rw -IH. case: (leftmost_poly_var (many_poly_abs n t)); last done.
   move=> [|y]; first done. constructor; by move=> [->].
 Qed.
 
@@ -116,7 +116,7 @@ Proof.
   elim: t σ; [done | by move=> ? + ? _ ? /= => -> |].
   move=> t + σ /= => ->. case: (leftmost_poly_var t); last done.
   move=> [|x] /=; first done.
-  by rewrite /funcomp /= leftmost_path_length_ren_poly_type.
+  by rw /funcomp /= leftmost_path_length_ren_poly_type.
 Qed.
 
 Lemma leftmost_path_length_many_poly_abs {n t} : 
@@ -134,28 +134,28 @@ Lemma contains_leftmost_path_length_eq {n s t} :
 Proof.
   move Es': (many_poly_abs n s) => s' /clos_rt_rt1n_iff Hs't.
   elim: Hs't n s Es'.
-  - move=> > <- _. rewrite ?leftmost_path_length_many_poly_abs. 
+  - move=> > <- _. rw ?leftmost_path_length_many_poly_abs. 
     by case: (leftmost_poly_var _).
   - move=> > [] r > _ IH [|n]; first by case=> /=.
     move=> s [?]. subst. evar (s'' : poly_type).
-    have := IH n s''. rewrite subst_poly_type_many_poly_abs.
+    have := IH n s''. rw subst_poly_type_many_poly_abs.
     subst s'' => /(_ ltac:(done)).
     move: s {IH} => [x | s {}t | /=]; last done.
     + move=> /= + _ ?.
       have ->: x = n + (1 + (x - n - 1)) by lia.
-      rewrite ?iter_up_poly_type_poly_type ?leftmost_poly_var_ren_poly_type 
+      rw ?iter_up_poly_type_poly_type ?leftmost_poly_var_ren_poly_type 
           ?leftmost_path_length_ren_poly_type /=.
       apply; by [|lia].
     + move=> /(_ ltac:(done)).
-      rewrite leftmost_poly_var_subst_poly_type /=.
+      rw leftmost_poly_var_subst_poly_type /=.
       move Eox: (leftmost_poly_var s) => ox. case: ox Eox.
       * move=> x Hsx /= + _ ?.
-        rewrite leftmost_path_length_subst_poly_type Hsx.
+        rw leftmost_path_length_subst_poly_type Hsx.
         have ->: x = n + (1 + (x - n - 1)) by lia.
-        rewrite ?iter_up_poly_type_poly_type ?leftmost_poly_var_ren_poly_type 
+        rw ?iter_up_poly_type_poly_type ?leftmost_poly_var_ren_poly_type 
           ?leftmost_path_length_ren_poly_type /=.
         apply. by lia.
-      * move=> /= Hs <- _. by rewrite leftmost_path_length_subst_poly_type Hs.
+      * move=> /= Hs <- _. by rw leftmost_path_length_subst_poly_type Hs.
 Qed.
 
 (* self application is typed only by left-extensible types *)
@@ -166,9 +166,9 @@ Lemma pure_typable_self_application {Gamma x n t} :
   exists y, y < n /\ leftmost_poly_var t = Some y.
 Proof.
   move=> Ht Hx /pure_typableE [?] [?] [].
-  move=> /pure_typingE' [?] []. rewrite Hx => [[<-]] H1C.
+  move=> /pure_typingE' [?] []. rw Hx => [[<-]] H1C.
   move=> /pure_typingE [n3] [?] [s'] [+] [].
-  rewrite nth_error_map Hx => [[?]] H2C ?. subst.
+  rw nth_error_map Hx => [[?]] H2C ?. subst.
   move: Ht H1C H2C. clear => Ht + /contains_ren_poly_type_addLR.
   move=> /contains_leftmost_path_length_eq + /contains_leftmost_path_length_eq.
   move=> /(_ Ht) + /(_ Ht).
@@ -176,10 +176,10 @@ Proof.
   - move=> y H1y H2y. exists y. constructor; last done.
     suff: (not (n <= y)) by lia.
     move=> /[dup] [/H1y + /H2y] => -> /=.
-    rewrite leftmost_path_length_many_poly_abs leftmost_path_length_ren_poly_type.
+    rw leftmost_path_length_many_poly_abs leftmost_path_length_ren_poly_type.
     by lia.
   - move=> -> /=.
-    rewrite leftmost_path_length_many_poly_abs leftmost_path_length_ren_poly_type.
+    rw leftmost_path_length_many_poly_abs leftmost_path_length_ren_poly_type.
     by lia.
 Qed.
 
@@ -192,7 +192,7 @@ Lemma pure_typing_Mω {Gamma t} :
     t = many_poly_abs n1 (poly_arr (many_poly_abs n2 s') t') /\
     y < n2 /\ leftmost_poly_var s' = Some y.
 Proof.
-  rewrite /Mω. move=> /pure_typingE [n1] [s] [t'] [+ ->].
+  rw /Mω. move=> /pure_typingE [n1] [s] [t'] [+ ->].
   have := many_poly_absI s. move=> [n] [s'] [->].
   move=> + /pure_typableI /pure_typable_self_application.
   move=> + H => /H /= => /(_ _ ltac:(done)) [y] [? ?].
@@ -216,9 +216,9 @@ Lemma leftmost_poly_var_contains_poly_arr {s x s' t'} :
 Proof.
   have [n'' [s'' [?]]] := many_poly_absI s. subst.
   case Es'': (s''); [ move=> _ | by move=> *; do 3 eexists | by move=> /=].
-  rewrite leftmost_poly_var_many_poly_abs /=.
+  rw leftmost_poly_var_many_poly_abs /=.
   move=> [?]. subst => /contains_tidyI.
-  rewrite tidy_many_poly_abs_le /=; first by lia.
+  rw tidy_many_poly_abs_le /=; first by lia.
   by move=> /containsE.
 Qed.
 
@@ -231,19 +231,19 @@ Lemma pure_typable_pure_app_0_Mω {n1 n2 s x t1 t2 Gamma} :
 Proof.
   move=> H /pure_typableE [?] [?] [/pure_typingE'] [?] [[<-]].
   move=> /contains_many_poly_absE [?] [?].
-  set σ := (fold_right _ _ _). rewrite subst_poly_type_many_poly_abs /=.
+  set σ := (fold_right _ _ _). rw subst_poly_type_many_poly_abs /=.
   set n := (_ - length _). case Hn: (n); last done. subst n.
   move=> [? ?]. subst => /pure_typing_Mω [?] [?] [?] [?] [?] [+] [?].
-  rewrite subst_poly_type_many_poly_abs /=.
+  rw subst_poly_type_many_poly_abs /=.
   move=> /many_poly_abs_eqE' [?] [+ ?]. subst.
   have [n' [s' [?]]] := many_poly_absI s. subst.
   case Es': (s'); [ | | by move=> /=].
-  - subst => _. move: H. rewrite leftmost_poly_var_many_poly_abs /=.
+  - subst => _. move: H. rw leftmost_poly_var_many_poly_abs /=.
     move=> [?]. subst => *. by eexists.
-  - rewrite subst_poly_type_many_poly_abs /=.
+  - rw subst_poly_type_many_poly_abs /=.
     move=> _ /esym /many_poly_abs_eqE'' => /(_ ltac:(done)) [?] [?] ?. subst.
-    move: H. rewrite ?leftmost_poly_var_many_poly_abs /= leftmost_poly_var_subst_poly_type.
-    move=> ->. rewrite /= ?iter_up_poly_type_poly_type ?leftmost_poly_var_ren_poly_type.
+    move: H. rw ?leftmost_poly_var_many_poly_abs /= leftmost_poly_var_subst_poly_type.
+    move=> ->. rw /= ?iter_up_poly_type_poly_type ?leftmost_poly_var_ren_poly_type.
     case: (leftmost_poly_var _); last done.
     move=> ? /= []. by lia.
 Qed.
@@ -262,16 +262,16 @@ Proof.
   move=> /pure_typingE [n6] [?] [?] [[?]] [H2c ?]. subst.
   move: H1c => /contains_poly_arrE [?] [?] /= [+ ?]. subst.
   set σ := (fold_right _ _ _).
-  rewrite subst_poly_type_many_poly_abs /=.
+  rw subst_poly_type_many_poly_abs /=.
   move=> /many_poly_abs_eqE'' => /(_ ltac:(done)) [n7] [? ?]. subst.
-  move: H2c. rewrite ren_poly_type_many_poly_abs /=.
+  move: H2c. rw ren_poly_type_many_poly_abs /=.
   move=> /contains_sub' [_].
-  rewrite ren_poly_type_many_poly_abs /= many_poly_abs_many_poly_abs.
+  rw ren_poly_type_many_poly_abs /= many_poly_abs_many_poly_abs.
   move=> /contains_sub [?] [?] [?] [+] _.
-  rewrite subst_poly_type_many_poly_abs /= many_poly_abs_many_poly_abs.
+  rw subst_poly_type_many_poly_abs /= many_poly_abs_many_poly_abs.
   move=> /many_poly_abs_eqE'' => /(_ ltac:(done)) [n8] [+ ?]. subst.
   have [?|?] : y < n4 + n6 + n7 \/ n4 + n6 + n7 <= y by lia.
-  - rewrite iter_plus iter_up_poly_type_poly_type_lt; first by lia.
+  - rw iter_plus iter_up_poly_type_poly_type_lt; first by lia.
     by case: n8.
   - move=> _. exists (y - n4 - n6 - n7). by lia.
 Qed.
@@ -283,7 +283,7 @@ Theorem pure_typable_intro_poly_arr_0_0 M : { N |
 Proof.
   exists (M_Wells_J M) => Gamma. constructor.
   - pose tI := poly_arr (poly_var 0) (poly_var 0).
-    move=> HM. rewrite /M_Wells_J. pose t0 := poly_arr tI tI. exists t0.
+    move=> HM. rw /M_Wells_J. pose t0 := poly_arr tI tI. exists t0.
     apply: (pure_typing_pure_app_simpleI (s := poly_abs t0)).
     + apply: pure_typing_pure_abs_simpleI. apply: pure_typing_K'I.
       * apply: (pure_typing_pure_app_simpleI (s := t0)).
@@ -296,19 +296,19 @@ Proof.
            apply: (pure_typing_pure_app_simpleI (s := (poly_abs (poly_var 0)))).
            *** apply: (pure_typing_pure_var 0); [done | by apply /rt_step /contains_step_subst].
            *** apply: (pure_typing_pure_var 0); [done | by apply /rt_step /contains_step_subst].
-    + rewrite /M_Wells. apply: (pure_typing_pure_abs 1).
+    + rw /M_Wells. apply: (pure_typing_pure_abs 1).
       apply: pure_typing_K'I; first by apply: pure_typing_pure_var_simpleI.
       apply: pure_typable_K'I.
       * exists tI. apply: pure_typing_pure_abs_simpleI. 
         apply: pure_typing_pure_app_simpleI; first by apply: pure_typing_pure_var_simpleI.
         apply: pure_typing_pure_app_simpleI; by apply: pure_typing_pure_var_simpleI.
-      * move: HM. rewrite /= ?map_map. congr pure_typable. congr cons.
-        apply: map_ext => ?. by rewrite tidy_ren_poly_type.
-  - rewrite /M_Wells_J. move=> /pure_typableE [s] [?] [].
+      * move: HM. rw /= ?map_map. congr pure_typable. congr cons.
+        apply: map_ext => ?. by rw tidy_ren_poly_type.
+  - rw /M_Wells_J. move=> /pure_typableE [s] [?] [].
     move=> /pure_typingE' /pure_typableI /pure_typable_K'E [].
     have [ns [s' [? Hs]]] := many_poly_absI s. subst s. rename s' into s.
     move=> /[dup] [H00] /pure_typable_self_application => /(_ _ _ ltac:(eassumption) ltac:(done)).
-    move=> [y [Hyns Hsy]] H. rewrite /M_Wells.
+    move=> [y [Hyns Hsy]] H. rw /M_Wells.
     move=> /pure_typingE [nM] [?] [?] [+ /many_poly_abs_eqE'].
     case Es: (s); [by move=> + [] | | by subst s].
     clear Hs => + [?] [? ?]. subst.
@@ -320,49 +320,49 @@ Proof.
     move: (Hsy) => /= /leftmost_poly_var_contains_poly_arr => /(_ _ _ ltac:(eassumption)).
     move=> [?] [?] [?] ?. subst.
 
-    move: Hsy. rewrite /= leftmost_poly_var_many_poly_abs /=. 
+    move: Hsy. rw /= leftmost_poly_var_many_poly_abs /=. 
     move: H => /pure_typable_pure_app_0_Mω H /H{H} [? ?]. subst.
     
     move: H2c => /contains_poly_arrE [?] [?] [+ ?]. subst.
-    rewrite subst_poly_type_many_poly_abs /= iter_up_poly_type_poly_type.
-    rewrite fold_right_length_ts ?iter_up_poly_type_poly_type /=.
+    rw subst_poly_type_many_poly_abs /= iter_up_poly_type_poly_type.
+    rw fold_right_length_ts ?iter_up_poly_type_poly_type /=.
     move=> /many_poly_abs_eqE'' => /(_ ltac:(done)) [?] [? ?]. subst.
 
-    move: H4c. rewrite ren_poly_type_many_poly_abs /=.
+    move: H4c. rw ren_poly_type_many_poly_abs /=.
     move=> /contains_poly_arrE [?] [?] [? ?]. subst.
 
-    move: (H3c) => /contains_tidyI. rewrite tidy_many_poly_abs_le /=; first by lia.
+    move: (H3c) => /contains_tidyI. rw tidy_many_poly_abs_le /=; first by lia.
     move=> /contains_poly_varE [?] [?].
     set t := (t in ren_poly_type _ t).
     have [nt' [t' [?]]] := many_poly_absI t. subst t. subst.
     case Et': (t'); [move=> _ | move=> _ | by subst t'; move=> /= ].
     + subst t'.
-      move: (H1c). rewrite ren_poly_type_many_poly_abs /=.
+      move: (H1c). rw ren_poly_type_many_poly_abs /=.
       move=> /contains_sub [?] [?] [?] [?] _. subst.
-      move: H00. rewrite many_poly_abs_many_poly_abs.
+      move: H00. rw many_poly_abs_many_poly_abs.
       move=> /pure_typable_pure_app_0_0' [y' ?] _. subst.
 
-      move: H3c => /contains_tidyI. rewrite tidy_many_poly_abs_le /=; first by lia.
-      rewrite tidy_subst_poly_type tidy_ren_poly_type tidy_many_poly_abs_le /=; first by lia.
+      move: H3c => /contains_tidyI. rw tidy_many_poly_abs_le /=; first by lia.
+      rw tidy_subst_poly_type tidy_ren_poly_type tidy_many_poly_abs_le /=; first by lia.
 
-      rewrite iter_up_ren_ge; first by lia.
-      rewrite fold_right_length_ts_ge /=; first by lia.
+      rw iter_up_ren_ge; first by lia.
+      rw fold_right_length_ts_ge /=; first by lia.
       move=> /containsE [?]. have ? : y = y' by lia. subst.
 
       move: HM => [?] /pure_typing_tidyI /=.
-      rewrite tidy_many_poly_abs_le /=.
-      { rewrite ?allfv_poly_type_many_poly_abs /= ?iter_scons_ge; by lia. }
-      rewrite tidy_many_poly_abs_le /=; first by lia.
-      rewrite tidy_many_poly_abs_le /=; first by lia.
+      rw tidy_many_poly_abs_le /=.
+      { rw ?allfv_poly_type_many_poly_abs /= ?iter_scons_ge; by lia. }
+      rw tidy_many_poly_abs_le /=; first by lia.
+      rw tidy_many_poly_abs_le /=; first by lia.
 
       move=> /(pure_typing_ren_poly_type (fun x => x - (nM - 1))) /= /pure_typableI.
       congr pure_typable. congr cons.
       * congr poly_arr; congr poly_var; by lia.
-      * rewrite ?map_map. apply: map_ext => ?.
-        rewrite ?tidy_ren_poly_type tidy_tidy ?poly_type_norm /=.
+      * rw ?map_map. apply: map_ext => ?.
+        rw ?tidy_ren_poly_type tidy_tidy ?poly_type_norm /=.
         apply: extRen_poly_type. by lia.
-    + rewrite ren_poly_type_many_poly_abs subst_poly_type_many_poly_abs /=.
-      rewrite (svalP tidy_many_poly_abs). 
+    + rw ren_poly_type_many_poly_abs subst_poly_type_many_poly_abs /=.
+      rw (svalP tidy_many_poly_abs). 
       by move: (sval _) => [? ?] /many_poly_abs_eqE' /= [].
 Qed.
 
@@ -399,7 +399,7 @@ Proof.
       * by apply: pure_typing_pure_var_simpleI.
       * apply: (pure_typing_pure_var 0); first by reflexivity.
         by apply /rt_step /(contains_step_subst (s := poly_var 0)).
-  - move /HN'' /HN' {HN'' HN'}. rewrite /N.
+  - move /HN'' /HN' {HN'' HN'}. rw /N.
     move=> /pure_typableE [?] [?] [] /= /pure_typingE' HM.
     move=> /pure_typingE [n3] [?] [?] [?] [+] [+] [H2C ?]. subst.
     move=> /pure_typingE' [?] [[?]] H3C _. subst.
@@ -412,14 +412,14 @@ Proof.
     
     move=> /(pure_typing_ren_pure_term_allfv_pure_term (scons 0 (scons 1 S)) (Delta := s :: Gamma')).
     apply: unnest.
-    { rewrite allfv_pure_term_ren_pure_term /=. apply: allfv_pure_term_TrueI. by case. } 
-    rewrite renRen_pure_term /= ren_pure_term_id'; first by case.
+    { rw allfv_pure_term_ren_pure_term /=. apply: allfv_pure_term_TrueI. by case. } 
+    rw renRen_pure_term /= ren_pure_term_id'; first by case.
     subst s Gamma'.
-    move=> /pure_typing_tidyI /=. rewrite tidy_many_poly_abs_le /=; first by lia.
+    move=> /pure_typing_tidyI /=. rw tidy_many_poly_abs_le /=; first by lia.
     move=> /pure_typableI.
     congr pure_typable. congr cons; last congr cons.
     + congr poly_var. by lia.
-    + rewrite ?map_map. apply: map_ext => ?. by rewrite tidy_tidy.
+    + rw ?map_map. apply: map_ext => ?. by rw tidy_tidy.
 Qed.
 
 Ltac first_pure_typingE :=
@@ -461,21 +461,21 @@ Ltac simplify_poly_type_eqs :=
     | H : contains (many_poly_abs _ (poly_arr _ _)) (poly_arr _ _) |- _ =>
       move: H => /contains_poly_arrE [?] [?] [? ?]
     | H : contains (subst_poly_type (fold_right scons poly_var _) _) _ |- _ =>
-      move /contains_subst_poly_type_fold_rightE in H; rewrite ?many_poly_abs_many_poly_abs in H
+      move /contains_subst_poly_type_fold_rightE in H; rw ?many_poly_abs_many_poly_abs in H
     | H : many_poly_abs _ (poly_var _) = subst_poly_type _ _ |- _ =>
       move: H => /many_poly_abs_poly_var_eq_subst_poly_typeE => [[?]] [?] [?] [? ?]
     | H : contains (ren_poly_type _ (ren_poly_type _ _)) _ |- _ =>
-      rewrite ?renRen_poly_type /= in H
+      rw ?renRen_poly_type /= in H
     | H : contains (ren_poly_type _ (many_poly_abs ?n (poly_var (?n + _)))) _ |- _ => 
-      rewrite ren_poly_type_many_poly_abs /= iter_up_ren in H
+      rw ren_poly_type_many_poly_abs /= iter_up_ren in H
     | H : contains (ren_poly_type _ (many_poly_abs ?n (poly_arr (poly_var (?n + _)) (poly_var (?n + _))))) _ |- _ => 
-      rewrite ren_poly_type_many_poly_abs /= ?iter_up_ren in H
+      rw ren_poly_type_many_poly_abs /= ?iter_up_ren in H
     | H : contains (many_poly_abs ?n (poly_var (?n + _))) _ |- _ => 
       move: H => /contains_many_poly_abs_free [?] [?] [? ?]
     | H : poly_arr _ _ = many_poly_abs ?n _ |- _ => 
-      (have ? : n = 0 by move : (n) H; case); subst n; rewrite /= in H
+      (have ? : n = 0 by move : (n) H; case); subst n; rw /= in H
     | H : many_poly_abs ?n _ = poly_var _ |- _ => 
-      (have ? : n = 0 by move : (n) H; case); subst n; rewrite /= in H
+      (have ? : n = 0 by move : (n) H; case); subst n; rw /= in H
     | H : poly_var _ = poly_var _ |- _ => 
       move: H => [?]
   end.
@@ -490,7 +490,7 @@ Lemma contains_poly_abbaI {s t s' t'} : s' = s -> t' = t ->
 Proof.
   move=> -> ->. 
   apply: rt_trans; apply: rt_step; apply: contains_stepI; first done.
-  by rewrite /= ?poly_type_norm subst_poly_type_poly_var.
+  by rw /= ?poly_type_norm subst_poly_type_poly_var.
 Qed.
 
 (* ∀a.∀b.a -> b -> b -> a can be freely introduced/eliminated for typability *)
@@ -518,29 +518,29 @@ Proof.
       move: HtM => /(pure_typing_ren_poly_type S) HtM.
       apply: pure_typing_ren_pure_term; first by eassumption.
       move=> [|]; first done.
-      move=> ? ? /= <-. congr nth_error. rewrite ?map_map.
-      apply: map_ext => ?. by rewrite tidy_ren_poly_type.
+      move=> ? ? /= <-. congr nth_error. rw ?map_map.
+      apply: map_ext => ?. by rw tidy_ren_poly_type.
     + apply: (pure_typing_pure_app_simpleI
         (s := poly_abs (poly_abs (poly_arr (poly_arr (poly_var 0) (poly_var 0)) (poly_arr (poly_var 1) (poly_arr (poly_var 0) (poly_arr (poly_var 0) (poly_var 1)))))))).
       * apply: pure_typing_pure_abs_simpleI. apply: pure_typing_K'I.
         ** apply: (pure_typing_pure_app 2 (s := poly_arr (poly_var 0) (poly_var 0))).
            *** apply: (pure_typing_pure_var 0); first by reflexivity.
                apply: rt_trans; apply: rt_step; apply: contains_stepI; first done.
-               by rewrite /= ?poly_type_norm subst_poly_type_poly_var.
+               by rw /= ?poly_type_norm subst_poly_type_poly_var.
            *** apply: (pure_typing_pure_var 0); first by reflexivity.
                constructor. by apply: contains_stepI.
            *** by apply: rt_refl.
         ** exists (poly_var 0). do 4 (apply: pure_typing_pure_app_simpleI; last by apply: pure_typing_pure_var_simpleI).
            move=> /=. apply: (pure_typing_pure_var 0); first by reflexivity.
            apply: rt_trans; apply: rt_step; apply: contains_stepI; first done.
-           by rewrite /= ?poly_type_norm subst_poly_type_poly_var.
+           by rw /= ?poly_type_norm subst_poly_type_poly_var.
       * apply: (pure_typing_pure_abs 2). do 3 (apply: pure_typing_pure_abs_simpleI).
         apply: pure_typing_K'I; first by apply: pure_typing_pure_var_simpleI.
         exists (poly_var 0). apply: pure_typing_K'I;
           first by apply: pure_typing_pure_app_simpleI; apply: pure_typing_pure_var_simpleI.
         exists (poly_var 0). by apply: pure_typing_pure_app_simpleI; apply: pure_typing_pure_var_simpleI.
   (* if N2'' is typable, then so is M *)
-  - move /HN2'' /HN2' => {HN2'' HN2'}. rewrite /N2 /N1 /N0 /= => {N2 N1 N0}.
+  - move /HN2'' /HN2' => {HN2'' HN2'}. rw /N2 /N1 /N0 /= => {N2 N1 N0}.
     do ? first_pure_typingE. move=> HM.
     do ? first_pure_typingE. subst.
     do ? (simplify_poly_type_eqs; subst).
@@ -552,15 +552,15 @@ Proof.
 
     do ? (simplify_poly_type_eqs; subst).
     do 2 (match goal with H : _ = fold_right scons poly_var _ (length _ + _) |- _ => move: H end).
-    do 2 (rewrite fold_right_length_ts_ge; first by lia).
+    do 2 (rw fold_right_length_ts_ge; first by lia).
     move=> ? ?. do ? (simplify_poly_type_eqs; subst).
 
     match goal with H : contains _ (poly_arr _ _) |- _ => move: H end.
-    rewrite ren_poly_type_many_poly_abs /=.
+    rw ren_poly_type_many_poly_abs /=.
 
     move=> /contains_poly_arrE [?] [?] [? ?]. subst.
     match goal with H : many_poly_abs _ _ = subst_poly_type _ _ |- _ => move: H end.
-    rewrite ?poly_type_norm ?subst_poly_type_many_poly_abs /= ?iter_up_poly_type_poly_type.
+    rw ?poly_type_norm ?subst_poly_type_many_poly_abs /= ?iter_up_poly_type_poly_type.
     move=> /many_poly_abs_eqE'' /(_ ltac:(done)) [?] [? ?]. subst.
     do ? (simplify_poly_type_eqs; subst).
 
@@ -571,38 +571,38 @@ Proof.
     
     move=> /(pure_typing_ren_pure_term_allfv_pure_term (scons 0 (scons 0 (scons 0 (scons 0 S)))) (Delta := s :: Gamma')).
     apply: unnest.
-    { rewrite allfv_pure_term_ren_pure_term /=. apply: allfv_pure_term_TrueI. by case. }
-    rewrite renRen_pure_term /= ren_pure_term_id'; first by case. subst Gamma'.
+    { rw allfv_pure_term_ren_pure_term /=. apply: allfv_pure_term_TrueI. by case. }
+    rw renRen_pure_term /= ren_pure_term_id'; first by case. subst Gamma'.
 
     (* weaken assumptions to abba *)
     have : pure_typing [poly_abba] (pure_var 0) (tidy s).
     {
       have Habba : [poly_abba] = map tidy [poly_abba] by done.
-      rewrite /s {s}.
-      rewrite Habba. apply: pure_typing_tidy_many_poly_abs_closed; first done.
-      rewrite Habba. apply: pure_typing_many_poly_abs_contains_tidy_closed; [done | by eassumption |].
-      rewrite Habba. apply: pure_typing_many_poly_abs_contains_tidy_closed; [done | by eassumption |].
-      set ξ := (ξ in ren_poly_type ξ _). rewrite tidy_ren_poly_type.
+      rw /s {s}.
+      rw Habba. apply: pure_typing_tidy_many_poly_abs_closed; first done.
+      rw Habba. apply: pure_typing_many_poly_abs_contains_tidy_closed; [done | by eassumption |].
+      rw Habba. apply: pure_typing_many_poly_abs_contains_tidy_closed; [done | by eassumption |].
+      set ξ := (ξ in ren_poly_type ξ _). rw tidy_ren_poly_type.
       have ->: [poly_abba] = map (ren_poly_type ξ) [poly_abba] by done. apply: pure_typing_ren_poly_type.
-      rewrite Habba. apply: pure_typing_tidy_many_poly_abs_closed; first done.
-      rewrite /= tidy_many_poly_abs_le /=; first by lia.
-      rewrite tidy_many_poly_abs_le /=.
-      { do ? (rewrite ?allfv_poly_type_many_poly_abs /=).
-        rewrite ?iter_scons ?iter_scons_ge; by lia. }
-      rewrite tidy_many_poly_abs_le /=; first by lia.
-      rewrite tidy_many_poly_abs_le /=.
-      { do ? (rewrite ?allfv_poly_type_many_poly_abs /=).
-        rewrite ?iter_scons ?iter_scons_ge; by lia. }
-      rewrite tidy_many_poly_abs_le /=; first by lia.
-      rewrite tidy_many_poly_abs_le /=; first by lia.
+      rw Habba. apply: pure_typing_tidy_many_poly_abs_closed; first done.
+      rw /= tidy_many_poly_abs_le /=; first by lia.
+      rw tidy_many_poly_abs_le /=.
+      { do ? (rw ?allfv_poly_type_many_poly_abs /=).
+        rw ?iter_scons ?iter_scons_ge; by lia. }
+      rw tidy_many_poly_abs_le /=; first by lia.
+      rw tidy_many_poly_abs_le /=.
+      { do ? (rw ?allfv_poly_type_many_poly_abs /=).
+        rw ?iter_scons ?iter_scons_ge; by lia. }
+      rw tidy_many_poly_abs_le /=; first by lia.
+      rw tidy_many_poly_abs_le /=; first by lia.
       
       apply: (pure_typing_pure_var 0); first done.
       apply: contains_poly_abbaI; congr poly_var; by lia.
     }
     move=> /pure_typing_weaken_closed => /(_ []) H /pure_typing_tidyI /= /H{H} => /(_ ltac:(done)).
     move=> /(pure_typing_ren_poly_type (Nat.pred)) /= /pure_typableI.
-    congr pure_typable. congr cons. rewrite ?map_map. apply: map_ext => ?.
-    by rewrite ?tidy_ren_poly_type tidy_tidy ?poly_type_norm ren_poly_type_id /=.
+    congr pure_typable. congr cons. rw ?map_map. apply: map_ext => ?.
+    by rw ?tidy_ren_poly_type tidy_tidy ?poly_type_norm ren_poly_type_id /=.
 Qed.
 
 (* 0 -> 1 ∼ e x0 x1  *)
@@ -623,16 +623,16 @@ Lemma aux_pure_typing_gxs {Gamma x M n s} :
   pure_typing Gamma (many_pure_app M (repeat (pure_var x) n)) (many_poly_abs n s).
 Proof.
   move=> Hx HM. apply: pure_typing_many_poly_absI.
-  elim: n s HM; first by (move=> >; rewrite map_ren_poly_type_id).
+  elim: n s HM; first by (move=> >; rw map_ren_poly_type_id).
   move=> n IH s.
-  rewrite (ltac:(lia) : S n = n + 1) repeat_app many_pure_app_app /= => HM. 
+  rw (ltac:(lia) : S n = n + 1) repeat_app many_pure_app_app /= => HM. 
   apply: (pure_typing_pure_app_simpleI (s := poly_var 0)).
   - have ->: map (ren_poly_type (Nat.add (n + 1))) Gamma =
       map (ren_poly_type S) (map (ren_poly_type (Nat.add n)) Gamma).
-    { rewrite ?map_map. apply: map_ext => ?. rewrite poly_type_norm /=. by apply: extRen_poly_type; lia. }
+    { rw ?map_map. apply: map_ext => ?. rw poly_type_norm /=. by apply: extRen_poly_type; lia. }
     apply: (pure_typing_many_poly_absE (n := 1)). apply: IH.
-    move: HM. by rewrite -iter_plus.
-  - apply: (pure_typing_pure_var 0); first by rewrite ?nth_error_map Hx /=.
+    move: HM. by rw -iter_plus.
+  - apply: (pure_typing_pure_var 0); first by rw ?nth_error_map Hx /=.
     by apply /rt_step /contains_step_subst.
 Qed.
 
@@ -643,13 +643,13 @@ Lemma aux_pure_typable_gys {Gamma x M n s} :
   pure_typable Gamma (many_pure_app M (repeat (pure_var x) n)).
 Proof.
   move=> Hx HM. exists (ren_poly_type (fun x => x - n) s). elim: n s HM.
-  { move=> > /=. rewrite ren_poly_type_id'; by [|lia]. }
-  move=> n IH s. rewrite (ltac:(lia) : S n = n + 1) repeat_app many_pure_app_app /=.
-  rewrite -iter_plus /= => /IH /pure_typing_to_typing [?] [->] /=.
+  { move=> > /=. rw ren_poly_type_id'; by [|lia]. }
+  move=> n IH s. rw (ltac:(lia) : S n = n + 1) repeat_app many_pure_app_app /=.
+  rw -iter_plus /= => /IH /pure_typing_to_typing [?] [->] /=.
   move=> /(typing_ty_app (t := poly_var 0)) /= /(typing_app (Q := var x)).
   apply: unnest; first by apply: typing_var.
   move=> /typing_to_pure_typing /=. congr pure_typing.
-  rewrite poly_type_norm ren_as_subst_poly_type /=. apply: ext_poly_type.
+  rw poly_type_norm ren_as_subst_poly_type /=. apply: ext_poly_type.
   case; first done. move=> ?. congr poly_var. by lia.
 Qed.
 
@@ -667,19 +667,19 @@ Proof.
     + move=> s IHs t IHt Gamma /= [/IHs {}IHs /IHt {}IHt] [/IHs {}IHs /IHt {}IHt].
       move=> /[dup] [He] /[dup] [/IHs {}IHs /IHt {}IHt].
       apply: (pure_typing_pure_app_simpleI (s := s)); last done.
-      apply: (pure_typing_pure_app 0 (s := t)); rewrite ?map_ren_poly_type_id; last by apply: rt_refl.
-      * apply: (pure_typing_pure_var 0); [by rewrite nth_error_map He | ].
+      apply: (pure_typing_pure_app 0 (s := t)); rw ?map_ren_poly_type_id; last by apply: rt_refl.
+      * apply: (pure_typing_pure_var 0); [by rw nth_error_map He | ].
         apply: rt_trans; apply: rt_step.
         ** by apply: contains_stepI.
-        ** apply: contains_stepI. by rewrite /= poly_type_norm /= subst_poly_type_poly_var.
+        ** apply: contains_stepI. by rw /= poly_type_norm /= subst_poly_type_poly_var.
       * done.
     + done.
   - move=> n IH Gamma e /= H1ns H2ns He. apply: (pure_typing_pure_abs 1).
     have ->: S (n + e) = n + S e by lia. apply: IH.
     + apply: allfv_poly_type_impl H1ns. by lia.
     + apply: allfv_poly_type_impl H2ns. case; first done.
-      move=> ? /=. by rewrite nth_error_map => ->.
-    + by rewrite /= nth_error_map He.
+      move=> ? /=. by rw nth_error_map => ->.
+    + by rw /= nth_error_map He.
 Qed.
 
 Lemma pure_typing_many_pure_term_absE {Gamma n M t}:
@@ -706,19 +706,19 @@ Lemma pure_typing_fold_right_many_pure_app {Gamma x s' nss t M} :
     t = many_poly_abs nt' t' /\ 
     contains (many_poly_abs ns' (ren_poly_type ξ' s')) t'.
 Proof.
-  rewrite -[Gamma in pure_typing Gamma _ _]map_ren_poly_type_id. move: (id) => ξ.
+  rw -[Gamma in pure_typing Gamma _ _]map_ren_poly_type_id. move: (id) => ξ.
   elim /rev_ind: nss Gamma ξ s' t.
   - move=> Gamma ξ > Hx /= /pure_typingE [n1] [?] [?]. 
-    rewrite ?map_map nth_error_map Hx => [[[<-]]].
-    rewrite poly_type_norm /= => [[HC ->]].
+    rw ?map_map nth_error_map Hx => [[[<-]]].
+    rw poly_type_norm /= => [[HC ->]].
     exists 0. do 3 eexists. constructor; [by reflexivity | by eassumption].
   - move=> [n s] nss IH /= Gamma ξ s' t.
-    rewrite fold_right_app /= => /IH {}IH.
-    rewrite length_app repeat_app many_pure_app_app /=.
+    rw fold_right_app /= => /IH {}IH.
+    rw length_app repeat_app many_pure_app_app /=.
     move=> /pure_typingE [n1] [?] [?] [?] [+] [_] [H1C ?]. subst.
-    rewrite ?map_map. under map_ext => ? do rewrite poly_type_norm.
+    rw ?map_map. under map_ext => ? do rw poly_type_norm.
     move=> /IH [n1s'] [n2s'] [nt'] [t'] []. case: nt'; last done. move=> /= ?. subst.
-    rewrite ren_poly_type_many_poly_abs many_poly_abs_many_poly_abs /=.
+    rw ren_poly_type_many_poly_abs many_poly_abs_many_poly_abs /=.
     move=> /contains_poly_arrE [?] [?] [? ?]. subst.
     move: H1C => /contains_subst_poly_type_fold_rightE.
     clear=> ?. do 4 eexists. constructor; [by reflexivity | by eassumption].
@@ -732,15 +732,15 @@ Lemma pure_typable_many_pure_app_repeat_poly_var {Gamma x y ny nss t} :
   Forall (fun '(_, s) => exists n x, s = many_poly_abs n (poly_var (n + x))) nss.
 Proof.
   move=> + Hy. elim /rev_ind: nss t; first done.
-  move=> [n s] nss IH t. rewrite fold_right_app /= => Hx.
-  rewrite length_app repeat_app many_pure_app_app /=.
+  move=> [n s] nss IH t. rw fold_right_app /= => Hx.
+  rw length_app repeat_app many_pure_app_app /=.
   move=> /pure_typableE [?] [?] [].
   move=> /[dup] [/pure_typableI /IH] /(_ _ Hx) Hnss.
   move=> /(pure_typing_fold_right_many_pure_app Hx) [?] [?] [[|?]] [?] []; last done.
-  move=> /= ?. subst. rewrite ren_poly_type_many_poly_abs many_poly_abs_many_poly_abs /=.
+  move=> /= ?. subst. rw ren_poly_type_many_poly_abs many_poly_abs_many_poly_abs /=.
   move=> /contains_poly_arrE [?] [?] [? ?]. subst.
-  move=> /pure_typingE [?] [?] [?] [+] [+]. rewrite nth_error_map Hy => [[?]]. subst.
-  rewrite poly_type_norm. move=> /containsE <-.
+  move=> /pure_typingE [?] [?] [?] [+] [+]. rw nth_error_map Hy => [[?]]. subst.
+  rw poly_type_norm. move=> /containsE <-.
   move=> /esym /many_poly_abs_poly_var_eq_subst_poly_typeE [?] [?] [?] [? ->].
   apply /Forall_app. constructor; first done.
   constructor; last done. clear.
@@ -757,28 +757,28 @@ Lemma pure_typing_trace_poly_typeE {s ns Gamma t n}:
 Proof.
   elim: s Gamma t n.
   - move=> x Gamma t n _ /= ? /pure_typingE [n1] [?] [?]. 
-    rewrite ?nth_error_map nth_error_app1; first by rewrite length_map; lia.
-    rewrite nth_error_map. 
+    rw ?nth_error_map nth_error_app1; first by rw length_map; lia.
+    rw nth_error_map. 
     have -> := nth_error_nth' ns 0; first by lia.
     move: (nth x ns 0) => y [[?]] []. subst.
     move=> /containsE ? ->. subst.
-    rewrite tidy_many_poly_abs_le /=; first by lia.
+    rw tidy_many_poly_abs_le /=; first by lia.
     congr poly_var. by lia.
   - move=> s1 IH1 s2 IH2 Gamma t n /= [/IH1 {}IH1 /IH2 {}IH2] [/IH1 {}IH1 /IH2 {}IH2].
     move=> /pure_typingE [n1] [?] [?] [?] [+] [+] [H1C ?]. subst.
     move=> /pure_typingE' [?] [?] [+] [+] H2C.
     move=> /pure_typingE' [?] [+] H3C.
-    rewrite ?nth_error_map nth_error_app2; first by rewrite ?length_map; lia.
-    rewrite ?length_map (ltac:(lia) : length ns - length ns = 0) /=.
+    rw ?nth_error_map nth_error_app2; first by rw ?length_map; lia.
+    rw ?length_map (ltac:(lia) : length ns - length ns = 0) /=.
     move=> [?]. subst. move: H3C => /(contains_poly_arrE (n := 2)) => - [[|r1 [|r2 [|? ?]]]] [] //=.
     move=> _ [? ?]. subst. move: H2C => /containsE [? ?]. subst.
     move: H1C => /containsE ?. subst.
-    rewrite ?map_app /= ?map_map /=.
-    under [map _ ns]map_ext => x do rewrite (ltac:(lia) : n1 + (n + x) = (n1 + n) + x). 
-    move=> /IH2 {}IH2 /IH1 {}IH1. rewrite -tidy_many_poly_abs_tidy /= -IH1 -IH2.
-    rewrite tidy_many_poly_abs_le /=.
-    { rewrite ?allfv_poly_type_ren_poly_type /=. constructor; apply: allfv_poly_type_TrueI; by lia. } 
-    rewrite IH1 IH2 ?tidy_tidy -IH1 -IH2 ?poly_type_norm /=.
+    rw ?map_app /= ?map_map /=.
+    under [map _ ns]map_ext => x do rw (ltac:(lia) : n1 + (n + x) = (n1 + n) + x). 
+    move=> /IH2 {}IH2 /IH1 {}IH1. rw -tidy_many_poly_abs_tidy /= -IH1 -IH2.
+    rw tidy_many_poly_abs_le /=.
+    { rw ?allfv_poly_type_ren_poly_type /=. constructor; apply: allfv_poly_type_TrueI; by lia. } 
+    rw IH1 IH2 ?tidy_tidy -IH1 -IH2 ?poly_type_norm /=.
     congr poly_arr; apply: extRen_poly_type; by lia.
   - done.
 Qed.
@@ -813,25 +813,25 @@ Proof.
     + move=> /=. apply: pure_typing_pure_abs_simpleI.
       move: HtM => /(pure_typing_ren_poly_type S) HtM.
       apply: pure_typing_ren_pure_term; first by eassumption. case.
-      * move=> ? /= <-. rewrite -tidy_ren_poly_type. congr Some. congr tidy.
-        rewrite ren_poly_type_allfv_id ?allfv_poly_type_many_poly_abs; last done.
-        apply: allfv_poly_type_impl Hns => ? ?. rewrite iter_scons_lt; by [lia |].
-      * move=> ? ? /= <-. congr nth_error. rewrite ?map_map.
-        apply: map_ext => ?. by rewrite tidy_ren_poly_type.
+      * move=> ? /= <-. rw -tidy_ren_poly_type. congr Some. congr tidy.
+        rw ren_poly_type_allfv_id ?allfv_poly_type_many_poly_abs; last done.
+        apply: allfv_poly_type_impl Hns => ? ?. rw iter_scons_lt; by [lia |].
+      * move=> ? ? /= <-. congr nth_error. rw ?map_map.
+        apply: map_ext => ?. by rw tidy_ren_poly_type.
     + apply: (pure_typing_pure_app_simpleI
         (s := tidy (Nat.iter n (fun s' => poly_abs (poly_arr (poly_var 0) s')) s))).
-      * rewrite -/(tidy (poly_arr _ _)). apply: pure_typing_tidyI.
+      * rw -/(tidy (poly_arr _ _)). apply: pure_typing_tidyI.
         apply: pure_typing_pure_abs_simpleI. apply: pure_typing_K'I.
         ** apply: aux_pure_typing_gxs; [done | by apply: pure_typing_pure_var_simpleI].
         ** apply: aux_pure_typable_gys; [done | by apply: pure_typing_pure_var_simpleI].
-      * apply: pure_typing_tidyI. rewrite /N0.
+      * apply: pure_typing_tidyI. rw /N0.
         have ->: trace_poly_type n = trace_poly_type (n+0) by congr trace_poly_type; lia.
         apply: aux_pure_typing_N0; [done | by apply: allfv_poly_type_impl Hns; lia | | done].
-        rewrite allfv_poly_type_many_poly_abs. apply: allfv_poly_type_impl Hns.
-        move=> ? ?. rewrite iter_scons_lt; by [lia|].
+        rw allfv_poly_type_many_poly_abs. apply: allfv_poly_type_impl Hns.
+        move=> ? ?. rw iter_scons_lt; by [lia|].
   (* if HN2_3 is typable, then so is M *)
   - move /HN2_3 /HN2_2 /HN2_1 => {HN2_3 HN2_2 HN2_1}.
-    rewrite /N2 /N1 /N0 /= => {N2_3 N2_2 N2_1}.
+    rw /N2 /N1 /N0 /= => {N2_3 N2_2 N2_1}.
     move=> /pure_typableE [?] [?] [].
     move=> /pure_typingE' HM.
     move=> /pure_typingE [n3] [?] [?] [?] [+] [+] [H2C ?]. subst.
@@ -848,31 +848,31 @@ Proof.
       Gamma' = ss ++ poly_abba :: Gamma'' /\
       Forall (fun 's => exists n x, s = many_poly_abs n (poly_var (n + x))) ss.
     {
-      rewrite /Gamma'. elim /rev_ind: (nss) Hnss; first by move=> ?; exists []; eexists.
+      rw /Gamma'. elim /rev_ind: (nss) Hnss; first by move=> ?; exists []; eexists.
       clear=> [[n s]] nss IH /Forall_app [/IH] {}IH /Forall_cons_iff [[n0] [x0] ->] _.
       
-      rewrite fold_left_app length_app.
+      rw fold_left_app length_app.
       move: IH => [ss] [Gamma''] [<-] /= [->] Hss.
       eexists (_ :: map (ren_poly_type (Nat.add n)) ss), (map (ren_poly_type (Nat.add n)) Gamma'').
-      rewrite /= length_map map_app /= Forall_cons_iff Forall_map.
+      rw /= length_map map_app /= Forall_cons_iff Forall_map.
       constructor; first by lia.
       constructor; first done.
       constructor; first by do 2 eexists.
-      apply: Forall_impl Hss => ? [?] [? ->]. rewrite ren_poly_type_many_poly_abs /= iter_up_ren.
+      apply: Forall_impl Hss => ? [?] [? ->]. rw ren_poly_type_many_poly_abs /= iter_up_ren.
       by do 2 eexists.
     }
-    move=> [ss] [?] [H1ss] [-> {Gamma'}] H2ss. rewrite -H1ss.
-    move=> /pure_typing_tidyI. rewrite map_app /=.
+    move=> [ss] [?] [H1ss] [-> {Gamma'}] H2ss. rw -H1ss.
+    move=> /pure_typing_tidyI. rw map_app /=.
     have [ns [H1ns H2ns]] : exists ns, length ss = length ns /\ map tidy ss = map poly_var ns.
     {
       elim: (ss) H2ss; first by move=> _; exists [].
       clear=> s ss IH /Forall_cons_iff [] [?] [n] -> /IH [ns] /= [-> ->].
       exists (n :: ns). constructor; first done.
-      rewrite tidy_many_poly_abs_le /=; first by lia.
+      rw tidy_many_poly_abs_le /=; first by lia.
       congr cons. congr poly_var. by lia.
     }
-    rewrite H1ns H2ns. move=> /(pure_typing_trace_poly_typeE (n := 0)).
-    rewrite -H1ns H1ss tidy_tidy => /(_ ltac:(done) ltac:(done)).
+    rw H1ns H2ns. move=> /(pure_typing_trace_poly_typeE (n := 0)).
+    rw -H1ns H1ss tidy_tidy => /(_ ltac:(done) ltac:(done)).
     move: HN1_1 => /pure_typing_fold_right_many_pure_app /= => /(_ _ ltac:(done)).
     move=> [n6] [ξs] [n7] [?] [? H3C]. subst.
 
@@ -883,33 +883,33 @@ Proof.
 
     move=> /(pure_typing_ren_pure_term_allfv_pure_term (scons 0 (scons 0 (scons 0 (scons 0 (scons 0 S))))) (Delta := s0 :: Gamma0)).
     apply: unnest.
-    { rewrite allfv_pure_term_ren_pure_term /=. apply: allfv_pure_term_TrueI. by case. } 
-    rewrite renRen_pure_term /= ren_pure_term_id'; first by case. subst Gamma0.
+    { rw allfv_pure_term_ren_pure_term /=. apply: allfv_pure_term_TrueI. by case. } 
+    rw renRen_pure_term /= ren_pure_term_id'; first by case. subst Gamma0.
     have H4s : allfv_poly_type (fun=> False) (tidy (many_poly_abs (length nss) s)).
     {
-      rewrite allfv_poly_type_tidy allfv_poly_type_many_poly_abs.
-      apply: allfv_poly_type_impl Hns => ? ?. rewrite iter_scons_lt; by [|lia].
+      rw allfv_poly_type_tidy allfv_poly_type_many_poly_abs.
+      apply: allfv_poly_type_impl Hns => ? ?. rw iter_scons_lt; by [|lia].
     }
     (* weaken first assumption to many_poly_abs (length nss) s *)
     have : pure_typing [tidy (many_poly_abs (length nss) s)] (pure_var 0) (tidy s0).
     {
       have H3s : [tidy (many_poly_abs (length nss) s)] = map tidy [tidy (many_poly_abs (length nss) s)] 
-        by rewrite /= tidy_tidy.
+        by rw /= tidy_tidy.
 
-      rewrite /s0 {s0}.
-      rewrite H3s. apply: pure_typing_tidy_many_poly_abs_closed; first done.
-      rewrite H3s. apply: pure_typing_many_poly_abs_contains_tidy_closed; [done | by eassumption |].
-      rewrite H3s. apply: pure_typing_many_poly_abs_contains_tidy_closed; [done | by eassumption |].
-      rewrite tidy_ren_poly_type -H2s ?poly_type_norm /=.
-      rewrite -[s in ren_poly_type _ s](tidy_is_simple Hs) -tidy_ren_poly_type -/(map tidy [_]).
+      rw /s0 {s0}.
+      rw H3s. apply: pure_typing_tidy_many_poly_abs_closed; first done.
+      rw H3s. apply: pure_typing_many_poly_abs_contains_tidy_closed; [done | by eassumption |].
+      rw H3s. apply: pure_typing_many_poly_abs_contains_tidy_closed; [done | by eassumption |].
+      rw tidy_ren_poly_type -H2s ?poly_type_norm /=.
+      rw -[s in ren_poly_type _ s](tidy_is_simple Hs) -tidy_ren_poly_type -/(map tidy [_]).
       apply: pure_typing_tidyI. apply: (pure_typing_pure_var 0); first done.
-      rewrite ren_poly_type_id ren_as_subst_poly_type. by apply: contains_many_poly_abs_closedI. 
+      rw ren_poly_type_id ren_as_subst_poly_type. by apply: contains_many_poly_abs_closedI. 
     }
     move=> /pure_typing_weaken_closed => /(_ []) H /pure_typing_tidyI /= /H{H} => /(_ ltac:(done)).
     move=> /(pure_typing_ren_poly_type (fun x => x - 1)) /= /pure_typableI.
     congr pure_typable. congr cons.
-    + rewrite ren_poly_type_allfv_id; last done. by apply: allfv_poly_type_impl H4s.
-    + rewrite ?map_map. apply: map_ext => ?.
-      rewrite ?tidy_ren_poly_type tidy_tidy ?poly_type_norm /=.
+    + rw ren_poly_type_allfv_id; last done. by apply: allfv_poly_type_impl H4s.
+    + rw ?map_map. apply: map_ext => ?.
+      rw ?tidy_ren_poly_type tidy_tidy ?poly_type_norm /=.
       apply: ren_poly_type_id'. by lia.
 Qed.

@@ -89,7 +89,7 @@ Proof using Hφ.
   move: Hφ => /Forall_forall.
   apply: Forall_impl => - [[x y] z] /= ?.
   constructor; [|constructor; [|constructor]]; last done.
-  all: rewrite /φ' /= ?Cantor.cancel_of_to ?(c2_spec _); lia.
+  all: rw /φ' /= ?Cantor.cancel_of_to ?(c2_spec _); lia.
 Qed.
 
 End Transport.
@@ -108,7 +108,7 @@ Proof using Hφ'.
   move: Hφ' => /Forall_forall /Forall_flat_map.
   apply: Forall_impl => - [[x y] z] /=.
   move=> /Forall_cons_iff [+] /Forall_cons_iff [+] /Forall_cons_iff [+ _].
-  rewrite /φ /=. nia.
+  rw /φ /=. nia.
 Qed.
 
 End InverseTransport.

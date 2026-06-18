@@ -8,24 +8,24 @@ Definition nat_norm := (Nat.add_0_r, Nat.add_succ_r, Nat.sub_0_r, Nat.mul_1_r, N
 
 Lemma div_exact (a b : nat) : a = b * (a / b) <-> a mod b = 0.
 Proof.
-  rewrite [X in X = _](Nat.div_mod_eq a b). lia.
+  rw [X in X = _](Nat.div_mod_eq a b). lia.
 Qed.
 
 Lemma add_mod (a b n : nat) : (a + b) mod n = (a mod n + b mod n) mod n.
 Proof.
-  apply: Nat2Z.inj. do ? rewrite !(Nat2Z.inj_mod, Nat2Z.inj_add).
+  apply: Nat2Z.inj. do ? rw !(Nat2Z.inj_mod, Nat2Z.inj_add).
   apply: Zplus_mod.
 Qed.
 
 Lemma mod_same (a : nat) : a mod a = 0.
 Proof.
-  apply: Nat2Z.inj. rewrite Nat2Z.inj_mod.
+  apply: Nat2Z.inj. rw Nat2Z.inj_mod.
   apply: Z_mod_same_full.
 Qed.
 
 Lemma mod_mod (a n : nat) : (a mod n) mod n = a mod n.
 Proof.
-  apply: Nat2Z.inj. rewrite !Nat2Z.inj_mod.
+  apply: Nat2Z.inj. rw !Nat2Z.inj_mod.
   apply: Zmod_mod.
 Qed.
 
@@ -39,10 +39,10 @@ Qed.
 
 Lemma divides_frac_diff {m n} : m mod (n + 1) = 0 -> (m * (n + 2) / (n + 1) - m) * (1 + n) = m.
 Proof.
-  rewrite Nat.mul_sub_distr_r.
+  rw Nat.mul_sub_distr_r.
   move=> /div_exact => ?.
   have -> : m * (n + 2) = ((n+2) * (m / (n + 1))) * (n + 1) by lia.
-  by rewrite Nat.div_mul; lia.
+  by rw Nat.div_mul; lia.
 Qed.
 
 Lemma div_mul_le m n : (m / n) * n <= m.

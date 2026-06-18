@@ -79,7 +79,7 @@ Section Construction.
     all: have ? := all_fins_spec q.
     all: apply /in_flat_map; exists (q, a).
     all: split; first by apply: in_prod.
-    all: by rewrite /= E /=; tauto.
+    all: by rw /= E /=; tauto.
   Qed.
 
   Lemma In_srsI u v : In (u, v) srs -> In_srs u v.
@@ -106,7 +106,7 @@ Section Construction.
   Lemma simulation_step q t q' t' : step M (q, t) = Some (q', t') ->
     SR.rew srs (encode_config q t) (encode_config q' t').
   Proof.
-    rewrite /step. move: t => [[ls a] rs].
+    rw /step. move: t => [[ls a] rs].
     move E: (trans' M (q, a)) => [[[q'' a''] d]|]; last done.
     move=> [] <- <- /=.
     move: d ls rs E => [] => [[|l ls] rs|ls [|r rs]].
@@ -114,19 +114,19 @@ Section Construction.
       by move=> /(_ [] (map encode_symbol rs ++ [⦈])).
     - move=> /In_srs_l2 /(_ l) /In_srsE /SR.rewB.
       move=> /(_ (⦇ :: rev (map encode_symbol ls)) (map encode_symbol rs ++ [⦈])).
-      by rewrite /= -!app_assoc.
+      by rw /= -!app_assoc.
     - move=> /In_srs_r1 /In_srsE /SR.rewB.
       move=> /(_ (⦇ :: rev (map encode_symbol ls)) []).
-      by rewrite /= -!app_assoc.
+      by rw /= -!app_assoc.
     - move=> /In_srs_r2 /(_ r) /In_srsE /SR.rewB.
       move=> /(_ (⦇ :: rev (map encode_symbol ls)) (map encode_symbol rs ++ [⦈])).
-      by rewrite /= -!app_assoc.
+      by rw /= -!app_assoc.
   Qed.
 
   Lemma simulation_halt q t : step M (q, t) = None ->
     SR.rewt srs (encode_config q t) [⦈; ⦇].
   Proof.
-    rewrite /step. move: t => [[ls a] rs].
+    rw /step. move: t => [[ls a] rs].
     move E: (trans' M (q, a)) => [[[q'' a''] d]|]; first done.
     move=> _. elim: ls.
     { elim: rs. 
@@ -138,7 +138,7 @@ Section Construction.
     move=> l ls IH. apply: SR.rewS; [|by eassumption].
     move: E => /In_srs_dl /(_ l) /In_srsE /SR.rewB.
     move=> /(_ (⦇ :: rev (map encode_symbol ls)) (map encode_symbol rs ++ [⦈])).
-    by rewrite /= -!app_assoc.
+    by rw /= -!app_assoc.
   Qed.
 
   Lemma simulation q t k :
@@ -147,7 +147,7 @@ Section Construction.
   Proof.
     elim: k q t; first done.
     move=> k IH q t.
-    rewrite (steps_plus 1 k). case E: (steps M 1 _) => [[q' t']|].
+    rw (steps_plus 1 k). case E: (steps M 1 _) => [[q' t']|].
     - move: E => /simulation_step ?.
       move=> /IH. apply: SR.rewS; by eassumption.
     - by move: E => /simulation_halt.
@@ -169,14 +169,14 @@ Section Construction.
       move=> [] _ _ E. exfalso.
       have : In (encode_state q') (u ++ # a' :: encode_state q' :: v).
       { apply /in_app_iff => /=. tauto. }
-      rewrite -E. elim: rs {E}. { by case. }
+      rw -E. elim: rs {E}. { by case. }
       by move=> [] rs IH /= []. }
-    move=> l ls IH u. rewrite map_app rev_unit.
+    move=> l ls IH u. rw map_app rev_unit.
     move: u => [|{}c u].
     - move=> [] _.
       elim /rev_ind: (ls).
       + move=> []. by case: (a).
-      + move=> {}c > _. rewrite map_app rev_unit. move=> []. by case: (c).
+      + move=> {}c > _. rw map_app rev_unit. move=> []. by case: (c).
     - move=> [<-] /IH [<-] [<-] [[-> ->]]. tauto.
   Qed.
 
@@ -186,38 +186,38 @@ Section Construction.
     x = encode_config q' t'.
   Proof.
     have reassoc (n m : nat) (u v : list nat) : u ++ (n :: m :: v) = (u ++ [n]) ++ m :: v.
-    { by rewrite -app_assoc. }
+    { by rw -app_assoc. }
     move Ey: (encode_config q t) => y Hyx.
     move: t Hyx Ey => [[ls a] rs] [] u v > /In_srsI [].
-    - move=> > + H. move: H. rewrite (reassoc ⦇).
-      move=> /encode_config_eq_app [<-] [<-]. by rewrite /step => _ ->.
-    - move=> > + b H. move: H. rewrite (reassoc #b).
-      move=> /encode_config_eq_app [<-] [<-]. by rewrite /step => _ ->.
+    - move=> > + H. move: H. rw (reassoc ⦇).
+      move=> /encode_config_eq_app [<-] [<-]. by rw /step => _ ->.
+    - move=> > + b H. move: H. rw (reassoc #b).
+      move=> /encode_config_eq_app [<-] [<-]. by rw /step => _ ->.
     - move=> > + b H. move: H.
-      move=> /encode_config_eq_app [<-] [<-]. by rewrite /step => _ ->.
-    - move=> q'' a'' > + H. move: H. rewrite !(reassoc ⦇).
+      move=> /encode_config_eq_app [<-] [<-]. by rw /step => _ ->.
+    - move=> q'' a'' > + H. move: H. rw !(reassoc ⦇).
       move=> /encode_config_eq_app [<-] [<-] [].
       case: ls => [|l ?] /=.
-      + rewrite /step. by move=> -> -> -> [] <- <-.
+      + rw /step. by move=> -> -> -> [] <- <-.
       + move=> /(app_inj_tail _ (_ :: _) _ (#l)) []. by case: l.  
-    - move=> ???? + b H. move: H. rewrite !(reassoc #b).
+    - move=> ???? + b H. move: H. rw !(reassoc #b).
       move=> /encode_config_eq_app [<-] [<-] [].
       case: ls => [|l ?] /=.
       + move=> /(@app_inj_tail nat _ []) []. by case: b.
-      + rewrite /step. move=> -> -> -> [] <- <- /=.
-        by rewrite -app_assoc.
+      + rw /step. move=> -> -> -> [] <- <- /=.
+        by rw -app_assoc.
     - move=> > + H. move: H.
       move=> /encode_config_eq_app [<-] [<-] [->].
       case: rs => [|r ?]; last by case: r.
       case: v; last done.
-      rewrite /step. move=> _ -> [] <- <- /=.
-      by rewrite -app_assoc.
+      rw /step. move=> _ -> [] <- <- /=.
+      by rw -app_assoc.
     - move=> ???? + b H. move: H.
       move=> /encode_config_eq_app [<-] [<-] [->].
       case: rs => [|r ?]; first by case: b.
       move=> [/encode_symbol_inj ->] ->.
-      rewrite /step. move=> -> [] <- <- /=.
-      by rewrite -app_assoc.
+      rw /step. move=> -> [] <- <- /=.
+      by rw -app_assoc.
   Qed.
 
   Lemma inverse_simulation q t :
@@ -232,7 +232,7 @@ Section Construction.
     { move=> *. by exists 1. }
     move: (E) => /inverse_simulation_step /[apply] ->.
     move=> /(_ _ _ erefl erefl) [k] Hk.
-    exists (1+k). by rewrite steps_plus /= E.
+    exists (1+k). by rw steps_plus /= E.
   Qed.
 
 End Construction.

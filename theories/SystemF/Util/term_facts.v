@@ -21,7 +21,7 @@ Proof. apply: ext_term; [done | by case]. Qed.
 Lemma subst_term_up_term_poly_type {σ τ t}: subst_term (up_term_poly_type σ) τ t = subst_term σ τ t.
 Proof. 
   apply: ext_term; last done. 
-  move=> ?. by rewrite /up_term_poly_type /funcomp /= ren_poly_type_id. 
+  move=> ?. by rw /up_term_poly_type /funcomp /= ren_poly_type_id. 
 Qed.
 
 Lemma subst_term_up_poly_type_term_var {σ t}: subst_term σ (up_poly_type_term var) t = subst_term σ var t.
@@ -33,7 +33,7 @@ Proof. by apply: idSubst_term. Qed.
 Lemma subst_term_ren_term {σ σ' ξ ξ' P} : subst_term σ σ' (ren_term ξ ξ' P) = subst_term (ξ >> σ) (ξ' >> σ') P.
 Proof. by apply: compRenSubst_term. Qed.
 
-(* weaker, axiom-free replacement for asimpl; use: rewrite ?term_norm *)
+(* weaker, axiom-free replacement for asimpl; use: rw ?term_norm *)
 Definition term_norm := (@subst_term_up_term_term_var, @subst_term_up_term_poly_type, @subst_term_up_poly_type_term_var, @subst_term_ren_term).
 
 (* P is in head form if P = x A1 .. An *)
@@ -82,7 +82,7 @@ Fixpoint erase (P: term) : pure_term :=
   
 Fact erase_subst_term_var {P σ} : erase (subst_term σ var P) = erase P.
 Proof. 
-  elim: P σ; move=> /= *; rewrite ?subst_term_up_term_term_var ?subst_term_up_poly_type_term_var; by congruence.
+  elim: P σ; move=> /= *; rw ?subst_term_up_term_term_var ?subst_term_up_poly_type_term_var; by congruence.
 Qed.
 
 (* COMPOUND term CONSTRUCTION *)
@@ -99,10 +99,10 @@ Definition many_ty_abs (n: nat) (P: term) :=
   Nat.iter n ty_abs P.
 
 Fact many_app_app {P Qs Qs'} : many_app P (Qs ++ Qs') = many_app (many_app P Qs) Qs'.
-Proof. by rewrite /many_app fold_left_app. Qed.
+Proof. by rw /many_app fold_left_app. Qed.
 
 Fact many_ty_app_app {P ts ts'} : many_ty_app P (ts ++ ts') = many_ty_app (many_ty_app P ts) ts'.
-Proof. by rewrite /many_ty_app fold_left_app. Qed.
+Proof. by rw /many_ty_app fold_left_app. Qed.
 
 (* many_app M [N1 .. Nn] = M N1 .. Nn *)
 Definition many_pure_app (M: pure_term) (Ns: list pure_term) :=
@@ -110,7 +110,7 @@ Definition many_pure_app (M: pure_term) (Ns: list pure_term) :=
 
 Fact many_pure_app_app {M Ns Ns'} : 
   many_pure_app M (Ns ++ Ns') = many_pure_app (many_pure_app M Ns) Ns'.
-Proof. by rewrite /many_pure_app fold_left_app. Qed.
+Proof. by rw /many_pure_app fold_left_app. Qed.
 
 Definition many_pure_term_abs (n: nat) (M: pure_term) :=
   Nat.iter n pure_abs M.
@@ -131,7 +131,7 @@ Definition many_argument_app (P: term) (As: list argument) :=
     As P.
 
 Fact many_argument_app_app {P As As'} : many_argument_app P (As ++ As') = many_argument_app (many_argument_app P As) As'.
-Proof. by rewrite /many_argument_app fold_left_app. Qed.
+Proof. by rw /many_argument_app fold_left_app. Qed.
 
 (* a head form is a many_argument_app on a head variable *)
 Lemma many_argument_appI {P} : head_form P -> 
@@ -140,11 +140,11 @@ Proof.
   elim.
   - move=> x. by exists x, [].
   - move=> {}P Q _ [x] [As] [-> HAs] ?. exists x, (As ++ [argument_term Q]).
-    constructor; first by rewrite many_argument_app_app.
-    rewrite Forall_app. constructor; [done | by constructor].
+    constructor; first by rw many_argument_app_app.
+    rw Forall_app. constructor; [done | by constructor].
   - move=> {}P t _ [x] [As] [-> HAs]. exists x, (As ++ [argument_poly_type t]).
-    constructor; first by rewrite many_argument_app_app.
-    rewrite Forall_app. constructor; [done | by constructor].
+    constructor; first by rw many_argument_app_app.
+    rw Forall_app. constructor; [done | by constructor].
 Qed.
 
 Fact erase_many_ty_abs {n P} : erase (many_ty_abs n P) = erase P.
@@ -159,8 +159,8 @@ Proof.
   - done.
   - by move=> ? + ? + ? /= => -> ->.
   - move=> ? ? IH ? /=.
-    under extRen_term => [? | ?] do [| rewrite /upRen_term_term up_ren_id].
-    by rewrite IH.
+    under extRen_term => [? | ?] do [| rw /upRen_term_term up_ren_id].
+    by rw IH.
   - by move=> ? + ? ? /= => ->.
   - by move=> ? + ? /= => ->.
 Qed.
@@ -197,7 +197,7 @@ Proof. elim: Qs P; [done | move=> /= *; by congruence]. Qed.
 Lemma normal_form_many_app {P Qs} : normal_form (many_app P Qs) -> normal_form P /\ Forall normal_form Qs.
 Proof.
   elim /rev_ind: Qs P; first by (move=> *; constructor).
-  move=> Q Qs IH P. rewrite many_app_app /=. 
+  move=> Q Qs IH P. rw many_app_app /=. 
   move H1P': (app _ _) => P' H2P'. case: H2P' H1P'; [|done|done].
   move=> ? []; [done| |done]. move=> ? ? /normal_form_head_form + + [? ?]. subst.
   move=> /IH [? ?] ?. constructor; first done.

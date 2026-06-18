@@ -87,7 +87,7 @@ Definition reaches' x y := exists k, steps' k x = Some y.
 (* step includes step' *)
 Lemma step'_incl x y : step' x = Some y -> step x y.
 Proof.
-  rewrite /step' (mm2_state_eta x) /=.
+  rw /step' (mm2_state_eta x) /=.
   case: (index x) => [|p]; first done.
   case Hp: (nth_error M p) => [i|]; last done.
   move: Hp => /nth_error_Some_mm2_instr_at_iff.
@@ -121,35 +121,35 @@ Lemma steps'E k x y : steps' k x = Some y ->
 Proof.
   elim: k x y.
   { move=> x y [<-]. exists 0, 0. do 2 (split; first by lia).
-    move=> a b ?? /=. by rewrite ?Nat.add_0_r. }
+    move=> a b ?? /=. by rw ?Nat.add_0_r. }
   move=> k IH x y /=.
   case Hx': (steps' k x) => [x'|]; last done.
   move: Hx' => /IH [n] [m] [Hax'] [Hbx'] {}IH /=.
-  rewrite /(step' x').
+  rw /(step' x').
   move: (index x') IH => [|xp] IH; [done|].
   case Hi: (nth_error M xp) => [i|]; last done.
   move: i Hi => [].
   - move=> Hi [<-] /=. exists (1 + n), m.
     split; first by lia. split; first by lia.
-    move=> a b Ha Hb. rewrite IH; [done|done|].
-    rewrite /= /step' /= Hi. congr Some. congr pair. congr pair; lia.
+    move=> a b Ha Hb. rw IH; [done|done|].
+    rw /= /step' /= Hi. congr Some. congr pair. congr pair; lia.
   - move=> Hi [<-] /=. exists n, (1 + m).
     split; first by lia. split; first by lia.
-    move=> a b Ha Hb. rewrite IH; [done|done|].
-    rewrite /= /step' /= Hi. congr Some. congr pair. congr pair; lia.
+    move=> a b Ha Hb. rw IH; [done|done|].
+    rw /= /step' /= Hi. congr Some. congr pair. congr pair; lia.
   - move=> q Hi.
     case H'ax': (value1 x') => [|ax']; last done.
     move=> [<-] /=. exists 0, m.
     split; first by lia. split; first by lia.
-    move=> a b ??. rewrite IH; [done|done|].
-    rewrite /step' /= Hi. have ->: a + n = 0 by lia.
+    move=> a b ??. rw IH; [done|done|].
+    rw /step' /= Hi. have ->: a + n = 0 by lia.
     congr Some. congr pair. congr pair; lia.
   - move=> q Hi.
     case H'bx': (value2 x') => [|bx']; last done.
     move=> [<-] /=. exists n, 0.
     split; first by lia. split; first by lia.
-    move=> a b ??. rewrite IH; [done|done|].
-    rewrite /step' /= Hi. have ->: b + m = 0 by lia. 
+    move=> a b ??. rw IH; [done|done|].
+    rw /step' /= Hi. have ->: b + m = 0 by lia. 
     congr Some. congr pair. congr pair; lia.
 Qed.
 
@@ -166,7 +166,7 @@ Qed.
 Lemma step'_inc_index x y :
   step' x = Some y -> index y = 1 + (index x).
 Proof.
-  rewrite /step'. move: (index x) => [|p]; first done.
+  rw /step'. move: (index x) => [|p]; first done.
   case: (nth_error M p); last done.
   move=> [].
   - by move=> [<-].
@@ -250,10 +250,10 @@ Proof using HM.
     have /IH : ((S (length M) - index y = n)) by lia.
     move=> [z] [Hyz ?]. exists z. split; last done.
     move: Hyz => [k Hk]. exists (k+1).
-    by rewrite /steps' /Nat.iter nat_rect_plus /= Hy.
+    by rw /steps' /Nat.iter nat_rect_plus /= Hy.
   - exists x. split; first by exists 0.
-    move: Hy. rewrite /step' /step.
-    rewrite (mm2_state_eta x) /=.
+    move: Hy. rw /step' /step.
+    rw (mm2_state_eta x) /=.
     case: (index x) => [|p]. { move=> _ ? [?] [/mm2_instr_at_bounds]. lia. }
     case Hi: (nth_error M p) => [i|]; first last.
     { move: Hi => /nth_error_None ? _ ? [?] [/mm2_instr_at_bounds]. lia. }
@@ -323,7 +323,7 @@ Proof.
   suff: forall a b, exists a' b', reaches_plus (1, (a, b)) (1, (a', b')).
   { move=> H a b. pose P := fun (x : mm2_state) => index x = 1.
     apply: (mm2_clos_trans_not_terminates P _ (1, (a, b)) erefl).
-    move=> [p' [a' b']]. rewrite /P /= => ?.
+    move=> [p' [a' b']]. rw /P /= => ?.
     have [a'' [b'' H'']] := H a' b'. subst p'. eexists. by split; [eassumption|]. }
   move=> a b. 
   move: (H0x) => /reaches'E [n'] [m'] /= [Hax] [Hbx].
@@ -378,11 +378,11 @@ Lemma terminating_orI p a b x y :
   mm2_stop M y ->
   (forall a', terminating (p, (S a', 0))) + (forall b', terminating (p, (0, S b'))).
 Proof.
-  rewrite (mm2_state_eta x).
+  rw (mm2_state_eta x).
   case: (index x) => [|px].
   { move=> _ Hxy _. exfalso. by move: Hxy => [?] [/mm2_instr_at_pos]. }
   case Hi: (nth_error M px) => [i|]; first last.
-  { move=> _ Hxy _. exfalso. move: Hxy => [?] [/nth_error_Some_mm2_instr_at_iff]. by rewrite Hi. }
+  { move=> _ Hxy _. exfalso. move: Hxy => [?] [/nth_error_Some_mm2_instr_at_iff]. by rw Hi. }
   move: i Hi => [].
   - (* mm2_inc_a instruction *)
     move=> /nth_error_Some_mm2_instr_at_iff Hi Hx H'x Hy. left=> a'.
@@ -601,15 +601,15 @@ Proof using HM.
     move=> /(_ (S a) 0 ltac:(lia) ltac:(lia)) /reaches'_incl Hk'.
     move: H'x' => /(mm2_step_parallel (index x', (S a + n, m))) /=.
     move=> /(_ ltac:(lia)) [y'] [/rt_step Hy'] [H0y'] ?.
-    move: Hx Hxy => /dec_a_0 H. rewrite (mm2_state_eta y) H0y H1y H2y.
+    move: Hx Hxy => /dec_a_0 H. rw (mm2_state_eta y) H0y H1y H2y.
     move=> /H {H} => /(_ a (S by')) Hk''.
     exists (a * b'y + by').
     apply /(rt_trans Hk') /(rt_trans Hy').
-    rewrite (mm2_state_eta y').
+    rw (mm2_state_eta y').
     move: Hk''. congr reaches; congr (_, (_, _)); lia.
   - (* case: (1, 1) f->>t-> (S a', S b') loop *)
     do 3 left. right. move=> a. apply: dec_loop; [eassumption|].
-    move: Hxy. rewrite (mm2_state_eta y) H0y H1y H2y. apply.
+    move: Hxy. rw (mm2_state_eta y) H0y H1y H2y. apply.
 Qed.
 
 (* uniform transition from equivalence class (0, S b) *)
@@ -707,15 +707,15 @@ Proof using HM.
     move=> /(_ 0 (S b) ltac:(lia) ltac:(lia)) /reaches'_incl Hk'.
     move: H'x' => /(mm2_step_parallel (index x', (n, S b + m))) /=.
     move=> /(_ ltac:(lia)) [y'] [/rt_step Hy'] [H0y'] ?.
-    move: Hx Hxy => /dec_b_0 H. rewrite (mm2_state_eta y) H0y H1y H2y.
+    move: Hx Hxy => /dec_b_0 H. rw (mm2_state_eta y) H0y H1y H2y.
     move=> /H {H} => /(_ (S ay') b) Hk''.
     exists (b * a'y + ay').
     apply /(rt_trans Hk') /(rt_trans Hy').
-    rewrite (mm2_state_eta y').
+    rw (mm2_state_eta y').
     move: Hk''. congr reaches; congr (_, (_, _)); lia.
   - (* case: (1, 1) f->>t-> (S a', S b') loop *)
     do 3 left. right. move=> b. apply: dec_loop; [eassumption|].
-    move: Hxy. rewrite (mm2_state_eta y) H0y H1y H2y. apply.
+    move: Hxy. rw (mm2_state_eta y) H0y H1y H2y. apply.
 Qed.
 
 (* uniform transition from equivalence class (S a, S b) *)
@@ -766,7 +766,7 @@ Definition representatives := [(0, 0); (1, 0); (0, 1); (1, 1)].
 
 Lemma get_representative : forall ab, {v | In v representatives /\ RZ v ab}.
 Proof.
-  move=> [[|a] [|b]]; rewrite /representatives /RZ.
+  move=> [[|a] [|b]]; rw /representatives /RZ.
   - exists (0, 0) => /=. split; [tauto|lia].
   - exists (0, 1) => /=. split; [tauto|lia].
   - exists (1, 0) => /=. split; [tauto|lia].
@@ -790,7 +790,7 @@ Lemma uniform_transition ab :
   {v | In v representatives /\
     (forall a'b', RZ ab a'b' -> exists w, RZ v w /\ reaches_plus (1, a'b') (1, w)) }.
 Proof using HM.
-  rewrite /representatives /=.
+  rw /representatives /=.
   have HE := @eq_or_inf (nat * nat) ltac:(by do ? decide equality).
   case /HE; [|case /HE; [|case /HE; [|case /HE; last done]]]; move=> <-.
   - have [[[[|]|]|]|] := transition_0_0.
@@ -954,7 +954,7 @@ Definition decide : { M: list mm2_instr | mm2_reversible M } * mm2_state -> bool
 (* decision procedure correctness *)
 Lemma decide_spec : decider decide MM2_REV_HALT.
 Proof.
-  rewrite /decider /reflects /decide => - [[M HM] c].
+  rw /decider /reflects /decide => - [[M HM] c].
   case: (decision M HM c).
   - tauto.
   - move=> H. split; [by move=> /H | done].

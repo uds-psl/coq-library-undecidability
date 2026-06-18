@@ -40,21 +40,21 @@ Lemma transport :
 Proof.
   move=> [Gamma] [t] /pure_typing_iff_type_assignment.
   move=> /pure_typableI /pure_typable_many_pure_term_abs_allI [{}t].
-  move=> /(pure_typing_ren_pure_term id (Delta := Gamma_M0)). rewrite ren_pure_term_id.
+  move=> /(pure_typing_ren_pure_term id (Delta := Gamma_M0)). rw ren_pure_term_id.
   apply: unnest; first by case.
   move=> /(pure_typing_pure_app_simpleI (M := pure_var 0) (t := t_M0)).
   apply: unnest.
   { apply: (pure_typing_pure_var 0); first by reflexivity. 
     apply: rt_step. by apply: contains_step_subst. }
   move=> /pure_typing_to_typing /= [P] [HP] /typing_to_type_assignment.
-  by rewrite -HP.
+  by rw -HP.
 Qed.
 
 (* type checking to typability *)
 Lemma inverse_transport : 
   SysF_TC (Gamma_M0, M_M0, t_M0) -> SysF_TYP M0.
 Proof.
-  move=> /pure_typing_iff_type_assignment. rewrite /Gamma_M0 /M_M0 /t_M0.
+  move=> /pure_typing_iff_type_assignment. rw /Gamma_M0 /M_M0 /t_M0.
   move=> /pure_typingE' [?] [?] [_] [/pure_typableI HM0 _].
   have : exists Gamma, pure_typable Gamma M0.
   {

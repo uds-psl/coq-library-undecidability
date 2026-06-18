@@ -33,7 +33,7 @@ Proof.
   elim: len i start; first by lia.
   move=> len IH [|i] start.
   { move=> ?. congr Some. lia. }
-  move=> ?. rewrite /= IH; first by lia.
+  move=> ?. rw /= IH; first by lia.
   congr Some. lia.
 Qed.
 
@@ -42,38 +42,38 @@ Lemma mul_mod (a b n : nat) :
 Proof.
   move: n => [|n].
   - reflexivity.
-  - apply: Nat2Z.inj. rewrite !(Nat2Z.inj_mod, Nat2Z.inj_mul).
+  - apply: Nat2Z.inj. rw !(Nat2Z.inj_mod, Nat2Z.inj_mul).
     by apply: Z.mul_mod.
 Qed.
 
 Lemma div_exact (a b : nat) : a = b * (a / b) <-> a mod b = 0.
 Proof.
-  rewrite [X in X = _](Nat.div_mod_eq a b). lia.
+  rw [X in X = _](Nat.div_mod_eq a b). lia.
 Qed.
 
 Lemma pow_3_mod_2 (n: nat) : 3 ^ n mod 2 = 1.
 Proof.
   elim: n; first done.
-  move=> n IH. by rewrite Nat.pow_succ_r' mul_mod ?IH.
+  move=> n IH. by rw Nat.pow_succ_r' mul_mod ?IH.
 Qed.
 
 Lemma pow_5_mod_2 (n: nat) : 5 ^ n mod 2 = 1.
 Proof.
   elim: n; first done.
-  move=> n IH. by rewrite Nat.pow_succ_r' mul_mod ?IH.
+  move=> n IH. by rw Nat.pow_succ_r' mul_mod ?IH.
 Qed.
 
 Lemma pow_2_mod_3 (n: nat) : 2 ^ n mod 3 = 1 \/ 2 ^ n mod 3 = 2.
 Proof.
   elim: n; first by (cbn; lia).
-  move=> n IH. rewrite Nat.pow_succ_r' mul_mod.
+  move=> n IH. rw Nat.pow_succ_r' mul_mod.
   move: IH => [->|->]; cbn; by lia.
 Qed.
 
 Lemma pow_5_mod_3 (n: nat) : 5 ^ n mod 3 = 1 \/ 5 ^ n mod 3 = 2.
 Proof.
   elim: n; first by (cbn; lia).
-  move=> n IH. rewrite Nat.pow_succ_r' mul_mod.
+  move=> n IH. rw Nat.pow_succ_r' mul_mod.
   move: IH => [->|->]; cbn; by lia.
 Qed.
 
@@ -138,11 +138,11 @@ Section MM2_CM1.
 
   Lemma M_length : length M = a0+b0+b0+(length P * 6).
   Proof.
-    rewrite /M !length_app !length_map !length_seq.
+    rw /M !length_app !length_map !length_seq.
     suff: forall n, length (flat_map encode_instruction (combine P (seq n (length P)))) = length P * 6.
     { move=> ->. lia. }
     elim: (P). { done. }
-    move=> > IH > /=. by rewrite length_app length_encode_instruction IH.
+    move=> > IH > /=. by rw length_app length_encode_instruction IH.
   Qed.
 
   (* κ a b c encodes mm2 counters (a, b) *)
@@ -155,7 +155,7 @@ Section MM2_CM1.
   Lemma κ_pos {X: Type} {x y: X} {a b c: nat} : 
     match κ a b c with | 0 => x | S _ => y end = y.
   Proof.
-    rewrite /κ.
+    rw /κ.
     have ? := Nat.pow_nonzero 2 a ltac:(lia).
     have ? := Nat.pow_nonzero 3 b ltac:(lia).
     have ? := Nat.pow_nonzero 5 c ltac:(lia).
@@ -169,59 +169,59 @@ Section MM2_CM1.
   Qed.
 
   Lemma κ_21 {a b c: nat} : κ a b c * 2 / 1 = κ (1+a) b c.
-  Proof. rewrite /κ /= Nat.div_1_r. by lia. Qed.
+  Proof. rw /κ /= Nat.div_1_r. by lia. Qed.
 
   Lemma κ_32 {a b c: nat} : κ (1+a) b c * 3 / 2 = κ a (1+b) c.
   Proof.
-    have -> : κ (1+a) b c * 3 = (3 * κ a b c) * 2 by (rewrite /κ /=; lia).
-    by rewrite /κ Nat.div_mul /=; lia.
+    have -> : κ (1+a) b c * 3 = (3 * κ a b c) * 2 by (rw /κ /=; lia).
+    by rw /κ Nat.div_mul /=; lia.
   Qed.
 
   Lemma κ_43 {a b c: nat} : κ a (1+b) c * 4 / 3 = κ (2+a) b c.
   Proof.
-    have -> : κ a (1+b) c * 4 = (4 * κ a b c) * 3 by (rewrite /κ /=; lia).
-    by rewrite /κ Nat.div_mul /=; lia.
+    have -> : κ a (1+b) c * 4 = (4 * κ a b c) * 3 by (rw /κ /=; lia).
+    by rw /κ Nat.div_mul /=; lia.
   Qed.
 
   Lemma κ_54 {a b c: nat} : κ (2+a) b c * 5 / 4 = κ a b (1+c).
   Proof.
-    have -> : κ (2+a) b c * 5 = (5 * κ a b c) * 4 by (rewrite /κ /=; lia).
-    by rewrite /κ Nat.div_mul /=; lia.
+    have -> : κ (2+a) b c * 5 = (5 * κ a b c) * 4 by (rw /κ /=; lia).
+    by rw /κ Nat.div_mul /=; lia.
   Qed.
 
   Lemma κ_mod2 {a b c: nat} : κ a b c mod 2 = if a is 0 then 1 else 0.
   Proof.
-    rewrite /κ.
-    rewrite [(_ * 5^_) mod 2]mul_mod.
-    rewrite [(_ * 3^_) mod 2]mul_mod.
-    rewrite pow_3_mod_2 pow_5_mod_2.
+    rw /κ.
+    rw [(_ * 5^_) mod 2]mul_mod.
+    rw [(_ * 3^_) mod 2]mul_mod.
+    rw pow_3_mod_2 pow_5_mod_2.
     move: a => [|a]; first done.
     have -> : 2 ^ S a = 2 * 2 ^ a by move=> /=; lia.
-    by rewrite [(2 * _) mod 2]mul_mod.
+    by rw [(2 * _) mod 2]mul_mod.
   Qed.
 
   Lemma κ_mod3 {a b c: nat} : 
     κ a b c mod 3 = if b is 0 then (S (locked (κ a b c) mod 3 - 1)) else 0.
   Proof.
-    rewrite /κ -lock.
-    rewrite [(_ * 5^_) mod 3]mul_mod.
-    rewrite [(_ * 3^_) mod 3]mul_mod.
+    rw /κ -lock.
+    rw [(_ * 5^_) mod 3]mul_mod.
+    rw [(_ * 3^_) mod 3]mul_mod.
     move: b => [|b].
     { by case: (pow_2_mod_3 a); case: (pow_5_mod_3 c); move=> -> ->. }
     have -> : 3 ^ S b = 3 * 3 ^ b by move=> /=; lia.
     replace (((3 * 3 ^ b) mod 3)) with 0.
-    - by rewrite Nat.mul_0_r.
-    - by rewrite mul_mod.
+    - by rw Nat.mul_0_r.
+    - by rw mul_mod.
   Qed.
 
   Lemma κ_mod4 {a b c: nat} : κ (2+a) b c mod 4 = 0.
   Proof.
     apply /div_exact.
-    have -> : κ (2+a) b c = (κ a b c) * 4 by (rewrite /κ /=; lia).
-    by rewrite /κ Nat.div_mul /=; lia.
+    have -> : κ (2+a) b c = (κ a b c) * 4 by (rw /κ /=; lia).
+    by rw /κ Nat.div_mul /=; lia.
   Qed.
 
-  (* use: rewrite ?κ_norm. *)
+  (* use: rw ?κ_norm. *)
   Definition κ_norm := (@κ_pos, @κ_21, @κ_32, @κ_43, @κ_54, @κ_mod2, @κ_mod3, @κ_mod4).
 
   Lemma κ_inj1 {a1 b1 c1 a2 b2 c2: nat} : 
@@ -229,10 +229,10 @@ Section MM2_CM1.
   Proof.
     elim: a1 a2 b1 b2.
     { move=> [|a2] >; first done.
-      move /(f_equal (fun x => x mod 2)). by rewrite ?κ_mod2. }
+      move /(f_equal (fun x => x mod 2)). by rw ?κ_mod2. }
     move=> a1 IH [|a2] >.
-    { move /(f_equal (fun x => x mod 2)). by rewrite ?κ_mod2. }
-    move /(f_equal (fun x => x * 3 / 2)). rewrite ?κ_32. by move /IH => ->.
+    { move /(f_equal (fun x => x mod 2)). by rw ?κ_mod2. }
+    move /(f_equal (fun x => x * 3 / 2)). rw ?κ_32. by move /IH => ->.
   Qed.
 
   Lemma κ_inj2 {a1 b1 c1 a2 b2 c2: nat} : 
@@ -240,10 +240,10 @@ Section MM2_CM1.
   Proof.
     elim: b1 b2 a1 a2.
     { move=> [|b2] >; first done.
-      move /(f_equal (fun x => x mod 3)). by rewrite ?κ_mod3. }
+      move /(f_equal (fun x => x mod 3)). by rw ?κ_mod3. }
     move=> b1 IH [|b2] >.
-    { move /(f_equal (fun x => x mod 3)). by rewrite ?κ_mod3. }
-    move /(f_equal (fun x => x * 4 / 3)). rewrite ?κ_43. by move /IH => ->.
+    { move /(f_equal (fun x => x mod 3)). by rw ?κ_mod3. }
+    move /(f_equal (fun x => x * 4 / 3)). rw ?κ_43. by move /IH => ->.
   Qed.
 
   (* encode mm2 config as cm1 config *)
@@ -267,21 +267,21 @@ Section MM2_CM1.
     move=> [Pl] [Pr] [HP Hi].
     suff: nth_error M (n + fs i) = nth_error (encode_instruction (mm2i, i)) n.
     { move=> ->. by move: n Hn => [|[|[|[|[|[|?]]]]]]. }
-    rewrite /M HP -Hi.
-    rewrite nth_error_app2. { rewrite !length_map !length_seq /=. lia. }
-    rewrite nth_error_app2. { rewrite !length_map !length_seq /=. lia. }
-    rewrite !length_map !length_seq.
+    rw /M HP -Hi.
+    rw nth_error_app2. { rw !length_map !length_seq /=. lia. }
+    rw nth_error_app2. { rw !length_map !length_seq /=. lia. }
+    rw !length_map !length_seq.
     suff: forall k, nth_error
       (flat_map encode_instruction (combine P (seq k (length P)))) (n + length Pl * 6) =
       nth_error (encode_instruction (mm2i, k + length Pl)) n.
-    { move=> <-. rewrite HP /=. congr nth_error. lia. }
-    rewrite HP. elim: Pl {HP Hi}.
-    { move=> ?. rewrite /= !Nat.add_0_r.
-      by rewrite nth_error_app1; [case: mm2i|]. }
+    { move=> <-. rw HP /=. congr nth_error. lia. }
+    rw HP. elim: Pl {HP Hi}.
+    { move=> ?. rw /= !Nat.add_0_r.
+      by rw nth_error_app1; [case: mm2i|]. }
     move=> instr Pl IH k.
     have ->: k + length (instr :: Pl) = (k+1) + length Pl.
-    { by rewrite -Nat.add_assoc. }
-    rewrite -IH /= nth_error_app2 length_encode_instruction. { lia. }
+    { by rw -Nat.add_assoc. }
+    rw -IH /= nth_error_app2 length_encode_instruction. { lia. }
     have ->: k+1 = S k by lia.
     congr nth_error. lia.
   Qed.
@@ -323,37 +323,37 @@ Section MM2_CM1.
     move: x' Hxy=> [p c] [] /= > Hinstr [-> [n ->]].
     - (* case inc a *)
       exists 0 => /=.
-      rewrite (seek_M 0 Hinstr) ?κ_norm.
+      rw (seek_M 0 Hinstr) ?κ_norm.
       constructor; [done|by eexists].
     - (* case inc b *)
       exists 1 => /=.
-      rewrite (seek_M 0 Hinstr) ?κ_norm /=.
-      rewrite (seek_M 1 Hinstr) ?κ_norm /=.
+      rw (seek_M 0 Hinstr) ?κ_norm /=.
+      rw (seek_M 1 Hinstr) ?κ_norm /=.
       constructor; [done|by eexists].
     - (* case dec a > 0 *)
       exists 2 => /=.
-      rewrite (seek_M 0 Hinstr) ?κ_norm /=.
-      rewrite (seek_M 4 Hinstr) ?κ_norm /=.
-      rewrite (seek_M 5 Hinstr) ?κ_norm /=.
+      rw (seek_M 0 Hinstr) ?κ_norm /=.
+      rw (seek_M 4 Hinstr) ?κ_norm /=.
+      rw (seek_M 5 Hinstr) ?κ_norm /=.
       constructor; [done|by eexists].
     - (* case dec b > 0 *)
       exists 1 => /=.
-      rewrite (seek_M 0 Hinstr) ?κ_norm /=.
-      rewrite (seek_M 4 Hinstr) ?κ_norm /=.
+      rw (seek_M 0 Hinstr) ?κ_norm /=.
+      rw (seek_M 4 Hinstr) ?κ_norm /=.
       constructor; [done|by eexists].
     - (* case dec a = 0 *)
       exists 3 => /=.
-      rewrite (seek_M 0 Hinstr) ?κ_norm /=.
-      rewrite (seek_M 1 Hinstr) ?κ_norm /=.
-      rewrite (seek_M 2 Hinstr) ?κ_norm /=.
-      rewrite (seek_M 3 Hinstr) ?κ_norm /=.
+      rw (seek_M 0 Hinstr) ?κ_norm /=.
+      rw (seek_M 1 Hinstr) ?κ_norm /=.
+      rw (seek_M 2 Hinstr) ?κ_norm /=.
+      rw (seek_M 3 Hinstr) ?κ_norm /=.
       constructor; [done |by eexists].
     - (* case dec b = 0 *)
       exists 3 => /=.
-      rewrite (seek_M 0 Hinstr) ?κ_norm /=.
-      rewrite (seek_M 1 Hinstr) ?κ_norm /=.
-      rewrite (seek_M 2 Hinstr) ?κ_norm /=.
-      rewrite (seek_M 3 Hinstr) ?κ_norm /=.
+      rw (seek_M 0 Hinstr) ?κ_norm /=.
+      rw (seek_M 1 Hinstr) ?κ_norm /=.
+      rw (seek_M 2 Hinstr) ?κ_norm /=.
+      rw (seek_M 3 Hinstr) ?κ_norm /=.
       constructor; [done|by eexists].
   Qed.
 
@@ -377,7 +377,7 @@ Section MM2_CM1.
 
   Lemma cm1_halting_stuck x : CM1.halting M x -> simulation.stuck cm1_step x.
   Proof.
-    rewrite /CM1.halting. move=> Hx y [Hxy H'xy]. congruence.
+    rw /CM1.halting. move=> Hx y [Hxy H'xy]. congruence.
   Qed. 
 
   Lemma CM1_halting_iff_terminates {x} :
@@ -392,11 +392,11 @@ Section MM2_CM1.
     - move=> [y] [].
       move=> /(@clos_rt_rt1n CM1.Config). elim.
       + move=> {}x /(_ (CM1.step M x)) Hx. exists 0.
-        rewrite /CM1.halting /=.
+        rw /CM1.halting /=.
         have [|] := Config_eq_dec x (CM1.step M x); [done|].
         tauto.
       + move=> > [Hxy ?] _ IH /IH [n {}IH].
-        exists (n+1). by rewrite /Nat.iter nat_rect_plus /= Hxy.
+        exists (n+1). by rw /Nat.iter nat_rect_plus /= Hxy.
   Qed.
 
   Lemma init_M_a0 (n: nat) : n <= a0+b0 ->
@@ -405,25 +405,25 @@ Section MM2_CM1.
   Proof.
     elim: n. { done. }
     move=> n /= + ? => ->. { lia. }
-    rewrite /M /= κ_pos.
-    rewrite nth_error_app1. { by rewrite length_map length_seq. }
-    rewrite nth_error_map nth_error_seq /=. { done. }
-    by rewrite κ_norm.
+    rw /M /= κ_pos.
+    rw nth_error_app1. { by rw length_map length_seq. }
+    rw nth_error_map nth_error_seq /=. { done. }
+    by rw κ_norm.
   Qed.
 
   Lemma init_M_b0 (n: nat) : n <= b0 ->
     Nat.iter n (CM1.step M) {| CM1.state := a0 + b0; CM1.value := κ (a0+b0) 0 0 |} =
       {| CM1.state := a0 + b0 + n; CM1.value := κ (a0 + b0 - n) n 0 |}.
   Proof.
-    elim: n. { by rewrite Nat.sub_0_r Nat.add_0_r. }
+    elim: n. { by rw Nat.sub_0_r Nat.add_0_r. }
     move=> n /= + ? => ->. { lia. }
-    rewrite /M /= κ_pos.
-    rewrite nth_error_app2 length_map length_seq. { lia. }
-    rewrite nth_error_app1. { rewrite length_map length_seq. lia. }
-    rewrite nth_error_map nth_error_seq /=. { lia. }
-    rewrite κ_norm.
+    rw /M /= κ_pos.
+    rw nth_error_app2 length_map length_seq. { lia. }
+    rw nth_error_app1. { rw length_map length_seq. lia. }
+    rw nth_error_map nth_error_seq /=. { lia. }
+    rw κ_norm.
     have ->: a0 + b0 - n = S (a0 + b0 - n - 1) by lia.
-    rewrite κ_norm.
+    rw κ_norm.
     congr CM1.mkConfig; [|congr κ]; lia.
   Qed.
 
@@ -432,24 +432,24 @@ Section MM2_CM1.
     {| CM1.state := 0; CM1.value := 1 |} =
       {| CM1.state := a0 + b0 + b0; CM1.value := κ a0 b0 0 |}.
   Proof.
-    rewrite /Nat.iter Nat.add_comm nat_rect_plus -!/(Nat.iter _ _ _) init_M_a0. { done. }
-    rewrite init_M_b0. { done. }
-    rewrite (Nat.add_comm b0). congr CM1.mkConfig. congr κ. lia.
+    rw /Nat.iter Nat.add_comm nat_rect_plus -!/(Nat.iter _ _ _) init_M_a0. { done. }
+    rw init_M_b0. { done. }
+    rw (Nat.add_comm b0). congr CM1.mkConfig. congr κ. lia.
   Qed.
 
   Lemma transport : MM2_HALTING (P, a0, b0) -> CM1.CM1_HALT (exist _ M M_capped).
   Proof.
     move=> /MM2_HALTING_iff_terminates H.
-    rewrite /CM1.CM1_HALT.
+    rw /CM1.CM1_HALT.
     apply /(terminating_reaches_iff init_M).
     apply /CM1_halting_iff_terminates.
     move: H. apply: simulation.terminates_transport.
     - exact: P_to_M_step.
-    - rewrite /simulation.stuck.
+    - rw /simulation.stuck.
       move=> x x' Hx Hxx'.
-      rewrite /simulation.terminates.
+      rw /simulation.terminates.
       exists x'. split; [by apply: rt_refl|].
-      rewrite /simulation.stuck.
+      rw /simulation.stuck.
       move=> y' [Hx'y' H'x'y'].
       move: Hx => /mm2_stop_index_iff.
       subst y'.
@@ -457,7 +457,7 @@ Section MM2_CM1.
       move=> [p [|c]] /=; [done|].
       case Hinstr: (nth_error M p) => [instr|]; [|done].
       have /nth_error_Some : nth_error M p <> None by congruence.
-      rewrite M_length.
+      rw M_length.
       move: x => [i [a b]] /= HpM [? _] _.
       move=> [?|?]; subst.
       + move: HpM => /=. lia.

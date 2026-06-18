@@ -23,14 +23,14 @@ Lemma to_nat_inj {X: Type} {enumX: Enumerable X} {x y: X}:
   to_nat x = to_nat y <-> x = y.
 Proof.
   constructor; last by move->.
-  move /(f_equal of_nat). by rewrite ?enumP.
+  move /(f_equal of_nat). by rw ?enumP.
 Qed.
 
 Lemma enumerableI {X Y: Type} {enum: Enumerable X} (to_X: Y -> X) (of_X: X -> Y) : 
   (forall (y: Y), of_X (to_X y) = y) -> Enumerable Y.
 Proof.
   move=> cancel. exists (fun y => to_nat (to_X y)) (fun x => of_X (of_nat x)).
-  move=> y. by rewrite enumP cancel.
+  move=> y. by rw enumP cancel.
 Qed.
 
 #[export] Instance nat_Enumerable : Enumerable nat.
@@ -53,7 +53,7 @@ Proof.
   exists 
     (fun '(x, y) => to_nat (to_nat x, to_nat y))
     (fun n => match of_nat n with | (n1, n2) => (of_nat n1, of_nat n2) end).
-  move=> [x y]. by rewrite ?enumP.
+  move=> [x y]. by rw ?enumP.
 Qed.
 
 #[export] Instance sum_Enumerable {X Y: Type} {enumX: Enumerable X} {enumY: Enumerable Y} : Enumerable (X + Y).
@@ -61,5 +61,5 @@ Proof.
   exists 
     (fun t => match t with | inl x => to_nat (0, to_nat x) | inr y => to_nat (1, to_nat y) end)
     (fun n => match of_nat n with | (0, n) => inl (of_nat n) | (1, n) => inr (of_nat n) | _ => inl (of_nat n) end).
-  by case => ?; rewrite ?enumP.
+  by case => ?; rw ?enumP.
 Qed.

@@ -86,7 +86,7 @@ Qed.
 
 Lemma encode_word_last {a v} : encode_word (v ++ [a]) = arr (if a then b2 else b3) (encode_word v).
 Proof. 
-  rewrite /encode_word. move: (bullet) => r. elim: v r.
+  rw /encode_word. move: (bullet) => r. elim: v r.
   { move=> r. by case: a. }
   move=> b A IH r. case: b; by apply: IH.
 Qed.
@@ -94,9 +94,9 @@ Qed.
 Lemma encode_word_app {v x} : encode_word (v ++ x) = append_word (encode_word v) x.
 Proof.
   elim: x v.
-  { move=> v. by rewrite app_nil_r. }
+  { move=> v. by rw app_nil_r. }
   move=> a x IH v. 
-  rewrite -/(app [a] _) ? app_assoc IH encode_word_last /=.
+  rw -/(app [a] _) ? app_assoc IH encode_word_last /=.
   by case: a.
 Qed.
 
@@ -105,12 +105,12 @@ Lemma unify_words {v w ζ} : substitute ζ (encode_word v) = substitute ζ (enco
 Proof.
   move: v w. elim /rev_ind.
   { elim /rev_ind; first done.
-    move=> b w _. rewrite encode_word_last.
+    move=> b w _. rw encode_word_last.
     move: b => [] /(f_equal size) /=; by lia. }
   move=> a v IH. elim /rev_ind.
-  { rewrite encode_word_last. 
+  { rw encode_word_last. 
     move: a => [] /(f_equal size) /=; by lia. }
-  move=> b w _. rewrite ? encode_word_last.
+  move=> b w _. rw ? encode_word_last.
   case: a; case: b; move=> /=; case.
   - by move /IH => ->.
   - move /(f_equal size) => /=. by lia.
@@ -124,26 +124,26 @@ Lemma substitute_combine {ζ ξ r v x} :
   substitute ζ (append_word r x) = substitute ξ (encode_word (v ++ x)).
 Proof.
   move=> ?. elim: x v r.
-  { move=> ?. by rewrite app_nil_r. }
+  { move=> ?. by rw app_nil_r. }
   move=> a x IH v r /=.
   have -> : v ++ a :: x = v ++ [a] ++ x by done.
-  rewrite app_assoc. move=> ?. case: a.
-  - apply: IH. rewrite encode_word_last. move=> /=. by congruence.
-  - apply: IH. rewrite encode_word_last. move=> /=. by congruence.
+  rw app_assoc. move=> ?. case: a.
+  - apply: IH. rw encode_word_last. move=> /=. by congruence.
+  - apply: IH. rw encode_word_last. move=> /=. by congruence.
 Qed.
 
 Lemma tau1_lastP {x y: list bool} {A} : tau1 (A ++ [(x, y)]) = tau1 A ++ x.
 Proof.
-  elim: A; first by rewrite /= app_nil_r.
+  elim: A; first by rw /= app_nil_r.
   move=> [a b] A /= ->.
-  by rewrite app_assoc.
+  by rw app_assoc.
 Qed.
 
 Lemma tau2_lastP {x y: list bool} {A} : tau2 (A ++ [(x, y)]) = tau2 A ++ y.
 Proof.
-  elim: A; first by rewrite /= app_nil_r.
+  elim: A; first by rw /= app_nil_r.
   move=> [a b] A /= ->.
-  by rewrite app_assoc.
+  by rw app_assoc.
 Qed.
 
 Lemma transparent_encode_pair {ζ s t} : ζ 0 = var 0 -> 
@@ -155,7 +155,7 @@ Lemma transparent_append_word {ζ s v} : ζ 0 = var 0 ->
 Proof. 
   move=> Hζ. elim: v s; first done.
   move=> a v IH s /=. 
-  case: a; by rewrite /b2 /b3 /bullet IH /= Hζ.
+  case: a; by rw /b2 /b3 /bullet IH /= Hζ.
 Qed.
 
 Lemma substitute_arrP {ζ s t} : substitute ζ (arr s t) = arr (substitute ζ s) (substitute ζ t).
@@ -195,7 +195,7 @@ Lemma not_ΓPCP_rrr n r : not (der ΓPCP n (arr r (arr r r))).
 Proof.
   elim: n r; first by move=> ? /derE.
   move=> n IH r /derE => [[ζ [s [k [+ [+]]]]]].
-  rewrite /ΓPCP /In -/ΓPCP. case; last case; last case; last case; last case; last done.
+  rw /ΓPCP /In -/ΓPCP. case; last case; last case; last case; last case; last done.
   all: move=> <-.
   {
     case: k => [|k] /=; last by move=> /Forall_cons_iff [/IH].
@@ -252,15 +252,15 @@ Lemma ΓPCP_assoc_x {P x r v} :
     (encode_pair (encode_word' bullet x) (encode_list encode_bool v)) r).
 Proof.
   elim: v x.
-  { move=> ?. by rewrite app_nil_r. }
-  move=> a v IH x. rewrite -/(app [a] _) app_assoc. move /IH.
-  rewrite encode_word'_last.
+  { move=> ?. by rw app_nil_r. }
+  move=> a v IH x. rw -/(app [a] _) app_assoc. move /IH.
+  rw encode_word'_last.
   move /(hsc_arr _ _ _ _). apply.
   evar (ζ : nat -> formula).
   instantiate (ζ := fun x => match x with | 0 => _ | 1 => _ | 2 => _ | 3 => _| 4 => _ | _ => _ end).
   apply: (hscI (ζ := ζ)).
-  { rewrite /ΓPCP. do 3 right. left. by reflexivity. }
-  by rewrite /ζ substitute_arrP /PCPf' ? transparent_encode_pair.
+  { rw /ΓPCP. do 3 right. left. by reflexivity. }
+  by rw /ζ substitute_arrP /PCPf' ? transparent_encode_pair.
 Qed.
 
 Lemma ΓPCP_assoc_y {P r y w} : 
@@ -270,15 +270,15 @@ Lemma ΓPCP_assoc_y {P r y w} :
     (encode_pair (encode_word' bullet y) (encode_list encode_bool w))).
 Proof.
   elim: w y.
-  { move=> ?. by rewrite app_nil_r. }
-  move=> a w IH y. rewrite -/(app [a] _) app_assoc. move /IH.
-  rewrite encode_word'_last.
+  { move=> ?. by rw app_nil_r. }
+  move=> a w IH y. rw -/(app [a] _) app_assoc. move /IH.
+  rw encode_word'_last.
   move /(hsc_arr _ _ _ _). apply.
   evar (ζ : nat -> formula).
   instantiate (ζ := fun x => match x with | 0 => _ | 1 => _ | 2 => _ | 3 => _ | 4 => _ | _ => _ end).
   apply: (hscI (ζ := ζ)).
-  { rewrite /ΓPCP. do 4 right. left. by reflexivity. }
-  by rewrite /ζ substitute_arrP /PCPf' ? transparent_encode_pair.
+  { rw /ΓPCP. do 4 right. left. by reflexivity. }
+  by rw /ζ substitute_arrP /PCPf' ? transparent_encode_pair.
 Qed.
 
 Lemma ΓPCP_saturate {Q R P s t} : 
@@ -287,15 +287,15 @@ Lemma ΓPCP_saturate {Q R P s t} :
   hsc ΓPCP (PCPf' P P s t).
 Proof.
   elim /rev_ind : R Q P; first by move=> Q P ->.
-  move=> vw R IH Q P. rewrite -app_assoc. move=> ->.
+  move=> vw R IH Q P. rw -app_assoc. move=> ->.
   move=> ?. 
   suff : hsc ΓPCP (PCPf' ([vw] ++ Q) (R ++ ([vw] ++ Q)) s t) by (move /IH; apply).
   apply: hsc_arr; last eassumption.
   evar (ζ : nat -> formula).
   instantiate (ζ := fun x => match x with | 0 => _ | 1 => _ | 2 => _ | 3 => _ | _ => _ end).
   apply: (hscI (ζ := ζ)).
-  { rewrite /ΓPCP. do 2 right. left. by reflexivity. }
-  by rewrite /ζ substitute_arrP /PCPf' ? transparent_encode_pair.
+  { rw /ΓPCP. do 2 right. left. by reflexivity. }
+  by rw /ζ substitute_arrP /PCPf' ? transparent_encode_pair.
 Qed.
 
 Lemma ΓPCP_step {P x y v w} : 
@@ -313,8 +313,8 @@ Proof.
     evar (ζ : nat -> formula).
     instantiate (ζ := fun x => match x with | 0 => _ | 1 => _ | 2 => _ | 3 => _ | 4 => _ | 5 => _ | _ => _ end).
     apply: (hscI (ζ := ζ)).
-    { rewrite /ΓPCP. do 1 right. left. by reflexivity. }
-    by rewrite /ζ substitute_arrP /PCPf' ? transparent_encode_pair. }
+    { rw /ΓPCP. do 1 right. left. by reflexivity. }
+    by rw /ζ substitute_arrP /PCPf' ? transparent_encode_pair. }
   move /ΓPCP_saturate. apply. by eassumption.
 Qed.
 
@@ -324,9 +324,9 @@ Lemma ΓPCP_soundness_ind {v w P A} :
   hsc ΓPCP (PCPf ((v, w) :: P) v w).
 Proof.
   elim /rev_ind : A.
-  { move=> _ /=. by rewrite ? app_nil_r. }
+  { move=> _ /=. by rw ? app_nil_r. }
   move=> [x y] A IH /incl_app_inv [/IH] + /incl_cons_inv [? _].
-  rewrite tau1_lastP tau2_lastP ? app_assoc.
+  rw tau1_lastP tau2_lastP ? app_assoc.
   move=> + ?; apply.
   apply: ΓPCP_step; first by eassumption.
   apply: ΓPCP_assoc_x. apply: ΓPCP_assoc_y.
@@ -337,11 +337,11 @@ Qed.
 Lemma ΓPCP_soundness {v w P} : MPCPb ((v, w), P) -> hsc ΓPCP (PCPf ((v, w) :: P) v w).
 Proof.
   move=> [A [/ΓPCP_soundness_ind]]. move=> + H.
-  rewrite {}H. apply.
+  rw {}H. apply.
   evar (ζ : nat -> formula).
   instantiate (ζ := fun x => match x with | 0 => _ | 1 => _ | _ => _ end).
   apply: (hscI (ζ := ζ)); first by left.
-  by rewrite /ζ /PCPf transparent_encode_pair.
+  by rw /ζ /PCPf transparent_encode_pair.
 Qed.
 
 Lemma encode_bool_injective {a b} : encode_bool a = encode_bool b -> a = b.
@@ -352,7 +352,7 @@ Proof.
   move: x y.
   elim /rev_ind => [|a x IHx].
   all: elim /rev_ind => [|b y IHy].
-  all: rewrite ? encode_word'_last.
+  all: rw ? encode_word'_last.
   all: try done.
   by move=> [] /IHx <- /encode_bool_injective <-.
 Qed.
@@ -380,7 +380,7 @@ Proof.
   move=> [ζ [s [k [+ [+]]]]].
   have Hu (r) : r = arr r (arr r r) -> False.
   { move /(f_equal size) => /=. by lia. }
-  rewrite /ΓPCP /In -/ΓPCP. case; last case; last case; last case; last case; last done.
+  rw /ΓPCP /In -/ΓPCP. case; last case; last case; last case; last case; last done.
   all: move=> <-.
   { case: k=> [|k] /=; last by move=> /Forall_cons_iff [/not_ΓPCP_rrr].
     move=> _. case. do 7 (move=> _). move=> ->.
@@ -390,54 +390,54 @@ Proof.
   1,3,5,7: move=> _ /=; case=> <- *; exfalso; apply: Hu; by eassumption.
   all: case: k=> [|k].
   2,4,6,8: by move=> /= /Forall_cons_iff [_] /Forall_cons_iff [/not_ΓPCP_rrr].
-  all: rewrite substitute_arrP /arguments /target.
-  all: move=> /Forall_cons_iff [Hder _]; rewrite ? substitute_pairP.
+  all: rw substitute_arrP /arguments /target.
+  all: move=> /Forall_cons_iff [Hder _]; rw ? substitute_pairP.
   (* step case *)
   {
     move=> [H0] [[_ [H123 H4]]] [_] [[_ [H5 Hv]]] [_ [H6 Hw]].
     move: H123 HQ. case: Q; first done.
-    move=> [v' w'] Q. rewrite /encode_list -/encode_list /encode_word_pair -/encode_word_pair.
-    rewrite ? substitute_pairP.
+    move=> [v' w'] Q. rw /encode_list -/encode_list /encode_word_pair -/encode_word_pair.
+    rw ? substitute_pairP.
     move=> [_ [[_ [H1 H2]] H3]].
-    move: Hder. rewrite ? transparent_encode_pair //.
-    rewrite H1 H2 H4 H5 H6. move /IH => /(_ (incl_refl P)).
+    move: Hder. rw ? transparent_encode_pair //.
+    rw H1 H2 H4 H5 H6. move /IH => /(_ (incl_refl P)).
     move=> [A [HAP HxyA]].
     move /(_ (v', w')). move /(_ (in_eq _ _)) => ?.
     move: v w Hv Hw => [|? ?] [|? ?].
     { exists ((v', w') :: A). 
       constructor; [by apply /incl_cons | by assumption]. }
-    all: by rewrite /= H0.
+    all: by rw /= H0.
   }
   (* cons case *)
   {
     move=> [H0] [[_ [H12 H3]]] H4.
     move: H12 HQ. case: Q; first done.
-    move=> ? Q. rewrite /encode_list -/encode_list ? substitute_pairP. move=> [_ [_ H2]].
+    move=> ? Q. rw /encode_list -/encode_list ? substitute_pairP. move=> [_ [_ H2]].
     move=> /incl_cons_inv [_ HQ].
-    move: Hder. rewrite ? transparent_encode_pair => //.
-    rewrite H2 H3 H4. move /IH. by apply.
+    move: Hder. rw ? transparent_encode_pair => //.
+    rw H2 H3 H4. move /IH. by apply.
   }
   (* assoc x case *)
   {
     move=> [H0] [H1] [_] [[_ [H2]]] H34 H5.
     move: H34. case: v; first done.
-    move=> a v. rewrite /encode_list -/encode_list substitute_pairP.
+    move=> a v. rw /encode_list -/encode_list substitute_pairP.
     move=> [_ [H3 H4]].
-    move: Hder. rewrite ? transparent_encode_pair => //.
-    rewrite H1 H2 H3 H4 H5 -encode_word'_last. move /IH.
-    rewrite -/(app [a] v). move /(_ HQ) => [A [?]].
-    rewrite - ? app_assoc => ?. by exists A.
+    move: Hder. rw ? transparent_encode_pair => //.
+    rw H1 H2 H3 H4 H5 -encode_word'_last. move /IH.
+    rw -/(app [a] v). move /(_ HQ) => [A [?]].
+    rw - ? app_assoc => ?. by exists A.
   }
   (* assoc y case *)
   {
     move=> [H0] [H1] [_] [H5] [_ [H2 H34]].
     move: H34. case: w; first done.
-    move=> a w. rewrite /encode_list -/encode_list substitute_pairP.
+    move=> a w. rw /encode_list -/encode_list substitute_pairP.
     move=> [_ [H3 H4]].
-    move: Hder. rewrite ? transparent_encode_pair => //.
-    rewrite H1 H2 H3 H4 H5 -encode_word'_last. move /IH.
-    rewrite -/(app [a] w). move /(_ HQ) => [A [?]].
-    rewrite - ? app_assoc => ?. by exists A.
+    move: Hder. rw ? transparent_encode_pair => //.
+    rw H1 H2 H3 H4 H5 -encode_word'_last. move /IH.
+    rw -/(app [a] w). move /(_ HQ) => [A [?]].
+    rw - ? app_assoc => ?. by exists A.
   }
 Qed.
 

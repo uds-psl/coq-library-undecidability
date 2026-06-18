@@ -64,23 +64,23 @@ Section RU2SemiU_LU2SemiU.
     
     Lemma substitute_φ'P {r: term} :
       substitute φ' (substitute embed_var r) = substitute embed_var (substitute φ r).
-    Proof. elim: r => [[| ?] | *] /=; [by rewrite /φ' ?enumP | by rewrite /φ' ?enumP | by f_equal]. Qed.
+    Proof. elim: r => [[| ?] | *] /=; [by rw /φ' ?enumP | by rw /φ' ?enumP | by f_equal]. Qed.
 
     Lemma substitute_ψ0'P {r: term} :
       substitute ψ0' (substitute embed_var r) = substitute embed_var (substitute ψ0 r).
-    Proof. elim: r => [[| ?] | *] /=; [by rewrite /ψ0' ?enumP | by rewrite /ψ0' ?enumP | by f_equal]. Qed.
+    Proof. elim: r => [[| ?] | *] /=; [by rw /ψ0' ?enumP | by rw /ψ0' ?enumP | by f_equal]. Qed.
 
     Lemma substitute_ψ1'P {r: term} :
       substitute ψ1' (substitute embed_var r) = substitute embed_var (substitute ψ1 r).
-    Proof. elim: r => [[| ?] | *] /=; [by rewrite /ψ1' ?enumP | by rewrite /ψ1' ?enumP | by f_equal]. Qed.
+    Proof. elim: r => [[| ?] | *] /=; [by rw /ψ1' ?enumP | by rw /ψ1' ?enumP | by f_equal]. Qed.
 
     (* if the given right-uniform semi-unification instance is solvable, 
       then so is the constructed left-uniform semi-unification instance *)
     Lemma transport : LU2SemiU (s', t0', t1').
     Proof using φ ψ0 ψ1 Hψ0 Hψ1.
       exists φ', ψ0', ψ1'. constructor.
-      - rewrite /s' /t0' /=. congr arr; rewrite ?substitute_φ'P substitute_ψ0'P ?/φ' ?enumP; by congruence.
-      - rewrite /s' /t1' /=. congr arr; rewrite ?substitute_φ'P substitute_ψ1'P ?/φ' ?enumP; by congruence.
+      - rw /s' /t0' /=. congr arr; rw ?substitute_φ'P substitute_ψ0'P ?/φ' ?enumP; by congruence.
+      - rw /s' /t1' /=. congr arr; rw ?substitute_φ'P substitute_ψ1'P ?/φ' ?enumP; by congruence.
     Qed.
   End Transport.
 
@@ -100,7 +100,7 @@ Section RU2SemiU_LU2SemiU.
     Lemma reflection : RU2SemiU (s0, s1, t).
     Proof using φ' ψ0' ψ1' Hψ0' Hψ1'.
       exists (fun x => φ' (to_nat (x, 0))), ψ0', ψ1'. move: Hψ0' Hψ1'.
-      rewrite ?(substitute_embed_var (ξ := φ')) /s' /t0' /t1' /=.
+      rw ?(substitute_embed_var (ξ := φ')) /s' /t0' /t1' /=.
       move=> ? ?. constructor; by congruence. 
     Qed.
 

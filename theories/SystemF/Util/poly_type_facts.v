@@ -46,7 +46,7 @@ Fact subst_poly_type_many_poly_abs {σ n target} :
   many_poly_abs n (subst_poly_type (Nat.iter n up_poly_type_poly_type σ) target).
 Proof.
   elim: n σ; first done.
-  move=> n IH σ /=. congr poly_abs. by rewrite IH iter_last.
+  move=> n IH σ /=. congr poly_abs. by rw IH iter_last.
 Qed.
 
 Fact ren_poly_type_many_poly_abs {ξ n target} : 
@@ -54,7 +54,7 @@ Fact ren_poly_type_many_poly_abs {ξ n target} :
   many_poly_abs n (ren_poly_type (Nat.iter n up_ren ξ) target).
 Proof.
   elim: n ξ; first done.
-  move=> n IH ξ /=. congr poly_abs. by rewrite IH iter_last.
+  move=> n IH ξ /=. congr poly_abs. by rw IH iter_last.
 Qed.
 
 Fact subst_poly_type_many_poly_arr {σ args target} : 
@@ -97,15 +97,15 @@ Qed.
 Lemma fold_right_length_ts_ge {σ : nat -> poly_type} {ts x} :
   length ts <= x -> fold_right scons σ ts x = σ (x - length ts).
 Proof.
-  move=> ?. have {1}->: x = length ts + (x - length ts) by lia. by rewrite fold_right_length_ts.
+  move=> ?. have {1}->: x = length ts + (x - length ts) by lia. by rw fold_right_length_ts.
 Qed.
 
 Lemma fold_right_map_seq {f: nat -> poly_type} {x n} : x < n ->
   fold_right scons poly_var (map f (seq 0 n)) x = f x.
 Proof.
-  move=> ?. rewrite fold_right_length_ts_lt; first by rewrite length_map length_seq; lia.
-  rewrite (nth_indep _ _ (f 0)); first by rewrite length_map length_seq; lia.
-  rewrite map_nth seq_nth; by [|lia].
+  move=> ?. rw fold_right_length_ts_lt; first by rw length_map length_seq; lia.
+  rw (nth_indep _ _ (f 0)); first by rw length_map length_seq; lia.
+  rw map_nth seq_nth; by [|lia].
 Qed.
 
 Fact up_ren_id {x} : up_ren id x = x.
@@ -117,23 +117,23 @@ Proof. by case: t. Qed.
 Lemma up_poly_type_poly_type_poly_var {x} : up_poly_type_poly_type poly_var x = poly_var x.
 Proof. by case: x. Qed.
 
-(* axiom-free conposition of substitutions/renamings; use: rewrite ?poly_type_norm *)
+(* axiom-free conposition of substitutions/renamings; use: rw ?poly_type_norm *)
 Definition poly_type_norm := (renComp_poly_type, compComp_poly_type, renRen_poly_type, compRen_poly_type).
 
 Fact subst_poly_type_poly_var {t} : subst_poly_type poly_var t = t.
-Proof. by rewrite idSubst_poly_type. Qed.
+Proof. by rw idSubst_poly_type. Qed.
 
 Fact subst_poly_type_poly_var' {σ t} : (forall x, σ x = poly_var x) -> subst_poly_type σ t = t.
 Proof. move=> ?. by apply: idSubst_poly_type. Qed.
 
 Fact map_subst_poly_type_poly_var {Gamma} : map (subst_poly_type poly_var) Gamma = Gamma.
-Proof. rewrite (map_ext _ id); [|apply: map_id]. move => ?. by rewrite subst_poly_type_poly_var. Qed.
+Proof. rw (map_ext _ id); [|apply: map_id]. move => ?. by rw subst_poly_type_poly_var. Qed.
 
 Fact ren_poly_type_id {t}: ren_poly_type id t = t.
-Proof. rewrite -[RHS]subst_poly_type_poly_var. by apply: rinst_inst_poly_type. Qed.
+Proof. rw -[RHS]subst_poly_type_poly_var. by apply: rinst_inst_poly_type. Qed.
 
 Lemma ren_poly_type_id' {ξ t} : (forall x, ξ x = x) -> ren_poly_type ξ t = t.
-Proof. rewrite -[RHS]ren_poly_type_id => ?. by apply: extRen_poly_type. Qed.
+Proof. rw -[RHS]ren_poly_type_id => ?. by apply: extRen_poly_type. Qed.
 
 Fact ren_as_subst_poly_type {ξ t} : ren_poly_type ξ t = subst_poly_type (ξ >> poly_var) t.
 Proof. by apply: rinst_inst_poly_type. Qed.
@@ -148,7 +148,7 @@ Qed.
 Lemma iter_scons_ge {X: Type} {f: nat -> X} {n x m} :
   n <= m -> Nat.iter n (scons x) f m = f (m - n).
 Proof.
-  move=> ?. have {1}->: m = n + (m - n) by lia. by rewrite iter_scons.
+  move=> ?. have {1}->: m = n + (m - n) by lia. by rw iter_scons.
 Qed.
 
 Lemma iter_scons_lt {X: Type} {x: X} {f: nat -> X} {n m: nat} : 
@@ -156,14 +156,14 @@ Lemma iter_scons_lt {X: Type} {x: X} {f: nat -> X} {n m: nat} :
 Proof.
   elim: n m f; first by lia.
   move=> n IH [|m] f /= ?; first done.
-  by rewrite /funcomp IH; first by lia.
+  by rw /funcomp IH; first by lia.
 Qed.
 
 Lemma iter_up_poly_type_poly_type {n σ x} : 
   Nat.iter n up_poly_type_poly_type σ (n + x) = ren_poly_type (Nat.add n) (σ x).
 Proof.
-  elim: n x σ; first by move=> ? ?; rewrite ren_poly_type_id.
-  move=> n IH x σ /=. by rewrite /funcomp IH poly_type_norm.
+  elim: n x σ; first by move=> ? ?; rw ren_poly_type_id.
+  move=> n IH x σ /=. by rw /funcomp IH poly_type_norm.
 Qed.
 
 Lemma iter_up_poly_type_poly_type_lt {n σ x} : 
@@ -171,12 +171,12 @@ Lemma iter_up_poly_type_poly_type_lt {n σ x} :
 Proof.
   elim: n x σ; first by lia.
   move=> n IH [|x] σ /= ?; first done.
-  by rewrite /funcomp IH; first by lia.
+  by rw /funcomp IH; first by lia.
 Qed.
 
 Lemma iter_up_poly_type_poly_type_ge {n σ x} : x >= n -> 
   Nat.iter n up_poly_type_poly_type σ x = ren_poly_type (Nat.add n) (σ (x - n)).
-Proof. move=> ?. have {1}->: x = n + (x - n) by lia. by rewrite iter_up_poly_type_poly_type. Qed.
+Proof. move=> ?. have {1}->: x = n + (x - n) by lia. by rw iter_up_poly_type_poly_type. Qed.
 
 
 Lemma allfv_poly_type_impl {P1 P2: nat -> Prop} {t}: 
@@ -210,7 +210,7 @@ Lemma allfv_poly_type_many_poly_absI {P n t} :
   allfv_poly_type (Nat.iter n (scons True) P) t -> allfv_poly_type P (many_poly_abs n t).
 Proof.
   elim: n P; first done.
-  move=> n IH P. by rewrite -iter_last => /IH.
+  move=> n IH P. by rw -iter_last => /IH.
 Qed.
 
 Lemma allfv_poly_type_many_poly_arrI {P ss x} : Forall (allfv_poly_type P) ss -> P x -> 
@@ -228,16 +228,16 @@ Proof.
   - by move=> ? IH1 ? IH2 > /= [/IH1 -> /IH2 ->].
   - move=> ? IH > /= H. congr poly_abs. apply: IH.
     apply: iffLR H. apply: ext_allfv_poly_type. case; first done.
-    move=> x /=. rewrite /funcomp. constructor; first by move=> ->.
+    move=> x /=. rw /funcomp. constructor; first by move=> ->.
     move=> /(congr1 (ren_poly_type Nat.pred)).
-    by rewrite ?poly_type_norm ?ren_poly_type_id.
+    by rw ?poly_type_norm ?ren_poly_type_id.
 Qed.
 
 Lemma ext_ren_poly_type_allfv_poly_type {t ξ ξ'} : allfv_poly_type (fun x => ξ x = ξ' x) t -> 
   ren_poly_type ξ t = ren_poly_type ξ' t.
 Proof.
-  move=> H. rewrite ?ren_as_subst_poly_type. apply: ext_subst_poly_type_allfv_poly_type.
-  apply: allfv_poly_type_impl H => ?. by rewrite /funcomp => ->.
+  move=> H. rw ?ren_as_subst_poly_type. apply: ext_subst_poly_type_allfv_poly_type.
+  apply: allfv_poly_type_impl H => ?. by rw /funcomp => ->.
 Qed.
 
 (* reexport substitution extensionality lemma from syntax *)
@@ -248,8 +248,8 @@ Proof.
   elim: t ξ P.
   - done.
   - by move=> /= ? + ? + ? ? => -> ->.
-  - move=> ? /= IH ? ?. rewrite IH. apply: ext_allfv_poly_type.
-    rewrite /scons /funcomp. by case.
+  - move=> ? /= IH ? ?. rw IH. apply: ext_allfv_poly_type.
+    rw /scons /funcomp. by case.
 Qed.
 
 Lemma allfv_poly_type_subst_poly_type {P σ t} : allfv_poly_type P (subst_poly_type σ t) <-> (allfv_poly_type (σ >> allfv_poly_type P) t).
@@ -257,14 +257,14 @@ Proof.
   elim: t σ P.
   - done.
   - by move=> /= ? + ? + ? ? => -> ->.
-  - move=> ? /= IH ? ?. rewrite IH. apply: ext_allfv_poly_type.
-    rewrite /scons /funcomp. case; first done.
-    move=> x. rewrite allfv_poly_type_ren_poly_type. by apply: ext_allfv_poly_type.
+  - move=> ? /= IH ? ?. rw IH. apply: ext_allfv_poly_type.
+    rw /scons /funcomp. case; first done.
+    move=> x. rw allfv_poly_type_ren_poly_type. by apply: ext_allfv_poly_type.
 Qed.
 
 Lemma allfv_poly_type_many_poly_abs {P n t} : 
   allfv_poly_type P (many_poly_abs n t) = allfv_poly_type (Nat.iter n (scons True) P) t.
-Proof. elim: n P; [ done | move=> n IH P; by rewrite -iter_last -IH ]. Qed.
+Proof. elim: n P; [ done | move=> n IH P; by rw -iter_last -IH ]. Qed.
 
 Lemma allfv_poly_type_TrueI {p: nat -> Prop} {t} : (forall x, p x) -> allfv_poly_type p t.
 Proof. 
@@ -275,7 +275,7 @@ Qed.
 
 Lemma ren_poly_type_allfv_id {ξ t} : (allfv_poly_type (fun x => ξ x = x) t) -> 
   ren_poly_type ξ t = t.
-Proof. rewrite -[RHS]ren_poly_type_id => ?. by apply: ext_ren_poly_type_allfv_poly_type. Qed.
+Proof. rw -[RHS]ren_poly_type_id => ?. by apply: ext_ren_poly_type_allfv_poly_type. Qed.
 
 Lemma ren_poly_type_closed_id {ξ t} : allfv_poly_type (fun=> False) t -> ren_poly_type ξ t = t.
 Proof. move=> H. apply: ren_poly_type_allfv_id. by apply: allfv_poly_type_impl H. Qed.
@@ -300,7 +300,7 @@ Lemma iter_up_ren {n ξ x} :
   Nat.iter n up_ren ξ (n + x) = n + ξ x.
 Proof.
   elim: n x ξ; first done.
-  move=> n IH x ξ /=. rewrite /funcomp IH. by lia.
+  move=> n IH x ξ /=. rw /funcomp IH. by lia.
 Qed.
 
 Lemma iter_up_ren_lt {n ξ x} : 
@@ -308,13 +308,13 @@ Lemma iter_up_ren_lt {n ξ x} :
 Proof.
   elim: n x ξ; first by lia.
   move=> n IH [|x] ξ /= ?; first done.
-  by rewrite /funcomp IH; first by lia.
+  by rw /funcomp IH; first by lia.
 Qed.
 
 Lemma iter_up_ren_ge {n ξ x} : 
   n <= x -> Nat.iter n up_ren ξ x = n + ξ (x-n).
 Proof.
-  move=> ?. have {1}->: x = n + (x - n) by lia. by rewrite iter_up_ren.
+  move=> ?. have {1}->: x = n + (x - n) by lia. by rw iter_up_ren.
 Qed.
 
 Lemma iter_up_ren_ge' {ξ n n' x}: 
@@ -323,26 +323,26 @@ Lemma iter_up_ren_ge' {ξ n n' x}:
 Proof.
   move=> ?.
   have [?|?] : x < n + n' \/ n + n' <= x by lia.
-  - rewrite ?iter_up_ren_lt; by lia.
+  - rw ?iter_up_ren_lt; by lia.
   - have ? : ξ (x - (n + n')) = ξ (x - n - n') by congr ξ; lia.
-    by rewrite ?iter_up_ren_ge; lia.
+    by rw ?iter_up_ren_ge; lia.
 Qed.
 
 Lemma iter_up_ren_add {n m x}: 
   Nat.iter n up_ren (Nat.add m) x = x + (Nat.iter n (locked up_ren) (Nat.add m) x - x).
 Proof.
-  rewrite -lock. have [?|->] : x < n \/ x = n + (x - n) by lia.
-  - rewrite iter_up_ren_lt; by lia.
-  - rewrite iter_up_ren. by lia.
+  rw -lock. have [?|->] : x < n \/ x = n + (x - n) by lia.
+  - rw iter_up_ren_lt; by lia.
+  - rw iter_up_ren. by lia.
 Qed.
 
 Lemma iter_up_ren_iter_up_ren {n ξ1 ξ2 x} : 
   Nat.iter n up_ren ξ1 (Nat.iter n up_ren ξ2 x) = Nat.iter n up_ren (ξ2 >> ξ1) x.
 Proof.
   have [?|->] : x < n \/ x = n + (x - n) by lia.
-  - rewrite [Nat.iter _ _ ξ2 x]iter_up_ren_lt; first done.
-    rewrite iter_up_ren_lt; first done. by rewrite iter_up_ren_lt; first done.
-  - by rewrite ?iter_up_ren /funcomp.
+  - rw [Nat.iter _ _ ξ2 x]iter_up_ren_lt; first done.
+    rw iter_up_ren_lt; first done. by rw iter_up_ren_lt; first done.
+  - by rw ?iter_up_ren /funcomp.
 Qed.
 
 Lemma ren_poly_type_poly_var_bound {ξ n t} : poly_var_bound t <= n -> 
@@ -363,10 +363,10 @@ Proof.
 Qed.
 
 Lemma map_ren_poly_type_id {Gamma} : map (ren_poly_type id) Gamma = Gamma.
-Proof. under map_ext => ? do rewrite ren_poly_type_id. by rewrite map_id. Qed.
+Proof. under map_ext => ? do rw ren_poly_type_id. by rw map_id. Qed.
 
 Lemma many_poly_abs_many_poly_abs {n m t} : many_poly_abs n (many_poly_abs m t) = many_poly_abs (n + m) t.
-Proof. by rewrite /many_poly_abs /Nat.iter nat_rect_plus. Qed.
+Proof. by rw /many_poly_abs /Nat.iter nat_rect_plus. Qed.
 
 Lemma many_poly_abs_eqE {n s t} : many_poly_abs n s = many_poly_abs n t -> s = t.
 Proof. elim: n; [done | by move=> ? + []]. Qed.
@@ -415,13 +415,13 @@ Lemma many_poly_abs_poly_var_eq_subst_poly_typeE {σ n x t}:
   exists i m y, n = i + m /\ t = many_poly_abs m (poly_var (m+y)).
 Proof.
   have [n' [t' [-> +]]] := many_poly_absI t. case: t'.
-  - move=> y _. rewrite subst_poly_type_many_poly_abs /=.
+  - move=> y _. rw subst_poly_type_many_poly_abs /=.
     have [?|->] : y < n' \/ y = n' + (y - n') by lia.
-    + rewrite iter_up_poly_type_poly_type_lt; first done.
+    + rw iter_up_poly_type_poly_type_lt; first done.
       move=> <-. by exists 0, n, x.
     + move=> /esym /many_poly_abs_eqE'' /(_ ltac:(done)).
       move=> [n''] [? ->]. exists n'', n', (y - n'). constructor; [by lia | done].
-  - move=> ? ? _. rewrite subst_poly_type_many_poly_abs /=.
+  - move=> ? ? _. rw subst_poly_type_many_poly_abs /=.
     by move=> /many_poly_abs_eqE' [].
   - by move=> /=.
 Qed.
@@ -432,20 +432,20 @@ Lemma many_poly_abs_poly_arr_eq_subst_poly_typeE {σ n x t}:
   (exists m y1 y2, t = many_poly_abs m (poly_arr (poly_var (m+y1)) (poly_var (m+y2)))).
 Proof.
   have [n' [t' [-> +]]] := many_poly_absI t. case: t'.
-  - move=> y _. rewrite subst_poly_type_many_poly_abs /=.
+  - move=> y _. rw subst_poly_type_many_poly_abs /=.
     have [?|->] : y < n' \/ y = n' + (y - n') by lia.
-    + rewrite iter_up_poly_type_poly_type_lt; first done.
+    + rw iter_up_poly_type_poly_type_lt; first done.
       move=> <-. right. by exists n, x, x.
     + move=> ?. left. by exists n', (y - n').
-  - move=> s'' t'' _. rewrite subst_poly_type_many_poly_abs /=.
+  - move=> s'' t'' _. rw subst_poly_type_many_poly_abs /=.
     move=> /many_poly_abs_eqE' [<-] [].
     case: s''; [ | done | done]. case: t''; [ | done | done].
     move=> y1 y2 /=.
     have [?|->] : y1 < n \/ y1 = n + (y1 - n) by lia.
-    + move=> _. rewrite iter_up_poly_type_poly_type_lt; first done.
+    + move=> _. rw iter_up_poly_type_poly_type_lt; first done.
       move=> []. by lia.
     + have [?|->] : y2 < n \/ y2 = n + (y2 - n) by lia.
-      * move=> + _. rewrite iter_up_poly_type_poly_type_lt; first done.
+      * move=> + _. rw iter_up_poly_type_poly_type_lt; first done.
         move=> []. by lia.
       * move=> _ _. right. by exists n, (y2-n), (y1-n).
   - by move=> /=.
@@ -464,15 +464,15 @@ Fixpoint fresh_inb (x: nat) (t: poly_type) :=
 Lemma fresh_inP {x t} : reflect (fresh_in x t) (fresh_inb x t).
 Proof.
   elim: t x.
-  - move=> n x. rewrite /=. case: (PeanoNat.Nat.eq_dec _ _).
+  - move=> n x. rw /=. case: (PeanoNat.Nat.eq_dec _ _).
     + move=> /= ->. by constructor.
     + move=> /= ?. by constructor.
-  - move=> ? IH1 ? IH2 x /=. rewrite /fresh_in /= -?/(fresh_in _ _).
-    apply /introP; rewrite (rwP (IH1 x)) (rwP (IH2 x)).
+  - move=> ? IH1 ? IH2 x /=. rw /fresh_in /= -?/(fresh_in _ _).
+    apply /introP; rw (rwP (IH1 x)) (rwP (IH2 x)).
     + by case: (fresh_inb _ _); case (fresh_inb _ _).
     + case: (fresh_inb _ _); case (fresh_inb _ _); by move=> ? [? ?].
-  - move=> t IH x. rewrite /fresh_in /= -?/(fresh_in _ _). apply /introP.
-    + rewrite -(rwP (IH (S x))). apply: allfv_poly_type_impl. case; [done | by move=> /= *; lia].
+  - move=> t IH x. rw /fresh_in /= -?/(fresh_in _ _). apply /introP.
+    + rw -(rwP (IH (S x))). apply: allfv_poly_type_impl. case; [done | by move=> /= *; lia].
     + have := (rwP (IH (S x))). case: (fresh_inb (S x) t); first done. 
       move=> H _ H'. suff: false by done. apply /H. 
       apply: allfv_poly_type_impl H'. case; [done | by move=> /= *; lia].
@@ -483,8 +483,8 @@ Proof.
   move=> H. apply /allfv_poly_type_many_poly_absI.
   apply: allfv_poly_type_impl H => y ?.
   have [?|?] : y < n \/ n <= y by lia.
-  - by rewrite iter_scons_lt.
-  - rewrite iter_scons_ge; by lia.
+  - by rw iter_scons_lt.
+  - rw iter_scons_ge; by lia.
 Qed.
 
 Lemma fresh_in_many_poly_arrI {x ss y} : Forall (fresh_in x) ss -> x <> y -> fresh_in x (many_poly_arr ss (poly_var y)).

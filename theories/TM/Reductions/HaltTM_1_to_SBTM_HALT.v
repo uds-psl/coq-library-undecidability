@@ -29,8 +29,8 @@ Module SBTM_facts.
     elim; first done.
     move=> [|?] [|?].
     - reflexivity.
-    - by rewrite repeat_length.
-    - by rewrite /= repeat_length.
+    - by rw repeat_length.
+    - by rw /= repeat_length.
     - by repeat constructor.
   Qed.
 
@@ -39,7 +39,7 @@ Module SBTM_facts.
   Proof.
     elim: m l.
     - move=> [|??]; first done.
-      move=> /almost_eq_elim /= [-> ->]. by rewrite repeat_length.
+      move=> /almost_eq_elim /= [-> ->]. by rw repeat_length.
     - move=> m IH [|??]; first done.
       move=> /almost_eq_elim /= [<-] /IH ?.
       by congr cons.
@@ -51,7 +51,7 @@ Module SBTM_facts.
     move=> H. elim: H l3.
     - move=> > H IH [|??] /almost_eq_elim /=.
       + move=> [->] E.
-        move: H. rewrite E=> /almost_eq_sym /almost_eq_false_spec ->.
+        move: H. rw E=> /almost_eq_sym /almost_eq_false_spec ->.
         by apply: (almost_eq_false (S _) 0).
       + move=> [<-] ?. constructor. by apply: IH.
     - move=> > /almost_eq_false_spec ->. by constructor.
@@ -117,15 +117,15 @@ Module SBTM_facts.
     split.
     - elim.
       + move=> a {}l1 {}l2 IH E /=.
-        suff ->: forallb negb l1 = forallb negb l2 by rewrite E.
+        suff ->: forallb negb l1 = forallb negb l2 by rw E.
         elim: IH {E}.
         * by move=> > /= _ ->.
         * by elim; [elim|].
-      + move=> a1 a2. by rewrite !truncate_repeat_false.
+      + move=> a1 a2. by rw !truncate_repeat_false.
     - move=> E.
       have := almost_eq_truncate l2.
       have /almost_eq_sym := almost_eq_truncate l1.
-      rewrite E.
+      rw E.
       by apply: almost_eq_trans.
   Qed.
       
@@ -137,12 +137,12 @@ Module SBTM_facts.
       apply: almost_eq_tape_trans; [|by apply: almost_eq_tape_truncate_tape].
       apply: almost_eq_tape_sym.
       apply: almost_eq_tape_trans; [|by apply: almost_eq_tape_truncate_tape].
-      rewrite E.
+      rw E.
       by apply: almost_eq_tape_refl.
     - move=> E.
       destruct E as [????? E1 E2]. unfold truncate_tape.
       apply almost_eq_truncate_iff in E1, E2.
-      now rewrite E1 E2.
+      now rw E1 E2.
   Qed.
 
   #[local] Opaque step.
@@ -368,85 +368,85 @@ Section Construction.
   Proof.
     move=> Hq. case: t.
     - (* case niltape *)
-      rewrite /TM_facts.step.
+      rw /TM_facts.step.
       move E: (TM.trans _) => [q' a']. move: E.
-      rewrite (Vector.eta a') /TM_facts.current_chars /=.
+      rw (Vector.eta a') /TM_facts.current_chars /=.
       move: (Vector.hd a') => [ob m] /=.
       case: m ob.
       + (* case Lmove *)
         move=> [b|] /= E.
-        * exists 1. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
-        * exists 3. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rw /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 3. by do ? rw /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
       + (* case Rmove *)
         move=> [b|] /= E.
-        * exists 3. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
-        * exists 3. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 3. by do ? rw /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 3. by do ? rw /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
       + (* case Nmove *)
         move=> [b|] /= E.
-        * exists 1. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
-        * exists 1. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rw /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rw /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
     - (* case leftof *)
       move=> a rs.
-      rewrite /TM_facts.step.
+      rw /TM_facts.step.
       move E: (TM.trans _) => [q' a']. move: E.
-      rewrite (Vector.eta a') /TM_facts.current_chars /=.
+      rw (Vector.eta a') /TM_facts.current_chars /=.
       move: (Vector.hd a') => [ob m] /=.
       case: m ob.
       + (* case Lmove *)
         move=> [b|] /= E.
-        * exists 1. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
-        * exists 3. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rw /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 3. by do ? rw /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
       + (* case Rmove *)
         move=> [b|] /= E.
-        * exists 3. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
-        * exists 3. do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 3. by do ? rw /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 3. do ? rw /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
           by case: a.
       + (* case Nmove *)
         move=> [b|] /= E.
-        * exists 1. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
-        * exists 1. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rw /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rw /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
     - (* case rightof *)
       move=> a ls.
-      rewrite /TM_facts.step.
+      rw /TM_facts.step.
       move E: (TM.trans _) => [q' a']. move: E.
-      rewrite (Vector.eta a') /TM_facts.current_chars /=.
+      rw (Vector.eta a') /TM_facts.current_chars /=.
       move: (Vector.hd a') => [ob m] /=.
       case: m ob.
       + (* case Lmove *)
         move=> [b|] /= E.
-        * exists 1. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
-        * exists 3. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rw /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 3. by do ? rw /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
       + (* case Rmove *)
         move=> [b|] /= E.
-        * exists 3. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
-        * exists 3. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 3. by do ? rw /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 3. by do ? rw /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
       + (* case Nmove *)
         move=> [b|] /= E.
-        * exists 1. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
-        * exists 1. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rw /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rw /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
     - (* case midtape *)
       move=> ls a rs.
-      rewrite /TM_facts.step.
+      rw /TM_facts.step.
       move E: (TM.trans _) => [q' a']. move: E.
-      rewrite (Vector.eta a') /TM_facts.current_chars /=.
+      rw (Vector.eta a') /TM_facts.current_chars /=.
       move: (Vector.hd a') => [ob m] /=.
       case: m ob.
       + (* case Lmove *)
         move=> [b|] /= E.
-        * exists 1. do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
-          move: ls => [|l ls]; by do ? rewrite construct_trans_spec decode_encode_space.
-        * exists 1. do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
-          move: ls => [|l ls]; by do ? rewrite /= construct_trans_spec decode_encode_space.
+        * exists 1. do ? rw /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+          move: ls => [|l ls]; by do ? rw construct_trans_spec decode_encode_space.
+        * exists 1. do ? rw /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+          move: ls => [|l ls]; by do ? rw /= construct_trans_spec decode_encode_space.
       + (* case Rmove *)
         move=> [b|] /= E.
-        * exists 3. do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
-          move: rs => [|r rs]; by do ? rewrite /= construct_trans_spec decode_encode_space.
-        * exists 3. do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
-          move: rs => [|r rs]; by do ? rewrite /= construct_trans_spec decode_encode_space.
+        * exists 3. do ? rw /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+          move: rs => [|r rs]; by do ? rw /= construct_trans_spec decode_encode_space.
+        * exists 3. do ? rw /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+          move: rs => [|r rs]; by do ? rw /= construct_trans_spec decode_encode_space.
       + (* case Nmove *)
         move=> [b|] /= E.
-        * exists 1. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
-        * exists 1. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rw /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rw /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
   Qed.
 
 
@@ -454,7 +454,7 @@ Section Construction.
     step (encode_state q, t) = None.
   Proof.
     move: t => [[? ?] ?] /= Hq.
-    by rewrite /= /step /= construct_trans_spec decode_encode_space ?Hq.
+    by rw /= /step /= construct_trans_spec decode_encode_space ?Hq.
   Qed.
 
   Lemma almost_eq_tape_step q q' t1 t t' :
@@ -478,12 +478,12 @@ Section Construction.
     - move=> ?? /= [<- <-]. by eexists.
     - move=> k IH q' t1.
       have ->: S k = k +1 by lia.
-      rewrite steps_plus /=.
+      rw steps_plus /=.
       move E: (steps k (q, t)) => [[??]|]; last done.
       move: E => /IH [?] [Hk] /= /almost_eq_tape_step /[apply].
       move=> [t''] [??].
       exists t''. split; last done.
-      by rewrite steps_plus Hk.
+      by rw steps_plus Hk.
   Qed.
 
   Lemma simulation_output q q' t t' t''':
@@ -496,15 +496,15 @@ Section Construction.
   Proof.
     move=> /TM_facts.TM_eval_iff [n].
     elim: n q t q' t' t'''.
-    { move=> q t q' t' t'''. rewrite /= /TM_facts.haltConf /=.
+    { move=> q t q' t' t'''. rw /= /TM_facts.haltConf /=.
       case E: (TM.halt q) => [|]; last done.
       move: E => /simulation_halt => /(_ t''') H [<- <-] ?.
       by exists 0, t'''. }
-    move=> n IH q t q' t' t'''. rewrite /= /TM_facts.haltConf /=.
+    move=> n IH q t q' t' t'''. rw /= /TM_facts.haltConf /=.
     case E: (TM.halt q) => [|].
     { move: E => /simulation_halt => /(_ t''') H [<- <-] ?.
       by exists 0, t'''. }
-    rewrite (Vector.eta t).
+    rw (Vector.eta t).
     move: E => /simulation_step => /(_ (Vector.hd t)) [k1].
     move: (VectorDef.tl t). apply: Vector.case0.
     move: (TM_step _) => [q'' ts''].
@@ -515,9 +515,9 @@ Section Construction.
     move=> [/[dup] + ->].
     move=> /almost_eq_tape_steps H'k2 /= [Hk2 ?] [Hk1].
     move=> /[dup] /H'k2 [t8] [H''k2 ?] ?.
-    exists ((S k1) + k2), t8. rewrite (steps_plus) /= Hk1 /=.
+    exists ((S k1) + k2), t8. rw (steps_plus) /= Hk1 /=.
     split; [done|split].
-    - rewrite H''k2 /=.
+    - rw H''k2 /=.
       apply: (almost_eq_tape_step_None M') Hk2.
       by apply: almost_eq_tape_sym.
     - apply: almost_eq_tape_trans; eassumption.
@@ -549,7 +549,7 @@ Section Construction.
     move=> [] -> -> /steps_truncate_tape_None /IH.
     move=> [q'''] [t'''] /TM_facts.TM_eval_iff [n Hn].
     exists q''', t'''. apply /TM_facts.TM_eval_iff. exists (S n).
-    rewrite /= /TM_facts.haltConf Hq -Hn -E (Vector.eta t) /=.
+    rw /= /TM_facts.haltConf Hq -Hn -E (Vector.eta t) /=.
     move: (Vector.tl t). by apply: Vector.case0.
   Qed.
 

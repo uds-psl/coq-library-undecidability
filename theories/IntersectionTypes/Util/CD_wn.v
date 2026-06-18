@@ -69,7 +69,7 @@ Proof.
     - move=> > ?? [] -> _. by econstructor; [apply: rt_refl|]. }
   move=> > [].
   - move=> > IH ?? [??]. subst.
-    move: IH. rewrite subst_as_ren.
+    move: IH. rw subst_as_ren.
     by move=> /clos_rt_rt1n_iff /wn_intro /[apply] /wn_ren /wn_lam.
   - move=> > ?? IH ? [??]. subst.
     move: (IH _ eq_refl) => /[apply].

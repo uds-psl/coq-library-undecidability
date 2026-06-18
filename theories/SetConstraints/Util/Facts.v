@@ -20,17 +20,17 @@ Proof. auto. Qed.
 Lemma count_occ_cons {X : Type} {D : forall x y : X, {x = y} + {x <> y}} {A a c} :
   count_occ D (a :: A) c = count_occ D (locked [a]) c + count_occ D A c.
 Proof.
-  rewrite /count_occ /is_left -lock. by case: (D a c).
+  rw /count_occ /is_left -lock. by case: (D a c).
 Qed.
 
 Lemma seq_last start length : seq start (S length) = (seq start length) ++ [start + length].
 Proof.
-  by rewrite -/(1 + length) (Nat.add_comm 1 length) seq_app.
+  by rw -/(1 + length) (Nat.add_comm 1 length) seq_app.
 Qed.
 
 (* Permutation facts *)
 Ltac Permutation_trivial :=
-  apply /(Permutation_count_occ Nat.eq_dec) => ?; rewrite ?(count_occ_app, count_occ_cons); lia.
+  apply /(Permutation_count_occ Nat.eq_dec) => ?; rw ?(count_occ_app, count_occ_cons); lia.
 
 Lemma Permutation_refl' {X : Type} (l l' : list X) : l = l' -> Permutation l l'.
 Proof. by move=> ->. Qed.

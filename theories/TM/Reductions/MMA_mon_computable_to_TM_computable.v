@@ -55,8 +55,8 @@ Lemma vec_Forall2_forall {X Y : Type} {P : X -> Y -> Prop} {n : nat} {v : Vector
 Proof.
   split.
   - elim: v w.
-    + move=> w ?. rewrite (vec_0_nil w). by constructor.
-    + move=> > IH w. rewrite (Vector.eta w) => IH'. constructor.
+    + move=> w ?. rw (vec_0_nil w). by constructor.
+    + move=> > IH w. rw (Vector.eta w) => IH'. constructor.
       * by apply: (IH' pos0).
       * apply: IH => i.
         by apply: (IH' (pos_nxt i)).
@@ -178,11 +178,11 @@ Lemma to_nat_toAddress {l instr r} :
   M = l ++ instr :: r ->
   sval (Fin.to_nat (toAddress (S (length l)))) = S (length l).
 Proof.
-  move=> HM. rewrite /toAddress /=.
+  move=> HM. rw /toAddress /=.
   case: (le_lt_dec maxState (S (length l))).
   - move: HM => /(f_equal (@length _)).
-    rewrite length_app /=. lia.
-  - move=> ?. by rewrite Fin.to_nat_of_nat.
+    rw length_app /=. lia.
+  - move=> ?. by rw Fin.to_nat_of_nat.
 Qed.
 
 Lemma sync_inc p v i ts :
@@ -191,25 +191,25 @@ Lemma sync_inc p v i ts :
   sync (p, vec_change v i (S (Vector.nth v i))) (TM_facts.mk_mconfig (toState false p) (inc_bs i ts)).
 Proof.
   move=> H0vts /vec_Forall2_forall Hvts. apply: sync_intro.
-  - rewrite /inc_bs. apply /vec_Forall2_forall => j.
+  - rw /inc_bs. apply /vec_Forall2_forall => j.
     have [<-|Hij] := pos_eq_dec i j.
-    + rewrite /TM_facts.doAct_multi.
-      rewrite !TM_facts.nth_map2'.
-      rewrite -!vec_pos_nth_eq.
-      rewrite !(vec_change_eq _ _ erefl).
-      rewrite !vec_pos_nth_eq.
+    + rw /TM_facts.doAct_multi.
+      rw !TM_facts.nth_map2'.
+      rw -!vec_pos_nth_eq.
+      rw !(vec_change_eq _ _ erefl).
+      rw !vec_pos_nth_eq.
       move: (Vector.nth v i) (Vector.nth ts i) (Hvts i).
       move=> ? ? [] [|?].
       * by apply: (encodes_counter_intro _ 0).
       * by apply: encodes_counter_intro.
-    + rewrite /TM_facts.doAct_multi.
-      rewrite !TM_facts.nth_map2'.
-      rewrite -!vec_pos_nth_eq.
-      rewrite !(vec_change_neq _ _ Hij).
-      rewrite !vec_pos_nth_eq !TM_facts.nth_nop_action.
+    + rw /TM_facts.doAct_multi.
+      rw !TM_facts.nth_map2'.
+      rw -!vec_pos_nth_eq.
+      rw !(vec_change_neq _ _ Hij).
+      rw !vec_pos_nth_eq !TM_facts.nth_nop_action.
       by apply: Hvts.
-  - rewrite /inc_bs.
-    move: H0vts. rewrite (Vector.eta v) (Vector.eta ts).
+  - rw /inc_bs.
+    move: H0vts. rw (Vector.eta v) (Vector.eta ts).
     have [->|[j ->]] := pos_S_inv i.
     + move=> /= ->. by case: (VectorDef.hd v) => /=.
     + by move=> /= ->.
@@ -223,24 +223,24 @@ Lemma sync_dec_0 p v i ts :
   sync (p, v) (TM_facts.mk_mconfig (toState false p) (dec_bs i ts)).
 Proof.
   move=> H0vts /vec_Forall2_forall Hvts Hvi Hi. apply: sync_intro.
-  - rewrite /dec_bs. apply /vec_Forall2_forall => j.
+  - rw /dec_bs. apply /vec_Forall2_forall => j.
     have [<-|Hij] := pos_eq_dec i j.
-    + rewrite /TM_facts.doAct_multi.
-      rewrite !TM_facts.nth_map2'.
-      rewrite -!vec_pos_nth_eq.
-      rewrite !(vec_change_eq _ _ erefl).
-      rewrite !vec_pos_nth_eq.
+    + rw /TM_facts.doAct_multi.
+      rw !TM_facts.nth_map2'.
+      rw -!vec_pos_nth_eq.
+      rw !(vec_change_eq _ _ erefl).
+      rw !vec_pos_nth_eq.
       move: (Vector.nth v i) (Vector.nth ts i) Hvi (Hvts i).
       move=> > -> [] m.
       by apply: (encodes_counter_intro _ (S m)).
-    + rewrite /TM_facts.doAct_multi.
-      rewrite !TM_facts.nth_map2'.
-      rewrite -!vec_pos_nth_eq.
-      rewrite !(vec_change_neq _ _ Hij).
-      rewrite !vec_pos_nth_eq !TM_facts.nth_nop_action.
+    + rw /TM_facts.doAct_multi.
+      rw !TM_facts.nth_map2'.
+      rw -!vec_pos_nth_eq.
+      rw !(vec_change_neq _ _ Hij).
+      rw !vec_pos_nth_eq !TM_facts.nth_nop_action.
       by apply: Hvts.
-  - rewrite /dec_bs.
-    move: H0vts Hi. rewrite (Vector.eta v) (Vector.eta ts).
+  - rw /dec_bs.
+    move: H0vts Hi. rw (Vector.eta v) (Vector.eta ts).
     have [->|[j ->]] := pos_S_inv i.
     + done.
     + by move=> /= ->.
@@ -254,24 +254,24 @@ Lemma sync_dec_S p v i ts k :
   sync (p, vec_change v i k) (TM_facts.mk_mconfig (toState false p) (dec_bs i ts)).
 Proof.
   move=> H0vts /vec_Forall2_forall Hvts Hvi Hi. apply: sync_intro.
-  - rewrite /dec_bs. apply /vec_Forall2_forall => j.
+  - rw /dec_bs. apply /vec_Forall2_forall => j.
     have [<-|Hij] := pos_eq_dec i j.
-    + rewrite /TM_facts.doAct_multi.
-      rewrite !TM_facts.nth_map2'.
-      rewrite -!vec_pos_nth_eq.
-      rewrite !(vec_change_eq _ _ erefl).
-      rewrite !vec_pos_nth_eq.
+    + rw /TM_facts.doAct_multi.
+      rw !TM_facts.nth_map2'.
+      rw -!vec_pos_nth_eq.
+      rw !(vec_change_eq _ _ erefl).
+      rw !vec_pos_nth_eq.
       move: (Vector.nth v i) (Vector.nth ts i) Hvi (Hvts i).
       move=> > -> [] m.
       by apply: (encodes_counter_intro _ (S m)).
-    + rewrite /TM_facts.doAct_multi.
-      rewrite !TM_facts.nth_map2'.
-      rewrite -!vec_pos_nth_eq.
-      rewrite !(vec_change_neq _ _ Hij).
-      rewrite !vec_pos_nth_eq !TM_facts.nth_nop_action.
+    + rw /TM_facts.doAct_multi.
+      rw !TM_facts.nth_map2'.
+      rw -!vec_pos_nth_eq.
+      rw !(vec_change_neq _ _ Hij).
+      rw !vec_pos_nth_eq !TM_facts.nth_nop_action.
       by apply: Hvts.
-  - rewrite /dec_bs.
-    move: H0vts Hi. rewrite (Vector.eta v) (Vector.eta ts).
+  - rw /dec_bs.
+    move: H0vts Hi. rw (Vector.eta v) (Vector.eta ts).
     have [->|[j ->]] := pos_S_inv i.
     + done.
     + by move=> /= ->.
@@ -283,7 +283,7 @@ Lemma current_chars_act k (ts : Vector.t (tape Σ) k) i actions action :
 Proof.
   elim: ts i actions. { by apply: Fin.case0. }
   move=> t ? ts IH i actions.
-  rewrite (Vector.eta actions).
+  rw (Vector.eta actions).
   have [->|[j ->]] := pos_S_inv i.
   - done.
   - by apply: IH.
@@ -319,13 +319,13 @@ Proof using M_mon.
     + cbn. 
       have := to_nat_toAddress HM.
       by case: (toAddress (S (length l))).
-    + by rewrite /TM_facts.step /= (to_nat_toAddress HM) (split_nth_error HM).
+    + by rw /TM_facts.step /= (to_nat_toAddress HM) (split_nth_error HM).
     + done.
-    + by rewrite /TM_facts.step /= (to_nat_toAddress HM) (split_nth_error HM).
-    + rewrite vec_pos_nth_eq. by apply: sync_inc.
+    + by rw /TM_facts.step /= (to_nat_toAddress HM) (split_nth_error HM).
+    + rw vec_pos_nth_eq. by apply: sync_inc.
   - (* dec_0 *)
     move=> ? x q v' Hx HM [<- ?]. subst v'.
-    rewrite vec_pos_nth_eq in Hx.
+    rw vec_pos_nth_eq in Hx.
     move: s' => [p ts] /syncE [Hvts [E0 ->]].
     exists (TM_facts.mk_mconfig (toState false (1 + (1 + (length l)))) (dec_bs x ts)).
     move: (HM) => /M_mon ?.
@@ -333,16 +333,16 @@ Proof using M_mon.
     + cbn.
       have := to_nat_toAddress HM.
       by case: (toAddress (S (length l))).
-    + by rewrite /TM_facts.step /= (to_nat_toAddress HM) (split_nth_error HM).
+    + by rw /TM_facts.step /= (to_nat_toAddress HM) (split_nth_error HM).
     + done.
-    + rewrite /TM_facts.step /= (to_nat_toAddress HM) (split_nth_error HM).
-      rewrite current_chars_act.
+    + rw /TM_facts.step /= (to_nat_toAddress HM) (split_nth_error HM).
+      rw current_chars_act.
       have [? ->] := Vector_nth_tapes x Hvts.
-      by rewrite Hx /=.
+      by rw Hx /=.
     + by apply: sync_dec_0.
   - (* dec_1 *)
     move=> ? x q v' ? Hx HM [<- ?]. subst v'.
-    rewrite vec_pos_nth_eq in Hx.
+    rw vec_pos_nth_eq in Hx.
     move: s' => [p ts] /syncE [Hvts [E0 ->]].
     exists (TM_facts.mk_mconfig (toState false q) (dec_bs x ts)).
     move: (HM) => /M_mon ?.
@@ -350,12 +350,12 @@ Proof using M_mon.
     + cbn.
       have := to_nat_toAddress HM.
       by case: (toAddress (S (length l))).
-    + by rewrite /TM_facts.step /= (to_nat_toAddress HM) (split_nth_error HM).
+    + by rw /TM_facts.step /= (to_nat_toAddress HM) (split_nth_error HM).
     + done.
-    + rewrite /TM_facts.step /= (to_nat_toAddress HM) (split_nth_error HM).
-      rewrite current_chars_act.
+    + rw /TM_facts.step /= (to_nat_toAddress HM) (split_nth_error HM).
+      rw current_chars_act.
       have [? ->] := Vector_nth_tapes x Hvts.
-      by rewrite Hx /=.
+      by rw Hx /=.
     + by apply: sync_dec_S.
 Qed.
 
@@ -374,11 +374,11 @@ Qed.
 Lemma halt'_terminates s' : halt' (TM_facts.cstate s') = true -> Sim.terminates step2 s'.
 Proof.
   move:s' => [[[] p] ts] /=; [done|].
-  rewrite /halt' /=.
+  rw /halt' /=.
   have [->|[q ->]] := pos_S_inv p; [|done].
-  rewrite Nat.eqb_refl /= => _. eexists.
+  rw Nat.eqb_refl /= => _. eexists.
   split; [apply: rt_refl|].
-  move=> {}t' /=. rewrite Nat.eqb_refl. by case.
+  move=> {}t' /=. rw Nat.eqb_refl. by case.
 Qed.
 
 Lemma terminates2I k {s' t' : TM_facts.mconfig Σ (state P) (S n)} :
@@ -410,9 +410,9 @@ Lemma terminates2E {s' t' : TM_facts.mconfig Σ (state P) (S n)} :
 Proof.
   move=> /clos_rt_rt1n_iff. elim.
   - move=> {}s' /stuck_step2E Hs'.
-    exists 0. by rewrite /= Hs'.
+    exists 0. by rw /= Hs'.
   - move=> > [E ->] _ /[apply] - [k] ?.
-    exists (S k). by rewrite /= E.
+    exists (S k). by rw /= E.
 Qed.
 
 #[local] Transparent toAddress.
@@ -423,13 +423,13 @@ Lemma stuck_step2I {s s'} :
   Sim.stuck step2 s'.
 Proof.
   case => i v bs _ _ /= Hi t' /=.
-  rewrite /halt' /= /toAddress.
+  rw /halt' /= /toAddress.
   case: (le_lt_dec maxState i) => /=.
-  { rewrite Nat.eqb_refl => ?. by case. }
+  { rw Nat.eqb_refl => ?. by case. }
   move=> H'i. have ? : i = 0 by lia. subst i.
   suff -> : Fin.of_nat_lt H'i = pos0.
-  { rewrite Nat.eqb_refl. by case. }
-  rewrite [RHS](esym (Fin.of_nat_to_nat_inv pos0)).
+  { rw Nat.eqb_refl. by case. }
+  rw [RHS](esym (Fin.of_nat_to_nat_inv pos0)).
   by apply: Fin.of_nat_ext.
 Qed.
 
@@ -478,12 +478,12 @@ Proof.
     move: (Hst') Hc => /stuck_step2I /[apply] /terminates2E /[apply].
     move=> [n] Hn. exists p', b's. split.
     + apply /TM_facts.TM_eval_iff.
-      exists (S n) => /=. by rewrite P_init.
-    + move: Hst' => /syncE. rewrite (Vector.eta b's) /=.
+      exists (S n) => /=. by rw P_init.
+    + move: Hst' => /syncE. rw (Vector.eta b's) /=.
       by move=> [_ []].
   - move=> v q ts /TM_facts.TM_eval_iff [n HPn].
     apply: H3M. apply /(sss_terminates_iff (@mma_sss_total_ni _)).
     apply /(Sim.terminates_reflection (Sim.deterministic_uniformly_confluent _ (step2_det M)) (fstep M H1M) (sss_step_or_stuck (@mma_sss_total_ni _) 1 M) sync_init).
     move: n HPn => [|n]. { done. }
-    rewrite /= P_init. by apply: terminates2I.
+    rw /= P_init. by apply: terminates2I.
 Qed.

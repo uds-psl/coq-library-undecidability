@@ -72,12 +72,12 @@ Lemma subcode_nth_compose i j codes offset :
 Proof.
   move=> -> /=.
   elim: codes i offset => /=.
-  { rewrite /compose. by move=> [|i] /=; exists nil, nil; rewrite /= Nat.add_0_r. }
+  { rw /compose. by move=> [|i] /=; exists nil, nil; rw /= Nat.add_0_r. }
   move=> code codes IH [|i] offset /=.
-  - eexists nil, _. by rewrite /= Nat.add_0_r.
+  - eexists nil, _. by rw /= Nat.add_0_r.
   - have [l [r [-> Hl]]] := IH i (length (code offset) + offset).
-    eexists (code offset ++ l), _. rewrite !length_app. split; [|lia].
-    rewrite -!app_assoc. do 3 congr app. congr (nth i codes). lia.
+    eexists (code offset ++ l), _. rw !length_app. split; [|lia].
+    rw -!app_assoc. do 3 congr app. congr (nth i codes). lia.
 Qed.
 
 (* uses uniform subproc compose structure *)
@@ -112,7 +112,7 @@ Proof.
   suff -> : list_sum (firstn i lengths) = length (compose (firstn i codes) offset) by apply: compose_sss_compute_trans.
   elim: Hcl i offset. { by case. }
   move=> c l {}codes {}lengths Hcl _ IH [|i] offset. { done. }
-  by rewrite /= length_app -IH Hcl.
+  by rw /= length_app -IH Hcl.
 Qed.
 
 Lemma length_compose {codes lengths offset} :
@@ -121,7 +121,7 @@ Lemma length_compose {codes lengths offset} :
 Proof.
   move=> H. elim: H offset; [done|].
   move=> c l {}codes {}lengths Hcl _ IH offset.
-  by rewrite /= length_app Hcl IH.
+  by rw /= length_app Hcl IH.
 Qed.
 
 Arguments compose : simpl never.
@@ -136,7 +136,7 @@ Lemma INC_spec X v offset :
     (1 + offset, vec_change v X (S (vec_pos v X))).
 Proof.
   exists 1. apply: in_sss_steps_S; [|by apply: in_sss_steps_0].
-  eexists offset, nil, _, nil, v. rewrite /= Nat.add_0_r.
+  eexists offset, nil, _, nil, v. rw /= Nat.add_0_r.
   by split; [|split;[|constructor]].
 Qed.
 
@@ -152,7 +152,7 @@ Lemma DEC_spec X p v offset :
     end.
 Proof.
   exists 1. apply: in_sss_steps_S; [|by apply: in_sss_steps_0].
-  eexists offset, nil, _, nil, v. rewrite /= Nat.add_0_r.
+  eexists offset, nil, _, nil, v. rw /= Nat.add_0_r.
   split; [done|split;[done|]].
   case EX: (v#>X) => [|n]; by constructor.
 Qed.
@@ -169,9 +169,9 @@ Definition JMP_len := INC_len+DEC_len.
 Lemma JMP_spec A p v offset :
   (offset, JMP A p offset) // (offset, v) ->> (p, v).
 Proof.
-  rewrite /=. apply: (compose_sss_compute_trans 0). { by apply: INC_spec. }
-  rewrite /=. apply: (compose_sss_compute_trans 1). { by apply: DEC_spec. }
-  rewrite /= (vec_change_eq _ _ erefl) vec_change_idem vec_change_same.
+  rw /=. apply: (compose_sss_compute_trans 0). { by apply: INC_spec. }
+  rw /=. apply: (compose_sss_compute_trans 1). { by apply: DEC_spec. }
+  rw /= (vec_change_eq _ _ erefl) vec_change_idem vec_change_same.
   by apply sss_compute_refl.
 Qed.
 
@@ -190,12 +190,12 @@ Lemma JZ_spec X p v offset :
 Proof.
   case EX: (vec_pos v X) => [|n].
   - apply: (compose_sss_compute_trans 0). { by apply: DEC_spec. }
-    rewrite EX. apply: (compose_sss_compute_trans 1). { by apply: JMP_spec. }
+    rw EX. apply: (compose_sss_compute_trans 1). { by apply: JMP_spec. }
     by apply: sss_compute_refl.
   - apply: (compose_sss_compute_trans 0). { by apply: DEC_spec. }
-    rewrite EX. apply: (compose_sss_compute_trans 2). { by apply: INC_spec. }
+    rw EX. apply: (compose_sss_compute_trans 2). { by apply: INC_spec. }
     apply: sss_compute_refl'. congr pair.
-    by rewrite vec_change_idem vec_change_eq // vec_change_same'.
+    by rw vec_change_idem vec_change_eq // vec_change_same'.
 Qed.
 
 (* X := 0 *)
@@ -213,11 +213,11 @@ Proof.
   elim /(induction_ltof1 _ (fun w => vec_pos w X)) : v => v IH.
   case EX: (vec_pos v X) => [|n].
   { apply: (compose_sss_compute_trans 0). { by apply: DEC_spec. }
-    rewrite EX (vec_change_same' EX).
+    rw EX (vec_change_same' EX).
     by apply: sss_compute_refl. }
   apply: (compose_sss_compute_trans 0). { by apply: DEC_spec. }
-  rewrite EX. apply: sss_compute_trans. { apply: IH. by rewrite /= EX vec_change_eq. }
-  apply: sss_compute_refl'. by rewrite vec_change_idem.
+  rw EX. apply: sss_compute_trans. { apply: IH. by rw /= EX vec_change_eq. }
+  apply: sss_compute_refl'. by rw vec_change_idem.
 Qed.
 
 (* Y := X + Y; X := 0 *)
@@ -240,12 +240,12 @@ Proof.
   elim /(induction_ltof1 _ (fun w => vec_pos w X)) : v => v IH.
   case EX: (vec_pos v X) => [|n].
   { apply: (compose_sss_compute_trans 2). { by apply: DEC_spec. }
-    rewrite EX Nat.add_0_r vec_change_same (vec_change_same' EX).
+    rw EX Nat.add_0_r vec_change_same (vec_change_same' EX).
     by apply: sss_compute_refl. }
   apply: (compose_sss_compute_trans 2). { by apply: DEC_spec. }
-  rewrite EX. apply: (compose_sss_compute_trans 1). { by apply: INC_spec. }
-  apply: sss_compute_trans. { apply: IH. rewrite /= !(vec_norm HXY) EX. lia. }
-  apply: sss_compute_refl'. by rewrite !(vec_norm HXY) Nat.add_succ_comm.
+  rw EX. apply: (compose_sss_compute_trans 1). { by apply: INC_spec. }
+  apply: sss_compute_trans. { apply: IH. rw /= !(vec_norm HXY) EX. lia. }
+  apply: sss_compute_refl'. by rw !(vec_norm HXY) Nat.add_succ_comm.
 Qed.
 
 (* Y := X + Y; Z := X + Z; X := 0 *)
@@ -269,17 +269,17 @@ Proof.
   elim /(induction_ltof1 _ (fun w => vec_pos w X)) : v => v IH.
   case EX: (vec_pos v X) => [|n].
   { apply: (compose_sss_compute_trans 3). { by apply: DEC_spec. }
-    rewrite EX !Nat.add_0_r !vec_change_same (vec_change_same' EX).
+    rw EX !Nat.add_0_r !vec_change_same (vec_change_same' EX).
     by apply: sss_compute_refl. }
   apply: (compose_sss_compute_trans 3). { by apply: DEC_spec. }
-  rewrite EX. apply: (compose_sss_compute_trans 1). { by apply: INC_spec. }
+  rw EX. apply: (compose_sss_compute_trans 1). { by apply: INC_spec. }
   apply: (compose_sss_compute_trans 2). { by apply: INC_spec. }
-  apply: sss_compute_trans. { apply: IH. by rewrite /= !(vec_norm HXY) !(vec_norm HXZ) EX. }
+  apply: sss_compute_trans. { apply: IH. by rw /= !(vec_norm HXY) !(vec_norm HXZ) EX. }
   apply: sss_compute_refl'. congr pair.
   have [<-|HYZ] := pos_eq_dec Y Z.
-  - by rewrite !(vec_norm HXY) -!Nat.add_succ_comm.
-  - do 2 rewrite ?(vec_norm HXY) ?(vec_norm HXZ) ?(vec_norm HYZ).
-    by rewrite -!Nat.add_succ_comm.
+  - by rw !(vec_norm HXY) -!Nat.add_succ_comm.
+  - do 2 rw ?(vec_norm HXY) ?(vec_norm HXZ) ?(vec_norm HYZ).
+    by rw -!Nat.add_succ_comm.
 Qed.
 
 (* X := (X+X+1)*(2^Y); A := 0; Y := 0
@@ -314,24 +314,24 @@ Proof.
   apply: (compose_sss_compute_trans 2). { by apply: INC_spec. }
   apply: (compose_sss_compute_trans 3). { by apply: MOVE_spec. }
   apply: (compose_sss_compute_trans 4). { by apply: JMP_spec. }
-  rewrite !(vec_norm HX) !Nat.add_0_l.
+  rw !(vec_norm HX) !Nat.add_0_l.
   have -> : S ((v#>X) + (v#>X)) = (v#>X) + (v#>X) + 1 by lia.
   move: ((v#>X) + (v#>X) + 1).
   elim /(induction_ltof1 _ (fun w => vec_pos w Y)) : v => v IH x.
   case EY: (vec_pos v Y) => [|n].
   { apply: (compose_sss_compute_trans 7). { by apply: DEC_spec. }
-    rewrite !(vec_norm HY) !(vec_norm HXY) EY.
+    rw !(vec_norm HY) !(vec_norm HXY) EY.
     apply: sss_compute_refl'. congr pair.
-    by rewrite (vec_change_same' EY) /= Nat.mul_1_r. }
+    by rw (vec_change_same' EY) /= Nat.mul_1_r. }
   apply: (compose_sss_compute_trans 7). { by apply: DEC_spec. }
-  rewrite !(vec_norm HY) !(vec_norm HXY) EY.
+  rw !(vec_norm HY) !(vec_norm HXY) EY.
   apply: (compose_sss_compute_trans 5). { by apply: MOVE2_spec. }
   apply: (compose_sss_compute_trans 6). { by apply: MOVE_spec. }
-  do 2 rewrite ?(vec_norm HX) ?(vec_norm HY) ?(vec_norm HXY).
-  apply: sss_compute_trans. { apply: IH. by rewrite /= !(vec_norm HY) EY. }
+  do 2 rw ?(vec_norm HX) ?(vec_norm HY) ?(vec_norm HXY).
+  apply: sss_compute_trans. { apply: IH. by rw /= !(vec_norm HY) EY. }
   apply: sss_compute_refl'. congr pair.
-  rewrite ?(vec_norm HX) ?(vec_norm HY) ?(vec_norm HXY).
-  rewrite /=. do 2 congr vec_change. lia.
+  rw ?(vec_norm HX) ?(vec_norm HY) ?(vec_norm HXY).
+  rw /=. do 2 congr vec_change. lia.
 Qed.
 
 (* X := X/2 if X even goto p else continue *)
@@ -371,7 +371,7 @@ Qed.
 Lemma half_spec_even n m : half ((n + n + 1) * 2 ^ (S m)) = ((n + n + 1) * 2 ^ m, true).
 Proof.
   have := half_spec ((n + n + 1) * 2 ^ (S m)).
-  case: (half _) => k []; rewrite /= => ?; congr pair; lia.
+  case: (half _) => k []; rw /= => ?; congr pair; lia.
 Qed.
 
 Lemma HALF_spec A X p v offset :
@@ -384,30 +384,30 @@ Proof.
   apply: (compose_sss_compute_trans 0). { by apply: ZERO_spec. }
   apply: (compose_sss_compute_trans 1). { by apply: MOVE_spec. }
   apply: (compose_sss_compute_trans 2). { by apply: JMP_spec. }
-  rewrite !(vec_norm HX) Nat.add_0_l.
+  rw !(vec_norm HX) Nat.add_0_l.
   suff: forall w, (offset, HALF A X p offset) //
     (ZERO_len+MOVE_len+JMP_len+INC_len+offset, w) ->>
     (let '(m, b) := half (vec_pos w A) in (if b then p else HALF_len + offset,
       vec_change (vec_change w X (vec_pos w X+m)) A 0)).
   { move=> H. apply: sss_compute_trans; [apply: H|].
-    apply: sss_compute_refl'. rewrite !(vec_norm HX).
-    case: (half _) => [? ?]. by rewrite !(vec_norm HX). }
+    apply: sss_compute_refl'. rw !(vec_norm HX).
+    case: (half _) => [? ?]. by rw !(vec_norm HX). }
   elim /(induction_ltof1 _ (fun w => vec_pos w A)) => {}v IH.
   case EA: (vec_pos v A) => [|[|n]].
   - apply: (compose_sss_compute_trans 4). { by apply: DEC_spec. }
-    rewrite EA. apply: (compose_sss_compute_trans 5). { by apply: JMP_spec. }
-    rewrite Nat.add_0_r !(vec_norm HX) (vec_change_same' EA).
+    rw EA. apply: (compose_sss_compute_trans 5). { by apply: JMP_spec. }
+    rw Nat.add_0_r !(vec_norm HX) (vec_change_same' EA).
     by apply: sss_compute_refl.
   - apply: (compose_sss_compute_trans 4). { by apply: DEC_spec. }
-    rewrite EA. apply: (compose_sss_compute_trans 6). { by apply: DEC_spec. }
-    rewrite Nat.add_0_r !(vec_norm HX).
+    rw EA. apply: (compose_sss_compute_trans 6). { by apply: DEC_spec. }
+    rw Nat.add_0_r !(vec_norm HX).
     by apply: sss_compute_refl.
   - apply: (compose_sss_compute_trans 4). { by apply: DEC_spec. }
-    rewrite EA. apply: (compose_sss_compute_trans 6). { by apply: DEC_spec. }
-    rewrite vec_change_eq //. apply: (compose_sss_compute_trans 3). { by apply: INC_spec. }
-    apply: sss_compute_trans. { apply: IH. rewrite /= !(vec_norm HX) EA. lia. }
-    apply: sss_compute_refl'. rewrite !(vec_norm HX) /=.
-    case: (half n) => [m []]; congr pair; by rewrite !(vec_norm HX) Nat.add_succ_comm.
+    rw EA. apply: (compose_sss_compute_trans 6). { by apply: DEC_spec. }
+    rw vec_change_eq //. apply: (compose_sss_compute_trans 3). { by apply: INC_spec. }
+    apply: sss_compute_trans. { apply: IH. rw /= !(vec_norm HX) EA. lia. }
+    apply: sss_compute_refl'. rw !(vec_norm HX) /=.
+    case: (half n) => [m []]; congr pair; by rw !(vec_norm HX) Nat.add_succ_comm.
 Qed.
 
 (* IF X = (n+n+1)*2^m THEN X := n AND Y := m 
@@ -433,28 +433,28 @@ Proof.
   move=> /= H'X HX HY HXY.
   apply: (compose_sss_compute_trans 0). { by apply: JZ_spec. }
   have ->: vec_pos v X = S (vec_pos v X - 1).
-  { rewrite H'X. have := Nat.pow_nonzero 2 m. lia. }
+  { rw H'X. have := Nat.pow_nonzero 2 m. lia. }
   apply: (compose_sss_compute_trans 1). { by apply: ZERO_spec. }
   apply: (compose_sss_compute_trans 2). { by apply: JMP_spec. }
   suff: forall w, vec_pos w X = (n + n + 1) * 2 ^ m ->
     (offset, UNPACK A X Y offset) //
     ((JZ_len+ZERO_len+JMP_len+INC_len) + offset, w) ->>
     (UNPACK_len + offset, vec_change (vec_change (vec_change w X n) Y (m+vec_pos w Y)) A 0).
-  { move=> H. apply: sss_compute_trans. { apply: H. by rewrite !(vec_norm HXY). }
-    apply: sss_compute_refl'. congr pair. by rewrite !(vec_norm HXY) Nat.add_0_r. }
+  { move=> H. apply: sss_compute_trans. { apply: H. by rw !(vec_norm HXY). }
+    apply: sss_compute_refl'. congr pair. by rw !(vec_norm HXY) Nat.add_0_r. }
   elim: m {H'X}.
   { move=> w H'X.
     apply: (compose_sss_compute_trans 4). { by apply: HALF_spec. }
-    rewrite H'X half_spec_odd Nat.add_0_l !(vec_norm HXY).
+    rw H'X half_spec_odd Nat.add_0_l !(vec_norm HXY).
     by apply: sss_compute_refl. }
   move=> m IH w H'X.
   apply: (compose_sss_compute_trans 4). { by apply: HALF_spec. }
-  rewrite H'X half_spec_even.
+  rw H'X half_spec_even.
   apply: (compose_sss_compute_trans 3). { by apply: INC_spec. }
-  apply: sss_compute_trans. { apply: IH. by rewrite !(vec_norm HXY) !(vec_norm HX). }
+  apply: sss_compute_trans. { apply: IH. by rw !(vec_norm HXY) !(vec_norm HX). }
   apply: sss_compute_refl'. congr pair.
-  do ? rewrite ?(vec_norm HXY) ?(vec_norm HX) ?(vec_norm HY).
-  by rewrite Nat.add_succ_comm.
+  do ? rw ?(vec_norm HXY) ?(vec_norm HX) ?(vec_norm HY).
+  by rw Nat.add_succ_comm.
 Qed.
 
 Lemma UNPACK0_spec {A X Y v offset} :
@@ -463,7 +463,7 @@ Lemma UNPACK0_spec {A X Y v offset} :
 Proof.
   move=> H'X.
   apply: (compose_sss_compute_trans 0). { by apply: JZ_spec. }
-  rewrite H'X. by apply: sss_compute_refl.
+  rw H'X. by apply: sss_compute_refl.
 Qed.
 
 End FixCounters.

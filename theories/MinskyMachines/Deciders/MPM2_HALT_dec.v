@@ -146,7 +146,7 @@ Proof.
   move=> k + p' a' b' /=.
   case: (steps k (p, (a, b))) => [[p'' [a'' b'']]|]; last done.
   move=> /(_ p'' a'' b'' ltac:(done)) IH.
-  rewrite /= /(step _).
+  rw /= /(step _).
   case: (nth_error M (state (p'', (a'', b'')))); last done.
   case.
   - done.
@@ -163,18 +163,18 @@ Definition non_terminating x := forall k, steps k x <> None.
 
 Lemma steps_plus {k x k' y} :
   steps k x = Some y -> steps (k + k') x = steps k' y.
-Proof. by rewrite /steps Nat.add_comm /Nat.iter nat_rect_plus /= => ->. Qed.
+Proof. by rw /steps Nat.add_comm /Nat.iter nat_rect_plus /= => ->. Qed.
 
 Lemma reaches_plus_reaches {x y z} : reaches_plus x y -> reaches y z -> reaches_plus x z.
 Proof.
   move=> [k [? Hk]] [k' Hk']. exists (k+k'). split; first by lia.
-  by rewrite (steps_plus Hk).
+  by rw (steps_plus Hk).
 Qed.
 
 Lemma reaches_reaches_plus {x y z} : reaches x y -> reaches_plus y z -> reaches_plus x z.
 Proof.
   move=> [k Hk] [k' [? Hk']]. exists (k+k'). split; first by lia.
-  by rewrite (steps_plus Hk).
+  by rw (steps_plus Hk).
 Qed.
 
 Lemma reaches_plus_incl {x y} : reaches_plus x y -> reaches x y.
@@ -183,7 +183,7 @@ Proof. move=> [k [? Hk]]. by exists k. Qed.
 Lemma reaches_terminating {x y} : reaches x y -> terminating y -> terminating x.
 Proof.
   move=> [k Hk] [k' Hk']. exists (k+k').
-  by rewrite (steps_plus Hk).
+  by rw (steps_plus Hk).
 Qed.
 
 Lemma steps_k_monotone {k x} k' : steps k x = None -> k <= k' -> steps k' x = None.
@@ -198,14 +198,14 @@ Proof.
   move=> [k Hk] Hy k'.
   have [|->] : k' <= k \/ k' = k + (k' - k) by lia.
   - by move: Hk => + /steps_k_monotone H /H => ->.
-  - rewrite (steps_plus Hk). by apply: Hy.
+  - rw (steps_plus Hk). by apply: Hy.
 Qed.
 
 Lemma reaches_non_terminating' {x y} : reaches x y -> non_terminating x -> non_terminating y.
 Proof.
   move=> [k' Hk'] Hx k Hk.
   apply: (Hx (k' + k)).
-  by rewrite (steps_plus Hk').
+  by rw (steps_plus Hk').
 Qed.
 
 Lemma reaches_plus_state_bound {x y} : reaches_plus x y -> state x < l.
@@ -214,14 +214,14 @@ Proof.
   suff: not (l <= state x) by lia.
   move=> /nth_error_None Hx.
   move: Hk. have ->: k = S (k - 1) by lia.
-  by rewrite /= obind_oiter /step Hx oiter_None.
+  by rw /= obind_oiter /step Hx oiter_None.
 Qed.
 
 Lemma reaches_plus_trans {x y z} : reaches_plus x y -> reaches_plus y z -> reaches_plus x z.
 Proof. by move=> /reaches_plus_incl /reaches_reaches_plus H /H. Qed.
 
 Lemma reaches_trans {x y z} : reaches x y -> reaches y z -> reaches x z.
-Proof. move=> [k Hk] [k' Hk']. exists (k+k'). by rewrite (steps_plus Hk). Qed.
+Proof. move=> [k Hk] [k' Hk']. exists (k+k'). by rw (steps_plus Hk). Qed.
 
 (* a configuration (p, (a, b))
   is either halting or uniformly transitions into a configuration with one zero counter *)
@@ -231,83 +231,83 @@ Lemma next_waypoint p a b :
   { '(p', b') | forall n, exists k, 0 < k <= l - p /\ steps k (p, (a, n+b)) = Some (p', (0, n+b')) }.
 Proof.
   move Hn: (l - p) => n. elim: n p Hn a b.
-  { move=> p ? a b. left. left. exists 1. rewrite /= /step.
+  { move=> p ? a b. left. left. exists 1. rw /= /step.
     by have ->: nth_error M (state (p, (a, b))) = None
-      by (rewrite nth_error_None /=; lia). }
+      by (rw nth_error_None /=; lia). }
   move=> n IH p ? a b.
   case Hi: (nth_error M (state (p, (a, b)))) => [i|]; first last.
-  { left. left. exists 1. by rewrite /= /step Hi. }
+  { left. left. exists 1. by rw /= /step Hi. }
   move: i Hi => /= [].
-  - move=> Hi. left. left. exists 1. by rewrite /= /step Hi.
+  - move=> Hi. left. left. exists 1. by rw /= /step Hi.
   - case.
     + move=> Hi. left. right. exists (S p, a).
       move=> n'. exists 1. split; first by lia.
-      by rewrite /= /step /= Hi.
+      by rw /= /step /= Hi.
     + move=> Hi. right. exists (S p, b).
       move=> n'. exists 1. split; first by lia.
-      by rewrite /= /step /= Hi.
+      by rw /= /step /= Hi.
   - case.
     + move=> Hi.
       have [[|[[p' a'] HSp]]|[[p' b'] HSp]] := IH (S p) ltac:(lia) a (S b).
       * move=> /reaches_terminating HSp. left. left.
-        apply: HSp. exists 1. by rewrite /= /step Hi.
+        apply: HSp. exists 1. by rw /= /step Hi.
       * left. right. exists (p', a').
         move=> n'.
         have [k [? <-]] := (HSp n').
         exists (1+k). split; first by lia.
-        apply: steps_plus. by rewrite /= /step Hi.
+        apply: steps_plus. by rw /= /step Hi.
       * right. exists (p', b').
         move=> n'.
         have [k [? <-]] := (HSp n').
         exists (1+k). split; first by lia.
-        apply: steps_plus. by rewrite /= /step Hi Nat.add_succ_r.
+        apply: steps_plus. by rw /= /step Hi Nat.add_succ_r.
     + move=> Hi.
       have [[|[[p' a'] HSp]]|[[p' b'] HSp]] := IH (S p) ltac:(lia) (S a) b.
       * move=> /reaches_terminating HSp. left. left.
-        apply: HSp. exists 1. by rewrite /= /step Hi.
+        apply: HSp. exists 1. by rw /= /step Hi.
       * left. right. exists (p', a').
         move=> n'.
         have [k [? <-]] := (HSp n').
         exists (1+k). split; first by lia.
-        apply: steps_plus. by rewrite /= /step Hi Nat.add_succ_r.
+        apply: steps_plus. by rw /= /step Hi Nat.add_succ_r.
       * right. exists (p', b').
         move=> n'.
         have [k [? <-]] := (HSp n').
         exists (1+k). split; first by lia.
-        apply: steps_plus. by rewrite /= /step Hi.
+        apply: steps_plus. by rw /= /step Hi.
   - case=> q Hi.
     + move: b => [|b].
       { left. right. exists (q, a) => n'. exists 1. 
-        split; first by lia. by rewrite /= /step Hi. }
+        split; first by lia. by rw /= /step Hi. }
       have [[|[[p' a'] HSp]]|[[p' b'] HSp]] := IH (S p) ltac:(lia) a b.
       * move=> /reaches_terminating HSp. left. left.
-        apply: HSp. exists 1. by rewrite /= /step Hi.
+        apply: HSp. exists 1. by rw /= /step Hi.
       * left. right. exists (p', a').
         move=> n'.
         have [k [? <-]] := (HSp n').
         exists (1+k). split; first by lia.
-        apply: steps_plus. by rewrite /= /step Hi.
+        apply: steps_plus. by rw /= /step Hi.
       * right. exists (p', b').
         move=> n'.
         have [k [? <-]] := (HSp n').
         exists (1+k). split; first by lia.
-        apply: steps_plus. by rewrite /= /step Hi Nat.add_succ_r.
+        apply: steps_plus. by rw /= /step Hi Nat.add_succ_r.
     + move: a => [|a].
       { right. exists (q, b) => n'. exists 1. 
-        split; first by lia. by rewrite /= /step Hi. }
+        split; first by lia. by rw /= /step Hi. }
       have [[|[[p' a'] HSp]]|[[p' b'] HSp]] := IH (S p) ltac:(lia) a b.
       * move=> /reaches_terminating HSp. left. left.
-        apply: HSp. exists 1. by rewrite /= /step Hi.
+        apply: HSp. exists 1. by rw /= /step Hi.
       * left. right. exists (p', a').
         move=> n'.
         have [k [? <-]] := (HSp n').
         exists (1+k). split; first by lia.
-        apply: steps_plus. by rewrite /= /step Hi Nat.add_succ_r.
+        apply: steps_plus. by rw /= /step Hi Nat.add_succ_r.
       * right. exists (p', b').
         move=> n'.
         have [k [? <-]] := (HSp n').
         exists (1+k). split; first by lia.
-        apply: steps_plus. by rewrite /= /step Hi.
+        apply: steps_plus. by rw /= /step Hi.
 Qed.
 
 (* terminate or reach uniformly next config or reach small config *)
@@ -381,7 +381,7 @@ Proof.
   move=> [k [? Hk]]. elim; first done.
   move=> k' Hk'.
   move=> /(steps_k_monotone (k + k')) /(_ ltac:(lia)).
-  by rewrite (steps_plus Hk).
+  by rw (steps_plus Hk).
 Qed.
 
 Definition update {X : Type} (f : nat -> X) n x :=
@@ -401,32 +401,32 @@ Proof.
   move=> f IHG IHF. constructor => g Hgf.
   case: Hgf IHG IHF.
   - move=> {}f p c ? Hf IHG IHF.
-    apply: IHF. rewrite /F.
+    apply: IHF. rw /F.
     have /list_sum_map_lt : In p (seq 0 l) by (apply /in_seq; lia).
     apply.
     + move=> p''. case Hp'': (f p'') => [c''|].
-      * rewrite /update Hp''. by case: (Nat.eq_dec p'' p).
-      * rewrite /update Hp''. case: (Nat.eq_dec p'' p); lia.
-    + rewrite /update Hf. case: (Nat.eq_dec p p); lia.
+      * rw /update Hp''. by case: (Nat.eq_dec p'' p).
+      * rw /update Hp''. case: (Nat.eq_dec p'' p); lia.
+    + rw /update Hf. case: (Nat.eq_dec p p); lia.
   - move=> c' {}f p c Hl Hf ? IHG IHF.
     apply: IHG; first last.
     { move=> h Hh. apply: IHF.
       suff: F (update f p (Some c)) <= F f by lia.
       apply: list_sum_map_le.
       move=> p''. case Hp'': (f p'') => [c''|].
-      - rewrite /update Hp''. by case: (Nat.eq_dec p'' p).
-      - rewrite /update Hp''. case: (Nat.eq_dec p'' p); lia. }
-    rewrite /G.
+      - rw /update Hp''. by case: (Nat.eq_dec p'' p).
+      - rw /update Hp''. case: (Nat.eq_dec p'' p); lia. }
+    rw /G.
     have : In p (seq 0 l) by (apply /in_seq; lia).
     move=> /list_sum_map_lt. apply.
     + move=> p''. case Hp'': (f p'') => [c''|].
-      * rewrite /update. case: (Nat.eq_dec p'' p).
+      * rw /update. case: (Nat.eq_dec p'' p).
         ** move=> ?. subst. move: Hf Hp'' => -> []. lia.
-        ** rewrite Hp''. lia.
-      * rewrite /update. case: (Nat.eq_dec p'' p).
+        ** rw Hp''. lia.
+      * rw /update. case: (Nat.eq_dec p'' p).
         ** move=> ?. subst. by move: Hf Hp'' => ->.
-        ** rewrite Hp''. lia.
-    + rewrite /update Hf. by case: (Nat.eq_dec p p).
+        ** rw Hp''. lia.
+    + rw /update Hf. by case: (Nat.eq_dec p p).
 Qed.
 
 Lemma big_wf_a p a (f : nat -> option nat) :
@@ -443,7 +443,7 @@ Proof.
     set P := (_ + _ + _)%type.
     have HR : R (update f p (Some a)) f -> P.
     { move=> /IH /(_ p' a') /=. case; [|case|].
-      - move=> p''' a'''. rewrite /update.
+      - move=> p''' a'''. rw /update.
         case: (Nat.eq_dec p''' p).
         { by move=> -> [<-]. }
         move=> ? /Hf Hp''' n.
@@ -480,7 +480,7 @@ Proof.
     set P := (_ + _ + _)%type.
     have HR : R (update f p (Some b)) f -> P.
     { move=> /IH /(_ p' b') /=. case; [|case|].
-      - move=> p''' b'''. rewrite /update.
+      - move=> p''' b'''. rw /update.
         case: (Nat.eq_dec p''' p).
         { by move=> -> [<-]. }
         move=> ? /Hf Hp''' n.
@@ -542,7 +542,7 @@ Proof.
     { move=> [p [a b]].
       move: H1L => /Forall_forall H1L /H1L ?.
       apply /in_prod; [|apply /in_prod]; apply /in_seq; lia. }
-    move=> /H2L. rewrite ?length_prod ?length_seq. lia. }
+    move=> /H2L. rw ?length_prod ?length_seq. lia. }
   move=> n IH L ? p a b ? ? H1L H2L.
   have [[|]|[[p' [a' b']] [Hp ?]]] := next_small_waypoint p a b; [tauto|tauto|].
   have := In_dec _ (p, (a, b)) L. case.
@@ -592,7 +592,7 @@ Definition decide : Mpm2 * Config -> bool :=
 (* decision procedure correctness *)
 Lemma decide_spec : decider decide MPM2_HALT.
 Proof.
-  rewrite /decider /reflects /decide => - [M c].
+  rw /decider /reflects /decide => - [M c].
   case: (decision M c).
   - tauto.
   - move=> H. split; [by move=> [k /H] | done].

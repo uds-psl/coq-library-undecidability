@@ -155,12 +155,12 @@ Proof.
   move=> Hts. elim: s n.
   - move=> x n /boundE ? /=.
     have [?|?] : x < n \/ n <= x by lia.
-    + rewrite app_nth1. { by rewrite length_map length_seq. }
-      by rewrite map_nth seq_nth; [|constructor].
-    + rewrite app_nth2 length_map length_seq; [done|].
+    + rw app_nth1. { by rw length_map length_seq. }
+      by rw map_nth seq_nth; [|constructor].
+    + rw app_nth2 length_map length_seq; [done|].
       apply: (@bound_ge 0); [|lia].
       apply /closed_dcl.
-      rewrite (nth_indep _ _ (lam (var 0))); [lia|].
+      rw (nth_indep _ _ (lam (var 0))); [lia|].
       case: (nth_in_or_default (x - n) ts (lam # 0)).
       * move: Hts => /all_Forall /Forall_forall. by apply.
       * by move=> ->.
@@ -172,12 +172,12 @@ Lemma eclosed_closed_flatten x : eclosed x -> closed (flatten x).
 Proof.
   elim /(induction_ltof1 _ eterm_size) : x.
   move=> [ctx s] /= IH [Hs] Hctx.
-  apply /closed_dcl. apply: bound_subst_many; [|by rewrite length_map].
-  rewrite map_map.
+  apply /closed_dcl. apply: bound_subst_many; [|by rw length_map].
+  rw map_map.
   apply /all_Forall /Forall_forall => y Hy. apply: IH.
-  - rewrite /ltof /=.
+  - rw /ltof /=.
     move: Hy => /(@in_split eterm) [?] [?] ->.
-    rewrite map_app /= list_sum_app /= term_size_S. lia.
+    rw map_app /= list_sum_app /= term_size_S. lia.
   - move: Hctx => /all_Forall /Forall_forall. by apply.
 Qed.
 
@@ -198,13 +198,13 @@ Lemma subst_subst_many s n ts u : all (map closed ts) ->
   subst (subst_many s (S n) ts) n u = subst_many s n (u :: ts).
 Proof.
   move=> Hts. elim: s n.
-  - move=> x n. rewrite /subst_many.
+  - move=> x n. rw /subst_many.
     have -> : S n = n + 1 by lia.
-    rewrite seq_app /= map_app -app_assoc /=.
+    rw seq_app /= map_app -app_assoc /=.
     suff: forall k, subst (nth x (map var (seq k n) ++ (var (k+n)) :: ts) (var (k + x))) (k+n) u =
       nth x (map var (seq k n) ++ u :: ts) (var (k+x)) by apply.
     elim: n x.
-    + move=> [|x] k /=; [by rewrite Nat.eqb_refl|].
+    + move=> [|x] k /=; [by rw Nat.eqb_refl|].
       have : k + S x > k by lia.
       elim: ts Hts x (k + S x).
       * move=> _ [|x] ? /=; case Ek: (Nat.eqb _ _); move=> /Nat.eqb_spec in Ek; by [|lia].
@@ -212,9 +212,9 @@ Proof.
         by apply: IH.
     + move=> n IH [|x] k /=.
       * by case Ek: (Nat.eqb _ _); move=> /Nat.eqb_spec in Ek; [lia|].
-      * rewrite -!Nat.add_succ_comm. by apply: IH.
-  - move=> s IHs t IHt n /=. by rewrite IHs IHt.
-  - move=> s IHs n /=. by rewrite IHs.
+      * rw -!Nat.add_succ_comm. by apply: IH.
+  - move=> s IHs t IHt n /=. by rw IHs IHt.
+  - move=> s IHs n /=. by rw IHs.
 Qed.
 
 Lemma flatten_app xs s t : flatten (closure xs (app s t)) = app (flatten (closure xs s)) (flatten (closure xs t)).
@@ -242,8 +242,8 @@ Proof.
     move=> [?] [??]. by apply: IH.
   - move=> {}x xs n {}vs {}y _ IH.
     move=> [/bound_var_S_iff] /[dup] /boundE Hxsn ? [? ?].
-    rewrite flatten_var.
-    rewrite (nth_indep _ _ (var n)). { rewrite length_map. cbn. lia. }
+    rw flatten_var.
+    rw (nth_indep _ _ (var n)). { rw length_map. cbn. lia. }
     by apply: IH.
   - move=> xs s t {}vs {}y _ IH.
     move=> [/boundE] [??] ??. by apply: IH; [|constructor].
@@ -255,7 +255,7 @@ Proof.
     suff -> : subst (subst_many s 1 (map flatten xss)) 0 (lam (subst_many t 1 (map flatten xts))) =
       subst_many s 0 (lam (subst_many t 1 (map flatten xts)) :: map flatten xss) by apply: IH.
     apply subst_subst_many.
-    rewrite map_map. apply: all_map_impl Hxss.
+    rw map_map. apply: all_map_impl Hxss.
     by apply: eclosed_closed_flatten.
   - move=> {}xs s *. by apply: eval_abs.
 Qed.
@@ -268,8 +268,8 @@ Lemma flatten_closure_var_S x xs n :
   flatten (closure (x :: xs) (var (S n))) = flatten (closure xs (var n)).
 Proof.
   move=> ?.
-  rewrite !flatten_var /=.
-  apply: nth_indep. by rewrite length_map.
+  rw !flatten_var /=.
+  apply: nth_indep. by rw length_map.
 Qed.
 
 Definition flatten_future v :=
@@ -288,9 +288,9 @@ Qed.
 
 Lemma flatten_closure_var_bound xs x : (if flatten (closure xs (var x)) is var _ then False else True) -> x < length xs.
 Proof.
-  rewrite flatten_var.
+  rw flatten_var.
   move=> H. suff: not (length xs <= x) by lia.
-  move=> ?. by rewrite nth_overflow in H; [rewrite length_map|].
+  move=> ?. by rw nth_overflow in H; [rw length_map|].
 Qed.
 
 Lemma flatten_eq_var_S {xs s x' x's x} :
@@ -299,11 +299,11 @@ Lemma flatten_eq_var_S {xs s x' x's x} :
 Proof.
   move=> H.
   have := @flatten_closure_var_bound (x' :: x's) (S x).
-  rewrite -H [in _ = _]H.
+  rw -H [in _ = _]H.
   move: s {H} => [] /=.
   - done.
-  - move=> ?? /(_ Logic.I) ?. by rewrite flatten_closure_var_S; [lia|].
-  - move=> ? /(_ Logic.I) ?. by rewrite flatten_closure_var_S; [lia|].
+  - move=> ?? /(_ Logic.I) ?. by rw flatten_closure_var_S; [lia|].
+  - move=> ? /(_ Logic.I) ?. by rw flatten_closure_var_S; [lia|].
 Qed.
 
 Lemma eclosed_app xs s t : eclosed (closure xs (app s t)) -> eclosed (closure xs s) /\ eclosed (closure xs t).
@@ -339,7 +339,7 @@ Proof.
   move=> H. elim: H x2 vs2.
   - move=> {}x1 xs1 {}vs1 {}y1 ? IH x2 vs2 /= [? [??]] ???. by apply: IH.
   - move=> {}x1 xs1 n1 {}vs1 {}y1 /machine_var_bound ? IH x2 vs2.
-    rewrite flatten_closure_var_S. { done. }
+    rw flatten_closure_var_S. { done. }
     move=> /= [/bound_var_S_iff ? [??]].
     move=> /IH /[apply] /[apply] /[apply] /[apply]. by apply.
   - move=> xs1 s1 t1 {}vs1 {}y1 ? IH [xs2 u] vs2 Hs1t1 Hu Hvs1 Hvs2 ?.
@@ -347,17 +347,17 @@ Proof.
     move=> xs2 IH2 [].
     + move=> [|x2].
       * move: xs2 IH2 => [|[? ?] ?]; [done|].
-        move=> IH2 /eclosed_var_0 ?. rewrite flatten_var /=.
+        move=> IH2 /eclosed_var_0 ?. rw flatten_var /=.
         move=> /IH2.
-        apply: unnest. { rewrite /context_size /= term_size_S. lia. }
+        apply: unnest. { rw /context_size /= term_size_S. lia. }
         apply: unnest. { done. }
         apply: H' => y2 ?. by apply: machine_var_0.
       * move: xs2 IH2 => [|[? ?] ?]; [done|].
         move=> IH2 /eclosed_var_S ? /flatten_eq_var_S /IH2.
-        apply: unnest. { cbn. rewrite /list_sum term_size_S. lia. }
+        apply: unnest. { cbn. rw /list_sum term_size_S. lia. }
         apply: unnest. { done. }
         apply: H' => y2 ?. by apply: machine_var_S.
-    + move=> s2 t2. move: Hs1t1. rewrite !flatten_app.
+    + move=> s2 t2. move: Hs1t1. rw !flatten_app.
       move=> /eclosed_app [??] /eclosed_app [??].
       move=> [+ ?] => /IH => /(_ ((true, closure xs2 t2) :: vs2)).
       apply: unnest. { done. }
@@ -373,14 +373,14 @@ Proof.
     move=> xs2 IH2 [].
     + move=> [|x2].
       * move: xs2 IH2 => [|[? ?] ?]; [done|].
-        move=> IH2 /eclosed_var_0 ?. rewrite flatten_var /=.
+        move=> IH2 /eclosed_var_0 ?. rw flatten_var /=.
         move=> /IH2.
-        apply: unnest. { rewrite /context_size /= term_size_S. lia. }
+        apply: unnest. { rw /context_size /= term_size_S. lia. }
         apply: unnest. { done. }
         apply: H' => y2 ?. by apply: machine_var_0.
       * move: xs2 IH2 => [|[? ?] ?]; [done|].
         move=> IH2 /eclosed_var_S ? /flatten_eq_var_S /IH2.
-        apply: unnest. { cbn. rewrite /list_sum term_size_S. lia. }
+        apply: unnest. { cbn. rw /list_sum term_size_S. lia. }
         apply: unnest. { done. }
         apply: H' => y2 ?. by apply: machine_var_S.
     + done.
@@ -399,14 +399,14 @@ Proof.
     move=> xs2 IH2 [].
     + move=> [|x2].
       * move: xs2 IH2 => [|[? ?] ?]; [done|].
-        move=> IH2 /eclosed_var_0 ?. rewrite flatten_var /=.
+        move=> IH2 /eclosed_var_0 ?. rw flatten_var /=.
         move=> /IH2.
-        apply: unnest. { rewrite /context_size /= term_size_S. lia. }
+        apply: unnest. { rw /context_size /= term_size_S. lia. }
         apply: unnest. { done. }
         apply: H' => y2 ?. by apply: machine_var_0.
       * move: xs2 IH2 => [|[? ?] ?]; [done|].
         move=> IH2 /eclosed_var_S ? /flatten_eq_var_S /IH2.
-        apply: unnest. { cbn. rewrite /list_sum term_size_S. lia. }
+        apply: unnest. { cbn. rw /list_sum term_size_S. lia. }
         apply: unnest. { done. }
         apply: H' => y2 ?. by apply: machine_var_S.
     + done.
@@ -420,13 +420,13 @@ Proof.
       apply: unnest. { done. }
       apply: unnest. { done. }
       apply: unnest.
-      { move: (Hs). rewrite /flatten -/flatten /= Ht.
+      { move: (Hs). rw /flatten -/flatten /= Ht.
         move=> [].
-        rewrite -subst_subst_many.
-        { move: Hs1 => /= [?]. rewrite map_map.
+        rw -subst_subst_many.
+        { move: Hs1 => /= [?]. rw map_map.
           apply: all_map_impl. by apply: eclosed_closed_flatten. }
-        rewrite -subst_subst_many.
-        { move: Hxss2. rewrite map_map.
+        rw -subst_subst_many.
+        { move: Hxss2. rw map_map.
           apply: all_map_impl. by apply: eclosed_closed_flatten. }
         by move=> ->. }
       apply: H' => y2 ?. by apply: machine_lam_subst.
@@ -436,12 +436,12 @@ Proof.
     move=> xts2 IH2 [].
     + move=> [|x2].
       * move: xts2 IH2 => [|[? ?] ?]; [done|].
-        move=> IH2. rewrite flatten_var /=.
-        move=> /IH2. apply: unnest. { rewrite /context_size /= term_size_S. lia. }
+        move=> IH2. rw flatten_var /=.
+        move=> /IH2. apply: unnest. { rw /context_size /= term_size_S. lia. }
         apply: H' => y2 ?. by apply: machine_var_0.
       * move: xts2 IH2 => [|[? ?] ?]; [done|].
         move=> IH2 /flatten_eq_var_S /IH2.
-        apply: unnest. { cbn. rewrite /list_sum term_size_S. lia. }
+        apply: unnest. { cbn. rw /list_sum term_size_S. lia. }
         apply: H' => y2 ?. by apply: machine_var_S.
     + done.
     + move=> s2 ?. eexists. split; [eassumption|].
@@ -457,10 +457,10 @@ Inductive step' : term -> term -> Prop :=
 Lemma subst_many_nil s n : subst_many s n [] = s.
 Proof.
   elim: s n.
-  - move=> x n /=. rewrite app_nil_r map_nth. congr var.
+  - move=> x n /=. rw app_nil_r map_nth. congr var.
     have [?|?] : x < n \/ n <= x by lia.
     + by apply seq_nth.
-    + apply nth_overflow. by rewrite length_seq.
+    + apply nth_overflow. by rw length_seq.
   - by move=> /= ? + ? + ? => -> ->.
   - by move=> /= ? + ? => ->.
 Qed.
@@ -475,13 +475,13 @@ Proof.
   elim: s n.
   - move=> x n /=.
     have [?|[->|Hxn]] : x < n \/ x = n \/ (x - n = S (x - n - 1)) by lia.
-    + rewrite app_nth1. { by rewrite length_map length_seq. }
-      rewrite map_nth seq_nth. { done. }
+    + rw app_nth1. { by rw length_map length_seq. }
+      rw map_nth seq_nth. { done. }
       case E: (Nat.eqb _ _); move=> /Nat.eqb_spec in E; [lia|done].
-    + rewrite Nat.eqb_refl. by rewrite app_nth2 length_map length_seq ?Nat.sub_diag.
+    + rw Nat.eqb_refl. by rw app_nth2 length_map length_seq ?Nat.sub_diag.
     + case E: (Nat.eqb _ _); move=> /Nat.eqb_spec in E; [lia|].
-      rewrite app_nth2 length_map length_seq. { lia. }
-      rewrite Hxn /=. by case: (x - n - 1).
+      rw app_nth2 length_map length_seq. { lia. }
+      rw Hxn /=. by case: (x - n - 1).
   - by move=> ? + ? + ? /= => -> ->.
   - by move=> ? + ? /= => ->.
 Qed.
@@ -492,7 +492,7 @@ Proof.
   move=> H. elim: H vs y.
   - move=> {}s {}t vs y /closed_app [/closed_dcl /boundE Hs /closed_dcl Ht] Hvs IH.
     have : flatten (closure [] (subst s 0 (lam t))) = flatten (closure [closure [] (lam t)] s).
-    { rewrite /flatten -/flatten /= !flatten_term subst_many_nil. by apply: subst_subst_many_single. }
+    { rw /flatten -/flatten /= !flatten_term subst_many_nil. by apply: subst_subst_many_single. }
     move: IH => /machine_flatten_equiv /[apply] => /(_ vs).
     apply: unnest. { by split; [apply: closed_subst|]. }
     apply: unnest. { done. }
@@ -578,6 +578,6 @@ Proof.
   move=> Hs. split.
   - move=> /machine_simulation. by apply.
   - move=> [?] [+] /machine_inverse_simulation.
-    move=> ->. rewrite flatten_term.
+    move=> ->. rw flatten_term.
     move=> /closed_dcl in Hs. by apply.
 Qed.

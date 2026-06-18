@@ -102,7 +102,7 @@ Proof.
     move=> [ζ2 [s2 [k2 [? [? ?]]]]].
     exists (S (S (n1+n2))). apply: (der_var _ (ζ := ζ1) (s := s1) (k := S k1)).
     + done.
-    + rewrite (arguments_S Hk1). apply /Forall_app. constructor.
+    + rw (arguments_S Hk1). apply /Forall_app. constructor.
       * apply: Forall_impl; last eassumption.
         move=> ? /der_mon. apply. by lia.
       * constructor; last done. 

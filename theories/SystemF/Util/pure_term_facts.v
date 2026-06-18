@@ -37,8 +37,8 @@ Lemma allfv_pure_term_ren_pure_term {p ξ M} :
 Proof.
   elim: M ξ p.
   - done.
-  - move=> ? IH1 ? IH2 > /=. by rewrite IH1 IH2.
-  - move=> ? IH > /=. rewrite IH. constructor; apply: allfv_pure_term_impl; by case.
+  - move=> ? IH1 ? IH2 > /=. by rw IH1 IH2.
+  - move=> ? IH > /=. rw IH. constructor; apply: allfv_pure_term_impl; by case.
 Qed.
 
 Lemma allfv_pure_term_TrueI {p: nat -> Prop} {M} : (forall x, p x) -> allfv_pure_term p M.
@@ -55,12 +55,12 @@ Proof.
   elim: M.
   - done.
   - move=> /=. congruence.
-  - move=> /=. rewrite /upRen_pure_term_pure_term.
-    move=> > ?. under extRen_pure_term => ? do rewrite up_ren_id. by congruence.
+  - move=> /=. rw /upRen_pure_term_pure_term.
+    move=> > ?. under extRen_pure_term => ? do rw up_ren_id. by congruence.
 Qed.
 
 Lemma ren_pure_term_id' {ξ M} : (forall x, ξ x = x) -> ren_pure_term ξ M = M.
-Proof. move=> ?. rewrite -[RHS]ren_pure_term_id. by apply: extRen_pure_term. Qed.
+Proof. move=> ?. rw -[RHS]ren_pure_term_id. by apply: extRen_pure_term. Qed.
 
 Fixpoint pure_var_bound (M: pure_term) :=
   match M with

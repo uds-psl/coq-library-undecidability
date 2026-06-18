@@ -32,8 +32,8 @@ Lemma vec_app_spec {X n m} (v : Vector.t X n) (w : Vector.t X m) :
   vec_app v w = Vector.append v w.
 Proof.
   induction v.
-  - cbn. eapply vec_pos_ext. intros. now rewrite vec_pos_set.
-  - rewrite vec_app_cons. cbn. congruence.
+  - cbn. eapply vec_pos_ext. intros. now rw vec_pos_set.
+  - rw vec_app_cons. cbn. congruence.
 Qed.
 
 Lemma vec_set_const {X : Type} {n} {x : X} :
@@ -88,7 +88,7 @@ Definition M' : list (mm_instr (Fin.t (1 + k + (S k' + 1)))) :=
   map shift_instr M ++ [DEC r1 (4 + length M); INC r0; DEC rx (S (length M))].
 
 Lemma length_M' : length M' = 3 + (length M).
-Proof. by rewrite /M' length_app length_map Nat.add_comm. Qed.
+Proof. by rw /M' length_app length_map Nat.add_comm. Qed.
 
 Definition shift_regs (v : Vector.t nat (k + S k')) : Vector.t nat (1 + k + (S k' + 1)) :=
   vec_app (Vector.cons 0 (fst (vec_split k _ v))) (vec_app (snd (vec_split k _ v)) (Vector.cons 0 Vector.nil)).
@@ -97,26 +97,26 @@ Definition shift_regs (v : Vector.t nat (k + S k')) : Vector.t nat (1 + k + (S k
 
 Lemma vec_change_shift v x n : vec_change (shift_regs v) (shift_reg x) n = shift_regs (vec_change v x n).
 Proof.
-  rewrite /shift_regs /shift_reg.
-  rewrite [in RHS](eq_sym (pos.pos_lr_both _ _ x)).
+  rw /shift_regs /shift_reg.
+  rw [in RHS](eq_sym (pos.pos_lr_both _ _ x)).
   case: (pos.pos_both k (S k') x)=> {}x.
-  - rewrite vec_app_cons /= vec_app_cons vec_change_app_left.
+  - rw vec_app_cons /= vec_app_cons vec_change_app_left.
     have <- := vec_app_split _ _ v.
-    by rewrite !vec_change_app_left !vec_split_app.
-  - rewrite vec_app_cons /= vec_app_cons vec_change_app_right.
+    by rw !vec_change_app_left !vec_split_app.
+  - rw vec_app_cons /= vec_app_cons vec_change_app_right.
     have <- := vec_app_split _ _ v.
-    by rewrite !vec_change_app_right !vec_split_app (vec_change_app_left _ _ x).
+    by rw !vec_change_app_right !vec_split_app (vec_change_app_left _ _ x).
 Qed.
 
 Lemma vec_pos_shift v x : vec_pos (shift_regs v) (shift_reg x) = vec_pos v x.
 Proof.
-  rewrite /shift_regs /shift_reg.
-  rewrite [in RHS](eq_sym (pos.pos_lr_both _ _ x)).
+  rw /shift_regs /shift_reg.
+  rw [in RHS](eq_sym (pos.pos_lr_both _ _ x)).
   case: (pos.pos_both k (S k') x)=> {}x.
-  - by rewrite vec_app_cons /= vec_pos_app_left vec_pos_set.
-  - rewrite vec_app_cons /= vec_pos_app_right (vec_pos_app_left _ _ x).
+  - by rw vec_app_cons /= vec_pos_app_left vec_pos_set.
+  - rw vec_app_cons /= vec_pos_app_right (vec_pos_app_left _ _ x).
     pattern x. apply: Fin.caseS'; first done.
-    move=> {}x /=. by rewrite vec_pos_set. 
+    move=> {}x /=. by rw vec_pos_set. 
 Qed.
 
 Lemma simulation_sss_step st st' : 
@@ -124,22 +124,22 @@ Lemma simulation_sss_step st st' :
   sss_step (@mm_sss _) (1, M') (fst st, shift_regs (snd st)) (fst st', shift_regs (snd st')).
 Proof.
   move=> [c] [l] [instr] [r] [v] [[<- E]] [->] H.
-  rewrite /M'. rewrite [in map shift_instr _]E map_app /= -!app_assoc /=.
+  rw /M'. rw [in map shift_instr _]E map_app /= -!app_assoc /=.
   eexists _, _, _, _, _.
   split; first done.
-  split; first by rewrite length_map.
+  split; first by rw length_map.
   move: st' (instr) H=> [??] [].
   - move=> x /mm_sss_INC_inv [-> ->].
     have := in_mm_sss_inc (S (length l)) (shift_reg x) (shift_regs v).
-    by rewrite vec_change_shift vec_pos_shift.
+    by rw vec_change_shift vec_pos_shift.
   - move=> x j.
     move E': (vec_pos v x) => [|m].
     + move=> /(mm_sss_DEC0_inv E') [-> ->].
       have := in_mm_sss_dec_0 (S (length l)) (shift_reg x) j (shift_regs v).
-      rewrite !vec_pos_shift. by apply.
+      rw !vec_pos_shift. by apply.
     + move=> /(mm_sss_DEC1_inv E') [-> ->].
       have := @in_mm_sss_dec_1 _ (S (length l)) (shift_reg x) j (shift_regs v) m.
-      rewrite vec_change_shift !vec_pos_shift. by apply.
+      rw vec_change_shift !vec_pos_shift. by apply.
 Qed.
 
 Lemma simulation_sss_steps st st' : 
@@ -155,15 +155,15 @@ Qed.
 Lemma shift_regs_spec v :
   Vector.append (0 ## v) (Vector.const 0 (S k' + 1)) = shift_regs (vec_app v vec_zero).
 Proof.
-  rewrite /shift_regs /= -vec_app_spec vec_app_cons /=.
-  rewrite vec_split_app /= vec_app_cons.
+  rw /shift_regs /= -vec_app_spec vec_app_cons /=.
+  rw vec_split_app /= vec_app_cons.
   congr Vector.cons. congr vec_app. congr Vector.cons.
-  rewrite -!vec_set_const.
+  rw -!vec_set_const.
   apply: vec_pos_ext=> x.
-  rewrite vec_pos_set. pattern x.
+  rw vec_pos_set. pattern x.
   apply: pos.pos_left_right_rect=> {}x.
-  - by rewrite vec_pos_app_left vec_pos_set.
-  - rewrite vec_pos_app_right.
+  - by rw vec_pos_app_left vec_pos_set.
+  - rw vec_pos_app_right.
     pattern x. apply: Fin.caseS'; first done.
     by apply Fin.case0.
 Qed.
@@ -180,8 +180,8 @@ Proof.
   apply: vec_pos_ext=> x.
   pattern x.
   apply: pos.pos_left_right_rect=> {}x.
-  - by rewrite vec_pos_app_left.
-  - by rewrite vec_pos_app_right.
+  - by rw vec_pos_app_left.
+  - by rw vec_pos_app_right.
 Qed.
 
 Lemma simulation_fin n v m w :
@@ -193,35 +193,35 @@ Proof.
   - move=> n. apply: rt_trans.
     { apply: rt_step. eexists 1, _, (DEC r1 (4 + length M)), _, _.
       split; first done.
-      split; first by rewrite length_map.
+      split; first by rw length_map.
       apply: in_mm_sss_dec_0.
-      by rewrite vec_pos_app_right vec_pos_app_left. }
-    rewrite Nat.add_0_r. by apply: rt_refl.
+      by rw vec_pos_app_right vec_pos_app_left. }
+    rw Nat.add_0_r. by apply: rt_refl.
   - move=> m IH n.
     apply: rt_trans.
     { apply: rt_step. eexists 1, _, (DEC r1 (4 + length M)), _, _.
       split; first done.
-      split; first by rewrite length_map.
+      split; first by rw length_map.
       apply: in_mm_sss_dec_1.
-      by rewrite vec_pos_app_right vec_pos_app_left. }
+      by rw vec_pos_app_right vec_pos_app_left. }
     apply: rt_trans.
     { apply: rt_step. eexists 1, (_ ++ [_]), (INC r0), _, _.
-      rewrite -!app_assoc.
+      rw -!app_assoc.
       split; first done.
-      split; first by rewrite length_app length_map (Nat.add_comm (length M)).
+      split; first by rw length_app length_map (Nat.add_comm (length M)).
       by apply: in_mm_sss_inc. }
     apply: rt_trans.
     { apply: rt_step. eexists 1, (_ ++ [_; _]), (DEC rx (S (length M))), _, _.
-      rewrite -!app_assoc.
+      rw -!app_assoc.
       split; first done.
-      split; first by rewrite length_app length_map (Nat.add_comm (length M)).
+      split; first by rw length_app length_map (Nat.add_comm (length M)).
       apply: in_mm_sss_dec_0.
-      rewrite vec_change_neq; first done.
-      rewrite vec_change_neq; first by move=> /pos.pos_right_inj.
-      by rewrite !vec_pos_app_right. }
-    rewrite (Nat.add_succ_r n m).
+      rw vec_change_neq; first done.
+      rw vec_change_neq; first by move=> /pos.pos_right_inj.
+      by rw !vec_pos_app_right. }
+    rw (Nat.add_succ_r n m).
     have := IH (S n). congr clos_refl_trans. congr pair.
-    by rewrite vec_change_app_right !vec_change_app_left.
+    by rw vec_change_app_right !vec_change_app_left.
 Qed.
 
 #[local] Abbreviation step1 := (sss_step (@mm_sss _) (1, M)).
@@ -250,22 +250,22 @@ Theorem MuRec_computable_to_MM_computable k (R : Vector.t nat k -> nat -> Prop) 
   MuRec_computable R -> MM_computable R.
 Proof.
   move=> [f] Hf. exists ((S (k' f) + 1)), (M' f).
-  move=> v m. rewrite -/Nat.add. have [H1f H2f] := HM f.
+  move=> v m. rw -/Nat.add. have [H1f H2f] := HM f.
   split.
   - move=> /Hf H'f. exists (S (length (M' f))), (vec_app v (vec_app (0 ## vec_zero) (0 ## vec_nil))).
     apply: sss_output_to_eval. split; last by right.
-    apply /sss_compute_iff. rewrite shift_regs_spec.
+    apply /sss_compute_iff. rw shift_regs_spec.
     apply: rt_trans.
     + apply: (simulation_sss_steps f (_, _)).
-      rewrite vec_init.
+      rw vec_init.
       apply /sss_compute_iff /H1f /recalg.ra_rel_spec.
       by eassumption.
-    + rewrite length_M' /=.
+    + rw length_M' /=.
       have := simulation_fin f 0 v m vec_zero.
-      by rewrite /shift_regs vec_split_app !vec_app_cons /=.
+      by rw /shift_regs vec_split_app !vec_app_cons /=.
   - move=> [c] [v'].
     move=> /[dup] /eval_to_sss_compute + /eval_to_sss_out_code.
-    rewrite shift_regs_spec /= => H Hc. apply /Hf.
+    rw shift_regs_spec /= => H Hc. apply /Hf.
     have : sss_terminates (@mm_sss _) (1, M f) (1, vec_app v vec_zero).
     { apply /(sss_terminates_iff (@mm_sss_total_ni _)).
       apply: (terminates_reflection
@@ -286,8 +286,8 @@ Proof.
         apply: rt_trans; first by eassumption.
         have := simulation_fin f 0 v m' vec_zero.
         congr clos_refl_trans.
-        by rewrite /shift_regs vec_split_app /=.
-      - rewrite /= length_M'. by right. }
+        by rw /shift_regs vec_split_app /=.
+      - rw /= length_M'. by right. }
     have: sss_output (@mm_sss _) (1, M' f)
       (1, shift_regs f (vec_app v vec_zero))
       (c, m ## v') by split.
