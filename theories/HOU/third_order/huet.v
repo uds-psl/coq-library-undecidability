@@ -36,11 +36,11 @@ Section HuetReduction.
     [Arr (repeat (alpha → alpha) (length S)) alpha; (alpha → alpha) → alpha] ⊢( 3) 
     (lambda lambda lambda h (AppR f (Enc 1 2 (tails S))) (var (u 1) (g (var (u 1))))) :
     ((alpha → alpha) → (alpha → alpha) → (alpha → alpha → alpha) →  alpha).
-  Proof with cbn [ord' ord alpha]; simplify; cbn; (auto 2).
-    do 4 econstructor. econstructor. econstructor; (auto 2)...
+  Proof.
+    do 4 econstructor. econstructor. econstructor; (auto 2); cbn [ord' ord alpha]; simplify; cbn; (auto 2).
     cbn. lia. 
-    2: do 2 econstructor...
-    2 - 3: econstructor...
+    2: do 2 econstructor; cbn [ord' ord alpha]; simplify; cbn; (auto 2).
+    2 - 3: econstructor; cbn [ord' ord alpha]; simplify; cbn; (auto 2).
     eapply AppR_ordertyping with (L := repeat (alpha → alpha) (length S)); simplify.
     erewrite <-length_map; eapply Enc_typing.
     all: econstructor; trivial; simplify; cbn; lia.
