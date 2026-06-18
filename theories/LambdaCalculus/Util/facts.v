@@ -37,12 +37,12 @@ Proof.
   elim: k i; first lia.
   move=> k IH [|i]; first done.
   move=> ? /=.
-  rewrite -seq_shift nth_error_map IH; by [|lia].
+  rw -seq_shift nth_error_map IH; by [|lia].
 Qed.
 
 Lemma nth_error_Some' {X : Type} {l : list X} {i : nat} {x : X} : nth_error l i = Some x -> i < length l.
 Proof.
-  move=> E. apply /nth_error_Some. by rewrite E.
+  move=> E. apply /nth_error_Some. by rw E.
 Qed.
 
 Lemma Forall2_change {X Y : Type} (P Q : X -> Y -> Prop) l l1 l2 :
@@ -63,33 +63,33 @@ Lemma Forall2_change2 {Y : Type} (P Q : nat -> Y -> Prop) m l1 l2 x1 x2 x'1 x'2 
   Forall2 P (seq 0 (S (S m))) (l1 ++ x1 :: x2 :: l2) ->
   Forall2 Q (seq 0 (S (S m))) (l1 ++ x'1 :: x'2 :: l2).
 Proof.
-  move=> Hx1 Hx2 H'. apply: Forall2_change; first by rewrite !length_app.
+  move=> Hx1 Hx2 H'. apply: Forall2_change; first by rw !length_app.
   move=> i.
   case Ex: (nth_error (seq _ _) i) => [x|]; last done.
   case Ey1: (nth_error (l1 ++ x1 :: x2 :: l2) i) => [y1|]; last done.
   case Ey2: (nth_error (l1 ++ x'1 :: x'2 :: l2) i) => [y2|]; last done.
-  move: (Ex) => /nth_error_Some'. rewrite length_seq=> Hx.
-  move: Ex. rewrite nth_error_seq; first done.
+  move: (Ex) => /nth_error_Some'. rw length_seq=> Hx.
+  move: Ex. rw nth_error_seq; first done.
   move=> [?]. subst i.
   have [?|[?|[??]]] : x = length l1 \/ x = S (length l1) \/ (x <> length l1 /\ x <> S (length l1)) by lia.
-  - subst x. move: Ey1. rewrite nth_error_app2; first done.
-    rewrite Nat.sub_diag=> - [<-].
-    move: Ey2. rewrite nth_error_app2; first done.
-    rewrite Nat.sub_diag=> - [<-]. by apply: Hx1.
-  - subst x. move: Ey1. rewrite nth_error_app2; first lia.
+  - subst x. move: Ey1. rw nth_error_app2; first done.
+    rw Nat.sub_diag=> - [<-].
+    move: Ey2. rw nth_error_app2; first done.
+    rw Nat.sub_diag=> - [<-]. by apply: Hx1.
+  - subst x. move: Ey1. rw nth_error_app2; first lia.
     have ->: S (length l1) - length l1 = 1 by lia.
-    move=> [<-]. move: Ey2. rewrite nth_error_app2; first lia.
+    move=> [<-]. move: Ey2. rw nth_error_app2; first lia.
     have ->: S (length l1) - length l1 = 1 by lia.
     move=> [<-]. by apply: Hx2.
   - suff ->: y1 = y2 by apply: H'.
     have [?|?] : x < length l1 \/ x > S (length l1) by lia.
-    + move: Ey1. rewrite nth_error_app1; first done.
-      move: Ey2. rewrite nth_error_app1; first done.
+    + move: Ey1. rw nth_error_app1; first done.
+      move: Ey2. rw nth_error_app1; first done.
       by move=> -> [<-].
     + move: Ey1 Ey2.
       change (l1 ++ x1 :: x2 :: l2) with (l1 ++ [x1; x2] ++ l2).
       change (l1 ++ x'1 :: x'2 :: l2) with (l1 ++ [x'1; x'2] ++ l2).
-      rewrite !app_assoc. rewrite !nth_error_app2 ?length_app /=; [lia..|].
+      rw !app_assoc. rw !nth_error_app2 ?length_app /=; [lia..|].
       by move=> -> [<-].
 Qed.
 

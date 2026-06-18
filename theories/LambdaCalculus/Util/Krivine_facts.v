@@ -42,8 +42,8 @@ Fixpoint flatten (u : eterm) : term :=
 Lemma flatten_var_0 t ctx :
   flatten (closure (t :: ctx) (var 0)) = flatten t.
 Proof.
-  move: t => [? ?] /=. rewrite !simpl_term /=.
-  apply: ext_subst_term => ?. by rewrite !simpl_term.
+  move: t => [? ?] /=. rw !simpl_term /=.
+  apply: ext_subst_term => ?. by rw !simpl_term.
 Qed.
 
 Lemma flatten_var_S t ctx n :
@@ -81,9 +81,9 @@ Lemma flatten_cons u sigma s :
   subst (scons (ren (fun _ => 0) u) var)
     (subst (scons (var 0) (funcomp (ren S) (funcomp (ren (fun _ => 0)) sigma))) s).
 Proof.
-  rewrite /= !simpl_term. apply: ext_subst_term.
+  rw /= !simpl_term. apply: ext_subst_term.
   move=> [|n] /=; first done.
-  by rewrite !simpl_term ren_as_subst_term.
+  by rw !simpl_term ren_as_subst_term.
 Qed.
 
 (* halt_cbn is invariant closure flattening *)
@@ -95,21 +95,21 @@ Lemma halt_cbn_flatten_iff {ts1 ts2 ctx1 ctx2 s1 s2} :
 Proof.
   move=> H. elim: H ts2 ctx2 s2; clear ts1 ctx1 s1.
   - move=> ts ctx t ctx' ? IH ts2 ctx2 s2.
-    rewrite flatten_var_0. by move=> /IH /[apply].
+    rw flatten_var_0. by move=> /IH /[apply].
   - move=> ts1 ctx1 n t ? IH ts2 ctx2 s2.
-    rewrite flatten_var_S. by move=> /IH /[apply].
+    rw flatten_var_S. by move=> /IH /[apply].
   - move=> ts1 ctx1 s t ? IH ts2 ctx2 s2.
     elim /(Nat.measure_induction _ context_size): ctx2 s2.
     move=> ctx2 IH' []. 
     + (* s2 is (var n) *)
       move: ctx2 IH' => [|[ctx'2 t'2] ctx2] IH'. { by case. }
       move=> [|n].
-      * rewrite flatten_var_0.
+      * rw flatten_var_0.
         move=> /= ??. apply: halt_var_0. apply: IH' => //=.
-        rewrite /context_size /=. lia.
-      * rewrite flatten_var_S.
+        rw /context_size /=. lia.
+      * rw flatten_var_S.
         move=> /= ??. apply: halt_var_S. apply: IH' => //=.
-        rewrite /context_size /=. lia.
+        rw /context_size /=. lia.
     + move=> ??? /= [] /IH {}IH ?.
       apply: halt_app. apply: IH => //=. by congr cons.
     + done.
@@ -120,15 +120,15 @@ Proof.
     + (* s2 is (var n) *)
       move: ctx2 IH' => [|[ctx'2 t'2] ctx2] IH'. { by case. }
       move=> [|n].
-      * rewrite flatten_var_0.
+      * rw flatten_var_0.
         move=> /= ?. apply: halt_var_0. apply: IH' => //=.
-        rewrite /context_size /=. lia.
-      * rewrite flatten_var_S.
+        rw /context_size /=. lia.
+      * rw flatten_var_S.
         move=> /= ?. apply: halt_var_S. apply: IH' => //=.
-        rewrite /context_size /=. lia.
+        rw /context_size /=. lia.
     + done.
     + move=> s2 /= [Hs1s2]. apply: halt_lam_ts. apply: IH => //=.
-      by rewrite Ht1t2 !flatten_cons Hs1s2.
+      by rw Ht1t2 !flatten_cons Hs1s2.
   - move=> ctx1 s1 [|t2 ts2] ctx2 s2; last done.
     move=> _.
     elim /(Nat.measure_induction _ context_size): ctx2 s2.
@@ -136,12 +136,12 @@ Proof.
     + (* s2 is (var n) *)
       move: ctx2 IH' => [|[ctx'2 t'2] ctx2] IH'. { by case. }
       move=> [|n].
-      * rewrite flatten_var_0.
+      * rw flatten_var_0.
         move=> /= ?. apply: halt_var_0. apply: IH' => //=.
-        rewrite /context_size /=. lia.
-      * rewrite flatten_var_S.
+        rw /context_size /=. lia.
+      * rw flatten_var_S.
         move=> /= ?. apply: halt_var_S. apply: IH' => //=.
-        rewrite /context_size /=. lia.
+        rw /context_size /=. lia.
     + done.
     + move=> *. by apply: halt_lam.
 Qed.
@@ -153,10 +153,10 @@ Proof.
   - move=> s t /closed_app [Hs Ht] ts ctx H'.
     apply: halt_app. apply: halt_lam_ts.
     apply: (halt_cbn_flatten_iff H'); first done.
-    rewrite /= !simpl_term /=. apply: ext_subst_term.
+    rw /= !simpl_term /=. apply: ext_subst_term.
     move=> [|n] /=; last done.
-    rewrite !simpl_term. apply: ext_subst_term.
-    move=> n /=. by rewrite !simpl_term.
+    rw !simpl_term. apply: ext_subst_term.
+    move=> n /=. by rw !simpl_term.
   - move=> s s' t ? IH /closed_app [Hs Ht] ts ctx /halt_cbnE /IH {}IH.
     apply: halt_app. by apply: IH.
 Qed.
@@ -172,7 +172,7 @@ Lemma eclosed_closed t :
 Proof.
   move=> H. split; last done.
   apply /closed_dcl /closed_I.
-  move=> ?. by rewrite L_subst_Lambda_subst.
+  move=> ?. by rw L_subst_Lambda_subst.
 Qed.
 
 Inductive Krivine_step : (list eterm * list eterm * term) -> (list eterm * list eterm * term) -> Prop :=

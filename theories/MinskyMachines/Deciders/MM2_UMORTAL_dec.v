@@ -41,7 +41,7 @@ Lemma pos_K : K = 1 + (K - 1).
 Proof using HK.
   suff: K <> 0 by lia.
   move=> H'K.
-  have := HK (0, (0, 0)). rewrite H'K.
+  have := HK (0, (0, 0)). rw H'K.
   move=> [[|L]].
   - move=> [_]. apply. apply: rt_refl.
   - move=> ? /=. lia.
@@ -77,8 +77,8 @@ Proof.
   move=> HK'.
   case Hy: (steps K' x) => [y|]; last by right.
   have [|] := In_dec option_mm2_state_eq_dec (Some y) (path M K' x).
-  { rewrite -Hy => ?. by left. }
-  rewrite -Hy. move=> /path_noloopI /NoDup_not_bounded.
+  { rw -Hy => ?. by left. }
+  rw -Hy. move=> /path_noloopI /NoDup_not_bounded.
   by move=> /(_ y Hy HK').
 Qed.
 
@@ -90,15 +90,15 @@ Proof.
   - have [/Nat.min_r <-|?] : b <= S k \/ S k < b by lia.
     + done.
     + have ->: b = (Nat.min (S k) b) + (b - (S k)) by lia.
-      rewrite shift_steps_b; [lia|].
-      by rewrite H.
+      rw shift_steps_b; [lia|].
+      by rw H.
   - have ->: a = (Nat.min (S k) a) + (a - (S k)) by lia.
-    rewrite shift_steps_a; [lia|].
+    rw shift_steps_a; [lia|].
     have [/Nat.min_r <-|?] : b <= S k \/ S k < b by lia.
-    + by rewrite H.
+    + by rw H.
     + have ->: b = (Nat.min (S k) b) + (b - (S k)) by lia.
-      rewrite shift_steps_b; [lia|].
-      by rewrite H.
+      rw shift_steps_b; [lia|].
+      by rw H.
 Qed.
 
 Lemma bounded_mortal_bound {k x} : bounded (S K) x -> mortal k x -> mortal K x.
@@ -106,7 +106,7 @@ Proof.
   move=> /boundedE + /mortal_steps_iff Hk.
   case.
   - move=> /path_loopE /(_ (S k)).
-    rewrite Hk => /In_None_pathE ?.
+    rw Hk => /In_None_pathE ?.
     by apply /mortal_steps_iff.
   - move=> ?. by apply /mortal_steps_iff.
 Qed.
@@ -114,7 +114,7 @@ Qed.
 Lemma pointwise_decision x : {mortal K x} + {not (mortal K x)}.
 Proof.
   case H'Kx: (steps (S K) x) => [y|].
-  - right => /mortal_steps_iff. by rewrite H'Kx.
+  - right => /mortal_steps_iff. by rw H'Kx.
   - left. by apply /mortal_steps_iff.
 Qed.
 
@@ -163,6 +163,6 @@ Definition decide : list mm2_instr -> bool :=
 (* decision procedure correctness *)
 Lemma decide_spec : decider decide MM2_UMORTAL.
 Proof.
-  rewrite /decider /reflects /decide => M.
+  rw /decider /reflects /decide => M.
   case: (decision M); intuition done.
 Qed.

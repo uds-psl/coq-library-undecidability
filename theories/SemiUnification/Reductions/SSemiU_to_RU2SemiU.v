@@ -62,7 +62,7 @@ Module Argument.
 
   Lemma substitute_ψP {φ' ψ': valuation} {t: term} :
     substitute (ψ φ' ψ') (substitute embed_var t) = substitute embed_var (substitute ψ' t).
-  Proof. elim: t => [x | *] /=; [by rewrite /ψ ?enumP | by f_equal]. Qed.
+  Proof. elim: t => [x | *] /=; [by rw /ψ ?enumP | by f_equal]. Qed.
 
   (* if the given simple semi-unification instance is solvable, 
     then so is the constructed right-uniform semi-unification instance *)
@@ -70,13 +70,13 @@ Module Argument.
   Proof.
     move=> [φ'] [ψ0'] [ψ1'] /Forall_forall Hp. exists (φ φ'), (ψ φ' ψ0'), (ψ φ' ψ1').
     suff: forall i, substitute (ψ φ' (if i then ψ1' else ψ0')) (substitute (φ φ') (σ i p)) = 
-      substitute (φ φ') (τ p) by (move=> H; rewrite (H false) (H true)).
+      substitute (φ φ') (τ p) by (move=> H; rw (H false) (H true)).
     move=> i. elim: p Hp.
-    - by move: i => [|] _ /=; rewrite /φ ?enumP /= /ψ ?enumP /=.
+    - by move: i => [|] _ /=; rw /φ ?enumP /= /ψ ?enumP /=.
     - move=> [[a x] [y b]] p IH /Forall_cons_iff /=.
       move => [+ /IH <-]. move Hφ'y: (φ' y) => φ'y. case: φ'y Hφ'y; first done.
       move=> s t Hφ'y Hst {IH}. move: i a b Hst Hφ'y => [|] [|] [|] -> Hφ'y;
-        by rewrite /= /φ ?enumP /= /ψ ?enumP /= Hφ'y ?substitute_ψP.
+        by rw /= /φ ?enumP /= /ψ ?enumP /= Hφ'y ?substitute_ψP.
   Qed.
 
   (* if the the constructed right-uniform semi-unification instance is solvable, 
@@ -84,7 +84,7 @@ Module Argument.
   Lemma reflection {p: list constraint} : RU2SemiU (σ false p, σ true p, τ p) -> SSemiU p.
   Proof.
     move=> [φ] [ψ0] [ψ1] [Hψ0 Hψ1]. 
-    exists (fun x => φ (to_nat (x, 0))), ψ0, ψ1. rewrite -Forall_forall.
+    exists (fun x => φ (to_nat (x, 0))), ψ0, ψ1. rw -Forall_forall.
     elim: p Hψ0 Hψ1; first done.
     move=> [[a x] [y b]] p IH /= [Hψ0 ?] [Hψ1 ?].
     constructor; [| by apply: IH].

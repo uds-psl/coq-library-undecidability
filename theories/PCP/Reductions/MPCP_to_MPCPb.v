@@ -26,7 +26,7 @@ Qed.
 
 Lemma bin_appP {x y} : bin (x ++ y) = bin x ++ bin y.
 Proof. 
-  by rewrite /bin ? flat_map_concat_map map_app concat_app.
+  by rw /bin ? flat_map_concat_map map_app concat_app.
 Qed.
 
 Definition bin_map A := map (fun '(x, y) => (bin x, bin y)) A.
@@ -34,13 +34,13 @@ Definition bin_map A := map (fun '(x, y) => (bin x, bin y)) A.
 Lemma tau1_bin_map {A : list (list nat * list nat)} : tau1 (bin_map A) = bin (tau1 A).
 Proof.
   elim: A; first done.
-  move=> [x y] A IH /=. by rewrite bin_appP IH.
+  move=> [x y] A IH /=. by rw bin_appP IH.
 Qed.
 
 Lemma tau2_bin_map {A : list (list nat * list nat)} : tau2 (bin_map A) = bin (tau2 A).
 Proof.
   elim: A; first done.
-  move=> [x y] A IH /=. by rewrite bin_appP IH.
+  move=> [x y] A IH /=. by rw bin_appP IH.
 Qed.
 
 Lemma incl_consE {X: Type} {a: X} {A: list X} {P: list X} : incl (a :: A) P -> In a P /\ incl A P.
@@ -73,11 +73,11 @@ Proof.
   {  move=> [HA1 HA2]. exists (bin_map A).
     constructor.
     { move=> a /in_map_iff [?] [<- /HA1] ?.
-      rewrite -/(map _ ((x, y) :: P)).
+      rw -/(map _ ((x, y) :: P)).
       by apply: in_map. }
-    by rewrite tau1_bin_map tau2_bin_map -?bin_appP -eq_binP. }
-  rewrite /bin_map -/(map _ ((x, y) :: P)) -/(bin_map _).
+    by rw tau1_bin_map tau2_bin_map -?bin_appP -eq_binP. }
+  rw /bin_map -/(map _ ((x, y) :: P)) -/(bin_map _).
   move=> [/debin [B [-> ?]]].
-  rewrite tau1_bin_map tau2_bin_map -?bin_appP -eq_binP => ?.
+  rw tau1_bin_map tau2_bin_map -?bin_appP -eq_binP => ?.
   by exists B.
 Qed.

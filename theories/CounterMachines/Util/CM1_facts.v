@@ -9,13 +9,13 @@ Set Default Goal Selector "!".
 
 Lemma iter_plus {X: Type} {f: X -> X} {x: X} {n m: nat} : 
   Nat.iter (n + m) f x = Nat.iter m f (Nat.iter n f x).
-Proof. by rewrite Nat.add_comm /Nat.iter nat_rect_plus. Qed.
+Proof. by rw Nat.add_comm /Nat.iter nat_rect_plus. Qed.
 
 Lemma mod_frac_lt {n m: nat} : (S m) mod (n + 1) = 0 -> S m < (S m * (n + 2)) / (n + 1).
 Proof.
   have ->: S m * (n + 2) = S m + S m * (n + 1) by lia.
   have := Nat.div_mod_eq (S m) (n + 1).
-  rewrite Nat.div_add; lia.
+  rw Nat.div_add; lia.
 Qed.
 
 (* Config is discrete *)
@@ -28,11 +28,11 @@ Lemma haltingP {M : Cm1} {x: Config}:
 Proof.
   move: x => [p c] /=.
   constructor; first last.
-  { case; rewrite /halting /=; last by move=> ->.
+  { case; rw /halting /=; last by move=> ->.
     move: c => [|c]; first done. by move=> /nth_error_None ->. }
   have [* | /nth_error_Some] : length M <= p \/ p < length M by lia. 
   { by left. }
-  rewrite /halting /=.
+  rw /halting /=.
   move: c => [|c]; first by (move=> *; right).
   case: (nth_error M p); last done.
   move=> [q n] _. move Hr: (S c mod (n + 1)) => r.
@@ -45,7 +45,7 @@ Lemma halting_monotone {M : Cm1} {x: Config} {n m: nat} : n <= m ->
   halting M (Nat.iter n (step M) x) -> halting M (Nat.iter m (step M) x).
 Proof.
   move=> ? ?. have -> : m = n + (m-n) by lia.
-  rewrite iter_plus. elim: (m-n); first done.
+  rw iter_plus. elim: (m-n); first done.
   move=> * /=. by congruence.
 Qed.
 
@@ -56,9 +56,9 @@ Lemma terminating_reaches_iff {M : Cm1} {k x y} :
   (exists n, CM1.halting M (Nat.iter n (CM1.step M) x))).
 Proof.
   move=> Hxy. split.
-  - move=> [m Hm]. exists (k+m). by rewrite iter_plus Hxy.
+  - move=> [m Hm]. exists (k+m). by rw iter_plus Hxy.
   - move=> [n] /(halting_monotone (m := k+n)) => /(_ ltac:(lia)).
-    rewrite iter_plus Hxy => ?.
+    rw iter_plus Hxy => ?.
     by exists n.
 Qed.
 
@@ -83,13 +83,13 @@ Lemma value_monotone {M : Cm1} {x: Config} {n m: nat} :
   n <= m -> value (Nat.iter n (step M) x) <= value (Nat.iter m (step M) x).
 Proof.
   move=> ?. have ->: (m = n + (m - n)) by lia.
-  rewrite iter_plus. by apply: run_value_monotone.
+  rw iter_plus. by apply: run_value_monotone.
 Qed.
 
 Lemma inc_value_mod {M : Cm1} {p: Config} : value p < value (step M p) -> 
   exists t, nth_error M (state p) = Some t /\ ((value p) mod ((snd t)+1) = 0).
 Proof.
-  rewrite /step. move: p => [i [|c]] /=; first by lia.
+  rw /step. move: p => [i [|c]] /=; first by lia.
   case: (nth_error M i) => /=; last by lia.
   move=> [j n]. move Hr: (S c mod (n + 1)) => [|r] /=; last by lia.
   move=> _. by exists (j, n).
@@ -100,7 +100,7 @@ Lemma step_progress (M : Cm1) (x: Config) :
     step M x = {| state := 1 + state x; value := value x |} \/
     value x < value (step M x).
 Proof.
-  move=> ? ?. rewrite /step. have ->: value x = S (value x - 1) by lia.
+  move=> ? ?. rw /step. have ->: value x = S (value x - 1) by lia.
   move Ho: (nth_error M (state x)) => o. case: o Ho; first last.
   { move /nth_error_None. by lia. }
   move=> [j n] _. case H: (S (value x - 1) mod (n + 1)); last by left.
@@ -116,14 +116,14 @@ Lemma config_weight_step_monotone {M: Cm1} {x: Config} :
 Proof.
   move=> Hx. suff: not (config_weight M (step M x) <= config_weight M x) by lia.
   move: x Hx => [p v].
-  rewrite /config_weight /=. case: v => [|v].
+  rw /config_weight /=. case: v => [|v].
   { move=> + /ltac:(exfalso). by apply. }
   move Ho: (nth_error M p) => o. case: o Ho; first last.
-  { move=> Hp + /ltac:(exfalso). apply. move=> /=. by rewrite Hp. }
+  { move=> Hp + /ltac:(exfalso). apply. move=> /=. by rw Hp. }
   move=> [j n] Hp ?. case Hr: (S v mod (n + 1)); last by lia.
   have := mod_frac_lt Hr.
   have : p < length M.
-  { apply /nth_error_Some. by rewrite Hp. }
+  { apply /nth_error_Some. by rw Hp. }
   by nia.
 Qed.
 
@@ -151,18 +151,18 @@ Proof.
   have /IH : not (halting M (Nat.iter n (step M) x)).
   { move=> Hn. apply: HSn. move: Hn. apply: halting_monotone. by lia. }
   have ->: seq 0 (2 + S n) = seq 0 (2 + n) ++ [2 + n].
-  { have ->: 2 + S n = (2 + n) + 1 by lia. by rewrite [seq 0 (2 + n + 1)] seq_app. }
-  rewrite map_app.
+  { have ->: 2 + S n = (2 + n) + 1 by lia. by rw [seq 0 (2 + n + 1)] seq_app. }
+  rw map_app.
   set f := (fun i : nat => Nat.iter i (step M) x).
   have : Add (f (2+n)) (map f (seq 0 (2 + n)) ++ []) (map f (seq 0 (2 + n)) ++ map f [2 + n]) by apply: Add_app.
-  rewrite app_nil_r. move /(@NoDup_Add Config) => H Hfn.
+  rw app_nil_r. move /(@NoDup_Add Config) => H Hfn.
   apply /H. constructor; first done.
-  rewrite in_map_iff. move=> [i]. rewrite in_seq /f. move=> [+ ?].
+  rw in_map_iff. move=> [i]. rw in_seq /f. move=> [+ ?].
   have ->: 2 + n = i + (1 + (1+n - i)) by lia.
-  rewrite iter_plus. set x' := Nat.iter i (step M) x.
+  rw iter_plus. set x' := Nat.iter i (step M) x.
   move=> Hx'. 
   suff: config_weight M x' < config_weight M (Nat.iter (1 + (1+n - i)) (step M) x').
-  { rewrite -Hx'. by lia. }
+  { rw -Hx'. by lia. }
   apply: config_weight_run_monotone. subst x'.
-  rewrite -iter_plus. by have ->: i + (1 + n - i) = S n by lia.
+  rw -iter_plus. by have ->: i + (1 + n - i) = S n by lia.
 Qed. 

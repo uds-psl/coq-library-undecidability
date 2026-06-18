@@ -99,7 +99,7 @@ Proof.
 Qed.
 
 Lemma step_app {M1 M2 x y} : step (M1 ++ M2) x y -> step M1 x y \/ step M2 x y.
-Proof. case=> >. rewrite in_app_iff. case=> /transition ?; [by left | by right]. Qed.
+Proof. case=> >. rw in_app_iff. case=> /transition ?; [by left | by right]. Qed.
 
 Lemma reachable_n_stack_app {M n l r x l' r' y v w} : 
   reachable_n M n (l, r, x) (l', r', y) -> reachable_n M n (l ++ v, r ++ w, x) (l' ++ v, r' ++ w, y).
@@ -109,7 +109,7 @@ Proof.
   move=> n IH l r x l' r' y /reachable_SnE [[] <- <- <- | [z] [+]]; first by apply: rn_refl.
   move Hx': (l, r, x) => x' Hx'z. case: Hx'z Hx'.
   move=> > H [] -> -> -> /IH {}IH. apply: rn_step; last by eassumption.
-  rewrite -?app_assoc. by apply: transition.
+  rw -?app_assoc. by apply: transition.
 Qed.
 
 Lemma reachable_stack_app {M l r x l' r' y v w} : 
@@ -129,10 +129,10 @@ Proof.
   { move=> > /reachable_0E => ?. by left. }
   move=> n IH l r x l' r' y /reachable_SnE [? | [Z] []]; first by left.
   move HX: (l, r, x) => X HXZ. case: HXZ HX.
-  move=> > /HM []. rewrite ?length_app. move=> ? ? [] ? ? ?. subst.
+  move=> > /HM []. rw ?length_app. move=> ? ? [] ? ? ?. subst.
   move /IH. case.
-  - move=> [] *. subst. rewrite ?length_app. right. by lia.
-  - rewrite ?length_app. move=> [] ? ?. right. by lia.
+  - move=> [] *. subst. rw ?length_app. right. by lia.
+  - rw ?length_app. move=> [] ? ?. right. by lia.
 Qed.
 
 Lemma next_configs M (X: Config) : exists L, (forall Y, step M X Y -> In Y L) /\ length L <= length M.
@@ -146,12 +146,12 @@ Proof.
     constructor; last by (move=> /=; lia).
     move HX: (lx, rx, x) => X Z HXZ. case: HXZ HX => v w > /=. case.
     + move=> + [] => [[]] *. subst. left.
-      by rewrite ?skipn_app ?skipn_all ?Nat.sub_diag /=.
+      by rw ?skipn_app ?skipn_all ?Nat.sub_diag /=.
     + move /transition => /(_ v w) ? ?. right. apply: HL. by congruence.
   - exists L. constructor; last by (move=> /=; lia).
     move HX: (lx, rx, x) => X Z HXZ. case: HXZ HX => v w > /=. case.
     + move=> + [] => [[]] *. subst. exfalso. apply: Hy.
-      by rewrite ?firstn_app ?firstn_all ?Nat.sub_diag ?app_nil_r.
+      by rw ?firstn_app ?firstn_all ?Nat.sub_diag ?app_nil_r.
     + move /transition => /(_ v w) ? ?. apply: HL. by congruence.
 Qed.
 
@@ -168,17 +168,17 @@ Proof.
       { exists []. constructor; [done | by move=> /=; lia]. }
       move=> X Xs [L [HL ?]]. have [LX [HLX ?]] := next_configs M X.
       exists (LX ++ L). constructor; first last.
-      - rewrite length_app /length -?/(length _). by lia.
-      - move=> > /=. rewrite in_app_iff. move=> [<- /HLX ? | * ]; first by left.
+      - rw length_app /length -?/(length _). by lia.
+      - move=> > /=. rw in_app_iff. move=> [<- /HLX ? | * ]; first by left.
         right. apply: HL; by eassumption. }
     have [L [HL ?]] := IH Ys. exists (Xs ++ L). constructor.
     { move=> X Y HX /reachable_SnE. case.
       - move=> <-. apply /in_app_iff. by left.
       - move=> [Z] [/HYs] /(_ HX) /HL => H /H ?. apply /in_app_iff. by right. }
-    rewrite length_app. 
+    rw length_app. 
     suff: length L <= (1 + length M) ^ S n * length Xs * (1 + n).
     { have := Nat.pow_nonzero (1 + length M) (S n) ltac:(lia). by nia. }
-    rewrite /Nat.pow -/Nat.pow.
+    rw /Nat.pow -/Nat.pow.
     have ? := Nat.pow_nonzero (1 + length M) n ltac:(lia). 
     suff: (1 + length M) ^ n * length Ys <= (1 + length M) * (1 + length M) ^ n * length Xs by nia.
     by nia.
@@ -190,8 +190,8 @@ Proof.
   move=> bounded_M. elim: xs.
   { exists []. constructor; [done | by (move=> /=; lia) ]. }
   move=> x xs [Lxs [HLxs ?]]. have [Lx [HLx ?]] := bounded_M x.
-  exists (Lx ++ Lxs). constructor; last by (rewrite length_app /=; lia).
-  move=> ? ? /=. rewrite in_app_iff. case.
+  exists (Lx ++ Lxs). constructor; last by (rw length_app /=; lia).
+  move=> ? ? /=. rw in_app_iff. case.
   - move=> <- /HLx *. by left.
   - move=> *. right. apply: HLxs; by eassumption.
 Qed.

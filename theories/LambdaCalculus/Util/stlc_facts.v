@@ -29,22 +29,22 @@ Fixpoint ty_size (t : ty) : nat :=
 Lemma ty_size_arrs ss B : ty_size (arrs ss B) = list_sum (map (fun s => 1 + ty_size s) ss) + ty_size B.
 Proof.
   elim: ss; first done.
-  move=> ?? IH /=. rewrite IH /=. lia.
+  move=> ?? IH /=. rw IH /=. lia.
 Qed.
 
 Lemma arrs_inj s1s s2s t : arrs s1s t = arrs s2s t -> s1s = s2s.
 Proof.
   elim: s1s s2s.
   - move=> [|??]; first done.
-    move=> /= /(f_equal ty_size) /=. rewrite ty_size_arrs. lia.
+    move=> /= /(f_equal ty_size) /=. rw ty_size_arrs. lia.
   - move=> ?? IH [|??].
-    + move=> /= /(f_equal ty_size) /=. rewrite ty_size_arrs. lia.
+    + move=> /= /(f_equal ty_size) /=. rw ty_size_arrs. lia.
     + by move=> [<-] /IH <-.
 Qed.
 
 Lemma arrs_arrs s1s s2s t : arrs s1s (arrs s2s t) = arrs (s1s ++ s2s) t.
 Proof.
-  by rewrite fold_right_app.
+  by rw fold_right_app.
 Qed.
 
 Inductive stlc_app_spec (Gamma : list ty) (t : ty) (M N : term) : Prop :=
@@ -73,7 +73,7 @@ Lemma stlc_lamsE Gamma M ss B : stlc Gamma (lams (length ss) M) (arrs ss B) -> s
 Proof.
   elim: ss Gamma; first done.
   move=> ?? IH ? /= /stlcE [] ?? [<- <-] /IH.
-  by rewrite -app_assoc.
+  by rw -app_assoc.
 Qed.
 
 Lemma stlc_lamsE' Gamma M n ss B : n = length ss -> stlc Gamma (lams n M) (arrs ss B) -> stlc (rev ss ++ Gamma) M B.
@@ -146,7 +146,7 @@ Lemma stlc_lams Gamma k M ss t : length ss = k -> stlc (rev ss ++ Gamma) M t -> 
 Proof.
   elim: k ss Gamma t; first by case.
   move=> k IH [|? ss] Gamma t /=; first done.
-  move=> [/IH]. rewrite -app_assoc=> /[apply]. by apply: stlc_lam.
+  move=> [/IH]. rw -app_assoc=> /[apply]. by apply: stlc_lam.
 Qed.
 
 Lemma stlc_apps Gamma M Ms ss t : stlc Gamma M (arrs ss t) -> Forall2 (stlc Gamma) Ms ss -> stlc Gamma (apps M Ms) t.
@@ -244,9 +244,9 @@ Proof.
   - move=> > ? IH1 ? IH2 sigma H /=. apply: (IH1 sigma H). by apply IH2.
   - move=> > ? IH sigma H /= N HN. apply: (interp_head_exp HP).
     + apply: head_exp_lam. apply: (Saturated_incl (HQ _)). by eassumption.
-    + rewrite subst_subst_term. apply: IH=> - [|i] /=.
+    + rw subst_subst_term. apply: IH=> - [|i] /=.
       * by move=> ? [<-].
-      * move=> ? /H. by rewrite subst_ren_term subst_var_term.
+      * move=> ? /H. by rw subst_ren_term subst_var_term.
 Qed.
 
 (* fundamental theorem for admissible predicates *)
@@ -254,7 +254,7 @@ Theorem fundamental (P : term -> Prop) Gamma M t : Admissible P ->
   stlc Gamma M t -> P M.
 Proof.
   move=> /[dup] HP /satisI /[apply] /(_ var).
-  rewrite subst_var_term.
+  rw subst_var_term.
   have HQ := Admissible_Saturated_interp HP.
   move=> H. apply: (Saturated_incl (HQ _)).
   apply: H=> i *. have : neutral P (var i) by constructor.
@@ -314,7 +314,7 @@ Proof.
     - move=> > ?? [] -> _. by econstructor; [apply: rt_refl|]. }
   move=> > [].
   - move=> > IH ?? [??]. subst.
-    move: IH. rewrite subst_as_ren.
+    move: IH. rw subst_as_ren.
     by move=> /clos_rt_rt1n_iff /wn_intro /[apply] /wn_ren /wn_lam.
   - move=> > ?? IH ? [??]. subst.
     move: (IH _ eq_refl) => /[apply].

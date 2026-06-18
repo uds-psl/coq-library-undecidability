@@ -114,9 +114,9 @@ Proof.
     move=> /IH1 {}IH1 sigma HGamma /=.
     move=> N [Hs Hphi]. apply: (interp_head_exp HP).
     { apply: head_exp_lam. by apply: (Saturated_incl (HQ s)). }
-    rewrite subst_subst_term. apply: IH1=> - [|i].
+    rw subst_subst_term. apply: IH1=> - [|i].
     + move=> /= ?? [<- <-]. by split; [|apply /Forall_all].
-    + move=> ?? /HGamma => - [Hs' Hphi'] /=. by rewrite !simpl_term.
+    + move=> ?? /HGamma => - [Hs' Hphi'] /=. by rw !simpl_term.
 Qed.
 
 (* fundamental theorem for admissible predicates *)
@@ -124,7 +124,7 @@ Theorem fundamental (P : term -> Prop) Gamma M t : Admissible P ->
   type_assignment Gamma M t -> P M.
 Proof.
   move=> /[dup] HP /satisI /[apply] /(_ var).
-  rewrite subst_var_term.
+  rw subst_var_term.
   have HQ := Admissible_Saturated_interp HP.
   move=> H. apply: (Saturated_incl (HQ _)).
   apply: H=> i *. have : neutral P (var i) by constructor.

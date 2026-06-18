@@ -42,11 +42,11 @@ Qed.
 Lemma var_bound_spec' Gamma M t : type_assignment Gamma M t -> 
   type_assignment (map (fun i => match nth_error Gamma i with Some phi => phi | None => (atom 0, nil) end) (seq 0 (var_bound M))) M t.
 Proof.
-  move=> /type_assignment_ren_fv => /(_ _ id). rewrite ren_id_term. apply.
+  move=> /type_assignment_ren_fv => /(_ _ id). rw ren_id_term. apply.
   apply: allfv_impl (var_bound_spec M) => x ?.
   move=> > /(@nth_error_split ty) [Gamma1] [Gamma2] [-> ?]. subst x.
-  rewrite nth_error_map CD_facts.nth_error_seq /=; first done.
-  by rewrite nth_error_app2 ?Nat.sub_diag.
+  rw nth_error_map CD_facts.nth_error_seq /=; first done.
+  by rw nth_error_app2 ?Nat.sub_diag.
 Qed.
 
 Lemma abs_Gamma_spec Gamma M t : type_assignment Gamma M t -> exists t', type_assignment nil (Nat.iter (length Gamma) lam M) t'.
@@ -66,7 +66,7 @@ Proof.
   exists (fun M => (nil, app (lam (lam (var 0))) (Nat.iter (var_bound M) lam M), arr (atom 0) nil (atom 0))).
   move=> M. split.
   - move=> [Gamma] [t] /var_bound_spec' /abs_Gamma_spec [t'].
-    rewrite /= length_map length_seq=> ?. econstructor.
+    rw /= length_map length_seq=> ?. econstructor.
     + do 3 econstructor; first done. by left.
     + by eassumption.
     + by apply: Forall_nil.

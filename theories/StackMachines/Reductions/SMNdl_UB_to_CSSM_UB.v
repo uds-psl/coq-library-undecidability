@@ -50,8 +50,8 @@ Section Reduction.
   Proof using basic_M.
     case=> v w l r l' r' {}x {}y Hop. move: Hop (Hop) => /basic_instructions.
     move H1op: (l, r, x, (l', r', y)) => op H2op. case: H2op H1op.
-    - move=> > [] *. subst. apply: SSM.step_r. rewrite /M' in_map_iff. eexists. by constructor; last by eassumption.
-    - move=> > [] *. subst. apply: SSM.step_l. rewrite /M' in_map_iff. eexists. by constructor; last by eassumption.
+    - move=> > [] *. subst. apply: SSM.step_r. rw /M' in_map_iff. eexists. by constructor; last by eassumption.
+    - move=> > [] *. subst. apply: SSM.step_l. rw /M' in_map_iff. eexists. by constructor; last by eassumption.
   Qed.
 
   Lemma simulation {x y} : reachable M x y -> SSM.reachable M' x y.
@@ -65,12 +65,12 @@ Section Reduction.
   Lemma inverse_simulation_step {x y} : SSM.step M' x y -> step M x y.
   Proof using basic_M.
     case=> >.
-    - rewrite /M' in_map_iff. move=> [[[[l r] {}x] [[l' r'] {}y]]] [] + HM.
+    - rw /M' in_map_iff. move=> [[[[l r] {}x] [[l' r'] {}y]]] [] + HM.
       move: HM (HM) => /basic_instructions.
       move H1op: (l, r, x, (l', r', y)) => op H2op. case: H2op H1op.
       + move=> > /=. by congruence.
       + move=> > [] /= ? ? ? ? ? ? + [] *. subst. move /transition. by apply.
-    - rewrite /M' in_map_iff. move=> [[[[l r] {}x] [[l' r'] {}y]]] [] + HM.
+    - rw /M' in_map_iff. move=> [[[[l r] {}x] [[l' r'] {}y]]] [] + HM.
       move: HM (HM) => /basic_instructions.
       move H1op: (l, r, x, (l', r', y)) => op H2op. case: H2op H1op.
       + move=> > [] /= ? ? ? ? ? ? + [] *. subst. move /transition. by apply.

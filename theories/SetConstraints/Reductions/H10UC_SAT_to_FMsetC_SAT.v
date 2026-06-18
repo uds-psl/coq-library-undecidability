@@ -80,13 +80,13 @@ Proof.
   move=> a A IH B /[dup] /(Permutation_in a) /(_ (in_eq _ _)).
   move=> /(@in_split nat) [B1 [B2 ->]].
   move=> /(@Permutation_cons_app_inv nat) /IH.
-  rewrite /eval !map_app !list_sum_app /=. lia.
+  rw /eval !map_app !list_sum_app /=. lia.
 Qed.
 
 Lemma eval_monotone {p q A} : p < q -> eval p A < eval q A \/ Forall (fun a => 0 = a) A.
 Proof.
   move=> Hpq. elim: A; first by right.
-  rewrite /eval. move=> [|n] A [IH|IH].
+  rw /eval. move=> [|n] A [IH|IH].
   - left => /=. lia.
   - right. by constructor.
   - left. have := Nat.pow_lt_mono_l p q (S n) (Nat.neq_succ_0 n) Hpq.
@@ -106,12 +106,12 @@ Lemma nat_spec {n A B C} :
   Forall (fun a => 0 = a) A.
 Proof.
   have eval_map p' A' : eval p' (map S A') = p' * eval p' A'.
-  { rewrite /eval. elim: A'; first done.
+  { rw /eval. elim: A'; first done.
     move=> > /= ->. by nia. }
   move=> /(eval_eq (p := 4)) + /(eval_eq (p := 2)).
-  rewrite /eval !map_app !list_sum_app -!/(eval _ _) !eval_map.
+  rw /eval !map_app !list_sum_app -!/(eval _ _) !eval_map.
   have -> : eval 2 [2 * n] = eval 4 [n]. 
-  { have := Nat.pow_mul_r 2 2 n. rewrite /eval /=. lia. }
+  { have := Nat.pow_mul_r 2 2 n. rw /eval /=. lia. }
   move=> ??.
   have : not (eval 2 A < eval 4 A) by lia.
   by have /(eval_monotone (A := A)) [] : 2 < 4 by lia.
@@ -126,15 +126,15 @@ Fixpoint tower m n :=
 Lemma nat_sat {m n} :
   (map (fun i => m + i) (tower m n)) ++ (repeat 0 (4^n)) ~p [m*n] ++ (tower m n) ++ (tower m n) ++ (tower m n) ++ (tower m n).
 Proof.
-  elim: n; first by rewrite Nat.mul_0_r.
-  move=> n IH /=. rewrite ?map_app ?repeat_app /= app_nil_r.
+  elim: n; first by rw Nat.mul_0_r.
+  move=> n IH /=. rw ?map_app ?repeat_app /= app_nil_r.
   pose L := (map (fun i => m + i) (tower m n)) ++ (repeat 0 (4^n)).
   pose R := [m*n] ++ (tower m n) ++ (tower m n) ++ (tower m n) ++ (tower m n).
   have -> : m + m * n = m * (S n) by nia.
   apply: (Permutation_trans (l' := (L ++ L ++ L ++ L) ++ [m * S n])).
-  { rewrite /L. by Permutation_trivial. }
+  { rw /L. by Permutation_trivial. }
   apply /Permutation_sym /(Permutation_elt [] _ _ []).
-  rewrite /L IH. by Permutation_trivial.
+  rw /L IH. by Permutation_trivial.
 Qed.
 
 (* forces instance to be a sequence *)
@@ -148,27 +148,27 @@ Proof.
   { have ->: [0] = [(1+d) * 0] by (congr cons; lia).
     move=> /[apply] ?. by exists (length A). }
   move=> k. elim /(Nat.measure_induction _ (@length nat)) : A k => A IH k H.
-  move: (H) => /Permutation_length. rewrite ?length_app length_map /= => HAB.
+  move: (H) => /Permutation_length. rw ?length_app length_map /= => HAB.
   have [b Hb] : exists b, B = [b].
   { move: (B) HAB => [|? [|? ?]] /=; [ by lia | by eexists | by lia ]. }
   subst B.
   move: (H) => /Permutation_sym /(Permutation_in ((1 + d) * k)) /(_ (in_eq _ _)) /in_app_iff [].
   - move /(@in_split nat) => [A1 [A2 ?]]. subst A.
     have := IH (A1 ++ A2). apply: unnest.
-    { rewrite ?length_app /=. by lia. }
+    { rw ?length_app /=. by lia. }
     move=> /(_ (1+k)). apply: unnest.
-    { move: H. rewrite !map_app /= -!app_assoc /=.
+    { move: H. rw !map_app /= -!app_assoc /=.
       move=> /Permutation_sym /(@Permutation_cons_app_inv nat) <-.
       have -> : S (k + d * S k) = S (d + (k + d * k)) by lia.
       by apply /Permutation_sym /Permutation_middle. }
     move=> {IH} [IH ->]. constructor.
     + have ->: length (A1 ++ (1 + d) * k :: A2) = 1 + length (A1 ++ A2).
-      { rewrite ?length_app /=. by lia. }
-      rewrite /= -IH. by apply /Permutation_sym /Permutation_middle.
-    + congr cons. rewrite !length_app /=. by lia.
+      { rw ?length_app /=. by lia. }
+      rw /= -IH. by apply /Permutation_sym /Permutation_middle.
+    + congr cons. rw !length_app /=. by lia.
   - case; last done. move=> ?. subst b.
     move: H => /Permutation_sym /(Permutation_cons_app_inv _ [] (A := nat)).
-    rewrite app_nil_r.
+    rw app_nil_r.
     move=> /Permutation_map_lt_nil ->; first by lia.
     constructor=> /=; first done.
     congr cons. by lia.
@@ -181,7 +181,7 @@ Lemma seq_sat2 {d n} :
 Proof.
   move=> A. elim: n. { apply: Permutation_refl'. congr cons. by lia. }
   move=> n IH.
-  rewrite /A seq_last ?map_app -/(A n) /(map _ [n]) IH.
+  rw /A seq_last ?map_app -/(A n) /(map _ [n]) IH.
   have ->: S d * S n = S d + S d * n by lia.
   by Permutation_trivial.
 Qed.
@@ -192,7 +192,7 @@ Proof.
   have -> : S = (fun i => (S 0) + i) by done.
   have -> : seq 0 n = map (fun i => (S 0) * i) (seq 0 n).
   { elim: (seq 0 n); first done.
-    move=> ??? /=. rewrite Nat.add_0_r. by congr cons. }
+    move=> ??? /=. rw Nat.add_0_r. by congr cons. }
   have -> : [n] = [1*n] by (congr cons; lia).
   by apply: seq_sat2.
 Qed.
@@ -202,13 +202,13 @@ Definition unify_sat n :
 Proof.
   elim: n; first by exists [].
   set f := (fun i => 2*i). move=> n [A HA]. exists (A ++ seq n n).
-  rewrite ?seq_last ?map_app /=.
+  rw ?seq_last ?map_app /=.
   apply: (Permutation_trans (l' := (A ++ map f (seq 0 n)) ++ (seq n n ++ [f n]))).
   { by Permutation_trivial. }
   apply: (Permutation_trans _ (l' := (seq 0 n ++ map S A) ++ ([n] ++ map S (seq n n)))); first last.
   { by Permutation_trivial. }
-  have ->: f n = n + n by (rewrite /f; lia).
-  by rewrite HA /f seq_shift -seq_last.
+  have ->: f n = n + n by (rw /f; lia).
+  by rw HA /f seq_shift -seq_last.
 Qed.
 
 (* embed nat^3 into nat to provide fresh variables *)
@@ -219,7 +219,7 @@ Definition unembed n := let (xy, z) := Cantor.of_nat n in
 Lemma embed_unembed {xyz} : unembed (embed xyz) = xyz.
 Proof. 
   case: xyz. case. move=> >.
-  by rewrite /embed /unembed ?Cantor.cancel_of_to.
+  by rw /embed /unembed ?Cantor.cancel_of_to.
 Qed.
 
 Opaque embed unembed.
@@ -237,12 +237,12 @@ Definition encode_bound (x: nat): list constraint :=
 Definition encode_bound_spec {φ x} : mset_sat φ (encode_bound x) -> 
   Forall (fun a => 0 = a) (φ (embed (x, 0, 0))).
 Proof.
-  rewrite /encode_bound /mset_sat !Forall_cons_iff Forall_nil_iff /mset_sem.
-  have -> (A) : map S (map S A) = map (fun i => (S 1) + i) A by rewrite map_map.
+  rw /encode_bound /mset_sat !Forall_cons_iff Forall_nil_iff /mset_sem.
+  have -> (A) : map S (map S A) = map (fun i => (S 1) + i) A by rw map_map.
   have -> : map S = map [eta Nat.add 1] by done.
   move=> [/seq_spec2 [n [-> ->]]].
   move=> [/seq_spec2 [m [-> ->]]].
-  move=> [/Permutation_length]. rewrite !length_app !length_map !length_seq => ?.
+  move=> [/Permutation_length]. rw !length_app !length_map !length_seq => ?.
   have <- : n = m by lia. clear.
   have -> : 1 * n = n by lia.
   move=> [H1 [H2 _]]. by apply: nat_spec; eassumption.
@@ -277,19 +277,19 @@ Definition construct_valuation (φ: nat -> nat) (n: nat): list nat :=
 Lemma encode_bound_sat {φ x} : 
   mset_sat (construct_valuation φ) (encode_bound x).
 Proof.
-  rewrite /encode_bound /mset_sat !Forall_cons_iff Forall_nil_iff /mset_sem.
-  rewrite /construct_valuation ? embed_unembed.
+  rw /encode_bound /mset_sat !Forall_cons_iff Forall_nil_iff /mset_sem.
+  rw /construct_valuation ? embed_unembed.
   pose A d n := map (fun i => (S d) * i) (seq 0 n).
   constructor; first by apply: seq_sat1.
   constructor.
-  { have -> (X) : map S (map S X) = map (fun i => 2+i) X by rewrite map_map.
+  { have -> (X) : map S (map S X) = map (fun i => 2+i) X by rw map_map.
     by apply: seq_sat2. }
   constructor; first by apply: proj2_sig (unify_sat _).
   constructor.
-  { have -> (n): [n] = [1*n] by rewrite Nat.mul_1_l.
+  { have -> (n): [n] = [1*n] by rw Nat.mul_1_l.
     by apply: nat_sat. }
   constructor; [|done].
-  rewrite map_map. by apply: nat_sat.
+  rw map_map. by apply: nat_sat.
 Qed.
 
 (* each n : nat is represented by a multiset containing n zeroes *)
@@ -317,10 +317,10 @@ Proof.
   move=> /(Permutation_trans _ (l := S n :: (C ++ (n :: (A1 ++ A2))))).
   apply: unnest. { by Permutation_trivial. }
   move=> /Permutation_sym /(Permutation_trans _ (l := S n :: ((repeat 0 (S m)) ++ map S (A1 ++ A2)))).
-  apply: unnest. { rewrite !map_app /=. by Permutation_trivial. }
+  apply: unnest. { rw !map_app /=. by Permutation_trivial. }
   move=> /Permutation_sym /(@Permutation_cons_inv nat) /IH [A' [? ?]].
   exists A'. constructor; last done.
-  rewrite seq_last -app_assoc. by apply: Permutation_elt.
+  rw seq_last -app_assoc. by apply: Permutation_elt.
 Qed.
 
 (* forces B to be a n zeroes and A to be of length in proportion to n squared *)
@@ -329,10 +329,10 @@ Lemma square_spec {n A} : (seq 0 n) ++ A ~p (repeat 0 n) ++ (map S A) ->
 Proof.
   elim: n A.
   { move=> A /Permutation_sym /Permutation_map_lt_nil ->; by [|lia]. }
-  move=> n IH A. rewrite seq_last.
-  rewrite -app_assoc.
+  move=> n IH A. rw seq_last.
+  rw -app_assoc.
   move=> /square_spec_aux [A' [/Permutation_length + /IH]].
-  rewrite length_app length_seq. by lia. 
+  rw length_app length_seq. by lia. 
 Qed.
 
 (* if encode bound is satisfied, then there is a square relationship on length of solutions *)
@@ -340,33 +340,33 @@ Lemma encode_nat_spec {φ x} : mset_sat φ (encode_bound x) -> mset_sat φ (enco
   length (φ (embed (x, 1, 1))) + length (φ (embed (x, 1, 1))) + length (φ (embed (x, 0, 1))) = 
     length (φ (embed (x, 0, 1))) * length (φ (embed (x, 0, 1))).
 Proof.
-  move /encode_bound_spec. rewrite /mset_sat /encode_nat ?Forall_cons_iff Forall_nil_iff /mset_sem.
-  pose X n := φ (embed (x, n, 1)). rewrite -?/(X _).
+  move /encode_bound_spec. rw /mset_sat /encode_nat ?Forall_cons_iff Forall_nil_iff /mset_sem.
+  pose X n := φ (embed (x, n, 1)). rw -?/(X _).
   move=> /(@Forall_eq_repeat nat) ->. move: (length (φ _)) => m.
   move=> [/(Permutation_repeat 0) H1] [/(Permutation_repeat 0) H2].
   have -> : map S (X 4) = map [eta Init.Nat.add 1] (X 4) by done.
   move=> [/seq_spec2 [n]].
-  rewrite (map_ext (Nat.mul 1) id); [lia|]. rewrite map_id.
+  rw (map_ext (Nat.mul 1) id); [lia|]. rw map_id.
   move=> [->] _ [].
   have -> : X 0 = repeat 0 (length (X 0)).
   { elim: (X 0) (m) H1; [done|].
     move=> ?? /= IH [|m'] /=; [done|].
-    move=> [-> /IH] ->. by rewrite repeat_length. }
-  move=> /[dup] H3. rewrite repeat_length.
+    move=> [-> /IH] ->. by rw repeat_length. }
+  move=> /[dup] H3. rw repeat_length.
   have -> : length (X 0) = n.
-  { move: H3 => /Permutation_length. rewrite !length_app length_map length_seq repeat_length. by lia. }
-  move=> /square_spec <- [/Permutation_length]. rewrite !length_app length_map. by lia.
+  { move: H3 => /Permutation_length. rw !length_app length_map length_seq repeat_length. by lia. }
+  move=> /square_spec <- [/Permutation_length]. rw !length_app length_map. by lia.
 Qed.
 
 Lemma pyramid_shuffle {n} : seq 0 n ++ pyramid n ~p repeat 0 n ++ map S (pyramid n).
 Proof.
   elim: n; first done.
   move=> n IH.
-  rewrite /pyramid seq_last /plus flat_map_concat_map map_app concat_app.
-  rewrite -flat_map_concat_map -/(pyramid _) ? map_app /= ? app_nil_r seq_shift.
+  rw /pyramid seq_last /plus flat_map_concat_map map_app concat_app.
+  rw -flat_map_concat_map -/(pyramid _) ? map_app /= ? app_nil_r seq_shift.
   apply: (Permutation_trans (l' := (seq 0 n ++ [n]) ++ (seq 0 n ++ pyramid n))).
   { by Permutation_trivial. }
-  rewrite IH -seq_last /=.
+  rw IH -seq_last /=.
   by Permutation_trivial.
 Qed.
 
@@ -374,9 +374,9 @@ Lemma pyramid_length n : n + length (pyramid n) <= 4 ^ n.
 Proof.
   elim: n; first by (move=> /=; lia).
   move=> n IH. 
-  rewrite /pyramid seq_last /plus -/plus flat_map_concat_map map_app concat_app length_app.
-  rewrite -flat_map_concat_map -/(pyramid _).
-  rewrite /map /concat length_app length_seq /=.
+  rw /pyramid seq_last /plus -/plus flat_map_concat_map map_app concat_app length_app.
+  rw -flat_map_concat_map -/(pyramid _).
+  rw /map /concat length_app length_seq /=.
   have := Nat.pow_gt_lin_r 4 n.
   by lia.
 Qed.
@@ -386,19 +386,19 @@ Lemma encode_nat_sat_aux {n} :
 Proof.
   elim: n; first done.
   move=> n IH.
-  rewrite /pyramid ? seq_last /plus ? (flat_map_concat_map, map_app, concat_app, length_app).
-  rewrite -?flat_map_concat_map -/pyramid -/(pyramid _) ?repeat_app length_seq /= ?app_nil_r.
+  rw /pyramid ? seq_last /plus ? (flat_map_concat_map, map_app, concat_app, length_app).
+  rw -?flat_map_concat_map -/pyramid -/(pyramid _) ?repeat_app length_seq /= ?app_nil_r.
   apply: (Permutation_trans (l' := (pyramid n ++ flat_map pyramid (seq 0 n)) ++ (seq 0 n ++ pyramid n))).
   { by Permutation_trivial. }
-  rewrite pyramid_shuffle IH.
+  rw pyramid_shuffle IH.
   by Permutation_trivial.
 Qed.
 
 Lemma encode_nat_sat {φ x} : 
   mset_sat (construct_valuation φ) (encode_nat x).
 Proof.
-  rewrite /encode_nat /mset_sat !Forall_cons_iff Forall_nil_iff /mset_sem /construct_valuation ?embed_unembed.
-  rewrite -?repeat_app.
+  rw /encode_nat /mset_sat !Forall_cons_iff Forall_nil_iff /mset_sem /construct_valuation ?embed_unembed.
+  rw -?repeat_app.
   constructor.
   { apply: Permutation_refl'. congr repeat. have := pyramid_length (φ x). by lia. }
   constructor.
@@ -424,11 +424,11 @@ Lemma encode_constraint_spec {φ x y z} :
   mset_sat φ (encode_constraint x y z) -> 
   1 + length (φ (embed (x, 0, 1))) + length(φ (embed (y, 0, 1))) * length(φ (embed (y, 0, 1))) = length(φ (embed (z, 0, 1))).
 Proof.
-  rewrite /encode_constraint /mset_sat ?Forall_app -?/(mset_sat _ _).
+  rw /encode_constraint /mset_sat ?Forall_app -?/(mset_sat _ _).
   move=> [Hx [Hy [Hz]]].
   move=> [/(encode_nat_spec Hx) ? [/(encode_nat_spec Hy) ? [/(encode_nat_spec Hz) ?]]].
-  rewrite /mset_sat Forall_cons_iff Forall_nil_iff /mset_sem.
-  move=> [/Permutation_length]. rewrite ? length_app /=. by lia.
+  rw /mset_sat Forall_cons_iff Forall_nil_iff /mset_sem.
+  move=> [/Permutation_length]. rw ? length_app /=. by lia.
 Qed.
 
 (* if uniform diophantine constraint is satisfied, then mset constraint has a solution *)
@@ -436,18 +436,18 @@ Lemma encode_constraint_sat {φ x y z} :
   1 + (φ x) + (φ y) * (φ y) = (φ z) -> mset_sat (construct_valuation φ) (encode_constraint x y z).
 Proof.
   move=> Hxyz.
-  rewrite /encode_constraint /mset_sat ?Forall_app -?/(mset_sat _ _).
+  rw /encode_constraint /mset_sat ?Forall_app -?/(mset_sat _ _).
   do 3 (constructor; first by apply: encode_bound_sat).
   do 3 (constructor; first by apply: encode_nat_sat).
   constructor; last done.
-  rewrite /mset_sem /construct_valuation ? embed_unembed.
+  rw /mset_sem /construct_valuation ? embed_unembed.
   have ->: [0] = repeat 0 1 by done.
-  rewrite -?repeat_app. apply: Permutation_refl'. congr repeat.
+  rw -?repeat_app. apply: Permutation_refl'. congr repeat.
   move: Hxyz=> <-. clear. 
   elim: (φ y); clear; first by (move=> /=; lia).
   move=> φy IH. 
-  rewrite /pyramid seq_last /(plus 0 _) flat_map_concat_map map_app concat_app.
-  rewrite -flat_map_concat_map -/(pyramid _) /= ?length_app length_seq /=. by lia.
+  rw /pyramid seq_last /(plus 0 _) flat_map_concat_map map_app concat_app.
+  rw -flat_map_concat_map -/(pyramid _) /= ?length_app length_seq /=. by lia.
 Qed.
 
 (* encode a single H10UC constraint as a list of FMsetC constraints *)
@@ -464,15 +464,15 @@ Proof.
     exists (Argument.construct_valuation φ).
     elim: h10ucs Hφ; first by constructor.
     move=> [[x y] z] h10cs IH.
-    move /Forall_forall. rewrite Forall_cons_iff. move=> [Hxyz /Forall_forall /IH].
+    move /Forall_forall. rw Forall_cons_iff. move=> [Hxyz /Forall_forall /IH].
     move=> {}IH. apply /Forall_app. constructor; last done.
     by apply: Argument.encode_constraint_sat.
   - move=> [φ] Hφ.
     pose ψ := (fun x => length (φ (Argument.embed (x, 0, 1)))).
-    exists ψ. rewrite -Forall_forall.
+    exists ψ. rw -Forall_forall.
     elim: h10ucs Hφ; first done.
     move=> [[x y] z] h10ucs IH. 
-    rewrite /flat_map -/(flat_map _) /mset_sat Forall_app /(Argument.encode_h10uc _).
+    rw /flat_map -/(flat_map _) /mset_sat Forall_app /(Argument.encode_h10uc _).
     move=> [/Argument.encode_constraint_spec Hxyz /IH ?].
     by constructor.
 Qed.
@@ -515,21 +515,21 @@ Definition nat_to_term (n: nat) : mset_term := nat_to_term' (1+n) n.
 
 Lemma nat_term_cancel {t} : nat_to_term (term_to_nat t) = t.
 Proof.
-  rewrite /nat_to_term.
+  rw /nat_to_term.
   move Hk: (k in nat_to_term' (1 + k) _) => k.
   have : term_to_nat t <= k by lia.
   elim: t k {Hk}.
   - done.
-  - move=> x k /=. by rewrite Cantor.cancel_of_to.
+  - move=> x k /=. by rw Cantor.cancel_of_to.
   - move=> nt IHt nu IHu k /=.
-    rewrite Cantor.cancel_of_to => ?.
+    rw Cantor.cancel_of_to => ?.
     have ? := Cantor.to_nat_non_decreasing (S (term_to_nat nt)) (S (term_to_nat nu)).
     have -> : k = S (k - 1) by lia.
-    rewrite IHt; first by lia. by rewrite IHu; first by lia.
-  - move=> nt IH k /=. rewrite Cantor.cancel_of_to => ?.
+    rw IHt; first by lia. by rw IHu; first by lia.
+  - move=> nt IH k /=. rw Cantor.cancel_of_to => ?.
     have ? := Cantor.to_nat_non_decreasing (S (term_to_nat nt)) 0.
     have -> : k = S (k - 1) by lia.
-    by rewrite IH; first by lia.
+    by rw IH; first by lia.
 Qed.
 
 Lemma term_to_nat_pos t : term_to_nat t = S (Nat.pred (term_to_nat t)).
@@ -562,27 +562,27 @@ Proof.
   move=> [φ] Hφ.
   pose ψ x := if x is 0 then [] else mset_sem φ (nat_to_term x).
   have H'ψ (A) : ψ (term_to_nat A) = mset_sem φ A.
-  { by rewrite /ψ nat_term_cancel term_to_nat_pos. }
+  { by rw /ψ nat_term_cancel term_to_nat_pos. }
   have Hψ (A) : Forall (msetc_sem ψ) (term_to_msetcs A).
   { elim: A.
     - by constructor.
-    - by rewrite /term_to_msetcs.
+    - by rw /term_to_msetcs.
     - move=> A IHA B IHB /=. constructor; last by apply /Forall_app.
-      by rewrite /msetc_sem !H'ψ.
+      by rw /msetc_sem !H'ψ.
     - move=> A IH /=. constructor; last done.
-      by rewrite /msetc_sem !H'ψ. }
+      by rw /msetc_sem !H'ψ. }
   exists ψ.
-  rewrite -Forall_forall /encode_problem Forall_flat_map.
+  rw -Forall_forall /encode_problem Forall_flat_map.
   apply: Forall_impl; last eassumption. 
   move=> [A B] HφAB. apply /Forall_app.
   split; last by apply /Forall_app.
   constructor; [done|constructor;[|done]].
-  rewrite /msetc_sem !H'ψ. by apply /Permutation_count_occ.
+  rw /msetc_sem !H'ψ. by apply /Permutation_count_occ.
 Qed.
 
 Lemma soundness {l} : FMsetC_SAT (encode_problem l) -> FMsetTC_SAT l.
 Proof.
-  move=> [ψ]. rewrite -Forall_forall Forall_flat_map => Hψ.
+  move=> [ψ]. rw -Forall_forall Forall_flat_map => Hψ.
   pose φ x := ψ (term_to_nat (mset_term_var x)).
   exists φ.
   apply: Forall_impl; last by eassumption.
@@ -617,5 +617,5 @@ Theorem reduction : H10UC_SAT ⪯ FMsetC_SAT.
 Proof.
   have [f Hf] := H10UC_FMsetTC.reduction.
   have [g Hg] := FMsetTC_FMsetC.reduction.
-  exists (fun x => g (f x)) => ?. by rewrite Hf Hg.
+  exists (fun x => g (f x)) => ?. by rw Hf Hg.
 Qed.

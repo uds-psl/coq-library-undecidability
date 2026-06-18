@@ -31,7 +31,7 @@ Lemma iipc2_generalization {Gamma Gamma' t} :
   Forall (iipc2 Gamma') Gamma -> iipc2 Gamma t -> iipc2 Gamma' t.
 Proof.
   move=> H [P HP]. elim: P Gamma Gamma' t HP H.
-  - move=> > /typingE /nth_error_In. rewrite Forall_forall.
+  - move=> > /typingE /nth_error_In. rw Forall_forall.
     by move=> + H => /H.
   - move=> ? IH1 ? IH2 > /typingE [?] [/IH1{}IH1 /IH2{}IH2].
     move=> /[dup] [/IH1 [? ?] /IH2 [? ?]]. eexists. apply: typing_app; by eassumption. 
@@ -49,7 +49,7 @@ Proof.
   - move=> > IH Gamma Gamma' > /typingE [?] [->] /IH. 
     move=> /(_ (map (ren_poly_type S) Gamma')) + HG. apply: unnest.
     {
-      rewrite Forall_map. apply: Forall_impl HG.
+      rw Forall_map. apply: Forall_impl HG.
       move=> ? [Q]. eexists. apply: typing_ren_poly_type. by eassumption.
     }
     move=> [? ?]. eexists. apply: typing_ty_abs. by eassumption.
@@ -71,7 +71,7 @@ Proof.
     apply: typing_abs. by apply: HP.
   - move=> s + x Gamma /= => /(_ (S x) (map (ren_poly_type S) Gamma)).
     case: (last_poly_var s); last done. move=> [|y]; first done.
-    move=> + [?] ?. subst y. rewrite in_map_iff.
+    move=> + [?] ?. subst y. rw in_map_iff.
     apply: unnest; first done. apply: unnest.
     { eexists. constructor; last by eassumption. done. }
     move=> [?] /typing_ty_abs ?. eexists. by eassumption.
@@ -113,10 +113,10 @@ Proof.
     elim: Gamma HG; first done.
     move=> s Gamma H /Forall_cons_iff [Hx /H{H} /= ->].
     congr cons. apply: ext_ren_poly_type_allfv_poly_type.
-    apply: allfv_poly_type_impl Hx => ? ?. rewrite /ξ. by case: (PeanoNat.Nat.eq_dec _ _).
+    apply: allfv_poly_type_impl Hx => ? ?. rw /ξ. by case: (PeanoNat.Nat.eq_dec _ _).
   }
   move=> [?] /typing_ty_abs /iipc2I. congr iipc2. congr poly_abs.
-  rewrite poly_type_norm /ξ /= ren_poly_type_allfv_id; last done.
+  rw poly_type_norm /ξ /= ren_poly_type_allfv_id; last done.
   apply: allfv_poly_type_impl Ht. clear.
   move=> [|y]; case: (PeanoNat.Nat.eq_dec _ _); move=> /=; by lia.
 Qed.
@@ -127,7 +127,7 @@ Lemma iipc2_poly_varI x {Gamma ts ss y} :
   iipc2 Gamma (poly_var y).
 Proof.
   move=> /typing_var /typing_many_ty_appI => /(_ ts ltac:(done)).
-  rewrite subst_poly_type_many_poly_arr /subst_poly_type -length_rev fold_right_length_ts -/subst_poly_type.
+  rw subst_poly_type_many_poly_arr /subst_poly_type -length_rev fold_right_length_ts -/subst_poly_type.
   move=> /iipc2I. move: (map _ ss) => {}ss. move: (poly_var y) => t.
   elim: ss t; first done.
   by move=> s ss IH t /= [?] /typing_app H /Forall_cons_iff [[?] /H{H} /iipc2I /IH].

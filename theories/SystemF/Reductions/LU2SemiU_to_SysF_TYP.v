@@ -61,11 +61,11 @@ Proof. elim: s; [done | by move=> /= ? + ? + => -> ->]. Qed.
 
 Lemma is_simple_t_1_W : is_simple t_1_W.
 Proof.
-  by rewrite /t_1_W /= /SUt0' /SUt1' /SUs' ?is_simple_SU_term_to_poly_type.
+  by rw /t_1_W /= /SUt0' /SUt1' /SUs' ?is_simple_SU_term_to_poly_type.
 Qed.
 
 Lemma closed_t_1_W : allfv_poly_type (gt n_W) t_1_W.
-Proof. rewrite /n_W -lock. by apply: poly_var_boundP. Qed.
+Proof. rw /n_W -lock. by apply: poly_var_boundP. Qed.
 
 Lemma is_simple_t_0_W : is_simple t_0_W.
 Proof. done. Qed.
@@ -100,9 +100,9 @@ Local Arguments map : simpl never.
 Lemma map_ren_poly_type_Gamma_W {ξ}: map (ren_poly_type ξ) Gamma_W = Gamma_W.
 Proof.
   congr cons. congr cons. apply: ren_poly_type_closed_id.
-  rewrite allfv_poly_type_many_poly_abs.
+  rw allfv_poly_type_many_poly_abs.
   apply: allfv_poly_type_impl closed_t_1_W.
-  move=> ? ?. rewrite iter_scons_lt; by [|lia].
+  move=> ? ?. rw iter_scons_lt; by [|lia].
 Qed.
 
 (* decompose first layer of Wells' type checking term *)
@@ -112,7 +112,7 @@ Proof.
   move=> [?] /pure_typingE /= [?] [?] [?] [?] [+] [+] [_ ?].
   move=> /pure_typingE' [?] [[?]]. subst.
   move=> /(contains_poly_arrE (n := 2)) [?] [?] [? ?]. subst.
-  rewrite map_ren_poly_type_Gamma_W => ?. eexists. by eassumption. 
+  rw map_ren_poly_type_Gamma_W => ?. eexists. by eassumption. 
 Qed.
 
 (* decompose second layer of Wells' type checking term *)
@@ -127,13 +127,13 @@ Proof.
   move=> /pure_typingE' [?] [?] [+] [+ H2C].
   move=> /pure_typingE' [?] [[?]] H3C. subst.
   move=> H1 H2.
-  move: H3C. rewrite ren_poly_type_many_poly_abs /t_1_W /=.
+  move: H3C. rw ren_poly_type_many_poly_abs /t_1_W /=.
   move=> /contains_poly_arrE [?] [?] [? ?]. subst.
   move: H2C => /containsE [? ?]. subst.
   move: H1C => /containsE ?. subst.
   do 2 eexists. 
-  constructor; first by rewrite ?poly_type_norm.
-  constructor; [move: H1 | move: H2]; by rewrite ?poly_type_norm.
+  constructor; first by rw ?poly_type_norm.
+  constructor; [move: H1 | move: H2]; by rw ?poly_type_norm.
 Qed.
 
 (* decompose third layer of Wells' type checking term *)
@@ -143,9 +143,9 @@ Lemma decompose_x_W {n σ Gamma s' t'} :
   exists τ, subst_poly_type (funcomp (subst_poly_type τ) σ) s' = subst_poly_type σ t'.
 Proof.
   move=> /= /pure_typingE' /= [?] [[?]]. subst.
-  rewrite ren_poly_type_many_poly_abs /=.
+  rw ren_poly_type_many_poly_abs /=.
   move=> /contains_poly_arrE [?] [?] [-> _].
-  rewrite ?poly_type_norm. by eexists.
+  rw ?poly_type_norm. by eexists.
 Qed.
 
 (* construct semi-unification term from a polymorphic type pruning quantification *)
@@ -172,7 +172,7 @@ Lemma introduce_simple_substitutions {s t σ τ} :
   exists ψ, SU.substitute ψ (SU.substitute (funcomp prune σ) s) = SU.substitute (funcomp prune σ) t.
 Proof.
   move=> H. have [ψ Hψ] := substitute_prune_ex τ (subst_poly_type σ (SU_term_to_poly_type s)).
-  exists ψ. by rewrite ?substitute_prune Hψ -H poly_type_norm.
+  exists ψ. by rw ?substitute_prune Hψ -H poly_type_norm.
 Qed.
 
 End InverseTransport.
@@ -183,7 +183,7 @@ Proof.
   move=> [Gamma] [t] /pure_typing_iff_type_assignment.
   move=> /pure_typing_tidyI /pure_typableI /(svalP HM_W2) /(svalP HM_W1).
   move=> [?] /(pure_typing_ren_pure_term_allfv_pure_term id (Delta := map tidy Gamma_W)).
-  apply: unnest; first done. rewrite ren_pure_term_id => /pure_typableI.
+  apply: unnest; first done. rw ren_pure_term_id => /pure_typableI.
   move=> /(pure_typable_tidy_iff (Gamma1 := [])). apply: unnest; first by apply: prenex_Gamma_W.
   move=> /decompose_M_W [?] /decompose_N_W [?] [σ] [->].
   move=> [/decompose_x_W [?] + /decompose_x_W [?] +].
@@ -217,13 +217,13 @@ Definition Q_W : term := abs t_x_W (many_ty_abs n_W' (app (app (many_ty_app (var
 Definition P_W : term := app (ty_app (ty_app (var 0) (poly_var 0)) t_x_W) Q_W.
 
 Fact poly_var_bound_SUt0'_n_W : poly_var_bound SUt0' < n_W.
-Proof. rewrite /n_W /t_1_W /= -lock. by lia. Qed. 
+Proof. rw /n_W /t_1_W /= -lock. by lia. Qed. 
 
 Fact poly_var_bound_SUt1'_n_W : poly_var_bound SUt1' < n_W.
-Proof. rewrite /n_W /t_1_W /= -lock. by lia. Qed.
+Proof. rw /n_W /t_1_W /= -lock. by lia. Qed.
 
 Fact poly_var_bound_SUs'_n_W : poly_var_bound SUs' < n_W.
-Proof. rewrite /n_W /t_1_W /= -lock. by lia. Qed.
+Proof. rw /n_W /t_1_W /= -lock. by lia. Qed.
 
 Lemma SU_term_to_poly_type_SU_substitute {ζ t} : 
   subst_poly_type (fun x : nat => SU_term_to_poly_type (ζ x)) (SU_term_to_poly_type t) = 
@@ -237,7 +237,7 @@ Lemma subst_poly_type_SU_term_to_poly_type {ζ n t} :
     (SU_term_to_poly_type t) =
   SU_term_to_poly_type (SU.substitute ζ t).
 Proof.
-  move=> ?. rewrite subst_poly_type_map_seq; first by lia.
+  move=> ?. rw subst_poly_type_map_seq; first by lia.
   by apply: SU_term_to_poly_type_SU_substitute.
 Qed.
 
@@ -247,25 +247,25 @@ Proof. by move=> ->. Qed.
 Lemma typing_x_1_W : 
   (forall Gamma, typing (many_poly_abs n_W' (poly_arr t_x_W' t_x_W') :: Gamma) x_1_W (poly_arr t_x_0_W t_x_0_W)).
 Proof using Hφψ0.
-  move=> Gamma. rewrite /x_1_W. evar (t: poly_type).
+  move=> Gamma. rw /x_1_W. evar (t: poly_type).
   have := @typing_var (many_poly_abs n_W' (poly_arr t_x_W' t_x_W') :: Gamma) 0 t.
   subst t. move=> /(_ ltac:(reflexivity)) /typing_many_ty_appI => /(_ ts_1_W).
-  apply: unnest. { by rewrite /ts_1_W length_map length_rev length_seq. }
-  congr typing => /=. apply: poly_arr_eq_eq. rewrite /ts_1_W /t_x_W' /t_x_0_W -Hφψ0.
-  rewrite -map_rev rev_involutive. apply: subst_poly_type_SU_term_to_poly_type.
-  rewrite /n_W' /t_x_W' -lock /=. by lia.
+  apply: unnest. { by rw /ts_1_W length_map length_rev length_seq. }
+  congr typing => /=. apply: poly_arr_eq_eq. rw /ts_1_W /t_x_W' /t_x_0_W -Hφψ0.
+  rw -map_rev rev_involutive. apply: subst_poly_type_SU_term_to_poly_type.
+  rw /n_W' /t_x_W' -lock /=. by lia.
 Qed.
 
 Lemma typing_x_2_W : 
   (forall Gamma, typing (many_poly_abs n_W' (poly_arr t_x_W' t_x_W') :: Gamma) x_2_W (poly_arr t_x_1_W t_x_1_W)).
 Proof using Hφψ1.
-  move=> Gamma. rewrite /x_2_W. evar (t: poly_type).
+  move=> Gamma. rw /x_2_W. evar (t: poly_type).
   have := @typing_var (many_poly_abs n_W' (poly_arr t_x_W' t_x_W') :: Gamma) 0 t.
   subst t. move=> /(_ ltac:(reflexivity)) => /typing_many_ty_appI => /(_ ts_2_W).
-  apply: unnest. { by rewrite /ts_2_W length_map length_rev length_seq. }
-  congr typing => /=. apply: poly_arr_eq_eq. rewrite /ts_2_W /t_x_W' /t_x_1_W -Hφψ1.
-  rewrite -map_rev rev_involutive. apply: subst_poly_type_SU_term_to_poly_type.
-  rewrite /n_W' /t_x_W' -lock /=. by lia. 
+  apply: unnest. { by rw /ts_2_W length_map length_rev length_seq. }
+  congr typing => /=. apply: poly_arr_eq_eq. rw /ts_2_W /t_x_W' /t_x_1_W -Hφψ1.
+  rw -map_rev rev_involutive. apply: subst_poly_type_SU_term_to_poly_type.
+  rw /n_W' /t_x_W' -lock /=. by lia. 
 Qed.
 
 Lemma typing_Q_W : 
@@ -279,40 +279,40 @@ Proof.
   - evar (t : poly_type).
     have := @typing_var (map (ren_poly_type (Nat.add n_W')) (t_x_W :: Gamma_W)) 2 t.
     subst t. move=> /(_ ltac:(reflexivity)).
-    rewrite ren_poly_type_many_poly_abs.
+    rw ren_poly_type_many_poly_abs.
     move /typing_many_ty_appI => /(_ ts_0_W). apply: unnest.
-    { by rewrite /ts_0_W length_map length_rev length_seq. }
-    congr typing. rewrite /t_1_W /= -map_rev rev_involutive.
+    { by rw /ts_0_W length_map length_rev length_seq. }
+    congr typing. rw /t_1_W /= -map_rev rev_involutive.
     congr poly_arr; [| congr poly_arr]; apply: poly_arr_eq_eq.
-    + have := poly_var_bound_SUt0'_n_W. rewrite /t_x_0_W /SUt0' /ts_0_W.
-      move=> ?. rewrite ren_poly_type_poly_var_bound; first by lia.
+    + have := poly_var_bound_SUt0'_n_W. rw /t_x_0_W /SUt0' /ts_0_W.
+      move=> ?. rw ren_poly_type_poly_var_bound; first by lia.
       by apply: subst_poly_type_SU_term_to_poly_type.
-    + have := poly_var_bound_SUt1'_n_W. rewrite /t_x_1_W /SUt1' /ts_0_W.
-      move=> ?. rewrite ren_poly_type_poly_var_bound; first by lia.
+    + have := poly_var_bound_SUt1'_n_W. rw /t_x_1_W /SUt1' /ts_0_W.
+      move=> ?. rw ren_poly_type_poly_var_bound; first by lia.
       by apply: subst_poly_type_SU_term_to_poly_type.
-    + have := poly_var_bound_SUs'_n_W. rewrite /t_x_W' /SUs' /ts_0_W.
-      move=> ?. rewrite ren_poly_type_poly_var_bound; first by lia.
+    + have := poly_var_bound_SUs'_n_W. rw /t_x_W' /SUs' /ts_0_W.
+      move=> ?. rw ren_poly_type_poly_var_bound; first by lia.
       by apply: subst_poly_type_SU_term_to_poly_type.
-  - rewrite /(map _ (_ :: _)) -/(map _ _). move: (map _ Gamma_W) => Gamma. 
-    rewrite /t_x_W ren_poly_type_many_poly_abs ren_poly_type_poly_var_bound; 
-      first by (rewrite /n_W' -lock /=; lia).
+  - rw /(map _ (_ :: _)) -/(map _ _). move: (map _ Gamma_W) => Gamma. 
+    rw /t_x_W ren_poly_type_many_poly_abs ren_poly_type_poly_var_bound; 
+      first by (rw /n_W' -lock /=; lia).
     by apply: H1.
-  - rewrite /(map _ (_ :: _)) -/(map _ _). move: (map _ Gamma_W) => Gamma. 
-    rewrite /t_x_W ren_poly_type_many_poly_abs ren_poly_type_poly_var_bound; 
-      first by (rewrite /n_W' -lock /=; lia).
+  - rw /(map _ (_ :: _)) -/(map _ _). move: (map _ Gamma_W) => Gamma. 
+    rw /t_x_W ren_poly_type_many_poly_abs ren_poly_type_poly_var_bound; 
+      first by (rw /n_W' -lock /=; lia).
     by apply: H2.
 Qed.
 
 Lemma erase_P_W : erase P_W = M_W.
 Proof.
-  by rewrite /P_W /= erase_many_ty_abs /= /x_1_W /x_2_W ?erase_many_ty_app.
+  by rw /P_W /= erase_many_ty_abs /= /x_1_W /x_2_W ?erase_many_ty_app.
 Qed.
 
 Lemma typing_P_W : 
   typing Gamma_W Q_W (poly_arr t_x_W t_x_W) ->
   typing Gamma_W P_W (poly_var 0).
 Proof.
-  rewrite /P_W. apply: typing_app.
+  rw /P_W. apply: typing_app.
   apply: typing_ty_appI; [apply: typing_ty_appI |]; [by apply: typing_var | done | done].
 Qed.
 
@@ -320,7 +320,7 @@ Lemma pure_typable_M_W :
   typing Gamma_W P_W (poly_var 0) ->
   pure_typable Gamma_W M_W.
 Proof.
-  move=> /typing_to_pure_typing /pure_typableI. by rewrite erase_P_W. 
+  move=> /typing_to_pure_typing /pure_typableI. by rw erase_P_W. 
 Qed.
 
 End Transport.

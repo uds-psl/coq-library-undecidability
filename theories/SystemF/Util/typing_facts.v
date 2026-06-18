@@ -48,17 +48,17 @@ Proof.
   elim: P Gamma t σ.
   - move=> > /typingE ? /=. apply: typing_var. by apply: map_nth_error.
   - move=> ? IH1 ? IH2 > /typingE [? [? ?]] /=. apply: typing_app; last by apply: IH2; eassumption.
-    rewrite -/(subst_poly_type _ (poly_arr _ _)). by apply: IH1.
+    rw -/(subst_poly_type _ (poly_arr _ _)). by apply: IH1.
   - move=> s P IH > /typingE [?] [-> ?] /=. apply: typing_abs.
-    rewrite -/(map _ (_ :: _)). rewrite ?term_norm. by apply: IH.
+    rw -/(map _ (_ :: _)). rw ?term_norm. by apply: IH.
   - move=> P IH s Gamma t σ /typingE [t'] [-> /IH] /=. 
     move=> /(_ σ) /typing_ty_app => /(_ (subst_poly_type σ s)).
     congr typing.
-    rewrite ?poly_type_norm. apply: ext_poly_type => [[|x]]; first done.
-    by rewrite /= ?poly_type_norm /= subst_poly_type_poly_var.
+    rw ?poly_type_norm. apply: ext_poly_type => [[|x]]; first done.
+    by rw /= ?poly_type_norm /= subst_poly_type_poly_var.
   - move=> P IH Gamma t σ /typingE [?] [-> /IH {}IH] /=. apply: typing_ty_abs.
-    have := IH (poly_var 0 .: σ >> ren_poly_type S). congr typing. rewrite ?map_map.
-    apply: map_ext. move=> ?. by rewrite ?poly_type_norm.
+    have := IH (poly_var 0 .: σ >> ren_poly_type S). congr typing. rw ?map_map.
+    apply: map_ext. move=> ?. by rw ?poly_type_norm.
 Qed.
 
 (* typing is preserved under type renamings *)
@@ -66,9 +66,9 @@ Lemma typing_ren_poly_type {Gamma P t} ξ : typing Gamma P t ->
   typing (map (ren_poly_type ξ) Gamma) (ren_term ξ id P) (ren_poly_type ξ t).
 Proof.
   move=> /(typing_subst_poly_type (ξ >> poly_var)). congr typing.
-  - apply: map_ext => ?. by rewrite -[RHS]subst_poly_type_poly_var ?poly_type_norm. 
-  - by rewrite -[RHS]subst_term_poly_var_var ?term_norm.
-  - by rewrite -[RHS]subst_poly_type_poly_var ?poly_type_norm.
+  - apply: map_ext => ?. by rw -[RHS]subst_poly_type_poly_var ?poly_type_norm. 
+  - by rw -[RHS]subst_term_poly_var_var ?term_norm.
+  - by rw -[RHS]subst_poly_type_poly_var ?poly_type_norm.
 Qed.
 
 (* assigned types are unique *)
@@ -99,14 +99,14 @@ Lemma typing_many_ty_appI {Gamma P n t ts} :
   typing Gamma (many_ty_app P ts) (subst_poly_type (fold_right scons poly_var (rev ts)) t).
 Proof.
   elim: n Gamma P t ts.
-  - move=> ? ? ? [|]; last done. move=> _ /=. congr typing. by rewrite subst_poly_type_poly_var.
+  - move=> ? ? ? [|]; last done. move=> _ /=. congr typing. by rw subst_poly_type_poly_var.
   - move=> n IH Gamma P t. elim /rev_ind; first done.
-    move=> s ts'. rewrite length_app /many_poly_abs -iter_last -/(many_poly_abs _ _) /=.
+    move=> s ts'. rw length_app /many_poly_abs -iter_last -/(many_poly_abs _ _) /=.
     move=> ? ?. have /IH {}IH : length ts' = n by lia.
-    move=> /IH {}IH. rewrite rev_unit many_ty_app_app /=.
+    move=> /IH {}IH. rw rev_unit many_ty_app_app /=.
     move: IH => /= => /typing_ty_app => /(_ s). congr typing.
-    rewrite ?poly_type_norm. apply: ext_poly_type => [[|x]]; first done.
-    by rewrite /= ?poly_type_norm /= subst_poly_type_poly_var.
+    rw ?poly_type_norm. apply: ext_poly_type => [[|x]]; first done.
+    by rw /= ?poly_type_norm /= subst_poly_type_poly_var.
 Qed.
 
 Lemma typing_ty_appI {Gamma P t s s'}: 
@@ -118,11 +118,11 @@ Lemma typing_many_ty_absI {n Gamma P t}:
   typing Gamma (many_ty_abs n P) (many_poly_abs n t).
 Proof.
   elim: n Gamma P t.
-  - move=> >. under map_ext => ? do rewrite /= ren_poly_type_id. by rewrite map_id.
+  - move=> >. under map_ext => ? do rw /= ren_poly_type_id. by rw map_id.
   - move=> n IH > H /=. apply: typing_ty_abs. apply: IH.
-    move: H. congr typing. rewrite map_map. apply: map_ext.
-    move=> ?. rewrite ?poly_type_norm. apply: extRen_poly_type. 
-    move=> ?. rewrite /funcomp /=. by lia.
+    move: H. congr typing. rw map_map. apply: map_ext.
+    move=> ?. rw ?poly_type_norm. apply: extRen_poly_type. 
+    move=> ?. rw /funcomp /=. by lia.
 Qed.
 
 (* typing Gamma P t implies that every free term variable of P is typed in Gamma *)
@@ -136,7 +136,7 @@ Proof.
   - move=> > ?. apply: allfv_term_impl. by case.
   - done.
   - move=> > ?. apply: allfv_term_impl => ?.
-    rewrite nth_error_map. case: (nth_error _ _); last by case.
+    rw nth_error_map. case: (nth_error _ _); last by case.
     move=> *. by eexists.
 Qed.
 
@@ -150,15 +150,15 @@ Proof.
   - move=> ? IH1 ? IH2 > /= [/IH1 {}IH1 /IH2 {}IH2].
     move=> /typingE [?] [/IH1 ? /IH2 ?] /=. apply: typing_app; by eassumption.
   - move=> > IH > /= H /typingE [?] [->] /IH /= {}IH.
-    rewrite ren_poly_type_id. apply: typing_abs. apply: IH.
+    rw ren_poly_type_id. apply: typing_abs. apply: IH.
     apply: allfv_term_impl H. by case.
   - move=> > IH > /IH {}IH. move=> /typingE [?] [->] /IH {}IH /=.
-    rewrite ren_poly_type_id. by apply: typing_ty_app.
+    rw ren_poly_type_id. by apply: typing_ty_app.
   - move=> > IH > /= H. move=> /typingE [?] [->] /IH {}IH /=.
     apply: typing_ty_abs. under extRen_term.
-    + move=> ?. rewrite upRen_poly_type_poly_type_id. over.
-    + move=> ?. rewrite /upRen_poly_type_term. over.
-    + apply: IH. apply: allfv_term_impl H => ?. rewrite ?nth_error_map. by move=> ->.
+    + move=> ?. rw upRen_poly_type_poly_type_id. over.
+    + move=> ?. rw /upRen_poly_type_term. over.
+    + apply: IH. apply: allfv_term_impl H => ?. rw ?nth_error_map. by move=> ->.
 Qed.
 
 (* copying, permuting, and adding new assumptions to the environment preserves derivations *)
@@ -175,7 +175,7 @@ Lemma typing_ren_term' {ξ Gamma Delta P t} :
   (forall n, nth_error Gamma n = nth_error Delta (ξ n)) ->
   typing Gamma P t ->
   typing Delta (ren_term id ξ P) t.
-Proof. move=> H /typing_ren_term. apply => ? ?. by rewrite H. Qed.
+Proof. move=> H /typing_ren_term. apply => ? ?. by rw H. Qed.
 
 (* typing is preserved under substitutions *)
 Lemma typing_subst_term {Gamma Delta P t} σ :
@@ -187,15 +187,15 @@ Proof.
   - by move=> > + > H => /H.
   - move=> > ? IH1 ? IH2 > H /=. 
     apply: typing_app; [by apply: IH1 | by apply: IH2].
-  - move=> > ? IH > H /=. rewrite subst_poly_type_poly_var ?term_norm. 
+  - move=> > ? IH > H /=. rw subst_poly_type_poly_var ?term_norm. 
     apply: typing_abs. apply: IH => [[|n]] ?. 
     + move=> /= [<-]. by apply: typing_var.
     + move=> /H /typing_ren_term. apply. by case.
-  - move=> > _ IH > ? /=. rewrite subst_poly_type_poly_var.
+  - move=> > _ IH > ? /=. rw subst_poly_type_poly_var.
     by apply /typing_ty_app /IH.
   - move=> {}Gamma > _ IH > H /=.
-    under ext_term => [? | ?] do [rewrite up_poly_type_poly_type_poly_var |].
-    apply /typing_ty_abs /IH => n' s'. rewrite nth_error_map.
+    under ext_term => [? | ?] do [rw up_poly_type_poly_type_poly_var |].
+    apply /typing_ty_abs /IH => n' s'. rw nth_error_map.
     case Hn': (nth_error Gamma n'); last done.
     move: Hn' => /H {}H [<-]. by apply: typing_ren_poly_type.
 Qed.
@@ -215,7 +215,7 @@ Proof.
     exists (app (ren_term id S P) (var 0)). constructor; last constructor.
     + apply: normal_form_head_form. 
       apply: head_form_app; [by apply: head_form_ren_term | by eauto using normal_form, head_form ].
-    + rewrite /= term_size_ren_term. by lia.
+    + rw /= term_size_ren_term. by lia.
     + apply: typing_app; [by eassumption | by apply: typing_var].
   - move=> > ? /typingE [?] [[-> ->]] ?. eexists. 
     constructor; first by eassumption.
@@ -232,15 +232,15 @@ Proof.
     constructor; first by eauto using normal_form, head_form.
     constructor; first by move=> /=; lia.
     move: HP => /typing_ty_app => /(_ (poly_var x)). congr typing.
-    rewrite -[RHS]subst_poly_type_poly_var ?poly_type_norm.
+    rw -[RHS]subst_poly_type_poly_var ?poly_type_norm.
     apply: ext_poly_type. by case.
   - by move=> > ? /typingE [?] [].
   - move=> {}P ? /typingE [?] [[<-]] + x. 
     move=> /(typing_ren_poly_type (x .: id)) HP.
     exists (ren_term (x .: id) id P). constructor; first by apply: normal_form_ren_term.
-    rewrite term_size_ren_term /=. constructor; first by lia.
-    move: HP. congr typing. rewrite map_map -[RHS]map_id. apply: map_ext.
-    move=> ?. by rewrite ?poly_type_norm ren_poly_type_id'.
+    rw term_size_ren_term /=. constructor; first by lia.
+    move: HP. congr typing. rw map_map -[RHS]map_id. apply: map_ext.
+    move=> ?. by rw ?poly_type_norm ren_poly_type_id'.
 Qed.
 
 Lemma typing_many_app_arguments {Gamma P Qs t ss t'} :
@@ -253,7 +253,7 @@ Proof.
   - move=> ? ? [|] *; [by constructor | done].
   - move=> Q Qs IH P ? [|? ?] ?; first done.
     move=> [/IH {}IH] /= /[dup] [/IH {}IH].
-    rewrite -many_argument_app_map_argument_term. move=> /typing_many_argument_subterm [?].
+    rw -many_argument_app_map_argument_term. move=> /typing_many_argument_subterm [?].
     move=> /[dup] [/typingE [?] [+ ?]].
     move=> /typing_functional H + /H{H} [? ?]. subst.
     move=> /IH ?. by constructor.

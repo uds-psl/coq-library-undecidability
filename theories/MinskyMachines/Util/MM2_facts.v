@@ -34,7 +34,7 @@ Qed.
 
 Lemma mm2_instr_at_bounds {P: list mm2_instr} {mmi: mm2_instr} {i: nat} : 
   mm2_instr_at mmi i P -> 0 < i /\ i <= length P.
-Proof. move=> [l] [r] [-> <-]. rewrite length_app /=. by lia. Qed.
+Proof. move=> [l] [r] [-> <-]. rw length_app /=. by lia. Qed.
 
 Lemma mm2_instr_at_pos {P: list mm2_instr} {mmi: mm2_instr} {i: nat} : mm2_instr_at mmi i P -> i = S (Nat.pred i).
 Proof. by move=> [?] [?] [_ <-] /=. Qed.
@@ -46,7 +46,7 @@ Proof.
   - move=> /(@nth_error_split mm2_instr) [?] [?] [-> <-].
     by do 2 eexists.
   - move=> [?] [?] [-> [<-]].
-    by rewrite nth_error_app2 ?Nat.sub_diag.
+    by rw nth_error_app2 ?Nat.sub_diag.
 Qed.
 
 Lemma mm2_instr_at_unique {P: list mm2_instr} {i op op'} : mm2_instr_at op i P -> mm2_instr_at op' i P -> op = op'.
@@ -104,7 +104,7 @@ Proof.
     exists y. exists instr.
     by split; [apply /nth_error_Some_mm2_instr_at_iff|].
   + right => y [?] /= [/nth_error_Some_mm2_instr_at_iff].
-    by rewrite Hinstr.
+    by rw Hinstr.
 Qed.
 
 Lemma mm2_exists_step_dec P x :
@@ -189,7 +189,7 @@ Qed.
 Lemma mm2_stop_index_eq {P x y} : mm2_stop P x -> index x = index y -> mm2_stop P y.
 Proof.
   move=> Hx Hxy z Hyz.
-  move: Hyz => [i]. rewrite -Hxy => - [Hi _].
+  move: Hyz => [i]. rw -Hxy => - [Hi _].
   have [z' Hxz'] := mm2_progress i x.
   apply: Hx. eexists. by split; eassumption.
 Qed.

@@ -30,7 +30,7 @@ Lemma TM_BTM_iff {sig} {M : TM sig 1} {ts : Vector.t (tape sig) 1} :
   HaltsTM (TM_BTM.M' M) (cons _ (hd (TM_BTM.ts' ts)) 0 (nil _)).
 Proof.
   have -> (A) (v : Vector.t A 1) : cons _ (hd v) 0 (nil _) = v
-    by rewrite (vec.vec_head_tail v) (vec.vec_0_nil (vec.vec_tail v)).
+    by rw (vec.vec_head_tail v) (vec.vec_0_nil (vec.vec_tail v)).
   by apply: TM_BTM.HaltTM_Σ_to_HaltTM_bool_correct.
 Qed.
 

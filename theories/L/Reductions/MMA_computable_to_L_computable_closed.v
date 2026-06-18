@@ -54,9 +54,9 @@ Proof.
   have : clos_refl_trans _ step
     (substs 0 (rev (map nat_enc (VectorDef.to_list v))) (enc_set_state k n))
     (enc_regs (fold_left (fun w '(x, c) => Vector.replace w (Fin.FS (Fin.L n x)) c) (combine (fin_seq k) (Vector.to_list v)) (Vector.const 0 (1 + k + n)))).
-  { rewrite /enc_set_state.
+  { rw /enc_set_state.
   move: (Vector.const 0 (1 + k + n))=> cs.
-  rewrite substs_apps substs_closed; first by apply: enc_regs_closed.
+  rw substs_apps substs_closed; first by apply: enc_regs_closed.
     have ->: forall xs, map (substs 0 (rev (map nat_enc (VectorDef.to_list v))))
       (map (fun '(x, i) => app (enc_replace (Fin.L n (Fin.FS x))) (var i))
       (combine xs (rev (seq 0 k)))) =
@@ -66,16 +66,16 @@ Proof.
     move=> c k' v IH ? [|x xs]; first done.
     have ->: seq 0 (S k') = seq 0 (k' + 1).
     { congr seq. lia. }
-    rewrite seq_app rev_app_distr Vector.to_list_cons /=. congr cons.
-    - rewrite substs_closed; first by apply: enc_replace_closed.
-      congr app. rewrite app_nth2 length_rev length_map Vector.length_to_list; first done.
-      by rewrite Nat.sub_diag.
-    - rewrite -IH. apply: map_ext_in=> s /in_map_iff [[y j]] [<-].
+    rw seq_app rev_app_distr Vector.to_list_cons /=. congr cons.
+    - rw substs_closed; first by apply: enc_replace_closed.
+      congr app. rw app_nth2 length_rev length_map Vector.length_to_list; first done.
+      by rw Nat.sub_diag.
+    - rw -IH. apply: map_ext_in=> s /in_map_iff [[y j]] [<-].
       move=> /(@in_combine_r (Fin.t _) nat) /in_rev.
-      rewrite rev_involutive=> /in_seq ? /=.
-      rewrite !substs_closed; [by apply: enc_replace_closed..|].
-      congr app. rewrite app_nth1; last done.
-      rewrite length_rev length_map Vector.length_to_list. lia. }
+      rw rev_involutive=> /in_seq ? /=.
+      rw !substs_closed; [by apply: enc_replace_closed..|].
+      congr app. rw app_nth1; last done.
+      rw length_rev length_map Vector.length_to_list. lia. }
   
   move: (fin_seq k)=> xs.
   move: (Vector.to_list v)=> c's.
@@ -87,54 +87,54 @@ Proof.
       { apply: rt_steps_apps_r. apply: eval_rt_steps. apply: enc_replace_spec. by apply: eval_nat_enc. }
       by apply: IH. }
   congr clos_refl_trans. congr enc_regs.
-  rewrite [RHS](@Vector.eta _ (k + n)) [LHS](@Vector.eta _ (k + n)).
-  congr (@Vector.cons _ _ (k + n)); rewrite /=.
+  rw [RHS](@Vector.eta _ (k + n)) [LHS](@Vector.eta _ (k + n)).
+  congr (@Vector.cons _ _ (k + n)); rw /=.
   - elim: (fin_seq k) (Vector.to_list v) (Vector.const 0 (k + n)); first done.
     by move=> ?? IH [|??] ?; [|apply: IH].
   - apply /Vector.eq_nth_iff=> x ? <-.
     pattern x. apply: Fin.case_L_R'=> {}x.
-    + rewrite Vector.nth_append_L.
+    + rw Vector.nth_append_L.
       have : forall x c, In (x, c) (combine (fin_seq k) (Vector.to_list v)) -> Vector.nth v x = c.
       { elim: v; first done.
-        move=> > IH {}x c /=. rewrite Vector.to_list_cons /=.
+        move=> > IH {}x c /=. rw Vector.to_list_cons /=.
         move=> [[??]|]; first by subst.
-        rewrite combine_map_l.
+        rw combine_map_l.
         move=> /in_map_iff [[??]] [[??]] /IH ?. by subst. }
       have : In (x, Vector.nth v x) (combine (fin_seq k) (Vector.to_list v)).
       { elim: v x; first by apply: Fin.case0.
         move=> > IH x.
         pattern x. apply: Fin.caseS'; first by left.
-        move=> {}x. rewrite Vector.to_list_cons /=. right.
-        rewrite combine_map_l. apply /in_map_iff. by eexists (_, _). }
-      rewrite -Vector.append_const.
+        move=> {}x. rw Vector.to_list_cons /=. right.
+        rw combine_map_l. apply /in_map_iff. by eexists (_, _). }
+      rw -Vector.append_const.
       move: (VectorDef.const 0 k).
       elim /rev_ind: (combine (fin_seq k) (Vector.to_list v)); first done.
       move=> [y j] ? IH ? /in_app_iff H'.
-      move=> H. rewrite fold_left_app /=.
-      rewrite [fold_left _ _ _](@Vector.eta _ (k + n)) /=.
+      move=> H. rw fold_left_app /=.
+      rw [fold_left _ _ _](@Vector.eta _ (k + n)) /=.
       have [?|?] := Fin.eq_dec x y.
-      * subst. rewrite Vector.nth_replace_eq.
-        rewrite (H y j); last done.
+      * subst. rw Vector.nth_replace_eq.
+        rw (H y j); last done.
         apply /in_app_iff. right. by left.
-      * rewrite Vector.nth_replace_neq; first by move=> /Fin.L_inj.
+      * rw Vector.nth_replace_neq; first by move=> /Fin.L_inj.
         apply: IH=> *.
         ** by move: H' => [|[[/(@eq_sym (Fin.t k))]|]].
         ** apply: H. apply /in_app_iff. by left.
-    + rewrite Vector.nth_append_R Vector.const_nth -Vector.append_const.
+    + rw Vector.nth_append_R Vector.const_nth -Vector.append_const.
       elim: (fin_seq k) (Vector.to_list v) (VectorDef.const 0 k).
-      * move=> /= *. by rewrite Vector.nth_append_R Vector.const_nth.
-      * move=> ?? IH [|??] ? /=; first by rewrite Vector.nth_append_R Vector.const_nth.
-        by rewrite Vector.replace_append_L IH.
+      * move=> /= *. by rw Vector.nth_append_R Vector.const_nth.
+      * move=> ?? IH [|??] ? /=; first by rw Vector.nth_append_R Vector.const_nth.
+        by rw Vector.replace_append_L IH.
 Qed.
 
 Lemma subst_enc_set_state k n m u : subst (enc_set_state k n) (k + m) u = enc_set_state k n.
 Proof.
-  rewrite /enc_set_state subst_apps enc_regs_closed.
-  congr fold_left. rewrite map_map.
+  rw /enc_set_state subst_apps enc_regs_closed.
+  congr fold_left. rw map_map.
   apply: map_ext_in=> - [x i].
-  rewrite /= enc_replace_closed.
+  rw /= enc_replace_closed.
   move=> /(@in_combine_r (Fin.t k) nat) /in_rev.
-  rewrite rev_involutive.
+  rw rev_involutive.
   move=> /in_seq ?.
   by have /Nat.eqb_neq -> : i <> k + m by lia.
 Qed.
@@ -147,20 +147,20 @@ Lemma enc_init_spec {k n} (P : list (MM.mm_instr (Fin.t (1 + k + n)))) (v : Vect
       (lams k (apps (enc_run P) [pi P (addr P 1); enc_set_state k n; enc_run P; enc_nth (@Fin.F1 (k + n))])) v)
     (apps (enc_run P) [pi P (addr P 1); enc_regs (Vector.append (Vector.cons nat 0 k v) (Vector.const 0 n)); enc_run P; enc_nth (@Fin.F1 (k + n))]).
 Proof.
-  rewrite Vector.to_list_fold_left.
+  rw Vector.to_list_fold_left.
   have ->: forall cs t, fold_left (fun s c => app s (nat_enc c)) cs t = apps t (map nat_enc cs).
   { elim; first done.
-    move=> > IH ? /=. by rewrite IH. }
+    move=> > IH ? /=. by rw IH. }
   apply: rt_trans.
   { apply: steps_apps_lams.
-    - by rewrite length_map Vector.length_to_list.
+    - by rw length_map Vector.length_to_list.
     - apply /Forall_map /Forall_forall=> *. by apply: eval_nat_enc.
     - apply /Forall_map /Forall_forall=> *. by apply: nat_enc_closed. }
-  rewrite substs_apps /=.
+  rw substs_apps /=.
   apply: rt_trans.
   { do 2 apply: rt_steps_app_r. apply: rt_steps_app_l.
     by apply: substs_enc_set_state. }
-  rewrite !substs_closed; [by auto using enc_run_closed, pi_addr_closed, enc_nth_closed..|].
+  rw !substs_closed; [by auto using enc_run_closed, pi_addr_closed, enc_nth_closed..|].
   by apply: rt_refl.
 Qed.
 
@@ -173,10 +173,10 @@ Proof.
   exists (lams k (apps (enc_run P) [pi P (addr P 1); enc_set_state k n; enc_run P; enc_nth (@Fin.F1 (k + n))])).
   split.
   - intros u ?.
-    rewrite subst_lams subst_apps !map_cons subst_enc_set_state.
-    by rewrite !enc_run_closed pi_addr_closed enc_nth_closed.
+    rw subst_lams subst_apps !map_cons subst_enc_set_state.
+    by rw !enc_run_closed pi_addr_closed enc_nth_closed.
   - move=> v. split.
-    + move=> m. rewrite HP. split.
+    + move=> m. rw HP. split.
       * intros [c [v' [H1 H2]]].
         apply /L_facts.eval_iff. split; last by (case: (m); eexists).
         apply /ARS.star_clos_rt_iff. apply: rt_trans.
@@ -199,7 +199,7 @@ Proof.
         move: (Vector.append _ _)=> {}v /[dup] /eval_steps_stuck H'.
         have /(@Acc_clos_trans term) := @terminating_Acc _ _ L_facts.uniform_confluence _ H'.
         have [i Hi] : exists i, 1 = i by eexists.
-        rewrite [in addr P 1]Hi [in (1, v)]Hi.
+        rw [in addr P 1]Hi [in (1, v)]Hi.
         move E: (apps _ _) => t H.
         elim: H i v E {H' Hi}.
         move=> {}t IH1 IH2 i v ?. subst t.
@@ -225,7 +225,7 @@ Proof.
            exists i, (snd (@Vector.splitat _ 1 (k + n) v)).
            split; last done.
            apply /sss_compute_iff.
-           rewrite (Vector.eta v).
+           rw (Vector.eta v).
            by apply: rt_refl.
     + move=> o /eval_rt_steps_eval => /(_ _ (enc_init_spec _ _)).
       move: (Vector.append _ _)=> {}v /[dup] /eval_steps_stuck H'.

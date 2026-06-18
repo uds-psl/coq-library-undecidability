@@ -162,10 +162,10 @@ Lemma subst_enc_nat sigma n : subst sigma (enc_nat n) = enc_nat n.
 Proof. elim: n sigma; cbn; congruence. Qed.
 
 Lemma ren_enc_term xi M : ren xi (enc_term M) = enc_term M.
-Proof. elim: M xi; intros; cbn; rewrite ?ren_enc_nat; congruence. Qed.
+Proof. elim: M xi; intros; cbn; rw ?ren_enc_nat; congruence. Qed.
 
 Lemma subst_enc_term sigma M : subst sigma (enc_term M) = enc_term M.
-Proof. elim: M sigma; intros; cbn; rewrite ?subst_enc_nat; congruence. Qed.
+Proof. elim: M sigma; intros; cbn; rw ?subst_enc_nat; congruence. Qed.
 
 Lemma ren_enc_list {X: Type} (f : X -> term) xi l : (Forall (fun x => forall xi, ren xi (f x) = f x) l) ->
   ren xi (enc_list f l) = enc_list f l.
@@ -244,7 +244,7 @@ Lemma enc_halt_cbn_var0_spec ts ctx t ctx' rec :
     (many_app rec [enc_list enc_eterm ts; enc_list enc_eterm ctx; enc_term t; rec; I]).
 Proof.
   move=> H1r H2r H3r.
-  do ? (apply: rt_step'; [by do ? constructor|]; rewrite /= ?subst_enc ?H2r ?H3r).
+  do ? (apply: rt_step'; [by do ? constructor|]; rw /= ?subst_enc ?H2r ?H3r).
   by apply: rt_refl.
 Qed.
 
@@ -257,7 +257,7 @@ Lemma enc_halt_cbn_varS_spec ts P ctx x rec :
     (many_app rec [enc_list enc_eterm ts; enc_list enc_eterm ctx; enc_term (var x); rec; I]).
 Proof.
   move=> H1r H2r H3r.
-  do ? (apply: rt_step'; [by do ? constructor|]; rewrite /= ?subst_enc ?H2r ?H3r).
+  do ? (apply: rt_step'; [by do ? constructor|]; rw /= ?subst_enc ?H2r ?H3r).
   by apply: rt_refl.
 Qed.
 
@@ -270,7 +270,7 @@ Lemma enc_halt_cbn_app_spec ts ctx s t rec :
     (many_app rec [enc_list enc_eterm ((closure ctx t)::ts); enc_list enc_eterm ctx; enc_term s; rec; I]).
 Proof.
   move=> H1r H2r H3r.
-  do ? (apply: rt_step'; [by do ? constructor|]; rewrite /= ?subst_enc ?H2r ?H3r).
+  do ? (apply: rt_step'; [by do ? constructor|]; rw /= ?subst_enc ?H2r ?H3r).
   by apply: rt_refl.
 Qed.
 
@@ -283,7 +283,7 @@ Lemma enc_halt_cbn_lam_spec ts ctx s t rec :
     (many_app rec [enc_list enc_eterm ts; enc_list enc_eterm (t::ctx); enc_term s; rec; I]).
 Proof.
   move=> H1r H2r H3r.
-  do ? (apply: rt_step'; [by do ? constructor|]; rewrite /= ?subst_enc ?H2r ?H3r).
+  do ? (apply: rt_step'; [by do ? constructor|]; rw /= ?subst_enc ?H2r ?H3r).
   by apply: rt_refl.
 Qed.
 
@@ -296,7 +296,7 @@ Lemma enc_halt_cbn_lam_spec' ctx s rec :
     I.
 Proof.
   move=> H1r H2r H3r.
-  do ? (apply: rt_step'; [by do ? constructor|]; rewrite /= ?subst_enc ?H2r ?H3r).
+  do ? (apply: rt_step'; [by do ? constructor|]; rw /= ?subst_enc ?H2r ?H3r).
   by apply: rt_refl.
 Qed.
 
@@ -397,22 +397,22 @@ Proof.
   have := subst_enc_halt_cbn.
   have := ren_enc_halt_cbn.
   move E: enc_halt_cbn => rec.
-  have H'rec : normal_form rec by (rewrite -E; do ? constructor).
+  have H'rec : normal_form rec by (rw -E; do ? constructor).
   move=> H1rec H2rec.
-  case=> > /syncE ->; eexists; (split; [|by apply: sync_intro]); rewrite !E.
-  all: rewrite -[l in steps' (many_app l _) _]E /enc_halt_cbn.
-  - do ? ((apply: rt_step' || apply: t_step'); [by do ? constructor|]; rewrite /= ?simpl_term ?H1rec ?H2rec).
+  case=> > /syncE ->; eexists; (split; [|by apply: sync_intro]); rw !E.
+  all: rw -[l in steps' (many_app l _) _]E /enc_halt_cbn.
+  - do ? ((apply: rt_step' || apply: t_step'); [by do ? constructor|]; rw /= ?simpl_term ?H1rec ?H2rec).
     by apply: enc_halt_cbn_var0_spec.
-  - do ? ((apply: rt_step' || apply: t_step'); [by do ? constructor|]; rewrite /= ?simpl_term ?H1rec ?H2rec).
+  - do ? ((apply: rt_step' || apply: t_step'); [by do ? constructor|]; rw /= ?simpl_term ?H1rec ?H2rec).
     by apply: enc_halt_cbn_varS_spec.
-  - do ? ((apply: rt_step' || apply: t_step'); [by do ? constructor|]; rewrite /= ?simpl_term ?H1rec ?H2rec).
+  - do ? ((apply: rt_step' || apply: t_step'); [by do ? constructor|]; rw /= ?simpl_term ?H1rec ?H2rec).
     by apply: enc_halt_cbn_app_spec.
-  - do ? ((apply: rt_step' || apply: t_step'); [by do ? constructor|]; rewrite /= ?simpl_term ?H1rec ?H2rec).
+  - do ? ((apply: rt_step' || apply: t_step'); [by do ? constructor|]; rw /= ?simpl_term ?H1rec ?H2rec).
     by apply: enc_halt_cbn_lam_spec.
 Qed.
 
 Lemma subst_enc_state ts ctx t sigma : subst sigma (enc_state ts ctx t) = enc_state ts ctx t.
-Proof. by rewrite /= ?simpl_term. Qed.
+Proof. by rw /= ?simpl_term. Qed.
 
 Lemma halt_cbn_rt_step' ts ctx t :
   halt_cbn ts ctx t -> clos_refl_trans _ step' (enc_state ts ctx t) I.
@@ -423,10 +423,10 @@ Proof.
   have := subst_enc_halt_cbn.
   have := ren_enc_halt_cbn.
   move E: enc_halt_cbn => rec.
-  have H'rec : normal_form rec by (rewrite -E; do ? constructor).
+  have H'rec : normal_form rec by (rw -E; do ? constructor).
   move=> H1rec H2rec.
-  rewrite -[l in many_app l _]E /enc_halt_cbn.
-  do ? (apply: rt_step'; [by do ? constructor|]; rewrite /= ?simpl_term ?H1rec ?H2rec).
+  rw -[l in many_app l _]E /enc_halt_cbn.
+  do ? (apply: rt_step'; [by do ? constructor|]; rw /= ?simpl_term ?H1rec ?H2rec).
   by apply: enc_halt_cbn_lam_spec'.
 Qed.
 
@@ -483,5 +483,5 @@ Proof.
     move=> /Krivine_step_halt_cbn'. apply; [by constructor|].
     split; [|done].
     apply /L_facts.closed_dcl. apply: term_facts.closed_I=> k.
-    by rewrite term_facts.L_subst_Lambda_subst; [|apply: Ht].
+    by rw term_facts.L_subst_Lambda_subst; [|apply: Ht].
 Qed.

@@ -13,7 +13,7 @@ Proof. by apply /esym /repeat_app. Qed.
 
 Lemma repeat_app_appP {X: Type} {x: X} {xs: list X} {n m: nat} : 
   repeat x n ++ (repeat x m ++ xs) = repeat x (n+m) ++ xs.
-Proof. by rewrite repeat_app app_assoc. Qed.
+Proof. by rw repeat_app app_assoc. Qed.
 
 Lemma repeat_singP {X: Type} {x: X} : 
   [x] = repeat x 1.
@@ -21,7 +21,7 @@ Proof. done. Qed.
 
 Lemma app_assoc' {X: Type} {xs ys zs: list X} :
   (xs ++ ys) ++ zs = xs ++ ys ++ zs.
-Proof. by rewrite app_assoc. Qed.
+Proof. by rw app_assoc. Qed.
 
 Lemma cons_repeat_app {X: Type} {x: X} {xs: list X} {m: nat} : 
   x :: (repeat x m ++ xs) = (repeat x (m+1) ++ xs).
@@ -48,7 +48,7 @@ Qed.
 Lemma nth_error_Some_In_combineP {X: Type} {i} {x: X} {L: list X} : 
   nth_error L i = Some x <-> In (i, x) (combine (seq 0 (length L)) L).
 Proof.
-  rewrite nth_error_combine_SomeP. split; first by apply: nth_error_In.
+  rw nth_error_combine_SomeP. split; first by apply: nth_error_In.
   move=> /(@In_nth_error (nat * X)) [j Hj].
   suff: j = i. { move=> ?. by subst j. }
   suff: forall k, nth_error (combine (seq k (length L)) L) j = Some (i, x) -> k + j = i.
@@ -63,9 +63,9 @@ Lemma nth_error_appP {X: Type} {l1 l2: list X} {i: nat} {x: X} :
 Proof.
   constructor.
   - have [Hi | Hi]: i < length l1 \/ length l1 <= i by lia.
-    + by rewrite nth_error_app1; firstorder done.
-    + by rewrite nth_error_app2; firstorder done.
-  - move=> [[? ?]|[? ?]]; by [rewrite nth_error_app1 | rewrite nth_error_app2].
+    + by rw nth_error_app1; firstorder done.
+    + by rw nth_error_app2; firstorder done.
+  - move=> [[? ?]|[? ?]]; by [rw nth_error_app1 | rw nth_error_app2].
 Qed.
 
 Lemma NoDup_map {X Y: Type} {f : X -> Y} {l : list X} :
@@ -75,7 +75,7 @@ Proof.
   { move=> ?. by apply: NoDup_nil. }
   move=> x l IH /NoDup_cons_iff [Hx /IH Hfl] /=.
   apply /NoDup_cons_iff. constructor; last done.
-  rewrite in_map_iff. by move=> [x'] [/Hf ->].
+  rw in_map_iff. by move=> [x'] [/Hf ->].
 Qed.
 
 Lemma legnth_flat_map {X Y: Type} {f: X -> list Y} {l: list X} {n: nat}: 
@@ -84,7 +84,7 @@ Lemma legnth_flat_map {X Y: Type} {f: X -> list Y} {l: list X} {n: nat}:
 Proof.
   move=> Hf. elim: l.
   - move=> * /=. by lia.
-  - move=> x l IH /=. rewrite length_app. have := Hf x. by lia.
+  - move=> x l IH /=. rw length_app. have := Hf x. by lia.
 Qed.
 
 Lemma in_split_informative {X: Type} {x: X} {l: list X} : (forall (x y: X), {x = y} + {x <> y}) ->
@@ -99,7 +99,7 @@ Qed.
 
 Lemma in_split_rest {X: Type} {x y: X} {L1 L2: list X} : 
   In y (L1 ++ x :: L2) -> x <> y -> In y (L1 ++ L2).
-Proof. rewrite ?in_app_iff /=. by firstorder done. Qed. 
+Proof. rw ?in_app_iff /=. by firstorder done. Qed. 
 
 Lemma in_app_l {X: Type} {x: X} {l1 l2: list X} : In x l1 -> In x (l1 ++ l2).
 Proof. move=> ?. apply /in_app_iff. by left. Qed.

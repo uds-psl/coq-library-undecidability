@@ -18,7 +18,7 @@ Lemma nth_error_seq start len n : n < len -> nth_error (seq start len) n = Some 
 Proof.
   elim: len start n. { lia. }
   move=> len IH start [|n] ?. { congr Some. lia. }
-  rewrite /= IH; [|congr Some]; lia.
+  rw /= IH; [|congr Some]; lia.
 Qed.
 
 Inductive type_assignment_var_spec (Gamma : list ty) x t : Prop :=

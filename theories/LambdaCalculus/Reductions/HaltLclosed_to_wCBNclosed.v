@@ -69,8 +69,8 @@ Lemma cbv_cbn_ren xi s : cbv_cbn (ren xi s) = ren xi (cbv_cbn s).
 Proof.
   elim: s xi.
   - done.
-  - move=> ? IH1 ? IH2 xi /=. by rewrite IH1 IH2 !simpl_term.
-  - move=> ? IH xi /=. rewrite IH !simpl_term.
+  - move=> ? IH1 ? IH2 xi /=. by rw IH1 IH2 !simpl_term.
+  - move=> ? IH xi /=. rw IH !simpl_term.
     congr lam. congr app. congr lam.
     apply: ext_ren_term. by case.
 Qed.
@@ -83,19 +83,19 @@ Proof.
   - move=> n sigma Hsigma /=.
     have := Hsigma n. by case: (sigma n).
   - move=> s IH1 t IH2 sigma Hsigma /=.
-    rewrite (IH1 _ Hsigma) (IH2 _ Hsigma) /=.
-    rewrite !simpl_term /=.
+    rw (IH1 _ Hsigma) (IH2 _ Hsigma) /=.
+    rw !simpl_term /=.
     congr lam. congr app. congr lam. congr app.
-    apply: ext_subst_term => ? /=. by rewrite !simpl_term.
-  - move=> s IH sigma Hsigma /=. rewrite IH.
+    apply: ext_subst_term => ? /=. by rw !simpl_term.
+  - move=> s IH sigma Hsigma /=. rw IH.
     { move=> [|n] /=; first done.
       have := Hsigma n. by case: (sigma n). }
-    rewrite !simpl_term.
+    rw !simpl_term.
     congr lam. congr app. congr lam.
     apply: ext_subst_term => - [|n] /=; first done.
     have := Hsigma n. case: (sigma n); [done|done|].
-    move=> s' /= _. rewrite !cbv_cbn_ren.
-    congr lam. rewrite !simpl_term.
+    move=> s' /= _. rw !cbv_cbn_ren.
+    congr lam. rw !simpl_term.
     apply: ext_ren_term. by case.
 Qed.
 
@@ -138,7 +138,7 @@ Proof.
   { apply /closed_dcl. apply: closed_subst; [done|by apply /closed_dcl]. }
   move: IH3.
   have -> : L.subst u 0 t' = subst (scons t' var) u.
-  { rewrite L_subst_Lambda_subst; first done.
+  { rw L_subst_Lambda_subst; first done.
     apply: (bound_ext_subst_term Hu).
     move=> [|n]; [done|lia]. }
   move=> {}IH3.
@@ -156,7 +156,7 @@ Proof.
   - move=> * /=. do 2 constructor.
     + by apply: bound_ren; [eassumption|lia].
     + do 2 constructor.
-      * rewrite !simpl_term /=. apply: bound_ren; [eassumption|lia].
+      * rw !simpl_term /=. apply: bound_ren; [eassumption|lia].
       * do 2 constructor; [constructor|]; constructor; lia.
   - move=> * /=. do 3 constructor; first by lia.
     apply: bound_ren; [eassumption|].
@@ -181,7 +181,7 @@ Proof.
   elim; clear s s'.
   - move=> s s' /closed_app [/closed_dcl /boundE ?] /closed_dcl ?.
     have := L_facts.stepApp s s'. congr L_facts.step.
-    rewrite L_subst_Lambda_subst. { by apply /closed_dcl. }
+    rw L_subst_Lambda_subst. { by apply /closed_dcl. }
     apply: bound_ext_subst_term; first by eassumption.
     move=> [|n]; [done|lia].
   - move=> > ? H /closed_app [/H ? ?]. by apply: stepAppL.
@@ -199,31 +199,31 @@ Proof.
     + by move=> > /not_closed_var.
     + move=> s1 s2 _. move: (app s1 s2) => s' IH1 IH2.
       apply: t_trans. { apply: t_step. by apply: wCBN_stepSubst. }
-      move: IH1. by rewrite /= !simpl_term !ren_as_subst_term.
+      move: IH1. by rw /= !simpl_term !ren_as_subst_term.
     + move=> s' _ IH1 IH2.
       apply: t_trans. { apply: t_step. by apply: wCBN_stepSubst. }
       move: IH1 => /t_trans'. apply.
-      { rewrite /= !simpl_term !ren_as_subst_term. congr app.
+      { rw /= !simpl_term !ren_as_subst_term. congr app.
         congr lam. congr app. congr lam. apply: ext_subst_term. by case. }
       apply: t_trans. { apply: t_step. by apply: wCBN_stepSubst. }
-      move: IH2. by rewrite /= !simpl_term !ren_as_subst_term.
+      move: IH2. by rw /= !simpl_term !ren_as_subst_term.
   - move=> s IH u ?.
-    apply: t_step. rewrite /=. apply: stepLam'.
-    rewrite /= !simpl_term /=. congr app. congr lam.
-    rewrite -[LHS]subst_var_term. apply: ext_subst_term. by case.
+    apply: t_step. rw /=. apply: stepLam'.
+    rw /= !simpl_term /=. congr app. congr lam.
+    rw -[LHS]subst_var_term. apply: ext_subst_term. by case.
 Qed.
 
 Lemma colon_redex s t u : closed (lam s) -> closed (lam t) ->
   clos_trans step (colon (app (lam s) (lam t)) u) (colon (subst (scons (lam t) var) s) u).
 Proof.
   move=> /= Hs Ht.
-  apply: t_trans. { apply: t_step. by apply: wCBN_stepSubst. } rewrite /=.
+  apply: t_trans. { apply: t_step. by apply: wCBN_stepSubst. } rw /=.
   apply: t_trans. { apply: t_step. apply: wCBN_stepApp. by apply: wCBN_stepSubst. }
   have /(steps_to_colon _ u) : closed (subst (scons (lam t) var) s).
   { move: Hs Ht => /closed_dcl /boundE ? /closed_dcl ?.
     apply /closed_dcl. apply: bound_subst; first by eassumption.
     move=> [|n]; [done|lia]. }
-  rewrite !simpl_term /= cbv_cbn_subst. { by case. }
+  rw !simpl_term /= cbv_cbn_subst. { by case. }
   congr clos_trans. congr app. apply: ext_subst_term. by case.
 Qed.
 
@@ -243,7 +243,7 @@ Proof.
   - move=> s s' t Hss' IH /closed_app [/[dup] /IH {}IH Hs Ht].
     have [s1 [s2 ?]] : exists s1 s2, s = app s1 s2.
     { by case: Hss' => *; eexists; eexists. }
-    subst s. rewrite /=.
+    subst s. rw /=.
     move: s' IH Hss' => [].
     + by move=> ? ? /cbv_step_closed /(_ Hs) /not_closed_var.
     + move=> s'1 s'2 IH Hss' x. by apply: IH.
@@ -252,7 +252,7 @@ Proof.
       apply: t_trans. { by apply: IH. }
       apply: t_trans. { apply: t_step.  by apply: wCBN_stepSubst. }
       have := steps_to_colon t (lam (app (app (ren S (Psi (lam s'))) # 0) (ren S x))) Ht.
-      by rewrite /= !simpl_term !ren_as_subst_term.
+      by rw /= !simpl_term !ren_as_subst_term.
   - move=> > ? IH /closed_app [? /IH] {}IH x.
     by apply: IH.
 Qed.
@@ -320,7 +320,7 @@ Proof.
     + move=> /=. apply: IH1. do 2 constructor.
       * apply: bound_ren; [apply: bound_cbv_cbn; eassumption|lia].
       * do 2 constructor; [do 2 constructor|]; [lia ..|].
-        rewrite simpl_term /=.
+        rw simpl_term /=.
         apply: bound_ren; [eassumption|lia].
     + move=> /=. apply: IH2. do 2 constructor.
       * do 2 constructor; [|lia].
@@ -334,7 +334,7 @@ Qed.
 
 Lemma closed_colon {s} : closed s -> forall sigma, subst sigma (colon s (lam (var 0))) = colon s (lam (var 0)).
 Proof.
-  move=> Hs sigma. rewrite subst_L_closed; last done.
+  move=> Hs sigma. rw subst_L_closed; last done.
   by apply /closed_dcl /bound_colon; apply /closed_dcl.
 Qed.
 

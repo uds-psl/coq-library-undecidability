@@ -89,11 +89,11 @@ Definition encode_counters {n} (cs : Vector.t nat n) : Vector.t (tape Σ) n :=
 Lemma read_instr {p instr} : (p, [instr]) <sc (1, M) ->
   exists q, sval (Fin.to_nat (toState p)) = S q /\ nth_error M q = Some instr /\ p = S q.
 Proof.
-  rewrite /toState. case: (le_lt_dec maxState p).
+  rw /toState. case: (le_lt_dec maxState p).
   { move=> ? [?] [?] [/(f_equal (@length _))].
-    rewrite length_app /=. by lia. }
+    rw length_app /=. by lia. }
   move=> Hp [l] [r] [HM H'p]. exists (length l).
-  by rewrite Fin.to_nat_of_nat /= HM nth_error_app2 ?Nat.sub_diag.
+  by rw Fin.to_nat_of_nat /= HM nth_error_app2 ?Nat.sub_diag.
 Qed.
 
 Lemma doAct_nop_1 (t : tape Σ) : TM_facts.doAct t (None, Nmove) = t.
@@ -129,7 +129,7 @@ Lemma simulation_step {instr p1 cs1 p2 cs2 ts1} :
     TM_facts.step (M := P) (TM_facts.mk_mconfig (toState p1) ts1) = TM_facts.mk_mconfig (toState p2) ts2 /\
     encodes_counters cs2 ts2.
 Proof.
-  rewrite /TM_facts.step /= /trans'.
+  rw /TM_facts.step /= /trans'.
   move=> /read_instr [q [-> [-> ->]]].
   move E1: (S q, cs1) => p1cs1. move E2: (p2, cs2) => p2cs2 H.
   case: H E1 E2.
@@ -138,13 +138,13 @@ Proof.
     elim: Hcs1ts1 i. { move=> i. by case: (pos_O_inv i). }
     move=> m c t cs ts Hct Hcsts IH i.
     have [->|[i' ->]] := pos_S_inv i.
-    + move=> /=. constructor; last by rewrite TM_facts.doAct_nop.
-      rewrite /TM_facts.doAct. case: Hct => [[|?]|[|?] ?| |>].
+    + move=> /=. constructor; last by rw TM_facts.doAct_nop.
+      rw /TM_facts.doAct. case: Hct => [[|?]|[|?] ?| |>].
       all: by eauto with counters nocore.
-    + by constructor; [rewrite doAct_nop_1|apply: IH].
+    + by constructor; [rw doAct_nop_1|apply: IH].
   - move=> ? i p' v Hcs1i [<- ?] [-> ->] Hcs1ts1. subst v.
-    rewrite (read_current_char Hcs1ts1 Hcs1i).
-    eexists. by split; [done|rewrite TM_facts.doAct_nop].
+    rw (read_current_char Hcs1ts1 Hcs1i).
+    eexists. by split; [done|rw TM_facts.doAct_nop].
   - move=> ? i p' v k Hcs1i [_ ?] [-> ->] Hcs1ts1. subst v.
     move=> [:H].
     have [->|->] := (read_current_char Hcs1ts1 Hcs1i);
@@ -152,10 +152,10 @@ Proof.
     elim: Hcs1ts1 i Hcs1i. { move=> i. by case: (pos_O_inv i). }
     move=> m c t cs ts Hct Hcsts IH i.
     have [->|[i' ->]] := pos_S_inv i.
-    + move=> /= Hc. constructor; last by rewrite TM_facts.doAct_nop.
-      rewrite /TM_facts.doAct. case: Hct Hc => [//|? [|?]| |[|?]] [<-].
+    + move=> /= Hc. constructor; last by rw TM_facts.doAct_nop.
+      rw /TM_facts.doAct. case: Hct Hc => [//|? [|?]| |[|?]] [<-].
       all: by eauto with counters nocore.
-    + move=> ?. by constructor; [rewrite doAct_nop_1|apply: IH].
+    + move=> ?. by constructor; [rw doAct_nop_1|apply: IH].
 Qed.
 
 #[local] Notation "P // s ↓" := (sss_terminates (@mma_sss _) P s).
@@ -163,9 +163,9 @@ Qed.
 Lemma in_out_code_halt (p : nat) : 
   if halt' (toState p) then out_code p (1, M) else in_code p (1, M).
 Proof.
-  rewrite /halt' /toState.
-  case: (le_lt_dec maxState p). { move=> ? /=. rewrite Nat.eqb_refl. by lia. }
-  move: p => [|p] ? /=; rewrite ?Nat.eqb_refl; by lia.
+  rw /halt' /toState.
+  case: (le_lt_dec maxState p). { move=> ? /=. rw Nat.eqb_refl. by lia. }
+  move: p => [|p] ? /=; rw ?Nat.eqb_refl; by lia.
 Qed.
 
 Lemma encodes_countersI (cs : Vector.t nat n) : encodes_counters cs (encode_counters cs).
@@ -193,11 +193,11 @@ Proof.
     have [[p2 cs2] H'p1p2] := mma_sss_total instr (p1, cs1).
     have /IH {}IH : sss_progress (mma_sss (n:=n)) (p1, [instr]) (p1, cs1) (p2, cs2).
     { exists 1. split; [done|]. apply: in_sss_steps_S; [|apply: in_sss_steps_0].
-      exists p1, [], instr, [], cs1. by rewrite /= Nat.add_0_r. }
+      exists p1, [], instr, [], cs1. by rw /= Nat.add_0_r. }
     have [ts' [H''p1p2]] := simulation_step HQ H'p1p2 Hts.
     move=> /(IH HQ) /= [p''] [ts''] /TM_facts.TM_eval_iff [k Hk].
     exists p'', ts''. apply /TM_facts.TM_eval_iff. exists (S k).
-    by rewrite /= Hp1 H''p1p2.
+    by rw /= Hp1 H''p1p2.
 Qed.
 
 Lemma inverse_simulation p cs p' ts' :

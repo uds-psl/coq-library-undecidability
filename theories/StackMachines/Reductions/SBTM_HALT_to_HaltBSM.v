@@ -101,16 +101,16 @@ Section Construction.
     have := PROG_length.
     elim: (num_states M) (PROG); first done.
     move=> n IH PROG' H. have ->: S n * c = n * c + c by lia.
-    rewrite /= length_app flat_map_concat_map map_map -flat_map_concat_map H.
-    by rewrite IH; [|lia].
+    rw /= length_app flat_map_concat_map map_map -flat_map_concat_map H.
+    by rw IH; [|lia].
   Qed.
 
   Lemma state_map_length_spec M1 : length (all_fins (num_states M1)) = num_states M1.
   Proof.
     induction (num_states M1) as [| n IHn];[reflexivity|].
     cbn. 
-    rewrite length_map.
-    now rewrite IHn.
+    rw length_map.
+    now rw IHn.
   Qed.
 
   Lemma state_number_length M1 (q1 : SBTMNotations.state M1) :
@@ -118,13 +118,13 @@ Section Construction.
   Proof.
     unfold proj1_sig.
     destruct (Fin.to_nat q1) as [n H].
-    rewrite state_map_length_spec.
+    rw state_map_length_spec.
     apply H.
   Qed.
 
   Lemma P_length : length P = 5 + num_states M * c.
   Proof.
-    rewrite /= length_app /= length_flat_map_PROG_M. lia.
+    rw /= length_app /= length_flat_map_PROG_M. lia.
   Qed.
 
   Definition Q_step (Q : list (bsm_instr 4)) offset i v : option (bsm_state 4) :=
@@ -145,7 +145,7 @@ Section Construction.
     Q_step Q offset i v = Some (j, w) ->
     sss_step (bsm_sss (n:=4)) (offset, Q) (i + offset, v) (j, w).
   Proof.
-    rewrite /Q_step. case E: (nth_error Q i) => [t|]; last done.
+    rw /Q_step. case E: (nth_error Q i) => [t|]; last done.
     move: E => /(@nth_error_split (bsm_instr 4)) => - [l] [r] [-> <-].
     move=> Ht. exists offset, l, t, r, v. split; [|split]; [done|congr pair; lia|].
     move: t Ht => [].
@@ -159,34 +159,34 @@ Section Construction.
   Lemma PROG_spec_Some q t q' t' : step M (q, t) = Some (q', t') ->
     exists k, (!q, PROG q) // (encode_config (q, t)) -[S k]-> (encode_config (q', t')).
   Proof.
-    move: t => [[ls a] rs] /=. rewrite /step.
+    move: t => [[ls a] rs] /=. rw /step.
     case E: (δ (q, a)) => [[[??]d]|]; last done.
     move=> [<- <-]. have ->: !q = 0 + !q by done.
     move: d a ls rs E => [] [] [|[] ls] [|[] rs] E.
-    all: eexists; rewrite /PROG /box E.
+    all: eexists; rw /PROG /box E.
     all: do ? ((by apply: in_sss_steps_0) || (apply: in_sss_steps_S; [by apply: Q_step_spec|])).
   Qed.
 
   Lemma PROG_spec_None a q ls rs : step M (q, (ls, a, rs)) = None ->
     (!q, PROG q) // (encode_config (q, (ls, a, rs))) ->> (if a then POST_TRUE else POST_FALSE, [ls; []%list; rs; []%list]%vector).
   Proof.
-    rewrite /step.
+    rw /step.
     case E: (δ (q, a)) => [[[??]?]|]; first done.
     move=> _.
-    rewrite /PROG. eexists _.
+    rw /PROG. eexists _.
     apply in_sss_steps_S with (st2:= (if a then 1 +! q else 7 +! q, [ls; []%list; rs; []%list]%vector)).
     { eexists _, [], _, _, _.
-      split; [reflexivity|split; [by rewrite (Nat.add_comm (!q))|]].
+      split; [reflexivity|split; [by rw (Nat.add_comm (!q))|]].
       replace ([ls; []%list; rs; []%list]%vector) with (vec_change ([ls; [a]%list; rs; []%list]%vector) CURR' []) by done.
       destruct a; by constructor. }
     apply in_sss_steps_S with (st2:= (if a then POST_TRUE else POST_FALSE, [ls; []%list; rs; []%list]%vector)).
     { destruct a.
       - eexists _, [_], _, _, _.
-        split; [reflexivity|split; [by rewrite (Nat.add_comm (!q))|]].
-        rewrite /= E. by constructor.
+        split; [reflexivity|split; [by rw (Nat.add_comm (!q))|]].
+        rw /= E. by constructor.
       - eexists _, [_; _; _; _; _; _; _], _, _, _.
-        split; [reflexivity|split; [by rewrite (Nat.add_comm (!q))|]].
-        rewrite /= E; by constructor. }
+        split; [reflexivity|split; [by rw (Nat.add_comm (!q))|]].
+        rw /= E; by constructor. }
     by apply: in_sss_steps_0.
   Qed.
 
@@ -201,9 +201,9 @@ Section Construction.
     move=> m q IH PROG' H' n. apply: subcode_trans.
     - have := (IH (fun q => PROG' (Fin.FS q)) (fun q => H' (Fin.FS q)) (n+c)).
       congr subcode. congr pair.
-      rewrite /=. move: (Fin.to_nat q) => [] /=. lia.
-    - rewrite /= !flat_map_concat_map map_map -!flat_map_concat_map.
-      exists (PROG' Fin.F1), []. rewrite app_nil_r H'.
+      rw /=. move: (Fin.to_nat q) => [] /=. lia.
+    - rw /= !flat_map_concat_map map_map -!flat_map_concat_map.
+      exists (PROG' Fin.F1), []. rw app_nil_r H'.
       by split; [|lia].
   Qed.
 
@@ -214,18 +214,18 @@ Section Construction.
     apply in_sss_steps_S with (st2:= (1 + if a then POST_TRUE else POST_FALSE, [ls; [a]%list; rs; []%list]%vector)).
     { case: a.
       - eexists _, [], _, _, _.
-        split; [reflexivity|split;[by rewrite (Nat.add_comm _ (length _))|]].
+        split; [reflexivity|split;[by rw (Nat.add_comm _ (length _))|]].
         by constructor.
       - eexists _, [_; _], _, _, _.
-        split; [reflexivity|split;[by rewrite (Nat.add_comm _ (length _))|]].
+        split; [reflexivity|split;[by rw (Nat.add_comm _ (length _))|]].
         by constructor. }
     apply in_sss_steps_S with (st2:= (END, [ls; [a]%list; rs; []%list]%vector)).
     { case: a.
       - eexists _, [_], _, _, _.
-        split; [reflexivity|split;[by rewrite (Nat.add_comm _ (length _))|]].
+        split; [reflexivity|split;[by rw (Nat.add_comm _ (length _))|]].
         by constructor.
       - eexists _, [_; _; _], _, _, _.
-        split; [reflexivity|split;[by rewrite (Nat.add_comm _ (length _))|]].
+        split; [reflexivity|split;[by rw (Nat.add_comm _ (length _))|]].
         by constructor. }
     by apply in_sss_steps_0.
   Qed.
@@ -233,9 +233,9 @@ Section Construction.
   Lemma POST_sc : (POST_TRUE, POST) <sc (shift, P).
   Proof.
     eexists (_ :: _), [].
-    rewrite app_nil_r /=.
+    rw app_nil_r /=.
     split; first done.
-    rewrite length_flat_map_PROG_M. lia.
+    rw length_flat_map_PROG_M. lia.
   Qed.
 
   (* Opaque P. *)
@@ -256,7 +256,7 @@ Section Construction.
     move=> /[apply] /sss_compute_trans. apply.
     apply: subcode_sss_compute; first by apply POST_sc.
     have ->: shift + length P = END.
-    { rewrite P_length. cbn. lia. }
+    { rw P_length. cbn. lia. }
     by apply: POST_spec.
   Qed.
 
@@ -268,7 +268,7 @@ Section Construction.
     - move=> ?? [-> ->].
       exists 0.
       by constructor.
-    - move=> k IH q t. rewrite (steps_plus 1) /=.
+    - move=> k IH q t. rw (steps_plus 1) /=.
       case E: (step M (q, t)) => [[q'' t'']|].
       + move=> /IH [v] Hv.
         move: E => /simulation_step_Some [k' Hk'].
@@ -283,7 +283,7 @@ Section Construction.
     (shift, P) // (encode_config (q, t)) ->> (shift + length P, encode_tape t').
   Proof.
     have ->: S k = k + 1 by lia.
-    rewrite (steps_plus).
+    rw (steps_plus).
     move=> /[dup] /simulation_output /sss_compute_trans + -> /= H. apply.
     by apply: simulation_step_None.
   Qed.
@@ -295,7 +295,7 @@ Section Construction.
     elim: k q t; first done.
     move=> k IH q t /[dup] HSk.
     have ->: S k = k + 1 by lia.
-    rewrite steps_plus.
+    rw steps_plus.
     case E: (steps M k (q, t)) => [[q' t']|].
     - move: E HSk => /simulation_output'' /[apply] ??.
       eexists. by eassumption.
@@ -305,7 +305,7 @@ Section Construction.
   Lemma sss_step_shift t : sss_step (bsm_sss (n:=4)) (shift, P) (shift, encode_tape t) (encode_config (q0, t)).
   Proof.
     eexists _, [], _, _, _.
-    split; [reflexivity|split; [by rewrite Nat.add_comm|]].
+    split; [reflexivity|split; [by rw Nat.add_comm|]].
     move: (t) => [[??]?].
     by constructor.
   Qed.
@@ -329,7 +329,7 @@ Section Construction.
     elim: k; first done.
     move=> k IH /[dup] HSk.
     have ->: S k = k + 1 by lia.
-    rewrite steps_plus.
+    rw steps_plus.
     case E: (steps M k (q0, t)) => [[??]|].
     - move: E HSk => /simulation_output' /[apply] *.
       eexists. by eassumption.
@@ -343,8 +343,8 @@ Section Construction.
   Proof.
     elim /(Nat.measure_induction _ id) : n q t => - [|n] IH q t.
     { move=> /sss_steps_0_inv [] /= <- _ [|].
-      - rewrite /encode_state. lia.
-      - rewrite /encode_state length_app length_flat_map_PROG_M.
+      - rw /encode_state. lia.
+      - rw /encode_state length_app length_flat_map_PROG_M.
         destruct (Fin.to_nat q).
         cbn. nia. }
     case E: (step M (q, t)) => [[q' t']|]; last by (move=> _; exists 1).
@@ -356,7 +356,7 @@ Section Construction.
       - by exact: bsm_sss_fun.
       - by apply: subcode_refl.
       - move=> n' [?]. by have ->: n' = n - m by lia. }
-    move=> k Hk. exists (1+k). by rewrite (steps_plus 1) /= E.
+    move=> k Hk. exists (1+k). by rw (steps_plus 1) /= E.
   Qed.
 
   Lemma inverse_simulation' t i v :
@@ -387,13 +387,13 @@ Proof.
   move=> [M [q [[ls a] rs]]]. split.
   - move=> [k] /simulation => /(_ q 0) [v Hv] /=.
     exists ((5 + (num_states M) * c), v). split => /=.
-    + rewrite /P.
-      rewrite P_length in Hv.
+    + rw /P.
+      rw P_length in Hv.
       bsm sss POP empty with ZERO (encode_state M 0 q ) (encode_state M 0 q).
     + right.
-      rewrite length_app length_flat_map_PROG_M /=. lia.
+      rw length_app length_flat_map_PROG_M /=. lia.
   - move=> [] [i v] [] [?] H /= ?.
-    rewrite /P in H.
+    rw /P in H.
     bsm inv POP empty with H ZERO (encode_state M 0 q) (encode_state M 0 q).
     + move: H => [?] [?] /inverse_simulation. by apply.
     + move=> []. lia.

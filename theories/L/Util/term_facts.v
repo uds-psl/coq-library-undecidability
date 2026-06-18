@@ -19,13 +19,13 @@ Set Default Goal Selector "!".
 Lemma subst_apps s k t ts : subst (apps t ts) k s = apps (subst t k s) (map (fun u => subst u k s) ts).
 Proof.
   elim: ts t; first done.
-  move=> t' ts IH t /=. by rewrite IH.
+  move=> t' ts IH t /=. by rw IH.
 Qed.
 
 Lemma subst_lams n s k t : subst (lams n s) k t = lams n (subst s (n + k) t).
 Proof.
   elim: n k; first done.
-  move=> n IH k /=. by rewrite IH Nat.add_succ_r.
+  move=> n IH k /=. by rw IH Nat.add_succ_r.
 Qed.
 
 Fixpoint substs k ts t :=
@@ -38,18 +38,18 @@ Fixpoint substs k ts t :=
 Lemma substs_apps k ts s ss : substs k ts (apps s ss) = apps (substs k ts s) (map (substs k ts) ss).
 Proof.
   elim: ss s; first done.
-  move=> s' ss IH s /=. by rewrite IH.
+  move=> s' ss IH s /=. by rw IH.
 Qed.
 
 Lemma substs_nil k t : substs k [] t = t.
 Proof.
   elim: t k.
-  - move=> x k /=. rewrite app_nil_r map_nth.
+  - move=> x k /=. rw app_nil_r map_nth.
     have [?|?] : x < k \/ x >= k by lia.
-    + by rewrite seq_nth.
-    + by rewrite nth_overflow ?length_seq.
-  - move=> ? IH1 ? IH2 ? /=. by rewrite IH1 IH2.
-  - move=> ? IH ? /=. by rewrite IH.
+    + by rw seq_nth.
+    + by rw nth_overflow ?length_seq.
+  - move=> ? IH1 ? IH2 ? /=. by rw IH1 IH2.
+  - move=> ? IH ? /=. by rw IH.
 Qed.
 
 Lemma substs_closed k ts t : closed t -> substs k ts t = t.
@@ -57,12 +57,12 @@ Proof.
   move=> /L_facts.closed_dcl.
   have : 0 <= k by lia.
   move: (0)=> n + H. elim: H k.
-  - move=> > ? > ? /=. rewrite app_nth1.
-    + rewrite length_map length_seq. lia.
-    + by rewrite map_nth seq_nth; [lia|].
+  - move=> > ? > ? /=. rw app_nth1.
+    + rw length_map length_seq. lia.
+    + by rw map_nth seq_nth; [lia|].
   - move=> > ? IH1 ? IH2 * /=.
-    by rewrite IH1 ?IH2.
-  - move=> > ? IH * /=. by rewrite IH; [lia|].
+    by rw IH1 ?IH2.
+  - move=> > ? IH * /=. by rw IH; [lia|].
 Qed.
 
 Lemma substs_subst k t ts s : closed t -> Forall closed ts ->
@@ -72,17 +72,17 @@ Proof.
   - move=> x k /=.
     move E: (Nat.eqb x (k + length ts)) => [|].
     + move=> /Nat.eqb_eq in E. subst.
-      rewrite app_assoc app_nth2 !length_app !length_map !length_seq; [lia|].
-      rewrite Nat.sub_diag /=. by apply: substs_closed.
+      rw app_assoc app_nth2 !length_app !length_map !length_seq; [lia|].
+      rw Nat.sub_diag /=. by apply: substs_closed.
     + move=> /Nat.eqb_neq in E.
-      rewrite /= !app_assoc.
+      rw /= !app_assoc.
       have [?|?] : x < k + length ts \/ x > k + length ts by lia.
-      * rewrite (app_nth1 _ [t]); last done.
-        by rewrite length_app length_map length_seq.
-      * rewrite !nth_overflow; last done.
-        all: rewrite !length_app length_map length_seq /=; lia.
-  - move=> ? IH1 ? IH2 ? /=. by rewrite IH1 IH2.
-  - move=> ? IH ? /=. by rewrite IH.
+      * rw (app_nth1 _ [t]); last done.
+        by rw length_app length_map length_seq.
+      * rw !nth_overflow; last done.
+        all: rw !length_app length_map length_seq /=; lia.
+  - move=> ? IH1 ? IH2 ? /=. by rw IH1 IH2.
+  - move=> ? IH ? /=. by rw IH.
 Qed.
 
 Lemma eval_lam s t : lam s = t -> eval (lam s) t.
@@ -140,16 +140,16 @@ Lemma steps_apps_lams n (ts : list term) s :
   clos_refl_trans _ step (apps (lams n s) ts) (substs 0 (rev ts) s).
 Proof.
   move=> -> H. elim: H s.
-  - move=> ? /= *. rewrite substs_nil. by apply: rt_refl.
+  - move=> ? /= *. rw substs_nil. by apply: rt_refl.
   - move=> t' {}ts H1t' Hts IH s /Forall_cons_iff [H2t'] /[dup] ? /IH {}IH.
     move: H1t' => /L_facts.eval_iff [_] [t'' ?]. subst.
-    rewrite /=. apply: rt_trans.
+    rw /=. apply: rt_trans.
     + apply: rt_steps_apps_r. apply: rt_trans.
       { apply: rt_step. by constructor. }
-      rewrite subst_lams. by apply: rt_refl.
+      rw subst_lams. by apply: rt_refl.
     + apply: rt_trans; first by apply IH.
-      rewrite Nat.add_0_r -length_rev.
-      rewrite substs_subst; [done|by apply: Forall_rev|].
+      rw Nat.add_0_r -length_rev.
+      rw substs_subst; [done|by apply: Forall_rev|].
       by apply: rt_refl.
 Qed.
 

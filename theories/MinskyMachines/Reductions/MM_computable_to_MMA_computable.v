@@ -55,9 +55,9 @@ Definition P' : list (mm_instr (pos num_counters)) :=
 
 Lemma length_P' : length P' = length P * 3.
 Proof.
-  rewrite /P' length_concat. move: (x in seq x).
+  rw /P' length_concat. move: (x in seq x).
   elim: (P); first done.
-  move=> [] > /= IH ?; by rewrite IH.
+  move=> [] > /= IH ?; by rw IH.
 Qed.
 
 Lemma P'_spec i {instr l r} :
@@ -65,16 +65,16 @@ Lemma P'_spec i {instr l r} :
   P = l ++ instr :: r ->
   nth_error P' (length l * 3 + i) = nth_error (enc_instr (S (length l), instr)) i.
 Proof.
-  move=> Hi. rewrite /P'=> ->.
+  move=> Hi. rw /P'=> ->.
   suff: forall k, nth_error
     (concat (map enc_instr (combine (seq k (length (l ++ instr :: r))) (l ++ instr :: r)))) (length l * 3 + i) =
       nth_error (enc_instr (k + (length l), instr)) i by apply.
   elim: l.
-  - move=> k. rewrite /= Nat.add_0_r.
+  - move=> k. rw /= Nat.add_0_r.
     by move: i Hi instr => [|[|[|?]]] ? [] /=; try lia.
   - move=> [] > IH ? /=.
-    + rewrite IH. congr nth_error. by rewrite !(Nat.add_succ_r _ (length _)).
-    + rewrite IH. congr nth_error. by rewrite !(Nat.add_succ_r _ (length _)).
+    + rw IH. congr nth_error. by rw !(Nat.add_succ_r _ (length _)).
+    + rw IH. congr nth_error. by rw !(Nat.add_succ_r _ (length _)).
 Qed.
 
 #[local] Arguments firstn_skipn_middle {A n l x}.
@@ -88,39 +88,39 @@ Proof.
     move=> /mm_sss_INC_inv [-> ->] /=.
     apply: t_trans.
     { apply: t_step.
-      rewrite -(firstn_skipn_middle (P'_spec 0 eq_refl HP)). apply: in_sss_step.
-      - rewrite /= addr_spec length_firstn length_P' HP length_app /=. lia.
+      rw -(firstn_skipn_middle (P'_spec 0 eq_refl HP)). apply: in_sss_step.
+      - rw /= addr_spec length_firstn length_P' HP length_app /=. lia.
       - by apply: in_mma_sss_inc. }
     apply: t_trans.
-    { apply: t_step. rewrite -(firstn_skipn_middle (P'_spec 1 eq_refl HP)). apply: in_sss_step.
-      - rewrite /= addr_spec length_firstn length_P' HP length_app /=. lia.
+    { apply: t_step. rw -(firstn_skipn_middle (P'_spec 1 eq_refl HP)). apply: in_sss_step.
+      - rw /= addr_spec length_firstn length_P' HP length_app /=. lia.
       - by apply: in_mma_sss_inc. }
     apply: clos_t_rt_t.
-    { apply: t_step. rewrite -(firstn_skipn_middle (P'_spec 2 eq_refl HP)). apply: in_sss_step.
-      - rewrite /= addr_spec length_firstn length_P' HP length_app /=. lia.
-      - apply: in_mma_sss_dec_1. by rewrite vec_change_eq. }
-    rewrite !vec_change_idem vec_change_eq; first done.
+    { apply: t_step. rw -(firstn_skipn_middle (P'_spec 2 eq_refl HP)). apply: in_sss_step.
+      - rw /= addr_spec length_firstn length_P' HP length_app /=. lia.
+      - apply: in_mma_sss_dec_1. by rw vec_change_eq. }
+    rw !vec_change_idem vec_change_eq; first done.
     by apply: rt_refl.
   - (* DEC *) 
     move E: (vec_pos v x) => [|?].
     + move=> /mm_sss_DEC0_inv => /(_ E) [-> ->] /=.
       apply: t_trans.
-      { apply: t_step. rewrite -(firstn_skipn_middle (P'_spec 0 eq_refl HP)). apply: in_sss_step.
-        - rewrite /= addr_spec length_firstn length_P' HP length_app /=. lia.
+      { apply: t_step. rw -(firstn_skipn_middle (P'_spec 0 eq_refl HP)). apply: in_sss_step.
+        - rw /= addr_spec length_firstn length_P' HP length_app /=. lia.
         - by apply: in_mma_sss_dec_0. }
       apply: t_trans.
-      { apply: t_step. rewrite -(firstn_skipn_middle (P'_spec 1 eq_refl HP)). apply: in_sss_step.
-        - rewrite /= addr_spec length_firstn length_P' HP length_app /=. lia.
+      { apply: t_step. rw -(firstn_skipn_middle (P'_spec 1 eq_refl HP)). apply: in_sss_step.
+        - rw /= addr_spec length_firstn length_P' HP length_app /=. lia.
         - by apply: in_mma_sss_inc. }
       apply: clos_t_rt_t.
-      { apply: t_step. rewrite -(firstn_skipn_middle (P'_spec 2 eq_refl HP)). apply: in_sss_step.
-        - rewrite /= addr_spec length_firstn length_P' HP length_app /=. lia.
-        - apply: in_mma_sss_dec_1. by rewrite vec_change_eq. }
-      rewrite !vec_change_idem vec_change_same. by apply: rt_refl.
+      { apply: t_step. rw -(firstn_skipn_middle (P'_spec 2 eq_refl HP)). apply: in_sss_step.
+        - rw /= addr_spec length_firstn length_P' HP length_app /=. lia.
+        - apply: in_mma_sss_dec_1. by rw vec_change_eq. }
+      rw !vec_change_idem vec_change_same. by apply: rt_refl.
     + move=> /mm_sss_DEC1_inv => /(_ _ E) [-> ->] /=.
       apply: clos_t_rt_t.
-      { apply: t_step. rewrite -(firstn_skipn_middle (P'_spec 0 eq_refl HP)). apply: in_sss_step.
-        - rewrite /= addr_spec length_firstn length_P' HP length_app /=. lia.
+      { apply: t_step. rw -(firstn_skipn_middle (P'_spec 0 eq_refl HP)). apply: in_sss_step.
+        - rw /= addr_spec length_firstn length_P' HP length_app /=. lia.
         - apply: in_mma_sss_dec_1. by eassumption. }
       by apply: rt_refl.
 Qed.
@@ -169,7 +169,7 @@ Proof.
     move=> /[dup] /eval_to_sss_compute + /eval_to_sss_out_code.
     move=> /= + /[dup] Hc => /MM_MMA.simulation /[apply] ?.
     eexists _, _. split; [eassumption|].
-    rewrite /= MM_MMA.length_P' MM_MMA.addr_spec.
+    rw /= MM_MMA.length_P' MM_MMA.addr_spec.
     move: Hc => /=. lia.
   - move=> v /(sss_terminates_iff (@mma_sss_total_ni _)) Hv. apply: H2P.
     apply /(sss_terminates_iff (@mm_sss_total_ni _)). move: Hv.

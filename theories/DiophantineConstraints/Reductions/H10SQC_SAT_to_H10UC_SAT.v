@@ -100,11 +100,11 @@ Lemma h10sqc_to_h10ucs_spec {c} : h10sqc_sem φ c -> Forall (h10uc_sem φ') (h10
 Proof.
   case: c => /=.
   - move=> x ?. constructor; last done.
-    rewrite /= /ζ /φ' /v ?Cantor.cancel_of_to /=. by lia.
+    rw /= /ζ /φ' /v ?Cantor.cancel_of_to /=. by lia.
   - move=> x y z ?. (do ? constructor);
-      rewrite /= /ζ /φ' /θ ?Cantor.cancel_of_to /=; by nia.
+      rw /= /ζ /φ' /θ ?Cantor.cancel_of_to /=; by nia.
   - move=> x y ?. (do ? constructor);
-      rewrite /= /ζ /φ' ?Cantor.cancel_of_to /=; by nia.
+      rw /= /ζ /φ' ?Cantor.cancel_of_to /=; by nia.
 Qed.
 
 End Transport.
@@ -112,7 +112,7 @@ End Transport.
 Lemma transport : H10SQC_SAT sqcs -> H10UC_SAT ucs.
 Proof.
   move=> [φ Hφ]. exists (φ' φ).
-  move: Hφ. rewrite -?Forall_forall /ucs Forall_app Forall_flat_map.
+  move: Hφ. rw -?Forall_forall /ucs Forall_app Forall_flat_map.
   move=> H. constructor.
   - by do ? constructor.
   - apply: Forall_impl H => ?. by move /h10sqc_to_h10ucs_spec.
@@ -127,7 +127,7 @@ Definition φ (x: nat) := φ' (ζ x 0).
 
 Lemma v_spec : φ' (v 0) = 0 /\ φ' (v 1) = 1.
 Proof using Hφ'.
-  move: (Hφ'). rewrite -Forall_forall /ucs Forall_app /v012.
+  move: (Hφ'). rw -Forall_forall /ucs Forall_app /v012.
   move=> [/Forall_cons_iff [+]] /Forall_cons_iff [+] /Forall_cons_iff [+] _ _ => /=.
   by nia.
 Qed.
@@ -135,10 +135,10 @@ Qed.
 Lemma h10sqc_of_h10ucs_spec {c} : Forall (h10uc_sem φ') (h10sqc_to_h10ucs c) -> h10sqc_sem φ c.
 Proof using Hφ'.
   case: c => /=.
-  - move=> x /Forall_cons_iff []. rewrite /= ?(proj1 v_spec) /φ. by lia.
+  - move=> x /Forall_cons_iff []. rw /= ?(proj1 v_spec) /φ. by lia.
   - move=> x y z. do 9 (move=> /Forall_cons_iff /and_comm []).
-    rewrite /= ?(proj1 v_spec) ?(proj2 v_spec) /φ. by lia. 
-  - move=> x y /Forall_cons_iff [+] /Forall_cons_iff [+ _]. rewrite /= ?(proj1 v_spec) /φ. by lia.
+    rw /= ?(proj1 v_spec) ?(proj2 v_spec) /φ. by lia. 
+  - move=> x y /Forall_cons_iff [+] /Forall_cons_iff [+ _]. rw /= ?(proj1 v_spec) /φ. by lia.
 Qed.
 
 End InverseTransport.
@@ -146,7 +146,7 @@ End InverseTransport.
 Lemma inverse_transport : H10UC_SAT ucs -> H10SQC_SAT sqcs.
 Proof.
   move=> [φ' Hφ']. exists (φ φ').
-  move: (Hφ'). rewrite -?Forall_forall /ucs Forall_app Forall_flat_map.
+  move: (Hφ'). rw -?Forall_forall /ucs Forall_app Forall_flat_map.
   move=> [?]. apply: Forall_impl => ?. by apply: h10sqc_of_h10ucs_spec.
 Qed.
 

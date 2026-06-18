@@ -92,7 +92,7 @@ Section Construction.
     oq1 = oq2 /\ canonize_tape t'1 = canonize_tape t'2.
   Proof.
     move=> Ht1t2.
-    rewrite /TM_facts.step /= -(get_symbol_canonize_tape Ht1t2).
+    rw /TM_facts.step /= -(get_symbol_canonize_tape Ht1t2).
     case: oq => [q|].
     - move: (trans' M _) => [[[q' a'] d']|] /=.
       + move=> [] <- <- [] <- <-. split; first done.
@@ -113,8 +113,8 @@ Section Construction.
     case: (halt' _) => [|] /=. { move=> [] -> _. by eexists. }
     move E1: (TM_step _) => [q1 ts1]. move E2: (TM_step _) => [q2 ts2].
     move: E1 E2.
-    rewrite (Vector.eta ts1). move: (VectorDef.tl ts1). apply: Vector.case0.
-    rewrite (Vector.eta ts2). move: (VectorDef.tl ts2). apply: Vector.case0.
+    rw (Vector.eta ts1). move: (VectorDef.tl ts1). apply: Vector.case0.
+    rw (Vector.eta ts2). move: (VectorDef.tl ts2). apply: Vector.case0.
     move: (Ht1t2) => /TM_step_canonize_tape /[apply] /[apply].
     move=> [<-] /IH. by apply.
   Qed.
@@ -125,7 +125,7 @@ Section Construction.
       TM_step (encode_config (q, t)) = TM_facts.mk_mconfig (Some q') ([ t'' ]) /\
       encode_tape t' = canonize_tape t'' }.
   Proof.
-    rewrite /step /TM_facts.step /=.
+    rw /step /TM_facts.step /=.
     move: t => [[ls a] rs] /=. case: (trans' M _) => [[[? ?] d]|] /=; last done.
     move=> [] -> <-. case: d => /=.
     - case: ls => [|??] /=; eexists; split; reflexivity.
@@ -135,7 +135,7 @@ Section Construction.
   Lemma simulation_halt q t : step M (q, t) = None ->
     TM_step (encode_config (q, t)) = TM_facts.mk_mconfig None ([ encode_tape t ]).
   Proof.
-    rewrite /step /TM_facts.step /=.
+    rw /step /TM_facts.step /=.
     move: t => [[ls a] rs] /=.
     by case: (trans' M _) => [[[? ?] d]|] /=.
   Qed.
@@ -146,17 +146,17 @@ Section Construction.
   Proof.
     elim: k q t; first done.
     move=> k IH q t.
-    rewrite (steps_plus 1 k). case E: (steps M 1 _) => [[q' t']|].
+    rw (steps_plus 1 k). case E: (steps M 1 _) => [[q' t']|].
     - move: E => /simulation_step [t'' [HM' Ht't'']] /IH.
       move=> [q'''] [t'''] /TM_facts.TM_eval_iff [k'].
-      rewrite Ht't''. move=> /TM_loopM_canonize_tape => /(_ t'').
+      rw Ht't''. move=> /TM_loopM_canonize_tape => /(_ t'').
       move=> /(_ ltac:(by case: (t''))). move=> [{}t''' ?].
       exists q''', t'''. apply /TM_facts.TM_eval_iff. exists (S k').
-      by rewrite /= HM'.
+      by rw /= HM'.
     - move=> _. exists None, ([ encode_tape t ]).
       apply /TM_facts.TM_eval_iff. exists 1.
       move: E.
-      rewrite /= /step /TM_facts.step /=.
+      rw /= /step /TM_facts.step /=.
       move: t => [[ls a] rs] /=.
       by case: (trans' M (q, a)) => [[[??]?]|].
   Qed.
@@ -167,12 +167,12 @@ Section Construction.
   Proof.
     move=> /TM_facts.TM_eval_iff => - [k Hk]. exists k.
     elim: k q t q' ts' Hk; first done.
-    move=> k IH q t q' ts' Hk. rewrite (steps_plus 1 k).
+    move=> k IH q t q' ts' Hk. rw (steps_plus 1 k).
     case Hqt: (steps M 1 (q, t)) => [[q'' t'']|]; last done.
     move: Hqt => /simulation_step [t'''] [H'qt Et''t'''].
-    move: Hk => /=. rewrite H'qt.
+    move: Hk => /=. rw H'qt.
     have : canonize_tape t''' = canonize_tape (encode_tape t'').
-    { rewrite Et''t'''. by case: (t'''). }
+    { rw Et''t'''. by case: (t'''). }
     by move=> /TM_loopM_canonize_tape /[apply] => - [?] /IH.
   Qed.
 

@@ -37,7 +37,7 @@ Lemma finite_characterization : let t := list_prod (seq 1 l) (list_prod [0;1;2] 
 Proof.
   move=> t. pose P := fun '(x, y) => x <> y /\ exists z, step x z /\ step y z.
   have /(Exists_dec P (list_prod t t)): forall xy, {P xy} + {~ P xy}.
-  { move=> [x y]. rewrite /P.
+  { move=> [x y]. rw /P.
     have [<-|?] := mm2_state_eq_dec x y.
     { right. tauto. }
     have [[z1 Hxz1]|Hx] := mm2_sig_step_dec M x.
@@ -153,6 +153,6 @@ Definition decide : list mm2_instr -> bool :=
 (* decision procedure correctness *)
 Lemma decide_spec : decider decide MM2_REV.
 Proof.
-  rewrite /decider /reflects /decide => M.
+  rw /decider /reflects /decide => M.
   case: (decision M); [tauto | done].
 Qed.

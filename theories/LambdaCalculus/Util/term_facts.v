@@ -74,7 +74,7 @@ Proof.
   - move=> x. by exists x, [].
   - move=> {}M N ? [x] [Ms] [->] ??.
     exists x, (Ms ++ [N]). split.
-    + by rewrite fold_left_app /=.
+    + by rw fold_left_app /=.
     + apply /Forall_app. split; first done.
       by constructor.
 Qed.
@@ -95,15 +95,15 @@ Proof.
   - by move=> > /= ?.
   - move=> ? IH1 ? IH2 ?? Hsigma /=. congr app; [by apply: IH1 | by apply: IH2].
   - move=> ? IH > Hsigma /=. congr lam. apply: IH.
-    case; first done. move=> ?. by rewrite /= Hsigma.
+    case; first done. move=> ?. by rw /= Hsigma.
 Qed.
 
 Lemma ren_ren_term xi1 xi2 t : ren xi2 (ren xi1 t) = ren (funcomp xi2 xi1) t.
 Proof.
   elim: t xi1 xi2 => /=.
   - done.
-  - move=> ? IH1 ? IH2 ??. by rewrite IH1 IH2.
-  - move=> ? IH ??. rewrite IH.
+  - move=> ? IH1 ? IH2 ??. by rw IH1 IH2.
+  - move=> ? IH ??. rw IH.
     congr lam. apply: ext_ren_term. by case.
 Qed.
 
@@ -111,8 +111,8 @@ Lemma ren_as_subst_term xi t : ren xi t = subst (funcomp var xi) t.
 Proof.
   elim: t xi => /=.
   - done.
-  - move=> ? IH1 ? IH2 ?. by rewrite IH1 IH2.
-  - move=> ? IH ?. rewrite IH.
+  - move=> ? IH1 ? IH2 ?. by rw IH1 IH2.
+  - move=> ? IH ?. rw IH.
     congr lam. apply: ext_subst_term. by case.
 Qed.
 
@@ -120,18 +120,18 @@ Lemma ren_subst_term xi sigma t : ren xi (subst sigma t) = subst (funcomp (ren x
 Proof.
   elim: t xi sigma => /=.
   - done.
-  - move=> ? IH1 ? IH2 ??. by rewrite IH1 IH2.
-  - move=> ? IH ??. rewrite IH.
+  - move=> ? IH1 ? IH2 ??. by rw IH1 IH2.
+  - move=> ? IH ??. rw IH.
     congr lam. apply: ext_subst_term.
-    case; first done. move=> ?. by rewrite /= !ren_ren_term.
+    case; first done. move=> ?. by rw /= !ren_ren_term.
 Qed.
 
 Lemma subst_ren_term xi sigma t : subst sigma (ren xi t) = subst (funcomp sigma xi) t.
 Proof.
   elim: t xi sigma => /=.
   - done.
-  - move=> ? IH1 ? IH2 ??. by rewrite IH1 IH2.
-  - move=> ? IH ??. rewrite IH.
+  - move=> ? IH1 ? IH2 ??. by rw IH1 IH2.
+  - move=> ? IH ??. rw IH.
     congr lam. apply: ext_subst_term. by case.
 Qed.
 
@@ -139,24 +139,24 @@ Lemma subst_subst_term sigma1 sigma2 t : subst sigma2 (subst sigma1 t) = subst (
 Proof.
   elim: t sigma1 sigma2 => /=.
   - done.
-  - move=> ? IH1 ? IH2 ??. by rewrite IH1 IH2.
-  - move=> ? IH ??. rewrite IH.
+  - move=> ? IH1 ? IH2 ??. by rw IH1 IH2.
+  - move=> ? IH ??. rw IH.
     congr lam. apply: ext_subst_term.
     case; first done. move=> ?.
-    by rewrite /= !ren_subst_term !subst_ren_term.
+    by rw /= !ren_subst_term !subst_ren_term.
 Qed.
 
 Lemma subst_var_term s : subst var s = s.
 Proof.
   elim: s.
   - done.
-  - move=> ? IH1 ? IH2 /=. by rewrite IH1 IH2.
-  - move=> ? IH /=. congr lam. rewrite -[RHS]IH.
+  - move=> ? IH1 ? IH2 /=. by rw IH1 IH2.
+  - move=> ? IH /=. congr lam. rw -[RHS]IH.
     apply: ext_subst_term. by case.
 Qed.
 
 Lemma ren_id_term s : ren id s = s.
-Proof. by rewrite ren_as_subst_term subst_var_term. Qed.
+Proof. by rw ren_as_subst_term subst_var_term. Qed.
 
 Definition simpl_term := (ren_ren_term, ren_subst_term, subst_ren_term, subst_subst_term, subst_var_term, ren_id_term).
 
@@ -183,7 +183,7 @@ Qed.
 
 Lemma ext_allfv_ren_term xi1 xi2 t : allfv (fun x=> xi1 x = xi2 x) t -> ren xi1 t = ren xi2 t.
 Proof.
-  move=> H. rewrite !ren_as_subst_term. apply: ext_allfv_subst_term.
+  move=> H. rw !ren_as_subst_term. apply: ext_allfv_subst_term.
   by apply: allfv_impl H => ? /= ->.
 Qed.
 
@@ -206,12 +206,12 @@ Proof.
   - move=> ? IH k sigma1 sigma2 /boundE /IH {}IH H /=. congr lam.
     apply: IH.
     move=> [|n]; first done.
-    move=> /= ?. rewrite H; [lia|done].
+    move=> /= ?. rw H; [lia|done].
 Qed.
 
 Lemma allfv_closed M : (forall P, allfv P M) -> closed M.
 Proof.
-  move=> HM sigma. rewrite -[RHS]subst_var_term.
+  move=> HM sigma. rw -[RHS]subst_var_term.
   apply: ext_allfv_subst_term. by apply: HM.
 Qed.
 
@@ -219,28 +219,28 @@ Lemma subst_closed sigma M : closed M -> subst sigma M = M.
 Proof. by apply. Qed.
 
 Lemma ren_closed xi M : closed M -> ren xi M = M.
-Proof. rewrite ren_as_subst_term. by apply. Qed.
+Proof. rw ren_as_subst_term. by apply. Qed.
 
 Lemma subst_L_closed {sigma t} : L.closed t -> subst sigma t = t.
 Proof.
   move=> /closed_dcl /bound_ext_subst_term.
-  rewrite -[RHS]subst_var_term. apply. lia.
+  rw -[RHS]subst_var_term. apply. lia.
 Qed.
 
 Lemma ren_L_closed {xi t} : L.closed t -> ren xi t = t.
-Proof. rewrite ren_as_subst_term. by apply: subst_L_closed. Qed.
+Proof. rw ren_as_subst_term. by apply: subst_L_closed. Qed.
 
 Lemma L_subst_Lambda_subst s k t :
   L.closed t -> L.subst s k t = subst (fun n => if Nat.eqb n k then t else var n) s.
 Proof.
   move=> Ht. elim: s k.
   - done. 
-  - move=> ? IH1 ? IH2 ? /=. by rewrite IH1 IH2.
-  - move=> ? IH k /=. rewrite IH.
+  - move=> ? IH1 ? IH2 ? /=. by rw IH1 IH2.
+  - move=> ? IH k /=. rw IH.
     congr lam. apply: ext_subst_term.
     move=> [|n] /=; first done.
     case: (Nat.eqb n k); last done.
-    by rewrite (ren_L_closed Ht).
+    by rw (ren_L_closed Ht).
 Qed.
 
 Lemma bound_ren {k k' xi t} : bound k t -> (forall n, n < k -> xi n < k') -> bound k' (ren xi t).
@@ -268,7 +268,7 @@ Proof.
 Qed.
 
 Lemma not_closed_var n : L.closed (var n) -> False.
-Proof. move=> /(_ n (lam (var 0))) /=. by rewrite Nat.eqb_refl. Qed.
+Proof. move=> /(_ n (lam (var 0))) /=. by rw Nat.eqb_refl. Qed.
 
 Lemma closed_I s : (forall k, L.subst s k (lam (var 0)) = s) -> L.closed s.
 Proof.
@@ -336,7 +336,7 @@ Proof. by case. Qed.
 
 Lemma not_step_normal_form {M} : (forall N, not (step M N)) -> normal_form M.
 Proof.
-  rewrite /not. elim: M.
+  rw /not. elim: M.
   - by do ? constructor.
   - move=> [?|M1 M2|?] IH1 N IH2 H; [..|exfalso].
     all: do ? constructor; by eauto using step.
@@ -389,7 +389,7 @@ Lemma ren_step xi M M' : step M M' -> step (ren xi M) (ren xi M').
 Proof.
   move=> H. elim: H xi; [|by eauto using step..].
   move=> > /=. apply: P_equal; [by apply: stepSubst|].
-  rewrite !simpl_term. apply: ext_subst_term. by case.
+  rw !simpl_term. apply: ext_subst_term. by case.
 Qed.
 
 Lemma subst_step M N sigma : step M N ->
@@ -398,8 +398,8 @@ Proof.
   move=> H. elim: H sigma; [|by eauto using step..].
   move=> > /=.
   apply: P_equal; [apply: stepSubst|].
-  rewrite !simpl_term. apply: ext_subst_term=> - [|?]; [done|].
-  by rewrite /= !simpl_term.
+  rw !simpl_term. apply: ext_subst_term=> - [|?]; [done|].
+  by rw /= !simpl_term.
 Qed.
 
 Lemma ren_steps xi M M' : clos_refl_trans _ step M M' ->
@@ -499,7 +499,7 @@ Proof. move=> ->. by apply: stepSubst. Qed.
 
 Lemma subst_as_ren M x : subst (scons (var x) var) M = ren (scons x id) M.
 Proof.
-  rewrite ren_as_subst_term /=. apply: ext_subst_term. by case.
+  rw ren_as_subst_term /=. apply: ext_subst_term. by case.
 Qed.
 
 Lemma step_ren xi M N : step M N -> step (ren xi M) (ren xi N).
@@ -507,7 +507,7 @@ Proof.
   move=> H. elim: H xi.
   { move=> > /=.
     apply: stepSubst'.
-    rewrite !simpl_term. apply: ext_subst_term.
+    rw !simpl_term. apply: ext_subst_term.
     by case. }
   all: by eauto using step with nocore.
 Qed.
@@ -536,7 +536,7 @@ Proof.
   - move=> ??? [] //.
     move=> [] // ?? /= [<- <-]. eexists.
     split; first last. { by apply: stepSubst. }
-    rewrite !simpl_term. apply: ext_subst_term.
+    rw !simpl_term. apply: ext_subst_term.
     by case.
   - move=> > ? IH ? [] //= ?? [??]. subst.
     have [? [? ?]] := IH _ _ eq_refl. subst.
@@ -570,7 +570,7 @@ Lemma term_size_many_app M Ns : term_size (many_app M Ns) = list_sum (map (fun N
 Proof.
   elim: Ns M.
   - done.
-  - move=> ?? IH ? /=. rewrite IH /=. lia.
+  - move=> ?? IH ? /=. rw IH /=. lia.
 Qed.
 
 Lemma neutral_normal_form M :
@@ -615,10 +615,10 @@ Proof.
 Qed.
 
 Lemma ren_many_app xi M Ns : ren xi (many_app M Ns) = many_app (ren xi M) (map (ren xi) Ns).
-Proof. elim: Ns M; [done|]. move=> > IH ? /=. by rewrite IH. Qed.
+Proof. elim: Ns M; [done|]. move=> > IH ? /=. by rw IH. Qed.
 
 Lemma subst_many_app sigma M Ns : subst sigma (many_app M Ns) = many_app (subst sigma M) (map (subst sigma) Ns).
-Proof. elim: Ns M; [done|]. move=> > IH ? /=. by rewrite IH. Qed.
+Proof. elim: Ns M; [done|]. move=> > IH ? /=. by rw IH. Qed.
 
 Lemma normal_form_steps N M : normal_form N -> rt_steps N M -> N = M. 
 Proof.
@@ -630,13 +630,13 @@ Qed.
 Lemma ren_apps xi M Ns : ren xi (many_app M Ns) = many_app (ren xi M) (map (ren xi) Ns).
 Proof.
   elim: Ns M; first done.
-  move=> ?? IH M /=. by rewrite IH.
+  move=> ?? IH M /=. by rw IH.
 Qed.
 
 Lemma subst_apps sigma M Ns : subst sigma (many_app M Ns) = many_app (subst sigma M) (map (subst sigma) Ns).
 Proof.
   elim: Ns M; first done.
-  move=> ?? IH M /=. by rewrite IH.
+  move=> ?? IH M /=. by rw IH.
 Qed.
 
 Lemma allfv_step P M N : step M N -> allfv P M -> allfv P N.
@@ -667,7 +667,7 @@ Lemma allfv_lams P n M : allfv (Nat.iter n (scons True) P) M -> allfv P (lams n 
 Proof.
   elim: n P; first done.
   move=> n IH P.
-  rewrite Nat.iter_succ_r.
+  rw Nat.iter_succ_r.
   by apply: IH.
 Qed.
 
@@ -765,7 +765,7 @@ Qed.
 Lemma stepsLams k M M' : rt_steps M M' -> rt_steps (lams k M) (lams k M').
 Proof.
   move=> ?. elim: k; first done.
-  move=> *. rewrite /=. apply: stepsLam. by eassumption.
+  move=> *. rw /=. apply: stepsLam. by eassumption.
 Qed.
 
 Definition up (sigma: nat -> term) := scons (var 0) (funcomp (ren S) sigma).
@@ -774,9 +774,9 @@ Lemma subst_lams sigma k M : subst sigma (lams k M) = lams k (subst (Nat.iter k 
 Proof.
   elim: k sigma M; first done.
   move=> k IH sigma M.
-  rewrite !Nat.iter_succ_r /=.
-  rewrite IH /=. congr (lams _ _).
-  by rewrite -Nat.iter_succ_r /=.
+  rw !Nat.iter_succ_r /=.
+  rw IH /=. congr (lams _ _).
+  by rw -Nat.iter_succ_r /=.
 Qed.
 
 Lemma steps_refl M N : M = N -> rt_steps M N.
@@ -789,23 +789,23 @@ Proof.
   suff: forall sigma, rt_steps (many_app (lams (length Ns) (subst (Nat.iter (length Ns) up sigma) M)) Ns) (subst (fold_left (fun sigma N => scons N sigma) Ns sigma) M).
   { move=> /(_ var) H. apply: rt_trans; [|by apply: H].
     apply: steps_refl. congr (many_app _ _). congr (lams _ _).
-    rewrite -[LHS]subst_var_term. apply: ext_subst_term.
+    rw -[LHS]subst_var_term. apply: ext_subst_term.
     elim: Ns {H}; first done.
     move=> N Ns IH [|x] /=; first done.
-    by rewrite -IH. }
+    by rw -IH. }
   elim: Ns M.
   - move=> ? sigma /=. by apply: rt_refl.
   - move=> N Ns IH M sigma /=.
     apply: rt_trans.
     + apply: stepsAppsL. apply: rt_step. by apply: stepSubst.
     + apply: rt_trans; [|by apply: IH]. apply: steps_refl.
-      rewrite subst_lams. congr (many_app _ _). congr (lams _ _).
-      rewrite subst_subst_term. apply: ext_subst_term.
+      rw subst_lams. congr (many_app _ _). congr (lams _ _).
+      rw subst_subst_term. apply: ext_subst_term.
       move: sigma {IH}. elim: Ns.
       { move=> sigma [|x] /=; first done.
-        rewrite subst_ren_term. by apply: subst_var_term. }
+        rw subst_ren_term. by apply: subst_var_term. }
       move=> n' Ns IH sigma [|x] /=; first done.
-      by rewrite -IH subst_ren_term ren_subst_term /=.
+      by rw -IH subst_ren_term ren_subst_term /=.
 Qed.
 
 Lemma iter_up_lt k x sigma : x < k -> Nat.iter k up sigma x = var x.
@@ -820,16 +820,16 @@ Qed.
 Lemma iter_up_ge k x sigma : x >= k -> Nat.iter k up sigma x = ren (fun y => k + y) (sigma (x - k)).
 Proof.
   elim: k sigma x.
-  - move=> *. by rewrite Nat.sub_0_r ren_id_term. 
+  - move=> *. by rw Nat.sub_0_r ren_id_term. 
   - move=> k IH sigma [|x] ? /=; first by lia.
-    rewrite IH; first by lia.
-    by rewrite ren_ren_term.
+    rw IH; first by lia.
+    by rw ren_ren_term.
 Qed.
 
 Lemma iter_up_eq (x : nat) (sigma : nat -> term) :
   Nat.iter x up sigma x = ren (Nat.add x) (sigma 0).
 Proof.
-  by rewrite iter_up_ge ?Nat.sub_diag.
+  by rw iter_up_ge ?Nat.sub_diag.
 Qed.
 
 Lemma apps_apps M M1s M2s : many_app (many_app M M1s) M2s = many_app M (M1s ++ M2s).
@@ -863,10 +863,10 @@ Lemma apps_inj M Ms M's : many_app M Ms = many_app M M's -> Ms = M's.
 Proof.
   elim /rev_ind: Ms M M's.
   - move=> ? [|??]; first done.
-    move=> /(f_equal term_size) /=. rewrite term_size_many_app /=. lia.
+    move=> /(f_equal term_size) /=. rw term_size_many_app /=. lia.
   - move=> > IH ? M's. elim /rev_ind: M's.
-    + move=> /(f_equal term_size) /=. rewrite term_size_many_app map_app list_sum_app /=. lia.
-    + move=> ?? _. rewrite !fold_left_app /=.
+    + move=> /(f_equal term_size) /=. rw term_size_many_app map_app list_sum_app /=. lia.
+    + move=> ?? _. rw !fold_left_app /=.
       by move=> [] /IH <- <-.
 Qed.
 
@@ -878,31 +878,31 @@ Proof.
 Qed.
 
 Lemma apps_last M Ms N : many_app M (Ms ++ [N]) = app (many_app M Ms) N.
-Proof. by rewrite fold_left_app. Qed.
+Proof. by rw fold_left_app. Qed.
 
 Lemma step_apps_varE x Ms M : step (many_app (var x) Ms) M -> exists M's, M = many_app (var x) M's /\ Forall2 rt_steps Ms M's.
 Proof.
   move E: (many_app (var x) Ms) => M' H. elim: H Ms E.
   - move=> ?? Ms. elim /rev_ind: Ms; first done.
-    move=> ? M's _. rewrite apps_last.
+    move=> ? M's _. rw apps_last.
     move=> []. elim /rev_ind: M's; first done.
-    move=> ?? _. by rewrite apps_last.
+    move=> ?? _. by rw apps_last.
   - move=> > ? IH Ms. elim /rev_ind: Ms; first done.
-    move=> ?? _. rewrite apps_last.
+    move=> ?? _. rw apps_last.
     move=> [??]. subst.
     move: (IH _ eq_refl) => [M's] [??]. subst.
-    eexists. split; first by rewrite -apps_last.
+    eexists. split; first by rw -apps_last.
     apply: Forall2_app; first done.
     by apply: Forall2_steps_refl.
   - move=> > ? IH Ms. elim /rev_ind: Ms; first done.
-    move=> ? M's _. rewrite apps_last.
+    move=> ? M's _. rw apps_last.
     move=> [??]. subst.
-    eexists. split; first by rewrite -apps_last.
+    eexists. split; first by rw -apps_last.
     apply: Forall2_app.
     + by apply: Forall2_steps_refl.
     + constructor; last done. by apply: rt_step.
   - move=> > ?? Ms. elim /rev_ind: Ms; first done.
-    move=> > _. by rewrite apps_last.
+    move=> > _. by rw apps_last.
 Qed.
 
 Lemma steps_apps_varE x Ms M's : rt_steps (many_app (var x) Ms) (many_app (var x) M's) -> Forall2 rt_steps Ms M's.
@@ -1009,7 +1009,7 @@ Proof.
   - now apply par_var.
   - now apply par_lam; auto.
   - eapply par_step'; [auto..|].
-    rewrite ren_subst_term subst_ren_term.
+    rw ren_subst_term subst_ren_term.
     apply ext_subst_term. now intros [|x].
   - now apply par_app; auto.
 Qed.
@@ -1028,9 +1028,9 @@ Proof.
       * apply reflexive_par.
       * apply par_ren. apply E.
     + apply IH2. apply E.
-    + rewrite !subst_subst_term. apply ext_subst_term. intros [|x]; cbn.
+    + rw !subst_subst_term. apply ext_subst_term. intros [|x]; cbn.
       * easy.
-      * now rewrite subst_ren_term subst_var_term.
+      * now rw subst_ren_term subst_var_term.
   - intros ?? E. cbn. apply par_app.
     + now apply IH1.
     + now apply IH2.

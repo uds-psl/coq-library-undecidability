@@ -88,7 +88,7 @@ Qed.
 
 Lemma encode_word_last {a v} : encode_word (v ++ [a]) = arr (if a then b2 else b3) (encode_word v).
 Proof. 
-  rewrite /encode_word. move: (bullet) => r. elim: v r.
+  rw /encode_word. move: (bullet) => r. elim: v r.
   { move=> r. by case: a. }
   move=> b A IH r. case: b; by apply: IH.
 Qed.
@@ -96,9 +96,9 @@ Qed.
 Lemma encode_word_app {v x} : encode_word (v ++ x) = append_word (encode_word v) x.
 Proof.
   elim: x v.
-  { move=> v. by rewrite app_nil_r. }
+  { move=> v. by rw app_nil_r. }
   move=> a x IH v. 
-  rewrite -/(app [a] _) ? app_assoc IH encode_word_last.
+  rw -/(app [a] _) ? app_assoc IH encode_word_last.
   by case: a.
 Qed.
 
@@ -107,12 +107,12 @@ Lemma unify_words {v w ζ} : substitute ζ (encode_word v) = substitute ζ (enco
 Proof.
   move: v w. elim /rev_ind.
   { elim /rev_ind; first done.
-    move=> b w _. rewrite encode_word_last.
+    move=> b w _. rw encode_word_last.
     move: b => [] /(f_equal size) /=; by lia. }
   move=> a v IH. elim /rev_ind.
-  { rewrite encode_word_last. 
+  { rw encode_word_last. 
     move: a => [] /(f_equal size) /=; by lia. }
-  move=> b w _. rewrite ? encode_word_last.
+  move=> b w _. rw ? encode_word_last.
   case: a; case: b; move=> /=; case.
   - by move /IH => ->.
   - move /(f_equal size) => /=. by lia.
@@ -126,23 +126,23 @@ Lemma substitute_combine {ζ ξ r v x} :
   substitute ζ (append_word r x) = substitute ξ (encode_word (v ++ x)).
 Proof.
   move=> ?. elim: x v r.
-  { move=> ?. by rewrite app_nil_r. }
+  { move=> ?. by rw app_nil_r. }
   move=> a x IH v r /=.
   have -> : v ++ a :: x = v ++ [a] ++ x by done.
-  rewrite app_assoc. move=> ?. 
-  case: a; apply: IH; rewrite encode_word_last /=; by congruence.
+  rw app_assoc. move=> ?. 
+  case: a; apply: IH; rw encode_word_last /=; by congruence.
 Qed.
 
 Lemma tau1_lastP {x y: list bool} {A} : tau1 (A ++ [(x, y)]) = tau1 A ++ x.
 Proof.
-  elim: A; first by rewrite /= app_nil_r.
-  move=> [a b] A /= ->. by rewrite app_assoc.
+  elim: A; first by rw /= app_nil_r.
+  move=> [a b] A /= ->. by rw app_assoc.
 Qed.
 
 Lemma tau2_lastP {x y: list bool} {A} : tau2 (A ++ [(x, y)]) = tau2 A ++ y.
 Proof.
-  elim: A; first by rewrite /= app_nil_r.
-  move=> [a b] A /= ->. by rewrite app_assoc.
+  elim: A; first by rw /= app_nil_r.
+  move=> [a b] A /= ->. by rw app_assoc.
 Qed.
 
 (* derivability of an instance of a → b → a *)
@@ -161,7 +161,7 @@ Definition solving (v w: list bool) P n :=
 Lemma adequate_step {v w P n} : adequate v w P (S n) -> adequate v w P n \/ solving v w P n.
 Proof.
   move=> [p [q /derE]] => [[ζ [s [k]]]].
-  rewrite {1}/Γ /In -/(In _ _). case. case; last case.
+  rw {1}/Γ /In -/(In _ _). case. case; last case.
   (* case ⟨ a, a ⟩ *)
   {
     move=> ?. subst s. case: k.
@@ -177,7 +177,7 @@ Proof.
       case=> _ /(f_equal size) /=. by lia. }
     move=> k /= [/Forall_cons_iff] [? _] _. right.
     exists []. constructor; first done.
-    eexists. rewrite ? app_nil_r /=. by eassumption.
+    eexists. rw ? app_nil_r /=. by eassumption.
   }
   (* case ⟨ va, wb ⟩ → ⟨ a, b ⟩ *)
   {
@@ -193,7 +193,7 @@ Qed.
 Lemma solving_step {v w P n} : solving v w P (S n) -> adequate v w P n \/ solving v w P n \/ MPCPb ((v, w), P).
 Proof.
   move=> [A [HA [ξ /derE]]]. move=> [ζ [s [k]]].
-  rewrite {1}/Γ /In -/(In _ _). case. case; last case.
+  rw {1}/Γ /In -/(In _ _). case. case; last case.
   (* case ⟨ a, a ⟩ *)
   {
     move=> ?. subst s. case: k.
@@ -208,7 +208,7 @@ Proof.
     { move=> /= [_]. case=> <- _ /(f_equal size) /=. by lia. }
     move=> k /= [/Forall_cons_iff] [? _] *.
     right. left. exists []. constructor; first done.
-    eexists. move=> /=. rewrite ? app_nil_r. by eassumption. 
+    eexists. move=> /=. rw ? app_nil_r. by eassumption. 
   }
   (* case ⟨ va, wb ⟩ → ⟨ a, b ⟩ *)
   {
@@ -216,15 +216,15 @@ Proof.
     (* k = 0 *)
     - move=> [_] /=. case=> -> _ /(f_equal size) /=. by lia.
     (* k = 1 *)
-    - move=> /= [/Forall_cons_iff] [H1 _] [] H2. move: H1. rewrite H2.
-      rewrite - ? /(substitute ζ (var _)).
+    - move=> /= [/Forall_cons_iff] [H1 _] [] H2. move: H1. rw H2.
+      rw - ? /(substitute ζ (var _)).
       move=> + _ _ /(substitute_combine H2 (x := x)) Hx.
       move=> + /(substitute_combine H2 (x := y)) Hy _ _ _.
-      rewrite Hx Hy => HD. right. left.
+      rw Hx Hy => HD. right. left.
       exists (A ++ [(x, y)]). constructor.
       { apply: incl_app; first done.
         by apply /incl_cons. }
-      exists ξ => /=. by rewrite tau1_lastP tau2_lastP ? app_assoc.
+      exists ξ => /=. by rw tau1_lastP tau2_lastP ? app_assoc.
     (* k = 2 *)
     - move=> k /= [/Forall_cons_iff] [_ /Forall_cons_iff] [? _] *.
       left. eexists. eexists. by eassumption.
@@ -264,7 +264,7 @@ Lemma transparent_append_word {ζ s v} : ζ 0 = var 0 ->
 Proof. 
   move=> Hζ. elim: v s; first done.
   move=> a v IH s.
-  case: a; by rewrite /b3 /b2 /bullet IH /= Hζ.
+  case: a; by rw /b3 /b2 /bullet IH /= Hζ.
 Qed.
 
 Lemma substitute_arrP {ζ s t} : substitute ζ (arr s t) = arr (substitute ζ s) (substitute ζ t).
@@ -277,25 +277,25 @@ Lemma soundness_ind {v w P x y A} :
   hsc (Γ v w P) (encode_pair (encode_word x) (encode_word y)).
 Proof.
   elim: A x y.
-  { move=> x y _ /=. rewrite ? app_nil_r => <-.
+  { move=> x y _ /=. rw ? app_nil_r => <-.
     pose ζ i := if i is 1 then encode_word x else var i.
     have -> : encode_pair (encode_word x) (encode_word x) = 
       substitute ζ (encode_pair (var 1) (var 1)) by done.
     apply: hsc_var.
-    rewrite /Γ /In. by left. }
+    rw /Γ /In. by left. }
   move=> [a b] A IH x y /incl_cons_inv [? HA].
-  rewrite /tau1 -/tau1 /tau2 -/tau2 ? app_assoc.
+  rw /tau1 -/tau1 /tau2 -/tau2 ? app_assoc.
   move /IH => /(_ HA) ?.
   apply: hsc_arr; last eassumption.
-  rewrite ? encode_word_app.
+  rw ? encode_word_app.
   pose ζ i := if i is 2 then encode_word x else if i is 3 then encode_word y else var i.
   have -> : encode_word x = substitute ζ (var 2) by done.
   have -> : encode_word y = substitute ζ (var 3) by done.
-  rewrite - ? transparent_append_word; try done.
-  rewrite - ? transparent_encode_pair; try done.
-  rewrite - substitute_arrP.
-  apply: hsc_var. rewrite /Γ.
-  right. right. rewrite in_map_iff. 
+  rw - ? transparent_append_word; try done.
+  rw - ? transparent_encode_pair; try done.
+  rw - substitute_arrP.
+  apply: hsc_var. rw /Γ.
+  right. right. rw in_map_iff. 
   exists (a, b). by constructor.
 Qed.
 
@@ -307,8 +307,8 @@ Proof.
   have Hζ: forall s, s = substitute ζ s.
   { elim; first done.
     by move=> ? + ? /= => <- <-. }
-  rewrite (Hζ (arr _ _)).
-  apply: hsc_var. rewrite /Γ. right. by left.
+  rw (Hζ (arr _ _)).
+  apply: hsc_var. rw /Γ. right. by left.
 Qed.
 
 End Argument.

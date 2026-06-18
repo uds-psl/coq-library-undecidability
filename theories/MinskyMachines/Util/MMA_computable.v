@@ -18,7 +18,7 @@ Proof.
   split.
   - move=> [n] [P] HP. exists n, P. split.
     + by move=> ?? /HP.
-    + move=> v [[c' v']]. rewrite (Vector.eta v') => H'P.
+    + move=> v [[c' v']]. rw (Vector.eta v') => H'P.
       exists (Vector.hd v'). apply /HP. do 2 eexists. eassumption.
   - move=> [n] [P] [H1P H2P]. exists n, P. split.
     + apply: H1P.
