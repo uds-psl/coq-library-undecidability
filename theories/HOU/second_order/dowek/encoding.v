@@ -172,19 +172,19 @@ Section ChurchEncoding.
 
   Lemma dec_enc s:
     { n | s = enc n} + forall n, s <> enc n.
-  Proof with try (right; intros [] ?; discriminate).
+  Proof.
     unfold enc. 
-    destruct s...  
-    destruct s...  
+    destruct s; try (right; intros [] ?; discriminate).
+    destruct s; try (right; intros [] ?; discriminate).
     enough ({ n | s = AppL (repeat (var 0) n) (var 1)} +
             forall n, s <> AppL (repeat (var 0) n) (var 1)).
     - destruct H; [left|right]; intuition idtac.
       destruct s0 as [n]; exists n; now subst.
       injection H; eapply n; eauto. 
-    - induction s...  
-      + destruct f as [| []]...  
+    - induction s; try (right; intros [] ?; discriminate).
+      + destruct f as [| []]; try (right; intros [] ?; discriminate).
         left; now (exists 0).
-      + destruct s1 as [[] | | |]...
+      + destruct s1 as [[] | | |]; try (right; intros [] ?; discriminate).
         destruct IHs2 as [[n IHs2]|IHs2].
         * left. exists (S n). now subst.
         * right. intros []; try discriminate.

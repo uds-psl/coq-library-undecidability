@@ -607,24 +607,24 @@ Section Enumerability.
 
   Lemma enum_term :
     list_enumerator__T L_term term.
-  Proof with eapply cum_ge'; eauto; lia.
+  Proof.
     intros t. induction t.
     - exists (S n); cbn. apply in_or_app. right. now left.
     - apply vec_forall_cml in IH as [m H]. 2: exact L_term_cml.
       exists (S (m + n + ar)); cbn. in_app 3. eapply in_concat. eexists. split.
       1: in_collect (n, ar). 1,2: apply L_nat_correct; lia.
       in_collect v. rewrite <- vecs_from_correct in H |-*. eapply Forall_ext.
-      2: apply H. cbn. intros...
+      2: apply H. cbn. intros. eapply cum_ge'; eauto; lia.
     - apply vec_forall_cml in IH as [m H]. 2: exact L_term_cml.
       destruct (el_T f) as [m' H']. exists (S (m + m')); cbn.
-      in_app 4. eapply in_concat. eexists. split. 1: in_collect f...
+      in_app 4. eapply in_concat. eexists. split. 1: in_collect f; eapply cum_ge'; eauto; lia.
       in_collect v. rewrite <- vecs_from_correct in H |-*. eapply Forall_ext.
-      2: apply H. cbn. intros...
+      2: apply H. cbn. intros. eapply cum_ge'; eauto; lia.
   Qed.
 
   Lemma enum_form :
     list_enumerator__T L_form form.
-  Proof with eapply cum_ge'; eauto; lia.
+  Proof. 
     intros phi. induction phi.
     - exists 0. now left.
     - rename t into v. destruct (@vec_forall_cml term L_term _ v) as [m H]; eauto.
@@ -633,22 +633,27 @@ Section Enumerability.
         * exists (S (m + n + ar)); cbn. in_app 2. eapply in_concat.
           eexists. split. 1: in_collect (n, ar). 1,2: apply L_nat_correct; lia.
           in_collect v. rewrite <- vecs_from_correct in H |-*. eapply Forall_ext.
-          2: apply H. cbn. intros...
+          2: apply H. cbn. intros. eapply cum_ge'; eauto; lia.
         * destruct (el_T P) as [m']. exists (S (m + m')); cbn. in_app 3.
-          eapply in_concat. eexists. split. 1: in_collect P...
+          eapply in_concat. eexists. split. 1: in_collect P; eapply cum_ge'; eauto; lia.
           in_collect v. rewrite <- vecs_from_correct in H |-*. eapply Forall_ext.
-          2: apply H. cbn. intros...
+          2: apply H. cbn. intros. eapply cum_ge'; eauto; lia.
     - destruct (el_T b) as [m], IHphi1 as [m1], IHphi2 as [m2]. 
       exists (1 + m + m1 + m2); cbn. in_app 4. apply in_concat. eexists. split.
-      in_collect b... in_collect (phi1, phi2)...
+      + in_collect b; eapply cum_ge'; eauto; lia.
+      + in_collect (phi1, phi2); eapply cum_ge'; eauto; lia.
     - destruct (el_T q) as [m], IHphi as [m']. exists (S (m + m')); cbn. in_app 5.
-      apply in_concat. eexists. split. in_collect q... in_collect phi...
+      apply in_concat. eexists. split. in_collect q; eapply cum_ge'; eauto; lia.
+      in_collect phi. eapply cum_ge'; eauto; lia.
     - destruct (el_T q) as [m], IHphi as [m']. exists (S (m + m' + n)); cbn.
       in_app 6. apply in_concat. eexists. split. in_collect (q, n). 
-      eapply cum_ge'; eauto; lia. apply L_nat_correct; lia. in_collect phi...
+      eapply cum_ge'; eauto; lia. apply L_nat_correct; lia. in_collect phi.
+      eapply cum_ge'; eauto; lia.
     - destruct (el_T q) as [m], IHphi as [m']. exists (S (m + m' + n)); cbn.
-      in_app 7. apply in_concat. eexists. split. in_collect (q, n). 
-      eapply cum_ge'; eauto; lia. apply L_nat_correct; lia. in_collect phi...
+      in_app 7. apply in_concat. eexists. split.
+      + in_collect (q, n). eapply cum_ge'; eauto; lia.
+        apply L_nat_correct; lia.
+      + in_collect phi; eapply cum_ge'; eauto; lia.
   Qed.
 
 End Enumerability.
