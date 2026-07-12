@@ -38,7 +38,7 @@ Section FalsitySubstitution.
     | bin b f1 f2 => (bin b (subst_falsity default f1) (subst_falsity default f2))
     | quant q f => (quant q (subst_falsity (default[↑]) f))
     end.
-  Notation "phi [ psi /⊥]" := (@subst_falsity _ _ psi phi) (at level 7, left associativity) : subst_scope.
+  Notation "phi [ psi /⊥]" := (@subst_falsity _ _ psi phi) (at level 1, left associativity) : subst_scope.
 
   Lemma to_falsity_id (phi : @form _ _ _ falsity_on) : to_falsity phi = phi.
   Proof.
@@ -78,7 +78,7 @@ Section FalsitySubstitution.
 
 End FalsitySubstitution.
 
-#[global] Notation "phi [ psi /⊥]" := (@subst_falsity _ _ _ _ _ psi phi) (at level 7, left associativity) : subst_scope.
+#[global] Notation "phi [ psi /⊥]" := (@subst_falsity _ _ _ _ _ psi phi) (at level 1, left associativity) : subst_scope.
 
 Section FunctionSubstitution.
 
@@ -93,7 +93,7 @@ Section FunctionSubstitution.
     | func f v => s f (Vector.map (func_subst_term s) v)
     end.
 
-  Notation "t `[ s '/func' ]" := (func_subst_term s t) (at level 7, left associativity) : subst_scope.
+  Notation "t `[ s '/func' ]" := (func_subst_term s t) (at level 1, left associativity) : subst_scope.
 
   (* Warning: this property is to weak to be useful and should be refined into something "more useful" *)
   Definition func_subst_respects {Σ_funcs2} (s : forall (f : Σ_funcs1), Vector.t (@term Σ_funcs2) (ar_syms f) -> @term Σ_funcs2)
@@ -124,7 +124,7 @@ Section FunctionSubstitution.
     | quant _ _ q phi => quant _ _ q (func_subst s phi)
     end.
 
-  Notation "phi [ s '/func' ]" := (func_subst s phi) (at level 7, left associativity) : subst_scope.
+  Notation "phi [ s '/func' ]" := (func_subst s phi) (at level 1, left associativity) : subst_scope.
 
   Lemma func_subst_id {ff:falsity_flag} phi : phi[ func /func] = phi.
   Proof.
@@ -155,8 +155,8 @@ Section FunctionSubstitution.
 
 End FunctionSubstitution.
 
-#[global] Notation "t `[ s '/func' ]" := (func_subst_term s t) (at level 7, left associativity) : subst_scope.
-#[global] Notation "phi [ s '/func' ]" := (func_subst s phi) (at level 7, left associativity) : subst_scope.
+#[global] Notation "t `[ s '/func' ]" := (func_subst_term s t) (at level 1, left associativity) : subst_scope.
+#[global] Notation "phi [ s '/func' ]" := (func_subst s phi) (at level 1, left associativity) : subst_scope.
 
 Section PredicateSubstitution.
 
@@ -174,7 +174,7 @@ Section PredicateSubstitution.
   + exact (quant q (atom_subst _ _ _ s phi)).
   Defined.
 
-  Notation "phi [ s '/atom' ]" := (atom_subst s phi) (at level 7, left associativity) : subst_scope.
+  Notation "phi [ s '/atom' ]" := (atom_subst s phi) (at level 1, left associativity) : subst_scope.
 
   Definition atom_subst_respects {Σ_preds2} {ff:falsity_flag} 
     (s : forall (P : Σ_preds1), Vector.t (@term Σ_funcs1) (ar_preds P) -> (@form Σ_funcs1 Σ_preds2 _ _))
@@ -202,7 +202,7 @@ Section PredicateSubstitution.
 
 End PredicateSubstitution.
 
-#[global] Notation "phi [ s '/atom' ]" := (atom_subst s phi) (at level 7, left associativity) : subst_scope.
+#[global] Notation "phi [ s '/atom' ]" := (atom_subst s phi) (at level 1, left associativity) : subst_scope.
 
 Section BottomToPred.
 

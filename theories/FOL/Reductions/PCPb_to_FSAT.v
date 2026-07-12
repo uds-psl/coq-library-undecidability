@@ -14,10 +14,13 @@ Local Unset Strict Implicit.
 
 (* ** Bounded boolean strings *)
 
-Local Notation "| s |" := (length s) (at level 100).
+(* DLW it is not possible to put this one at level 0 because
+   the | token while conflict with its use as a separator *)
+#[warning="-closed-notation-not-level-0"]
+Local Notation "| s |" := (length s) (at level 10).
 
 Definition bstring n :=
-  { s : string bool | | s | <= n}.
+  { s : string bool | |s| <= n}.
 
 Lemma string_nil (s : string bool) :
   |s| <= 0 <-> s = nil.
@@ -115,7 +118,7 @@ Section FIB.
     - cbn. eauto.
   Qed.
 
-  Notation obcast H := (Some (bcast H)).
+  Abbreviation obcast H := (Some (bcast H)).
 
   Definition ccons n b (s : obstring n) : obstring n :=
   match s with
@@ -558,19 +561,19 @@ End Conv.
 (* ** Axioms stated as a concrete first-order formula *)
 
 Section Reduction.
-Notation t_f b x := (func (f b) (Vector.cons _ x _ (Vector.nil _))).
+Abbreviation t_f b x := (func (f b) (Vector.cons _ x _ (Vector.nil _))).
 
-Notation t_e :=
+Abbreviation t_e :=
   (func e (Vector.nil _)).
 
-Notation t_dum :=
+Abbreviation t_dum :=
   (func dum (Vector.nil _)).
 
-Notation f_P x y := (atom P (Vector.cons _ x _ (Vector.cons _ y _ (Vector.nil _)))).
+Abbreviation f_P x y := (atom P (Vector.cons _ x _ (Vector.cons _ y _ (Vector.nil _)))).
 
-Notation f_less x y := (atom less (Vector.cons _ x _ (Vector.cons _ y _ (Vector.nil _)))).
+Abbreviation f_less x y := (atom less (Vector.cons _ x _ (Vector.cons _ y _ (Vector.nil _)))).
 
-Notation f_equiv x y := (atom equiv (Vector.cons _ x _ (Vector.cons _ y _ (Vector.nil _)))).
+Abbreviation f_equiv x y := (atom equiv (Vector.cons _ x _ (Vector.cons _ y _ (Vector.nil _)))).
 
   Notation "x ≡ y" := (f_equiv x y) (at level 20).
   Notation "x ≢ y" := (¬ (x ≡ y)) (at level 20).

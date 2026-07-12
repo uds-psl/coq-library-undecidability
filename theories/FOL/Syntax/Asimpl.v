@@ -134,7 +134,7 @@ Section Asimpl.
 End Asimpl.
 
 (* asimpl_pre pushed down substitutions and composes them *)
-#[global] Create HintDb asimpl_pre.
+#[global] Create Rewrite HintDb asimpl_pre.
 #[global] Hint Rewrite -> @asimpl_vector_nil : asimpl_pre.
 #[global] Hint Rewrite -> @asimpl_vector_cons : asimpl_pre.
 

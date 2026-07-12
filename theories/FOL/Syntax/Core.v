@@ -176,14 +176,13 @@ Arguments subst_form _ _ _ _, _ _ {_ _}, {_ _ _ _}.
 Declare Scope subst_scope.
 Open Scope subst_scope.
 
-Notation "$ x" := (var x) (at level 3, format "$ '/' x") : subst_scope.
-Notation "t `[ sigma ]" := (subst_term sigma t) (at level 7, left associativity, format "t '/' `[ sigma ]") : subst_scope.
-Notation "phi [ sigma ]" := (subst_form sigma phi) (at level 7, left associativity, format "phi '/' [ sigma ]") : subst_scope.
+Notation "$ x" := (var x) (at level 1, format "$ '/' x") : subst_scope.
+Notation "t `[ sigma ]" := (subst_term sigma t) (at level 1, left associativity, format "t '/' `[ sigma ]") : subst_scope.
+Notation "phi [ sigma ]" := (subst_form sigma phi) (at level 1, left associativity, format "phi '/' [ sigma ]") : subst_scope.
 Notation "s .: sigma" := (scons s sigma) (at level 70, right associativity) : subst_scope.
 Notation "f >> g" := (funcomp g f) (at level 50) : subst_scope.
-Notation "s '..'" := (scons s var) (at level 4, format "s ..") : subst_scope.
+Notation "s '..'" := (scons s var) (at level 1, format "s ..") : subst_scope.
 Notation "↑" := (S >> var) : subst_scope.
-
 
 
 (* Full syntax *)
@@ -208,13 +207,13 @@ Module FullSyntax.
   Delimit Scope full_syntax with Ffull.
 
   #[global] Open Scope full_syntax.
-  Notation "∀ Phi" := (@quant _ _ full_operators _ All Phi) (at level 50) : full_syntax.
-  Notation "∃ Phi" := (@quant _ _ full_operators _ Ex Phi) (at level 50) : full_syntax.
-  Notation "A ∧ B" := (@bin _ _ full_operators _ Conj A B) (at level 41) : full_syntax.
-  Notation "A ∨ B" := (@bin _ _ full_operators _ Disj A B) (at level 42) : full_syntax.
+  Notation "∀ Phi" := (@quant _ _ full_operators _ All Phi) (at level 40, Phi at level 50) : full_syntax.
+  Notation "∃ Phi" := (@quant _ _ full_operators _ Ex Phi) (at level 40, Phi at level 50) : full_syntax.
+  Notation "A ∧ B" := (@bin _ _ full_operators _ Conj A B) (at level 41, left associativity) : full_syntax.
+  Notation "A ∨ B" := (@bin _ _ full_operators _ Disj A B) (at level 42, left associativity) : full_syntax.
   Notation "A → B" := (@bin _ _ full_operators _ Impl A B) (at level 43, right associativity) : full_syntax.
   Notation "⊥" := (falsity) : full_syntax.
-  Notation "¬ A" := (A → ⊥) (at level 42) : full_syntax.
+  Notation "¬ A" := (A → ⊥) (at level 40, A at level 40) : full_syntax.
   Notation "A ↔ B" := ((A → B) ∧ (B → A)) (at level 43) : full_syntax.
 
   Fixpoint impl {Σ_funcs : funcs_signature} {Σ_preds : preds_signature} {ff : falsity_flag} (A : list form) phi :=
@@ -251,9 +250,9 @@ Module FragmentSyntax.
   Delimit Scope fragment_syntax with Ffrag.
 
   #[global] Open Scope fragment_syntax.
-  Notation "∀ Phi" := (@quant _ _ frag_operators _ All Phi) (at level 50) : fragment_syntax.
+  Notation "∀ Phi" := (@quant _ _ frag_operators _ All Phi) (at level 40, Phi at level 50) : fragment_syntax.
   Notation "phi → psi" := (@bin _ _ frag_operators _ Impl phi psi) (at level 43, right associativity) : fragment_syntax.
-  Notation "¬ phi" := (phi → falsity) (at level 42) : fragment_syntax.
+  Notation "¬ phi" := (phi → falsity) (at level 40, phi at level 40) : fragment_syntax.
   Notation "⊥" := (falsity) : fragment_syntax.
 
   Fixpoint impl {Σ_funcs : funcs_signature} {Σ_preds : preds_signature} {ff : falsity_flag} (A : list form) phi :=

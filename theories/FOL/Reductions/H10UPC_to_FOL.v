@@ -133,16 +133,16 @@ Section validity.
         * easy.
         * intros m Hm. destruct (Nat.eq_dec n m) as [Heq|Hneq].
           -- exists pl, pr. rewrite <- Heq.
-             assert (f' (S n) = sn) as ->. 1: unfold f'; assert (S n =? S n = true) as ->. 
+             assert (f' (S n) = sn) as ->. 1: unfold f'; assert ((S n =? S n) = true) as ->. 
              1:apply Nat.eqb_eq; lia. 1:easy.
-             assert (f' n = f n) as  ->. 1:unfold f'; assert (n =? S n = false) as ->. 
+             assert (f' n = f n) as  ->. 1:unfold f'; assert ((n =? S n) = false) as ->. 
              1:apply Nat.eqb_neq; lia. 1:easy.
              now repeat split.
           -- destruct (IHfs m) as [pl' [pr' Hplplr']]. 1:lia.
              exists pl', pr'.
-             assert (f' (S m) = f (S m)) as ->. 1: unfold f'; assert (S m =? S n = false) as ->.
+             assert (f' (S m) = f (S m)) as ->. 1: unfold f'; assert ((S m =? S n) = false) as ->.
              1:apply Nat.eqb_neq; lia. 1:easy.
-             assert (f' m = f m) as  ->. 1:unfold f'; assert (m =? S n = false) as ->.
+             assert (f' m = f m) as  ->. 1:unfold f'; assert ((m =? S n) = false) as ->.
              1:apply Nat.eqb_neq; lia. 1:easy.
              easy. 
     Qed. 
@@ -216,9 +216,9 @@ Section validity.
           destruct (Nat.ltb_ge x n) as [_ Hr2]. specialize (Hr2 ltac:(lia)). rewrite Hr2.
           assert (x-n=0) as Hxn0. 1:lia. rewrite Hxn0. cbn. now f_equal.
         * destruct (x <? n) as [|] eqn:Hxn.
-          -- apply (Nat.ltb_lt) in Hxn. assert (x <=? n = true) as Hxn2. 1: apply Nat.leb_le; lia.
+          -- apply (Nat.ltb_lt) in Hxn. assert ((x <=? n) = true) as Hxn2. 1: apply Nat.leb_le; lia.
              rewrite Hxn2. easy.
-          -- apply (Nat.ltb_ge) in Hxn. assert (x <=? n = Datatypes.false) as Hxn2. 1: apply Nat.leb_gt; lia.
+          -- apply (Nat.ltb_ge) in Hxn. assert ((x <=? n) = false) as Hxn2. 1: apply Nat.leb_gt; lia.
              rewrite Hxn2. assert (x-n = S(x-S n))  as Hxn3. 1:lia. rewrite Hxn3. cbn. easy.
       + easy.
     Qed.
@@ -234,10 +234,10 @@ Section validity.
     apply Hcons. intros f Hrepr. specialize (H (fun t => f (φ t))).
     pose ((fun v : nat => if v <? h10vars then (fun t : nat => f (φ t)) v else (zero .: cr2 .: cr1 .: rho) (v - h10vars))) as newenv.
     assert (newenv (S h10vars) = cr2) as Hne1.
-    1: {unfold newenv. assert (S h10vars <? h10vars = false) as ->. 1: apply Nat.leb_gt; now lia.
+    1: {unfold newenv. assert ((S h10vars <? h10vars) = false) as ->. 1: apply Nat.leb_gt; now lia.
         assert (S h10vars - h10vars = 1) as ->. 1:now lia. easy. }
     assert (newenv (S (S h10vars)) = cr1) as Hne2.
-    1: {unfold newenv. assert (S (S h10vars) <? h10vars = false) as ->. 1: apply Nat.leb_gt;lia.
+    1: {unfold newenv. assert ((S (S h10vars) <? h10vars) = false) as ->. 1: apply Nat.leb_gt;lia.
         assert (S (S h10vars) - h10vars = 2) as ->. 1:now lia. easy. }
     fold newenv in H.
     assert (forall c:h10upc, In c h10 -> newenv ⊨ translate_single c (S h10vars)) as Hmain.

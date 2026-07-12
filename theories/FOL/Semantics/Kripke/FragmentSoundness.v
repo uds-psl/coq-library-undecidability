@@ -119,6 +119,7 @@ Section DNE.
 
   Hypothesis preds_dec : forall P', (P' = P) + (P' <> P).
 
+  (* true[] -> false[P] *)
   Instance imodel : kmodel unit.
   Proof.
     unshelve esplit.
@@ -134,14 +135,14 @@ Section DNE.
   Defined.
 
   Lemma imodel_dne (v : vec term (ar_preds P)) :
-    ~ ksat true (fun _ => tt) (¬¬(atom P v) → (atom P v)).
+    ~ ksat true (fun _ => tt) (¬¬ atom P v → atom P v).
   Proof.
-    cbn. intros H. apply (H true); trivial.
-    intros [] _; trivial. intros H'. now apply (H' false).
+    cbn. intros H. apply (H true); trivial. clear H.
+    intros [] _; trivial; intros H'; now apply (H' false).
   Qed.
 
   Lemma iprv_dne (v : vec term (ar_preds P)) :
-    ~ [] ⊢I (¬¬(atom P v) → (atom P v)).
+    ~ [] ⊢I (¬¬ atom P v → atom P v).
   Proof.
     intros H % ksoundness. apply (@imodel_dne v). apply H. intros phi [].
   Qed.

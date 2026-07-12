@@ -56,7 +56,7 @@ Section Fr_validity.
 
     (* [DLW] This one is overridden by a new definition, may be change the notation slightly
              would be better? *)
-    #[local] Notation "rho ⊨ phi" := (sat rho (Fr phi)) (at level 20).
+    #[local] Notation "rho ⊨ phi" := (sat rho (Fr phi)) (at level 55).
 
     (* Now we need rewrite helpers which transform our syntactic sugar into useful statements in the model *)
     Lemma IB_sFalse rho : rho ⊨ (∀ ∀ Pr $0 $1) <-> H10UPC_SAT h10.
@@ -67,9 +67,9 @@ Section Fr_validity.
     Qed.
     Opaque sFalse.
 
-    Notation dFalse := (H10UPC_SAT h10).
-    Notation mDN P := ((P -> dFalse) -> dFalse).
-    Notation dom_rel a b := (mDN (dom_rel' a b)).
+    Abbreviation dFalse := (H10UPC_SAT h10).
+    Abbreviation mDN P := ((P -> dFalse) -> dFalse).
+    Abbreviation dom_rel a b := (mDN (dom_rel' a b)).
 
     Lemma IB_sNot rho f : rho ⊨ (f → sFalse) <-> ((rho ⊨ f) -> H10UPC_SAT h10).
     Proof.
@@ -79,7 +79,7 @@ Section Fr_validity.
     Qed.
 
     Definition rho_canon' n (rho : nat -> dom) := rho n = Num 0 /\ rho (S n) = Num 0 /\ rho (S (S n)) = Num 1.
-    Notation rho_canon rho := (rho_canon' 0 rho).
+    Abbreviation rho_canon rho := (rho_canon' 0 rho).
     Lemma IB_wFalse rho t : rho ⊨ wFalse t <-> dom_rel (rho t) (rho (S t)).
     Proof.
     split.
@@ -345,7 +345,7 @@ Section Fr_validity.
     Qed.
     (* We can now extract the constraints from our translate_constraints function*)
 
-    Lemma less_ge a b : a >= b -> a <? b = false.
+    Lemma less_ge a b : a >= b -> (a <? b) = false.
     Proof.
       intros H. rewrite Nat.ltb_nlt. lia. 
     Qed.

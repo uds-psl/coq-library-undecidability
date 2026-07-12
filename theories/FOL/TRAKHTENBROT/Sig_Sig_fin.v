@@ -283,10 +283,10 @@ Section discrete_to_finite.
               { _  : finite_t (rels Σ') &
               { _  : discrete (syms Σ') &
               { _  : discrete (rels Σ') &
-              { is : syms Σ' -> syms Σ  & 
-              { _  : forall s s', is s = is s' -> s = s' &
-              { _  : forall s, ar_syms _ (is s) = ar_syms _ s &
-              { _  : forall s, In (is s) (fol_syms A) & 
+              { hs : syms Σ' -> syms Σ  & 
+              { _  : forall s s', hs s = hs s' -> s = s' &
+              { _  : forall s, ar_syms _ (hs s) = ar_syms _ s &
+              { _  : forall s, In (hs s) (fol_syms A) & 
               { ir : rels Σ' -> rels Σ  & 
               { _  : forall r r', ir r = ir r' -> r = r' &
               { _  : forall r, ar_rels _ (ir r) = ar_rels _ r &
@@ -336,13 +336,13 @@ Section discr_finite_to_pos.
   Let H5 := finite_t_discrete_bij_t_pos H2 H1.
 
   Let n := projT1 H5.
-  Let is : syms Σ -> pos n := projT1 (projT2 H5).
+  Let hs : syms Σ -> pos n := projT1 (projT2 H5).
   Let js : pos n -> syms Σ := proj1_sig (projT2 (projT2 H5)).
 
-  Let Hijs p : is (js p) = p.
+  Let Hijs p : hs (js p) = p.
   Proof. apply (proj2_sig (projT2 (projT2 H5))). Qed.
 
-  Let Hjis s : js (is s) = s.
+  Let Hjhs s : js (hs s) = s.
   Proof. apply (proj2_sig (projT2 (projT2 H5))). Qed.
 
   Let H6 := finite_t_discrete_bij_t_pos H4 H3.
@@ -363,9 +363,9 @@ Section discr_finite_to_pos.
   Proof.
     refine (match t with
       | in_var i   => in_var i
-      | in_fot s v => @in_fot _ (ar_syms Σ') (is s) (vec_map convert_t (cast v _))
+      | in_fot s v => @in_fot _ (ar_syms Σ') (hs s) (vec_map convert_t (cast v _))
     end).
-    simpl; rewrite Hjis; trivial.
+    simpl; rewrite Hjhs; trivial.
   Defined.
 
   Local Fixpoint convert (A : fol_form Σ) : fol_form Σ'.
@@ -393,7 +393,7 @@ Section discr_finite_to_pos.
     Local Fact convert_t_sound t φ : fo_term_sem M φ t = fo_term_sem M' φ (convert_t t).
     Proof.
       induction t as [ i | s v IHv ]; simpl; auto.
-      rewrite (Hjis s); simpl; f_equal.
+      rewrite (Hjhs s); simpl; f_equal.
       apply vec_pos_ext; intro; rew vec. 
       rewrite !vec_pos_map; auto.
     Qed.
@@ -434,8 +434,8 @@ Section discr_finite_to_pos.
     Proof.
       split.
       + intros s v.
-        apply (fom_syms M' (is s)); simpl.
-        rewrite Hjis; trivial.
+        apply (fom_syms M' (hs s)); simpl.
+        rewrite Hjhs; trivial.
       + intros r v.
         apply (fom_rels M' (ir r)); simpl.
         rewrite Hjir; trivial.
@@ -445,7 +445,7 @@ Section discr_finite_to_pos.
     Proof.
       induction t as [ i | s v IHv ]; simpl; auto.
       f_equal; unfold eq_rect_r.
-      generalize (Hjis s); intros ->; simpl.
+      generalize (Hjhs s); intros ->; simpl.
       apply vec_pos_ext; intro; rew vec.
       rewrite !vec_pos_map; auto.
     Qed.
@@ -481,13 +481,13 @@ Section discr_finite_to_pos.
   Local Definition Σ_finite_to_pos (A : fol_form Σ) : 
               { n : nat & 
               { m : nat &
-              { is : pos n -> syms Σ &
+              { hs : pos n -> syms Σ &
               { ir : pos m -> rels Σ &
-              { _  : forall s s', is s = is s' -> s = s' &
-              { _  : forall s, ar_syms _ (is s) = ar_syms (Σpos Σ is ir) s &
+              { _  : forall s s', hs s = hs s' -> s = s' &
+              { _  : forall s, ar_syms _ (hs s) = ar_syms (Σpos Σ hs ir) s &
               { _  : forall r r', ir r = ir r' -> r = r' &
-              { _  : forall r, ar_rels _ (ir r) = ar_rels (Σpos Σ is ir) r &
-              { B  : fol_form (Σpos Σ is ir)            
+              { _  : forall r, ar_rels _ (ir r) = ar_rels (Σpos Σ hs ir) r &
+              { B  : fol_form (Σpos Σ hs ir)            
               | forall X, fo_form_fin_dec_SAT_in A X 
                       <-> fo_form_fin_dec_SAT_in B X } } } } } } } } }.
   Proof using All.
@@ -514,15 +514,15 @@ Section combine_the_two.
   Local Definition Σ_discrete_to_pos' (A : fol_form Σ) : 
               { n : nat & 
               { m : nat &
-              { is : pos n -> syms Σ &
+              { hs : pos n -> syms Σ &
               { ir : pos m -> rels Σ &
-              { _  : forall s s', is s = is s' -> s = s' &
-              { _  : forall s, ar_syms _ (is s) = ar_syms (Σpos Σ is ir) s &
-              { _  : forall s, In (is s) (fol_syms A) & 
+              { _  : forall s s', hs s = hs s' -> s = s' &
+              { _  : forall s, ar_syms _ (hs s) = ar_syms (Σpos Σ hs ir) s &
+              { _  : forall s, In (hs s) (fol_syms A) & 
               { _  : forall r r', ir r = ir r' -> r = r' &
-              { _  : forall r, ar_rels _ (ir r) = ar_rels (Σpos Σ is ir) r &
+              { _  : forall r, ar_rels _ (ir r) = ar_rels (Σpos Σ hs ir) r &
               { _  : forall r, In (ir r) (fol_rels A) & 
-              { B  : fol_form (Σpos Σ is ir)            
+              { B  : fol_form (Σpos Σ hs ir)            
               | fo_form_fin_dec_SAT A 
             <-> fo_form_fin_dec_SAT B } } } } } } } } } } }.
   Proof using HΣ1 HΣ2.

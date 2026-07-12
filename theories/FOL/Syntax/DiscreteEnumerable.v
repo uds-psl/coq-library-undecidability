@@ -23,13 +23,14 @@ Ltac resolve_existT := try
                                                       [subst | try (eauto || now intros; decide equality)]
   end.
 
+Local Ltac finish := subst; try (now left + (right; (first [intros ? % eq_sigT_iff_eq_dep | intros[=]]); resolve_existT; congruence)).
 Lemma dec_vec_in X n (v : vec X n) :
   (forall x, InT x v -> forall y, dec (x = y)) -> forall v', dec (v = v').
-Proof with subst; try (now left + (right; intros[=])).
+Proof.
   intros Hv. induction v; intros v'.
-  - pattern v'. apply Vector.case0...
+  - pattern v'. apply Vector.case0; finish.
   - apply (Vector.caseS' v'). clear v'. intros h0 v'.
-    destruct (Hv h (inl eq_refl) h0)... edestruct IHv.
+    destruct (Hv h (inl eq_refl) h0); finish. edestruct IHv.
     + intros x H. apply Hv. now right.
     + left. f_equal. apply e.
     + right. intros H. inversion H. resolve_existT. tauto.
@@ -53,11 +54,10 @@ Section EqDec.
   Hypothesis eq_dec_quantop : eq_dec quantop.
 
   Global Instance dec_term : eq_dec term.
-  Proof with subst; try (now left + (right; intros[=]; resolve_existT; congruence))
-    using eq_dec_Funcs.
-    intros t. induction t as [ | ]; intros [|? v']...
-    - decide (x = n)... 
-    - decide (F = f)... destruct (dec_vec_in X v')...
+  Proof using eq_dec_Funcs.
+    intros t. induction t as [ | ]; intros [|? v']; finish.
+    - decide (x = n); finish.
+    - decide (F = f); finish. destruct (dec_vec_in X v'); finish.
   Qed.
 
   Instance dec_falsity : eq_dec falsity_flag.
@@ -74,18 +74,17 @@ Section EqDec.
   Qed.
 
   Lemma dec_form_dep {b1 b2} phi1 phi2 : dec (eq_dep falsity_flag (@form _ _ _) b1 phi1 b2 phi2).
-  Proof with subst; try (now left + (right; intros ? % eq_sigT_iff_eq_dep; resolve_existT; congruence))
-    using eq_dec_Funcs eq_dec_Preds eq_dec_quantop eq_dec_binop.
+  Proof using eq_dec_Funcs eq_dec_Preds eq_dec_quantop eq_dec_binop.
     unfold dec. revert phi2; induction phi1; intros; try destruct phi2.
     all: try now right; inversion 1. now left.
-    - decide (b = b0)... decide (P = P0)... decide (t = t0)... right.
+    - decide (b = b0); finish. decide (P = P0); finish. decide (t = t0); finish. right.
       intros [=] % eq_dep_falsity. resolve_existT. tauto.
-    - decide (b = b1)... decide (b0 = b2)... destruct (IHphi1_1 phi2_1).
+    - decide (b = b1); finish. decide (b0 = b2); finish. destruct (IHphi1_1 phi2_1).
       + apply eq_dep_falsity in e as ->. destruct (IHphi1_2 phi2_2).
         * apply eq_dep_falsity in e as ->. now left.
         * right. rewrite eq_dep_falsity in *. intros [=]. now resolve_existT.
       + right. rewrite eq_dep_falsity in *. intros [=]. now repeat resolve_existT.
-    - decide (b = b0)... decide (q = q0)... destruct (IHphi1 phi2).
+    - decide (b = b0); finish. decide (q = q0); finish. destruct (IHphi1 phi2).
       + apply eq_dep_falsity in e as ->. now left.
       + right. rewrite eq_dep_falsity in *. intros [=]. now resolve_existT.
   Qed.
@@ -200,17 +199,18 @@ Section Enumerability.
       apply (cum_ge' (n:=m)). all: eauto. lia.
   Qed.
 
+  Local Ltac finish ::= try (eapply cum_ge'; eauto; lia).
   Lemma enum_term :
     list_enumerator__T L_term term.
-  Proof with try (eapply cum_ge'; eauto; lia).
+  Proof.
     intros t. induction t using term_rect.
     - exists (S x); cbn. eauto.
     - apply vec_forall_cml in H as [m H]. 2: exact L_term_cml. destruct (el_T F) as [m' H'].
       exists (S (m + m')); cbn. in_app 3. eapply in_concat. eexists. split.
       1: apply in_map_iff; exists F; split. 1: reflexivity.
-      1: idtac...
+      1: finish.
       rewrite <- vecs_from_correct in H.
-      eapply in_map_iff. exists v; repeat split. rewrite <- vecs_from_correct. intros x H''. specialize (H x H'')...
+      eapply in_map_iff. exists v; repeat split. rewrite <- vecs_from_correct. intros x H''. specialize (H x H''); finish.
   Qed.
 
   Lemma enumT_term :
@@ -236,17 +236,19 @@ Section Enumerability.
 
   Lemma enum_form {ff : falsity_flag} :
     list_enumerator__T L_form form.
-  Proof with (try eapply cum_ge'; eauto; lia).
+  Proof.
     intros phi. induction phi.
     - exists 1. cbn; eauto.
     - rename t into v. destruct (el_T P) as [m Hm], (@vec_forall_cml term L_term _ v) as [m' Hm']; eauto using enum_term.
       exists (S (m + m')); cbn. in_app 2. eapply in_concat. eexists. split.
-      1: eapply in_map_iff; exists P. 1: repeat split. 1: idtac...
-      eapply in_map. rewrite <- vecs_from_correct in *. intuition...
+      1: eapply in_map_iff; exists P. 1: repeat split. 1: finish.
+      eapply in_map. rewrite <- vecs_from_correct in *. intuition; finish.
     - destruct (el_T b0) as [m Hm], IHphi1 as [m1], IHphi2 as [m2]. exists (1 + m + m1 + m2). cbn.
-      in_app 3. apply in_concat. eexists. split. apply in_map... in_collect (pair phi1 phi2)...
+      in_app 3. apply in_concat. eexists. split. apply in_map; finish.
+      in_collect (pair phi1 phi2); finish.
     - destruct (el_T q) as [m Hm], IHphi as [m' Hm']. exists (1 + m + m'). cbn -[L_T].
-      in_app 4. apply in_concat. eexists. split. apply in_map... in_collect phi...
+      in_app 4. apply in_concat. eexists. split. apply in_map; finish.
+      in_collect phi; finish.
   Qed.
 
   Lemma enumT_form {ff : falsity_flag} :

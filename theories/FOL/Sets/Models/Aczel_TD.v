@@ -272,12 +272,12 @@ Section QM.
 
   Lemma sepAx P X Y :
     IN Y (Ssep P X) <-> IN Y X /\ P Y.
-  Proof with try apply empred_Aeq.
+  Proof.
     split; intros H.
-    - apply IN_Ain_p1_NS, AsepAx in H as [H1 H2]...
+    - apply IN_Ain_p1_NS, AsepAx in H as [H1 H2]; try apply empred_Aeq.
       split; auto. unfold empred in H2.
       now rewrite NS_p1_eq in H2.
-    - destruct H as [H1 H2]. apply Ain_IN_p1_NS, AsepAx...
+    - destruct H as [H1 H2]. apply Ain_IN_p1_NS, AsepAx; try apply empred_Aeq.
       split; trivial. unfold empred. now rewrite NS_p1_eq.
   Qed.
 
@@ -292,12 +292,12 @@ Section QM.
 
   Lemma replAx F X Y :
     IN Y (Srepl F X) <-> exists Z, IN Z X /\ Y = F Z.
-  Proof with try apply emfun_Aeq.
+  Proof.
     split; intros H.
-    - apply IN_Ain_p1_NS, AreplAx in H as [z[Z1 Z2]]...
+    - apply IN_Ain_p1_NS, AreplAx in H as [z[Z1 Z2]]; try apply emfun_Aeq.
       exists (NS z). split; auto. now apply Aeq_p1_eq.
     - destruct H as [Z[Z1 Z2]].
-      apply Ain_IN_p1_NS, AreplAx...
+      apply Ain_IN_p1_NS, AreplAx; try apply emfun_Aeq.
       exists (proj1_sig Z). split; auto.
       rewrite Z2. unfold emfun.
       now rewrite NS_p1_eq.

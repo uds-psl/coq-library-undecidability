@@ -199,7 +199,7 @@ Abbreviation fol_term := (fun Σ => fo_term (ar_syms Σ)).
 Arguments in_var { _ _ }.
 Arguments in_fot { _ _ }.
 
-Create HintDb fo_term_db.
+Create Rewrite HintDb fo_term_db.
 Tactic Notation "rew" "fot" := autorewrite with fo_term_db.
 
 #[export] Hint Rewrite fo_term_vars_fix_0   fo_term_vars_fix_1 

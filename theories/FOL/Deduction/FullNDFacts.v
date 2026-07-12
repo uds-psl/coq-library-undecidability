@@ -376,38 +376,39 @@ Section Enumerability.
 
   Opaque in_dec.
 
+  Local Ltac finish := eapply cum_ge'; eauto; lia.
   Lemma enum_prv {p : peirce} {b : falsity_flag} A :
     list_enumerator (L_ded A) (prv A).
-  Proof with try (eapply cum_ge'; eauto; lia).
+  Proof.
     split.
     - rename x into phi. induction 1; try congruence; subst.
       + destruct IHprv as [m1], (el_T phi) as [m2]. exists (1 + m1 + m2). cbn. in_app 2.
-        eapply in_concat. eexists. split. eapply in_map_iff. 1:eexists; repeat split. 2:in_collect psi...
-        idtac...
+        eapply in_concat. eexists. split. eapply in_map_iff. 1:eexists; repeat split. 2:in_collect psi.
+        all: finish.
       + destruct IHprv1 as [m1], IHprv2 as [m2], (el_T psi) as [m3]; eauto.
         exists (1 + m1 + m2 + m3).
-        cbn. in_app 3. in_collect (phi, psi)...
-      + destruct IHprv as [m]. exists (1 + m). cbn. in_app 4. in_collect phi...
+        cbn. in_app 3. in_collect (phi, psi); finish.
+      + destruct IHprv as [m]. exists (1 + m). cbn. in_app 4. in_collect phi; finish.
       + destruct IHprv as [m1], (el_T t) as [m2], (el_T phi) as [m3]. exists (1 + m1 + m2 + m3).
-        cbn. in_app 5. in_collect (phi, t)...
+        cbn. in_app 5. in_collect (phi, t); finish.
       + destruct IHprv as [m1], (el_T t) as [m2], (el_T phi) as [m3]. exists (1 + m1 + m2 + m3).
-        cbn. in_app 6. in_collect (phi, t)...
+        cbn. in_app 6. in_collect (phi, t); finish.
       + destruct IHprv1 as [m1], IHprv2 as [m2], (el_T phi) as [m4], (el_T psi) as [m5].
-        exists (1 + m1 + m2 + m4 + m5). cbn. in_app 7. cbn. in_collect (phi, psi)...
-      + destruct IHprv as [m1], (el_T phi) as [m2]. exists (1 + m1 + m2). cbn. in_app 8. in_collect phi...
+        exists (1 + m1 + m2 + m4 + m5). cbn. in_app 7. cbn. in_collect (phi, psi); finish.
+      + destruct IHprv as [m1], (el_T phi) as [m2]. exists (1 + m1 + m2). cbn. in_app 8. in_collect phi; finish.
       + now exists 0.
-      + destruct IHprv1 as [m1], IHprv2 as [m2]. exists (1 + m1 + m2). cbn. in_app 10. in_collect (phi, psi)...
+      + destruct IHprv1 as [m1], IHprv2 as [m2]. exists (1 + m1 + m2). cbn. in_app 10. in_collect (phi, psi); finish.
       + destruct IHprv as [m1], (el_T phi) as [m2], (el_T psi) as [m3].
-        exists (1 + m1 + m2 + m3). cbn. in_app 11. in_collect (phi, psi)...
+        exists (1 + m1 + m2 + m3). cbn. in_app 11. in_collect (phi, psi); finish.
       + destruct IHprv as [m1], (el_T phi) as [m2], (el_T psi) as [m3].
-        exists (1 + m1 + m2 + m3). cbn. in_app 12. in_collect (phi, psi)...
+        exists (1 + m1 + m2 + m3). cbn. in_app 12. in_collect (phi, psi); finish.
       + destruct IHprv as [m1], (el_T phi) as [m2], (el_T psi) as [m3].
-        exists (1 + m1 + m2 + m3). cbn. in_app 13. in_collect (phi, psi)...
+        exists (1 + m1 + m2 + m3). cbn. in_app 13. in_collect (phi, psi); finish.
       + destruct IHprv as [m1], (el_T phi) as [m2], (el_T psi) as [m3].
-        exists (1 + m1 + m2 + m3). cbn. in_app 14. in_collect (phi, psi)...
+        exists (1 + m1 + m2 + m3). cbn. in_app 14. in_collect (phi, psi); finish.
       + destruct IHprv1 as [m1], IHprv2 as [m2], IHprv3 as [m3], (el_T phi) as [m4], (el_T psi) as [m5], (el_T theta) as [m6].
-        exists (1 + m1 + m2 + m3 + m4 + m5 + m6). cbn. in_app 15. cbn. in_collect (phi, (psi, theta))...
-      + destruct (el_T phi) as [m1], (el_T psi) as [m2]. exists (1 + m1 + m2). cbn. in_app 9. in_collect (phi, psi)...
+        exists (1 + m1 + m2 + m3 + m4 + m5 + m6). cbn. in_app 15. cbn. in_collect (phi, (psi, theta)); finish.
+      + destruct (el_T phi) as [m1], (el_T psi) as [m2]. exists (1 + m1 + m2). cbn. in_app 9. in_collect (phi, psi); finish.
     - intros [m]; induction m in A, x, H |-*; cbn in *.
       + now apply Ctx.
       + invert_list_in.
@@ -452,12 +453,12 @@ Section Enumerability.
 
   Lemma enum_containsL `{falsity_flag} T L :
     cumulative L -> list_enumerator L T -> list_enumerator (L_con L) (fun A => containsL A T).
-  Proof with try (eapply cum_ge'; eauto; lia).
+  Proof.
     intros HL He. split.
     - induction x as [| phi A]; intros HT.
       + exists 0. firstorder.
       + destruct IHA as [m1], (enum_el phi He) as [m2]. 1,2,3: firstorder.
-        exists (1 + m1 + m2). cbn. in_app 2. in_collect (phi, A)...
+        exists (1 + m1 + m2). cbn. in_app 2. in_collect (phi, A); finish.
     - intros [m]. induction m in x, H0 |-*; cbn in *.
       + destruct H0 as [<- | []]. firstorder.
       + invert_list_in. 1: now eapply IHm. apply IHm in H1. apply (enum_p He) in H0. unfold containsL in *. firstorder congruence.
@@ -471,12 +472,12 @@ Section Enumerability.
 
   Lemma enum_tprv {p : peirce} {b : falsity_flag} T L :
     list_enumerator L T -> list_enumerator (L_tded (cumul L)) (tprv T).
-  Proof with try (eapply cum_ge'; eauto; lia).
+  Proof.
     intros He.
     assert (HL : list_enumerator (cumul L) T) by now apply list_enumerator_to_cumul.
     split.
     - intros (A & [m1] % (enum_el A (@enum_containsL _ _ (cumul L) (to_cumul_cumulative L) HL)) & [m2] % (enum_el x (enum_prv A))).
-      exists (1 + m1 + m2). cbn. in_app 2. eapply in_concat. eexists. split. 1: eapply in_map_iff; eexists; repeat split. 2: idtac... idtac...
+      exists (1 + m1 + m2). cbn. in_app 2. eapply in_concat. eexists. split. 1: eapply in_map_iff; eexists; repeat split. 2: finish. finish.
     - intros [m]. induction m in x, H |-*; cbn in *. 1: contradiction. invert_list_in. 1: now apply IHm. exists x1. split.
       + eapply (enum_p (enum_containsL (to_cumul_cumulative L) HL)); eauto.
       + eapply (enum_p (enum_prv x1)); eassumption.

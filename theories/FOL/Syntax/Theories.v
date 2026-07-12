@@ -39,7 +39,7 @@ Section Theory.
   Qed.
 
   Definition extend T (phi : form) := fun psi => T psi \/ psi = phi.
-  Infix "⋄" := extend (at level 20).
+  Infix "⋄" := extend (at level 52).
 
   Definition closed_T (T : theory) := forall phi, contains phi T -> bounded 0 phi.
   Lemma closed_T_extend T phi :
@@ -138,7 +138,7 @@ End TheoryMap.
 Infix "⊏" := contains_L (at level 20) : theory.
 Infix "⊑" := subset_T (at level 20) : theory.
 Infix "∈" := contains (at level 70) : theory.
-Infix "⋄" := extend (at level 20) : theory.
+Infix "⋄" := extend (at level 52) : theory.
 
 #[global] Hint Resolve contains_nil contains_cons contains_cons2 contains_app : contains_theory.
 #[global] Hint Resolve contains_extend1 contains_extend2 contains_extend3 : contains_theory.

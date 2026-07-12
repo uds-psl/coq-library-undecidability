@@ -40,11 +40,11 @@ End ND_def.
 Local Hint Constructors prv : core.
 
 Arguments prv {_ _ _ _} _ _.
-Notation "A ⊢ phi" := (prv A phi) (at level 30).
-Notation "A ⊢C phi" := (@prv _ _ _ class A phi) (at level 30).
-Notation "A ⊢I phi" := (@prv _ _ _ intu A phi) (at level 30).
-Notation "A ⊢M phi" := (@prv _ _ falsity_off intu A phi) (at level 30).
+Notation "A ⊢ phi" := (prv A phi) (at level 55).
+Notation "A ⊢C phi" := (@prv _ _ _ class A phi) (at level 55).
+Notation "A ⊢I phi" := (@prv _ _ _ intu A phi) (at level 55).
+Notation "A ⊢M phi" := (@prv _ _ falsity_off intu A phi) (at level 55).
 Notation "T ⊢T phi" := (tprv T phi) (at level 55).
 Notation "T ⊢TI phi" := (@tprv _ _ _ intu T phi) (at level 55).
 Notation "T ⊢TC phi" := (@tprv _ _ _ class T phi) (at level 55).
-Notation "T ⊢TM phi" := (@tprv _ _ falsity_off intu T phi) (at level 30).
+Notation "T ⊢TM phi" := (@tprv _ _ falsity_off intu T phi) (at level 55).

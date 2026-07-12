@@ -56,7 +56,7 @@ Section Tarski.
 
   End Semantics.
 
-  Notation "rho ⊨ phi" := (sat rho phi) (at level 20).
+  Notation "rho ⊨ phi" := (sat rho phi) (at level 55).
 
 End Tarski.
 
@@ -65,9 +65,9 @@ Arguments interp {_ _} _, _ _ _.
 
 Declare Scope full_notations.
 
-Notation "p ⊨ phi" := (sat _ p phi) (at level 20) : full_notations.
-Notation "I ⊨= phi" := (forall p, sat I p phi) (at level 20) : full_notations.
-Notation "p ⊫ A" := (forall psi, psi el A -> sat _ p psi) (at level 20) : full_notations.
+Notation "p ⊨ phi" := (sat _ p phi) (at level 55) : full_notations.
+Notation "I ⊨= phi" := (forall p, sat I p phi) (at level 55) : full_notations.
+Notation "p ⊫ A" := (forall psi, psi el A -> sat _ p psi) (at level 55) : full_notations.
 
 Open Scope full_notations.
 
