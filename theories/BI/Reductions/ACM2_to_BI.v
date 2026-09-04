@@ -24,27 +24,29 @@ Import BI_notations.
 
 Section embed_reduction.
 
-  Let φ (p : nat + bool) :=
+  Let φ (p : nat + unit + bool) :=
     match p with
-    | inl n => 2+n
-    | inr true => 0
-    | inr false => 1
+    | inl (inl n) => 3+n
+    | inl (inr _) => 0
+    | inr true => 1
+    | inr false => 2
     end.
 
   Let ψ p :=
     match p with
-    | 0 => inr true
-    | 1 => inr false
-    | S (S n) => inl n
+    | 0 => inl (inr tt)
+    | 1 => inr true
+    | 2 => inr false
+    | S (S (S n)) => inl (inl n)
     end.
 
   Local Fact Hembed : ∀p, ψ (φ p) = p.
-  Proof. now intros [ | []]. Qed.
+  Proof. now intros [ [| []] | []]. Qed.
 
   Hint Resolve Hembed : core.
 
   Local Theorem embed_reduction_LBI µ cut :
-    @BI_SEQ_PROVABLE µ (nat + bool) cut ⪯ @BI_SEQ_PROVABLE µ nat cut.
+    @BI_SEQ_PROVABLE µ (nat + unit + bool) cut ⪯ @BI_SEQ_PROVABLE µ nat cut.
   Proof.
     apply reduces_dependent; exists.
     intros A.
@@ -53,7 +55,7 @@ Section embed_reduction.
   Qed.
 
   Local Theorem embed_reduction_HBI :
-    @BI_HILBERT_PROVABLE (nat + bool) ⪯ @BI_HILBERT_PROVABLE nat.
+    @BI_HILBERT_PROVABLE (nat + unit + bool) ⪯ @BI_HILBERT_PROVABLE nat.
   Proof.
     apply reduces_dependent; exists.
     intros A.
@@ -69,16 +71,15 @@ Section LBI_Fragment.
             (Hµ1 : µ (BI_impl BI_mult) = true)
             (Hµ2 : µ (BI_impl BI_addi) = true)
             (Hµ3 : µ (BI_conj BI_addi) = true)
-            (Hµ4 : µ (BI_unit BI_mult) = true)
             (cut : BI_cut).
 
   Local Fact Hµ c : BI_fragment_impl_conj_unit c = true → µ c = true.
-  Proof using Hµ1 Hµ2 Hµ3 Hµ4. 
+  Proof using Hµ1 Hµ2 Hµ3. 
     destruct c as [ k | k | k | | ]; try destruct k; simpl; now auto.
   Qed.
 
-  Local Theorem relative_reduction_LBI loc : @ACM2_ACCEPT loc ⪯ @BI_SEQ_PROVABLE µ (loc + bool) cut.
-  Proof using Hµ1 Hµ2 Hµ3 Hµ4.
+  Local Theorem relative_reduction_LBI loc : @ACM2_ACCEPT loc ⪯ @BI_SEQ_PROVABLE µ (loc + unit + bool) cut.
+  Proof using Hµ1 Hµ2 Hµ3.
     apply reduces_dependent; exists.
     intros ((Σ,p),(x,y)).
     exists (acm2_to_BI_form Σ x y p µ Hµ); split; intros H.
@@ -92,7 +93,7 @@ Section LBI_Fragment.
   Hint Resolve reduces_transitive embed_reduction_LBI relative_reduction_LBI : core.
 
   Theorem reduction_LBI : @ACM2_ACCEPT nat ⪯ @BI_SEQ_PROVABLE µ nat cut.
-  Proof using Hµ1 Hµ2 Hµ3 Hµ4. eauto. Qed.
+  Proof using Hµ1 Hµ2 Hµ3. eauto. Qed.
 
 End LBI_Fragment.
 
@@ -100,7 +101,7 @@ Check reduction_LBI.
 
 Section HBI.
 
-  Local Theorem relative_reduction_HBI loc : @ACM2_ACCEPT loc ⪯ @BI_HILBERT_PROVABLE (loc + bool).
+  Local Theorem relative_reduction_HBI loc : @ACM2_ACCEPT loc ⪯ @BI_HILBERT_PROVABLE (loc + unit + bool).
   Proof.
     apply reduces_dependent; exists.
     intros ((Σ,p),(x,y)).

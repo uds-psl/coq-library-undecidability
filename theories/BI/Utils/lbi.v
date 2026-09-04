@@ -96,13 +96,19 @@ Section LBI.
 
   Notation "A '-⊙[' k , e ']' B" := (@BI_form_impl _ _ k e A B) (at level 62, right associativity, format "A -⊙[ k , e ] B").
 
-  Implicit Types (A B : BI_form µ prop).
+  Implicit Types (A B : BI_form µ prop) (Γ : BI_bunch µ prop).
 
   Notation "Σ '⊦' A" := (@LBI_provable µ prop cut Σ A) (at level 70, format "Σ  ⊦  A").
 
   Arguments BI_ctx_hole { _ _ }.
 
   Hint Constructors LBI_provable BI_bunch_equiv : core.
+  
+  Fact BI_bequiv_congr_r k Γ Δ Θ : Δ ≡ Θ → Δ ⊛[k] Γ ≡ Θ ⊛[k] Γ.
+  Proof.
+    intros H.
+    do 2 apply BI_bequiv_trans with (1 := BI_bequiv_comm _ _ _), BI_bequiv_sym; auto.
+  Qed.
 
   Fact LBI_impl_left k A B (e : µ (BI_impl k) = true) :
 
@@ -169,12 +175,32 @@ Section LBI.
 
   Proof. intros; rule LBI_cntr at []. Qed.
 
-  Fact LBI_impl_root Γ  k A B C (e : µ (BI_impl k) = true) :
+  Fact LBI_impl_root Γ k A B C (e : µ (BI_impl k) = true) :
 
          Γ ⊦ A     →     ⟨B⟩ ⊦ C
     →  (*-----------------------*)
          Γ ⊛[k] ⟨A-⊙[k,e]B⟩ ⊦ C.
          
   Proof. intros; rule LBI_impl_l at []. Qed.
+  
+  Fact LBI_middle_move Γ Δ Θ k A :
+       Γ ⊛[k] Δ ⊛[k] Θ ⊦ A
+    -> Γ ⊛[k] Θ ⊛[k] Δ ⊦ A.
+  Proof.
+    apply LBI_equiv.
+    do 2 apply BI_bequiv_trans with (1 := BI_bequiv_assoc _ _ _ _), BI_bequiv_sym.
+    apply BI_bequiv_congr, BI_bequiv_comm.
+  Qed.
+  
+  Fact LBI_impl_middle Γ Δ k A B C (e : µ (BI_impl k) = true) :
+
+         Γ ⊛[k] Δ ⊦ A     →     ⟨B⟩ ⊦ C
+    →  (*------------------------------*)
+         Γ ⊛[k] ⟨A-⊙[k,e]B⟩ ⊛[k] Δ ⊦ C.
+         
+  Proof. 
+     intros.
+     now apply LBI_middle_move, LBI_impl_root.
+  Qed.
 
 End LBI.

@@ -25,14 +25,13 @@ From Undecidability.BI
     using the elimination of the cut rule. *)
 
 (* Consider any fragment of LBI that contains
-   the connectives (-∗,⇒,⩑,1) and there respective
+   the connectives (-∗,⇒,⩑) and there respective
    left/right sequent rules, and possibly (or not)
    with the cut rule, then provability is undecidable *)
 Theorem LBI_undec (µ : BI_conn → bool) cut :
     µ (BI_impl BI_mult) = true   (* -∗ *)
   → µ (BI_impl BI_addi) = true   (* ⇒  *)
   → µ (BI_conj BI_addi) = true   (* ⩑  *)
-  → µ (BI_unit BI_mult) = true   (* 1  *)
   → undecidable (@BI_SEQ_PROVABLE µ nat cut).
 Proof.
   intros.
